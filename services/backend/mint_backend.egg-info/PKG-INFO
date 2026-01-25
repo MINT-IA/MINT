@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: mint-backend
+Version: 0.1.0
+Summary: Mint Backend Services
+Requires-Python: >=3.10
+Requires-Dist: fastapi>=0.109.0
+Requires-Dist: uvicorn[standard]>=0.27.0
+Requires-Dist: pydantic>=2.6.0
+Requires-Dist: pydantic-settings>=2.1.0
+Requires-Dist: python-multipart>=0.0.7
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: httpx>=0.26.0; extra == "dev"

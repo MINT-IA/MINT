@@ -1,0 +1,73 @@
+import 'dart:math';
+import 'budget_inputs.dart';
+import 'budget_plan.dart';
+
+class BudgetService {
+  /// Calcule le plan budgétaire en fonction des inputs et des overrides optionnels (sliders).
+  /// [overrides] contient les valeurs forcées par l'utilisateur pour 'variables' ou 'future'.
+  BudgetPlan computePlan(BudgetInputs inputs,
+      {Map<String, double>? overrides}) {
+    // 1. Calcul du Available de base
+    // available = income - housing - debt
+    // On s'assure de ne pas descendre sous 0 logiquement pour le "disponible à répartir"
+    // (même si techniquement un déficit est possible, ici on parle de l'allocation).
+    final rawAvailable =
+        inputs.netIncome - inputs.housingCost - inputs.debtPayments;
+    final available = max(0.0, rawAvailable);
+
+    if (inputs.style == BudgetStyle.justAvailable) {
+      return BudgetPlan(
+        available: available,
+        variables:
+            available, // Tout est considéré comme disponible/variable par défaut
+        future: 0,
+        stopRuleTriggered: false,
+      );
+    }
+
+    // Cas Envelopes 3
+    // Par défaut, sans overrides, tout va dans variables, future=0 (comportement safe par défaut)
+    // Ou alors on pourrait faire 50/30/20 mais la consigne dit "pas de ratios universels".
+    // Donc: default variables = available.
+
+    double variables = available;
+    double future = 0;
+
+    if (overrides != null) {
+      // Si on a des overrides, on essaie de les respecter tout en gardant la somme = available.
+      // Priorité à l'input utilisateur.
+      // Si l'user définit 'future', variables = available - future.
+      // Si l'user définit 'variables', future = available - variables.
+
+      if (overrides.containsKey('future')) {
+        future = overrides['future']!;
+        // Clamp pour rester cohérent
+        future = max(0.0, min(available, future));
+        variables = available - future;
+      } else if (overrides.containsKey('variables')) {
+        variables = overrides['variables']!;
+        variables = max(0.0, min(available, variables));
+        future = available - variables;
+      }
+    }
+
+    // Stop Rule: Si Envelopes mode et variables == 0 => Stop dépot
+    // (Consigne: stopRuleTriggered = (style=envelopes_3 && variables == 0))
+    // Note: variables peut être 0 si available est 0, ou si l'user a tout mis dans future (peu probable mais possible).
+    // La consigne semble impliquer une alerte si on n'a plus rien pour vivre.
+    final stopRuleTriggered = (inputs.style == BudgetStyle.envelopes3 &&
+        variables <= 0.01 &&
+        available > 0);
+    // J'ajoute available > 0 pour ne pas trigger le stop rule si on n'a juste pas de revenus (cas edge).
+    // Quoique, si available=0, variables=0, le stop rule est pertinent aussi.
+    // Respectons la spec stricte: "stopRuleTriggered = (style=envelopes_3 && variables == 0)"
+    // J'utilise un epsilon pour les doubles.
+
+    return BudgetPlan(
+      available: available,
+      variables: variables,
+      future: future,
+      stopRuleTriggered: variables <= 0.01, /* quasi 0 */
+    );
+  }
+}

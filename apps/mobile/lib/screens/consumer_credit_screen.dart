@@ -1,0 +1,369 @@
+import 'package:flutter/material.dart';
+import 'package:mint_mobile/domain/calculators.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/info_tooltip.dart';
+import 'package:mint_mobile/services/pdf_service.dart';
+
+class ConsumerCreditSimulatorScreen extends StatefulWidget {
+  const ConsumerCreditSimulatorScreen({super.key});
+
+  @override
+  State<ConsumerCreditSimulatorScreen> createState() => _ConsumerCreditSimulatorScreenState();
+}
+
+class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorScreen> {
+  double _amount = 10000;
+  int _durationMonths = 24;
+  double _annualRate = 9.9;
+  final double _fees = 0;
+
+  Map<String, dynamic>? _result;
+
+  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+
+  // Swiss legal max rates from 01.01.2026
+  static const double _maxRateCashCredit = 10.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculate();
+  }
+
+  void _calculate() {
+    setState(() {
+      _result = calculateConsumerCredit(
+        amount: _amount,
+        durationMonths: _durationMonths,
+        annualRate: _annualRate,
+        fees: _fees,
+      );
+    });
+  }
+
+  Future<void> _exportPdf() async {
+    if (_result == null) return;
+    
+    final results = {
+      'Montant emprunté': _currencyFormat.format(_amount),
+      'Durée': '$_durationMonths mois',
+      'Taux annuel': '${_annualRate.toStringAsFixed(1)}%',
+      'Mensualité': _currencyFormat.format(_result!['monthlyPayment']),
+      'Total des intérêts': _currencyFormat.format(_result!['totalInterest']),
+      'Coût total': _currencyFormat.format(_result!['totalCost']),
+    };
+
+    final recommendations = [
+      'Le crédit à la consommation coûte cher. Intérêts payés : ${_currencyFormat.format(_result!['totalInterest'])}.',
+      'Alternative : Épargner avant d\'acheter pour économiser ces intérêts.',
+      'Alternative : Prêt familial sans intérêt si possible.',
+      'Conseil : Un crédit impacte votre capacité d\'emprunt hypothécaire future.',
+    ];
+
+    // TODO: Implement PDF export for consumer credit simulator
+    // await PdfService.generateBilanPdf(
+    //   title: 'Simulation de Crédit à la Consommation',
+    //   results: results,
+    //   recommendations: recommendations,
+    // );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: MintColors.background,
+      appBar: AppBar(
+        title: const Text('Crédit à la Consommation'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            onPressed: _exportPdf,
+            tooltip: 'Exporter mon bilan',
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildCoachSection(),
+            const SizedBox(height: 32),
+            _buildInputSection(),
+            const SizedBox(height: 32),
+            if (_result != null) _buildResultSection(),
+            const SizedBox(height: 32),
+            _buildGuidanceSection(),
+            const SizedBox(height: 48),
+            _buildDisclaimer(),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoachSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 24),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Points d\'attention du Mentor',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Text(
+            'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour votre avenir.',
+            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Paramètres'),
+        const SizedBox(height: 24),
+        _buildSlider(
+          label: 'Montant à emprunter',
+          value: _amount,
+          min: 1000,
+          max: 50000,
+          divisions: 49,
+          format: (v) => _currencyFormat.format(v),
+          onChanged: (v) {
+            _amount = v;
+            _calculate();
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildSlider(
+          label: 'Durée du remboursement',
+          value: _durationMonths.toDouble(),
+          min: 6,
+          max: 60,
+          divisions: 9,
+          format: (v) => '${v.toInt()} mois',
+          onChanged: (v) {
+            _durationMonths = v.toInt();
+            _calculate();
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildSlider(
+          label: 'Taux annuel effectif',
+          value: _annualRate,
+          min: 1,
+          max: 15,
+          divisions: 28,
+          format: (v) => '${v.toStringAsFixed(1)}%',
+          onChanged: (v) {
+            _annualRate = v;
+            _calculate();
+          },
+          isWarning: _annualRate >= _maxRateCashCredit,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title.toUpperCase(),
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        color: MintColors.textMuted,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  Widget _buildSlider({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required String Function(double) format,
+    required void Function(double) onChanged,
+    bool isWarning = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 14, color: MintColors.textPrimary)),
+            Text(
+              format(value),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: isWarning ? MintColors.error : MintColors.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            activeTrackColor: isWarning ? MintColors.error : MintColors.primary,
+            inactiveTrackColor: MintColors.border,
+            thumbColor: isWarning ? MintColors.error : MintColors.primary,
+          ),
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultSection() {
+    final monthlyPayment = _result!['monthlyPayment'] as double;
+    final totalInterest = _result!['totalInterest'] as double;
+    final rateWarning = _result!['rateWarning'] as bool;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: rateWarning ? MintColors.error.withOpacity(0.05) : MintColors.accentPastel.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: rateWarning ? MintColors.error.withOpacity(0.2) : MintColors.primary.withOpacity(0.1),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Text('Votre Mensualité', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+          const SizedBox(height: 8),
+          Text(
+            _currencyFormat.format(monthlyPayment),
+            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: 24),
+          const Divider(color: MintColors.border),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Coût des intérêts :', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+              Text(
+                _currencyFormat.format(totalInterest),
+                style: const TextStyle(fontWeight: FontWeight.w600, color: MintColors.error),
+              ),
+            ],
+          ),
+          if (rateWarning) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.error.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: MintColors.error, size: 20),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Attention : Ce taux dépasse le max légal suisse de 10%.',
+                      style: TextStyle(color: MintColors.error, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuidanceSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Conseils du Mentor'),
+        const SizedBox(height: 24),
+        _buildGuidanceItem(Icons.savings_outlined, 'Épargner d\'abord', 'En économisant pendant 12 mois au lieu d\'emprunter, vous gardez ${_currencyFormat.format(_result!['totalInterest'])} dans votre poche.'),
+        _buildGuidanceItem(Icons.family_restroom_outlined, 'Cercle de confiance', 'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.'),
+        _buildGuidanceItem(Icons.help_outline_rounded, 'Dettes Conseils Suisse', 'Contactez-les AVANT de signer si votre situation est fragile.'),
+      ],
+    );
+  }
+
+  Widget _buildGuidanceItem(IconData icon, String title, String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: MintColors.primary, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisclaimer() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Text(
+          'Information à but préventif. Ne constitue pas un conseil juridique ou financier. '
+          'Loi suisse sur le crédit à la consommation (LCC) appliquée.',
+          style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,258 @@
+{
+  "pillar_3a_limits": {
+    "2026": {
+      "employee_with_lpp": {
+        "limit": 7258,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Salarié avec caisse de pension LPP"
+      },
+      "employee_without_lpp": {
+        "limit": 36288,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Salarié sans LPP (rare)"
+      },
+      "self_employed_with_lpp": {
+        "limit": 7258,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Indépendant avec affiliation LPP volontaire"
+      },
+      "self_employed_without_lpp": {
+        "limit": 36288,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Indépendant sans LPP (cas fréquent)"
+      },
+      "mixed_with_lpp": {
+        "limit": 7258,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Mixte avec LPP via emploi salarié"
+      },
+      "mixed_without_lpp": {
+        "limit": 36288,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs_total",
+        "currency": "CHF",
+        "description": "Mixte sans LPP"
+      },
+      "student": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Étudiant (pas de plafond 3a)"
+      },
+      "retired": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Retraité (3a fermé)"
+      },
+      "other": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Autre statut"
+      }
+    },
+    "2025": {
+      "employee_with_lpp": {
+        "limit": 7258,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Salarié avec caisse de pension LPP"
+      },
+      "employee_without_lpp": {
+        "limit": 36288,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Salarié sans LPP (rare)"
+      },
+      "self_employed_with_lpp": {
+        "limit": 7258,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Indépendant avec affiliation LPP volontaire"
+      },
+      "self_employed_without_lpp": {
+        "limit": 36288,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Indépendant sans LPP (cas fréquent)"
+      },
+      "mixed_with_lpp": {
+        "limit": 7258,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Mixte avec LPP via emploi salarié"
+      },
+      "mixed_without_lpp": {
+        "limit": 36288,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs_total",
+        "currency": "CHF",
+        "description": "Mixte sans LPP"
+      },
+      "student": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Étudiant (pas de plafond 3a)"
+      },
+      "retired": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Retraité (3a fermé)"
+      },
+      "other": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Autre statut"
+      }
+    },
+    "2024": {
+      "employee_with_lpp": {
+        "limit": 7056,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Salarié avec caisse de pension LPP"
+      },
+      "employee_without_lpp": {
+        "limit": 35280,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Salarié sans LPP (rare)"
+      },
+      "self_employed_with_lpp": {
+        "limit": 7056,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Indépendant avec affiliation LPP volontaire"
+      },
+      "self_employed_without_lpp": {
+        "limit": 35280,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Indépendant sans LPP (cas fréquent)"
+      },
+      "mixed_with_lpp": {
+        "limit": 7056,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Mixte avec LPP via emploi salarié"
+      },
+      "mixed_without_lpp": {
+        "limit": 35280,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs_total",
+        "currency": "CHF",
+        "description": "Mixte sans LPP"
+      },
+      "student": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Étudiant (pas de plafond 3a)"
+      },
+      "retired": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Retraité (3a fermé)"
+      },
+      "other": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Autre statut"
+      }
+    },
+    "2023": {
+      "employee_with_lpp": {
+        "limit": 6883,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Salarié avec caisse de pension LPP"
+      },
+      "employee_without_lpp": {
+        "limit": 34416,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Salarié sans LPP (rare)"
+      },
+      "self_employed_with_lpp": {
+        "limit": 6883,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Indépendant avec affiliation LPP volontaire"
+      },
+      "self_employed_without_lpp": {
+        "limit": 34416,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs",
+        "currency": "CHF",
+        "description": "Indépendant sans LPP (cas fréquent)"
+      },
+      "mixed_with_lpp": {
+        "limit": 6883,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Mixte avec LPP via emploi salarié"
+      },
+      "mixed_without_lpp": {
+        "limit": 34416,
+        "calculation": "percentage",
+        "percentage": 0.20,
+        "base": "net_income_avs_total",
+        "currency": "CHF",
+        "description": "Mixte sans LPP"
+      },
+      "student": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Étudiant (pas de plafond 3a)"
+      },
+      "retired": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Retraité (3a fermé)"
+      },
+      "other": {
+        "limit": 0,
+        "calculation": "fixed",
+        "currency": "CHF",
+        "description": "Autre statut"
+      }
+    }
+  },
+  "metadata": {
+    "last_updated": "2026-01-22",
+    "source": "Office fédéral des assurances sociales (OFAS)",
+    "next_review": "2026-12-01",
+    "version": "1.0"
+  }
+}
