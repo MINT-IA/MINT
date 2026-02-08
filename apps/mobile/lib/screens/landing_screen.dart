@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/mint_ui_kit.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'dart:ui' as ui; // For BackdropFilter blur
 import 'package:flutter/services.dart';
@@ -20,7 +22,7 @@ class LandingScreen extends StatelessWidget {
           Positioned(
             top: -100,
             left: -50,
-            child: _buildBlurBlob(const Color(0xFF6BFA9F), 300), // Mint Green
+            child: _buildBlurBlob(const Color(0xFFE5E5E7), 300), // Neutral Light Gray
           ),
           Positioned(
             top: 200,
@@ -80,25 +82,25 @@ class LandingScreen extends StatelessWidget {
                           Text(
                             "Le premier",
                             style: GoogleFonts.outfit(
-                              fontSize: 52,
-                              fontWeight: FontWeight.w300,
+                              fontSize: 56,
+                              fontWeight: FontWeight.w400,
                               color: MintColors.textPrimary,
                               height: 0.9,
-                              letterSpacing: -2,
+                              letterSpacing: -2.5,
                             ),
                           ),
                           ShaderMask(
                             shaderCallback: (bounds) => const LinearGradient(
-                              colors: [MintColors.primary, Color(0xFF4F46E5)],
+                              colors: [MintColors.primary, Color(0xFF6E6E73)],
                             ).createShader(bounds),
                             child: Text(
-                              "Financial OS.",
+                              S.of(context)?.landingHero ?? "Financial OS.",
                               style: GoogleFonts.outfit(
-                                fontSize: 56,
+                                fontSize: 62,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white, // Masked
                                 height: 0.95,
-                                letterSpacing: -2,
+                                letterSpacing: -2.5,
                               ),
                             ),
                           ),
@@ -106,30 +108,30 @@ class LandingScreen extends StatelessWidget {
                           const SizedBox(height: 24),
 
                           Text(
-                            "L'intelligence d'un CFO, dans ta poche.\nDédié aux 22-35 ans ambitieux.",
+                            "L'intelligence d'un CFO, dans ta poche.\nZéro bullshit. Pur conseil.",
                             style: GoogleFonts.inter(
-                              fontSize: 18,
-                              color: MintColors.textSecondary.withOpacity(0.8),
-                              height: 1.5,
+                              fontSize: 19,
+                              color: MintColors.textSecondary,
+                              height: 1.6,
+                              letterSpacing: -0.2,
                             ),
                           ),
 
-                          const SizedBox(height: 48),
+                          const SizedBox(height: 56),
 
                           // Glass Card Features
                           Container(
-                            padding: const EdgeInsets.all(24),
+                            padding: const EdgeInsets.all(28),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(32),
+                              color: Colors.white.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(36),
                               border: Border.all(
-                                  color: Colors.white.withOpacity(0.6)),
+                                  color: MintColors.lightBorder.withOpacity(0.5)),
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                      const Color(0xFF4F46E5).withOpacity(0.05),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 10),
+                                  color: Colors.black.withOpacity(0.03),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 20),
                                 ),
                               ],
                             ),
@@ -139,43 +141,43 @@ class LandingScreen extends StatelessWidget {
                                   Icons.bolt_rounded,
                                   "Diagnostic Instantané",
                                   "Analyse 360° en 5 min chrono.",
-                                  Colors.amber,
+                                  MintColors.primary,
                                 ),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 32),
                                 _buildFeatureRow(
                                   Icons.shield_rounded,
                                   "100% Privé & Local",
                                   "Tes données restent sur ton device.",
-                                  Colors.green,
+                                  MintColors.primary,
                                 ),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 32),
                                 _buildFeatureRow(
                                   Icons.auto_graph_rounded,
                                   "Stratégie Neutre",
-                                  "0 conflit d'intérêt. Pur conseil.",
-                                  Colors.blue,
+                                  "Zéro commission. Zéro conflit.",
+                                  MintColors.primary,
                                 ),
                               ],
                             ),
                           ),
 
-                          const SizedBox(
-                              height:
-                                  48), // Spacer causes crash in SingleChildScrollView
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 64),
 
                           // Floating Action Button
                           _buildPremiumButton(context),
 
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 24),
 
                           Center(
                             child: TextButton(
-                              onPressed: () => context.push('/login'),
+                              onPressed: () => context.go('/home'), // Fixed: Route /login was failing
                               style: TextButton.styleFrom(
                                 foregroundColor: MintColors.textMuted,
                               ),
-                              child: const Text("J'ai déjà un compte"),
+                              child: const Text(
+                                "Reprendre mon diagnostic",
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
                             ),
                           ),
                         ],
@@ -196,11 +198,11 @@ class LandingScreen extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.4),
+        color: color.withOpacity(0.35),
         shape: BoxShape.circle,
       ),
       child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+        filter: ui.ImageFilter.blur(sigmaX: 90, sigmaY: 90),
         child: Container(color: Colors.transparent),
       ),
     );
@@ -208,18 +210,19 @@ class LandingScreen extends StatelessWidget {
 
   Widget _buildLogoPill() {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: const Icon(Icons.token, color: MintColors.primary),
+      child: const Icon(Icons.token_rounded, color: MintColors.primary, size: 28),
     );
   }
 
@@ -228,14 +231,14 @@ class LandingScreen extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+            color: color.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(20),
           ),
-          child: Icon(icon, color: color, size: 24),
+          child: Icon(icon, color: color, size: 26),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,17 +246,18 @@ class LandingScreen extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.outfit(
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: MintColors.textSecondary,
+                  letterSpacing: -0.1,
                 ),
               ),
             ],
@@ -264,76 +268,19 @@ class LandingScreen extends StatelessWidget {
   }
 
   Widget _buildPremiumButton(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 72,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          colors: [MintColors.primary, Color(0xFF059669)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () async {
-            final isCompleted = await ReportPersistenceService.isCompleted();
-            if (context.mounted) {
-              if (isCompleted) {
-                context.go('/report'); // Go to report if wizard completed
-              } else {
-                context.push('/home'); // Go to wizard if not completed
-              }
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Démarrer mon diagnostic",
-                      style: GoogleFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      "C'est parti !",
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_forward_rounded,
-                      color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return MintPremiumButton(
+      title: S.of(context)?.startDiagnostic ?? "Démarrer mon diagnostic",
+      subtitle: "Bilan 360° • 5 minutes",
+      onTap: () async {
+        final isCompleted = await ReportPersistenceService.isCompleted();
+        if (context.mounted) {
+          if (isCompleted) {
+            context.go('/report');
+          } else {
+            context.push('/home');
+          }
+        }
+      },
     );
   }
 }

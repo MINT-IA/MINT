@@ -16,6 +16,7 @@ class ScenarioKind(str, Enum):
     succession = "succession"
     consumer_credit = "consumer_credit"
     debt_risk = "debt_risk"
+    rente_vs_capital = "rente_vs_capital"
 
 
 class ScenarioCreate(BaseModel):

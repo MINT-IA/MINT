@@ -5,7 +5,7 @@ Generates recommendations based on user profile and session answers.
 
 import uuid
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from app.schemas.common import Impact, Period
 from app.schemas.recommendation import (
     Recommendation,
@@ -204,6 +204,129 @@ def calculate_tax_potential(
     low = int(saving * 0.9 / 100) * 100
     high = int(saving * 1.1 / 100) * 100
     return f"~{low}-{high} CHF"
+
+
+# --- Capital Withdrawal Tax Rates (MVP - 6 cantons) ---
+# Source: Barèmes fiscaux cantonaux 2024, retrait en capital prévoyance (LPP/LIFD art. 38).
+# Taux effectifs simplifiés (fédéral + cantonal + communal), chef-lieu.
+# Format: {(canton, statut): (taux_< 500k, taux_>= 500k)}
+CAPITAL_WITHDRAWAL_TAX_RATES = {
+    ("ZH", "single"):  (0.055, 0.080),
+    ("ZH", "married"): (0.045, 0.065),
+    ("BE", "single"):  (0.065, 0.095),
+    ("BE", "married"): (0.055, 0.080),
+    ("VD", "single"):  (0.080, 0.115),
+    ("VD", "married"): (0.070, 0.100),
+    ("GE", "single"):  (0.075, 0.105),
+    ("GE", "married"): (0.065, 0.095),
+    ("LU", "single"):  (0.040, 0.060),
+    ("LU", "married"): (0.035, 0.050),
+    ("BS", "single"):  (0.070, 0.100),
+    ("BS", "married"): (0.060, 0.085),
+}
+
+_CAPITAL_TAX_THRESHOLD = 500_000.0
+
+
+def _simulate_capital_drawdown(
+    capital_net: float,
+    retrait_mensuel: float,
+    rendement_annuel: float,
+    nb_mois: int,
+) -> Tuple[float, Optional[int]]:
+    """Simulate month-by-month capital drawdown with returns.
+
+    Args:
+        capital_net: Starting capital after withdrawal tax (CHF).
+        retrait_mensuel: Monthly withdrawal amount (CHF).
+        rendement_annuel: Annual net return as decimal (e.g. 0.03 for 3%).
+        nb_mois: Number of months to simulate.
+
+    Returns:
+        Tuple of (capital at end of period, month index when capital <= 0 or None).
+    """
+    rendement_mensuel = rendement_annuel / 12
+    capital = capital_net
+    break_even_mois: Optional[int] = None
+
+    for mois in range(1, nb_mois + 1):
+        capital = capital * (1 + rendement_mensuel) - retrait_mensuel
+        if capital <= 0 and break_even_mois is None:
+            break_even_mois = mois
+            capital = 0.0
+
+    return (capital, break_even_mois)
+
+
+def compute_rente_vs_capital(
+    avoir_obligatoire: float,
+    avoir_surobligatoire: float,
+    taux_conversion_surob: float,
+    age_retraite: int,
+    canton: str,
+    statut_civil: str,
+) -> dict:
+    """Compare rente viagère LPP vs retrait en capital sur 3 scénarios.
+
+    Source: LPP art. 14 al. 2 (taux conversion 6.8%), LIFD art. 38 (imposition capital).
+
+    Args:
+        avoir_obligatoire: LPP mandatory assets (CHF).
+        avoir_surobligatoire: LPP supra-mandatory assets (CHF).
+        taux_conversion_surob: Supra-mandatory conversion rate as decimal (e.g. 0.05).
+        age_retraite: Retirement age (55-70).
+        canton: Canton code (ZH, BE, VD, GE, LU, BS).
+        statut_civil: "single" or "married".
+
+    Returns:
+        dict with rente_annuelle, capital_total, impot_retrait, capital_net,
+        and 3 scenario simulations up to age 85.
+    """
+    rente_annuelle = avoir_obligatoire * 0.068 + avoir_surobligatoire * taux_conversion_surob
+    rente_mensuelle = rente_annuelle / 12
+
+    capital_total = avoir_obligatoire + avoir_surobligatoire
+
+    key = (canton, statut_civil)
+    if key not in CAPITAL_WITHDRAWAL_TAX_RATES:
+        raise ValueError(f"Canton/statut non supporté: {canton}/{statut_civil}")
+
+    taux_bas, taux_haut = CAPITAL_WITHDRAWAL_TAX_RATES[key]
+    taux_effectif = taux_bas if capital_total < _CAPITAL_TAX_THRESHOLD else taux_haut
+    impot_retrait = capital_total * taux_effectif
+    capital_net = capital_total - impot_retrait
+
+    nb_mois_85 = (85 - age_retraite) * 12
+    nb_mois_max = (150 - age_retraite) * 12
+
+    scenarios = {}
+    for nom, rendement in [("prudent", 0.01), ("central", 0.03), ("optimiste", 0.05)]:
+        capital_final_85, _ = _simulate_capital_drawdown(
+            capital_net, rente_mensuelle, rendement, nb_mois_85,
+        )
+        _, break_even_mois = _simulate_capital_drawdown(
+            capital_net, rente_mensuelle, rendement, nb_mois_max,
+        )
+
+        capital_85 = max(0.0, round(capital_final_85, 2))
+        break_even_age: Optional[float] = None
+        if break_even_mois is not None:
+            break_even_age = round(age_retraite + break_even_mois / 12, 1)
+
+        scenarios[nom] = {
+            "rendement": rendement,
+            "capital_85": capital_85,
+            "break_even_age": break_even_age,
+        }
+
+    return {
+        "rente_annuelle": round(rente_annuelle, 2),
+        "rente_mensuelle": round(rente_mensuelle, 2),
+        "capital_total": round(capital_total, 2),
+        "impot_retrait": round(impot_retrait, 2),
+        "capital_net": round(capital_net, 2),
+        "scenarios": scenarios,
+    }
 
 
 def calculate_consumer_credit(

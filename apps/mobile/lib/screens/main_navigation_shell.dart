@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/now_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
@@ -73,19 +74,19 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 index: 0,
                 icon: Icons.bolt_outlined,
                 activeIcon: Icons.bolt,
-                label: 'MAINTENANT',
+                label: S.of(context)?.tabNow ?? 'MAINTENANT',
               ),
               _buildNavItem(
                 index: 1,
                 icon: Icons.explore_outlined,
                 activeIcon: Icons.explore,
-                label: 'EXPLORER',
+                label: S.of(context)?.tabExplore ?? 'EXPLORER',
               ),
               _buildNavItem(
                 index: 2,
                 icon: Icons.insights_outlined,
                 activeIcon: Icons.insights,
-                label: 'SUIVRE',
+                label: S.of(context)?.tabTrack ?? 'SUIVRE',
               ),
             ],
           ),

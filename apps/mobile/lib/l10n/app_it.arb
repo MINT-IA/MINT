@@ -1,0 +1,16 @@
+{
+  "@@locale": "it",
+  "appTitle": "MINT",
+  "landingHero": "Financial OS.",
+  "landingSubtitle": "Il vostro copilota finanziario svizzero.",
+  "startDiagnostic": "Avvia la mia diagnosi",
+  "tabNow": "ADESSO",
+  "tabExplore": "ESPLORARE",
+  "tabTrack": "SEGUIRE",
+  "budgetTitle": "Gestire il mio Budget",
+  "simulatorsTitle": "Simulatori di Viaggio",
+  "recommendations": "Le vostre Raccomandazioni",
+  "disclaimer": "I risultati presentati sono stime a titolo indicativo. Non costituiscono una consulenza finanziaria personalizzata.",
+  "rentVsCapitalTitle": "Rendita vs Capitale",
+  "rentVsCapitalDescription": "Confrontate la rendita vitalizia e il prelievo di capitale del vostro 2° pilastro"
+}

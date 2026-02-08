@@ -1,0 +1,16 @@
+{
+  "@@locale": "de",
+  "appTitle": "MINT",
+  "landingHero": "Financial OS.",
+  "landingSubtitle": "Ihr Schweizer Finanz-Copilot.",
+  "startDiagnostic": "Diagnose starten",
+  "tabNow": "JETZT",
+  "tabExplore": "ENTDECKEN",
+  "tabTrack": "VERFOLGEN",
+  "budgetTitle": "Mein Budget meistern",
+  "simulatorsTitle": "Reise-Simulatoren",
+  "recommendations": "Ihre Empfehlungen",
+  "disclaimer": "Die dargestellten Ergebnisse sind Schätzungen und dienen nur zur Orientierung. Sie stellen keine persönliche Finanzberatung dar.",
+  "rentVsCapitalTitle": "Rente vs Kapital",
+  "rentVsCapitalDescription": "Vergleichen Sie die lebenslange Rente mit dem Kapitalbezug Ihrer 2. Säule"
+}

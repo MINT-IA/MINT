@@ -1,0 +1,16 @@
+{
+  "@@locale": "fr",
+  "appTitle": "MINT",
+  "landingHero": "Financial OS.",
+  "landingSubtitle": "Votre copilote financier suisse.",
+  "startDiagnostic": "Démarrer mon diagnostic",
+  "tabNow": "MAINTENANT",
+  "tabExplore": "EXPLORER",
+  "tabTrack": "SUIVRE",
+  "budgetTitle": "Maîtriser mon Budget",
+  "simulatorsTitle": "Simulateurs de Voyage",
+  "recommendations": "Vos Recommandations",
+  "disclaimer": "Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé.",
+  "rentVsCapitalTitle": "Rente vs Capital",
+  "rentVsCapitalDescription": "Comparez la rente viagère et le retrait en capital de votre 2e pilier"
+}

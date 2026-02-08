@@ -1,0 +1,16 @@
+{
+  "@@locale": "en",
+  "appTitle": "MINT",
+  "landingHero": "Financial OS.",
+  "landingSubtitle": "Your Swiss financial copilot.",
+  "startDiagnostic": "Start my diagnostic",
+  "tabNow": "NOW",
+  "tabExplore": "EXPLORE",
+  "tabTrack": "TRACK",
+  "budgetTitle": "Master my Budget",
+  "simulatorsTitle": "Journey Simulators",
+  "recommendations": "Your Recommendations",
+  "disclaimer": "The results presented are estimates for informational purposes only. They do not constitute personalised financial advice.",
+  "rentVsCapitalTitle": "Annuity vs Lump Sum",
+  "rentVsCapitalDescription": "Compare the lifelong annuity with the lump-sum withdrawal from your 2nd pillar"
+}

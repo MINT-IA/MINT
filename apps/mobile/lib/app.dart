@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +22,8 @@ import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
+import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
+import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -106,6 +110,20 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ToolsLibraryScreen(),
     ),
+    // Education Hub
+    GoRoute(
+      path: '/education/hub',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ComprendreHubScreen(),
+    ),
+    GoRoute(
+      path: '/education/theme/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return ThemeDetailScreen(themeId: id);
+      },
+    ),
   ],
 );
 
@@ -122,17 +140,20 @@ class MintApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Mint',
         debugShowCheckedModeBanner: false,
-        theme: _buildPastelTheme(),
+        theme: _buildPremiumTheme(),
         themeMode: ThemeMode.light,
         routerConfig: _router,
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        locale: const Locale('fr'),
       ),
     );
   }
 
-  ThemeData _buildPastelTheme() {
-    // Montserrat or Inter preferred
+  ThemeData _buildPremiumTheme() {
+    // Inter for UI, Outfit for Headlines (Premium Modern combination)
     final textTheme =
-        GoogleFonts.montserratTextTheme(ThemeData.light().textTheme);
+        GoogleFonts.interTextTheme(ThemeData.light().textTheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -141,59 +162,70 @@ class MintApp extends StatelessWidget {
       colorScheme: const ColorScheme.light(
         primary: MintColors.primary,
         onPrimary: Colors.white,
-        secondary: MintColors.accentPastel,
-        onSecondary: MintColors.primary,
-        surface: MintColors.background,
+        secondary: MintColors.accent,
+        onSecondary: Colors.white,
+        surface: MintColors.appleSurface,
         onSurface: MintColors.textPrimary,
         error: MintColors.error,
         outline: MintColors.border,
       ),
       textTheme: textTheme.copyWith(
-        displayLarge: textTheme.displayLarge?.copyWith(
-          fontWeight: FontWeight.w200,
-          letterSpacing: -1.0,
-          color: MintColors.textPrimary,
+        displayLarge: GoogleFonts.outfit(
+          textStyle: textTheme.displayLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -1.5,
+            color: MintColors.textPrimary,
+          ),
         ),
-        headlineLarge: textTheme.headlineLarge?.copyWith(
-          fontWeight: FontWeight.w300,
-          letterSpacing: -0.5,
-          color: MintColors.textPrimary,
+        headlineLarge: GoogleFonts.outfit(
+          textStyle: textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -1.0,
+            color: MintColors.textPrimary,
+          ),
         ),
-        headlineMedium: textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w400,
-          color: MintColors.textPrimary,
+        headlineMedium: GoogleFonts.outfit(
+          textStyle: textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+            color: MintColors.textPrimary,
+          ),
         ),
         titleLarge: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           color: MintColors.textPrimary,
         ),
         bodyLarge: textTheme.bodyLarge?.copyWith(
           color: MintColors.textPrimary,
-          height: 1.6,
+          height: 1.5,
+          fontSize: 16,
         ),
         bodyMedium: textTheme.bodyMedium?.copyWith(
           color: MintColors.textSecondary,
-          height: 1.5,
+          height: 1.4,
+          fontSize: 14,
         ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
+        centerTitle: false, // Apple style left-aligned
         titleTextStyle: TextStyle(
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Outfit',
           color: MintColors.textPrimary,
-          fontSize: 17,
+          fontSize: 20,
+          letterSpacing: -0.5,
         ),
-        iconTheme: IconThemeData(color: MintColors.textPrimary),
+        iconTheme: IconThemeData(color: MintColors.textPrimary, size: 22),
       ),
       cardTheme: CardThemeData(
         color: MintColors.card,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: MintColors.border, width: 1),
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: MintColors.lightBorder, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -201,9 +233,13 @@ class MintApp extends StatelessWidget {
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.primary,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
           ),
           elevation: 0,
         ),
@@ -211,25 +247,37 @@ class MintApp extends StatelessWidget {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.textPrimary,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          side: const BorderSide(color: MintColors.border),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+          side: const BorderSide(color: MintColors.border, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: MintColors.surface,
+        fillColor: MintColors.appleSurface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: MintColors.primary, width: 1.5),
+        ),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       ),
       dividerTheme: const DividerThemeData(
-        color: MintColors.border,
+        color: MintColors.lightBorder,
         thickness: 1,
       ),
     );

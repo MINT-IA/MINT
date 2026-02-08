@@ -13,6 +13,7 @@ from app.services.rules_engine import (
     calculate_compound_interest,
     calculate_leasing_opportunity_cost,
     calculate_pillar3a_tax_benefit,
+    compute_rente_vs_capital,
 )
 
 router = APIRouter()
@@ -42,6 +43,15 @@ def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
             marginal_tax_rate=inputs.get("marginalTaxRate", 0.25),
             years=inputs.get("years", 30),
             annual_return=inputs.get("annualReturn", 4.0),
+        )
+    elif kind == ScenarioKind.rente_vs_capital:
+        return compute_rente_vs_capital(
+            avoir_obligatoire=inputs.get("avoirObligatoire", 0),
+            avoir_surobligatoire=inputs.get("avoirSurobligatoire", 0),
+            taux_conversion_surob=inputs.get("tauxConversionSurob", 0.05),
+            age_retraite=inputs.get("ageRetraite", 65),
+            canton=inputs.get("canton", "ZH"),
+            statut_civil=inputs.get("statutCivil", "single"),
         )
     else:
         # Other scenario types return inputs as-is for now
