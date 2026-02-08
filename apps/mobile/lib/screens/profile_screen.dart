@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -19,49 +20,49 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
+          _buildAppBar(context),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPrecisionCard(precision),
+                  _buildPrecisionCard(context, precision),
                   const SizedBox(height: 32),
-                  const Text('Détails FactFind', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(S.of(context)?.profileFactFindTitle ?? 'Détails FactFind', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: 'Identité & Foyer',
-                    status: 'Complet',
+                    title: S.of(context)?.profileSectionIdentity ?? 'Identité & Foyer',
+                    status: S.of(context)?.profileStatusComplete ?? 'Complet',
                     isComplete: true,
                     icon: Icons.person_outline,
                   ),
                   _buildFactFindSection(
-                    title: 'Revenus & Épargne',
-                    status: 'Partial (Net)',
+                    title: S.of(context)?.profileSectionIncome ?? 'Revenus & Épargne',
+                    status: S.of(context)?.profileStatusPartial ?? 'Partial (Net)',
                     isComplete: false,
                     icon: Icons.account_balance_wallet_outlined,
                   ),
                   _buildFactFindSection(
-                    title: 'Prévoyance (LPP)',
-                    status: 'Manquant',
+                    title: S.of(context)?.profileSectionPension ?? 'Prévoyance (LPP)',
+                    status: S.of(context)?.profileStatusMissing ?? 'Manquant',
                     isComplete: false,
                     icon: Icons.security_outlined,
-                    reward: '+15% de précision',
+                    reward: S.of(context)?.profileReward15 ?? '+15% de précision',
                   ),
                   _buildFactFindSection(
-                    title: 'Immobilier & Dettes',
-                    status: 'Manquant',
+                    title: S.of(context)?.profileSectionProperty ?? 'Immobilier & Dettes',
+                    status: S.of(context)?.profileStatusMissing ?? 'Manquant',
                     isComplete: false,
                     icon: Icons.home_outlined,
-                    reward: '+10% de précision',
+                    reward: S.of(context)?.profileReward10 ?? '+10% de précision',
                   ),
                   const SizedBox(height: 32),
-                  const Text('Sécurité & Data', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: 'Contrôle des Partages',
-                    status: 'Gérer mes accès bLink',
+                    title: S.of(context)?.profileConsentControl ?? 'Contrôle des Partages',
+                    status: S.of(context)?.profileConsentManage ?? 'Gérer mes accès bLink',
                     isComplete: true,
                     icon: Icons.lock_outline,
                     onTap: () => context.push('/profile/consent'),
@@ -69,12 +70,12 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   // Auth section (if logged in)
                   if (authProvider.isLoggedIn) ...[
-                    const Text('Compte', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(S.of(context)?.profileAccountTitle ?? 'Compte', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     _buildAuthSection(context, authProvider),
                     const SizedBox(height: 32),
                   ],
-                  _buildDangerZone(),
+                  _buildDangerZone(context),
                 ],
               ),
             ),
@@ -84,14 +85,16 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
+    final s = S.of(context);
     return SliverAppBar(
       backgroundColor: MintColors.background,
-      title: Text('MON PROFIL MENTOR', style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+      title: Text(s?.profileTitle ?? 'MON PROFIL MENTOR', style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
     );
   }
 
-  Widget _buildPrecisionCard(double precision) {
+  Widget _buildPrecisionCard(BuildContext context, double precision) {
+    final s = S.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -104,7 +107,7 @@ class ProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Precision Index', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
+              Text(s?.profilePrecisionIndex ?? 'Precision Index', style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
               Text('${(precision * 100).toInt()}%', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
             ],
           ),
@@ -117,10 +120,10 @@ class ProfileScreen extends StatelessWidget {
             minHeight: 8,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Plus votre profil est complet, plus votre rapport "Statement of Advice" est puissant.',
+          Text(
+            s?.profilePrecisionMessage ?? 'Plus votre profil est complet, plus votre rapport "Statement of Advice" est puissant.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+            style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
           ),
         ],
       ),
@@ -195,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      authProvider.displayName ?? authProvider.email ?? 'Utilisateur',
+                      authProvider.displayName ?? authProvider.email ?? (S.of(context)?.profileUser ?? 'Utilisateur'),
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     if (authProvider.displayName != null)
@@ -219,7 +222,7 @@ class ProfileScreen extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.logout, size: 18),
-            label: const Text('Se déconnecter'),
+            label: Text(S.of(context)?.authLogout ?? 'Se déconnecter'),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.error,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -230,7 +233,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDangerZone() {
+  Widget _buildDangerZone(BuildContext context) {
     return Column(
       children: [
         const Divider(),
@@ -238,7 +241,7 @@ class ProfileScreen extends StatelessWidget {
         TextButton(
           onPressed: () {},
           style: TextButton.styleFrom(foregroundColor: Colors.red),
-          child: const Text('Supprimer mes données locales'),
+          child: Text(S.of(context)?.profileDeleteData ?? 'Supprimer mes données locales'),
         ),
       ],
     );

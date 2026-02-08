@@ -139,28 +139,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     switch (_currentStep) {
       case 0:
         return _buildStep(
-          title: 'Bonjour, je suis votre mentor.',
-          subtitle: 'Commençons par faire connaissance. Quelle est votre situation actuelle ?',
+          title: S.of(context)?.onboardingStep1Title ?? 'Bonjour, je suis votre mentor.',
+          subtitle: S.of(context)?.onboardingStep1Subtitle ?? 'Commençons par faire connaissance. Quelle est votre situation actuelle ?',
           child: Column(
             children: [
               _buildChoiceCard(
                 icon: Icons.person_outline,
-                title: 'Seul(e)',
-                description: 'Je gère mes finances en solo',
+                title: S.of(context)?.onboardingHouseholdSingle ?? 'Seul(e)',
+                description: S.of(context)?.onboardingHouseholdSingleDesc ?? 'Je gère mes finances en solo',
                 isSelected: _selectedHousehold == HouseholdType.single,
                 onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.single, 'household_single'),
               ),
               _buildChoiceCard(
                 icon: Icons.people_outline,
-                title: 'En couple',
-                description: 'Nous partageons nos objectifs financiers',
+                title: S.of(context)?.onboardingHouseholdCouple ?? 'En couple',
+                description: S.of(context)?.onboardingHouseholdCoupleDesc ?? 'Nous partageons nos objectifs financiers',
                 isSelected: _selectedHousehold == HouseholdType.couple,
                 onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.couple, 'household_couple'),
               ),
               _buildChoiceCard(
                 icon: Icons.family_restroom_outlined,
-                title: 'Famille',
-                description: 'Avec enfant(s) à charge',
+                title: S.of(context)?.onboardingHouseholdFamily ?? 'Famille',
+                description: S.of(context)?.onboardingHouseholdFamilyDesc ?? 'Avec enfant(s) à charge',
                 isSelected: _selectedHousehold == HouseholdType.family,
                 onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.family, 'household_family'),
               ),
@@ -169,35 +169,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         );
       case 1:
         return _buildStep(
-          title: 'Très bien.',
-          subtitle: 'Quel est le voyage financier que vous souhaitez entreprendre en priorité ?',
+          title: S.of(context)?.onboardingStep2Title ?? 'Très bien.',
+          subtitle: S.of(context)?.onboardingStep2Subtitle ?? 'Quel est le voyage financier que vous souhaitez entreprendre en priorité ?',
           child: Column(
             children: [
               _buildChoiceCard(
                 icon: Icons.home_outlined,
-                title: 'Devenir propriétaire',
-                description: 'Préparer mon apport et mon hypothèque',
+                title: S.of(context)?.onboardingGoalHouse ?? 'Devenir propriétaire',
+                description: S.of(context)?.onboardingGoalHouseDesc ?? 'Préparer mon apport et mon hypothèque',
                 isSelected: _selectedGoal == Goal.house,
                 onTap: () => _handleChoice(() => _selectedGoal = Goal.house, 'goal_house'),
               ),
               _buildChoiceCard(
                 icon: Icons.wb_sunny_outlined,
-                title: 'Sérénité Retraite',
-                description: 'Maximiser mon avenir à long terme',
+                title: S.of(context)?.onboardingGoalRetire ?? 'Sérénité Retraite',
+                description: S.of(context)?.onboardingGoalRetireDesc ?? 'Maximiser mon avenir à long terme',
                 isSelected: _selectedGoal == Goal.retire,
                 onTap: () => _handleChoice(() => _selectedGoal = Goal.retire, 'goal_retire'),
               ),
               _buildChoiceCard(
                 icon: Icons.trending_up,
-                title: 'Investir & Grandir',
-                description: 'Fructifier mes économies intelligemment',
+                title: S.of(context)?.onboardingGoalInvest ?? 'Investir & Grandir',
+                description: S.of(context)?.onboardingGoalInvestDesc ?? 'Fructifier mes économies intelligemment',
                 isSelected: _selectedGoal == Goal.invest,
                 onTap: () => _handleChoice(() => _selectedGoal = Goal.invest, 'goal_invest'),
               ),
               _buildChoiceCard(
                 icon: Icons.account_balance_outlined,
-                title: 'Optimisation Fiscale',
-                description: 'Réduire mes impôts légalement',
+                title: S.of(context)?.onboardingGoalTaxOptim ?? 'Optimisation Fiscale',
+                description: S.of(context)?.onboardingGoalTaxOptimDesc ?? 'Réduire mes impôts légalement',
                 isSelected: _selectedGoal == Goal.optimizeTaxes,
                 onTap: () => _handleChoice(() => _selectedGoal = Goal.optimizeTaxes, 'goal_optimize_taxes'),
               ),
@@ -206,21 +206,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         );
       case 2:
         return _buildStep(
-          title: 'Presque là.',
-          subtitle: 'Ces détails nous permettent de personnaliser vos calculs selon la loi suisse.',
+          title: S.of(context)?.onboardingStep3Title ?? 'Presque là.',
+          subtitle: S.of(context)?.onboardingStep3Subtitle ?? 'Ces détails nous permettent de personnaliser vos calculs selon la loi suisse.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Canton de résidence',
-                style: TextStyle(fontWeight: FontWeight.w500, color: MintColors.textPrimary),
+              Text(
+                S.of(context)?.onboardingCantonLabel ?? 'Canton de résidence',
+                style: const TextStyle(fontWeight: FontWeight.w500, color: MintColors.textPrimary),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _selectedCanton,
                 style: GoogleFonts.montserrat(color: MintColors.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'Sélectionnez votre canton',
+                  hintText: S.of(context)?.onboardingCantonHint ?? 'Sélectionnez votre canton',
                   hintStyle: const TextStyle(color: MintColors.textMuted, fontSize: 14),
                   fillColor: MintColors.surface,
                   filled: true,
@@ -235,14 +235,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Année de naissance (optionnel)',
-                style: TextStyle(fontWeight: FontWeight.w500, color: MintColors.textPrimary),
+              Text(
+                S.of(context)?.onboardingBirthYearLabel ?? 'Année de naissance (optionnel)',
+                style: const TextStyle(fontWeight: FontWeight.w500, color: MintColors.textPrimary),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Ex: 1990',
+                  hintText: S.of(context)?.onboardingBirthYearHint ?? 'Ex: 1990',
                   hintStyle: const TextStyle(color: MintColors.textMuted, fontSize: 14),
                   fillColor: MintColors.surface,
                   filled: true,
@@ -266,7 +266,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     );
                     setState(() => _currentStep++);
                   } : null,
-                  child: const Text('Continuer'),
+                  child: Text(S.of(context)?.onboardingContinue ?? 'Continuer'),
                 ),
               ),
             ],
@@ -274,19 +274,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         );
       case 3:
         return _buildStep(
-          title: 'Prêt à commencer ?',
-          subtitle: 'Mint est un environnement sûr. Voici nos engagements envers vous.',
+          title: S.of(context)?.onboardingStep4Title ?? 'Prêt à commencer ?',
+          subtitle: S.of(context)?.onboardingStep4Subtitle ?? 'Mint est un environnement sûr. Voici nos engagements envers vous.',
           child: Column(
             children: [
-              _buildTrustTile(Icons.remove_red_eye_outlined, 'Transparence totale', 'Toutes les hypothèses sont visibles.'),
-              _buildTrustTile(Icons.lock_outline, 'Vie privée', 'Calculs locaux, pas de stockage de données sensibles.'),
-              _buildTrustTile(Icons.shield_outlined, 'Sécurité', 'Aucun accès direct à votre argent.'),
+              _buildTrustTile(Icons.remove_red_eye_outlined, S.of(context)?.onboardingTrustTransparency ?? 'Transparence totale', S.of(context)?.onboardingTrustTransparencyDesc ?? 'Toutes les hypothèses sont visibles.'),
+              _buildTrustTile(Icons.lock_outline, S.of(context)?.onboardingTrustPrivacy ?? 'Vie privée', S.of(context)?.onboardingTrustPrivacyDesc ?? 'Calculs locaux, pas de stockage de données sensibles.'),
+              _buildTrustTile(Icons.shield_outlined, S.of(context)?.onboardingTrustSecurity ?? 'Sécurité', S.of(context)?.onboardingTrustSecurityDesc ?? 'Aucun accès direct à votre argent.'),
               const SizedBox(height: 48),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _createProfileAndNavigate,
-                  child: const Text('Entrer dans mon espace'),
+                  child: Text(S.of(context)?.onboardingEnterSpace ?? 'Entrer dans mon espace'),
                 ),
               ),
             ],

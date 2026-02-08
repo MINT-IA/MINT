@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
@@ -71,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 _buildCoachBanner(context),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, 'Vos Recommandations'),
+                _buildSectionHeader(context, S.of(context)?.recommendations ?? 'Vos Recommandations'),
                 const SizedBox(height: 16),
                 for (var rec in _recommendations)
                   Padding(
@@ -79,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _buildRecommendationCard(context, rec),
                   ),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, 'Simulateurs de Voyage'),
+                _buildSectionHeader(context, S.of(context)?.simulatorsTitle ?? 'Simulateurs de Voyage'),
                 const SizedBox(height: 16),
                 _buildSimulatorGrid(context),
                 const SizedBox(height: 100),
@@ -141,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: MintColors.warning, size: 20),
                   const SizedBox(width: 12),
                   Text(
-                    'MODE PROTECTION ACTIVÉ',
+                    S.of(context)?.homeSafeModeActive ?? 'MODE PROTECTION ACTIVÉ',
                     style: GoogleFonts.montserrat(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -156,21 +157,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () => setState(() => _showSafeModeBanner = false),
                 icon: const Icon(Icons.close,
                     size: 18, color: MintColors.textMuted),
-                tooltip: 'Masquer',
+                tooltip: S.of(context)?.homeHide ?? 'Masquer',
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Nous avons détecté des signaux de tension. MINT vous conseille de stabiliser votre budget avant tout investissement.',
-            style: TextStyle(
+          Text(
+            S.of(context)?.homeSafeModeMessage ?? 'Nous avons détecté des signaux de tension. MINT vous conseille de stabiliser votre budget avant tout investissement.',
+            style: const TextStyle(
                 fontSize: 13, height: 1.4, color: MintColors.textPrimary),
           ),
           const SizedBox(height: 12),
           TextButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.help_outline, size: 16),
-            label: const Text('Ressources & Aides gratuites'),
+            label: Text(S.of(context)?.homeSafeModeResources ?? 'Ressources & Aides gratuites'),
             style: TextButton.styleFrom(
                 visualDensity: VisualDensity.compact,
                 foregroundColor: MintColors.warning),
@@ -197,23 +198,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 44,
                 height: 44,
                 decoration: const BoxDecoration(
-                  color: MintColors.accentPastel,
+                  color: MintColors.appleSurface,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.auto_awesome_outlined,
                     color: MintColors.primary, size: 20),
               ),
               const SizedBox(width: 16),
-              const Text(
-                'Mentor Advisor',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              Text(
+                S.of(context)?.homeMentorAdvisor ?? 'Mentor Advisor',
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.',
-            style: TextStyle(
+          Text(
+            S.of(context)?.homeMentorDescription ?? 'Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.',
+            style: const TextStyle(
               fontSize: 15,
               color: MintColors.textSecondary,
               height: 1.5,
@@ -224,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () => context.push('/advisor'),
-              child: const Text('Démarrer ma session'),
+              child: Text(S.of(context)?.homeStartSession ?? 'Démarrer ma session'),
             ),
           ),
         ],
@@ -387,12 +388,12 @@ class _HomeScreenState extends State<HomeScreen> {
           childAspectRatio: 1.5,
           children: [
             _buildSimulatorTile(
-                'Retraite 3a', Icons.savings_outlined, '/simulator/3a'),
+                S.of(context)?.homeSimulator3a ?? 'Retraite 3a', Icons.savings_outlined, '/simulator/3a'),
             _buildSimulatorTile(
-                'Croissance', Icons.trending_up, '/simulator/compound'),
+                S.of(context)?.homeSimulatorGrowth ?? 'Croissance', Icons.trending_up, '/simulator/compound'),
             _buildSimulatorTile(
-                'Leasing', Icons.directions_car_outlined, '/simulator/leasing'),
-            _buildSimulatorTile('Crédit Conso', Icons.credit_card_outlined,
+                S.of(context)?.homeSimulatorLeasing ?? 'Leasing', Icons.directions_car_outlined, '/simulator/leasing'),
+            _buildSimulatorTile(S.of(context)?.homeSimulatorCredit ?? 'Crédit Conso', Icons.credit_card_outlined,
                 '/simulator/credit'),
           ],
         ),
@@ -435,22 +436,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Icon(Icons.science, color: Colors.white, size: 28),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '🧪 NOUVEAU : Rapport V2 (Démo)',
-                        style: TextStyle(
+                        S.of(context)?.homeReportV2Title ?? '🧪 NOUVEAU : Rapport V2 (Démo)',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'Score par cercle, comparateur 3a, stratégie LPP',
-                        style: TextStyle(
+                        S.of(context)?.homeReportV2Subtitle ?? 'Score par cercle, comparateur 3a, stratégie LPP',
+                        style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 11,
                         ),

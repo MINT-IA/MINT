@@ -80,9 +80,9 @@ class _LandingScreenState extends State<LandingScreen> {
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(color: Colors.white),
                                     ),
-                                    child: const Text(
-                                      "Bêta Privée",
-                                      style: TextStyle(
+                                    child: Text(
+                                      S.of(context)?.landingBetaBadge ?? "Bêta Privée",
+                                      style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
                                         color: MintColors.textSecondary,
@@ -104,9 +104,9 @@ class _LandingScreenState extends State<LandingScreen> {
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                     ),
-                                    child: const Text(
-                                      "Se connecter",
-                                      style: TextStyle(
+                                    child: Text(
+                                      S.of(context)?.authLogin ?? "Se connecter",
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: MintColors.textPrimary,
@@ -122,7 +122,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
                           // Hero Text
                           Text(
-                            "Le premier",
+                            S.of(context)?.landingHeroPrefix ?? "Le premier",
                             style: GoogleFonts.outfit(
                               fontSize: 56,
                               fontWeight: FontWeight.w400,
@@ -150,7 +150,7 @@ class _LandingScreenState extends State<LandingScreen> {
                           const SizedBox(height: 24),
 
                           Text(
-                            "L'intelligence d'un CFO, dans ta poche.\nZéro bullshit. Pur conseil.",
+                            S.of(context)?.landingSubtitleLong ?? "L'intelligence d'un CFO, dans ta poche.\nZéro bullshit. Pur conseil.",
                             style: GoogleFonts.inter(
                               fontSize: 19,
                               color: MintColors.textSecondary,
@@ -181,22 +181,22 @@ class _LandingScreenState extends State<LandingScreen> {
                               children: [
                                 _buildFeatureRow(
                                   Icons.bolt_rounded,
-                                  "Diagnostic Instantané",
-                                  "Analyse 360° en 5 min chrono.",
+                                  S.of(context)?.landingFeature1Title ?? "Diagnostic Instantané",
+                                  S.of(context)?.landingFeature1Desc ?? "Analyse 360° en 5 min chrono.",
                                   MintColors.primary,
                                 ),
                                 const SizedBox(height: 32),
                                 _buildFeatureRow(
                                   Icons.shield_rounded,
-                                  "100% Privé & Local",
-                                  "Tes données restent sur ton device.",
+                                  S.of(context)?.landingFeature2Title ?? "100% Privé & Local",
+                                  S.of(context)?.landingFeature2Desc ?? "Tes données restent sur ton device.",
                                   MintColors.primary,
                                 ),
                                 const SizedBox(height: 32),
                                 _buildFeatureRow(
                                   Icons.auto_graph_rounded,
-                                  "Stratégie Neutre",
-                                  "Zéro commission. Zéro conflit.",
+                                  S.of(context)?.landingFeature3Title ?? "Stratégie Neutre",
+                                  S.of(context)?.landingFeature3Desc ?? "Zéro commission. Zéro conflit.",
                                   MintColors.primary,
                                 ),
                               ],
@@ -219,9 +219,9 @@ class _LandingScreenState extends State<LandingScreen> {
                               style: TextButton.styleFrom(
                                 foregroundColor: MintColors.textMuted,
                               ),
-                              child: const Text(
-                                "Reprendre mon diagnostic",
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                              child: Text(
+                                S.of(context)?.landingResumeDiagnostic ?? "Reprendre mon diagnostic",
+                                style: const TextStyle(fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
@@ -318,7 +318,7 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget _buildPremiumButton(BuildContext context) {
     return MintPremiumButton(
       title: S.of(context)?.startDiagnostic ?? "Démarrer mon diagnostic",
-      subtitle: "Bilan 360° • 5 minutes",
+      subtitle: S.of(context)?.landingDiagnosticSubtitle ?? "Bilan 360° • 5 minutes",
       onTap: () async {
         _analytics.trackCTAClick('cta_diagnostic_clicked', screenName: '/');
         final isCompleted = await ReportPersistenceService.isCompleted();

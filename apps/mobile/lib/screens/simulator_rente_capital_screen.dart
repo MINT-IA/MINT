@@ -443,18 +443,42 @@ class _SimulatorRenteCapitalScreenState
     final scenarios = r.scenarios;
     final nbYears = 100 - _ageRetraite;
 
-    // Find maxY across all scenarios for chart bounds
-    double maxY = 0;
+    // Compute chart bounds from data
+    double maxVal = 0;
+    double minVal = double.infinity;
     for (final s in scenarios.values) {
       for (final v in s.capitalTimeSeries) {
-        if (v > maxY) maxY = v;
+        if (v > maxVal) maxVal = v;
+        if (v < minVal) minVal = v;
       }
     }
-    maxY = maxY * 1.1;
-    if (maxY <= 0) maxY = r.capitalNet * 1.2;
 
-    // Find minY (can go negative conceptually, but we clamp at 0 for display)
-    const double minY = 0;
+    // Smart Y-axis: tighter framing reveals interest effects better
+    final double effectiveMin = minVal < 0 ? 0.0 : minVal;
+    final double dataRange = maxVal - effectiveMin;
+    double maxY = maxVal + dataRange * 0.05;
+    double minY;
+    if (effectiveMin > 0) {
+      // All scenarios stay positive: zoom in to the relevant range
+      minY = effectiveMin - dataRange * 0.08;
+      if (minY < 0) minY = 0;
+    } else {
+      // Some scenarios deplete: small negative buffer for visual clarity
+      minY = -dataRange * 0.03;
+    }
+    if (maxY <= 0) maxY = r.capitalNet * 1.2;
+    final double effectiveRange = maxY - minY;
+
+    // Baseline: 0% return (pure withdrawal, no interest)
+    final baselineSpots = <FlSpot>[];
+    double baselineCapital = r.capitalNet;
+    for (int year = 0; year <= nbYears; year++) {
+      baselineSpots.add(FlSpot(
+        year.toDouble(),
+        baselineCapital > 0 ? baselineCapital : 0,
+      ));
+      baselineCapital -= r.renteAnnuelle;
+    }
 
     return SimulatorCard(
       title: 'Evolution du capital',
@@ -474,7 +498,7 @@ class _SimulatorRenteCapitalScreenState
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: _calcGridInterval(maxY),
+                  horizontalInterval: _calcGridInterval(effectiveRange),
                   getDrawingHorizontalLine: (value) => FlLine(
                     color: MintColors.border.withOpacity(0.5),
                     strokeWidth: 0.8,
@@ -510,8 +534,11 @@ class _SimulatorRenteCapitalScreenState
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 55,
-                      interval: _calcGridInterval(maxY),
+                      interval: _calcGridInterval(effectiveRange),
                       getTitlesWidget: (value, meta) {
+                        if (value < minY || value > maxY) {
+                          return const SizedBox();
+                        }
                         return Text(
                           '${(value / 1000).toStringAsFixed(0)}k',
                           style: GoogleFonts.inter(
@@ -551,10 +578,12 @@ class _SimulatorRenteCapitalScreenState
                       return spots.map((spot) {
                         final age = _ageRetraite + spot.x.toInt();
                         final name = spot.barIndex == 0
-                            ? 'Prudent'
+                            ? 'Sans interets'
                             : spot.barIndex == 1
-                                ? 'Central'
-                                : 'Optimiste';
+                                ? 'Prudent'
+                                : spot.barIndex == 2
+                                    ? 'Central'
+                                    : 'Optimiste';
                         return LineTooltipItem(
                           '$name a $age ans\n${_chf.format(spot.y)}',
                           GoogleFonts.inter(
@@ -568,6 +597,16 @@ class _SimulatorRenteCapitalScreenState
                   ),
                 ),
                 lineBarsData: [
+                  // Baseline: 0% return (no interest)
+                  LineChartBarData(
+                    spots: baselineSpots,
+                    isCurved: false,
+                    color: MintColors.textMuted.withOpacity(0.35),
+                    barWidth: 1.5,
+                    dashArray: [6, 4],
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(show: false),
+                  ),
                   _buildLine(scenarios['prudent']!, _scenarioColors['prudent']!),
                   _buildLine(scenarios['central']!, _scenarioColors['central']!),
                   _buildLine(
@@ -605,12 +644,33 @@ class _SimulatorRenteCapitalScreenState
   }
 
   Widget _buildLegend() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: _scenarioLabels.entries.map((entry) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        // Baseline legend
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 14,
+              height: 2,
+              color: MintColors.textMuted.withOpacity(0.35),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'Sans interets',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: MintColors.textSecondary,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        ..._scenarioLabels.entries.map((entry) {
+          return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
@@ -630,17 +690,18 @@ class _SimulatorRenteCapitalScreenState
                 ),
               ),
             ],
-          ),
-        );
-      }).toList(),
+          );
+        }),
+      ],
     );
   }
 
-  double _calcGridInterval(double maxY) {
-    if (maxY > 1000000) return 200000;
-    if (maxY > 500000) return 100000;
-    if (maxY > 200000) return 50000;
-    return 25000;
+  double _calcGridInterval(double range) {
+    if (range > 1000000) return 200000;
+    if (range > 500000) return 100000;
+    if (range > 200000) return 50000;
+    if (range > 100000) return 25000;
+    return 10000;
   }
 
   // --- Break-Even Section ---
