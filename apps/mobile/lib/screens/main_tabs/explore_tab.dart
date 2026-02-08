@@ -289,8 +289,7 @@ class ExploreTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.school_outlined,
-                size: 16, color: MintColors.textMuted),
+            const Icon(Icons.school_outlined, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
               'APPRENDRE',
@@ -304,6 +303,66 @@ class ExploreTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
+        // Premium "J'y comprends rien" Card
+        InkWell(
+          onTap: () => context.push('/education/hub'),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [MintColors.primary, MintColors.primary.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: MintColors.primary.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.help_outline, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "J'y comprends rien",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "L'essentiel, sans jargon. →",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
         _buildLearnItem(
           context,
           icon: Icons.school_outlined,

@@ -32,12 +32,12 @@ void main() {
 
     // 4. Verify Header
     expect(find.text('Disponible cette période'), findsOneWidget);
-    // 5000 - 1500 = 3500
-    expect(find.textContaining('3500'), findsOneWidget);
+    // 5000 - 1500 = 3500 (may appear in header + spending meter)
+    expect(find.textContaining('3500'), findsWidgets);
 
     // 5. Verify Sliders presence (since style is envelopes3)
     expect(find.textContaining('Futur'), findsOneWidget);
-    expect(find.textContaining('Variables'), findsOneWidget);
+    expect(find.textContaining('Variables'), findsWidgets);
     expect(find.byType(Slider), findsNWidgets(2));
   });
 

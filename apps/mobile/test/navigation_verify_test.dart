@@ -35,15 +35,8 @@ void main() {
     expect(find.text('Financial OS.'), findsOneWidget,
         reason: "Landing page loaded");
 
-    // 2. Click "Démarrer"
-    final buttonFinder =
-        find.widgetWithText(InkWell, 'Démarrer mon diagnostic');
-
-    // If text finding is flaky due to fonts, try finding by Icon
-    final iconFinder = find.byIcon(Icons.arrow_forward_rounded);
-
-    final targetFinder =
-        buttonFinder.evaluate().isNotEmpty ? buttonFinder : iconFinder;
+    // 2. Click "Démarrer" (MintPremiumButton uses GestureDetector)
+    final targetFinder = find.text('Démarrer mon diagnostic');
 
     expect(targetFinder, findsOneWidget, reason: "Start button found");
 

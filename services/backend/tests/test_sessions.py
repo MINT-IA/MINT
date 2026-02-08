@@ -1,11 +1,9 @@
 import pytest
-import httpx
 
 
-@pytest.mark.asyncio
-async def test_create_session(client: httpx.AsyncClient):
+def test_create_session(client):
     # 1. Create a profile first
-    profile_resp = await client.post(
+    profile_resp = client.post(
         "/api/v1/profiles",
         json={
             "householdType": "single",
@@ -17,7 +15,7 @@ async def test_create_session(client: httpx.AsyncClient):
     profile_id = profile_resp.json()["id"]
 
     # 2. Create a session
-    resp = await client.post(
+    resp = client.post(
         "/api/v1/sessions",
         json={
             "profileId": profile_id,
@@ -32,10 +30,9 @@ async def test_create_session(client: httpx.AsyncClient):
     assert "recommendedGoalTemplateId" in data
 
 
-@pytest.mark.asyncio
-async def test_get_session_report(client: httpx.AsyncClient):
+def test_get_session_report(client):
     # 1. Create profile
-    profile_resp = await client.post(
+    profile_resp = client.post(
         "/api/v1/profiles",
         json={
             "householdType": "couple",
@@ -47,7 +44,7 @@ async def test_get_session_report(client: httpx.AsyncClient):
     profile_id = profile_resp.json()["id"]
 
     # 2. Create session
-    session_resp = await client.post(
+    session_resp = client.post(
         "/api/v1/sessions",
         json={
             "profileId": profile_id,
@@ -58,7 +55,7 @@ async def test_get_session_report(client: httpx.AsyncClient):
     session_id = session_resp.json()["id"]
 
     # 3. Get report
-    resp = await client.get(f"/api/v1/sessions/{session_id}/report")
+    resp = client.get(f"/api/v1/sessions/{session_id}/report")
     assert resp.status_code == 200
     report = resp.json()
     assert report["sessionId"] == session_id

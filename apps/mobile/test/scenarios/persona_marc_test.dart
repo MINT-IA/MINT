@@ -14,6 +14,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: AdvisorWizardScreenV2()));
     await tester.pumpAndSettle();
 
+    // SECTION 0: STRESS CHECK
+    await _answerChoice(tester, "Réduire mes dettes");
+
     // SECTION 1: PROFIL
     await _answerText(tester, "Marc");
     await _answerNumber(tester, "1990");

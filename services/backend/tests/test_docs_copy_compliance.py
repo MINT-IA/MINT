@@ -41,6 +41,13 @@ FORBIDDEN_PATTERNS = {
     "Autorité Trompeuse": [
         r"\bofficiel(le|s)?\b",
     ],
+    "Actions Bancaires": [
+        r"\b(ouvrir|ouvre|ouvert)\s+(un\s+)?(compte|iban)\b",
+        r"\b(effectuer|faire)\s+(un\s+)?(virement|transfert|paiement)\b",
+        r"\b(acheter|vendre)\s+(des?\s+)?(actions?|obligations?|titres?)\b",
+        r"\b(souscrire|souscris)\s+(à|un)\b",
+        r"\b(connecte|connecter)\s+(ton|votre)\s+compte\b",
+    ],
 }
 
 # Whitelist strict "officiel"
@@ -63,6 +70,7 @@ MAX_ALLOW_GLOBAL = 2
 # Files to check
 DOCS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 INSERTS_DIR = os.path.join(DOCS_DIR, "education", "inserts")
+IYCOMPRENDSRIEN_DIR = os.path.join(DOCS_DIR, "education", "iycomprendsrien")
 
 FILES_TO_CHECK = {
     "vision_product.md": os.path.join(DOCS_DIR, "visions", "vision_product.md"),
@@ -72,6 +80,11 @@ FILES_TO_CHECK = {
         DOCS_DIR, "decisions", "ADR-CH-EDU-SIMULATORS.md"
     ),
 }
+
+# Add iycomprendsrien hub
+IYCOMPRENDSRIEN_README = os.path.join(IYCOMPRENDSRIEN_DIR, "README.md")
+if os.path.exists(IYCOMPRENDSRIEN_README):
+    FILES_TO_CHECK["iycomprendsrien_README.md"] = IYCOMPRENDSRIEN_README
 
 # Add inserts dynamically
 if os.path.exists(INSERTS_DIR):

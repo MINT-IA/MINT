@@ -56,6 +56,11 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    print('STEP 1b: Stress Check');
+    // Q0: Financial Stress Check (choice)
+    await tester.tap(find.text('Optimiser mes impôts').last);
+    await tester.pumpAndSettle();
+
     print('STEP 2: Name');
     // Q1: Name
     await tester.enterText(find.byType(TextField).last, 'TestUser');

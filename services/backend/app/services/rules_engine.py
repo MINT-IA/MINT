@@ -344,7 +344,10 @@ def generate_recommendations(profile: Profile, answers: dict = None) -> List[Rec
         potential_recos.append(_create_budget_control_recommendation(profile))
 
     # 3. Prévoyance (Priorité 1-2 si revenus corrects)
-    if profile.incomeNetMonthly and profile.incomeNetMonthly > 3000:
+    estimated_net = profile.incomeNetMonthly or (
+        (profile.incomeGrossYearly / 12 * 0.85) if profile.incomeGrossYearly else 0
+    )
+    if estimated_net > 3000:
         potential_recos.append(_create_3a_optimizer_recommendation(profile))
         if profile.employmentStatus == "self_employed":
             potential_recos.append(_create_pension_3a_self_employed_recommendation(profile))
@@ -565,6 +568,24 @@ def generate_session_report(
     }
     sorted_recos = sorted(all_recos, key=lambda r: priority_map.get(r.kind, 99))
     top_recos = sorted_recos[:3]
+
+    # Ensure at least 3 recommendations for topActions
+    while len(top_recos) < 3:
+        fallback = Recommendation(
+            id=uuid.uuid4(),
+            kind="general",
+            title="Faire le point",
+            summary="Complétez votre profil pour des recommandations plus précises.",
+            why=["Plus de données = meilleur plan."],
+            assumptions=["Profil incomplet."],
+            impact=Impact(amountCHF=0, period=Period.oneoff),
+            risks=[],
+            alternatives=[],
+            nextActions=[
+                NextAction(type=NextActionType.learn, label="Compléter mon profil")
+            ],
+        )
+        top_recos.append(fallback)
 
     top_actions = []
     for r in top_recos:

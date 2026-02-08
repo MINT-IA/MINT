@@ -22,7 +22,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check header is displayed
-      expect(find.text('🎯 Vos 3 priorités'), findsOneWidget);
+      expect(find.text('Vos Recommandations'), findsOneWidget);
     });
 
     testWidgets('displays recommendation cards', (tester) async {
@@ -40,9 +40,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check that recommendation titles are displayed
-      expect(find.text('Commencer à investir tôt'), findsOneWidget);
-      expect(find.text('Le coût caché du leasing'), findsOneWidget);
-      expect(find.text('Optimiser votre 3e pilier'), findsOneWidget);
+      expect(find.text('Le pouvoir du temps'), findsOneWidget);
+      expect(find.text('Optimisation Fiscale'), findsOneWidget);
     });
 
     testWidgets('displays simulators section', (tester) async {
@@ -59,11 +58,18 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      // Scroll down to make simulators section visible
+      await tester.scrollUntilVisible(
+        find.text('Simulateurs de Voyage'),
+        500.0,
+      );
+      await tester.pumpAndSettle();
+
       // Check simulators section
-      expect(find.text('Simulateurs'), findsOneWidget);
-      expect(find.text('Intérêts composés'), findsOneWidget);
-      expect(find.text('Anti-Leasing'), findsOneWidget);
-      expect(find.text('3a Optimizer'), findsOneWidget);
+      expect(find.text('Simulateurs de Voyage'), findsOneWidget);
+      expect(find.text('Retraite 3a'), findsOneWidget);
+      expect(find.text('Croissance'), findsOneWidget);
+      expect(find.text('Leasing'), findsOneWidget);
     });
   });
 }

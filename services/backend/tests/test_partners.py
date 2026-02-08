@@ -3,14 +3,11 @@ Tests for partners endpoint.
 """
 
 import uuid
-import pytest
-import httpx
 
 
-@pytest.mark.asyncio
-async def test_list_partners(client: httpx.AsyncClient):
+def test_list_partners(client):
     """Test listing all partners."""
-    response = await client.get("/api/v1/partners")
+    response = client.get("/api/v1/partners")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -25,15 +22,14 @@ async def test_list_partners(client: httpx.AsyncClient):
     assert "url" in partner
 
 
-@pytest.mark.asyncio
-async def test_partner_click(client: httpx.AsyncClient):
+def test_partner_click(client):
     """Test tracking a partner click."""
     payload = {
         "profileId": str(uuid.uuid4()),
         "partnerId": "pillar3a-1",
         "kind": "pillar3a",
     }
-    response = await client.post("/api/v1/partners/click", json=payload)
+    response = client.post("/api/v1/partners/click", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["ok"] is True
