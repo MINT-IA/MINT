@@ -28,6 +28,188 @@ from app.schemas.session import (
 MAX_RATE_CASH_CREDIT = 10.0
 MAX_RATE_OVERDRAFT = 12.0
 
+# --- Disability Gap Constants (CO art. 324a, LAI art. 28, LPP art. 23) ---
+# Employer salary continuation scales by canton (weeks per year of service).
+# Source: Jurisprudence TF — échelles bernoise, zurichoise, bâloise.
+CANTON_SALARY_SCALE_MAP = {
+    "ZH": "zurich", "BE": "bern", "VD": "bern",
+    "GE": "bern", "LU": "bern", "BS": "basel",
+}
+
+# AI rente mensuelle maximale by disability degree (2025 values, OAVS).
+AI_RENTE_BY_DEGREE = {
+    40: 613.0,    # 1/4 rente (40-49%)
+    50: 1225.0,   # 1/2 rente (50-59%)
+    60: 1838.0,   # 3/4 rente (60-69%)
+    70: 2450.0,   # full rente (70-100%)
+}
+
+
+def _bern_scale_weeks(years: int) -> int:
+    """Échelle bernoise (BE, VD, GE, LU). Source: ATF 4C.346/2005."""
+    if years < 1:
+        return 0
+    if years == 1:
+        return 3
+    if years == 2:
+        return 4
+    if years <= 4:
+        return 8
+    if years <= 9:
+        return 13
+    if years <= 14:
+        return 17
+    if years <= 19:
+        return 21
+    return 26  # 20+
+
+
+def _zurich_scale_weeks(years: int) -> int:
+    """Échelle zurichoise (ZH). Source: Obergericht ZH."""
+    if years < 1:
+        return 0
+    if years == 1:
+        return 3
+    if years == 2:
+        return 8
+    if years <= 4:
+        return 8
+    if years <= 9:
+        return 13
+    if years <= 14:
+        return 17
+    if years <= 19:
+        return 21
+    return 26  # 20+
+
+
+def _basel_scale_weeks(years: int) -> int:
+    """Échelle bâloise (BS, BL). Source: Basler Kommentar OR I."""
+    if years < 1:
+        return 0
+    if years == 1:
+        return 3
+    if years <= 5:
+        return 9
+    if years <= 10:
+        return 13
+    if years <= 15:
+        return 17
+    if years <= 20:
+        return 21
+    return 26  # 21+
+
+
+def get_employer_coverage_weeks(canton: str, years_of_service: int) -> int:
+    """Return employer coverage duration in weeks for a given canton + seniority.
+
+    Source: CO art. 324a + cantonal jurisprudence scales.
+    """
+    scale = CANTON_SALARY_SCALE_MAP.get(canton)
+    if scale is None:
+        raise ValueError(f"Canton non supporté: {canton}")
+    if scale == "bern":
+        return _bern_scale_weeks(years_of_service)
+    elif scale == "zurich":
+        return _zurich_scale_weeks(years_of_service)
+    else:
+        return _basel_scale_weeks(years_of_service)
+
+
+def get_ai_rente_monthly(disability_degree: int) -> float:
+    """Return monthly AI rente based on disability degree.
+
+    Source: LAI art. 28 al. 1, OAVS 2025 amounts.
+    """
+    if disability_degree < 40:
+        return 0.0
+    if disability_degree < 50:
+        return AI_RENTE_BY_DEGREE[40]
+    if disability_degree < 60:
+        return AI_RENTE_BY_DEGREE[50]
+    if disability_degree < 70:
+        return AI_RENTE_BY_DEGREE[60]
+    return AI_RENTE_BY_DEGREE[70]
+
+
+def compute_disability_gap(
+    monthly_income: float,
+    employment_status: str,
+    canton: str,
+    years_of_service: int,
+    has_ijm_collective: bool,
+    disability_degree: int = 100,
+    lpp_disability_benefit: float = 0.0,
+) -> dict:
+    """Compute 3-phase disability gap analysis.
+
+    Phase 1: Employer salary continuation (CO art. 324a)
+    Phase 2: IJM coverage (80% salary, up to 720 days)
+    Phase 3: AI rente + LPP disability benefit
+
+    Returns:
+        dict with phase-by-phase coverage, gaps, risk level, and alerts.
+    """
+    if canton not in CANTON_SALARY_SCALE_MAP:
+        raise ValueError(f"Canton non supporté: {canton}")
+
+    alerts: List[str] = []
+
+    # Phase 1: Employer coverage
+    phase1_weeks = 0.0
+    phase1_benefit = 0.0
+    if employment_status == "employee":
+        phase1_weeks = float(get_employer_coverage_weeks(canton, years_of_service))
+        phase1_benefit = monthly_income  # 100% salary
+    else:
+        alerts.append("Indépendant: aucune couverture employeur")
+    phase1_gap = monthly_income - phase1_benefit
+
+    # Phase 2: IJM
+    phase2_duration_months = 24.0
+    phase2_benefit = 0.0
+    if (employment_status == "employee" and has_ijm_collective) or \
+       (employment_status == "self_employed" and has_ijm_collective):
+        phase2_benefit = monthly_income * 0.8
+    else:
+        alerts.append("Aucune IJM: après la période employeur, plus rien jusqu'à l'AI")
+    phase2_gap = monthly_income - phase2_benefit
+
+    # Phase 3: AI + LPP
+    ai_rente = get_ai_rente_monthly(disability_degree)
+    phase3_benefit = ai_rente + lpp_disability_benefit
+    phase3_gap = monthly_income - phase3_benefit
+
+    # Risk level
+    if employment_status == "self_employed" and not has_ijm_collective:
+        risk_level = "critical"
+        alerts.append("CRITIQUE: Indépendant sans IJM = aucune couverture pendant 24 mois")
+    elif employment_status == "employee" and not has_ijm_collective:
+        risk_level = "high"
+        alerts.append(f"HAUT RISQUE: Après {int(phase1_weeks)} semaines, plus rien")
+    elif phase3_gap > 3000:
+        risk_level = "medium"
+        alerts.append("Gap important à long terme (AI + LPP insuffisants)")
+    else:
+        risk_level = "low"
+
+    return {
+        "revenu_actuel": monthly_income,
+        "phase1_duration_weeks": phase1_weeks,
+        "phase1_monthly_benefit": phase1_benefit,
+        "phase1_gap": phase1_gap,
+        "phase2_duration_months": phase2_duration_months,
+        "phase2_monthly_benefit": phase2_benefit,
+        "phase2_gap": phase2_gap,
+        "phase3_monthly_benefit": phase3_benefit,
+        "phase3_gap": phase3_gap,
+        "risk_level": risk_level,
+        "alerts": alerts,
+        "ai_rente_mensuelle": ai_rente,
+        "lpp_disability_benefit": lpp_disability_benefit,
+    }
+
+
 # --- Goal Templates (Canonical) ---
 GOAL_TEMPLATES = {
     "goal_control_debts": "Reprendre le contrôle (budget + dettes)",

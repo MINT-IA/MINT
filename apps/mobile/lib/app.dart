@@ -25,6 +25,7 @@ import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
+import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -92,6 +93,11 @@ final _router = GoRouter(
       path: '/simulator/rente-capital',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SimulatorRenteCapitalScreen(),
+    ),
+    GoRoute(
+      path: '/simulator/disability-gap',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SimulatorDisabilityGapScreen(),
     ),
     GoRoute(
       path: '/check/debt',

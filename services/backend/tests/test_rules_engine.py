@@ -12,6 +12,9 @@ from app.services.rules_engine import (
     calculate_debt_risk_score,
     calculate_marginal_tax_rate,
     compute_rente_vs_capital,
+    compute_disability_gap,
+    get_employer_coverage_weeks,
+    get_ai_rente_monthly,
     MAX_RATE_CASH_CREDIT,
 )
 
@@ -372,3 +375,118 @@ class TestRenteVsCapital:
         r = compute_rente_vs_capital(250_000, 250_000, 0.05, 65, "ZH", "single")
         # 500k exactly -> taux >= 500k -> 8%
         assert r["impot_retrait"] == pytest.approx(40_000, abs=1)
+
+
+class TestDisabilityGap:
+    """Tests for compute_disability_gap (3-phase disability coverage analysis).
+
+    Source: CO art. 324a, LAI art. 28, LPP art. 23.
+    """
+
+    def test_marc_zh_employee_ijm(self):
+        """Marc: ZH employee, 3y seniority, 8000 CHF, IJM collective, 100% disability."""
+        r = compute_disability_gap(8000, "employee", "ZH", 3, True, 100)
+        # Phase 1: ZH zurich scale, 3y = 8 weeks
+        assert r["phase1_duration_weeks"] == 8.0
+        assert r["phase1_monthly_benefit"] == 8000.0
+        assert r["phase1_gap"] == 0.0
+        # Phase 2: IJM 80%
+        assert r["phase2_monthly_benefit"] == pytest.approx(6400, abs=1)
+        assert r["phase2_gap"] == pytest.approx(1600, abs=1)
+        # Phase 3: AI full rente 2450
+        assert r["ai_rente_mensuelle"] == 2450.0
+        assert r["phase3_gap"] == pytest.approx(5550, abs=1)
+        assert r["risk_level"] == "medium"
+
+    def test_sophie_vd_employee_ijm(self):
+        """Sophie: VD employee, 8y seniority, 6000 CHF, IJM, 100% disability."""
+        r = compute_disability_gap(6000, "employee", "VD", 8, True, 100)
+        # Phase 1: VD bern scale, 8y = 13 weeks
+        assert r["phase1_duration_weeks"] == 13.0
+        assert r["phase1_gap"] == 0.0
+        # Phase 2: IJM 80%
+        assert r["phase2_monthly_benefit"] == pytest.approx(4800, abs=1)
+        assert r["phase2_gap"] == pytest.approx(1200, abs=1)
+        # Phase 3: AI 2450
+        assert r["phase3_gap"] == pytest.approx(3550, abs=1)
+        assert r["risk_level"] == "medium"
+
+    def test_pierre_ge_self_employed_no_ijm(self):
+        """Pierre: GE self-employed, 10000 CHF, NO IJM, 100% disability."""
+        r = compute_disability_gap(10000, "self_employed", "GE", 0, False, 100)
+        # Phase 1: no employer coverage for self-employed
+        assert r["phase1_duration_weeks"] == 0.0
+        assert r["phase1_gap"] == 10000.0
+        # Phase 2: no IJM
+        assert r["phase2_monthly_benefit"] == 0.0
+        assert r["phase2_gap"] == 10000.0
+        # Phase 3: AI 2450
+        assert r["phase3_gap"] == pytest.approx(7550, abs=1)
+        assert r["risk_level"] == "critical"
+
+    def test_anna_bs_employee_no_ijm(self):
+        """Anna: BS employee, 1y seniority, 4500 CHF, NO IJM, 100% disability."""
+        r = compute_disability_gap(4500, "employee", "BS", 1, False, 100)
+        # Phase 1: BS basel scale, 1y = 3 weeks
+        assert r["phase1_duration_weeks"] == 3.0
+        assert r["phase1_gap"] == 0.0
+        # Phase 2: no IJM -> 0
+        assert r["phase2_monthly_benefit"] == 0.0
+        assert r["phase2_gap"] == 4500.0
+        assert r["risk_level"] == "high"
+
+    def test_thomas_lu_employee_ijm(self):
+        """Thomas: LU employee, 15y seniority, 12000 CHF, IJM, 100% disability."""
+        r = compute_disability_gap(12000, "employee", "LU", 15, True, 100)
+        # Phase 1: LU bern scale, 15y = 21 weeks
+        assert r["phase1_duration_weeks"] == 21.0
+        assert r["phase1_gap"] == 0.0
+        # Phase 2: IJM 80% = 9600
+        assert r["phase2_monthly_benefit"] == pytest.approx(9600, abs=1)
+        # Phase 3: AI 2450
+        assert r["phase3_gap"] == pytest.approx(9550, abs=1)
+        assert r["risk_level"] == "medium"
+
+    def test_partial_disability_50_percent(self):
+        """50% disability = 1/2 rente = 1225 CHF."""
+        assert get_ai_rente_monthly(50) == 1225.0
+
+    def test_partial_disability_40_percent(self):
+        """40% disability = 1/4 rente = 613 CHF."""
+        assert get_ai_rente_monthly(40) == 613.0
+
+    def test_partial_disability_60_percent(self):
+        """60% disability = 3/4 rente = 1838 CHF."""
+        assert get_ai_rente_monthly(60) == 1838.0
+
+    def test_below_40_no_rente(self):
+        """Below 40% disability = no AI rente."""
+        assert get_ai_rente_monthly(30) == 0.0
+
+    def test_employer_coverage_zurich_scale(self):
+        """ZH uses zurich scale: 2nd year = 8 weeks."""
+        assert get_employer_coverage_weeks("ZH", 2) == 8
+
+    def test_employer_coverage_bern_scale(self):
+        """BE uses bern scale: 2nd year = 4 weeks."""
+        assert get_employer_coverage_weeks("BE", 2) == 4
+
+    def test_employer_coverage_basel_scale(self):
+        """BS uses basel scale: 2nd year = 9 weeks."""
+        assert get_employer_coverage_weeks("BS", 2) == 9
+
+    def test_unsupported_canton_raises(self):
+        """Unsupported canton should raise ValueError."""
+        with pytest.raises(ValueError, match="Canton non supporté"):
+            compute_disability_gap(5000, "employee", "TI", 5, True)
+
+    def test_self_employed_always_critical_without_ijm(self):
+        """Self-employed without IJM = critical risk, always."""
+        r = compute_disability_gap(5000, "self_employed", "ZH", 0, False, 100)
+        assert r["risk_level"] == "critical"
+
+    def test_employee_low_gap_low_risk(self):
+        """Employee with IJM and low Phase 3 gap = low risk."""
+        r = compute_disability_gap(3000, "employee", "ZH", 5, True, 100)
+        # Phase 3 gap = 3000 - 2450 = 550 (< 3000 threshold)
+        assert r["risk_level"] == "low"
