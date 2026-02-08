@@ -12,6 +12,9 @@
 - `lppInsuredSalary`: double (FactFind).
 - `hasDebt`: boolean.
 - `factfindCompletionIndex`: double (0.0 to 1.0).
+- `commune`: string (NPA ou nom commune — pour multiplicateur fiscal précis ; chef-lieu par défaut).
+- `isChurchMember`: boolean (impôt ecclésiastique — optionnel, default false).
+- `pillar3aAnnual`: double (versement annuel 3a — pour déduction fiscale).
 
 ## 2. Domain Object: SessionReport (SoA Compliant)
 The central technical deliverable of a Session.

@@ -215,6 +215,9 @@ components:
         id: { type: string, format: uuid }
         birthYear: { type: integer, nullable: true }
         canton: { type: string, nullable: true }
+        commune: { type: string, nullable: true, description: "NPA ou nom commune pour multiplicateur fiscal précis" }
+        isChurchMember: { type: boolean, default: false, description: "Impôt ecclésiastique" }
+        pillar3aAnnual: { type: number, nullable: true, description: "Versement annuel 3a (déduction fiscale)" }
         householdType: { $ref: "#/components/schemas/HouseholdType" }
         incomeNetMonthly: { type: number, nullable: true }
         savingsMonthly: { type: number, nullable: true }
@@ -227,6 +230,9 @@ components:
       properties:
         birthYear: { type: integer, nullable: true }
         canton: { type: string, nullable: true }
+        commune: { type: string, nullable: true }
+        isChurchMember: { type: boolean, default: false }
+        pillar3aAnnual: { type: number, nullable: true }
         householdType: { $ref: "#/components/schemas/HouseholdType" }
         incomeNetMonthly: { type: number, nullable: true }
         savingsMonthly: { type: number, nullable: true }
@@ -237,6 +243,9 @@ components:
       properties:
         birthYear: { type: integer, nullable: true }
         canton: { type: string, nullable: true }
+        commune: { type: string, nullable: true }
+        isChurchMember: { type: boolean }
+        pillar3aAnnual: { type: number, nullable: true }
         householdType: { $ref: "#/components/schemas/HouseholdType" }
         incomeNetMonthly: { type: number, nullable: true }
         savingsMonthly: { type: number, nullable: true }

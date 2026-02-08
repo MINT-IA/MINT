@@ -144,7 +144,7 @@ Nouveaux champs Profile : `commune`, `isChurchMember`, `pillar3aAnnual`
 - [x] P1 : Implémenter splitting GE pour mariés ✅ (_usesSplitting + income/2 + tax*2)
 - [x] P2 : Écrire 30 tests avec valeurs attendues vs ESTV ✅ (15 ESTV validation + canton code resolution)
 - [x] P2 : Fixer BUG CRITIQUE — canton code vs nom JSON ✅ (_codeToName mapping dans TaxScalesLoader)
-- [ ] P2 : Mettre à jour SOT.md + OpenAPI (nouveaux champs: commune, isChurchMember, pillar3aAnnual)
+- [x] P2 : Mettre à jour SOT.md + OpenAPI + Profile Dart + Profile Python (nouveaux champs: commune, isChurchMember, pillar3aAnnual) ✅
 
 #### BUG CRITIQUE TROUVÉ — Canton Code vs Nom JSON (P2)
 

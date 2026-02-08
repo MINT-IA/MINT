@@ -33,6 +33,24 @@ class ProfileBase(BaseModel):
     goal: Goal = Goal.other
     factfindCompletionIndex: float = 0.0
 
+    # ⭐ Nouveaux champs pour statut d'emploi et 2e pilier
+    employmentStatus: Optional[str] = None
+    has2ndPillar: Optional[bool] = None
+    legalForm: Optional[str] = None
+    selfEmployedNetIncome: Optional[float] = None
+    hasVoluntaryLpp: Optional[bool] = None
+    primaryActivity: Optional[str] = None
+
+    # ⭐ Nouveaux champs pour AVS
+    hasAvsGaps: Optional[bool] = None
+    avsContributionYears: Optional[int] = None
+    spouseAvsContributionYears: Optional[int] = None
+
+    # ⭐ Nouveaux champs pour modèle fiscal MVP (Chantier 1)
+    commune: Optional[str] = None  # NPA ou nom commune → multiplicateur précis
+    isChurchMember: bool = False  # Impôt ecclésiastique
+    pillar3aAnnual: Optional[float] = None  # Versement annuel 3a → déduction fiscale
+
 
 class ProfileCreate(ProfileBase):
     pass
@@ -50,6 +68,20 @@ class ProfileUpdate(BaseModel):
     hasDebt: Optional[bool] = None
     goal: Optional[Goal] = None
     factfindCompletionIndex: Optional[float] = None
+
+    # ⭐ Nouveaux champs
+    employmentStatus: Optional[str] = None
+    has2ndPillar: Optional[bool] = None
+    legalForm: Optional[str] = None
+    selfEmployedNetIncome: Optional[float] = None
+    hasVoluntaryLpp: Optional[bool] = None
+    primaryActivity: Optional[str] = None
+    hasAvsGaps: Optional[bool] = None
+    avsContributionYears: Optional[int] = None
+    spouseAvsContributionYears: Optional[int] = None
+    commune: Optional[str] = None
+    isChurchMember: Optional[bool] = None
+    pillar3aAnnual: Optional[float] = None
 
 
 class Profile(ProfileBase):

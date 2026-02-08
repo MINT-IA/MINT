@@ -71,6 +71,16 @@ class Profile {
   final bool? hasVoluntaryLpp; // Pour indépendants
   final String? primaryActivity; // Pour mixtes: 'employee' ou 'self_employed'
 
+  // ⭐ Nouveaux champs pour AVS
+  final bool? hasAvsGaps;
+  final int? avsContributionYears;
+  final int? spouseAvsContributionYears;
+
+  // ⭐ Nouveaux champs pour modèle fiscal MVP (Chantier 1)
+  final String? commune; // NPA ou nom commune → multiplicateur précis
+  final bool isChurchMember; // Impôt ecclésiastique
+  final double? pillar3aAnnual; // Versement annuel 3a → déduction fiscale
+
   Profile({
     required this.id,
     this.birthYear,
@@ -92,6 +102,12 @@ class Profile {
     this.selfEmployedNetIncome,
     this.hasVoluntaryLpp,
     this.primaryActivity,
+    this.hasAvsGaps,
+    this.avsContributionYears,
+    this.spouseAvsContributionYears,
+    this.commune,
+    this.isChurchMember = false,
+    this.pillar3aAnnual,
   });
 
   /// Calcule le plafond 3a selon le profil
@@ -153,6 +169,12 @@ class Profile {
       selfEmployedNetIncome: json['selfEmployedNetIncome']?.toDouble(),
       hasVoluntaryLpp: json['hasVoluntaryLpp'],
       primaryActivity: json['primaryActivity'],
+      hasAvsGaps: json['hasAvsGaps'],
+      avsContributionYears: json['avsContributionYears'],
+      spouseAvsContributionYears: json['spouseAvsContributionYears'],
+      commune: json['commune'],
+      isChurchMember: json['isChurchMember'] ?? false,
+      pillar3aAnnual: json['pillar3aAnnual']?.toDouble(),
     );
   }
 
@@ -178,6 +200,12 @@ class Profile {
       'selfEmployedNetIncome': selfEmployedNetIncome,
       'hasVoluntaryLpp': hasVoluntaryLpp,
       'primaryActivity': primaryActivity,
+      'hasAvsGaps': hasAvsGaps,
+      'avsContributionYears': avsContributionYears,
+      'spouseAvsContributionYears': spouseAvsContributionYears,
+      'commune': commune,
+      'isChurchMember': isChurchMember,
+      'pillar3aAnnual': pillar3aAnnual,
     };
   }
 
@@ -202,6 +230,12 @@ class Profile {
     double? selfEmployedNetIncome,
     bool? hasVoluntaryLpp,
     String? primaryActivity,
+    bool? hasAvsGaps,
+    int? avsContributionYears,
+    int? spouseAvsContributionYears,
+    String? commune,
+    bool? isChurchMember,
+    double? pillar3aAnnual,
   }) {
     return Profile(
       id: id ?? this.id,
@@ -226,6 +260,13 @@ class Profile {
           selfEmployedNetIncome ?? this.selfEmployedNetIncome,
       hasVoluntaryLpp: hasVoluntaryLpp ?? this.hasVoluntaryLpp,
       primaryActivity: primaryActivity ?? this.primaryActivity,
+      hasAvsGaps: hasAvsGaps ?? this.hasAvsGaps,
+      avsContributionYears: avsContributionYears ?? this.avsContributionYears,
+      spouseAvsContributionYears:
+          spouseAvsContributionYears ?? this.spouseAvsContributionYears,
+      commune: commune ?? this.commune,
+      isChurchMember: isChurchMember ?? this.isChurchMember,
+      pillar3aAnnual: pillar3aAnnual ?? this.pillar3aAnnual,
     );
   }
 }
