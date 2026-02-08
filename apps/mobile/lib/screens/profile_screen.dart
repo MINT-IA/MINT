@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -67,6 +68,10 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.lock_outline,
                     onTap: () => context.push('/profile/consent'),
                   ),
+                  const SizedBox(height: 32),
+                  Text(S.of(context)?.profileAiTitle ?? 'Intelligence Artificielle', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  _buildAiSection(context),
                   const SizedBox(height: 32),
                   // Auth section (if logged in)
                   if (authProvider.isLoggedIn) ...[
@@ -174,6 +179,20 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAiSection(BuildContext context) {
+    final byok = context.watch<ByokProvider>();
+    final s = S.of(context);
+    return _buildFactFindSection(
+      title: s?.profileAiByok ?? 'Ask MINT (BYOK)',
+      status: byok.isConfigured
+          ? '${byok.providerLabel} \u2014 ${s?.profileAiConfigured ?? 'Configur\u00e9'}'
+          : (s?.profileAiNotConfigured ?? 'Non configur\u00e9'),
+      isComplete: byok.isConfigured,
+      icon: Icons.auto_awesome,
+      onTap: () => context.push('/profile/byok'),
     );
   }
 

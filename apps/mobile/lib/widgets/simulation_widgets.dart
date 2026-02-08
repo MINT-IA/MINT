@@ -135,7 +135,7 @@ class CompoundInterestChart extends StatelessWidget {
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
                 maxY: (scenarios.last['futureValue'] as double) * 1.1,
-                barTouchData: const BarTouchData(enabled: false),
+                barTouchData: BarTouchData(enabled: false),
                 titlesData: FlTitlesData(
                   show: true,
                   bottomTitles: AxisTitles(

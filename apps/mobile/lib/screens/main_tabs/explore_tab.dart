@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,6 +25,8 @@ class ExploreTab extends StatelessWidget {
                 _buildGoalsSection(context),
                 const SizedBox(height: 32),
                 _buildSimulatorsSection(context),
+                const SizedBox(height: 32),
+                _buildAskMintSection(context),
                 const SizedBox(height: 32),
                 _buildLearnSection(context),
                 const SizedBox(height: 100),
@@ -294,6 +298,97 @@ class ExploreTab extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAskMintSection(BuildContext context) {
+    final byok = context.watch<ByokProvider>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.auto_awesome, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'ASK MINT',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () => context.push('/ask-mint'),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  MintColors.accent,
+                  MintColors.accent.withOpacity(0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: MintColors.accent.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.chat_bubble_outline,
+                      color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ask MINT',
+                        style: GoogleFonts.outfit(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        byok.isConfigured
+                            ? 'Pose tes questions finance suisse \u2192'
+                            : 'Configure ton IA pour commencer \u2192',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios,
+                    color: Colors.white, size: 16),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

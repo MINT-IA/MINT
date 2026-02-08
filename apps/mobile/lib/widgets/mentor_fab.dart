@@ -155,13 +155,13 @@ class MentorModal extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildActionTile(
                   context,
-                  icon: Icons.help_outline,
-                  title: 'Poser une question',
-                  subtitle: 'Besoin d\'aide ou de clarification',
-                  color: MintColors.textMuted,
+                  icon: Icons.auto_awesome,
+                  title: 'Ask MINT',
+                  subtitle: 'Pose tes questions finance suisse',
+                  color: MintColors.accent,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Show FAQ or chat
+                    context.push('/ask-mint');
                   },
                 ),
                 const SizedBox(height: 24),

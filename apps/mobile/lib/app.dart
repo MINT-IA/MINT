@@ -28,6 +28,9 @@ import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
 import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+import 'package:mint_mobile/screens/byok_settings_screen.dart';
+import 'package:mint_mobile/screens/ask_mint_screen.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 
@@ -75,7 +78,16 @@ final _router = GoRouter(
           path: 'consent',
           builder: (context, state) => const ConsentDashboardScreen(),
         ),
+        GoRoute(
+          path: 'byok',
+          builder: (context, state) => const ByokSettingsScreen(),
+        ),
       ],
+    ),
+    GoRoute(
+      path: '/ask-mint',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AskMintScreen(),
     ),
     GoRoute(
       path: '/budget',
@@ -174,6 +186,11 @@ class _MintAppState extends State<MintApp> {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider(create: (_) {
+          final provider = ByokProvider();
+          provider.loadSavedKey();
+          return provider;
+        }),
       ],
       child: MaterialApp.router(
         title: 'Mint',

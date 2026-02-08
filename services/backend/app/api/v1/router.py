@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     partners,
     sessions,
     analytics,
+    rag,
 )
 
 api_router = APIRouter()
@@ -22,3 +23,4 @@ api_router.include_router(
 api_router.include_router(partners.router, prefix="/partners", tags=["partners"])
 api_router.include_router(sessions.router, prefix="/sessions", tags=["sessions"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+api_router.include_router(rag.router, prefix="/rag", tags=["rag"])
