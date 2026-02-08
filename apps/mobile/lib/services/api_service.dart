@@ -2,15 +2,26 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8001/api/v1';
+  static const String baseUrl = 'http://localhost:8888/api/v1';
 
-  // Méthodes génériques HTTP
+  // Helper method to get auth headers with JWT token
+  static Future<Map<String, String>> _authHeaders() async {
+    final token = await AuthService.getToken();
+    final headers = {'Content-Type': 'application/json'};
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  // Méthodes génériques HTTP (now with JWT injection)
   static Future<Map<String, dynamic>> get(String endpoint) async {
     final response = await http.get(
       Uri.parse('$baseUrl$endpoint'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
     );
 
     if (response.statusCode == 200) {
@@ -23,7 +34,7 @@ class ApiService {
   static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode(data),
     );
 
@@ -37,7 +48,7 @@ class ApiService {
   static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
     final response = await http.put(
       Uri.parse('$baseUrl$endpoint'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode(data),
     );
 
@@ -51,11 +62,76 @@ class ApiService {
   static Future<void> delete(String endpoint) async {
     final response = await http.delete(
       Uri.parse('$baseUrl$endpoint'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
     );
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('DELETE $endpoint failed: ${response.body}');
+    }
+  }
+
+  // ========== AUTH ENDPOINTS ==========
+
+  /// Register a new user
+  /// Returns: { token: string, user: { id, email, display_name? } }
+  static Future<Map<String, dynamic>> register(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        if (displayName != null) 'display_name': displayName,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['detail'] ?? 'Registration failed');
+    }
+  }
+
+  /// Login with email and password
+  /// Returns: { token: string, user: { id, email, display_name? } }
+  static Future<Map<String, dynamic>> login(
+    String email,
+    String password,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['detail'] ?? 'Login failed');
+    }
+  }
+
+  /// Get current user info
+  /// Returns: { id, email, display_name?, created_at }
+  static Future<Map<String, dynamic>> getMe() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/auth/me'),
+      headers: await _authHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get user info: ${response.body}');
     }
   }
 

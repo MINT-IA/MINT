@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -11,6 +12,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileProvider>().profile;
+    final authProvider = context.watch<AuthProvider>();
     final double precision = profile?.factfindCompletionIndex ?? 0.3;
 
     return Scaffold(
@@ -65,6 +67,13 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () => context.push('/profile/consent'),
                   ),
                   const SizedBox(height: 32),
+                  // Auth section (if logged in)
+                  if (authProvider.isLoggedIn) ...[
+                    const Text('Compte', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+                    _buildAuthSection(context, authProvider),
+                    const SizedBox(height: 32),
+                  ],
                   _buildDangerZone(),
                 ],
               ),
@@ -154,13 +163,69 @@ class ProfileScreen extends StatelessWidget {
               if (reward != null)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: MintColors.accentPastel, borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: MintColors.appleSurface, borderRadius: BorderRadius.circular(8)),
                   child: Text(reward, style: const TextStyle(color: MintColors.primary, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
               const Icon(Icons.chevron_right, size: 18, color: MintColors.textMuted),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAuthSection(BuildContext context, AuthProvider authProvider) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.person, color: MintColors.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      authProvider.displayName ?? authProvider.email ?? 'Utilisateur',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    if (authProvider.displayName != null)
+                      Text(
+                        authProvider.email ?? '',
+                        style: const TextStyle(fontSize: 12, color: MintColors.textMuted),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () async {
+              await authProvider.logout();
+              if (context.mounted) {
+                context.go('/');
+              }
+            },
+            icon: const Icon(Icons.logout, size: 18),
+            label: const Text('Se déconnecter'),
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.error,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -6,7 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
+import 'package:mint_mobile/screens/auth/login_screen.dart';
+import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
@@ -37,6 +40,15 @@ final _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const LandingScreen(),
+    ),
+    // Auth Routes
+    GoRoute(
+      path: '/auth/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/auth/register',
+      builder: (context, state) => const RegisterScreen(),
     ),
     // Main Dashboard (Shell with internal tabs)
     GoRoute(
@@ -146,6 +158,7 @@ class MintApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
       ],

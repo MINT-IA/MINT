@@ -54,5 +54,22 @@
   "disabilityGapRiskLow": "Risque faible",
   "disabilityGapDisclaimer": "Ces résultats sont des estimations indicatives basées sur les barèmes légaux. Votre couverture réelle dépend de votre contrat de travail, de votre caisse de pension et de vos assurances individuelles. Consultez votre employeur et un conseiller qualifié.",
   "disabilityGapIjmExpl": "L'IJM (indemnité journalière maladie) est une assurance qui couvre 80% de votre salaire pendant max. 720 jours en cas de maladie. L'employeur n'est pas obligé de la souscrire, mais beaucoup le font via une assurance collective. Sans IJM, après la période légale de maintien du salaire, vous ne recevez plus rien jusqu'à l'éventuelle rente AI.",
-  "disabilityGapCo324aExpl": "Selon l'art. 324a CO, l'employeur doit verser le salaire pendant une durée limitée en cas de maladie. Cette durée dépend des années de service et de l'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette période, seule l'IJM (si existante) prend le relais."
+  "disabilityGapCo324aExpl": "Selon l'art. 324a CO, l'employeur doit verser le salaire pendant une durée limitée en cas de maladie. Cette durée dépend des années de service et de l'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette période, seule l'IJM (si existante) prend le relais.",
+  "authLogin": "Se connecter",
+  "authRegister": "Créer un compte",
+  "authEmail": "Adresse e-mail",
+  "authPassword": "Mot de passe",
+  "authConfirmPassword": "Confirmer le mot de passe",
+  "authDisplayName": "Nom d'affichage (optionnel)",
+  "authCreateAccount": "Créer mon compte",
+  "authAlreadyAccount": "Déjà inscrit ?",
+  "authNoAccount": "Pas encore de compte ?",
+  "authLogout": "Se déconnecter",
+  "authLoginTitle": "Connexion",
+  "authRegisterTitle": "Créer ton compte",
+  "authPasswordHint": "Minimum 8 caractères",
+  "authError": "Erreur de connexion",
+  "authEmailInvalid": "Adresse e-mail invalide",
+  "authPasswordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+  "authPasswordMismatch": "Les mots de passe ne correspondent pas"
 }
