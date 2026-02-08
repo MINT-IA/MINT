@@ -9,8 +9,8 @@ class AverageTaxMultipliers {
     'ZH': 2.38,
     // Bern (Bern ~306% total)
     'BE': 3.06,
-    // Lucerne (LU City ~1.75 + 1.60 ? Low tax)
-    'LU': 1.95,
+    // Lucerne (Steuerfuss cantonal 1.60 + communal 1.75 = 3.35)
+    'LU': 3.35,
     // Uri (Altdorf)
     'UR': 2.05,
     // Schwyz (Low tax)
@@ -27,8 +27,8 @@ class AverageTaxMultipliers {
     'FR': 2.80,
     // Solothurn
     'SO': 2.60,
-    // Basel-Stadt (Canton unique)
-    'BS': 2.00, // Souvent affiché différemment, mais approx
+    // Basel-Stadt (brackets JSON contiennent déjà taux total canton+commune)
+    'BS': 1.00,
     // Basel-Land
     'BL': 2.85,
     // Schaffhausen

@@ -8,6 +8,7 @@ from app.services.rules_engine import (
     calculate_pillar3a_tax_benefit,
     calculate_consumer_credit,
     calculate_debt_risk_score,
+    calculate_marginal_tax_rate,
     MAX_RATE_CASH_CREDIT,
 )
 
@@ -239,3 +240,56 @@ class TestDebtRiskScore:
         assert result["riskScore"] == 6
         assert result["riskLevel"] == "high"
         assert result["hasGamblingRisk"] is True
+
+
+class TestMarginalTaxRate:
+    """Tests for marginal tax rate (IFD + cantonal estimation)."""
+
+    def test_zh_100k_single(self):
+        """ZH medium tax: IFD marginal 6.60% + ZH 30% = ~36.6% -> clamped."""
+        rate = calculate_marginal_tax_rate("ZH", 100000, "single")
+        assert 0.28 <= rate <= 0.40
+
+    def test_ge_100k_single(self):
+        """GE high tax: IFD marginal 6.60% + GE 41% = ~47.6% -> clamped 0.45."""
+        rate = calculate_marginal_tax_rate("GE", 100000, "single")
+        assert 0.35 <= rate <= 0.45
+
+    def test_lu_100k_single(self):
+        """LU low tax: IFD marginal 6.60% + LU 25% = ~31.6%."""
+        rate = calculate_marginal_tax_rate("LU", 100000, "single")
+        assert 0.20 <= rate <= 0.35
+
+    def test_ge_higher_than_lu(self):
+        """GE should always be higher than LU for same income."""
+        rate_ge = calculate_marginal_tax_rate("GE", 100000)
+        rate_lu = calculate_marginal_tax_rate("LU", 100000)
+        assert rate_ge > rate_lu
+
+    def test_canton_actually_matters(self):
+        """Le canton ne doit PLUS être ignoré."""
+        rate_zh = calculate_marginal_tax_rate("ZH", 100000)
+        rate_ge = calculate_marginal_tax_rate("GE", 100000)
+        assert rate_zh != rate_ge
+
+    def test_low_income_floor(self):
+        """Very low income should still return at least 0.10."""
+        rate = calculate_marginal_tax_rate("ZG", 20000, "single")
+        assert rate >= 0.10
+
+    def test_very_high_income_ceiling(self):
+        """Very high income should be clamped at 0.45."""
+        rate = calculate_marginal_tax_rate("GE", 1000000, "single")
+        assert rate <= 0.45
+
+    def test_married_lower_than_single(self):
+        """Married bracket starts higher, so marginal rate should differ."""
+        rate_single = calculate_marginal_tax_rate("ZH", 80000, "single")
+        rate_married = calculate_marginal_tax_rate("ZH", 80000, "married")
+        # At 80k, single is in 5.94% IFD bracket, married is in 3.0% bracket
+        assert rate_married < rate_single
+
+    def test_unknown_canton_uses_default(self):
+        """Unknown canton should use default multiplier, not crash."""
+        rate = calculate_marginal_tax_rate("XX", 100000, "single")
+        assert 0.10 <= rate <= 0.45

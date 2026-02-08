@@ -55,9 +55,24 @@ class TaxScalesLoader {
     final cantonScales = _cache[canton];
     if (cantonScales == null) return [];
 
-    // Filter by tariff (exact match)
-    // Note: Tariff string in JSON comes from scraper ("Single, no children", "Married/Single, with children")
-    // We might need fuzzy matching or normalization
-    return cantonScales.where((s) => s.tariff == tariff).toList();
+    // Normalisation des tarifs par canton (noms hétérogènes dans le JSON scrapé)
+    String normalizedTariff = tariff;
+
+    // VD : noms spécifiques dans le JSON
+    if (canton == 'Vaud') {
+      if (tariff == 'Single, no children') {
+        normalizedTariff = 'Single, with / no children';
+      } else if (tariff == 'Married/Single, with children') {
+        normalizedTariff = 'Married';
+      }
+    }
+
+    // Tentative avec le tarif (normalisé ou original)
+    final result =
+        cantonScales.where((s) => s.tariff == normalizedTariff).toList();
+    if (result.isNotEmpty) return result;
+
+    // Fallback: cantons à tarif unique "All" (GE, UR, OW, NW, GL, SO, SH, GR, AG, TG, VS, NE)
+    return cantonScales.where((s) => s.tariff == 'All').toList();
   }
 }

@@ -33,24 +33,21 @@ class TaxEstimatorService {
     final brackets = TaxScalesLoader.getBrackets(cantonCode, tariff);
 
     if (brackets.isNotEmpty) {
+      // Splitting pour cantons à tarif unique "All" + mariés (ex: GE — LIPP art. 41 al. 2)
+      final bool useSplitting = _usesSplitting(cantonCode) &&
+          (civilStatus == 'married');
+      final double incomeForScales =
+          useSplitting ? taxableIncomeApprox / 2 : taxableIncomeApprox;
+
       // Calcul Impôt Cantonal de Base
-      double cantonBaseTax =
-          _calculateFromScales(taxableIncomeApprox, brackets);
+      double cantonBaseTax = _calculateFromScales(incomeForScales, brackets);
+      if (useSplitting) cantonBaseTax *= 2;
 
-      // Multiplicateurs (Moyennes)
-      // Canton: Souvent 100% de base, mais varie (ex: VD 155%).
-      // Commune: Souvent 0.6 à 1.2 du Canton.
-      // Eglise: ~10%
-      // IFD (Fédéral): Valeur séparée.
-
-      // Pour MVP sans base de multiplicateurs exhaustive:
-      // On assume que (Canton + Commune) ~= 2.4 x Base Cantonale (Hypothèse conservative)
-      // + IFD (approximé à 10% du cantonal pour revenus moyens)
-
-      // 3. Application du multiplicateur (Canton + Commune)
+      // Application du multiplicateur (Canton + Commune)
       double multiplier = AverageTaxMultipliers.get(cantonCode);
       double totalCantonCommune = cantonBaseTax * multiplier;
-      double federal = _estimateFederalTax(taxableIncomeApprox, civilStatus);
+      double federal = estimateFederalTax(taxableIncomeApprox, civilStatus,
+          childrenCount: childrenCount);
 
       return totalCantonCommune + federal;
     }
@@ -98,9 +95,8 @@ class TaxEstimatorService {
       double multiplier = AverageTaxMultipliers.get(cantonCode);
       double totalMarginal = (marginalBaseRate / 100) * multiplier;
 
-      // Ajouter marginal fédéral (approx)
-      if (taxableIncome > 80000) totalMarginal += 0.05;
-      if (taxableIncome > 120000) totalMarginal += 0.08;
+      // Ajouter marginal fédéral (LIFD art. 36)
+      totalMarginal += _getIfdMarginalRate(taxableIncome, civilStatus);
 
       return totalMarginal.clamp(0.10, 0.45);
     }
@@ -161,21 +157,112 @@ class TaxEstimatorService {
     return brackets.isNotEmpty ? brackets.last.rate : 0.0;
   }
 
-  static double _estimateFederalTax(double income, String civilStatus) {
-    // Barème IFD simplifié 2024
-    // Célibataires:
-    // 0-14k: 0
-    // ...
-    // max 11.5%
-    if (income < 17000) return 0;
+  /// Calcul progressif de l'IFD (impôt fédéral direct).
+  /// Barèmes 2024 (LIFD art. 36 al. 1 célibataires, al. 2 mariés).
+  /// Déduction par enfant : 259 CHF (LIFD art. 36 al. 2bis).
+  static double estimateFederalTax(double income, String civilStatus,
+      {int childrenCount = 0}) {
+    // Barèmes IFD 2024 (LIFD art. 36)
+    // Format: [seuil_cumulé, taux_marginal_en_pourcent]
+    final List<List<double>> brackets = (civilStatus == 'married')
+        ? [
+            [28300, 0.00],
+            [50900, 1.00],
+            [58400, 2.00],
+            [75300, 3.00],
+            [90300, 4.00],
+            [103400, 5.00],
+            [114700, 6.00],
+            [124200, 7.00],
+            [131700, 8.00],
+            [137300, 9.00],
+            [141200, 10.00],
+            [143100, 11.00],
+            [145000, 12.00],
+            [895900, 13.00],
+            [double.infinity, 11.50],
+          ]
+        : [
+            [14500, 0.00],
+            [31600, 0.77],
+            [41400, 0.88],
+            [55200, 2.64],
+            [72500, 2.97],
+            [78100, 5.94],
+            [103600, 6.60],
+            [134600, 8.80],
+            [176000, 11.00],
+            [755200, 13.20],
+            [double.infinity, 11.50],
+          ];
 
-    // Approx progressive
-    double rate = 0.0;
-    if (income > 100000) rate = 0.03;
-    if (income > 150000) rate = 0.06;
-    if (income > 200000) rate = 0.09;
+    double tax = 0.0;
+    double previousThreshold = 0.0;
+    for (final bracket in brackets) {
+      final threshold = bracket[0];
+      final rate = bracket[1];
+      if (income <= previousThreshold) break;
+      final taxableInBracket =
+          (income < threshold ? income : threshold) - previousThreshold;
+      tax += taxableInBracket * (rate / 100);
+      previousThreshold = threshold;
+    }
 
-    return income * rate;
+    // Déduction enfants (LIFD art. 36 al. 2bis)
+    tax -= childrenCount * 259;
+    return tax < 0 ? 0 : tax;
+  }
+
+  /// Cantons à tarif unique "All" qui utilisent le splitting (revenu / 2)
+  /// pour les couples mariés. Source: LIPP art. 41 al. 2 (GE).
+  static bool _usesSplitting(String cantonCode) {
+    const splittingCantons = {'GE'};
+    return splittingCantons.contains(cantonCode);
+  }
+
+  /// Retourne le taux marginal IFD (en décimal, ex: 0.066 pour 6.6%)
+  /// pour le dernier bracket atteint par le revenu.
+  static double _getIfdMarginalRate(double income, String civilStatus) {
+    final List<List<double>> brackets = (civilStatus == 'married')
+        ? [
+            [28300, 0.00],
+            [50900, 1.00],
+            [58400, 2.00],
+            [75300, 3.00],
+            [90300, 4.00],
+            [103400, 5.00],
+            [114700, 6.00],
+            [124200, 7.00],
+            [131700, 8.00],
+            [137300, 9.00],
+            [141200, 10.00],
+            [143100, 11.00],
+            [145000, 12.00],
+            [895900, 13.00],
+            [double.infinity, 11.50],
+          ]
+        : [
+            [14500, 0.00],
+            [31600, 0.77],
+            [41400, 0.88],
+            [55200, 2.64],
+            [72500, 2.97],
+            [78100, 5.94],
+            [103600, 6.60],
+            [134600, 8.80],
+            [176000, 11.00],
+            [755200, 13.20],
+            [double.infinity, 11.50],
+          ];
+
+    double previousThreshold = 0.0;
+    double marginalRatePct = 0.0;
+    for (final bracket in brackets) {
+      if (income <= previousThreshold) break;
+      marginalRatePct = bracket[1];
+      previousThreshold = bracket[0];
+    }
+    return marginalRatePct / 100;
   }
 
   // --- Helpers Legacy (Rest of file kept minimal or removed if unused, but kept for fallback) ---

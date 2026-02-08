@@ -104,8 +104,11 @@ def calculate_leasing_opportunity_cost(
 ) -> dict:
     """Calculate what the leasing money could have earned if invested."""
     total_cost = monthly_payment * duration_months
+
     def calc_horizon(years):
-        return calculate_compound_interest(0, monthly_payment, alternative_annual_rate, years)["gains"]
+        return calculate_compound_interest(
+            0, monthly_payment, alternative_annual_rate, years
+        )["gains"]
 
     return {
         "totalLeasingCost": round(total_cost, 2),
@@ -118,21 +121,84 @@ def calculate_leasing_opportunity_cost(
     }
 
 
-def calculate_marginal_tax_rate(canton: str, income_gross: float) -> float:
-    # Very simplified Swiss tax logic for MVP
-    if income_gross < 50000:
-        return 0.15
-    if income_gross < 100000:
-        return 0.22
-    if income_gross < 150000:
-        return 0.28
-    return 0.35
+# --- IFD Brackets (LIFD art. 36, 2024) ---
+# Format: list of (cumulative_threshold_CHF, marginal_rate_percent)
+
+IFD_BRACKETS_SINGLE = [
+    (14500, 0.0), (31600, 0.77), (41400, 0.88), (55200, 2.64),
+    (72500, 2.97), (78100, 5.94), (103600, 6.60), (134600, 8.80),
+    (176000, 11.00), (755200, 13.20), (float("inf"), 11.50),
+]
+
+IFD_BRACKETS_MARRIED = [
+    (28300, 0.0), (50900, 1.0), (58400, 2.0), (75300, 3.0),
+    (90300, 4.0), (103400, 5.0), (114700, 6.0), (124200, 7.0),
+    (131700, 8.0), (137300, 9.0), (141200, 10.0), (143100, 11.0),
+    (145000, 12.0), (895900, 13.0), (float("inf"), 11.50),
+]
+
+# Estimated cantonal+communal marginal add-on by canton.
+# These approximate the additional cantonal/communal marginal rate on top of IFD.
+# Source: swiss-brain estimates based on chef-lieu rates, 2024.
+CANTON_MARGINAL_MULTIPLIERS = {
+    "ZH": 0.30, "BE": 0.36, "LU": 0.25, "BS": 0.33,
+    "VD": 0.38, "GE": 0.41, "ZG": 0.22, "FR": 0.37,
+    "VS": 0.34, "NE": 0.39, "JU": 0.40, "SZ": 0.24,
+}
+
+_DEFAULT_CANTON_MULTIPLIER = 0.32  # Moyenne CH
 
 
-def calculate_tax_potential(canton: str, income_gross: float) -> str:
+def _get_ifd_marginal_rate(income_gross: float, household_type: str) -> float:
+    """Return the IFD marginal rate (as decimal, e.g. 0.066) for the last bracket reached.
+
+    Barèmes LIFD art. 36 al. 1 (célibataires) et al. 2 (mariés), 2024.
+    """
+    brackets = (
+        IFD_BRACKETS_MARRIED if household_type == "married" else IFD_BRACKETS_SINGLE
+    )
+    previous = 0.0
+    marginal_rate_pct = 0.0
+    for threshold, rate_pct in brackets:
+        if income_gross <= previous:
+            break
+        marginal_rate_pct = rate_pct
+        previous = threshold
+    return marginal_rate_pct / 100
+
+
+def calculate_marginal_tax_rate(
+    canton: str, income_gross: float, household_type: str = "single"
+) -> float:
+    """Estimate combined marginal tax rate (IFD + cantonal/communal).
+
+    The marginal rate is the rate applied to the last franc earned.
+    Result is clamped between 0.10 and 0.45.
+
+    Args:
+        canton: Canton code (e.g. "ZH", "GE", "VD").
+        income_gross: Annual gross income in CHF.
+        household_type: "single" or "married".
+
+    Returns:
+        Combined marginal tax rate as a decimal (e.g. 0.35 for 35%).
+
+    Sources:
+        - IFD: LIFD art. 36 (2024)
+        - Cantonal: swiss-brain estimates based on chef-lieu rates
+    """
+    ifd_marginal = _get_ifd_marginal_rate(income_gross, household_type)
+    canton_addon = CANTON_MARGINAL_MULTIPLIERS.get(canton, _DEFAULT_CANTON_MULTIPLIER)
+    combined = ifd_marginal + canton_addon
+    return max(0.10, min(0.45, round(combined, 4)))
+
+
+def calculate_tax_potential(
+    canton: str, income_gross: float, household_type: str = "single"
+) -> str:
     """Estimate potential tax savings (3a only) for MVP display."""
     # Logic: 3a Max (7258) * Marginal Rate
-    marginal_rate = calculate_marginal_tax_rate(canton, income_gross)
+    marginal_rate = calculate_marginal_tax_rate(canton, income_gross, household_type)
     saving = 7258.0 * marginal_rate
     # Format as range "~1100-1400" to be safe/realistic relative to user expectation
     low = int(saving * 0.9 / 100) * 100
@@ -257,20 +323,55 @@ def generate_if_then(kind: str, profile: Profile, answers: dict) -> str:
 # --- Recommendations ---
 
 
-def generate_recommendations(profile: Profile) -> List[Recommendation]:
-    recos = [
-        _create_3a_optimizer_recommendation(profile),
-        _create_compound_interest_recommendation(profile),
-        _create_debt_risk_recommendation(profile),
-    ]
-    if profile.householdType == "concubine":
-        recos.insert(0, _create_legal_protection_recommendation(profile))
-    return recos
+def generate_recommendations(profile: Profile, answers: dict = None) -> List[Recommendation]:
+    """
+    Génère des recommandations triées par pertinence (Score d'impact).
+    """
+    from app.schemas.profile import HouseholdType
+    
+    answers = answers or {}
+    potential_recos = []
+    
+    # 1. Protection & Dettes (Priorité 1)
+    if profile.hasDebt or answers.get("q_has_consumer_debt") == "yes":
+        potential_recos.append(_create_debt_repayment_recommendation(profile))
+    else:
+        potential_recos.append(_create_debt_risk_recommendation(profile))
+
+    # 2. Budget (Priorité 2 si épargne faible)
+    savings = profile.savingsMonthly or 0
+    if savings < 200:
+        potential_recos.append(_create_budget_control_recommendation(profile))
+
+    # 3. Prévoyance (Priorité 1-2 si revenus corrects)
+    if profile.incomeNetMonthly and profile.incomeNetMonthly > 3000:
+        potential_recos.append(_create_3a_optimizer_recommendation(profile))
+        if profile.employmentStatus == "self_employed":
+            potential_recos.append(_create_pension_3a_self_employed_recommendation(profile))
+
+    # 4. Investissement (Priorité 3)
+    if savings > 500:
+        potential_recos.append(_create_compound_interest_recommendation(profile))
+
+    # 5. Cas Spéciaux
+    if profile.householdType == HouseholdType.concubine:
+        potential_recos.append(_create_legal_protection_recommendation(profile))
+    
+    if profile.householdType == HouseholdType.family and profile.incomeNetMonthly and profile.incomeNetMonthly > 10000:
+        potential_recos.append(_create_tax_splitting_recommendation(profile))
+
+    # Tri par importance théorique (MVP: simple liste ordonnée)
+    return potential_recos
 
 
 def _create_3a_optimizer_recommendation(profile: Profile) -> Recommendation:
     annual_contribution = 7258.0
-    marginal_rate = 0.25
+    household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
+    marginal_rate = calculate_marginal_tax_rate(
+        profile.canton or "ZH",
+        profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85,
+        household_type,
+    )
     years = max(5, 65 - (datetime.utcnow().year - (profile.birthYear or 1990)))
     calc = calculate_pillar3a_tax_benefit(annual_contribution, marginal_rate, years)
     return Recommendation(
@@ -363,10 +464,81 @@ def _create_legal_protection_recommendation(profile: Profile) -> Recommendation:
         risks=["Risque de tout perdre."],
         alternatives=["Mariage", "Pacs (Geneve)"],
         evidenceLinks=[
-            EvidenceLink(label="Comprendre les risques", url="https://www.ch.ch/fr/famille-et-partenariat/concubinage/"),
+            EvidenceLink(
+                label="Comprendre les risques",
+                url="https://www.ch.ch/fr/famille-et-partenariat/concubinage/",
+            ),
         ],
         nextActions=[
             NextAction(type=NextActionType.learn, label="Lire le guide héritage")
+        ],
+    )
+
+
+def _create_debt_repayment_recommendation(profile: Profile) -> Recommendation:
+    return Recommendation(
+        id=uuid.uuid4(),
+        kind="debt_repayment",
+        title="Remboursement Accéléré",
+        summary="Priorité absolue : éliminer vos dettes à taux élevé.",
+        why=["Le coût des dettes est supérieur à n'importe quel placement.", "Libère de la capacité d'épargne mensuelle."],
+        assumptions=["Taux moyen estimé à 10%.", "Remboursement mensuel cible: 10% du revenu."],
+        risks=["Manque de liquidités immédiates.", "Rigidité budgétaire possible."],
+        alternatives=["Consolidation de crédit", "Rachat de crédit"],
+        impact=Impact(amountCHF=1200, period=Period.yearly),
+        nextActions=[
+            NextAction(type=NextActionType.simulate, label="Optimiser mon remboursement")
+        ],
+    )
+
+
+def _create_budget_control_recommendation(profile: Profile) -> Recommendation:
+    return Recommendation(
+        id=uuid.uuid4(),
+        kind="budget_control",
+        title="Reprendre le contrôle",
+        summary="Stabilisez votre budget pour créer une capacité d'épargne.",
+        why=["Sans épargne, pas d'investissement possible.", "Réduit l'anxiété financière."],
+        assumptions=["Revenus fixes.", "Dépenses incompressibles identifiées."],
+        risks=["Effort de discipline initial.", "Modification du train de vie."],
+        alternatives=["Application de gestion tiers", "Journal papier"],
+        impact=Impact(amountCHF=2400, period=Period.yearly),
+        nextActions=[
+            NextAction(type=NextActionType.simulate, label="Faire mon budget")
+        ],
+    )
+
+
+def _create_pension_3a_self_employed_recommendation(profile: Profile) -> Recommendation:
+    return Recommendation(
+        id=uuid.uuid4(),
+        kind="pension_3a",
+        title="3e Pilier Indépendant",
+        summary="Versez jusqu'à 20% de votre revenu (max CHF 36'288).",
+        why=["Bonus fiscal massif pour les indépendants sans LPP.", "Liberté de choix de l'institut."],
+        assumptions=["Revenu annuel net > 30k CHF.", "Pas d'affiliation LPP."],
+        risks=["Capital bloqué jusqu'à 5 ans avant l'âge de la retraite.", "Dépendance au revenu net variable."],
+        alternatives=["Placement libre", "Rachat LPP si affilié"],
+        impact=Impact(amountCHF=8500, period=Period.yearly),
+        nextActions=[
+            NextAction(type=NextActionType.partner_handoff, label="Ouvrir un 3a Indépendant", partnerId="partner-3a-self")
+        ],
+    )
+
+
+def _create_tax_splitting_recommendation(profile: Profile) -> Recommendation:
+    return Recommendation(
+        id=uuid.uuid4(),
+        kind="tax_optimization",
+        title="Optimisation du Splitting",
+        summary="Optimisez la répartition des revenus du ménage.",
+        why=["Le barème marié peut être optimisé par le 3a et les déductions enfants.", "Réduction de la progressivité de l'impôt."],
+        assumptions=["Revenu du ménage > 120'000 CHF.", "Canton avec barèmes progressifs."],
+        risks=["Complexité administrative.", "Modification des acomptes provisionnels."],
+        alternatives=["Changement de canton", "Dons caritatifs"],
+        impact=Impact(amountCHF=3500, period=Period.yearly),
+        nextActions=[
+            NextAction(type=NextActionType.learn, label="Comprendre l'impôt marié")
         ],
     )
 
@@ -378,10 +550,19 @@ def generate_session_report(
     profile: Profile, answers: dict, focus_kinds: List[str], session_id: uuid.UUID
 ) -> SessionReport:
     precision = calculate_precision_score(profile, answers)
-    all_recos = generate_recommendations(profile)
+    all_recos = generate_recommendations(profile, answers)
 
     # Identify Top 3
-    priority_map = {"debt_risk": 0, "pillar3a": 1, "compound_interest": 2}
+    priority_map = {
+        "debt_repayment": 0,
+        "debt_risk": 1,
+        "budget_control": 2,
+        "pension_3a": 3,
+        "pillar3a": 4,
+        "tax_optimization": 5,
+        "legal_protection": 6,
+        "compound_interest": 7
+    }
     sorted_recos = sorted(all_recos, key=lambda r: priority_map.get(r.kind, 99))
     top_recos = sorted_recos[:3]
 
@@ -414,7 +595,7 @@ def generate_session_report(
             "Ne constitue pas un conseil en investissement personnalisé au sens de la LSFin.",
         ],
         assumptions=[
-            f"Taux marginal estimé à 25% ({profile.canton or 'CH'}).",
+            f"Taux marginal estimé à {int(calculate_marginal_tax_rate(profile.canton or 'ZH', profile.incomeGrossYearly or 80000) * 100)}% ({profile.canton or 'CH'}).",
             "Profil de risque modéré par défaut.",
         ],
         conflictsOfInterest=[
@@ -445,7 +626,9 @@ def generate_session_report(
             ),
             ScoreboardItem(
                 label="Épargne/Impôts",
-                value=calculate_tax_potential(profile.canton, profile.incomeGrossYearly or 80000),
+                value=calculate_tax_potential(
+                    profile.canton, profile.incomeGrossYearly or 80000
+                ),
                 note="Basé sur votre canton",
             ),
             ScoreboardItem(
