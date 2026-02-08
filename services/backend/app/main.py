@@ -24,7 +24,7 @@ app.add_middleware(
 def on_startup():
     """Create database tables on startup."""
     # Import models to ensure they're registered with Base
-    from app.models import User, ProfileModel, SessionModel
+    from app.models import User, ProfileModel, SessionModel, AnalyticsEvent
     Base.metadata.create_all(bind=engine)
 
 

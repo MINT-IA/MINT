@@ -71,5 +71,21 @@
   "authError": "Erreur de connexion",
   "authEmailInvalid": "Adresse e-mail invalide",
   "authPasswordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
-  "authPasswordMismatch": "Les mots de passe ne correspondent pas"
+  "authPasswordMismatch": "Les mots de passe ne correspondent pas",
+  "analyticsConsentTitle": "Statistiques anonymes",
+  "analyticsConsentMessage": "MINT utilise des statistiques anonymes pour améliorer l'expérience. Aucune donnée personnelle n'est collectée.",
+  "analyticsAccept": "Accepter",
+  "analyticsRefuse": "Refuser",
+  "onboardingSkip": "Passer",
+  "onboardingProgress": "Étape {step} sur {total}",
+  "@onboardingProgress": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  }
 }

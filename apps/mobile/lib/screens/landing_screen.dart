@@ -5,13 +5,27 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/mint_ui_kit.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
 import 'dart:ui' as ui; // For BackdropFilter blur
 import 'package:flutter/services.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
 
   @override
+  State<LandingScreen> createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
+  final AnalyticsService _analytics = AnalyticsService();
+
+  @override
+  void initState() {
+    super.initState();
+    _analytics.trackScreenView('/');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,7 +91,10 @@ class LandingScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 12),
                                   TextButton(
-                                    onPressed: () => context.go('/auth/login'),
+                                    onPressed: () {
+                                      _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
+                                      context.go('/auth/login');
+                                    },
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 8),
@@ -195,7 +212,10 @@ class LandingScreen extends StatelessWidget {
 
                           Center(
                             child: TextButton(
-                              onPressed: () => context.go('/home'), // Fixed: Route /login was failing
+                              onPressed: () {
+                                _analytics.trackCTAClick('cta_resume_diagnostic', screenName: '/');
+                                context.go('/home');
+                              },
                               style: TextButton.styleFrom(
                                 foregroundColor: MintColors.textMuted,
                               ),
@@ -213,6 +233,9 @@ class LandingScreen extends StatelessWidget {
               },
             ),
           ),
+
+          // Analytics consent banner
+          const AnalyticsConsentBanner(),
         ],
       ),
     );
@@ -297,6 +320,7 @@ class LandingScreen extends StatelessWidget {
       title: S.of(context)?.startDiagnostic ?? "Démarrer mon diagnostic",
       subtitle: "Bilan 360° • 5 minutes",
       onTap: () async {
+        _analytics.trackCTAClick('cta_diagnostic_clicked', screenName: '/');
         final isCompleted = await ReportPersistenceService.isCompleted();
         if (context.mounted) {
           if (isCompleted) {

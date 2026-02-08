@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -29,12 +28,14 @@ import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
 import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/analytics_observer.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
+  observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
   routes: [
     GoRoute(
@@ -151,8 +152,20 @@ final _router = GoRouter(
   ],
 );
 
-class MintApp extends StatelessWidget {
+class MintApp extends StatefulWidget {
   const MintApp({super.key});
+
+  @override
+  State<MintApp> createState() => _MintAppState();
+}
+
+class _MintAppState extends State<MintApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize analytics service
+    AnalyticsService().init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,13 +187,14 @@ class MintApp extends StatelessWidget {
       ),
     );
   }
+}
 
-  ThemeData _buildPremiumTheme() {
-    // Inter for UI, Outfit for Headlines (Premium Modern combination)
-    final textTheme =
-        GoogleFonts.interTextTheme(ThemeData.light().textTheme);
+ThemeData _buildPremiumTheme() {
+  // Inter for UI, Outfit for Headlines (Premium Modern combination)
+  final textTheme =
+      GoogleFonts.interTextTheme(ThemeData.light().textTheme);
 
-    return ThemeData(
+  return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: MintColors.background,
@@ -306,5 +320,4 @@ class MintApp extends StatelessWidget {
         thickness: 1,
       ),
     );
-  }
 }

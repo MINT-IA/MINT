@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,12 +21,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Goal? _selectedGoal;
   String? _selectedCanton;
   int? _birthYear;
+  late DateTime _startTime;
 
   final List<String> _cantons = [
     'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
     'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
     'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
   ];
+
+  final AnalyticsService _analytics = AnalyticsService();
+
+  @override
+  void initState() {
+    super.initState();
+    _startTime = DateTime.now();
+    _analytics.trackOnboardingStarted();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildHeader() {
+    final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
       child: Column(
@@ -71,25 +84,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(width: 48),
               Text(
                 'Étape ${_currentStep + 1} sur 4',
-                style: GoogleFonts.montserrat(
+                style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textMuted,
                   letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(width: 48),
+              // Skip button for optional steps
+              if (_currentStep == 2)
+                TextButton(
+                  onPressed: () {
+                    _analytics.trackEvent('onboarding_step_skipped',
+                      category: 'engagement',
+                      data: {'step': 3, 'step_name': 'location_details'}
+                    );
+                    setState(() => _currentStep++);
+                  },
+                  child: Text(
+                    s?.onboardingSkip ?? 'Passer',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                )
+              else
+                const SizedBox(width: 48),
             ],
           ),
           const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: (_currentStep + 1) / 4,
-              backgroundColor: MintColors.surface,
-              valueColor: const AlwaysStoppedAnimation<Color>(MintColors.primary),
-              minHeight: 4,
-            ),
+          // Progress dots
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(4, (index) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: index == _currentStep ? 24 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: index <= _currentStep ? MintColors.primary : MintColors.surface,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -109,21 +148,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 title: 'Seul(e)',
                 description: 'Je gère mes finances en solo',
                 isSelected: _selectedHousehold == HouseholdType.single,
-                onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.single),
+                onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.single, 'household_single'),
               ),
               _buildChoiceCard(
                 icon: Icons.people_outline,
                 title: 'En couple',
                 description: 'Nous partageons nos objectifs financiers',
                 isSelected: _selectedHousehold == HouseholdType.couple,
-                onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.couple),
+                onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.couple, 'household_couple'),
               ),
               _buildChoiceCard(
                 icon: Icons.family_restroom_outlined,
                 title: 'Famille',
                 description: 'Avec enfant(s) à charge',
                 isSelected: _selectedHousehold == HouseholdType.family,
-                onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.family),
+                onTap: () => _handleChoice(() => _selectedHousehold = HouseholdType.family, 'household_family'),
               ),
             ],
           ),
@@ -139,28 +178,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 title: 'Devenir propriétaire',
                 description: 'Préparer mon apport et mon hypothèque',
                 isSelected: _selectedGoal == Goal.house,
-                onTap: () => _handleChoice(() => _selectedGoal = Goal.house),
+                onTap: () => _handleChoice(() => _selectedGoal = Goal.house, 'goal_house'),
               ),
               _buildChoiceCard(
                 icon: Icons.wb_sunny_outlined,
                 title: 'Sérénité Retraite',
                 description: 'Maximiser mon avenir à long terme',
                 isSelected: _selectedGoal == Goal.retire,
-                onTap: () => _handleChoice(() => _selectedGoal = Goal.retire),
+                onTap: () => _handleChoice(() => _selectedGoal = Goal.retire, 'goal_retire'),
               ),
               _buildChoiceCard(
                 icon: Icons.trending_up,
                 title: 'Investir & Grandir',
                 description: 'Fructifier mes économies intelligemment',
                 isSelected: _selectedGoal == Goal.invest,
-                onTap: () => _handleChoice(() => _selectedGoal = Goal.invest),
+                onTap: () => _handleChoice(() => _selectedGoal = Goal.invest, 'goal_invest'),
               ),
               _buildChoiceCard(
                 icon: Icons.account_balance_outlined,
                 title: 'Optimisation Fiscale',
                 description: 'Réduire mes impôts légalement',
                 isSelected: _selectedGoal == Goal.optimizeTaxes,
-                onTap: () => _handleChoice(() => _selectedGoal = Goal.optimizeTaxes),
+                onTap: () => _handleChoice(() => _selectedGoal = Goal.optimizeTaxes, 'goal_optimize_taxes'),
               ),
             ],
           ),
@@ -178,7 +217,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: _selectedCanton,
+                value: _selectedCanton,
                 style: GoogleFonts.montserrat(color: MintColors.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Sélectionnez votre canton',
@@ -219,7 +258,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: _selectedCanton != null ? () => setState(() => _currentStep++) : null,
+                  onPressed: _selectedCanton != null ? () {
+                    _analytics.trackOnboardingStep(
+                      3,
+                      'location_details',
+                      totalSteps: 4,
+                    );
+                    setState(() => _currentStep++);
+                  } : null,
                   child: const Text('Continuer'),
                 ),
               ),
@@ -294,7 +340,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isSelected ? MintColors.accentPastel : MintColors.surface,
+            color: isSelected ? MintColors.appleSurface : MintColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSelected ? MintColors.primary : Colors.transparent,
@@ -385,8 +431,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return const SizedBox(height: 20); // Spacing, as buttons are now in steps or auto-advancing
   }
 
-  void _handleChoice(VoidCallback action) {
+  void _handleChoice(VoidCallback action, String stepName) {
     setState(action);
+
+    // Track step completion
+    _analytics.trackOnboardingStep(
+      _currentStep + 1,
+      stepName,
+      totalSteps: 4,
+    );
+
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() => _currentStep++);
@@ -395,6 +449,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _createProfileAndNavigate() {
+    final timeSpent = DateTime.now().difference(_startTime).inSeconds;
+
+    // Track onboarding completion
+    _analytics.trackOnboardingCompleted(timeSpentSeconds: timeSpent);
+
     final profile = Profile(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       householdType: _selectedHousehold ?? HouseholdType.single,

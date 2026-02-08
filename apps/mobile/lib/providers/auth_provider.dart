@@ -59,20 +59,21 @@ class AuthProvider extends ChangeNotifier {
         displayName: displayName,
       );
 
-      // Extract token and user data from response
-      final token = response['token'] as String;
-      final user = response['user'] as Map<String, dynamic>;
+      // Backend returns flat: { access_token, token_type, user_id, email }
+      final token = response['access_token'] as String;
+      final userId = response['user_id']?.toString() ?? '';
+      final userEmail = response['email'] as String;
 
       await AuthService.saveToken(
         token,
-        user['id'] as String,
-        user['email'] as String,
-        displayName: user['display_name'] as String?,
+        userId,
+        userEmail,
+        displayName: response['display_name'] as String?,
       );
 
-      _userId = user['id'] as String;
-      _email = user['email'] as String;
-      _displayName = user['display_name'] as String?;
+      _userId = userId;
+      _email = userEmail;
+      _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
       _error = null;
       _isLoading = false;
@@ -95,20 +96,21 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await ApiService.login(email, password);
 
-      // Extract token and user data from response
-      final token = response['token'] as String;
-      final user = response['user'] as Map<String, dynamic>;
+      // Backend returns flat: { access_token, token_type, user_id, email }
+      final token = response['access_token'] as String;
+      final userId = response['user_id']?.toString() ?? '';
+      final userEmail = response['email'] as String;
 
       await AuthService.saveToken(
         token,
-        user['id'] as String,
-        user['email'] as String,
-        displayName: user['display_name'] as String?,
+        userId,
+        userEmail,
+        displayName: response['display_name'] as String?,
       );
 
-      _userId = user['id'] as String;
-      _email = user['email'] as String;
-      _displayName = user['display_name'] as String?;
+      _userId = userId;
+      _email = userEmail;
+      _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
       _error = null;
       _isLoading = false;

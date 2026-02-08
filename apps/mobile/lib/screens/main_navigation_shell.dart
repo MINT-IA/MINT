@@ -5,6 +5,7 @@ import 'package:mint_mobile/screens/main_tabs/now_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/track_tab.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 
 /// Shell principal de navigation MINT
 ///
@@ -22,11 +23,18 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
+  final AnalyticsService _analytics = AnalyticsService();
 
   final List<Widget> _tabs = const [
     NowTab(),
     ExploreTab(),
     TrackTab(),
+  ];
+
+  final List<String> _tabNames = const [
+    'now',
+    'explore',
+    'track',
   ];
 
   @override
@@ -105,7 +113,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
     return Expanded(
       child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
+        onTap: () {
+          if (_currentIndex != index) {
+            _analytics.trackTabSwitch(_tabNames[_currentIndex], _tabNames[index]);
+            setState(() => _currentIndex = index);
+          }
+        },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
