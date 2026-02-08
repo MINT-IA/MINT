@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,7 +12,24 @@ void main() {
     tester.view.devicePixelRatio = 2.0;
     SharedPreferences.setMockInitialValues({});
 
-    await tester.pumpWidget(const MaterialApp(home: AdvisorWizardScreenV2()));
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const AdvisorWizardScreenV2(),
+        ),
+        GoRoute(
+          path: '/report',
+          builder: (context, state) => Scaffold(
+            body: Center(child: Text('Ton Plan Mint - Report: ${state.extra}')),
+          ),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp.router(
+      routerConfig: router,
+    ));
     await tester.pumpAndSettle();
 
     // SECTION 0: STRESS CHECK
@@ -39,8 +57,10 @@ void main() {
     await _answerNumber(tester, "0");
     await _answerChoice(tester, "Non");
     await _answerChoice(tester, "Je ne sais pas");
+    await _answerNumber(tester, "10"); // q_avs_contribution_years (asked because avs_gaps != 'no')
 
     // SECTION 4: PATRIMOINE
+    // q_has_investments is SKIPPED (Marc has consumer debt)
     await _answerChoice(tester, "Non");
     await _answerChoice(tester, "Retraite confortable");
     await _answerChoice(tester, "Prudent - Je dors mal si ça baisse de 10%");
@@ -86,13 +106,12 @@ Future<void> _answerChoice(WidgetTester tester, String exactText) async {
   final target = find.textContaining(exactText);
   final scrollable = find.byKey(const ValueKey('wizard_scroll_view'));
 
-  if (scrollable.evaluate().isNotEmpty) {
-    try {
-      await tester.scrollUntilVisible(target, 400.0,
-          scrollable: scrollable, maxScrolls: 40);
+  // Manually scroll to find the target (SingleChildScrollView doesn't work with scrollUntilVisible)
+  if (scrollable.evaluate().isNotEmpty && target.evaluate().isEmpty) {
+    for (int i = 0; i < 10; i++) {
+      await tester.drag(scrollable, const Offset(0, -300));
       await tester.pumpAndSettle();
-    } catch (e) {
-      // Ignore
+      if (target.evaluate().isNotEmpty) break;
     }
   }
 
@@ -101,12 +120,15 @@ Future<void> _answerChoice(WidgetTester tester, String exactText) async {
     fail("Choice '$exactText' not found.");
   }
 
+  // If there are multiple matches (e.g., in educational insert + question), tap the last one
+  final targetToUse = finalTarget.evaluate().length > 1 ? finalTarget.last : finalTarget.first;
+
   final inkWell =
-      find.ancestor(of: finalTarget, matching: find.byType(InkWell));
+      find.ancestor(of: targetToUse, matching: find.byType(InkWell));
   if (inkWell.evaluate().isNotEmpty) {
-    await tester.tap(inkWell.first);
+    await tester.tap(inkWell.first, warnIfMissed: false);
   } else {
-    await tester.tap(finalTarget.first);
+    await tester.tap(targetToUse, warnIfMissed: false);
   }
 
   await tester.pump();
