@@ -216,7 +216,7 @@ class TaxEstimatorService {
   /// Cantons à tarif unique "All" qui utilisent le splitting (revenu / 2)
   /// pour les couples mariés. Source: LIPP art. 41 al. 2 (GE).
   static bool _usesSplitting(String cantonCode) {
-    const splittingCantons = {'GE'};
+    const splittingCantons = {'GE', 'Geneva'};
     return splittingCantons.contains(cantonCode);
   }
 

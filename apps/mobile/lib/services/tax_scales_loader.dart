@@ -7,6 +7,41 @@ class TaxScalesLoader {
   static Map<String, List<TaxScale>> _cache = {};
   static bool _isLoaded = false;
 
+  /// Canton code → JSON key name mapping (tax_scales.json uses full names)
+  static const Map<String, String> _codeToName = {
+    'ZH': 'Zurich',
+    'BE': 'Bern',
+    'LU': 'Lucerne',
+    'UR': 'Uri',
+    'SZ': 'Schwyz',
+    'OW': 'Obwalden',
+    'NW': 'Nidwalden',
+    'GL': 'Glarus',
+    'ZG': 'Zug',
+    'FR': 'Fribourg',
+    'SO': 'Solothurn',
+    'BS': 'Basel-Stadt',
+    'BL': 'Basel-Landschaft',
+    'SH': 'Schaffhausen',
+    'GR': 'Graubünden',
+    'AG': 'Aargau',
+    'TG': 'Thurgau',
+    'TI': 'Ticino',
+    'VD': 'Vaud',
+    'VS': 'Valais',
+    'NE': 'Neuchâtel',
+    'GE': 'Geneva',
+    'JU': 'Jura',
+  };
+
+  /// Resolves a canton code ('VD') or full name ('Vaud') to the cache key.
+  static String _resolveCantonKey(String canton) {
+    // If already a full name in cache, use directly
+    if (_cache.containsKey(canton)) return canton;
+    // Try code → name mapping
+    return _codeToName[canton] ?? canton;
+  }
+
   /// Manually initializes the cache (for testing).
   static void init(Map<String, dynamic> jsonMap) {
     _cache = {};
@@ -45,21 +80,23 @@ class TaxScalesLoader {
     }
   }
 
-  /// Returns brackets for a specific canton and tariff
+  /// Returns brackets for a specific canton and tariff.
+  /// Canton can be a code ('VD') or a full name ('Vaud').
   static List<TaxScale> getBrackets(String canton, String tariff) {
     if (!_isLoaded) {
       print('⚠️ Tax scales not loaded. Call load() first.');
       return [];
     }
 
-    final cantonScales = _cache[canton];
+    final cantonKey = _resolveCantonKey(canton);
+    final cantonScales = _cache[cantonKey];
     if (cantonScales == null) return [];
 
     // Normalisation des tarifs par canton (noms hétérogènes dans le JSON scrapé)
     String normalizedTariff = tariff;
 
     // VD : noms spécifiques dans le JSON
-    if (canton == 'Vaud') {
+    if (cantonKey == 'Vaud') {
       if (tariff == 'Single, no children') {
         normalizedTariff = 'Single, with / no children';
       } else if (tariff == 'Married/Single, with children') {

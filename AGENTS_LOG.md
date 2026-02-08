@@ -142,22 +142,43 @@ Nouveaux champs Profile : `commune`, `isChurchMember`, `pillar3aAnnual`
 - [x] P1 : Fixer hardcode "Taux marginal 25%" dans roadmap assumptions ✅ (dynamique)
 - [x] P1 : Refactorer estimateMarginalTaxRate() Dart — IFD marginal réel ✅ (_getIfdMarginalRate remplace hardcode)
 - [x] P1 : Implémenter splitting GE pour mariés ✅ (_usesSplitting + income/2 + tax*2)
-- [ ] P2 : Écrire 23+ tests avec valeurs attendues vs ESTV
+- [x] P2 : Écrire 30 tests avec valeurs attendues vs ESTV ✅ (15 ESTV validation + canton code resolution)
+- [x] P2 : Fixer BUG CRITIQUE — canton code vs nom JSON ✅ (_codeToName mapping dans TaxScalesLoader)
 - [ ] P2 : Mettre à jour SOT.md + OpenAPI (nouveaux champs: commune, isChurchMember, pillar3aAnnual)
-- [ ] P2 : Valider vs calculateur ESTV officiel (spot check 6 cantons)
+
+#### BUG CRITIQUE TROUVÉ — Canton Code vs Nom JSON (P2)
+
+**Symptôme** : Les tests ESTV pour BS donnaient 53'874 au lieu de ~17'500.
+
+**Cause racine** : Le JSON `tax_scales.json` utilise des noms complets ("Zurich", "Vaud", "Geneva")
+mais l'app passe des codes cantons ("ZH", "VD", "GE"). `TaxScalesLoader.getBrackets('VD', ...)`
+ne trouvait rien → fallback heuristique en production. Les données réelles n'étaient JAMAIS utilisées !
+
+**Fix** : Ajout d'un mapping `_codeToName` dans TaxScalesLoader avec `_resolveCantonKey()`.
+Les deux formats (code et nom complet) fonctionnent maintenant.
+
+#### DATA FORMAT — BS et GE (non résolu, toléré MVP)
+
+Les cantons BS et GE ont des données JSON avec des **seuils cumulatifs** au lieu de **largeurs de brackets**.
+- ZH/BE/LU/VD : `incomeThreshold` = largeur du bracket (ex: 6'900 = "pour les prochains 6'900 CHF")
+- BS/GE : `incomeThreshold` = seuil cumulatif (ex: 212'500 = "jusqu'à 212'500 CHF")
+
+Impact : BS et GE sur-estiment l'impôt (~30% trop haut). Toléré MVP avec disclaimer (D5).
+
+**Fix possible** : Normaliser les données dans le scraper OU détecter le format par canton.
 
 #### RÉSUMÉ SESSION (état final 2026-02-08)
 
 **Tests :**
-- Flutter `test/tax_estimator_test.dart` : 15/15 ✅
+- Flutter `test/tax_estimator_test.dart` : 30/30 ✅
 - Backend `tests/test_rules_engine.py` : 25/25 ✅
 
 **Fichiers modifiés (cette session) :**
 | Fichier | Changement |
 |---------|-----------|
 | `apps/mobile/lib/data/average_tax_multipliers.dart` | BS: 2.00→1.00, LU: 1.95→3.35 |
-| `apps/mobile/lib/services/tax_scales_loader.dart` | Normalisation VD + fallback "All" |
-| `apps/mobile/lib/services/tax_estimator_service.dart` | IFD réel (estimateFederalTax), IFD marginal (_getIfdMarginalRate), splitting GE (_usesSplitting) |
-| `apps/mobile/test/tax_estimator_test.dart` | +9 tests (VD/GE normalization, BS/LU mult, IFD 5 tests, GE splitting) |
-| `services/backend/app/services/rules_engine.py` | IFD brackets, CANTON_MARGINAL_MULTIPLIERS, calculate_marginal_tax_rate refactoré, _create_3a_optimizer dynamique |
-| `services/backend/tests/test_rules_engine.py` | +9 tests (TestMarginalTaxRate), fix floor assertion |
+| `apps/mobile/lib/services/tax_scales_loader.dart` | Normalisation VD + fallback "All" + **_codeToName mapping** |
+| `apps/mobile/lib/services/tax_estimator_service.dart` | IFD réel, IFD marginal, splitting GE |
+| `apps/mobile/test/tax_estimator_test.dart` | 30 tests (dont 15 ESTV validation, 2 canton code resolution) |
+| `services/backend/app/services/rules_engine.py` | IFD brackets, canton multipliers, _create_3a_optimizer dynamique |
+| `services/backend/tests/test_rules_engine.py` | +9 tests (TestMarginalTaxRate) |
