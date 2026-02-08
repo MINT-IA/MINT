@@ -230,9 +230,16 @@ class ExploreTab extends StatelessWidget {
             _buildSimulatorTile(
               context,
               icon: Icons.credit_card,
-              title: 'Crédit\nConso',
+              title: 'Credit\nConso',
               color: MintColors.warning,
               route: '/simulator/credit',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.account_balance,
+              title: 'Rente vs\nCapital',
+              color: const Color(0xFF4F46E5),
+              route: '/simulator/rente-capital',
             ),
           ],
         ),
