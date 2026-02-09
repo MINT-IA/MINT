@@ -497,5 +497,156 @@
 
   "lifeEventsSection": "Life events",
   "lifeEventDivorce": "Divorce",
-  "lifeEventSuccession": "Succession"
+  "lifeEventSuccession": "Succession",
+
+  "coachingTitle": "Proactive Coaching",
+  "coachingSubtitle": "Your personalised suggestions",
+  "coachingIntro": "Personalised suggestions based on your profile. The more complete your profile, the more relevant the advice.",
+  "coachingFilterAll": "All",
+  "coachingFilterHigh": "High priority",
+  "coachingFilterFiscal": "Tax",
+  "coachingFilterPrevoyance": "Pension",
+  "coachingFilterBudget": "Budget",
+  "coachingFilterRetraite": "Retirement",
+  "coachingNoTips": "Your profile is complete and well managed. Well done!",
+  "coachingImpact": "Estimated impact: {amount}",
+  "@coachingImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingSource": "Source",
+  "coachingTipCount": "{count} tips",
+  "@coachingTipCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingPriorityHigh": "High priority",
+  "coachingPriorityMedium": "Medium priority",
+  "coachingPriorityLow": "Information",
+  "coaching3aDeadlineTitle": "Pillar 3a contribution before December 31",
+  "coaching3aDeadlineMessage": "You have {remaining} left on your 3a ceiling ({plafond}). A contribution before December 31 could reduce your tax burden by approximately {impact}.",
+  "@coaching3aDeadlineMessage": {
+    "placeholders": {
+      "remaining": { "type": "String" },
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aDeadlineAction": "Simulate my 3a",
+  "coaching3aMissingTitle": "You don't have a pillar 3a",
+  "coaching3aMissingMessage": "Opening a pillar 3a would allow you to deduct up to {plafond} from your taxable income each year. The estimated tax saving is {impact} per year in the canton of {canton}.",
+  "@coaching3aMissingMessage": {
+    "placeholders": {
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" },
+      "canton": { "type": "String" }
+    }
+  },
+  "coaching3aMissingAction": "Discover pillar 3a",
+  "coaching3aNotMaxedTitle": "Pillar 3a ceiling not reached",
+  "coaching3aNotMaxedMessage": "Your current 3a contribution is {current} out of a ceiling of {plafond}. Contributing the remaining {remaining} could represent a tax saving of approximately {impact}.",
+  "@coaching3aNotMaxedMessage": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "plafond": { "type": "String" },
+      "remaining": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aNotMaxedAction": "Simulate my 3a",
+  "coachingLppBuybackTitle": "Pension fund buyback possible",
+  "coachingLppBuybackMessage": "You have a pension gap of {gap}. A voluntary buyback could save you approximately {impact} in taxes while improving your retirement.",
+  "@coachingLppBuybackMessage": {
+    "placeholders": {
+      "gap": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingLppBuybackAction": "Simulate a buyback",
+  "coachingTaxDeadlineTitle": "Tax return due",
+  "coachingTaxDeadlineMessage": "The deadline for your tax return in the canton of {canton} is March 31. {days} days remaining.",
+  "@coachingTaxDeadlineMessage": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "coachingTaxDeadlineAction": "View my tax checklist",
+  "coachingRetirementTitle": "Retirement in {years} years",
+  "@coachingRetirementTitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementMessage": "With {years} years until retirement, it's important to review your pension strategy. Have you optimised your buybacks? Are your 3a accounts diversified?",
+  "@coachingRetirementMessage": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementAction": "Plan my retirement",
+  "coachingEmergencyTitle": "Insufficient emergency fund",
+  "coachingEmergencyMessage": "Your available savings cover {months} months of fixed charges. Experts recommend at least 3 months. You need approximately {deficit} more.",
+  "@coachingEmergencyMessage": {
+    "placeholders": {
+      "months": { "type": "String" },
+      "deficit": { "type": "String" }
+    }
+  },
+  "coachingEmergencyAction": "View my budget",
+  "coachingDebtTitle": "High debt ratio ({ratio}%)",
+  "@coachingDebtTitle": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtMessage": "Your estimated debt ratio is {ratio}%, above the 33% threshold recommended by Swiss banks.",
+  "@coachingDebtMessage": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtAction": "Analyse my debts",
+  "coachingPartTimeTitle": "Part-time: pension gap",
+  "coachingPartTimeMessage": "At {rate}% activity, your occupational pension is reduced. The coordination deduction further penalises part-time workers.",
+  "@coachingPartTimeMessage": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "coachingPartTimeAction": "Simulate my pension",
+  "coachingIndependantTitle": "Self-employed: no mandatory pension fund",
+  "coachingIndependantMessage": "As a self-employed person, you are not subject to mandatory pension fund contributions. Your pension relies on AHV/AVS and your pillar 3a. Maximise your 3a contributions.",
+  "coachingIndependantAction": "Explore my options",
+  "coachingBudgetMissingTitle": "No budget yet",
+  "coachingBudgetMissingMessage": "A structured budget is the foundation of any financial strategy. It helps identify your real savings capacity.",
+  "coachingBudgetMissingAction": "Create my budget",
+  "coachingAge25Title": "25: Start your pillar 3a",
+  "coachingAge25Message": "At 25, it's the ideal time to open a pillar 3a. Thanks to compound interest, every year counts.",
+  "coachingAge35Title": "35: Pension check-up",
+  "coachingAge35Message": "At 35, verify your pension is on track. Do you have a 3a? Is your pension fund sufficient?",
+  "coachingAge45Title": "45: Optimise your strategy",
+  "coachingAge45Message": "At 45, there are 20 years until retirement. Time to optimise: maximise 3a, consider pension fund buybacks.",
+  "coachingAge50Title": "50: Prepare for retirement",
+  "coachingAge50Message": "At 50, retirement is approaching. Check your pension fund balance and plan your final buybacks.",
+  "coachingAge55Title": "55: The final stretch",
+  "coachingAge55Message": "At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals across tax years can mean significant savings.",
+  "coachingAge58Title": "58: Early retirement possible",
+  "coachingAge58Message": "From 58, early withdrawal of your 2nd pillar is possible. Note: the pension will be reduced.",
+  "coachingAge63Title": "63: Final adjustments",
+  "coachingAge63Message": "2 years from retirement: finalise your strategy. Last pension buyback, annuity vs lump sum choice.",
+  "coachingDisclaimer": "The suggestions presented are food for thought based on simplified estimates. They do not constitute personalised financial advice. Consult a qualified professional before any decision.",
+  "coachingDemoMode": "Demo mode: example profile (35 years, VD, CHF 85'000). Complete your diagnostic for personalised advice.",
+  "coachingNowCardTitle": "Proactive Coaching",
+  "coachingNowCardSubtitle": "Personalised advice based on your profile",
+  "coachingCategoryFiscalite": "Tax",
+  "coachingCategoryPrevoyance": "Pension",
+  "coachingCategoryBudget": "Budget",
+  "coachingCategoryRetraite": "Retirement"
 }

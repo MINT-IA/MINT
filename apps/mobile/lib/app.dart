@@ -40,6 +40,7 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
+import 'package:mint_mobile/screens/coaching_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -189,6 +190,12 @@ final _router = GoRouter(
       path: '/tools',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ToolsLibraryScreen(),
+    ),
+    // Coaching Proactif
+    GoRoute(
+      path: '/coaching',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachingScreen(),
     ),
     // Education Hub
     GoRoute(

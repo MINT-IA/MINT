@@ -497,5 +497,156 @@
 
   "lifeEventsSection": "Evenements de vie",
   "lifeEventDivorce": "Divorce",
-  "lifeEventSuccession": "Succession"
+  "lifeEventSuccession": "Succession",
+
+  "coachingTitle": "Coaching proactif",
+  "coachingSubtitle": "Vos suggestions personnalisees",
+  "coachingIntro": "Suggestions personnalisees basees sur votre profil. Plus votre profil est complet, plus les conseils sont pertinents.",
+  "coachingFilterAll": "Tous",
+  "coachingFilterHigh": "Haute priorite",
+  "coachingFilterFiscal": "Fiscalite",
+  "coachingFilterPrevoyance": "Prevoyance",
+  "coachingFilterBudget": "Budget",
+  "coachingFilterRetraite": "Retraite",
+  "coachingNoTips": "Votre profil est complet et bien gere. Bravo !",
+  "coachingImpact": "Impact estime : {amount}",
+  "@coachingImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingSource": "Source",
+  "coachingTipCount": "{count} conseils",
+  "@coachingTipCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingPriorityHigh": "Haute priorite",
+  "coachingPriorityMedium": "Priorite moyenne",
+  "coachingPriorityLow": "Information",
+  "coaching3aDeadlineTitle": "Versement 3a avant le 31 decembre",
+  "coaching3aDeadlineMessage": "Il vous reste {remaining} de marge sur votre plafond 3a ({plafond}). Un versement avant le 31 decembre pourrait reduire votre charge fiscale d'environ {impact}.",
+  "@coaching3aDeadlineMessage": {
+    "placeholders": {
+      "remaining": { "type": "String" },
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aDeadlineAction": "Simuler mon 3a",
+  "coaching3aMissingTitle": "Vous n'avez pas de 3e pilier",
+  "coaching3aMissingMessage": "Ouvrir un 3e pilier vous permettrait de deduire jusqu'a {plafond} de votre revenu imposable chaque annee. L'economie fiscale estimee est de {impact} par an dans le canton de {canton}.",
+  "@coaching3aMissingMessage": {
+    "placeholders": {
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" },
+      "canton": { "type": "String" }
+    }
+  },
+  "coaching3aMissingAction": "Decouvrir le 3e pilier",
+  "coaching3aNotMaxedTitle": "Plafond 3a non atteint",
+  "coaching3aNotMaxedMessage": "Votre versement 3a actuel est de {current} sur un plafond de {plafond}. Verser le solde de {remaining} pourrait representer une economie fiscale d'environ {impact}.",
+  "@coaching3aNotMaxedMessage": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "plafond": { "type": "String" },
+      "remaining": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aNotMaxedAction": "Simuler mon 3a",
+  "coachingLppBuybackTitle": "Rachat LPP possible",
+  "coachingLppBuybackMessage": "Vous avez une lacune de prevoyance de {gap}. Un rachat volontaire pourrait vous faire economiser environ {impact} d'impots tout en ameliorant votre retraite.",
+  "@coachingLppBuybackMessage": {
+    "placeholders": {
+      "gap": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingLppBuybackAction": "Simuler un rachat LPP",
+  "coachingTaxDeadlineTitle": "Declaration d'impots a rendre",
+  "coachingTaxDeadlineMessage": "Le delai pour votre declaration fiscale dans le canton de {canton} est le 31 mars. Il reste {days} jours.",
+  "@coachingTaxDeadlineMessage": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "coachingTaxDeadlineAction": "Voir ma checklist fiscale",
+  "coachingRetirementTitle": "Retraite dans {years} ans",
+  "@coachingRetirementTitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementMessage": "A {years} ans de la retraite, il est important de verifier votre strategie de prevoyance. Avez-vous optimise vos rachats LPP ? Vos comptes 3a sont-ils diversifies ?",
+  "@coachingRetirementMessage": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementAction": "Planifier ma retraite",
+  "coachingEmergencyTitle": "Reserve d'urgence insuffisante",
+  "coachingEmergencyMessage": "Votre epargne disponible couvre {months} mois de charges fixes. Les experts recommandent au moins 3 mois. Il vous manque environ {deficit} pour atteindre ce seuil.",
+  "@coachingEmergencyMessage": {
+    "placeholders": {
+      "months": { "type": "String" },
+      "deficit": { "type": "String" }
+    }
+  },
+  "coachingEmergencyAction": "Voir mon budget",
+  "coachingDebtTitle": "Taux d'endettement eleve ({ratio}%)",
+  "@coachingDebtTitle": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtMessage": "Votre taux d'endettement estime est de {ratio}%, au-dessus du seuil de 33% recommande par les banques suisses.",
+  "@coachingDebtMessage": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtAction": "Analyser mes dettes",
+  "coachingPartTimeTitle": "Temps partiel : lacune de prevoyance",
+  "coachingPartTimeMessage": "A {rate}% d'activite, votre prevoyance professionnelle est reduite. La deduction de coordination penalise davantage les temps partiels.",
+  "@coachingPartTimeMessage": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "coachingPartTimeAction": "Simuler ma prevoyance",
+  "coachingIndependantTitle": "Independant : pas de LPP obligatoire",
+  "coachingIndependantMessage": "En tant qu'independant, vous n'etes pas soumis a la LPP obligatoire. Votre prevoyance repose sur l'AVS et votre 3e pilier. Pensez a maximiser votre 3a.",
+  "coachingIndependantAction": "Explorer mes options",
+  "coachingBudgetMissingTitle": "Pas encore de budget",
+  "coachingBudgetMissingMessage": "Un budget structure est la base de toute strategie financiere. Il permet d'identifier votre capacite d'epargne reelle.",
+  "coachingBudgetMissingAction": "Creer mon budget",
+  "coachingAge25Title": "25 ans : demarrer son 3e pilier",
+  "coachingAge25Message": "A 25 ans, c'est le moment ideal pour ouvrir un 3e pilier. Grace aux interets composes, chaque annee compte.",
+  "coachingAge35Title": "35 ans : faire le point prevoyance",
+  "coachingAge35Message": "A 35 ans, verifiez que votre prevoyance est sur la bonne trajectoire. Avez-vous un 3a ? Votre LPP est-elle suffisante ?",
+  "coachingAge45Title": "45 ans : optimiser sa strategie",
+  "coachingAge45Message": "A 45 ans, il reste 20 ans avant la retraite. C'est le moment d'optimiser : maximiser le 3a, envisager des rachats LPP.",
+  "coachingAge50Title": "50 ans : preparer sa retraite",
+  "coachingAge50Message": "A 50 ans, la retraite se rapproche. Verifiez votre avoir LPP, planifiez vos derniers rachats.",
+  "coachingAge55Title": "55 ans : derniere ligne droite",
+  "coachingAge55Message": "A 55 ans, la planification fiscale du retrait devient cruciale. Echelonner les retraits 3a peut representer une economie significative.",
+  "coachingAge58Title": "58 ans : retraite anticipee possible",
+  "coachingAge58Message": "Des 58 ans, un retrait anticipe de votre 2e pilier est envisageable. Attention : la rente sera reduite.",
+  "coachingAge63Title": "63 ans : derniers ajustements",
+  "coachingAge63Message": "A 2 ans de la retraite legale, finalisez votre strategie. Dernier rachat LPP, choix rente/capital.",
+  "coachingDisclaimer": "Les suggestions presentees sont des pistes de reflexion basees sur des estimations simplifiees. Elles ne constituent pas un conseil financier personnalise. Consultez un professionnel qualifie avant toute decision.",
+  "coachingDemoMode": "Mode demo : profil exemple (35 ans, VD, CHF 85'000). Completez votre diagnostic pour des conseils personnalises.",
+  "coachingNowCardTitle": "Coaching proactif",
+  "coachingNowCardSubtitle": "Conseils personnalises selon votre profil",
+  "coachingCategoryFiscalite": "Fiscalite",
+  "coachingCategoryPrevoyance": "Prevoyance",
+  "coachingCategoryBudget": "Budget",
+  "coachingCategoryRetraite": "Retraite"
 }

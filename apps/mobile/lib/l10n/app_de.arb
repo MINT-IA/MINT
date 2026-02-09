@@ -497,5 +497,156 @@
 
   "lifeEventsSection": "Lebensereignisse",
   "lifeEventDivorce": "Scheidung",
-  "lifeEventSuccession": "Erbschaft"
+  "lifeEventSuccession": "Erbschaft",
+
+  "coachingTitle": "Proaktives Coaching",
+  "coachingSubtitle": "Ihre personalisierten Vorschl\u00e4ge",
+  "coachingIntro": "Personalisierte Vorschl\u00e4ge basierend auf Ihrem Profil. Je vollst\u00e4ndiger Ihr Profil ist, desto relevanter sind die Empfehlungen.",
+  "coachingFilterAll": "Alle",
+  "coachingFilterHigh": "Hohe Priorit\u00e4t",
+  "coachingFilterFiscal": "Steuern",
+  "coachingFilterPrevoyance": "Vorsorge",
+  "coachingFilterBudget": "Budget",
+  "coachingFilterRetraite": "Rente",
+  "coachingNoTips": "Ihr Profil ist vollst\u00e4ndig und gut verwaltet. Bravo!",
+  "coachingImpact": "Gesch\u00e4tzter Effekt: {amount}",
+  "@coachingImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingSource": "Quelle",
+  "coachingTipCount": "{count} Empfehlungen",
+  "@coachingTipCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingPriorityHigh": "Hohe Priorit\u00e4t",
+  "coachingPriorityMedium": "Mittlere Priorit\u00e4t",
+  "coachingPriorityLow": "Information",
+  "coaching3aDeadlineTitle": "S\u00e4ule-3a-Einzahlung vor dem 31. Dezember",
+  "coaching3aDeadlineMessage": "Sie haben noch {remaining} Spielraum auf Ihrem 3a-Plafond ({plafond}). Eine Einzahlung vor dem 31. Dezember k\u00f6nnte Ihre Steuerlast um ca. {impact} reduzieren.",
+  "@coaching3aDeadlineMessage": {
+    "placeholders": {
+      "remaining": { "type": "String" },
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aDeadlineAction": "S\u00e4ule 3a simulieren",
+  "coaching3aMissingTitle": "Sie haben keine S\u00e4ule 3a",
+  "coaching3aMissingMessage": "Mit einer S\u00e4ule 3a k\u00f6nnten Sie bis zu {plafond} von Ihrem steuerbaren Einkommen abziehen. Die gesch\u00e4tzte Steuerersparnis betr\u00e4gt {impact} pro Jahr im Kanton {canton}.",
+  "@coaching3aMissingMessage": {
+    "placeholders": {
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" },
+      "canton": { "type": "String" }
+    }
+  },
+  "coaching3aMissingAction": "S\u00e4ule 3a entdecken",
+  "coaching3aNotMaxedTitle": "S\u00e4ule-3a-Plafond nicht ausgesch\u00f6pft",
+  "coaching3aNotMaxedMessage": "Ihre aktuelle 3a-Einzahlung betr\u00e4gt {current} bei einem Plafond von {plafond}. Die restlichen {remaining} k\u00f6nnten eine Steuerersparnis von ca. {impact} bringen.",
+  "@coaching3aNotMaxedMessage": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "plafond": { "type": "String" },
+      "remaining": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aNotMaxedAction": "S\u00e4ule 3a simulieren",
+  "coachingLppBuybackTitle": "BVG-Einkauf m\u00f6glich",
+  "coachingLppBuybackMessage": "Sie haben eine Vorsorge-L\u00fccke von {gap}. Ein freiwilliger Einkauf k\u00f6nnte Ihnen ca. {impact} an Steuern sparen und gleichzeitig Ihre Rente verbessern.",
+  "@coachingLppBuybackMessage": {
+    "placeholders": {
+      "gap": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingLppBuybackAction": "BVG-Einkauf simulieren",
+  "coachingTaxDeadlineTitle": "Steuererkl\u00e4rung einreichen",
+  "coachingTaxDeadlineMessage": "Die Frist f\u00fcr Ihre Steuererkl\u00e4rung im Kanton {canton} ist der 31. M\u00e4rz. Es bleiben noch {days} Tage.",
+  "@coachingTaxDeadlineMessage": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "coachingTaxDeadlineAction": "Meine Steuer-Checkliste ansehen",
+  "coachingRetirementTitle": "Rente in {years} Jahren",
+  "@coachingRetirementTitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementMessage": "In {years} Jahren bis zur Rente ist es wichtig, Ihre Vorsorgestrategie zu pr\u00fcfen. Haben Sie Ihre BVG-Eink\u00e4ufe optimiert? Sind Ihre 3a-Konten diversifiziert?",
+  "@coachingRetirementMessage": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementAction": "Rente planen",
+  "coachingEmergencyTitle": "Notreserve unzureichend",
+  "coachingEmergencyMessage": "Ihre Ersparnisse decken {months} Monate Fixkosten. Experten empfehlen mindestens 3 Monate. Es fehlen ca. {deficit}.",
+  "@coachingEmergencyMessage": {
+    "placeholders": {
+      "months": { "type": "String" },
+      "deficit": { "type": "String" }
+    }
+  },
+  "coachingEmergencyAction": "Mein Budget ansehen",
+  "coachingDebtTitle": "Hohe Verschuldungsquote ({ratio}%)",
+  "@coachingDebtTitle": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtMessage": "Ihre gesch\u00e4tzte Verschuldungsquote betr\u00e4gt {ratio}%, \u00fcber der von Schweizer Banken empfohlenen Schwelle von 33%.",
+  "@coachingDebtMessage": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtAction": "Meine Schulden analysieren",
+  "coachingPartTimeTitle": "Teilzeit: Vorsorge-L\u00fccke",
+  "coachingPartTimeMessage": "Bei {rate}% Arbeitspensum ist Ihre berufliche Vorsorge reduziert. Der Koordinationsabzug benachteiligt Teilzeitbesch\u00e4ftigte zus\u00e4tzlich.",
+  "@coachingPartTimeMessage": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "coachingPartTimeAction": "Vorsorge simulieren",
+  "coachingIndependantTitle": "Selbst\u00e4ndig: keine obligatorische BVG",
+  "coachingIndependantMessage": "Als Selbst\u00e4ndige/r sind Sie nicht BVG-pflichtig. Ihre Vorsorge st\u00fctzt sich auf AHV und S\u00e4ule 3a. Sch\u00f6pfen Sie Ihren 3a-Plafond aus.",
+  "coachingIndependantAction": "Meine Optionen erkunden",
+  "coachingBudgetMissingTitle": "Noch kein Budget erstellt",
+  "coachingBudgetMissingMessage": "Ein strukturiertes Budget ist die Basis jeder Finanzstrategie. Es zeigt Ihre reale Sparf\u00e4higkeit auf.",
+  "coachingBudgetMissingAction": "Budget erstellen",
+  "coachingAge25Title": "25 Jahre: S\u00e4ule 3a er\u00f6ffnen",
+  "coachingAge25Message": "Mit 25 ist der ideale Zeitpunkt, eine S\u00e4ule 3a zu er\u00f6ffnen. Dank Zinseszins z\u00e4hlt jedes Jahr.",
+  "coachingAge35Title": "35 Jahre: Vorsorge-Check",
+  "coachingAge35Message": "Mit 35 sollten Sie pr\u00fcfen, ob Ihre Vorsorge auf Kurs ist. Haben Sie eine 3a? Reicht Ihre BVG?",
+  "coachingAge45Title": "45 Jahre: Strategie optimieren",
+  "coachingAge45Message": "Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt optimieren: 3a maximieren, BVG-Eink\u00e4ufe pr\u00fcfen.",
+  "coachingAge50Title": "50 Jahre: Rente vorbereiten",
+  "coachingAge50Message": "Mit 50 r\u00fcckt die Rente n\u00e4her. Pr\u00fcfen Sie Ihr BVG-Guthaben und planen Sie letzte Eink\u00e4ufe.",
+  "coachingAge55Title": "55 Jahre: Letzte Etappe",
+  "coachingAge55Message": "Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Staffeln Sie die 3a-Bez\u00fcge f\u00fcr eine h\u00f6here Steuerersparnis.",
+  "coachingAge58Title": "58 Jahre: Fr\u00fchpensionierung m\u00f6glich",
+  "coachingAge58Message": "Ab 58 k\u00f6nnen Sie einen vorzeitigen Bezug Ihrer 2. S\u00e4ule in Betracht ziehen. Achtung: Die Rente wird gek\u00fcrzt.",
+  "coachingAge63Title": "63 Jahre: Letzte Anpassungen",
+  "coachingAge63Message": "2 Jahre vor der Rente: Strategie finalisieren. Letzter BVG-Einkauf, Wahl Rente/Kapital.",
+  "coachingDisclaimer": "Die dargestellten Vorschl\u00e4ge sind Denkanst\u00f6sse basierend auf vereinfachten Sch\u00e4tzungen. Sie stellen keine pers\u00f6nliche Finanzberatung dar. Konsultieren Sie einen qualifizierten Fachmann vor jeder Entscheidung.",
+  "coachingDemoMode": "Demo-Modus: Beispielprofil (35 Jahre, VD, CHF 85'000). Vervollst\u00e4ndigen Sie Ihre Diagnose f\u00fcr personalisierte Empfehlungen.",
+  "coachingNowCardTitle": "Proaktives Coaching",
+  "coachingNowCardSubtitle": "Personalisierte Empfehlungen basierend auf Ihrem Profil",
+  "coachingCategoryFiscalite": "Steuern",
+  "coachingCategoryPrevoyance": "Vorsorge",
+  "coachingCategoryBudget": "Budget",
+  "coachingCategoryRetraite": "Rente"
 }

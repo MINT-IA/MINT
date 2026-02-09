@@ -34,7 +34,7 @@ class NowTab extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [
               Colors.white,
-              MintColors.accentPastel.withOpacity(0.3),
+              MintColors.appleSurface.withOpacity(0.3),
             ],
             stops: const [0.6, 1.0],
           ),
@@ -89,6 +89,13 @@ class NowTab extends StatelessWidget {
                             : _buildNormalMode(context, profile),
                       ),
                       const SizedBox(height: 32),
+
+                      // Coaching Proactif
+                      MintAnimateFadeUp(
+                        delayInMs: 150,
+                        child: _buildCoachingCard(context),
+                      ),
+                      const SizedBox(height: 24),
 
                       // Actions
                       MintAnimateFadeUp(
@@ -237,7 +244,7 @@ class NowTab extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             MintColors.primary.withOpacity(0.05),
-            MintColors.accentPastel.withOpacity(0.3),
+            MintColors.appleSurface.withOpacity(0.3),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -297,6 +304,62 @@ class NowTab extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCoachingCard(BuildContext context) {
+    return InkWell(
+      onTap: () => context.push('/coaching'),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.amber.shade50, Colors.amber.shade100],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.tips_and_updates,
+                  color: Colors.amber.shade700, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Coaching proactif',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Conseils personnalises selon votre profil \u2192',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.black.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios,
+                size: 16, color: Colors.black45),
+          ],
+        ),
       ),
     );
   }
@@ -498,7 +561,7 @@ class NowTab extends StatelessWidget {
           width: 50,
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           decoration: BoxDecoration(
-            color: MintColors.accentPastel,
+            color: MintColors.appleSurface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(

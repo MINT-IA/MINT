@@ -497,5 +497,156 @@
 
   "lifeEventsSection": "Eventi della vita",
   "lifeEventDivorce": "Divorzio",
-  "lifeEventSuccession": "Successione"
+  "lifeEventSuccession": "Successione",
+
+  "coachingTitle": "Coaching proattivo",
+  "coachingSubtitle": "I vostri suggerimenti personalizzati",
+  "coachingIntro": "Suggerimenti personalizzati basati sul vostro profilo. Pi\u00f9 il profilo \u00e8 completo, pi\u00f9 i consigli sono pertinenti.",
+  "coachingFilterAll": "Tutti",
+  "coachingFilterHigh": "Alta priorit\u00e0",
+  "coachingFilterFiscal": "Fiscalit\u00e0",
+  "coachingFilterPrevoyance": "Previdenza",
+  "coachingFilterBudget": "Budget",
+  "coachingFilterRetraite": "Pensione",
+  "coachingNoTips": "Il vostro profilo \u00e8 completo e ben gestito. Bravo!",
+  "coachingImpact": "Impatto stimato: {amount}",
+  "@coachingImpact": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingSource": "Fonte",
+  "coachingTipCount": "{count} consigli",
+  "@coachingTipCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "coachingPriorityHigh": "Alta priorit\u00e0",
+  "coachingPriorityMedium": "Priorit\u00e0 media",
+  "coachingPriorityLow": "Informazione",
+  "coaching3aDeadlineTitle": "Versamento 3\u00b0 pilastro entro il 31 dicembre",
+  "coaching3aDeadlineMessage": "Vi restano {remaining} di margine sul vostro plafond 3a ({plafond}). Un versamento entro il 31 dicembre potrebbe ridurre il vostro carico fiscale di circa {impact}.",
+  "@coaching3aDeadlineMessage": {
+    "placeholders": {
+      "remaining": { "type": "String" },
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aDeadlineAction": "Simulare il mio 3a",
+  "coaching3aMissingTitle": "Non avete un 3\u00b0 pilastro",
+  "coaching3aMissingMessage": "Aprire un 3\u00b0 pilastro vi permetterebbe di dedurre fino a {plafond} dal vostro reddito imponibile ogni anno. Il risparmio fiscale stimato \u00e8 di {impact} all'anno nel cantone di {canton}.",
+  "@coaching3aMissingMessage": {
+    "placeholders": {
+      "plafond": { "type": "String" },
+      "impact": { "type": "String" },
+      "canton": { "type": "String" }
+    }
+  },
+  "coaching3aMissingAction": "Scoprire il 3\u00b0 pilastro",
+  "coaching3aNotMaxedTitle": "Plafond 3a non raggiunto",
+  "coaching3aNotMaxedMessage": "Il vostro versamento 3a attuale \u00e8 di {current} su un plafond di {plafond}. Versare il saldo di {remaining} potrebbe rappresentare un risparmio fiscale di circa {impact}.",
+  "@coaching3aNotMaxedMessage": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "plafond": { "type": "String" },
+      "remaining": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coaching3aNotMaxedAction": "Simulare il mio 3a",
+  "coachingLppBuybackTitle": "Riscatto LPP possibile",
+  "coachingLppBuybackMessage": "Avete una lacuna previdenziale di {gap}. Un riscatto volontario potrebbe farvi risparmiare circa {impact} di imposte migliorando la vostra pensione.",
+  "@coachingLppBuybackMessage": {
+    "placeholders": {
+      "gap": { "type": "String" },
+      "impact": { "type": "String" }
+    }
+  },
+  "coachingLppBuybackAction": "Simulare un riscatto LPP",
+  "coachingTaxDeadlineTitle": "Dichiarazione fiscale da presentare",
+  "coachingTaxDeadlineMessage": "Il termine per la vostra dichiarazione fiscale nel cantone di {canton} \u00e8 il 31 marzo. Restano {days} giorni.",
+  "@coachingTaxDeadlineMessage": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "coachingTaxDeadlineAction": "Vedere la mia checklist fiscale",
+  "coachingRetirementTitle": "Pensione tra {years} anni",
+  "@coachingRetirementTitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementMessage": "A {years} anni dalla pensione, \u00e8 importante verificare la vostra strategia previdenziale. Avete ottimizzato i riscatti LPP? I vostri conti 3a sono diversificati?",
+  "@coachingRetirementMessage": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "coachingRetirementAction": "Pianificare la mia pensione",
+  "coachingEmergencyTitle": "Riserva d'emergenza insufficiente",
+  "coachingEmergencyMessage": "I vostri risparmi disponibili coprono {months} mesi di costi fissi. Gli esperti raccomandano almeno 3 mesi. Vi mancano circa {deficit}.",
+  "@coachingEmergencyMessage": {
+    "placeholders": {
+      "months": { "type": "String" },
+      "deficit": { "type": "String" }
+    }
+  },
+  "coachingEmergencyAction": "Vedere il mio budget",
+  "coachingDebtTitle": "Tasso d'indebitamento elevato ({ratio}%)",
+  "@coachingDebtTitle": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtMessage": "Il vostro tasso d'indebitamento stimato \u00e8 del {ratio}%, al di sopra della soglia del 33% raccomandata dalle banche svizzere.",
+  "@coachingDebtMessage": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
+  "coachingDebtAction": "Analizzare i miei debiti",
+  "coachingPartTimeTitle": "Tempo parziale: lacuna previdenziale",
+  "coachingPartTimeMessage": "Al {rate}% di attivit\u00e0, la vostra previdenza professionale \u00e8 ridotta. La deduzione di coordinamento penalizza ulteriormente i lavoratori a tempo parziale.",
+  "@coachingPartTimeMessage": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "coachingPartTimeAction": "Simulare la mia previdenza",
+  "coachingIndependantTitle": "Indipendente: nessun LPP obbligatorio",
+  "coachingIndependantMessage": "Come indipendente, non siete soggetti al LPP obbligatorio. La vostra previdenza si basa su AVS e 3\u00b0 pilastro. Massimizzate i vostri versamenti 3a.",
+  "coachingIndependantAction": "Esplorare le mie opzioni",
+  "coachingBudgetMissingTitle": "Nessun budget ancora",
+  "coachingBudgetMissingMessage": "Un budget strutturato \u00e8 la base di qualsiasi strategia finanziaria. Permette di identificare la vostra reale capacit\u00e0 di risparmio.",
+  "coachingBudgetMissingAction": "Creare il mio budget",
+  "coachingAge25Title": "25 anni: aprire il 3\u00b0 pilastro",
+  "coachingAge25Message": "A 25 anni \u00e8 il momento ideale per aprire un 3\u00b0 pilastro. Grazie all'interesse composto, ogni anno conta.",
+  "coachingAge35Title": "35 anni: verifica previdenziale",
+  "coachingAge35Message": "A 35 anni, verificate che la vostra previdenza sia sulla buona strada. Avete un 3a? Il vostro LPP \u00e8 sufficiente?",
+  "coachingAge45Title": "45 anni: ottimizzare la strategia",
+  "coachingAge45Message": "A 45 anni restano 20 anni alla pensione. \u00c8 il momento di ottimizzare: massimizzare il 3a, considerare i riscatti LPP.",
+  "coachingAge50Title": "50 anni: preparare la pensione",
+  "coachingAge50Message": "A 50 anni la pensione si avvicina. Verificate il vostro avere LPP e pianificate gli ultimi riscatti.",
+  "coachingAge55Title": "55 anni: ultimo tratto",
+  "coachingAge55Message": "A 55 anni la pianificazione fiscale del prelievo diventa cruciale. Scaglionare i prelievi 3a pu\u00f2 significare un risparmio significativo.",
+  "coachingAge58Title": "58 anni: pensionamento anticipato possibile",
+  "coachingAge58Message": "Dai 58 anni, un prelievo anticipato del 2\u00b0 pilastro \u00e8 possibile. Attenzione: la rendita sar\u00e0 ridotta.",
+  "coachingAge63Title": "63 anni: ultimi aggiustamenti",
+  "coachingAge63Message": "A 2 anni dalla pensione legale: finalizzare la strategia. Ultimo riscatto LPP, scelta rendita/capitale.",
+  "coachingDisclaimer": "I suggerimenti presentati sono spunti di riflessione basati su stime semplificate. Non costituiscono consulenza finanziaria personalizzata. Consultate un professionista qualificato prima di qualsiasi decisione.",
+  "coachingDemoMode": "Modalit\u00e0 demo: profilo esempio (35 anni, VD, CHF 85'000). Completate la diagnosi per consigli personalizzati.",
+  "coachingNowCardTitle": "Coaching proattivo",
+  "coachingNowCardSubtitle": "Consigli personalizzati basati sul vostro profilo",
+  "coachingCategoryFiscalite": "Fiscalit\u00e0",
+  "coachingCategoryPrevoyance": "Previdenza",
+  "coachingCategoryBudget": "Budget",
+  "coachingCategoryRetraite": "Pensione"
 }
