@@ -287,19 +287,6 @@ class TimelineService {
         ));
         break;
         
-      case LifeEventType.mortgageRenewal:
-        items.add(TimelineItem(
-          id: 'mortgage_renewal_comparison_$sessionId',
-          date: now.add(const Duration(days: 7)),
-          category: 'housing',
-          label: 'Comparer offres hypothèque',
-          description: 'Obtenir 3 offres de banques différentes',
-          actionUrl: '/advisor/mortgage-comparison',
-          priority: ReminderPriority.high,
-          sourceSessionId: sessionId,
-        ));
-        break;
-        
       default:
         break;
     }

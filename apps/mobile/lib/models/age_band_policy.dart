@@ -7,40 +7,35 @@ enum AgeBand {
 }
 
 enum LifeEventType {
-  // Emploi
-  newJob,
-  jobLoss,
-  incomeReduction,
-  
-  // Famille
+  // Famille (5)
   marriage,
-  separation,
   divorce,
   birth,
-  adoption,
-  
-  // Logement
+  concubinage,
+  deathOfRelative,
+
+  // Professionnel (5)
+  firstJob,
+  newJob,
+  selfEmployment,
+  jobLoss,
+  retirement,
+
+  // Patrimoine (4)
   housingPurchase,
   housingSale,
-  
-  // Santé
-  seriousIllness,
-  disability,
-  workIncapacity,
-  deathOfRelative,
-  
-  // Patrimoine
   inheritance,
   donation,
-  
-  // Professionnel
-  selfEmployment,
-  
-  // Administratif
+
+  // Santé (1)
+  disability,
+
+  // Mobilité (2)
   cantonMove,
-  mortgageRenewal,
-  leasingEnd,
-  creditEnd,
+  countryMove,
+
+  // Crise (1)
+  debtCrisis,
 }
 
 class AgeBandPolicy {
@@ -366,19 +361,199 @@ class LifeEvent {
       ],
     ),
     
-    LifeEventType.mortgageRenewal: const LifeEvent(
-      type: LifeEventType.mortgageRenewal,
-      label: 'Renouvellement hypothèque',
-      description: 'Fin de taux fixe',
+    LifeEventType.divorce: const LifeEvent(
+      type: LifeEventType.divorce,
+      label: 'Divorce',
+      description: 'Séparation légale',
       deltaQuestions: [
-        'current_rate',
-        'new_rate_offers',
-        'amortization_strategy',
+        'matrimonial_regime',
+        'partner_income',
+        'housing_situation',
+        'children_custody',
+        'pension_split',
       ],
       timelineItems: [
-        'Comparaison offres',
-        'Signature nouveau taux',
-        'Nouvelle échéance',
+        'Partage LPP (CC 122 ss)',
+        'Mise à jour bénéficiaires',
+        'Revue couverture assurances',
+        'Adaptation budget (revenu unique)',
+      ],
+    ),
+
+    LifeEventType.concubinage: const LifeEvent(
+      type: LifeEventType.concubinage,
+      label: 'Concubinage',
+      description: 'Vie en union libre',
+      deltaQuestions: [
+        'partner_income',
+        'shared_expenses',
+        'testament_exists',
+        'beneficiaries_updated',
+      ],
+      timelineItems: [
+        'Rédiger testament (concubin hérite de RIEN sans)',
+        'Désigner bénéficiaire LPP/3a',
+        'Vérifier couverture décès',
+      ],
+    ),
+
+    LifeEventType.deathOfRelative: const LifeEvent(
+      type: LifeEventType.deathOfRelative,
+      label: 'Décès d\'un proche',
+      description: 'Perte d\'un membre de la famille',
+      deltaQuestions: [
+        'relationship_to_deceased',
+        'inheritance_expected',
+        'survivor_pension_eligible',
+        'administrative_steps_done',
+      ],
+      timelineItems: [
+        'Demande rentes de survivant AVS',
+        'Déclaration succession',
+        'Mise à jour bénéficiaires propres',
+      ],
+    ),
+
+    LifeEventType.firstJob: const LifeEvent(
+      type: LifeEventType.firstJob,
+      label: 'Premier emploi',
+      description: 'Entrée dans la vie active',
+      deltaQuestions: [
+        'first_salary_net',
+        'employer_lpp_plan',
+        'savings_target',
+        'has_debt_student',
+      ],
+      timelineItems: [
+        'Ouvrir compte 3a (dès le 1er salaire)',
+        'Comprendre fiche de salaire (AVS/LPP/LAA)',
+        'Mettre en place épargne automatique',
+      ],
+    ),
+
+    LifeEventType.selfEmployment: const LifeEvent(
+      type: LifeEventType.selfEmployment,
+      label: 'Indépendant',
+      description: 'Passage au statut indépendant',
+      deltaQuestions: [
+        'business_revenue',
+        'avs_affiliation',
+        'ijm_coverage',
+        'pension_solution',
+      ],
+      timelineItems: [
+        'Affiliation AVS indépendant',
+        'Souscrire IJM (URGENCE: 0 couverture sans)',
+        'Choisir solution prévoyance (3a étendu)',
+        'Planification fiscale acomptes',
+      ],
+    ),
+
+    LifeEventType.retirement: const LifeEvent(
+      type: LifeEventType.retirement,
+      label: 'Retraite',
+      description: 'Départ à la retraite',
+      deltaQuestions: [
+        'retirement_date',
+        'pension_vs_capital',
+        'avs_amount_estimated',
+        'lpp_capital_available',
+        'budget_retirement',
+      ],
+      timelineItems: [
+        'Demande rente AVS (3 mois avant)',
+        'Décision capital/rente LPP',
+        'Retrait échelonné 3a',
+        'Budget retraite réaliste',
+      ],
+    ),
+
+    LifeEventType.housingSale: const LifeEvent(
+      type: LifeEventType.housingSale,
+      label: 'Vente logement',
+      description: 'Vente d\'un bien immobilier',
+      deltaQuestions: [
+        'sale_price',
+        'mortgage_outstanding',
+        'capital_gains_tax',
+        'reinvestment_plan',
+      ],
+      timelineItems: [
+        'Calcul impôt sur gain immobilier',
+        'Remboursement hypothèque',
+        'Réinjection 3a/LPP si retrait EPL',
+        'Stratégie réallocation du produit',
+      ],
+    ),
+
+    LifeEventType.disability: const LifeEvent(
+      type: LifeEventType.disability,
+      label: 'Invalidité',
+      description: 'Incapacité de travail ou invalidité',
+      deltaQuestions: [
+        'disability_degree',
+        'ai_rente_requested',
+        'lpp_disability_coverage',
+        'laa_coverage_if_accident',
+      ],
+      timelineItems: [
+        'Demande rente AI',
+        'Activer couverture LPP invalidité',
+        'Vérifier LAA si accident',
+        'Adapter budget (revenu réduit)',
+      ],
+    ),
+
+    LifeEventType.countryMove: const LifeEvent(
+      type: LifeEventType.countryMove,
+      label: 'Départ à l\'étranger',
+      description: 'Émigration hors de Suisse',
+      deltaQuestions: [
+        'destination_country',
+        'departure_date',
+        'lpp_transfer_or_keep',
+        '3a_withdrawal_planned',
+      ],
+      timelineItems: [
+        'Transfert ou maintien LPP (libre passage)',
+        'Retrait 3a (possible si départ définitif UE/AELE)',
+        'Annonce départ commune',
+        'Clôture assurances suisses',
+      ],
+    ),
+
+    LifeEventType.debtCrisis: const LifeEvent(
+      type: LifeEventType.debtCrisis,
+      label: 'Crise de dette',
+      description: 'Surendettement ou poursuites',
+      deltaQuestions: [
+        'total_debt_amount',
+        'debt_types',
+        'monthly_income',
+        'minimum_vital_check',
+      ],
+      timelineItems: [
+        'Contacter Dettes Conseils Suisse (gratuit)',
+        'Établir budget minimum vital (LP art. 93)',
+        'Plan de remboursement structuré',
+        'Activer Safe Mode MINT',
+      ],
+    ),
+
+    LifeEventType.donation: const LifeEvent(
+      type: LifeEventType.donation,
+      label: 'Donation',
+      description: 'Don ou avancement d\'hoirie',
+      deltaQuestions: [
+        'donation_amount',
+        'recipient_relationship',
+        'donation_type',
+        'tax_canton',
+      ],
+      timelineItems: [
+        'Calcul impôt donation (varie par canton)',
+        'Vérifier impact sur réserves héréditaires',
+        'Documentation légale',
       ],
     ),
   };

@@ -17,6 +17,8 @@ from app.api.v1.endpoints import (
     assurances,
     open_banking,
     lpp_deep,
+    pillar_3a_deep,
+    debt_prevention,
 )
 
 api_router = APIRouter()
@@ -53,4 +55,10 @@ api_router.include_router(
 )
 api_router.include_router(
     lpp_deep.router, prefix="/lpp-deep", tags=["lpp-deep"]
+)
+api_router.include_router(
+    pillar_3a_deep.router, prefix="/3a-deep", tags=["3a-deep"]
+)
+api_router.include_router(
+    debt_prevention.router, prefix="/debt", tags=["debt-prevention"]
 )
