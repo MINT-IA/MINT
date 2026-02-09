@@ -132,6 +132,10 @@ class JobComparator:
     # Minimum insured salary (LPP art. 8 al. 2)
     MIN_INSURED_SALARY = 3675.0
 
+    # Social charges employee share (AVS 5.3% + AI 0.7% + AC 1.1% = ~6.4%)
+    # These are deducted from gross to get net salary.
+    SOCIAL_CHARGES_EMPLOYEE_PCT = 6.4
+
     def compare(
         self,
         current: LPPPlanData,
@@ -161,9 +165,12 @@ class JobComparator:
         cotis_current = self._calc_contributions(current, sal_assure_current, age)
         cotis_new = self._calc_contributions(new, sal_assure_new, age)
 
-        # 3. Net salary (gross - employee contribution)
-        net_current = current.salaire_brut - cotis_current["employee_annual"]
-        net_new = new.salaire_brut - cotis_new["employee_annual"]
+        # 3. Net salary (gross - social charges - LPP employee contribution)
+        # Social charges: AVS 5.3% + AI 0.7% + AC 1.1% = 6.4% employee share
+        social_current = current.salaire_brut * self.SOCIAL_CHARGES_EMPLOYEE_PCT / 100
+        social_new = new.salaire_brut * self.SOCIAL_CHARGES_EMPLOYEE_PCT / 100
+        net_current = current.salaire_brut - social_current - cotis_current["employee_annual"]
+        net_new = new.salaire_brut - social_new - cotis_new["employee_annual"]
 
         # 4. Project retirement capital
         capital_current = self._project_capital(
