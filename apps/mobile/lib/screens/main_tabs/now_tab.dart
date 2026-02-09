@@ -97,6 +97,13 @@ class NowTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
 
+                      // LPP Approfondi (Sprint S15)
+                      MintAnimateFadeUp(
+                        delayInMs: 175,
+                        child: _buildLppDeepSection(context),
+                      ),
+                      const SizedBox(height: 32),
+
                       // Coaching Proactif
                       MintAnimateFadeUp(
                         delayInMs: 200,
@@ -554,6 +561,56 @@ class NowTab extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLppDeepSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.account_balance_outlined, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'LPP APPROFONDI',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.trending_up,
+          color: Colors.green,
+          title: 'Rachat echelonne',
+          subtitle: 'Optimisez vos rachats LPP sur plusieurs annees',
+          route: '/lpp-deep/rachat',
+        ),
+        const SizedBox(height: 12),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.swap_horiz,
+          color: Colors.blue,
+          title: 'Libre passage',
+          subtitle: 'Checklist en cas de changement d\'emploi ou depart',
+          route: '/lpp-deep/libre-passage',
+        ),
+        const SizedBox(height: 12),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.home_outlined,
+          color: Colors.teal,
+          title: 'Retrait EPL',
+          subtitle: 'Financer un logement avec votre 2e pilier',
+          route: '/lpp-deep/epl',
         ),
       ],
     );

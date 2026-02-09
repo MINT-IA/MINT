@@ -16,6 +16,7 @@ from app.api.v1.endpoints import (
     segments,
     assurances,
     open_banking,
+    lpp_deep,
 )
 
 api_router = APIRouter()
@@ -49,4 +50,7 @@ api_router.include_router(
 )
 api_router.include_router(
     open_banking.router, prefix="/open-banking", tags=["open-banking"]
+)
+api_router.include_router(
+    lpp_deep.router, prefix="/lpp-deep", tags=["lpp-deep"]
 )

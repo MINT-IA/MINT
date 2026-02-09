@@ -49,6 +49,9 @@ import 'package:mint_mobile/screens/coverage_check_screen.dart';
 import 'package:mint_mobile/screens/open_banking/open_banking_hub_screen.dart';
 import 'package:mint_mobile/screens/open_banking/transaction_list_screen.dart';
 import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
+import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
+import 'package:mint_mobile/screens/lpp_deep/libre_passage_screen.dart';
+import 'package:mint_mobile/screens/lpp_deep/epl_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -247,6 +250,22 @@ final _router = GoRouter(
       path: '/open-banking/consents',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConsentScreen(),
+    ),
+    // LPP Deep (Sprint S15 — Chantier 4)
+    GoRoute(
+      path: '/lpp-deep/rachat',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RachatEchelonneScreen(),
+    ),
+    GoRoute(
+      path: '/lpp-deep/libre-passage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LibrePassageScreen(),
+    ),
+    GoRoute(
+      path: '/lpp-deep/epl',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const EplScreen(),
     ),
     // Education Hub
     GoRoute(
