@@ -86,3 +86,81 @@ class DocumentDeleteResponse(BaseModel):
 
     deleted: bool = Field(..., description="Whether the document was deleted")
     id: str = Field(..., description="Deleted document ID")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Bank Statement Schemas (Docling Phase 2)
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class TransactionResponse(BaseModel):
+    """A single bank transaction in the API response."""
+
+    date: str = Field(..., description="Transaction date in ISO format (YYYY-MM-DD)")
+    description: str = Field("", description="Transaction description")
+    amount: float = Field(..., description="Amount: positive=credit, negative=debit")
+    balance: Optional[float] = Field(None, description="Running balance after transaction")
+    category: str = Field("divers", description="Auto-detected spending category")
+    subcategory: Optional[str] = Field(None, description="More specific sub-category")
+    is_recurring: bool = Field(False, description="Whether the transaction is detected as recurring")
+
+
+class BankStatementUploadResponse(BaseModel):
+    """Response from a bank statement upload and extraction."""
+
+    document_type: str = Field(
+        "bank_statement",
+        description="Document type (always 'bank_statement')",
+    )
+    bank_name: Optional[str] = Field(None, description="Detected bank name (UBS, PostFinance, etc.)")
+    period_start: Optional[str] = Field(None, description="Statement period start (ISO date)")
+    period_end: Optional[str] = Field(None, description="Statement period end (ISO date)")
+    currency: str = Field("CHF", description="Currency code")
+    transactions: list[TransactionResponse] = Field(
+        default_factory=list,
+        description="Extracted and categorized transactions",
+    )
+    total_credits: float = Field(0.0, description="Sum of all credit (positive) amounts")
+    total_debits: float = Field(0.0, description="Sum of all debit (negative) amounts")
+    opening_balance: Optional[float] = Field(None, description="Opening balance")
+    closing_balance: Optional[float] = Field(None, description="Closing balance")
+    confidence: float = Field(
+        0.0,
+        ge=0.0,
+        le=1.0,
+        description="Extraction confidence score [0-1]",
+    )
+    warnings: list[str] = Field(
+        default_factory=list,
+        description="Warnings or issues during extraction",
+    )
+    category_summary: dict[str, float] = Field(
+        default_factory=dict,
+        description="Total amount per category",
+    )
+    recurring_monthly: list[TransactionResponse] = Field(
+        default_factory=list,
+        description="Detected recurring monthly transactions",
+    )
+
+
+class BudgetImportPreview(BaseModel):
+    """Preview of what would be imported into the budget module."""
+
+    estimated_monthly_income: float = Field(
+        0.0, description="Estimated average monthly income"
+    )
+    estimated_monthly_expenses: float = Field(
+        0.0, description="Estimated average monthly expenses"
+    )
+    top_categories: list[dict] = Field(
+        default_factory=list,
+        description="Top spending categories with amount and percentage",
+    )
+    recurring_charges: list[dict] = Field(
+        default_factory=list,
+        description="Detected recurring charges with description, amount, frequency",
+    )
+    savings_rate: float = Field(
+        0.0, description="Estimated savings rate as percentage"
+    )

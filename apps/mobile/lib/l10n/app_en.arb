@@ -275,5 +275,71 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "bankImportTitle": "Import my statements",
+  "bankImportSubtitle": "Automatic analysis of your transactions",
+  "bankImportUploadTitle": "Import your bank statement",
+  "bankImportUploadBody": "CSV or PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB and other Swiss banks",
+  "bankImportUploadButton": "Choose a file",
+  "bankImportAnalyzing": "Analysing transactions...",
+  "bankImportBankDetected": "{bank} detected",
+  "@bankImportBankDetected": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportPeriod": "Period: {start} - {end}",
+  "@bankImportPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportTransactionCount": "{count} transactions",
+  "@bankImportTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportIncome": "Income",
+  "bankImportExpenses": "Expenses",
+  "bankImportCategories": "Breakdown by category",
+  "bankImportRecurring": "Detected recurring charges",
+  "bankImportPerMonth": "{amount}/month",
+  "@bankImportPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportBudgetPreview": "Your estimated budget",
+  "bankImportMonthlyIncome": "Monthly income",
+  "bankImportFixedCharges": "Fixed charges",
+  "bankImportVariable": "Variable expenses",
+  "bankImportSavingsRate": "Savings rate",
+  "bankImportButton": "Import into my budget",
+  "bankImportPrivacy": "Your statements are analysed locally. Transactions are never stored on our servers.",
+  "bankImportSuccess": "Budget updated successfully",
+  "bankImportCategoryLogement": "Housing",
+  "bankImportCategoryAlimentation": "Groceries",
+  "bankImportCategoryTransport": "Transport",
+  "bankImportCategoryAssurance": "Insurance",
+  "bankImportCategoryTelecom": "Telecom",
+  "bankImportCategoryImpots": "Taxes",
+  "bankImportCategorySante": "Health",
+  "bankImportCategoryLoisirs": "Leisure",
+  "bankImportCategoryEpargne": "Savings",
+  "bankImportCategorySalaire": "Salary",
+  "bankImportCategoryRestaurant": "Restaurant",
+  "bankImportCategoryDivers": "Other"
 }

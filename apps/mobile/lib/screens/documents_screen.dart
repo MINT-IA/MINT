@@ -67,8 +67,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Upload card
+                  // Upload card (LPP)
                   _buildUploadCard(s, docProvider),
+                  const SizedBox(height: 16),
+
+                  // Bank import card
+                  _buildBankImportCard(s),
                   const SizedBox(height: 24),
 
                   // Uploading indicator
@@ -597,6 +601,65 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Bank Import Card
+  // ──────────────────────────────────────────────────────────
+
+  Widget _buildBankImportCard(S? s) {
+    return InkWell(
+      onTap: () => context.push('/bank-import'),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: MintColors.info.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.info.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.account_balance_outlined,
+                  color: MintColors.info, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s?.bankImportTitle ?? 'Importer un releve bancaire',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    s?.bankImportSubtitle ??
+                        'Analyse automatique de tes transactions',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded,
+                color: MintColors.textMuted, size: 22),
+          ],
         ),
       ),
     );

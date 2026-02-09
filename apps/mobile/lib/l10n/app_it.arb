@@ -275,5 +275,71 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "bankImportTitle": "Importare i miei estratti conto",
+  "bankImportSubtitle": "Analisi automatica delle tue transazioni",
+  "bankImportUploadTitle": "Importa il tuo estratto conto",
+  "bankImportUploadBody": "CSV o PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB e altre banche svizzere",
+  "bankImportUploadButton": "Scegli un file",
+  "bankImportAnalyzing": "Analisi delle transazioni...",
+  "bankImportBankDetected": "{bank} rilevata",
+  "@bankImportBankDetected": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportPeriod": "Periodo: {start} - {end}",
+  "@bankImportPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportTransactionCount": "{count} transazioni",
+  "@bankImportTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportIncome": "Entrate",
+  "bankImportExpenses": "Spese",
+  "bankImportCategories": "Ripartizione per categoria",
+  "bankImportRecurring": "Spese ricorrenti rilevate",
+  "bankImportPerMonth": "{amount}/mese",
+  "@bankImportPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportBudgetPreview": "Il tuo budget stimato",
+  "bankImportMonthlyIncome": "Reddito mensile",
+  "bankImportFixedCharges": "Costi fissi",
+  "bankImportVariable": "Spese variabili",
+  "bankImportSavingsRate": "Tasso di risparmio",
+  "bankImportButton": "Importa nel mio budget",
+  "bankImportPrivacy": "I tuoi estratti conto vengono analizzati localmente. Le transazioni non vengono mai memorizzate sui nostri server.",
+  "bankImportSuccess": "Budget aggiornato con successo",
+  "bankImportCategoryLogement": "Alloggio",
+  "bankImportCategoryAlimentation": "Alimentazione",
+  "bankImportCategoryTransport": "Trasporti",
+  "bankImportCategoryAssurance": "Assicurazione",
+  "bankImportCategoryTelecom": "Telecomunicazioni",
+  "bankImportCategoryImpots": "Imposte",
+  "bankImportCategorySante": "Salute",
+  "bankImportCategoryLoisirs": "Tempo libero",
+  "bankImportCategoryEpargne": "Risparmio",
+  "bankImportCategorySalaire": "Salario",
+  "bankImportCategoryRestaurant": "Ristorante",
+  "bankImportCategoryDivers": "Varie"
 }

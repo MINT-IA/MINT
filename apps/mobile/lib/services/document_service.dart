@@ -215,6 +215,166 @@ class DocumentSummary {
 }
 
 // ──────────────────────────────────────────────────────────
+// Model: Bank Transaction
+// ──────────────────────────────────────────────────────────
+
+/// A single transaction extracted from a bank statement.
+class BankTransaction {
+  final DateTime date;
+  final String description;
+  final double amount;
+  final double? balance;
+  final String category;
+  final String? subcategory;
+  final bool isRecurring;
+
+  const BankTransaction({
+    required this.date,
+    required this.description,
+    required this.amount,
+    this.balance,
+    required this.category,
+    this.subcategory,
+    this.isRecurring = false,
+  });
+
+  factory BankTransaction.fromJson(Map<String, dynamic> json) {
+    return BankTransaction(
+      date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+      description: json['description'] as String? ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      balance: (json['balance'] as num?)?.toDouble(),
+      category: json['category'] as String? ?? 'Divers',
+      subcategory: json['subcategory'] as String?,
+      isRecurring: json['is_recurring'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'date': date.toIso8601String(),
+      'description': description,
+      'amount': amount,
+      if (balance != null) 'balance': balance,
+      'category': category,
+      if (subcategory != null) 'subcategory': subcategory,
+      'is_recurring': isRecurring,
+    };
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: Bank Statement Result
+// ──────────────────────────────────────────────────────────
+
+/// Result returned after uploading and processing a bank statement.
+class BankStatementResult {
+  final String bankName;
+  final DateTime periodStart;
+  final DateTime periodEnd;
+  final String currency;
+  final List<BankTransaction> transactions;
+  final double totalCredits;
+  final double totalDebits;
+  final double confidence;
+  final List<String> warnings;
+  final Map<String, double> categorySummary;
+  final List<BankTransaction> recurringMonthly;
+
+  const BankStatementResult({
+    required this.bankName,
+    required this.periodStart,
+    required this.periodEnd,
+    this.currency = 'CHF',
+    required this.transactions,
+    required this.totalCredits,
+    required this.totalDebits,
+    required this.confidence,
+    this.warnings = const [],
+    this.categorySummary = const {},
+    this.recurringMonthly = const [],
+  });
+
+  factory BankStatementResult.fromJson(Map<String, dynamic> json) {
+    final txList = (json['transactions'] as List<dynamic>?)
+            ?.map((t) => BankTransaction.fromJson(t as Map<String, dynamic>))
+            .toList() ??
+        [];
+    final recurringList = (json['recurring_monthly'] as List<dynamic>?)
+            ?.map((t) => BankTransaction.fromJson(t as Map<String, dynamic>))
+            .toList() ??
+        [];
+    final catSummary = <String, double>{};
+    final rawCat = json['category_summary'] as Map<String, dynamic>?;
+    if (rawCat != null) {
+      for (final entry in rawCat.entries) {
+        catSummary[entry.key] = (entry.value as num).toDouble();
+      }
+    }
+
+    return BankStatementResult(
+      bankName: json['bank_name'] as String? ?? 'Banque inconnue',
+      periodStart:
+          DateTime.tryParse(json['period_start'] as String? ?? '') ??
+              DateTime.now(),
+      periodEnd:
+          DateTime.tryParse(json['period_end'] as String? ?? '') ??
+              DateTime.now(),
+      currency: json['currency'] as String? ?? 'CHF',
+      transactions: txList,
+      totalCredits: (json['total_credits'] as num?)?.toDouble() ?? 0.0,
+      totalDebits: (json['total_debits'] as num?)?.toDouble() ?? 0.0,
+      confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
+      warnings: (json['warnings'] as List<dynamic>?)
+              ?.map((w) => w as String)
+              .toList() ??
+          [],
+      categorySummary: catSummary,
+      recurringMonthly: recurringList,
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: Budget Import Preview
+// ──────────────────────────────────────────────────────────
+
+/// Preview of budget data derived from a bank statement analysis.
+class BudgetImportPreview {
+  final double estimatedMonthlyIncome;
+  final double estimatedMonthlyExpenses;
+  final List<MapEntry<String, double>> topCategories;
+  final List<BankTransaction> recurringCharges;
+  final double savingsRate;
+
+  const BudgetImportPreview({
+    required this.estimatedMonthlyIncome,
+    required this.estimatedMonthlyExpenses,
+    required this.topCategories,
+    required this.recurringCharges,
+    required this.savingsRate,
+  });
+
+  /// Derive a budget import preview from a [BankStatementResult].
+  factory BudgetImportPreview.fromStatementResult(BankStatementResult result) {
+    final income = result.totalCredits;
+    final expenses = result.totalDebits.abs();
+    final savings = income > 0 ? ((income - expenses) / income) * 100 : 0.0;
+
+    final sortedCategories = result.categorySummary.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return BudgetImportPreview(
+      estimatedMonthlyIncome: income,
+      estimatedMonthlyExpenses: expenses,
+      topCategories: sortedCategories,
+      recurringCharges: result.recurringMonthly,
+      savingsRate: savings,
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────
 // Document Service
 // ──────────────────────────────────────────────────────────
 
@@ -255,6 +415,35 @@ class DocumentService {
       throw DocumentServiceException(
         code: 'upload_failed',
         message: detail ?? 'Upload failed (${response.statusCode}).',
+      );
+    }
+  }
+
+  /// Upload a bank statement (CSV or PDF) for transaction analysis.
+  ///
+  /// Returns a [BankStatementResult] with extracted transactions and summaries.
+  Future<BankStatementResult> uploadBankStatement(File file) async {
+    final token = await AuthService.getToken();
+    final uri = Uri.parse('$_baseUrl/documents/upload-statement');
+
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+    final streamedResponse =
+        await request.send().timeout(const Duration(seconds: 120));
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return BankStatementResult.fromJson(json);
+    } else {
+      final detail = _tryDecodeError(response.body);
+      throw DocumentServiceException(
+        code: 'statement_upload_failed',
+        message: detail ?? 'Bank statement upload failed (${response.statusCode}).',
       );
     }
   }

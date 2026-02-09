@@ -275,5 +275,71 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "bankImportTitle": "Importer mes releves",
+  "bankImportSubtitle": "Analyse automatique de tes transactions",
+  "bankImportUploadTitle": "Importe ton releve bancaire",
+  "bankImportUploadBody": "CSV ou PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB et autres banques suisses",
+  "bankImportUploadButton": "Choisir un fichier",
+  "bankImportAnalyzing": "Analyse des transactions...",
+  "bankImportBankDetected": "{bank} detecte",
+  "@bankImportBankDetected": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportPeriod": "Periode : {start} - {end}",
+  "@bankImportPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportTransactionCount": "{count} transactions",
+  "@bankImportTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportIncome": "Revenus",
+  "bankImportExpenses": "Depenses",
+  "bankImportCategories": "Repartition par categorie",
+  "bankImportRecurring": "Charges recurrentes detectees",
+  "bankImportPerMonth": "{amount}/mois",
+  "@bankImportPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportBudgetPreview": "Ton budget estime",
+  "bankImportMonthlyIncome": "Revenu mensuel",
+  "bankImportFixedCharges": "Charges fixes",
+  "bankImportVariable": "Depenses variables",
+  "bankImportSavingsRate": "Taux d'epargne",
+  "bankImportButton": "Importer dans mon budget",
+  "bankImportPrivacy": "Tes releves sont analyses localement. Les transactions ne sont jamais stockees sur nos serveurs.",
+  "bankImportSuccess": "Budget mis a jour avec succes",
+  "bankImportCategoryLogement": "Logement",
+  "bankImportCategoryAlimentation": "Alimentation",
+  "bankImportCategoryTransport": "Transport",
+  "bankImportCategoryAssurance": "Assurance",
+  "bankImportCategoryTelecom": "Telecom",
+  "bankImportCategoryImpots": "Impots",
+  "bankImportCategorySante": "Sante",
+  "bankImportCategoryLoisirs": "Loisirs",
+  "bankImportCategoryEpargne": "Epargne",
+  "bankImportCategorySalaire": "Salaire",
+  "bankImportCategoryRestaurant": "Restaurant",
+  "bankImportCategoryDivers": "Divers"
 }

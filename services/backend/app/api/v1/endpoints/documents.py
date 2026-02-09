@@ -2,10 +2,12 @@
 Document Intelligence (Docling) endpoints for MINT.
 
 Phase 1: LPP Certificate Upload & Extraction.
-Accepts PDF uploads, extracts structured data from Swiss LPP certificates,
+Phase 2: Bank Statement CSV/PDF Parsing & Transaction Categorization.
+
+Accepts PDF/CSV uploads, extracts structured data from Swiss financial documents,
 and optionally indexes extracted data into the RAG vector store.
 
-Privacy: raw PDF bytes are never stored permanently. Only extracted fields
+Privacy: raw file bytes are never stored permanently. Only extracted fields
 are kept in the in-memory document store.
 """
 
@@ -19,11 +21,14 @@ from typing import Optional
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 
 from app.schemas.document import (
+    BankStatementUploadResponse,
+    BudgetImportPreview,
     DocumentDeleteResponse,
     DocumentDetailResponse,
     DocumentListResponse,
     DocumentSummary,
     DocumentUploadResponse,
+    TransactionResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -352,3 +357,172 @@ async def delete_document(doc_id: str):
 
     del store[doc_id]
     return DocumentDeleteResponse(deleted=True, id=doc_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Phase 2: Bank Statement Upload
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@router.post("/upload-statement", response_model=BankStatementUploadResponse)
+async def upload_bank_statement(
+    file: UploadFile = File(...),
+):
+    """
+    Upload a CSV or PDF bank statement for parsing and categorization.
+
+    Accepts CSV or PDF files from Swiss banks (UBS, PostFinance, Raiffeisen, ZKB).
+    Auto-detects bank format, extracts transactions, categorizes spending,
+    and returns a budget-ready summary.
+
+    The raw file is never stored — only extracted transactions are kept.
+    """
+    filename = file.filename or ""
+    filename_lower = filename.lower()
+
+    # Validate file extension
+    if not (filename_lower.endswith(".csv") or filename_lower.endswith(".pdf")):
+        raise HTTPException(
+            status_code=400,
+            detail="File must have a .csv or .pdf extension.",
+        )
+
+    # Read file bytes
+    try:
+        file_bytes = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    # Import bank statement components
+    try:
+        from app.services.docling.extractors.bank_statement import (
+            BankStatementExtractor,
+        )
+        from app.services.docling.categorizer import TransactionCategorizer
+    except ImportError:
+        raise HTTPException(
+            status_code=503,
+            detail="Docling dependencies not installed. Install with: pip install -e '.[docling]'",
+        )
+
+    extractor = BankStatementExtractor()
+    categorizer = TransactionCategorizer()
+
+    # Parse based on file type
+    try:
+        if filename_lower.endswith(".csv"):
+            statement = extractor.parse_csv(file_bytes)
+        else:
+            statement = extractor.parse_pdf(file_bytes)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Categorize transactions
+    categorizer.categorize_transactions(statement.transactions)
+
+    # Build response
+    category_summary = categorizer.compute_category_summary(statement.transactions)
+
+    # Recurring transactions
+    recurring_txs = [
+        TransactionResponse(
+            date=tx.date,
+            description=tx.description,
+            amount=tx.amount,
+            balance=tx.balance,
+            category=tx.category,
+            subcategory=tx.subcategory,
+            is_recurring=tx.is_recurring,
+        )
+        for tx in statement.transactions
+        if tx.is_recurring
+    ]
+
+    # All transactions
+    all_txs = [
+        TransactionResponse(
+            date=tx.date,
+            description=tx.description,
+            amount=tx.amount,
+            balance=tx.balance,
+            category=tx.category,
+            subcategory=tx.subcategory,
+            is_recurring=tx.is_recurring,
+        )
+        for tx in statement.transactions
+    ]
+
+    return BankStatementUploadResponse(
+        document_type="bank_statement",
+        bank_name=statement.bank_name,
+        period_start=statement.period_start,
+        period_end=statement.period_end,
+        currency=statement.currency,
+        transactions=all_txs,
+        total_credits=statement.total_credits,
+        total_debits=statement.total_debits,
+        opening_balance=statement.opening_balance,
+        closing_balance=statement.closing_balance,
+        confidence=statement.confidence,
+        warnings=statement.warnings,
+        category_summary=category_summary,
+        recurring_monthly=recurring_txs,
+    )
+
+
+@router.post("/upload-statement/preview", response_model=BudgetImportPreview)
+async def preview_budget_import(
+    file: UploadFile = File(...),
+):
+    """
+    Preview what a bank statement import would look like in the budget module.
+
+    Returns estimated monthly income, expenses, top categories, recurring charges,
+    and savings rate — without storing any data.
+    """
+    filename = file.filename or ""
+    filename_lower = filename.lower()
+
+    if not (filename_lower.endswith(".csv") or filename_lower.endswith(".pdf")):
+        raise HTTPException(
+            status_code=400,
+            detail="File must have a .csv or .pdf extension.",
+        )
+
+    try:
+        file_bytes = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    try:
+        from app.services.docling.extractors.bank_statement import (
+            BankStatementExtractor,
+        )
+        from app.services.docling.categorizer import TransactionCategorizer
+    except ImportError:
+        raise HTTPException(
+            status_code=503,
+            detail="Docling dependencies not installed.",
+        )
+
+    extractor = BankStatementExtractor()
+    categorizer = TransactionCategorizer()
+
+    try:
+        if filename_lower.endswith(".csv"):
+            statement = extractor.parse_csv(file_bytes)
+        else:
+            statement = extractor.parse_pdf(file_bytes)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    categorizer.categorize_transactions(statement.transactions)
+    preview = categorizer.compute_budget_preview(statement.transactions)
+
+    return BudgetImportPreview(**preview)

@@ -275,5 +275,71 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "bankImportTitle": "Kontoausz\u00fcge importieren",
+  "bankImportSubtitle": "Automatische Analyse deiner Transaktionen",
+  "bankImportUploadTitle": "Importiere deinen Kontoauszug",
+  "bankImportUploadBody": "CSV oder PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB und andere Schweizer Banken",
+  "bankImportUploadButton": "Datei ausw\u00e4hlen",
+  "bankImportAnalyzing": "Transaktionen werden analysiert...",
+  "bankImportBankDetected": "{bank} erkannt",
+  "@bankImportBankDetected": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportPeriod": "Zeitraum: {start} - {end}",
+  "@bankImportPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportTransactionCount": "{count} Transaktionen",
+  "@bankImportTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportIncome": "Einnahmen",
+  "bankImportExpenses": "Ausgaben",
+  "bankImportCategories": "Aufschl\u00fcsselung nach Kategorie",
+  "bankImportRecurring": "Erkannte wiederkehrende Kosten",
+  "bankImportPerMonth": "{amount}/Monat",
+  "@bankImportPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bankImportBudgetPreview": "Dein gesch\u00e4tztes Budget",
+  "bankImportMonthlyIncome": "Monatliches Einkommen",
+  "bankImportFixedCharges": "Fixkosten",
+  "bankImportVariable": "Variable Ausgaben",
+  "bankImportSavingsRate": "Sparquote",
+  "bankImportButton": "In mein Budget importieren",
+  "bankImportPrivacy": "Deine Kontoausz\u00fcge werden lokal analysiert. Transaktionen werden niemals auf unseren Servern gespeichert.",
+  "bankImportSuccess": "Budget erfolgreich aktualisiert",
+  "bankImportCategoryLogement": "Wohnen",
+  "bankImportCategoryAlimentation": "Lebensmittel",
+  "bankImportCategoryTransport": "Transport",
+  "bankImportCategoryAssurance": "Versicherung",
+  "bankImportCategoryTelecom": "Telekommunikation",
+  "bankImportCategoryImpots": "Steuern",
+  "bankImportCategorySante": "Gesundheit",
+  "bankImportCategoryLoisirs": "Freizeit",
+  "bankImportCategoryEpargne": "Sparen",
+  "bankImportCategorySalaire": "Gehalt",
+  "bankImportCategoryRestaurant": "Restaurant",
+  "bankImportCategoryDivers": "Sonstiges"
 }

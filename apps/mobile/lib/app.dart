@@ -34,6 +34,7 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
+import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 
@@ -105,6 +106,12 @@ final _router = GoRouter(
         final id = state.pathParameters['id']!;
         return DocumentDetailScreen(documentId: id);
       },
+    ),
+    // Bank Import
+    GoRoute(
+      path: '/bank-import',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BankImportScreen(),
     ),
     GoRoute(
       path: '/budget',
