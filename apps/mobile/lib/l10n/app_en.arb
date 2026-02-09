@@ -209,5 +209,71 @@
   "profileAiTitle": "Artificial Intelligence",
   "profileAiByok": "Ask MINT (BYOK)",
   "profileAiConfigured": "Configured",
-  "profileAiNotConfigured": "Not configured"
+  "profileAiNotConfigured": "Not configured",
+
+  "documentsTitle": "My documents",
+  "documentsSubtitle": "Upload and analyse your financial documents",
+  "documentsUploadTitle": "Upload your pension certificate",
+  "documentsUploadBody": "MINT automatically extracts your pension fund data",
+  "documentsUploadButton": "Choose a PDF file",
+  "documentsAnalyzing": "Analysing...",
+  "documentsConfidence": "Confidence: {confidence}%",
+  "@documentsConfidence": {
+    "placeholders": {
+      "confidence": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsFieldsFound": "{found} fields extracted out of {total}",
+  "@documentsFieldsFound": {
+    "placeholders": {
+      "found": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsConfirmButton": "Confirm and update my profile",
+  "documentsDeleteButton": "Delete this document",
+  "documentsDeleteTitle": "Delete the document?",
+  "documentsDeleteMessage": "This action cannot be undone.",
+  "documentsPrivacy": "Your documents are analysed locally and are never shared with third parties. You can delete them at any time.",
+  "documentsEmpty": "No documents",
+  "documentsLppCertificate": "Pension certificate",
+  "documentsUnknown": "Unknown document",
+  "documentsCategoryEpargne": "Savings",
+  "documentsCategorySalaire": "Salary",
+  "documentsCategoryTaux": "Conversion rate",
+  "documentsCategoryRisque": "Risk coverage",
+  "documentsCategoryRachat": "Buyback",
+  "documentsCategoryCotisations": "Contributions",
+  "documentsFieldAvoirObligatoire": "Mandatory retirement assets",
+  "documentsFieldAvoirSurobligatoire": "Extra-mandatory retirement assets",
+  "documentsFieldAvoirTotal": "Total retirement assets",
+  "documentsFieldSalaireAssure": "Insured salary",
+  "documentsFieldSalaireAvs": "AHV salary",
+  "documentsFieldDeductionCoordination": "Coordination deduction",
+  "documentsFieldTauxObligatoire": "Mandatory conversion rate",
+  "documentsFieldTauxSurobligatoire": "Extra-mandatory conversion rate",
+  "documentsFieldTauxEnveloppe": "Envelope conversion rate",
+  "documentsFieldRenteInvalidite": "Annual disability pension",
+  "documentsFieldCapitalDeces": "Death capital",
+  "documentsFieldRenteConjoint": "Annual spouse pension",
+  "documentsFieldRenteEnfant": "Annual child pension",
+  "documentsFieldRachatMax": "Maximum possible buyback",
+  "documentsFieldCotisationEmploye": "Annual employee contribution",
+  "documentsFieldCotisationEmployeur": "Annual employer contribution",
+  "documentsWarningsTitle": "Points of attention",
+  "profileDocuments": "My documents",
+  "profileDocumentsCount": "{count} document(s)",
+  "@profileDocumentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,0 +1,242 @@
+# LPP Certificate Field Definitions
+# Used by LPPCertificateExtractor for Swiss pension certificate parsing.
+#
+# Each field has:
+#   - type: "amount" (CHF), "rate" (%), "date", or "text"
+#   - keywords: regex patterns per language (fr, de, it)
+#
+# Fields are matched against the extracted PDF text.
+# Keywords are tried in order; first match wins.
+
+fields:
+  avoir_vieillesse_obligatoire:
+    type: amount
+    description: "Mandatory old-age savings (part obligatoire BVG/LPP)"
+    keywords:
+      fr:
+        - "avoir\\s+de\\s+vieillesse\\s+obligatoire"
+        - "avoir\\s+vieillesse\\s+obligatoire"
+        - "capital\\s+vieillesse\\s+obligatoire"
+      de:
+        - "obligatorisches?\\s+altersguthaben"
+        - "altersguthaben\\s+obligatorium"
+      it:
+        - "avere\\s+di\\s+vecchiaia\\s+obbligatorio"
+
+  avoir_vieillesse_surobligatoire:
+    type: amount
+    description: "Super-mandatory old-age savings (part surobligatoire)"
+    keywords:
+      fr:
+        - "avoir\\s+de\\s+vieillesse\\s+surobligatoire"
+        - "avoir\\s+vieillesse\\s+surobligatoire"
+      de:
+        - "überobligatorisches?\\s+altersguthaben"
+        - "ausserobligatorisches?\\s+altersguthaben"
+      it:
+        - "avere\\s+di\\s+vecchiaia\\s+sovraobbligatorio"
+
+  avoir_vieillesse_total:
+    type: amount
+    description: "Total old-age savings (obligatoire + surobligatoire)"
+    keywords:
+      fr:
+        - "avoir\\s+de\\s+vieillesse\\s+total"
+        - "total\\s+avoir\\s+de\\s+vieillesse"
+      de:
+        - "altersguthaben\\s+total"
+        - "totales?\\s+altersguthaben"
+      it:
+        - "avere\\s+di\\s+vecchiaia\\s+totale"
+
+  salaire_assure:
+    type: amount
+    description: "Insured salary (salaire coordonné)"
+    keywords:
+      fr:
+        - "salaire\\s+assuré"
+        - "salaire\\s+coordonné"
+      de:
+        - "versicherter?\\s+lohn"
+        - "koordinierter?\\s+lohn"
+      it:
+        - "salario\\s+assicurato"
+
+  salaire_avs:
+    type: amount
+    description: "AVS/AHV salary (gross annual)"
+    keywords:
+      fr:
+        - "salaire\\s+avs"
+        - "salaire\\s+brut\\s+annuel"
+      de:
+        - "ahv[- ]?lohn"
+        - "massgebender\\s+lohn"
+      it:
+        - "salario\\s+avs"
+
+  deduction_coordination:
+    type: amount
+    description: "Coordination deduction"
+    keywords:
+      fr:
+        - "déduction\\s+de?\\s+coordination"
+        - "montant\\s+de?\\s+coordination"
+      de:
+        - "koordinationsabzug"
+        - "koordinationsbetrag"
+      it:
+        - "deduzione\\s+di\\s+coordinamento"
+
+  taux_conversion_obligatoire:
+    type: rate
+    description: "Mandatory LPP conversion rate (currently 6.8%)"
+    keywords:
+      fr:
+        - "taux\\s+de?\\s+conversion\\s+obligatoire"
+        - "taux\\s+de?\\s+conversion\\s+lpp"
+      de:
+        - "umwandlungssatz\\s+obligatorium"
+        - "bvg[- ]?umwandlungssatz"
+      it:
+        - "aliquota\\s+di\\s+conversione\\s+obbligatoria"
+
+  taux_conversion_surobligatoire:
+    type: rate
+    description: "Super-mandatory conversion rate"
+    keywords:
+      fr:
+        - "taux\\s+de?\\s+conversion\\s+surobligatoire"
+      de:
+        - "überobligatorischer?\\s+umwandlungssatz"
+      it:
+        - "aliquota\\s+di\\s+conversione\\s+sovraobbligatoria"
+
+  taux_conversion_enveloppe:
+    type: rate
+    description: "Envelope (blended) conversion rate"
+    keywords:
+      fr:
+        - "taux\\s+de?\\s+conversion\\s+enveloppe"
+        - "taux\\s+de?\\s+conversion\\s+global"
+      de:
+        - "umhüllender?\\s+umwandlungssatz"
+      it:
+        - "aliquota\\s+di\\s+conversione\\s+complessiva"
+
+  rente_invalidite_annuelle:
+    type: amount
+    description: "Annual disability pension"
+    keywords:
+      fr:
+        - "rente\\s+d'?invalidité"
+        - "prestation\\s+d'?invalidité"
+      de:
+        - "invalidenrente"
+        - "jährliche\\s+invalidenrente"
+      it:
+        - "rendita\\s+d'?invalidità"
+
+  capital_deces:
+    type: amount
+    description: "Death capital"
+    keywords:
+      fr:
+        - "capital[- ]?décès"
+        - "capital\\s+en\\s+cas\\s+de\\s+décès"
+      de:
+        - "todesfallkapital"
+        - "kapital\\s+im\\s+todesfall"
+      it:
+        - "capitale\\s+in\\s+caso\\s+di\\s+decesso"
+
+  rente_conjoint_annuelle:
+    type: amount
+    description: "Annual spouse/partner pension"
+    keywords:
+      fr:
+        - "rente\\s+de?\\s+conjoint"
+        - "rente\\s+de?\\s+veuf"
+      de:
+        - "ehegattenrente"
+        - "partnerrente"
+      it:
+        - "rendita\\s+per\\s+il\\s+coniuge"
+
+  rente_enfant_annuelle:
+    type: amount
+    description: "Annual child/orphan pension"
+    keywords:
+      fr:
+        - "rente\\s+d'?enfant"
+        - "rente\\s+pour\\s+enfant"
+      de:
+        - "kinderrente"
+        - "waisenrente"
+      it:
+        - "rendita\\s+per\\s+figli"
+
+  rachat_maximum:
+    type: amount
+    description: "Maximum buyback amount"
+    keywords:
+      fr:
+        - "rachat\\s+(?:maximum|maximal|possible)"
+        - "possibilité\\s+de?\\s+rachat"
+      de:
+        - "(?:maximaler?|möglicher?)\\s+einkauf"
+        - "einkaufspotenzial"
+      it:
+        - "riscatto\\s+(?:massimo|possibile)"
+
+  cotisation_employe_annuelle:
+    type: amount
+    description: "Annual employee contribution"
+    keywords:
+      fr:
+        - "cotisation\\s+employé"
+        - "part\\s+employé"
+      de:
+        - "arbeitnehmer[- ]?beitrag"
+      it:
+        - "contributo\\s+del?\\s+dipendente"
+
+  cotisation_employeur_annuelle:
+    type: amount
+    description: "Annual employer contribution"
+    keywords:
+      fr:
+        - "cotisation\\s+employeur"
+        - "part\\s+employeur"
+      de:
+        - "arbeitgeber[- ]?beitrag"
+      it:
+        - "contributo\\s+del?\\s+datore"
+
+  caisse_name:
+    type: text
+    description: "Name of the pension fund"
+    keywords:
+      fr:
+        - "caisse\\s+de\\s+pension"
+        - "caisse\\s+de\\s+prévoyance"
+        - "institution\\s+de\\s+prévoyance"
+      de:
+        - "pensionskasse"
+        - "vorsorgeeinrichtung"
+      it:
+        - "cassa\\s+pensione"
+
+  date_certificat:
+    type: date
+    description: "Certificate date"
+    keywords:
+      fr:
+        - "date\\s+du\\s+certificat"
+        - "établi\\s+le"
+        - "situation\\s+au"
+      de:
+        - "datum\\s+des?\\s+ausweises?"
+        - "stand\\s+per"
+      it:
+        - "data\\s+del\\s+certificato"

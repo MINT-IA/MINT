@@ -209,5 +209,71 @@
   "profileAiTitle": "K\u00fcnstliche Intelligenz",
   "profileAiByok": "Ask MINT (BYOK)",
   "profileAiConfigured": "Konfiguriert",
-  "profileAiNotConfigured": "Nicht konfiguriert"
+  "profileAiNotConfigured": "Nicht konfiguriert",
+
+  "documentsTitle": "Meine Dokumente",
+  "documentsSubtitle": "Upload und Analyse deiner Finanzdokumente",
+  "documentsUploadTitle": "Lade dein BVG-Zertifikat hoch",
+  "documentsUploadBody": "MINT extrahiert automatisch deine Vorsorgeinformationen",
+  "documentsUploadButton": "PDF-Datei ausw\u00e4hlen",
+  "documentsAnalyzing": "Analyse l\u00e4uft...",
+  "documentsConfidence": "Vertrauen: {confidence}%",
+  "@documentsConfidence": {
+    "placeholders": {
+      "confidence": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsFieldsFound": "{found} Felder von {total} extrahiert",
+  "@documentsFieldsFound": {
+    "placeholders": {
+      "found": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsConfirmButton": "Best\u00e4tigen und mein Profil aktualisieren",
+  "documentsDeleteButton": "Dieses Dokument l\u00f6schen",
+  "documentsDeleteTitle": "Dokument l\u00f6schen?",
+  "documentsDeleteMessage": "Diese Aktion ist unwiderruflich.",
+  "documentsPrivacy": "Deine Dokumente werden lokal analysiert und niemals mit Dritten geteilt. Du kannst sie jederzeit l\u00f6schen.",
+  "documentsEmpty": "Keine Dokumente",
+  "documentsLppCertificate": "BVG-Zertifikat",
+  "documentsUnknown": "Unbekanntes Dokument",
+  "documentsCategoryEpargne": "Sparguthaben",
+  "documentsCategorySalaire": "Gehalt",
+  "documentsCategoryTaux": "Umwandlungssatz",
+  "documentsCategoryRisque": "Risikoschutz",
+  "documentsCategoryRachat": "Einkauf",
+  "documentsCategoryCotisations": "Beitr\u00e4ge",
+  "documentsFieldAvoirObligatoire": "Obligatorisches Altersguthaben",
+  "documentsFieldAvoirSurobligatoire": "\u00dcberobligatorisches Altersguthaben",
+  "documentsFieldAvoirTotal": "Gesamtes Altersguthaben",
+  "documentsFieldSalaireAssure": "Versicherter Lohn",
+  "documentsFieldSalaireAvs": "AHV-Lohn",
+  "documentsFieldDeductionCoordination": "Koordinationsabzug",
+  "documentsFieldTauxObligatoire": "Obligatorischer Umwandlungssatz",
+  "documentsFieldTauxSurobligatoire": "\u00dcberobligatorischer Umwandlungssatz",
+  "documentsFieldTauxEnveloppe": "Umh\u00fcllender Umwandlungssatz",
+  "documentsFieldRenteInvalidite": "J\u00e4hrliche Invalidenrente",
+  "documentsFieldCapitalDeces": "Todesfallkapital",
+  "documentsFieldRenteConjoint": "J\u00e4hrliche Ehegattenrente",
+  "documentsFieldRenteEnfant": "J\u00e4hrliche Kinderrente",
+  "documentsFieldRachatMax": "Maximaler Einkauf m\u00f6glich",
+  "documentsFieldCotisationEmploye": "J\u00e4hrlicher Arbeitnehmerbeitrag",
+  "documentsFieldCotisationEmployeur": "J\u00e4hrlicher Arbeitgeberbeitrag",
+  "documentsWarningsTitle": "Hinweise",
+  "profileDocuments": "Meine Dokumente",
+  "profileDocumentsCount": "{count} Dokument(e)",
+  "@profileDocumentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

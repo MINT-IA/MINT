@@ -26,6 +26,8 @@ class ExploreTab extends StatelessWidget {
                 const SizedBox(height: 32),
                 _buildSimulatorsSection(context),
                 const SizedBox(height: 32),
+                _buildDocumentUploadSection(context),
+                const SizedBox(height: 32),
                 _buildAskMintSection(context),
                 const SizedBox(height: 32),
                 _buildLearnSection(context),
@@ -298,6 +300,86 @@ class ExploreTab extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDocumentUploadSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.upload_file, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'DOCUMENTS',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () => context.push('/documents'),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.indigo.shade50,
+                  Colors.indigo.shade100,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.description_outlined,
+                      color: Colors.indigo.shade700, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Upload ton certificat LPP',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Extraction automatique de tes donn\u00e9es \u2192',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.black.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.black45),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

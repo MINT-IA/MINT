@@ -209,5 +209,71 @@
   "profileAiTitle": "Intelligence Artificielle",
   "profileAiByok": "Ask MINT (BYOK)",
   "profileAiConfigured": "Configur\u00e9",
-  "profileAiNotConfigured": "Non configur\u00e9"
+  "profileAiNotConfigured": "Non configur\u00e9",
+
+  "documentsTitle": "Mes documents",
+  "documentsSubtitle": "Upload et analyse de tes documents financiers",
+  "documentsUploadTitle": "Upload ton certificat LPP",
+  "documentsUploadBody": "MINT extrait automatiquement tes donn\u00e9es de pr\u00e9voyance professionnelle",
+  "documentsUploadButton": "Choisir un fichier PDF",
+  "documentsAnalyzing": "Analyse en cours...",
+  "documentsConfidence": "Confiance : {confidence}%",
+  "@documentsConfidence": {
+    "placeholders": {
+      "confidence": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsFieldsFound": "{found} champs extraits sur {total}",
+  "@documentsFieldsFound": {
+    "placeholders": {
+      "found": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsConfirmButton": "Confirmer et mettre \u00e0 jour mon profil",
+  "documentsDeleteButton": "Supprimer ce document",
+  "documentsDeleteTitle": "Supprimer le document ?",
+  "documentsDeleteMessage": "Cette action est irr\u00e9versible.",
+  "documentsPrivacy": "Tes documents sont analys\u00e9s localement et ne sont jamais partag\u00e9s avec des tiers. Tu peux les supprimer \u00e0 tout moment.",
+  "documentsEmpty": "Aucun document",
+  "documentsLppCertificate": "Certificat LPP",
+  "documentsUnknown": "Document inconnu",
+  "documentsCategoryEpargne": "\u00c9pargne",
+  "documentsCategorySalaire": "Salaire",
+  "documentsCategoryTaux": "Taux de conversion",
+  "documentsCategoryRisque": "Couverture risque",
+  "documentsCategoryRachat": "Rachat",
+  "documentsCategoryCotisations": "Cotisations",
+  "documentsFieldAvoirObligatoire": "Avoir de vieillesse obligatoire",
+  "documentsFieldAvoirSurobligatoire": "Avoir de vieillesse surobligatoire",
+  "documentsFieldAvoirTotal": "Avoir de vieillesse total",
+  "documentsFieldSalaireAssure": "Salaire assur\u00e9",
+  "documentsFieldSalaireAvs": "Salaire AVS",
+  "documentsFieldDeductionCoordination": "D\u00e9duction de coordination",
+  "documentsFieldTauxObligatoire": "Taux de conversion obligatoire",
+  "documentsFieldTauxSurobligatoire": "Taux de conversion surobligatoire",
+  "documentsFieldTauxEnveloppe": "Taux de conversion enveloppe",
+  "documentsFieldRenteInvalidite": "Rente d'invalidit\u00e9 annuelle",
+  "documentsFieldCapitalDeces": "Capital-d\u00e9c\u00e8s",
+  "documentsFieldRenteConjoint": "Rente de conjoint annuelle",
+  "documentsFieldRenteEnfant": "Rente d'enfant annuelle",
+  "documentsFieldRachatMax": "Rachat maximum possible",
+  "documentsFieldCotisationEmploye": "Cotisation employ\u00e9 annuelle",
+  "documentsFieldCotisationEmployeur": "Cotisation employeur annuelle",
+  "documentsWarningsTitle": "Points d'attention",
+  "profileDocuments": "Mes documents",
+  "profileDocumentsCount": "{count} document(s)",
+  "@profileDocumentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

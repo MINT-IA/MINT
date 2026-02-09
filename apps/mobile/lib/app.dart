@@ -31,6 +31,9 @@ import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/providers/document_provider.dart';
+import 'package:mint_mobile/screens/documents_screen.dart';
+import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 
@@ -88,6 +91,20 @@ final _router = GoRouter(
       path: '/ask-mint',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AskMintScreen(),
+    ),
+    // Documents
+    GoRoute(
+      path: '/documents',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DocumentsScreen(),
+    ),
+    GoRoute(
+      path: '/documents/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return DocumentDetailScreen(documentId: id);
+      },
     ),
     GoRoute(
       path: '/budget',
@@ -191,6 +208,7 @@ class _MintAppState extends State<MintApp> {
           provider.loadSavedKey();
           return provider;
         }),
+        ChangeNotifierProvider(create: (_) => DocumentProvider()),
       ],
       child: MaterialApp.router(
         title: 'Mint',

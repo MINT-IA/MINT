@@ -209,5 +209,71 @@
   "profileAiTitle": "Intelligenza Artificiale",
   "profileAiByok": "Ask MINT (BYOK)",
   "profileAiConfigured": "Configurato",
-  "profileAiNotConfigured": "Non configurato"
+  "profileAiNotConfigured": "Non configurato",
+
+  "documentsTitle": "I miei documenti",
+  "documentsSubtitle": "Upload e analisi dei tuoi documenti finanziari",
+  "documentsUploadTitle": "Carica il tuo certificato LPP",
+  "documentsUploadBody": "MINT estrae automaticamente i tuoi dati previdenziali",
+  "documentsUploadButton": "Scegli un file PDF",
+  "documentsAnalyzing": "Analisi in corso...",
+  "documentsConfidence": "Affidabilit\u00e0: {confidence}%",
+  "@documentsConfidence": {
+    "placeholders": {
+      "confidence": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsFieldsFound": "{found} campi estratti su {total}",
+  "@documentsFieldsFound": {
+    "placeholders": {
+      "found": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsConfirmButton": "Conferma e aggiorna il mio profilo",
+  "documentsDeleteButton": "Eliminare questo documento",
+  "documentsDeleteTitle": "Eliminare il documento?",
+  "documentsDeleteMessage": "Questa azione \u00e8 irreversibile.",
+  "documentsPrivacy": "I tuoi documenti vengono analizzati localmente e non sono mai condivisi con terzi. Puoi eliminarli in qualsiasi momento.",
+  "documentsEmpty": "Nessun documento",
+  "documentsLppCertificate": "Certificato LPP",
+  "documentsUnknown": "Documento sconosciuto",
+  "documentsCategoryEpargne": "Risparmio",
+  "documentsCategorySalaire": "Salario",
+  "documentsCategoryTaux": "Tasso di conversione",
+  "documentsCategoryRisque": "Copertura rischio",
+  "documentsCategoryRachat": "Riscatto",
+  "documentsCategoryCotisations": "Contributi",
+  "documentsFieldAvoirObligatoire": "Avere di vecchiaia obbligatorio",
+  "documentsFieldAvoirSurobligatoire": "Avere di vecchiaia sovraobbligatorio",
+  "documentsFieldAvoirTotal": "Avere di vecchiaia totale",
+  "documentsFieldSalaireAssure": "Salario assicurato",
+  "documentsFieldSalaireAvs": "Salario AVS",
+  "documentsFieldDeductionCoordination": "Deduzione di coordinamento",
+  "documentsFieldTauxObligatoire": "Tasso di conversione obbligatorio",
+  "documentsFieldTauxSurobligatoire": "Tasso di conversione sovraobbligatorio",
+  "documentsFieldTauxEnveloppe": "Tasso di conversione involucro",
+  "documentsFieldRenteInvalidite": "Rendita annuale d'invalidit\u00e0",
+  "documentsFieldCapitalDeces": "Capitale di decesso",
+  "documentsFieldRenteConjoint": "Rendita annuale del coniuge",
+  "documentsFieldRenteEnfant": "Rendita annuale per figlio",
+  "documentsFieldRachatMax": "Riscatto massimo possibile",
+  "documentsFieldCotisationEmploye": "Contributo annuale del dipendente",
+  "documentsFieldCotisationEmployeur": "Contributo annuale del datore di lavoro",
+  "documentsWarningsTitle": "Punti di attenzione",
+  "profileDocuments": "I miei documenti",
+  "profileDocumentsCount": "{count} documento/i",
+  "@profileDocumentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }
