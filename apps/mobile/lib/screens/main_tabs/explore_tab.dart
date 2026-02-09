@@ -254,6 +254,13 @@ class ExploreTab extends StatelessWidget {
               color: const Color(0xFFEA580C),
               route: '/simulator/disability-gap',
             ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.swap_horiz,
+              title: 'Changement\nd\'emploi',
+              color: Colors.amber.shade700,
+              route: '/simulator/job-comparison',
+            ),
           ],
         ),
       ],

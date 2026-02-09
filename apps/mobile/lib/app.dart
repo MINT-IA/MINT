@@ -28,6 +28,7 @@ import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
 import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -147,6 +148,11 @@ final _router = GoRouter(
       path: '/simulator/disability-gap',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SimulatorDisabilityGapScreen(),
+    ),
+    GoRoute(
+      path: '/simulator/job-comparison',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const JobComparisonScreen(),
     ),
     GoRoute(
       path: '/check/debt',
