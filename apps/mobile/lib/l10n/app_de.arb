@@ -648,5 +648,134 @@
   "coachingCategoryFiscalite": "Steuern",
   "coachingCategoryPrevoyance": "Vorsorge",
   "coachingCategoryBudget": "Budget",
-  "coachingCategoryRetraite": "Rente"
+  "coachingCategoryRetraite": "Rente",
+
+  "segmentsSection": "Segmente",
+  "segmentsGenderGapTitle": "Gender Gap Vorsorge",
+  "segmentsGenderGapSubtitle": "Auswirkung von Teilzeit auf die Rente",
+  "segmentsGenderGapAppBar": "GENDER GAP VORSORGE",
+  "segmentsGenderGapHeader": "Vorsorge-L\u00fccke",
+  "segmentsGenderGapHeaderSub": "Auswirkung von Teilzeit auf die Rente",
+  "segmentsGenderGapIntro": "Der Koordinationsabzug (CHF 25'725) wird bei Teilzeit nicht anteilsm\u00e4ssig gek\u00fcrzt, was Teilzeitbesch\u00e4ftigte zus\u00e4tzlich benachteiligt. Bewegen Sie den Regler, um die Auswirkung zu sehen.",
+  "segmentsGenderGapTauxLabel": "Besch\u00e4ftigungsgrad",
+  "segmentsGenderGapParams": "Parameter",
+  "segmentsGenderGapRevenuLabel": "Bruttojahreseinkommen (100%)",
+  "segmentsGenderGapAgeLabel": "Alter",
+  "segmentsGenderGapAvoirLabel": "Aktuelles BVG-Guthaben",
+  "segmentsGenderGapAnneesCotisLabel": "Beitragsjahre",
+  "segmentsGenderGapCantonLabel": "Kanton",
+  "segmentsGenderGapRenteTitle": "Gesch\u00e4tzte BVG-Rente",
+  "segmentsGenderGapRenteSub": "Projektion in {years} Jahren (Alter 65)",
+  "@segmentsGenderGapRenteSub": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapAt100": "Bei 100%",
+  "segmentsGenderGapAtCurrent": "Bei {rate}%",
+  "@segmentsGenderGapAtCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapLacuneAnnuelle": "J\u00e4hrliche L\u00fccke",
+  "segmentsGenderGapLacuneTotale": "Gesamtl\u00fccke (~20 Jahre)",
+  "segmentsGenderGapCoordinationTitle": "Den Koordinationsabzug verstehen",
+  "segmentsGenderGapCoordinationBody": "Der Koordinationsabzug ist ein fester Betrag von CHF 25'725, der von Ihrem Bruttolohn abgezogen wird. Dieser Betrag ist gleich, ob Sie 100% oder 50% arbeiten.",
+  "segmentsGenderGapSalaireBrut100": "Bruttolohn bei 100%",
+  "segmentsGenderGapSalaireCoord100": "Koordinierter Lohn bei 100%",
+  "segmentsGenderGapSalaireBrutCurrent": "Bruttolohn bei {rate}%",
+  "@segmentsGenderGapSalaireBrutCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapSalaireCoordCurrent": "Koordinierter Lohn bei {rate}%",
+  "@segmentsGenderGapSalaireCoordCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapDeductionFixe": "Koordinationsabzug (fest)",
+  "segmentsGenderGapOfsTitle": "BFS-Statistik",
+  "segmentsGenderGapOfsStat": "In der Schweiz erhalten Frauen durchschnittlich 37% weniger Rente als M\u00e4nner (BFS 2024)",
+  "segmentsGenderGapRecTitle": "EMPFEHLUNGEN",
+  "segmentsGenderGapRecRachat": "Freiwilliger BVG-Einkauf",
+  "segmentsGenderGapRecRachatDesc": "Ein freiwilliger Einkauf kann die Vorsorge-L\u00fccke teilweise schliessen und bietet gleichzeitig einen Steuerabzug.",
+  "segmentsGenderGapRec3a": "S\u00e4ule 3a maximieren",
+  "segmentsGenderGapRec3aDesc": "Zahlen Sie den j\u00e4hrlichen H\u00f6chstbetrag von CHF 7'056 (Angestellte) ein, um die BVG-L\u00fccke teilweise auszugleichen.",
+  "segmentsGenderGapRecCoord": "Anteilsm\u00e4ssigen Koordinationsabzug pr\u00fcfen",
+  "segmentsGenderGapRecCoordDesc": "Einige Pensionskassen passen den Koordinationsabzug an den Besch\u00e4ftigungsgrad an.",
+  "segmentsGenderGapRecTaux": "Erh\u00f6hung des Besch\u00e4ftigungsgrads pr\u00fcfen",
+  "segmentsGenderGapRecTauxDesc": "Schon eine Erh\u00f6hung um 10-20 Prozentpunkte kann die L\u00fccke deutlich reduzieren.",
+  "segmentsGenderGapDisclaimer": "Die Ergebnisse sind vereinfachte Sch\u00e4tzungen. Sie stellen keine pers\u00f6nliche Finanzberatung dar. Konsultieren Sie Ihre Pensionskasse.",
+  "segmentsGenderGapSources": "Quellen",
+
+  "segmentsFrontalierTitle": "Grenzg\u00e4nger",
+  "segmentsFrontalierSubtitle": "Rechte und Pflichten nach Land",
+  "segmentsFrontalierAppBar": "GRENZG\u00c4NGER-PARCOURS",
+  "segmentsFrontalierHeader": "Grenzg\u00e4nger",
+  "segmentsFrontalierHeaderSub": "Rechte und Pflichten nach Land",
+  "segmentsFrontalierIntro": "Steuer-, Vorsorge- und Versicherungsregeln variieren je nach Wohnsitzland und Arbeitskanton.",
+  "segmentsFrontalierPaysLabel": "Wohnsitzland",
+  "segmentsFrontalierCantonLabel": "Arbeitskanton",
+  "segmentsFrontalierRulesTitle": "ANWENDBARE REGELN",
+  "segmentsFrontalierCatFiscal": "Steuerregime",
+  "segmentsFrontalierCat3a": "S\u00e4ule 3a",
+  "segmentsFrontalierCatLpp": "BVG / Freiz\u00fcgigkeit",
+  "segmentsFrontalierCatAvs": "AHV / Koordination",
+  "segmentsFrontalierQuasiResidentTitle": "Quasi-Ans\u00e4ssigen-Status (GE)",
+  "segmentsFrontalierQuasiResidentDesc": "Der Quasi-Ans\u00e4ssigen-Status ist zug\u00e4nglich, wenn mindestens 90% des Haushaltseinkommens aus der Schweiz stammen.",
+  "segmentsFrontalierQuasiResidentCondition": "Bedingung: >= 90% des Haushaltseinkommens aus der Schweiz",
+  "segmentsFrontalierChecklist": "Grenzg\u00e4nger-Checkliste",
+  "segmentsFrontalierPaysFR": "Frankreich",
+  "segmentsFrontalierPaysDE": "Deutschland",
+  "segmentsFrontalierPaysIT": "Italien",
+  "segmentsFrontalierPaysAT": "\u00d6sterreich",
+  "segmentsFrontalierPaysLI": "Liechtenstein",
+  "segmentsFrontalierAttention": "Achtung",
+  "segmentsFrontalierDisclaimer": "Die dargestellten Informationen sind allgemeiner Natur. Konsultieren Sie einen auf grenz\u00fcberschreitende Situationen spezialisierten Treuh\u00e4nder.",
+  "segmentsFrontalierSources": "Quellen",
+
+  "segmentsIndependantTitle": "Selbst\u00e4ndig",
+  "segmentsIndependantSubtitle": "Deckung und Sozialschutz",
+  "segmentsIndependantAppBar": "SELBST\u00c4NDIGEN-PARCOURS",
+  "segmentsIndependantHeader": "Selbst\u00e4ndig",
+  "segmentsIndependantHeaderSub": "Deckungsanalyse und Schutz",
+  "segmentsIndependantIntro": "Als Selbst\u00e4ndige/r haben Sie keine obligatorische BVG, kein KTG und keine UVG. Ihr Sozialschutz h\u00e4ngt von Ihren eigenen Massnahmen ab.",
+  "segmentsIndependantRevenuLabel": "J\u00e4hrliches Nettoeinkommen",
+  "segmentsIndependantCoverageTitle": "Meine aktuelle Deckung",
+  "segmentsIndependantLpp": "BVG (freiwilliger Anschluss)",
+  "segmentsIndependantIjm": "KTG (Krankentaggeld)",
+  "segmentsIndependantLaa": "UVG (Unfallversicherung)",
+  "segmentsIndependant3a": "S\u00e4ule 3a",
+  "segmentsIndependantAnalyseTitle": "DECKUNGSANALYSE",
+  "segmentsIndependantCouvert": "Gedeckt",
+  "segmentsIndependantNonCouvert": "NICHT GEDECKT",
+  "segmentsIndependantCritique": "NICHT GEDECKT \u2014 Kritisch",
+  "segmentsIndependantProtectionTitle": "Kosten meines vollst\u00e4ndigen Schutzes",
+  "segmentsIndependantProtectionSub": "Monatliche Sch\u00e4tzung",
+  "segmentsIndependantAvs": "AHV / IV / EO",
+  "segmentsIndependantIjmEst": "KTG (Sch\u00e4tzung)",
+  "segmentsIndependantLaaEst": "UVG (Sch\u00e4tzung)",
+  "segmentsIndependant3aMax": "S\u00e4ule 3a (max)",
+  "segmentsIndependantTotalMensuel": "Monatliche Gesamtkosten",
+  "segmentsIndependantAvsTitle": "AHV-Beitrag Selbst\u00e4ndige",
+  "segmentsIndependantAvsDesc": "Ihr gesch\u00e4tzter AHV-Beitrag: {amount}/Jahr (degressiver Tarif f\u00fcr Einkommen unter CHF 58'800).",
+  "@segmentsIndependantAvsDesc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "segmentsIndependant3aTitle": "S\u00e4ule 3a \u2014 Plafond Selbst\u00e4ndige",
+  "segmentsIndependant3aWithLpp": "Mit freiwilliger BVG: Standard-3a-Plafond von CHF 7'056/Jahr.",
+  "segmentsIndependant3aWithoutLpp": "Ohne BVG: 'Grosser' 3a-Plafond von 20% des Nettoeinkommens, max CHF 35'280/Jahr.",
+  "segmentsIndependantRecTitle": "EMPFEHLUNGEN",
+  "segmentsIndependantDisclaimer": "Die dargestellten Betr\u00e4ge sind indikative Sch\u00e4tzungen. Konsultieren Sie einen Treuh\u00e4nder oder Versicherer.",
+  "segmentsIndependantSources": "Quellen",
+  "segmentsIndependantAlertIjm": "KRITISCH: Sie haben keine KTG-Versicherung. Im Krankheitsfall haben Sie kein Ersatzeinkommen.",
+  "segmentsIndependantAlertLaa": "WICHTIG: Ohne individuelle Unfallversicherung (UVG) sind Arztkosten bei Unfall nicht gedeckt.",
+  "segmentsIndependantAlertLpp": "Ihre Vorsorge st\u00fctzt sich nur auf AHV und S\u00e4ule 3a.",
+  "segmentsIndependantAlert3a": "Sie nutzen die S\u00e4ule 3a nicht. Plafond Selbst\u00e4ndige: CHF 35'280/Jahr.",
+  "segmentsDemoMode": "Demo-Modus: Beispielprofil. Vervollst\u00e4ndigen Sie Ihre Diagnose f\u00fcr personalisierte Ergebnisse."
 }

@@ -41,6 +41,9 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/screens/coaching_screen.dart';
+import 'package:mint_mobile/screens/gender_gap_screen.dart';
+import 'package:mint_mobile/screens/frontalier_screen.dart';
+import 'package:mint_mobile/screens/independant_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -196,6 +199,22 @@ final _router = GoRouter(
       path: '/coaching',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoachingScreen(),
+    ),
+    // Segments sociologiques
+    GoRoute(
+      path: '/segments/gender-gap',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const GenderGapScreen(),
+    ),
+    GoRoute(
+      path: '/segments/frontalier',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FrontalierScreen(),
+    ),
+    GoRoute(
+      path: '/segments/independant',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const IndependantScreen(),
     ),
     // Education Hub
     GoRoute(

@@ -13,6 +13,7 @@ from app.api.v1.endpoints import (
     job_comparison,
     life_events,
     coaching,
+    segments,
 )
 
 api_router = APIRouter()
@@ -37,4 +38,7 @@ api_router.include_router(
 )
 api_router.include_router(
     coaching.router, prefix="/coaching", tags=["coaching"]
+)
+api_router.include_router(
+    segments.router, prefix="/segments", tags=["segments"]
 )

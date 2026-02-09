@@ -648,5 +648,134 @@
   "coachingCategoryFiscalite": "Fiscalite",
   "coachingCategoryPrevoyance": "Prevoyance",
   "coachingCategoryBudget": "Budget",
-  "coachingCategoryRetraite": "Retraite"
+  "coachingCategoryRetraite": "Retraite",
+
+  "segmentsSection": "Segments",
+  "segmentsGenderGapTitle": "Gender gap prevoyance",
+  "segmentsGenderGapSubtitle": "Impact du temps partiel sur la retraite",
+  "segmentsGenderGapAppBar": "GENDER GAP PREVOYANCE",
+  "segmentsGenderGapHeader": "Lacune de prevoyance",
+  "segmentsGenderGapHeaderSub": "Impact du temps partiel sur la retraite",
+  "segmentsGenderGapIntro": "La deduction de coordination (CHF 25'725) n'est pas proratisee pour le temps partiel, ce qui penalise davantage les personnes travaillant a temps reduit. Deplacez le curseur pour voir l'impact.",
+  "segmentsGenderGapTauxLabel": "Taux d'activite",
+  "segmentsGenderGapParams": "Parametres",
+  "segmentsGenderGapRevenuLabel": "Revenu annuel brut (100%)",
+  "segmentsGenderGapAgeLabel": "Age",
+  "segmentsGenderGapAvoirLabel": "Avoir LPP actuel",
+  "segmentsGenderGapAnneesCotisLabel": "Annees de cotisation",
+  "segmentsGenderGapCantonLabel": "Canton",
+  "segmentsGenderGapRenteTitle": "Rente LPP estimee",
+  "segmentsGenderGapRenteSub": "Projection a {years} ans (age 65)",
+  "@segmentsGenderGapRenteSub": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapAt100": "A 100%",
+  "segmentsGenderGapAtCurrent": "A {rate}%",
+  "@segmentsGenderGapAtCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapLacuneAnnuelle": "Lacune annuelle",
+  "segmentsGenderGapLacuneTotale": "Lacune totale (~20 ans)",
+  "segmentsGenderGapCoordinationTitle": "Comprendre la deduction de coordination",
+  "segmentsGenderGapCoordinationBody": "La deduction de coordination est un montant fixe de CHF 25'725 soustrait de votre salaire brut pour calculer le salaire coordonne (base LPP). Ce montant est le meme que vous travailliez a 100% ou a 50%.",
+  "segmentsGenderGapSalaireBrut100": "Salaire brut a 100%",
+  "segmentsGenderGapSalaireCoord100": "Salaire coordonne a 100%",
+  "segmentsGenderGapSalaireBrutCurrent": "Salaire brut a {rate}%",
+  "@segmentsGenderGapSalaireBrutCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapSalaireCoordCurrent": "Salaire coordonne a {rate}%",
+  "@segmentsGenderGapSalaireCoordCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapDeductionFixe": "Deduction coordination (fixe)",
+  "segmentsGenderGapOfsTitle": "Statistique OFS",
+  "segmentsGenderGapOfsStat": "En Suisse, les femmes touchent en moyenne 37% de rente de moins que les hommes (OFS 2024)",
+  "segmentsGenderGapRecTitle": "RECOMMANDATIONS",
+  "segmentsGenderGapRecRachat": "Rachat LPP volontaire",
+  "segmentsGenderGapRecRachatDesc": "Un rachat volontaire permet de combler partiellement la lacune de prevoyance tout en beneficiant d'une deduction fiscale.",
+  "segmentsGenderGapRec3a": "3e pilier maximise",
+  "segmentsGenderGapRec3aDesc": "Versez le plafond annuel de CHF 7'056 (salaries) pour compenser partiellement la lacune LPP.",
+  "segmentsGenderGapRecCoord": "Verifier la proratisation de la coordination",
+  "segmentsGenderGapRecCoordDesc": "Certaines caisses de pension proratisent la deduction de coordination en fonction du taux d'activite.",
+  "segmentsGenderGapRecTaux": "Explorer une augmentation du taux d'activite",
+  "segmentsGenderGapRecTauxDesc": "Meme une augmentation de 10 a 20 points peut reduire significativement la lacune.",
+  "segmentsGenderGapDisclaimer": "Les resultats presentes sont des estimations simplifiees a titre indicatif. Ils ne constituent pas un conseil financier personnalise. Consultez votre caisse de pension et un professionnel qualifie.",
+  "segmentsGenderGapSources": "Sources",
+
+  "segmentsFrontalierTitle": "Frontalier",
+  "segmentsFrontalierSubtitle": "Droits et obligations par pays",
+  "segmentsFrontalierAppBar": "PARCOURS FRONTALIER",
+  "segmentsFrontalierHeader": "Travailleur frontalier",
+  "segmentsFrontalierHeaderSub": "Droits et obligations par pays",
+  "segmentsFrontalierIntro": "Les regles fiscales, de prevoyance et d'assurance varient selon votre pays de residence et votre canton de travail.",
+  "segmentsFrontalierPaysLabel": "Pays de residence",
+  "segmentsFrontalierCantonLabel": "Canton de travail",
+  "segmentsFrontalierRulesTitle": "REGLES APPLICABLES",
+  "segmentsFrontalierCatFiscal": "Regime fiscal",
+  "segmentsFrontalierCat3a": "3e pilier",
+  "segmentsFrontalierCatLpp": "LPP / Libre passage",
+  "segmentsFrontalierCatAvs": "AVS / Coordination",
+  "segmentsFrontalierQuasiResidentTitle": "Statut quasi-resident (GE)",
+  "segmentsFrontalierQuasiResidentDesc": "Le statut de quasi-resident est accessible si au moins 90% des revenus de votre menage proviennent de Suisse.",
+  "segmentsFrontalierQuasiResidentCondition": "Condition : >= 90% des revenus du menage provenant de Suisse",
+  "segmentsFrontalierChecklist": "Checklist frontalier",
+  "segmentsFrontalierPaysFR": "France",
+  "segmentsFrontalierPaysDE": "Allemagne",
+  "segmentsFrontalierPaysIT": "Italie",
+  "segmentsFrontalierPaysAT": "Autriche",
+  "segmentsFrontalierPaysLI": "Liechtenstein",
+  "segmentsFrontalierAttention": "Attention",
+  "segmentsFrontalierDisclaimer": "Les informations presentees sont generales et peuvent varier selon votre situation personnelle. Consultez un fiduciaire specialise en situations transfrontalieres.",
+  "segmentsFrontalierSources": "Sources",
+
+  "segmentsIndependantTitle": "Independant",
+  "segmentsIndependantSubtitle": "Couverture et protection sociale",
+  "segmentsIndependantAppBar": "PARCOURS INDEPENDANT",
+  "segmentsIndependantHeader": "Independant",
+  "segmentsIndependantHeaderSub": "Analyse de couverture et protection",
+  "segmentsIndependantIntro": "En tant qu'independant, vous n'avez pas de LPP obligatoire, pas d'IJM, et pas de LAA. Votre protection depend de vos demarches personnelles.",
+  "segmentsIndependantRevenuLabel": "Revenu net annuel",
+  "segmentsIndependantCoverageTitle": "Ma couverture actuelle",
+  "segmentsIndependantLpp": "LPP (affiliation volontaire)",
+  "segmentsIndependantIjm": "IJM (indemnite journaliere maladie)",
+  "segmentsIndependantLaa": "LAA (assurance accident)",
+  "segmentsIndependant3a": "3e pilier (3a)",
+  "segmentsIndependantAnalyseTitle": "ANALYSE DE COUVERTURE",
+  "segmentsIndependantCouvert": "Couvert",
+  "segmentsIndependantNonCouvert": "NON COUVERT",
+  "segmentsIndependantCritique": "NON COUVERT — Critique",
+  "segmentsIndependantProtectionTitle": "Cout de ma protection complete",
+  "segmentsIndependantProtectionSub": "Estimation mensuelle",
+  "segmentsIndependantAvs": "AVS / AI / APG",
+  "segmentsIndependantIjmEst": "IJM (estimation)",
+  "segmentsIndependantLaaEst": "LAA (estimation)",
+  "segmentsIndependant3aMax": "3e pilier (max)",
+  "segmentsIndependantTotalMensuel": "Total mensuel",
+  "segmentsIndependantAvsTitle": "Cotisation AVS independant",
+  "segmentsIndependantAvsDesc": "Votre cotisation AVS estimee : {amount}/an (taux degressif pour les revenus inferieurs a CHF 58'800).",
+  "@segmentsIndependantAvsDesc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "segmentsIndependant3aTitle": "3e pilier — plafond independant",
+  "segmentsIndependant3aWithLpp": "Avec LPP volontaire : plafond 3a standard de CHF 7'056/an.",
+  "segmentsIndependant3aWithoutLpp": "Sans LPP : plafond 3a 'grand' de 20% du revenu net, max CHF 35'280/an.",
+  "segmentsIndependantRecTitle": "RECOMMANDATIONS",
+  "segmentsIndependantDisclaimer": "Les montants presentes sont des estimations indicatives. Consultez un fiduciaire ou un assureur avant toute decision.",
+  "segmentsIndependantSources": "Sources",
+  "segmentsIndependantAlertIjm": "CRITIQUE : Vous n'avez pas d'assurance IJM. En cas de maladie, vous n'aurez aucun revenu de remplacement.",
+  "segmentsIndependantAlertLaa": "IMPORTANT : Sans assurance accident individuelle (LAA), les frais medicaux en cas d'accident ne sont pas couverts.",
+  "segmentsIndependantAlertLpp": "Votre prevoyance repose uniquement sur l'AVS et le 3e pilier.",
+  "segmentsIndependantAlert3a": "Vous ne profitez pas du 3e pilier. Plafond independant : CHF 35'280/an.",
+  "segmentsDemoMode": "Mode demo : profil exemple. Completez votre diagnostic pour des resultats personnalises."
 }

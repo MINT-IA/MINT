@@ -104,6 +104,13 @@ class NowTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
 
+                      // Segments sociologiques
+                      MintAnimateFadeUp(
+                        delayInMs: 250,
+                        child: _buildSegmentsSection(context),
+                      ),
+                      const SizedBox(height: 32),
+
                       // Timeline
                       MintAnimateFadeUp(
                         delayInMs: 300,
@@ -445,6 +452,115 @@ class NowTab extends StatelessWidget {
       default:
         return MintColors.textMuted;
     }
+  }
+
+  Widget _buildSegmentsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.people_outline, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'SEGMENTS',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.balance,
+          color: Colors.purple,
+          title: 'Gender gap prevoyance',
+          subtitle: 'Impact du temps partiel sur la retraite',
+          route: '/segments/gender-gap',
+        ),
+        const SizedBox(height: 12),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.language,
+          color: Colors.blue,
+          title: 'Frontalier',
+          subtitle: 'Droits et obligations par pays',
+          route: '/segments/frontalier',
+        ),
+        const SizedBox(height: 12),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.business_center,
+          color: Colors.amber,
+          title: 'Independant',
+          subtitle: 'Couverture et protection sociale',
+          route: '/segments/independant',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSegmentTile({
+    required BuildContext context,
+    required IconData icon,
+    required MaterialColor color,
+    required String title,
+    required String subtitle,
+    required String route,
+  }) {
+    return InkWell(
+      onTap: () => context.push(route),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.border.withOpacity(0.5)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color.shade700, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: MintColors.textMuted, size: 20),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildTimelineSection(BuildContext context, dynamic profile) {

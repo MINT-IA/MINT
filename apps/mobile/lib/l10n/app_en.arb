@@ -648,5 +648,134 @@
   "coachingCategoryFiscalite": "Tax",
   "coachingCategoryPrevoyance": "Pension",
   "coachingCategoryBudget": "Budget",
-  "coachingCategoryRetraite": "Retirement"
+  "coachingCategoryRetraite": "Retirement",
+
+  "segmentsSection": "Segments",
+  "segmentsGenderGapTitle": "Gender pension gap",
+  "segmentsGenderGapSubtitle": "Impact of part-time work on retirement",
+  "segmentsGenderGapAppBar": "GENDER PENSION GAP",
+  "segmentsGenderGapHeader": "Pension gap",
+  "segmentsGenderGapHeaderSub": "Impact of part-time work on retirement",
+  "segmentsGenderGapIntro": "The coordination deduction (CHF 25,725) is not prorated for part-time work, which further penalises people working reduced hours. Move the slider to see the impact.",
+  "segmentsGenderGapTauxLabel": "Activity rate",
+  "segmentsGenderGapParams": "Parameters",
+  "segmentsGenderGapRevenuLabel": "Annual gross income (100%)",
+  "segmentsGenderGapAgeLabel": "Age",
+  "segmentsGenderGapAvoirLabel": "Current pension fund assets",
+  "segmentsGenderGapAnneesCotisLabel": "Contribution years",
+  "segmentsGenderGapCantonLabel": "Canton",
+  "segmentsGenderGapRenteTitle": "Estimated pension fund annuity",
+  "segmentsGenderGapRenteSub": "Projection at {years} years (age 65)",
+  "@segmentsGenderGapRenteSub": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapAt100": "At 100%",
+  "segmentsGenderGapAtCurrent": "At {rate}%",
+  "@segmentsGenderGapAtCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapLacuneAnnuelle": "Annual gap",
+  "segmentsGenderGapLacuneTotale": "Total gap (~20 years)",
+  "segmentsGenderGapCoordinationTitle": "Understanding the coordination deduction",
+  "segmentsGenderGapCoordinationBody": "The coordination deduction is a fixed amount of CHF 25,725 subtracted from your gross salary to calculate the coordinated salary (pension fund base). This amount is the same whether you work at 100% or 50%.",
+  "segmentsGenderGapSalaireBrut100": "Gross salary at 100%",
+  "segmentsGenderGapSalaireCoord100": "Coordinated salary at 100%",
+  "segmentsGenderGapSalaireBrutCurrent": "Gross salary at {rate}%",
+  "@segmentsGenderGapSalaireBrutCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapSalaireCoordCurrent": "Coordinated salary at {rate}%",
+  "@segmentsGenderGapSalaireCoordCurrent": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "segmentsGenderGapDeductionFixe": "Coordination deduction (fixed)",
+  "segmentsGenderGapOfsTitle": "FSO Statistic",
+  "segmentsGenderGapOfsStat": "In Switzerland, women receive on average 37% less pension than men (FSO 2024)",
+  "segmentsGenderGapRecTitle": "RECOMMENDATIONS",
+  "segmentsGenderGapRecRachat": "Voluntary pension fund buyback",
+  "segmentsGenderGapRecRachatDesc": "A voluntary buyback can partially fill the pension gap while benefiting from a tax deduction.",
+  "segmentsGenderGapRec3a": "Maximised pillar 3a",
+  "segmentsGenderGapRec3aDesc": "Contribute the annual ceiling of CHF 7,056 (employees) to partially compensate for the pension fund gap.",
+  "segmentsGenderGapRecCoord": "Check coordination proration",
+  "segmentsGenderGapRecCoordDesc": "Some pension funds prorate the coordination deduction based on the activity rate.",
+  "segmentsGenderGapRecTaux": "Explore increasing your activity rate",
+  "segmentsGenderGapRecTauxDesc": "Even an increase of 10 to 20 percentage points can significantly reduce the gap.",
+  "segmentsGenderGapDisclaimer": "The results presented are simplified estimates for informational purposes only. They do not constitute personalised financial advice. Consult your pension fund and a qualified professional.",
+  "segmentsGenderGapSources": "Sources",
+
+  "segmentsFrontalierTitle": "Cross-border worker",
+  "segmentsFrontalierSubtitle": "Rights and obligations by country",
+  "segmentsFrontalierAppBar": "CROSS-BORDER WORKER",
+  "segmentsFrontalierHeader": "Cross-border worker",
+  "segmentsFrontalierHeaderSub": "Rights and obligations by country",
+  "segmentsFrontalierIntro": "Tax, pension and insurance rules vary depending on your country of residence and your canton of work.",
+  "segmentsFrontalierPaysLabel": "Country of residence",
+  "segmentsFrontalierCantonLabel": "Canton of work",
+  "segmentsFrontalierRulesTitle": "APPLICABLE RULES",
+  "segmentsFrontalierCatFiscal": "Tax regime",
+  "segmentsFrontalierCat3a": "Pillar 3a",
+  "segmentsFrontalierCatLpp": "Pension fund / Vested benefits",
+  "segmentsFrontalierCatAvs": "AHV / Coordination",
+  "segmentsFrontalierQuasiResidentTitle": "Quasi-resident status (GE)",
+  "segmentsFrontalierQuasiResidentDesc": "Quasi-resident status is available if at least 90% of your household income comes from Switzerland.",
+  "segmentsFrontalierQuasiResidentCondition": "Condition: >= 90% of household income from Switzerland",
+  "segmentsFrontalierChecklist": "Cross-border worker checklist",
+  "segmentsFrontalierPaysFR": "France",
+  "segmentsFrontalierPaysDE": "Germany",
+  "segmentsFrontalierPaysIT": "Italy",
+  "segmentsFrontalierPaysAT": "Austria",
+  "segmentsFrontalierPaysLI": "Liechtenstein",
+  "segmentsFrontalierAttention": "Attention",
+  "segmentsFrontalierDisclaimer": "The information presented is general and may vary depending on your personal situation. Consult a fiduciary specialised in cross-border situations.",
+  "segmentsFrontalierSources": "Sources",
+
+  "segmentsIndependantTitle": "Self-employed",
+  "segmentsIndependantSubtitle": "Coverage and social protection",
+  "segmentsIndependantAppBar": "SELF-EMPLOYED PATHWAY",
+  "segmentsIndependantHeader": "Self-employed",
+  "segmentsIndependantHeaderSub": "Coverage and protection analysis",
+  "segmentsIndependantIntro": "As a self-employed person, you have no mandatory pension fund, no daily sickness benefit, and no accident insurance. Your protection depends on your personal steps.",
+  "segmentsIndependantRevenuLabel": "Annual net income",
+  "segmentsIndependantCoverageTitle": "My current coverage",
+  "segmentsIndependantLpp": "Pension fund (voluntary affiliation)",
+  "segmentsIndependantIjm": "Daily sickness benefit",
+  "segmentsIndependantLaa": "Accident insurance (LAA)",
+  "segmentsIndependant3a": "Pillar 3a",
+  "segmentsIndependantAnalyseTitle": "COVERAGE ANALYSIS",
+  "segmentsIndependantCouvert": "Covered",
+  "segmentsIndependantNonCouvert": "NOT COVERED",
+  "segmentsIndependantCritique": "NOT COVERED — Critical",
+  "segmentsIndependantProtectionTitle": "Cost of full protection",
+  "segmentsIndependantProtectionSub": "Monthly estimate",
+  "segmentsIndependantAvs": "AHV / DI / EO",
+  "segmentsIndependantIjmEst": "Daily sickness benefit (estimate)",
+  "segmentsIndependantLaaEst": "Accident insurance (estimate)",
+  "segmentsIndependant3aMax": "Pillar 3a (max)",
+  "segmentsIndependantTotalMensuel": "Monthly total",
+  "segmentsIndependantAvsTitle": "Self-employed AHV contribution",
+  "segmentsIndependantAvsDesc": "Your estimated AHV contribution: {amount}/year (degressive rate for income below CHF 58,800).",
+  "@segmentsIndependantAvsDesc": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "segmentsIndependant3aTitle": "Pillar 3a — self-employed ceiling",
+  "segmentsIndependant3aWithLpp": "With voluntary pension fund: standard 3a ceiling of CHF 7,056/year.",
+  "segmentsIndependant3aWithoutLpp": "Without pension fund: 'large' 3a ceiling of 20% of net income, max CHF 35,280/year.",
+  "segmentsIndependantRecTitle": "RECOMMENDATIONS",
+  "segmentsIndependantDisclaimer": "The amounts presented are indicative estimates. Consult a fiduciary or insurer before any decision.",
+  "segmentsIndependantSources": "Sources",
+  "segmentsIndependantAlertIjm": "CRITICAL: You have no daily sickness benefit insurance. In case of illness, you will have no replacement income.",
+  "segmentsIndependantAlertLaa": "IMPORTANT: Without individual accident insurance (LAA), medical costs in case of accident are not covered.",
+  "segmentsIndependantAlertLpp": "Your pension relies solely on AHV and pillar 3a.",
+  "segmentsIndependantAlert3a": "You are not using pillar 3a. Self-employed ceiling: CHF 35,280/year.",
+  "segmentsDemoMode": "Demo mode: example profile. Complete your diagnostic for personalised results."
 }
