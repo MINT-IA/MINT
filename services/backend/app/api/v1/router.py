@@ -15,6 +15,7 @@ from app.api.v1.endpoints import (
     coaching,
     segments,
     assurances,
+    open_banking,
 )
 
 api_router = APIRouter()
@@ -45,4 +46,7 @@ api_router.include_router(
 )
 api_router.include_router(
     assurances.router, prefix="/assurances", tags=["assurances"]
+)
+api_router.include_router(
+    open_banking.router, prefix="/open-banking", tags=["open-banking"]
 )

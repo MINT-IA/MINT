@@ -90,37 +90,44 @@ class NowTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
 
-                      // Coaching Proactif
+                      // Open Banking (Sprint S14)
                       MintAnimateFadeUp(
                         delayInMs: 150,
+                        child: _buildOpenBankingSection(context),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Coaching Proactif
+                      MintAnimateFadeUp(
+                        delayInMs: 200,
                         child: _buildCoachingCard(context),
                       ),
                       const SizedBox(height: 24),
 
                       // Actions
                       MintAnimateFadeUp(
-                        delayInMs: 200,
+                        delayInMs: 250,
                         child: _buildActionsSection(context, recommendations),
                       ),
                       const SizedBox(height: 32),
 
                       // Assurances
                       MintAnimateFadeUp(
-                        delayInMs: 250,
+                        delayInMs: 300,
                         child: _buildAssurancesSection(context),
                       ),
                       const SizedBox(height: 32),
 
                       // Segments sociologiques
                       MintAnimateFadeUp(
-                        delayInMs: 300,
+                        delayInMs: 350,
                         child: _buildSegmentsSection(context),
                       ),
                       const SizedBox(height: 32),
 
                       // Timeline
                       MintAnimateFadeUp(
-                        delayInMs: 350,
+                        delayInMs: 400,
                         child: _buildTimelineSection(context, profile),
                       ),
                       const SizedBox(height: 100),
@@ -459,6 +466,97 @@ class NowTab extends StatelessWidget {
       default:
         return MintColors.textMuted;
     }
+  }
+
+  Widget _buildOpenBankingSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.account_balance_outlined, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'OPEN BANKING',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () => context.push('/open-banking'),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: MintColors.border.withOpacity(0.5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.teal.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(Icons.account_balance, color: Colors.teal.shade700, size: 22),
+                      Positioned(
+                        right: -4,
+                        top: -4,
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade600,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.lock, color: Colors.white, size: 8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Open Banking',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'Connectez vos comptes bancaires',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: MintColors.textMuted, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildAssurancesSection(BuildContext context) {

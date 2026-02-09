@@ -46,6 +46,9 @@ import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/independant_screen.dart';
 import 'package:mint_mobile/screens/lamal_franchise_screen.dart';
 import 'package:mint_mobile/screens/coverage_check_screen.dart';
+import 'package:mint_mobile/screens/open_banking/open_banking_hub_screen.dart';
+import 'package:mint_mobile/screens/open_banking/transaction_list_screen.dart';
+import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -228,6 +231,22 @@ final _router = GoRouter(
       path: '/assurances/coverage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoverageCheckScreen(),
+    ),
+    // Open Banking (Sprint S14 — FINMA gate)
+    GoRoute(
+      path: '/open-banking',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OpenBankingHubScreen(),
+    ),
+    GoRoute(
+      path: '/open-banking/transactions',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const TransactionListScreen(),
+    ),
+    GoRoute(
+      path: '/open-banking/consents',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConsentScreen(),
     ),
     // Education Hub
     GoRoute(
