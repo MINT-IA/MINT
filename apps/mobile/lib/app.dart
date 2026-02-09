@@ -29,6 +29,8 @@ import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
 import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
+import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
+import 'package:mint_mobile/screens/succession_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -153,6 +155,17 @@ final _router = GoRouter(
       path: '/simulator/job-comparison',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const JobComparisonScreen(),
+    ),
+    // Life Events
+    GoRoute(
+      path: '/life-event/divorce',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DivorceSimulatorScreen(),
+    ),
+    GoRoute(
+      path: '/life-event/succession',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SuccessionSimulatorScreen(),
     ),
     GoRoute(
       path: '/check/debt',

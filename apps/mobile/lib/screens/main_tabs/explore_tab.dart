@@ -26,6 +26,8 @@ class ExploreTab extends StatelessWidget {
                 const SizedBox(height: 32),
                 _buildSimulatorsSection(context),
                 const SizedBox(height: 32),
+                _buildLifeEventsSection(context),
+                const SizedBox(height: 32),
                 _buildDocumentUploadSection(context),
                 const SizedBox(height: 32),
                 _buildAskMintSection(context),
@@ -307,6 +309,54 @@ class ExploreTab extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLifeEventsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.event_note, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              '\u00c9V\u00c9NEMENTS DE VIE',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.3,
+          children: [
+            _buildSimulatorTile(
+              context,
+              icon: Icons.family_restroom,
+              title: 'Divorce',
+              color: Colors.purple.shade600,
+              route: '/life-event/divorce',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.volunteer_activism,
+              title: 'Succession',
+              color: Colors.teal.shade600,
+              route: '/life-event/succession',
+            ),
+          ],
+        ),
+      ],
     );
   }
 

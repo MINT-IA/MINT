@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     rag,
     documents,
     job_comparison,
+    life_events,
 )
 
 api_router = APIRouter()
@@ -29,4 +30,7 @@ api_router.include_router(rag.router, prefix="/rag", tags=["rag"])
 api_router.include_router(documents.router, prefix="/documents", tags=["documents"])
 api_router.include_router(
     job_comparison.router, prefix="/job-comparison", tags=["job-comparison"]
+)
+api_router.include_router(
+    life_events.router, prefix="/life-events", tags=["life-events"]
 )
