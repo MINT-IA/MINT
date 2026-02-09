@@ -44,6 +44,8 @@ import 'package:mint_mobile/screens/coaching_screen.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/independant_screen.dart';
+import 'package:mint_mobile/screens/lamal_franchise_screen.dart';
+import 'package:mint_mobile/screens/coverage_check_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -215,6 +217,17 @@ final _router = GoRouter(
       path: '/segments/independant',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const IndependantScreen(),
+    ),
+    // Assurances
+    GoRoute(
+      path: '/assurances/lamal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LamalFranchiseScreen(),
+    ),
+    GoRoute(
+      path: '/assurances/coverage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoverageCheckScreen(),
     ),
     // Education Hub
     GoRoute(

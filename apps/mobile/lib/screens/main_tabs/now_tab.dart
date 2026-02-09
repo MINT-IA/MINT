@@ -104,16 +104,23 @@ class NowTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
 
-                      // Segments sociologiques
+                      // Assurances
                       MintAnimateFadeUp(
                         delayInMs: 250,
+                        child: _buildAssurancesSection(context),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Segments sociologiques
+                      MintAnimateFadeUp(
+                        delayInMs: 300,
                         child: _buildSegmentsSection(context),
                       ),
                       const SizedBox(height: 32),
 
                       // Timeline
                       MintAnimateFadeUp(
-                        delayInMs: 300,
+                        delayInMs: 350,
                         child: _buildTimelineSection(context, profile),
                       ),
                       const SizedBox(height: 100),
@@ -452,6 +459,47 @@ class NowTab extends StatelessWidget {
       default:
         return MintColors.textMuted;
     }
+  }
+
+  Widget _buildAssurancesSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.health_and_safety_outlined, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'ASSURANCES',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.health_and_safety,
+          color: Colors.teal,
+          title: 'Franchise LAMal',
+          subtitle: 'Trouvez la franchise ideale',
+          route: '/assurances/lamal',
+        ),
+        const SizedBox(height: 12),
+        _buildSegmentTile(
+          context: context,
+          icon: Icons.verified_user,
+          color: Colors.indigo,
+          title: 'Check-up couverture',
+          subtitle: 'Evaluez votre protection assurantielle',
+          route: '/assurances/coverage',
+        ),
+      ],
+    );
   }
 
   Widget _buildSegmentsSection(BuildContext context) {

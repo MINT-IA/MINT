@@ -14,6 +14,7 @@ from app.api.v1.endpoints import (
     life_events,
     coaching,
     segments,
+    assurances,
 )
 
 api_router = APIRouter()
@@ -41,4 +42,7 @@ api_router.include_router(
 )
 api_router.include_router(
     segments.router, prefix="/segments", tags=["segments"]
+)
+api_router.include_router(
+    assurances.router, prefix="/assurances", tags=["assurances"]
 )
