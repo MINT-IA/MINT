@@ -52,6 +52,12 @@ import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/libre_passage_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/epl_screen.dart';
+// Independants complet (Sprint S18)
+import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
+import 'package:mint_mobile/screens/independants/ijm_screen.dart';
+import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
+import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dart';
+import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -266,6 +272,32 @@ final _router = GoRouter(
       path: '/lpp-deep/epl',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EplScreen(),
+    ),
+    // Independants complet (Sprint S18)
+    GoRoute(
+      path: '/independants/avs',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AvsCotisationsScreen(),
+    ),
+    GoRoute(
+      path: '/independants/ijm',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const IjmScreen(),
+    ),
+    GoRoute(
+      path: '/independants/3a',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Pillar3aIndepScreen(),
+    ),
+    GoRoute(
+      path: '/independants/dividende-salaire',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DividendeVsSalaireScreen(),
+    ),
+    GoRoute(
+      path: '/independants/lpp-volontaire',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LppVolontaireScreen(),
     ),
     // Education Hub
     GoRoute(
