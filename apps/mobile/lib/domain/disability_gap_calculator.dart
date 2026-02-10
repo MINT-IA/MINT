@@ -115,14 +115,14 @@ const Map<String, Map<int, int>> _employerCoverageWeeks = {
   },
 };
 
-/// AI rente mensuelle maximale by disability degree (2025 values).
+/// AI rente mensuelle maximale by disability degree (2025/2026 values).
 /// Source: LAI art. 28 al. 1
 const Map<int, double> _aiRenteByDegree = {
-  40: 613.0, // 1/4 rente
-  50: 1225.0, // 1/2 rente
-  60: 1838.0, // 3/4 rente
-  70: 2450.0, // full rente
-  100: 2450.0, // full rente
+  40: 630.0, // 1/4 rente
+  50: 1260.0, // 1/2 rente
+  60: 1890.0, // 3/4 rente
+  70: 2520.0, // full rente
+  100: 2520.0, // full rente
 };
 
 /// Supported cantons for the simulator.

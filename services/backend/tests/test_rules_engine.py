@@ -393,9 +393,9 @@ class TestDisabilityGap:
         # Phase 2: IJM 80%
         assert r["phase2_monthly_benefit"] == pytest.approx(6400, abs=1)
         assert r["phase2_gap"] == pytest.approx(1600, abs=1)
-        # Phase 3: AI full rente 2450
-        assert r["ai_rente_mensuelle"] == 2450.0
-        assert r["phase3_gap"] == pytest.approx(5550, abs=1)
+        # Phase 3: AI full rente 2520
+        assert r["ai_rente_mensuelle"] == 2520.0
+        assert r["phase3_gap"] == pytest.approx(5480, abs=1)
         assert r["risk_level"] == "medium"
 
     def test_sophie_vd_employee_ijm(self):
@@ -407,8 +407,8 @@ class TestDisabilityGap:
         # Phase 2: IJM 80%
         assert r["phase2_monthly_benefit"] == pytest.approx(4800, abs=1)
         assert r["phase2_gap"] == pytest.approx(1200, abs=1)
-        # Phase 3: AI 2450
-        assert r["phase3_gap"] == pytest.approx(3550, abs=1)
+        # Phase 3: AI 2520
+        assert r["phase3_gap"] == pytest.approx(3480, abs=1)
         assert r["risk_level"] == "medium"
 
     def test_pierre_ge_self_employed_no_ijm(self):
@@ -420,8 +420,8 @@ class TestDisabilityGap:
         # Phase 2: no IJM
         assert r["phase2_monthly_benefit"] == 0.0
         assert r["phase2_gap"] == 10000.0
-        # Phase 3: AI 2450
-        assert r["phase3_gap"] == pytest.approx(7550, abs=1)
+        # Phase 3: AI 2520
+        assert r["phase3_gap"] == pytest.approx(7480, abs=1)
         assert r["risk_level"] == "critical"
 
     def test_anna_bs_employee_no_ijm(self):
@@ -443,21 +443,21 @@ class TestDisabilityGap:
         assert r["phase1_gap"] == 0.0
         # Phase 2: IJM 80% = 9600
         assert r["phase2_monthly_benefit"] == pytest.approx(9600, abs=1)
-        # Phase 3: AI 2450
-        assert r["phase3_gap"] == pytest.approx(9550, abs=1)
+        # Phase 3: AI 2520
+        assert r["phase3_gap"] == pytest.approx(9480, abs=1)
         assert r["risk_level"] == "medium"
 
     def test_partial_disability_50_percent(self):
-        """50% disability = 1/2 rente = 1225 CHF."""
-        assert get_ai_rente_monthly(50) == 1225.0
+        """50% disability = 1/2 rente = 1260 CHF."""
+        assert get_ai_rente_monthly(50) == 1260.0
 
     def test_partial_disability_40_percent(self):
-        """40% disability = 1/4 rente = 613 CHF."""
-        assert get_ai_rente_monthly(40) == 613.0
+        """40% disability = 1/4 rente = 630 CHF."""
+        assert get_ai_rente_monthly(40) == 630.0
 
     def test_partial_disability_60_percent(self):
-        """60% disability = 3/4 rente = 1838 CHF."""
-        assert get_ai_rente_monthly(60) == 1838.0
+        """60% disability = 3/4 rente = 1890 CHF."""
+        assert get_ai_rente_monthly(60) == 1890.0
 
     def test_below_40_no_rente(self):
         """Below 40% disability = no AI rente."""

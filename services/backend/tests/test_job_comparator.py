@@ -76,7 +76,7 @@ class TestInsuredSalary:
         plan = _plan(salaire_brut=22100.0)
         result = comparator._calc_insured_salary(plan)
         # 22100 - 25725 would be negative, so min insured salary applies
-        assert result == pytest.approx(3675.0, abs=1)
+        assert result == pytest.approx(3780.0, abs=1)
 
     def test_explicit_insured_salary(self, comparator):
         """When salaire_assure is set, use it directly."""
@@ -109,7 +109,7 @@ class TestInsuredSalary:
         plan = _plan(salaire_brut=22050.0)
         result = comparator._calc_insured_salary(plan)
         # 22050 - 25725 = negative, so min insured salary
-        assert result == pytest.approx(3675.0, abs=1)
+        assert result == pytest.approx(3780.0, abs=1)
 
     def test_salary_equals_max_insured(self, comparator):
         """Salary at exactly 88'200."""

@@ -36,12 +36,12 @@ CANTON_SALARY_SCALE_MAP = {
     "GE": "bern", "LU": "bern", "BS": "basel",
 }
 
-# AI rente mensuelle maximale by disability degree (2025 values, OAVS).
+# AI rente mensuelle maximale by disability degree (2025/2026 values, OAVS).
 AI_RENTE_BY_DEGREE = {
-    40: 613.0,    # 1/4 rente (40-49%)
-    50: 1225.0,   # 1/2 rente (50-59%)
-    60: 1838.0,   # 3/4 rente (60-69%)
-    70: 2450.0,   # full rente (70-100%)
+    40: 630.0,    # 1/4 rente (40-49%)
+    50: 1260.0,   # 1/2 rente (50-59%)
+    60: 1890.0,   # 3/4 rente (60-69%)
+    70: 2520.0,   # full rente (70-100%)
 }
 
 

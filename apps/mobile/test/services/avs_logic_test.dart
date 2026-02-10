@@ -116,10 +116,10 @@ void main() {
 
       final report = service.generateReport(answersMarriedGaps);
 
-      // Couple max = 3675 (1837.5 each)
-      // Part 1: 1837.5 * (40/44)
-      // Part 2: 1837.5 * (42/44)
-      final expectedRent = (1837.5 * 40 / 44) + (1837.5 * 42 / 44);
+      // Couple max = 3780 (1890 each)
+      // Part 1: 1890 * (40/44)
+      // Part 2: 1890 * (42/44)
+      final expectedRent = (1890.0 * 40 / 44) + (1890.0 * 42 / 44);
 
       expect(report.retirementProjection?.monthlyAvsRent,
           closeTo(expectedRent, 0.1));

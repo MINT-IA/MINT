@@ -130,7 +130,7 @@ class JobComparator:
     PROJECTED_ANNUAL_RETURN = 0.015  # 1.5%
 
     # Minimum insured salary (LPP art. 8 al. 2)
-    MIN_INSURED_SALARY = 3675.0
+    MIN_INSURED_SALARY = 3780.0
 
     # Social charges employee share (AVS 5.3% + AI 0.7% + AC 1.1% = ~6.4%)
     # These are deducted from gross to get net salary.

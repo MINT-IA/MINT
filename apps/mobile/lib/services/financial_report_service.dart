@@ -58,6 +58,9 @@ class FinancialReportService {
       employmentStatus: answers['q_employment_status'] as String? ?? 'employee',
       monthlyNetIncome:
           _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
+      contributionYears: _parseInt(answers['q_avs_contribution_years']),
+      spouseContributionYears:
+          _parseInt(answers['q_spouse_avs_contribution_years']),
     );
   }
 
@@ -154,6 +157,8 @@ class FinancialReportService {
       pillar3aCapital: pillar3aCapital,
       monthlyAvsRent: monthlyAvsRent,
       monthlyLppRent: monthlyLppRent,
+      avsReductionFactor: profile.avsReductionFactor,
+      spouseAvsReductionFactor: profile.spouseAvsReductionFactor,
     );
   }
 
@@ -423,9 +428,19 @@ class FinancialReportService {
   }
 
   double _estimateAvsRent(UserProfile profile) {
-    // Rente AVS max couple = 3'585 CHF, individuel = 2'370 CHF
-    // Simplifié : suppose rente complète
-    return profile.isMarried ? 3585 : 2370;
+    // Rendement maximal AVS 2025/2026 :
+    // - Individuel (max) : 2'520 CHF / mois
+    // - Couple (max plafonné à 150%) : 3'780 CHF / mois (1890 CHF par personne)
+
+    if (profile.isMarried) {
+      // Pour les couples, le split se fait 50/50 sur les revenus.
+      // Mais chaque lacune (année manquante) réduit la part individuelle de 1/44.
+      final part1 = 1890.0 * profile.avsReductionFactor;
+      final part2 = 1890.0 * profile.spouseAvsReductionFactor;
+      return part1 + part2;
+    } else {
+      return 2520 * profile.avsReductionFactor;
+    }
   }
 
   double _futureValue(double annualPayment, double rate, int years) {

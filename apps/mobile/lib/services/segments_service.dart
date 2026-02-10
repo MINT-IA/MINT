@@ -94,7 +94,7 @@ class GenderGapService {
   static const double maxSalaireCoordonne = 62475;
 
   /// Minimum coordinated salary (LPP).
-  static const double minSalaireCoordonne = 3675;
+  static const double minSalaireCoordonne = 3780;
 
   /// Conversion rate at retirement (LPP art. 14).
   static const double tauxConversion = 0.068;
