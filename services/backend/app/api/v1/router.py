@@ -21,6 +21,10 @@ from app.api.v1.endpoints import (
     debt_prevention,
     mortgage,
     independants,
+    unemployment,
+    first_job,
+    fiscal,
+    retirement,
 )
 
 api_router = APIRouter()
@@ -69,4 +73,16 @@ api_router.include_router(
 )
 api_router.include_router(
     independants.router, prefix="/independants", tags=["independants"]
+)
+api_router.include_router(
+    unemployment.router, prefix="/unemployment", tags=["unemployment"]
+)
+api_router.include_router(
+    first_job.router, prefix="/first-job", tags=["first-job"]
+)
+api_router.include_router(
+    fiscal.router, prefix="/fiscal", tags=["fiscal"]
+)
+api_router.include_router(
+    retirement.router, prefix="/retirement", tags=["retirement"]
 )
