@@ -4,6 +4,7 @@ Tests for the RAG (Retrieval-Augmented Generation) module.
 Tests vector store, ingester, guardrails, and FastAPI endpoints.
 """
 
+import importlib
 import os
 import tempfile
 import shutil
@@ -12,6 +13,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+
+_chromadb_available = importlib.util.find_spec("chromadb") is not None
+requires_chromadb = pytest.mark.skipif(
+    not _chromadb_available,
+    reason="chromadb not installed — skip RAG vector tests",
+)
 
 
 # --------------------------------------------------------------------------
@@ -201,6 +208,7 @@ status: "READY"
 # --------------------------------------------------------------------------
 
 
+@requires_chromadb
 class TestVectorStore:
     """Tests for MintVectorStore."""
 
@@ -290,6 +298,7 @@ class TestVectorStore:
 # --------------------------------------------------------------------------
 
 
+@requires_chromadb
 class TestMarkdownIngester:
     """Tests for MarkdownIngester."""
 
@@ -547,6 +556,7 @@ class TestLLMClient:
 # --------------------------------------------------------------------------
 
 
+@requires_chromadb
 class TestRetriever:
     """Tests for MintRetriever."""
 
@@ -616,6 +626,7 @@ class TestRetriever:
 # --------------------------------------------------------------------------
 
 
+@requires_chromadb
 class TestRAGEndpoints:
     """Tests for RAG FastAPI endpoints."""
 
@@ -741,6 +752,7 @@ class TestRAGEndpoints:
 # --------------------------------------------------------------------------
 
 
+@requires_chromadb
 class TestOrchestrator:
     """Tests for RAGOrchestrator (without actual LLM API calls)."""
 
@@ -773,6 +785,7 @@ class TestOrchestrator:
 # --------------------------------------------------------------------------
 
 
+@requires_chromadb
 class TestRAGIntegration:
     """Integration tests for the RAG pipeline (without LLM calls)."""
 

@@ -5,6 +5,7 @@ Tests PDF parser, LPP certificate extractor, FastAPI endpoints,
 and RAG integration for document indexing.
 """
 
+import importlib
 import io
 import os
 import tempfile
@@ -13,6 +14,18 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+
+_chromadb_available = importlib.util.find_spec("chromadb") is not None
+requires_chromadb = pytest.mark.skipif(
+    not _chromadb_available,
+    reason="chromadb not installed — skip RAG integration tests",
+)
+
+_pdfplumber_available = importlib.util.find_spec("pdfplumber") is not None
+requires_pdfplumber = pytest.mark.skipif(
+    not _pdfplumber_available,
+    reason="pdfplumber not installed — skip docling tests (pip install -e '.[docling]')",
+)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -251,6 +264,7 @@ def non_lpp_pdf_bytes():
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 class TestDocumentParser:
     """Tests for the DocumentParser class."""
 
@@ -332,6 +346,7 @@ class TestDocumentParser:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 class TestLPPCertificateExtractor:
     """Tests for the LPPCertificateExtractor class."""
 
@@ -575,6 +590,7 @@ class TestLPPCertificateExtractor:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 class TestDocumentEndpoints:
     """Tests for document upload/list/get/delete endpoints."""
 
@@ -738,6 +754,7 @@ class TestDocumentEndpoints:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 class TestDocumentTypeDetection:
     """Tests for document type detection."""
 
@@ -783,6 +800,7 @@ class TestDocumentTypeDetection:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_chromadb
 class TestDoclingRAGIntegration:
     """Tests for RAG indexation of extracted document data."""
 
@@ -821,6 +839,7 @@ class TestDoclingRAGIntegration:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 class TestDoclingModule:
     """Tests for the docling module initialization."""
 
@@ -865,6 +884,7 @@ class TestDoclingModule:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 class TestEdgeCases:
     """Edge case tests for the Docling pipeline."""
 
