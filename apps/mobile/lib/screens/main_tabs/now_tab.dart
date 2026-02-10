@@ -34,7 +34,7 @@ class NowTab extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [
               Colors.white,
-              MintColors.appleSurface.withOpacity(0.3),
+              MintColors.appleSurface.withValues(alpha: 0.3),
             ],
             stops: const [0.6, 1.0],
           ),
@@ -52,7 +52,7 @@ class NowTab extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      MintColors.primary.withOpacity(0.08),
+                      MintColors.primary.withValues(alpha: 0.08),
                       Colors.transparent,
                     ],
                   ),
@@ -137,6 +137,20 @@ class NowTab extends StatelessWidget {
                         delayInMs: 400,
                         child: _buildTimelineSection(context, profile),
                       ),
+                      const SizedBox(height: 32),
+
+                      // Evenements de vie
+                      MintAnimateFadeUp(
+                        delayInMs: 450,
+                        child: _buildLifeEventsSection(context),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Decouvrir les outils
+                      MintAnimateFadeUp(
+                        delayInMs: 500,
+                        child: _buildDiscoverToolsSection(context),
+                      ),
                       const SizedBox(height: 100),
                     ]),
                   ),
@@ -155,14 +169,14 @@ class NowTab extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            MintColors.warning.withOpacity(0.1),
-            MintColors.warning.withOpacity(0.05),
+            MintColors.warning.withValues(alpha: 0.1),
+            MintColors.warning.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.warning.withOpacity(0.3)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +186,7 @@ class NowTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.2),
+                  color: MintColors.warning.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -221,7 +235,7 @@ class NowTab extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: MintColors.warning.withOpacity(0.1),
+                    color: MintColors.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Center(
@@ -271,8 +285,8 @@ class NowTab extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            MintColors.primary.withOpacity(0.05),
-            MintColors.appleSurface.withOpacity(0.3),
+            MintColors.primary.withValues(alpha: 0.05),
+            MintColors.appleSurface.withValues(alpha: 0.3),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -305,9 +319,9 @@ class NowTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.border.withOpacity(0.5)),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -355,7 +369,7 @@ class NowTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.tips_and_updates,
@@ -378,7 +392,7 @@ class NowTab extends StatelessWidget {
                     'Conseils personnalises selon votre profil \u2192',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -503,7 +517,7 @@ class NowTab extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border.withOpacity(0.5)),
+              border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
             ),
             child: Row(
               children: [
@@ -723,7 +737,7 @@ class NowTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border.withOpacity(0.5)),
+          border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -919,4 +933,315 @@ class NowTab extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildLifeEventsSection(BuildContext context) {
+    final events = <_LifeEvent>[
+      _LifeEvent(
+        icon: Icons.favorite,
+        label: 'Mariage',
+        route: '/mariage',
+        color: const Color(0xFFDB2777),
+      ),
+      _LifeEvent(
+        icon: Icons.child_friendly,
+        label: 'Naissance',
+        route: '/naissance',
+        color: const Color(0xFF059669),
+      ),
+      _LifeEvent(
+        icon: Icons.balance,
+        label: 'Concubinage',
+        route: '/concubinage',
+        color: const Color(0xFF7C3AED),
+      ),
+      _LifeEvent(
+        icon: Icons.family_restroom,
+        label: 'Divorce',
+        route: '/life-event/divorce',
+        color: const Color(0xFF9333EA),
+      ),
+      _LifeEvent(
+        icon: Icons.elderly,
+        label: 'Retraite',
+        route: '/retirement',
+        color: const Color(0xFF4F46E5),
+      ),
+      _LifeEvent(
+        icon: Icons.school,
+        label: 'Premier emploi',
+        route: '/first-job',
+        color: const Color(0xFF2563EB),
+      ),
+      _LifeEvent(
+        icon: Icons.work_off,
+        label: 'Chomage',
+        route: '/unemployment',
+        color: const Color(0xFFDC2626),
+      ),
+      _LifeEvent(
+        icon: Icons.house,
+        label: 'Achat immo',
+        route: '/mortgage/affordability',
+        color: const Color(0xFF0D9488),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.event_note, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              '\u00c9V\u00c9NEMENTS DE VIE',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: events.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return InkWell(
+                onTap: () => context.push(event.route),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: 88,
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: event.color.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: event.color.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: event.color.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(event.icon, color: event.color, size: 20),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        event.label,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.textPrimary,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDiscoverToolsSection(BuildContext context) {
+    final tools = <_QuickTool>[
+      _QuickTool(
+        icon: Icons.balance,
+        title: 'Comparateur fiscal',
+        subtitle: 'Compare entre cantons',
+        route: '/fiscal',
+        color: const Color(0xFF059669),
+      ),
+      _QuickTool(
+        icon: Icons.savings,
+        title: 'Simulateur 3a',
+        subtitle: 'Economie fiscale',
+        route: '/simulator/3a',
+        color: const Color(0xFF059669),
+      ),
+      _QuickTool(
+        icon: Icons.house,
+        title: 'Capacite d\'achat',
+        subtitle: 'Peux-tu acheter ?',
+        route: '/mortgage/affordability',
+        color: const Color(0xFF0D9488),
+      ),
+      _QuickTool(
+        icon: Icons.elderly,
+        title: 'Retraite',
+        subtitle: 'Plan complet',
+        route: '/retirement',
+        color: const Color(0xFF4F46E5),
+      ),
+      _QuickTool(
+        icon: Icons.account_balance_wallet,
+        title: 'Budget',
+        subtitle: 'Tes depenses',
+        route: '/budget',
+        color: const Color(0xFFD97706),
+      ),
+      _QuickTool(
+        icon: Icons.health_and_safety,
+        title: 'Franchise LAMal',
+        subtitle: 'Franchise ideale',
+        route: '/assurances/lamal',
+        color: const Color(0xFF0891B2),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.grid_view, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'D\u00c9COUVRIR LES OUTILS',
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textMuted,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () => context.push('/tools'),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Text(
+                  'Voir tout',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.info,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 120,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: tools.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final tool = tools[index];
+              return InkWell(
+                onTap: () => context.push(tool.route),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: 140,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: MintColors.card,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: MintColors.lightBorder),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: tool.color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(tool.icon, color: tool.color, size: 18),
+                      ),
+                      const Spacer(),
+                      Text(
+                        tool.title,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.textPrimary,
+                          height: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        tool.subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: MintColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Internal helper for life event cards.
+class _LifeEvent {
+  final IconData icon;
+  final String label;
+  final String route;
+  final Color color;
+
+  const _LifeEvent({
+    required this.icon,
+    required this.label,
+    required this.route,
+    required this.color,
+  });
+}
+
+/// Internal helper for quick tool cards.
+class _QuickTool {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String route;
+  final Color color;
+
+  const _QuickTool({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.route,
+    required this.color,
+  });
 }
