@@ -25,6 +25,8 @@ from app.api.v1.endpoints import (
     first_job,
     fiscal,
     retirement,
+    family,
+    expat,
 )
 
 api_router = APIRouter()
@@ -85,4 +87,10 @@ api_router.include_router(
 )
 api_router.include_router(
     retirement.router, prefix="/retirement", tags=["retirement"]
+)
+api_router.include_router(
+    family.router, prefix="/family", tags=["family"]
+)
+api_router.include_router(
+    expat.router, prefix="/expat", tags=["expat"]
 )
