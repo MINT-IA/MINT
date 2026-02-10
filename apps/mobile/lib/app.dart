@@ -69,6 +69,8 @@ import 'package:mint_mobile/screens/retirement_screen.dart';
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
+// Expatriation + Frontaliers (Sprint S23)
+import 'package:mint_mobile/screens/expat_screen.dart';
 // Mortgage screens (Sprint S16)
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
@@ -364,6 +366,17 @@ final _router = GoRouter(
       path: '/concubinage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConcubinageScreen(),
+    ),
+    // Expatriation + Frontaliers (Sprint S23)
+    GoRoute(
+      path: '/frontalier',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FrontalierScreen(),
+    ),
+    GoRoute(
+      path: '/expatriation',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExpatScreen(),
     ),
     // Education Hub
     GoRoute(
