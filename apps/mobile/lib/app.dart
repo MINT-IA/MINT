@@ -58,6 +58,33 @@ import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
 import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
+// Chomage + Premier emploi (Sprint S19)
+import 'package:mint_mobile/screens/unemployment_screen.dart';
+import 'package:mint_mobile/screens/first_job_screen.dart';
+// Fiscalite cantonale (Sprint S20)
+import 'package:mint_mobile/screens/fiscal_comparator_screen.dart';
+// Retraite complete (Sprint S21)
+import 'package:mint_mobile/screens/retirement_screen.dart';
+// Famille & Concubinage (Sprint S22)
+import 'package:mint_mobile/screens/mariage_screen.dart';
+import 'package:mint_mobile/screens/naissance_screen.dart';
+import 'package:mint_mobile/screens/concubinage_screen.dart';
+// Mortgage screens (Sprint S16)
+import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
+import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
+import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
+import 'package:mint_mobile/screens/mortgage/imputed_rental_screen.dart';
+import 'package:mint_mobile/screens/mortgage/saron_vs_fixed_screen.dart';
+// Pillar 3a Deep (Sprint S17)
+import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
+import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
+import 'package:mint_mobile/screens/pillar_3a_deep/staggered_withdrawal_screen.dart';
+// Debt Prevention (Sprint S13)
+import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
+import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
+import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
+// Timeline
+import 'package:mint_mobile/screens/timeline_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -299,6 +326,45 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LppVolontaireScreen(),
     ),
+    // Chomage + Premier emploi (Sprint S19)
+    GoRoute(
+      path: '/unemployment',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const UnemploymentScreen(),
+    ),
+    GoRoute(
+      path: '/first-job',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FirstJobScreen(),
+    ),
+    // Fiscalite cantonale (Sprint S20)
+    GoRoute(
+      path: '/fiscal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FiscalComparatorScreen(),
+    ),
+    // Retraite complete (Sprint S21)
+    GoRoute(
+      path: '/retirement',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RetirementScreen(),
+    ),
+    // Famille & Concubinage (Sprint S22)
+    GoRoute(
+      path: '/mariage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MariageScreen(),
+    ),
+    GoRoute(
+      path: '/naissance',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const NaissanceScreen(),
+    ),
+    GoRoute(
+      path: '/concubinage',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConcubinageScreen(),
+    ),
     // Education Hub
     GoRoute(
       path: '/education/hub',
@@ -312,6 +378,70 @@ final _router = GoRouter(
         final id = state.pathParameters['id']!;
         return ThemeDetailScreen(themeId: id);
       },
+    ),
+    // Mortgage (Sprint S16)
+    GoRoute(
+      path: '/mortgage/affordability',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AffordabilityScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/amortization',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AmortizationScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/epl-combined',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const EplCombinedScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/imputed-rental',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ImputedRentalScreen(),
+    ),
+    GoRoute(
+      path: '/mortgage/saron-vs-fixed',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SaronVsFixedScreen(),
+    ),
+    // Pillar 3a Deep (Sprint S17)
+    GoRoute(
+      path: '/3a-deep/comparator',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ProviderComparatorScreen(),
+    ),
+    GoRoute(
+      path: '/3a-deep/real-return',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RealReturnScreen(),
+    ),
+    GoRoute(
+      path: '/3a-deep/staggered-withdrawal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const StaggeredWithdrawalScreen(),
+    ),
+    // Debt Prevention (Sprint S13)
+    GoRoute(
+      path: '/debt/ratio',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DebtRatioScreen(),
+    ),
+    GoRoute(
+      path: '/debt/help',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const HelpResourcesScreen(),
+    ),
+    GoRoute(
+      path: '/debt/repayment',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RepaymentScreen(),
+    ),
+    // Timeline
+    GoRoute(
+      path: '/timeline',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const TimelineScreen(),
     ),
   ],
 );
