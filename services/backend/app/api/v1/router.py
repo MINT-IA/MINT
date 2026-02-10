@@ -19,6 +19,7 @@ from app.api.v1.endpoints import (
     lpp_deep,
     pillar_3a_deep,
     debt_prevention,
+    mortgage,
 )
 
 api_router = APIRouter()
@@ -61,4 +62,7 @@ api_router.include_router(
 )
 api_router.include_router(
     debt_prevention.router, prefix="/debt", tags=["debt-prevention"]
+)
+api_router.include_router(
+    mortgage.router, prefix="/mortgage", tags=["mortgage"]
 )

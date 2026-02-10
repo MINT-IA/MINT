@@ -55,6 +55,33 @@ TAUX_IMPOT_RETRAIT_CAPITAL = {
 
 _DEFAULT_TAUX_RETRAIT = 0.065
 
+# Progressive brackets for capital withdrawal tax (aligned with pillar_3a_deep + Flutter)
+_PROGRESSIVITY_BRACKETS = [
+    (0,       100_000,  1.0),
+    (100_000, 200_000,  1.15),
+    (200_000, 500_000,  1.30),
+    (500_000, 1_000_000, 1.50),
+]
+_LAST_MULTIPLIER = 1.70
+
+
+def _calculate_progressive_tax(montant: float, base_rate: float) -> float:
+    """Calculate capital withdrawal tax using progressive brackets."""
+    if montant <= 0:
+        return 0.0
+    total_tax = 0.0
+    remaining = montant
+    for low, high, multiplier in _PROGRESSIVITY_BRACKETS:
+        tranche_size = high - low
+        taxable = min(remaining, tranche_size)
+        if taxable <= 0:
+            break
+        total_tax += taxable * base_rate * multiplier
+        remaining -= taxable
+    if remaining > 0:
+        total_tax += remaining * base_rate * _LAST_MULTIPLIER
+    return round(total_tax, 2)
+
 
 @dataclass
 class ImpactPrestations:
@@ -186,9 +213,9 @@ class EPLService:
         if blocage_rachat:
             montant_effectif = 0.0
 
-        # 5. Tax estimate
+        # 5. Tax estimate (progressive brackets — aligned with Flutter + pillar_3a_deep)
         taux_impot = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
-        impot_estime = round(montant_effectif * taux_impot, 2)
+        impot_estime = _calculate_progressive_tax(montant_effectif, taux_impot)
 
         # 6. Impact on death and disability benefits
         impact = self._calc_impact_prestations(
