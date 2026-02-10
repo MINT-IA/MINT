@@ -705,8 +705,8 @@ class NowTab extends StatelessWidget {
           icon: Icons.language,
           color: Colors.blue,
           title: 'Frontalier',
-          subtitle: 'Droits et obligations par pays',
-          route: '/segments/frontalier',
+          subtitle: 'Impot source, 90 jours, charges sociales',
+          route: '/frontalier',
         ),
         const SizedBox(height: 12),
         _buildSegmentTile(

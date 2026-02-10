@@ -242,9 +242,16 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.language,
           title: 'Frontalier',
-          subtitle: 'Droits et obligations par pays',
-          route: '/segments/frontalier',
+          subtitle: 'Impot source, 90 jours, charges sociales',
+          route: '/frontalier',
           color: const Color(0xFF2563EB),
+        ),
+        _ToolItem(
+          icon: Icons.flight_takeoff,
+          title: 'Expatriation',
+          subtitle: 'Forfait fiscal, depart, lacunes AVS',
+          route: '/expatriation',
+          color: const Color(0xFF7C3AED),
         ),
       ],
     ),
