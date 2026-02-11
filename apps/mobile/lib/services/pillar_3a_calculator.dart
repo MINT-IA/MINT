@@ -10,6 +10,16 @@ import 'package:flutter/services.dart';
 /// - Explications pédagogiques
 /// - Support multi-années
 class Pillar3aCalculator {
+  static const String disclaimer =
+      'Outil éducatif — ne constitue pas un conseil financier '
+      'personnalisé au sens de la LSFin.';
+
+  static const List<String> sources = [
+    'OPP3 art. 7 (plafonds 3a)',
+    'LIFD art. 33 al. 1 let. e (déduction fiscale 3a)',
+    'LPP art. 7 (seuil d\'accès au 2e pilier)',
+  ];
+
   static Map<String, dynamic>? _limits;
   static final Map<String, Pillar3aResult> _cache = {};
 

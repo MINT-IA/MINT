@@ -1012,8 +1012,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               'Les resultats presentes sont des estimations a titre indicatif '
               'et ne constituent pas un conseil juridique ou financier '
               'personnalise. Chaque situation est unique. Consultez un(e) '
-              'avocat(e) specialise(e) en droit de la famille et un conseiller '
-              'financier avant toute decision.',
+              'avocat(e) specialise(e) en droit de la famille et un·e spécialiste '
+              'en finances avant toute decision.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

@@ -114,7 +114,7 @@ DISCLAIMER = (
     "Cette analyse est indicative et basee sur des hypotheses simplifiees. "
     "Les montants reels dependent de votre caisse de pension, du taux "
     "d'interet crediteur et de votre situation individuelle. "
-    "Consultez un conseiller en prevoyance pour une analyse personnalisee."
+    "Consultez un·e spécialiste en prevoyance pour une analyse personnalisee."
 )
 
 

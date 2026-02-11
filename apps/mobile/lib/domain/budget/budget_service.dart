@@ -3,6 +3,15 @@ import 'budget_inputs.dart';
 import 'budget_plan.dart';
 
 class BudgetService {
+  static const String disclaimer =
+      'Outil éducatif — ne constitue pas un conseil financier '
+      'personnalisé au sens de la LSFin.';
+
+  static const List<String> sources = [
+    'LP art. 93 (minimum vital / calcul du budget)',
+    'Directives CSIAS (Conférence suisse des institutions d\'action sociale)',
+  ];
+
   /// Calcule le plan budgétaire en fonction des inputs et des overrides optionnels (sliders).
   /// [overrides] contient les valeurs forcées par l'utilisateur pour 'variables' ou 'future'.
   BudgetPlan computePlan(BudgetInputs inputs,

@@ -903,7 +903,7 @@ class _SimulatorRenteCapitalScreenState
             child: Text(
               'Les resultats presentes sont des estimations a titre indicatif. '
               'Ils ne constituent pas un conseil financier personnalise. '
-              'Consultez votre caisse de pension et un conseiller qualifie '
+              'Consultez votre caisse de pension et un·e spécialiste qualifié·e '
               'avant toute decision.',
               style: GoogleFonts.inter(
                 fontSize: 11,

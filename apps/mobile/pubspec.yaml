@@ -42,3 +42,5 @@ flutter:
   assets:
     - assets/config/pillar_3a_limits.json
     - assets/config/tax_scales.json
+    - assets/config/tax_scales_2024.json
+    - assets/config/personas.json

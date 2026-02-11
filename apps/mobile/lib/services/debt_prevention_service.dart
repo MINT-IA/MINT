@@ -322,7 +322,7 @@ class RepaymentPlanner {
           'les frais annexes ou les variations de taux. '
           'La methode avalanche minimise les interets totaux, '
           'la methode boule de neige maximise la motivation par des '
-          'victoires rapides. Consultez un ou une conseillere en dettes '
+          'victoires rapides. Consultez un·e spécialiste en dettes '
           'pour un plan adapte a votre situation.',
     );
   }

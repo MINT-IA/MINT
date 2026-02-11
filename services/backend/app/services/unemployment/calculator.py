@@ -354,7 +354,7 @@ class UnemploymentCalculator:
                 "jour": 90,
                 "action": "Premier bilan ORP",
                 "description": (
-                    "Bilan avec ton conseiller ou ta conseillere ORP. "
+                    "Bilan avec ton ou ta spécialiste ORP. "
                     "Recherches d'emploi requises: minimum 8-12 postulations/mois."
                 ),
                 "urgence": "mois3",

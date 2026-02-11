@@ -227,7 +227,7 @@ class UnemploymentService {
       UnemploymentTimelineItem(
         jour: 90,
         action: 'Bilan ORP',
-        description: 'Premier bilan avec ton conseiller ORP',
+        description: 'Premier bilan avec ton ou ta spécialiste ORP',
         urgence: 'mois3',
       ),
     ];

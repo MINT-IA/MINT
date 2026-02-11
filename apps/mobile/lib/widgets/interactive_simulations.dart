@@ -523,7 +523,7 @@ class _InteractiveLppBuybackSimulationState
                 Text(
                   '• Déduction fiscale selon règles applicables\n'
                   '• Taux de conversion : hypothèse actuelle, peut baisser\n'
-                  '• Vérifier avec certificat LPP et conseiller fiscal',
+                  '• Vérifier avec certificat LPP et un·e spécialiste en fiscalité',
                   style: TextStyle(fontSize: 11, color: Colors.orange),
                 ),
               ],

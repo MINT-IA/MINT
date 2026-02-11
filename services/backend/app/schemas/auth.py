@@ -4,7 +4,7 @@ Authentication schemas for user registration, login, and tokens.
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 
 class UserRegister(BaseModel):
@@ -37,10 +37,9 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """Schema for user information response."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     email: str
     display_name: Optional[str]
     created_at: datetime
-
-    class Config:
-        from_attributes = True

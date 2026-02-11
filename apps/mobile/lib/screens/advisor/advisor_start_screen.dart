@@ -25,14 +25,14 @@ class AdvisorSessionStartScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: MintColors.accentPastel,
+                  color: MintColors.appleSurface,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Icon(Icons.auto_awesome, color: MintColors.primary, size: 32),
               ),
               const SizedBox(height: 32),
               Text(
-                'Votre Session\nConseiller',
+                'Votre Session\nSpécialiste',
                 style: GoogleFonts.montserrat(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,

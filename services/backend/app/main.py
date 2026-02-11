@@ -1,5 +1,6 @@
 import logging
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,10 +10,24 @@ from app.api.v1.router import api_router
 
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Create database tables and auto-ingest RAG knowledge base on startup."""
+    # Import models to ensure they're registered with Base
+    from app.models import User, ProfileModel, SessionModel, AnalyticsEvent
+    Base.metadata.create_all(bind=engine)
+
+    # Auto-ingest education inserts into RAG vector store if empty
+    _auto_ingest_rag()
+    yield
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # Setup CORS
@@ -23,17 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def on_startup():
-    """Create database tables and auto-ingest RAG knowledge base on startup."""
-    # Import models to ensure they're registered with Base
-    from app.models import User, ProfileModel, SessionModel, AnalyticsEvent
-    Base.metadata.create_all(bind=engine)
-
-    # Auto-ingest education inserts into RAG vector store if empty
-    _auto_ingest_rag()
 
 
 def _auto_ingest_rag():

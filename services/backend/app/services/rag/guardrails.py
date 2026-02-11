@@ -91,7 +91,7 @@ class ComplianceGuardrails:
             ),
             "tax": (
                 "Les estimations fiscales sont indicatives. "
-                "Consultez un conseiller fiscal pour votre situation spécifique."
+                "Consultez un·e spécialiste en fiscalité pour votre situation spécifique."
             ),
             "investment": (
                 "Les performances passées ne préjugent pas des performances futures. "

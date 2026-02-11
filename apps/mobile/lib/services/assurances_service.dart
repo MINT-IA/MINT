@@ -504,7 +504,7 @@ class CoverageCheckService {
       recommandations: recommandations,
       disclaimer: 'Cette analyse est indicative et ne constitue pas '
           'un conseil en assurance personnalise. Les primes varient '
-          'selon l\'assureur et votre profil. Consultez un conseiller '
+          'selon l\'assureur et votre profil. Consultez un·e spécialiste '
           'en assurances pour une evaluation complete.',
     );
   }

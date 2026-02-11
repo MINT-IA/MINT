@@ -4,7 +4,7 @@ Analytics schemas for event tracking and analytics queries.
 
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class AnalyticsEventCreate(BaseModel):
@@ -51,6 +51,8 @@ class AnalyticsEventBatch(BaseModel):
 
 class AnalyticsEventResponse(BaseModel):
     """Schema for analytics event response."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     event_name: str
     event_category: str
@@ -61,9 +63,6 @@ class AnalyticsEventResponse(BaseModel):
     timestamp: datetime
     app_version: Optional[str]
     platform: Optional[str]
-
-    class Config:
-        from_attributes = True
 
 
 class AnalyticsEventBatchResponse(BaseModel):

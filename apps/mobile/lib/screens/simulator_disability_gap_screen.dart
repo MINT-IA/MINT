@@ -889,7 +889,7 @@ class _SimulatorDisabilityGapScreenState
               'Ces résultats sont des estimations indicatives basées sur les barèmes '
               'légaux. Votre couverture réelle dépend de votre contrat de travail, de '
               'votre caisse de pension et de vos assurances individuelles. Consultez '
-              'votre employeur et un conseiller qualifié.',
+              'votre employeur et un·e spécialiste qualifié·e.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

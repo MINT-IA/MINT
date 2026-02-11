@@ -780,7 +780,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               'Cette analyse est indicative et ne constitue pas un '
               'conseil en assurance personnalise. Les primes varient '
               'selon l\'assureur et votre profil. Consultez un '
-              'conseiller en assurances pour une evaluation complete.',
+              'spécialiste en assurances pour une evaluation complete.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

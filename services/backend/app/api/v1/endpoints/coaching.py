@@ -20,7 +20,7 @@ _engine = CoachingEngine()
 
 DISCLAIMER = (
     "Ces suggestions sont indicatives et ne constituent pas un conseil "
-    "financier personnalise. Consultez un conseiller financier pour une "
+    "financier personnalise. Consultez un·e spécialiste en finances pour une "
     "analyse adaptee a votre situation."
 )
 

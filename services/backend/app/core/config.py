@@ -1,7 +1,10 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(case_sensitive=True)
+
     PROJECT_NAME: str = "Mint API"
     API_V1_STR: str = "/api/v1"
 
@@ -12,9 +15,6 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "mint-dev-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_HOURS: int = 24
-
-    class Config:
-        case_sensitive = True
 
 
 settings = Settings()

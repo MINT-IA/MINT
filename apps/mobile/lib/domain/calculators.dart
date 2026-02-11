@@ -1,6 +1,19 @@
 /// Pure financial calculation functions (testable, no UI dependencies).
 library;
 
+/// Compliance disclaimer for all calculator outputs.
+const String disclaimer =
+    'Outil éducatif — ne constitue pas un conseil financier '
+    'personnalisé au sens de la LSFin.';
+
+/// Legal sources referenced by the calculators.
+const List<String> sources = [
+  'LIFD art. 33 al. 1 let. e (déduction 3a)',
+  'LCC art. 14-15 (taux maximum crédit à la consommation)',
+  'CO art. 313 (prêt de consommation)',
+  'OPP3 art. 7 (plafonds pilier 3a)',
+];
+
 /// Swiss legal max rates from 01.01.2026
 const double maxRateCashCredit = 10.0;
 const double maxRateOverdraft = 12.0;
