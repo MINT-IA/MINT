@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -935,7 +936,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab3Protection() {
-    final avsSurvivor = FamilyService.avsMaxRenteMensuelle *
+    final avsSurvivor = avsRenteMaxMensuelle *
         FamilyService.avsSurvivorFactor;
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
     final totalSurvivor = avsSurvivor + lppSurvivor;
