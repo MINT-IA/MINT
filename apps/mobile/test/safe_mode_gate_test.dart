@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/widgets/recommendation_card.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
+import 'package:mint_mobile/providers/profile_provider.dart';
 
 void main() {
   // ────────────────────────────────────────────────────────────
@@ -183,10 +185,13 @@ void main() {
       final rec = makeRecommendation(title: 'Ouvrir un 3e pilier');
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: RecommendationCard(recommendation: rec),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: RecommendationCard(recommendation: rec),
+              ),
             ),
           ),
         ),
@@ -201,10 +206,13 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: RecommendationCard(recommendation: rec),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: RecommendationCard(recommendation: rec),
+              ),
             ),
           ),
         ),
@@ -227,10 +235,13 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: RecommendationCard(recommendation: rec),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: RecommendationCard(recommendation: rec),
+              ),
             ),
           ),
         ),
@@ -245,10 +256,13 @@ void main() {
       final rec = makeRecommendation(kind: 'fiscalite');
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: RecommendationCard(recommendation: rec),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: RecommendationCard(recommendation: rec),
+              ),
             ),
           ),
         ),
