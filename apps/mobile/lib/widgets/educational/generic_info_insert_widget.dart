@@ -1,0 +1,196 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
+
+/// Widget generique pour les inserts educatifs informationnels.
+/// Affiche un chiffre choc, des objectifs d'apprentissage, des sources
+/// et un bouton d'action optionnel. Utilise [EducationalInsertWidget] comme base.
+class GenericInfoInsertWidget extends StatelessWidget {
+  /// Titre de l'insert
+  final String title;
+
+  /// Sous-titre optionnel
+  final String? subtitle;
+
+  /// Fait marquant / chiffre choc
+  final String chiffreChoc;
+
+  /// Points d'apprentissage (bullets)
+  final List<String> learningGoals;
+
+  /// Disclaimer legal obligatoire
+  final String disclaimer;
+
+  /// References juridiques
+  final List<String> sources;
+
+  /// Texte du bouton d'action (optionnel)
+  final String? actionLabel;
+
+  /// Route GoRouter pour le bouton d'action (optionnel)
+  final String? actionRoute;
+
+  /// Callback "En savoir plus"
+  final VoidCallback? onLearnMore;
+
+  const GenericInfoInsertWidget({
+    super.key,
+    required this.title,
+    this.subtitle,
+    required this.chiffreChoc,
+    required this.learningGoals,
+    required this.disclaimer,
+    required this.sources,
+    this.actionLabel,
+    this.actionRoute,
+    this.onLearnMore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return EducationalInsertWidget(
+      title: title,
+      subtitle: subtitle,
+      disclaimer: disclaimer,
+      hypotheses: sources,
+      onLearnMore: onLearnMore,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Chiffre Choc card
+          _buildChiffreChocCard(),
+          const SizedBox(height: 16),
+
+          // Learning goals
+          Text(
+            'Ce que tu vas comprendre',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...learningGoals.map(_buildLearningGoalItem),
+
+          // Action button
+          if (actionLabel != null && actionRoute != null) ...[
+            const SizedBox(height: 16),
+            _buildActionButton(context),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Carte mise en avant pour le chiffre choc
+  Widget _buildChiffreChocCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.info.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: MintColors.info,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              chiffreChoc,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Un point d'apprentissage avec bullet
+  Widget _buildLearningGoalItem(String goal) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: MintColors.info,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              goal,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Bouton d'action (CTA) vers un simulateur ou ecran
+  Widget _buildActionButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () {
+          if (actionRoute != null) {
+            context.push(actionRoute!);
+          }
+        },
+        icon: const Icon(Icons.arrow_forward, size: 18),
+        label: Text(
+          actionLabel!,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: MintColors.primary,
+          side: const BorderSide(color: MintColors.primary, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        ),
+      ),
+    );
+  }
+}

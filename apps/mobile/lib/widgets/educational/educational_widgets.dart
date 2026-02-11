@@ -9,3 +9,5 @@ export 'emergency_fund_insert_widget.dart';
 export 'mortgage_comparison_insert_widget.dart';
 export 'credit_cost_insert_widget.dart';
 export 'leasing_cost_insert_widget.dart';
+export 'stress_check_insert_widget.dart';
+export 'generic_info_insert_widget.dart';
