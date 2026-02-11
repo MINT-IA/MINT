@@ -24,6 +24,14 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from datetime import date
 
+from app.constants.social_insurance import (
+    AVS_RENTE_MAX_MENSUELLE as _AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE as _AVS_RENTE_MIN_MENSUELLE,
+    AVS_VOLONTAIRE_COTISATION_MIN,
+    AVS_VOLONTAIRE_COTISATION_MAX,
+    AVS_DUREE_COTISATION_COMPLETE,
+)
+
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
@@ -174,13 +182,17 @@ CDI_PARTENAIRES = {
 # Source: LAVS art. 2, OAVS art. 13bis
 # ---------------------------------------------------------------------------
 
-AVS_COTISATION_MIN_VOLONTAIRE = 514.0      # CHF/an (OAVS art. 13bis al. 1)
-AVS_COTISATION_MAX_VOLONTAIRE = 25_700.0   # CHF/an (OAVS art. 13bis al. 2)
+# AVS volontaire — imported from app.constants.social_insurance:
+#   AVS_VOLONTAIRE_COTISATION_MIN, AVS_VOLONTAIRE_COTISATION_MAX
+# Rente AVS — imported from app.constants.social_insurance:
+#   _AVS_RENTE_MAX_MENSUELLE, _AVS_RENTE_MIN_MENSUELLE, AVS_DUREE_COTISATION_COMPLETE
 
-# Rente AVS max mensuelle (simple, echelle 44) — LAVS art. 34
-AVS_RENTE_MAX_MENSUELLE = 2_520.0   # CHF/mois (2025)
-AVS_RENTE_MIN_MENSUELLE = 1_260.0   # CHF/mois (rente minimale, LAVS art. 34 al. 5)
-AVS_ANNEES_COTISATION_PLEINES = 44  # Annees pour rente complete (LAVS art. 29ter)
+# Local aliases for backward compatibility within this module
+AVS_COTISATION_MIN_VOLONTAIRE = AVS_VOLONTAIRE_COTISATION_MIN
+AVS_COTISATION_MAX_VOLONTAIRE = AVS_VOLONTAIRE_COTISATION_MAX
+AVS_RENTE_MAX_MENSUELLE = _AVS_RENTE_MAX_MENSUELLE
+AVS_RENTE_MIN_MENSUELLE = _AVS_RENTE_MIN_MENSUELLE
+AVS_ANNEES_COTISATION_PLEINES = AVS_DUREE_COTISATION_COMPLETE
 
 # Reduction de rente par annee de lacune (LAVS art. 29ter, 52c)
 AVS_REDUCTION_PAR_ANNEE_LACUNE = round(AVS_RENTE_MAX_MENSUELLE / AVS_ANNEES_COTISATION_PLEINES, 2)

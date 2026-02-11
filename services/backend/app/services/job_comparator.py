@@ -15,13 +15,22 @@ Sources:
 from dataclasses import dataclass, field
 from typing import Optional, List
 
+from app.constants.social_insurance import (
+    LPP_SEUIL_ENTREE,
+    LPP_DEDUCTION_COORDINATION,
+    LPP_SALAIRE_COORDONNE_MIN,
+    LPP_SALAIRE_MAX,
+    LPP_TAUX_CONVERSION_MIN,
+    LPP_BONIFICATIONS_VIEILLESSE,
+)
+
 
 @dataclass
 class LPPPlanData:
     """Data from an LPP pension fund plan."""
     salaire_brut: float                     # Gross annual salary
     salaire_assure: Optional[float] = None  # Insured salary (if known)
-    deduction_coordination: float = 25725.0 # Default: fixed coordination deduction
+    deduction_coordination: float = LPP_DEDUCTION_COORDINATION # Default: fixed coordination deduction
     deduction_coordination_type: str = "fixed"  # "fixed" or "proportional"
 
     # Contributions
@@ -31,7 +40,7 @@ class LPPPlanData:
 
     # Capital & conversion
     avoir_vieillesse: float = 0.0           # Current old-age savings
-    taux_conversion_obligatoire: float = 6.8  # Mandatory conversion rate (%)
+    taux_conversion_obligatoire: float = LPP_TAUX_CONVERSION_MIN  # Mandatory conversion rate (%)
     taux_conversion_surobligatoire: Optional[float] = None  # Super-mandatory rate
     taux_conversion_enveloppe: Optional[float] = None  # Envelope rate (if applicable)
 
@@ -115,22 +124,20 @@ class JobComparator:
 
     # Age-based LPP contribution rates (BVG minimum, LPP art. 16)
     LPP_RATES = {
-        (25, 34): 7.0,    # 3.5% employee + 3.5% employer (minimum)
-        (35, 44): 10.0,
-        (45, 54): 15.0,
-        (55, 64): 18.0,
+        (age_min, age_max): rate * 100
+        for age_min, age_max, rate in LPP_BONIFICATIONS_VIEILLESSE
     }
 
     # Coordination deduction (2024/2025 values, OPP2 art. 1)
-    COORDINATION_DEDUCTION = 25725.0
-    ENTRY_THRESHOLD = 22050.0
-    MAX_INSURED_SALARY = 88200.0
+    COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION
+    ENTRY_THRESHOLD = LPP_SEUIL_ENTREE
+    MAX_INSURED_SALARY = LPP_SALAIRE_MAX
 
     # Conservative projected return for capital projection
     PROJECTED_ANNUAL_RETURN = 0.015  # 1.5%
 
     # Minimum insured salary (LPP art. 8 al. 2)
-    MIN_INSURED_SALARY = 3780.0
+    MIN_INSURED_SALARY = LPP_SALAIRE_COORDONNE_MIN
 
     # Social charges employee share (AVS 5.3% + AI 0.7% + AC 1.1% = ~6.4%)
     # These are deducted from gross to get net salary.
@@ -290,7 +297,7 @@ class JobComparator:
         coordination deduction, bounded by the minimum insured salary
         and the maximum insured salary.
 
-        Fixed deduction: gross - 25'725 (standard for full-time employees).
+        Fixed deduction: gross - 26'460 (standard for full-time employees).
         Proportional deduction: gross - (gross * proportion), used for part-time.
 
         If the plan specifies salaire_assure directly, use that.

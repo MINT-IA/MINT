@@ -1,3 +1,5 @@
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // Pure Dart calculator for disability gap simulation.
 //
 // Computes the financial gap if the user can't work due to disability,
@@ -117,12 +119,12 @@ const Map<String, Map<int, int>> _employerCoverageWeeks = {
 
 /// AI rente mensuelle maximale by disability degree (2025/2026 values).
 /// Source: LAI art. 28 al. 1
-const Map<int, double> _aiRenteByDegree = {
-  40: 630.0, // 1/4 rente
-  50: 1260.0, // 1/2 rente
-  60: 1890.0, // 3/4 rente
-  70: 2520.0, // full rente
-  100: 2520.0, // full rente
+final Map<int, double> _aiRenteByDegree = {
+  40: aiRenteEntiere * 0.25, // 1/4 rente
+  50: aiRenteDemi, // 1/2 rente
+  60: aiRenteEntiere * 0.75, // 3/4 rente
+  70: aiRenteEntiere, // full rente
+  100: aiRenteEntiere, // full rente
 };
 
 /// Supported cantons for the simulator.

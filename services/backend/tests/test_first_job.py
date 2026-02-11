@@ -88,8 +88,8 @@ class TestSalaryBreakdown:
         assert bd["aanp"] == expected
 
     def test_lpp_above_threshold(self, service):
-        """Annual salary > 22'050 and age >= 25 -> LPP deduction > 0."""
-        # 5000 * 12 = 60'000 > 22'050
+        """Annual salary > 22'680 and age >= 25 -> LPP deduction > 0."""
+        # 5000 * 12 = 60'000 > 22'680
         result = service.analyze_salary(
             salaire_brut_mensuel=5000, canton="ZH", age=30,
         )
@@ -97,8 +97,8 @@ class TestSalaryBreakdown:
         assert bd["lpp_employe"] > 0
 
     def test_lpp_below_threshold(self, service):
-        """Annual salary < 22'050 -> no LPP deduction."""
-        # 1500 * 12 = 18'000 < 22'050
+        """Annual salary < 22'680 -> no LPP deduction."""
+        # 1500 * 12 = 18'000 < 22'680
         result = service.analyze_salary(
             salaire_brut_mensuel=1500, canton="ZH", age=30,
         )
@@ -144,7 +144,7 @@ class TestSalaryBreakdown:
         # Same gross salary, so AVS should be the same
         assert bd_100["avs_ai_apg"] == bd_80["avs_ai_apg"]
         # LPP may differ due to lower annual basis
-        # Both should have LPP > 0 since 5000*12*0.8=48000 > 22050
+        # Both should have LPP > 0 since 5000*12*0.8=48000 > 22680
         assert bd_80["lpp_employe"] > 0
 
     def test_edge_case_minimum_salary(self, service):

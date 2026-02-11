@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 /// Input data for one LPP plan (current or new job).
 class LPPPlanInput {
   final double salaireBrut;
@@ -35,7 +37,7 @@ class LPPPlanInput {
   /// Effective insured salary, applying coordination deduction.
   double get effectiveSalaireAssure {
     if (salaireAssure != null) return salaireAssure!;
-    final coordination = deductionCoordination ?? 25725.0; // 2024 default
+    final coordination = deductionCoordination ?? lppDeductionCoordination; // 2025 default
     final insured = salaireBrut - coordination;
     return insured > 0 ? insured : 0;
   }

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
@@ -285,7 +286,7 @@ class RealReturnCalculator {
     final clampedRendement = rendementBrut.clamp(0.0, 0.10);
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(1, 45);
-    final clampedVersement = versementAnnuel.clamp(0.0, 36288.0);
+    final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
     final clampedInflation = inflation.clamp(0.0, 0.05);
 
     // Rendement net de frais
@@ -494,7 +495,7 @@ class ProviderComparator {
   }) {
     final clampedAge = age.clamp(18, 70);
     final clampedDuree = duree.clamp(1, 50);
-    final clampedVersement = versementAnnuel.clamp(0.0, 36288.0);
+    final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
 
     final List<ProviderResult> results = [];
     double maxCapital = 0;

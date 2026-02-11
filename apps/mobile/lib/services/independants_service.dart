@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANTS SERVICE — Sprint S18 / Indépendants complet
 // ────────────────────────────────────────────────────────────
@@ -205,16 +207,16 @@ class IndependantsService {
   };
 
   /// 3a ceiling for self-employed without LPP: 20% of net income, max 36288.
-  static const double _plafond3aGrand = 36288;
+  static const double _plafond3aGrand = pilier3aPlafondSansLpp;
 
   /// 3a ceiling for self-employed with LPP (same as salaried).
-  static const double _plafond3aPetit = 7258;
+  static const double _plafond3aPetit = pilier3aPlafondAvecLpp;
 
   /// LPP coordination deduction (2025).
-  static const double _deductionCoordination = 26460;
+  static const double _deductionCoordination = lppDeductionCoordination;
 
   /// LPP minimum coordinated salary.
-  static const double _minSalaireCoordonne = 3780;
+  static const double _minSalaireCoordonne = lppSalaireCoordMin;
 
   /// LPP age-based bonification rates (combined employee+employer).
   /// Used for reference and documentation; actual rates are applied

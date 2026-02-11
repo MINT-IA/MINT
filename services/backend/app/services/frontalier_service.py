@@ -31,15 +31,20 @@ Ethical requirements:
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
+from app.constants.social_insurance import (
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    LPP_SEUIL_ENTREE,
+)
+
 
 # ---------------------------------------------------------------------------
-# Constants
+# Constants — from app.constants.social_insurance (centralized source of truth)
 # ---------------------------------------------------------------------------
 
 PAYS_FRONTALIERS = {"FR", "DE", "IT", "AT", "LI"}
 
 # 3a plafond (OPP3 art. 7)
-PLAFOND_3A_SALARIE = 7_056.0
+PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
 
 # Quasi-resident GE threshold: >= 90% income from CH
 QUASI_RESIDENT_THRESHOLD = 0.90
@@ -323,7 +328,7 @@ class FrontalierService:
                 "Vous n'etes pas affilie a une caisse de pension LPP. "
                 "En tant que salarie en Suisse, l'affiliation LPP est "
                 "obligatoire si votre salaire depasse le seuil d'entree "
-                "(CHF 22'050). Verifiez aupres de votre employeur. "
+                f"(CHF {LPP_SEUIL_ENTREE:,.0f}). Verifiez aupres de votre employeur. "
                 "Source: LPP art. 2."
             )
 

@@ -26,6 +26,12 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional
 
+from app.constants.social_insurance import (
+    LPP_DEDUCTION_COORDINATION,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
+)
+
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -77,11 +83,11 @@ class CoachingEngine:
     """
 
     # 3a pillar limits (OPP3 art. 7)
-    PLAFOND_3A_SALARIE = 7056.0
-    PLAFOND_3A_INDEPENDANT = 35280.0
+    PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
+    PLAFOND_3A_INDEPENDANT = PILIER_3A_PLAFOND_SANS_LPP
 
     # LPP constants
-    COORDINATION_DEDUCTION = 25725.0
+    COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION
     RETIREMENT_AGE = 65
     PROJECTED_ANNUAL_RETURN = 0.015  # 1.5%
 

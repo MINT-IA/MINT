@@ -122,8 +122,8 @@ Date du certificat: 01.01.2025
 Assuré: Jean Dupont
 
 Salaire AVS: CHF 95'000.00
-Déduction de coordination: CHF 25'725.00
-Salaire assuré: CHF 69'275.00
+Déduction de coordination: CHF 26'460.00
+Salaire assuré: CHF 68'540.00
 
 Avoir de vieillesse obligatoire: CHF 120'500.00
 Avoir de vieillesse surobligatoire: CHF 45'800.00
@@ -153,8 +153,8 @@ Datum des Ausweises: 01.01.2025
 Versicherte Person: Max Müller
 
 AHV-Lohn: CHF 110'000.00
-Koordinationsabzug: CHF 25'725.00
-Versicherter Lohn: CHF 84'275.00
+Koordinationsabzug: CHF 26'460.00
+Versicherter Lohn: CHF 83'540.00
 
 Obligatorisches Altersguthaben: CHF 155'000.00
 Überobligatorisches Altersguthaben: CHF 62'000.00
@@ -183,8 +183,8 @@ Data del certificato: 01.01.2025
 Assicurato: Marco Rossi
 
 Salario AVS: CHF 88'000.00
-Deduzione di coordinamento: CHF 25'725.00
-Salario assicurato: CHF 62'275.00
+Deduzione di coordinamento: CHF 26'460.00
+Salario assicurato: CHF 61'540.00
 
 Avere di vecchiaia obbligatorio: CHF 98'000.00
 Avere di vecchiaia sovraobbligatorio: CHF 35'000.00
@@ -365,9 +365,9 @@ class TestLPPCertificateExtractor:
         assert result.avoir_vieillesse_total == 166300.0
 
         # Salary
-        assert result.salaire_assure == 69275.0
+        assert result.salaire_assure == 68540.0
         assert result.salaire_avs == 95000.0
-        assert result.deduction_coordination == 25725.0
+        assert result.deduction_coordination == 26460.0
 
         # Conversion rates
         assert result.taux_conversion_obligatoire == 6.8
@@ -407,7 +407,7 @@ class TestLPPCertificateExtractor:
         assert result.avoir_vieillesse_obligatoire == 155000.0
         assert result.avoir_vieillesse_surobligatoire == 62000.0
         assert result.avoir_vieillesse_total == 217000.0
-        assert result.salaire_assure == 84275.0
+        assert result.salaire_assure == 83540.0
         assert result.salaire_avs == 110000.0
         assert result.taux_conversion_obligatoire == 6.8
         assert result.rente_invalidite_annuelle == 52000.0
@@ -429,7 +429,7 @@ class TestLPPCertificateExtractor:
         assert result.avoir_vieillesse_obligatoire == 98000.0
         assert result.avoir_vieillesse_surobligatoire == 35000.0
         assert result.avoir_vieillesse_total == 133000.0
-        assert result.salaire_assure == 62275.0
+        assert result.salaire_assure == 61540.0
         assert result.taux_conversion_obligatoire == 6.8
         assert result.rachat_maximum == 65000.0
 
@@ -813,7 +813,7 @@ class TestDoclingRAGIntegration:
             doc_id="test-doc-123",
             extracted_fields={
                 "avoir_vieillesse_total": 166300.0,
-                "salaire_assure": 69275.0,
+                "salaire_assure": 68540.0,
                 "rachat_maximum": 85000.0,
             },
             document_type="lpp_certificate",
@@ -925,7 +925,7 @@ class TestEdgeCases:
 
         extractor = LPPCertificateExtractor()
 
-        text = "Salaire AVS: CHF 95'000.00\nSalaire assuré: CHF 69'275.00"
+        text = "Salaire AVS: CHF 95'000.00\nSalaire assuré: CHF 68'540.00"
         tables = [
             [
                 ["Avoir de vieillesse total", "CHF 166'300"],
@@ -935,7 +935,7 @@ class TestEdgeCases:
 
         result = extractor.extract(text, tables=tables)
         assert result.salaire_avs == 95000.0
-        assert result.salaire_assure == 69275.0
+        assert result.salaire_assure == 68540.0
 
     def test_amount_parser_edge_cases(self):
         """Test CHF amount parser with edge cases."""

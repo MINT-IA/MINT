@@ -1,3 +1,5 @@
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 import '../models/circle_score.dart';
 
 /// Service de calcul du score de santé financière par cercles
@@ -133,7 +135,7 @@ class CircleScoringService {
     // 2. 3a - Versement maximum
     final contribution3a = _parseDouble(answers['q_3a_annual_contribution']);
     final isSalaried = answers['q_employment_status'] == 'employee';
-    final maxContribution = isSalaried ? 7258.0 : 36288.0;
+    final maxContribution = isSalaried ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
 
     ItemStatus contributionStatus;
     if (contribution3a != null && contribution3a >= maxContribution * 0.9) {
@@ -181,18 +183,56 @@ class CircleScoringService {
 
     // 4. AVS - Lacunes
     final hasAvsGaps = answers['q_avs_gaps'];
+    final avsYears = _parseInt(answers['q_avs_contribution_years']);
+    final civilStatus = answers['q_civil_status'];
+    final spouseAvsYears =
+        _parseInt(answers['q_spouse_avs_contribution_years']);
+
     ItemStatus avsStatus;
+    String avsDetail;
+
     if (hasAvsGaps == 'no') {
       avsStatus = ItemStatus.perfect;
-    } else if (hasAvsGaps == 'yes') {
-      avsStatus = ItemStatus.warning;
+      avsDetail = 'Aucune lacune';
+    } else if (hasAvsGaps == 'yes' || hasAvsGaps == 'maybe') {
+      if (avsYears != null) {
+        final gap = 44 - avsYears;
+        if (gap <= 0) {
+          avsStatus = ItemStatus.perfect;
+          avsDetail = 'Cotisation complète ($avsYears ans)';
+        } else if (gap <= 2) {
+          avsStatus = ItemStatus.good;
+          avsDetail = 'Lacune mineure ($gap ans)';
+        } else {
+          avsStatus = ItemStatus.warning;
+          avsDetail =
+              'Lacune de $gap ans (Rente -${(gap / 44 * 100).toStringAsFixed(1)}%)';
+        }
+      } else {
+        avsStatus = ItemStatus.warning;
+        avsDetail =
+            hasAvsGaps == 'yes' ? 'Lacunes confirmées' : 'Lacunes possibles';
+      }
+
+      // Check spouse if married
+      if (civilStatus == 'married' && spouseAvsYears != null) {
+        final spouseGap = 44 - spouseAvsYears;
+        if (spouseGap > 0) {
+          avsDetail += ' | Conjoint: -$spouseGap ans';
+          if (avsStatus == ItemStatus.perfect || avsStatus == ItemStatus.good) {
+            avsStatus = ItemStatus.warning;
+          }
+        }
+      }
     } else {
       avsStatus = ItemStatus.unknown;
+      avsDetail = 'À vérifier';
     }
+
     items.add(ScoreItem(
       label: 'AVS',
       status: avsStatus,
-      detail: avsStatus == ItemStatus.perfect ? 'Aucune lacune' : 'À vérifier',
+      detail: avsDetail,
       weight: 1.0,
     ));
     totalWeight += 1.0;

@@ -6,6 +6,14 @@ Generates recommendations based on user profile and session answers.
 import uuid
 from datetime import datetime
 from typing import List, Optional, Tuple
+
+from app.constants.social_insurance import (
+    AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE,
+    LPP_TAUX_CONVERSION_MIN,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+)
+
 from app.schemas.common import Impact, Period
 from app.schemas.recommendation import (
     Recommendation,
@@ -38,10 +46,10 @@ CANTON_SALARY_SCALE_MAP = {
 
 # AI rente mensuelle maximale by disability degree (2025/2026 values, OAVS).
 AI_RENTE_BY_DEGREE = {
-    40: 630.0,    # 1/4 rente (40-49%)
-    50: 1260.0,   # 1/2 rente (50-59%)
-    60: 1890.0,   # 3/4 rente (60-69%)
-    70: 2520.0,   # full rente (70-100%)
+    40: AVS_RENTE_MAX_MENSUELLE * 0.25,    # 1/4 rente (40-49%)
+    50: AVS_RENTE_MIN_MENSUELLE,           # 1/2 rente (50-59%)
+    60: AVS_RENTE_MAX_MENSUELLE * 0.75,    # 3/4 rente (60-69%)
+    70: AVS_RENTE_MAX_MENSUELLE,           # full rente (70-100%)
 }
 
 
@@ -381,7 +389,7 @@ def calculate_tax_potential(
     """Estimate potential tax savings (3a only) for MVP display."""
     # Logic: 3a Max (7258) * Marginal Rate
     marginal_rate = calculate_marginal_tax_rate(canton, income_gross, household_type)
-    saving = 7258.0 * marginal_rate
+    saving = PILIER_3A_PLAFOND_AVEC_LPP * marginal_rate
     # Format as range "~1100-1400" to be safe/realistic relative to user expectation
     low = int(saving * 0.9 / 100) * 100
     high = int(saving * 1.1 / 100) * 100
@@ -464,7 +472,7 @@ def compute_rente_vs_capital(
         dict with rente_annuelle, capital_total, impot_retrait, capital_net,
         and 3 scenario simulations up to age 85.
     """
-    rente_annuelle = avoir_obligatoire * 0.068 + avoir_surobligatoire * taux_conversion_surob
+    rente_annuelle = avoir_obligatoire * (LPP_TAUX_CONVERSION_MIN / 100) + avoir_surobligatoire * taux_conversion_surob
     rente_mensuelle = rente_annuelle / 12
 
     capital_total = avoir_obligatoire + avoir_surobligatoire
@@ -673,7 +681,7 @@ def generate_recommendations(profile: Profile, answers: dict = None) -> List[Rec
 
 
 def _create_3a_optimizer_recommendation(profile: Profile) -> Recommendation:
-    annual_contribution = 7258.0
+    annual_contribution = PILIER_3A_PLAFOND_AVEC_LPP
     household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
     marginal_rate = calculate_marginal_tax_rate(
         profile.canton or "ZH",

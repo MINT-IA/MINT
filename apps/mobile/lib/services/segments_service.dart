@@ -45,7 +45,7 @@ class GenderGapResult {
   final double lacuneTotale; // total gap over retirement (20 years approx)
   final double salaireCoordonne100; // coordinated salary at 100%
   final double salaireCoordonneActuel; // coordinated salary at current taux
-  final double deductionCoordination; // 25'725 CHF (fixed, NOT prorated)
+  final double deductionCoordination; // 26'460 CHF (fixed, NOT prorated)
   final int anneesRestantes; // years to age 65
   final List<GenderGapRecommendation> recommendations;
   final String statistiqueOfs;
@@ -81,17 +81,17 @@ class GenderGapRecommendation {
 
 /// Service that analyses the pension gap for part-time workers.
 ///
-/// The coordination deduction (CHF 25'725) is NOT prorated for
+/// The coordination deduction (CHF 26'460) is NOT prorated for
 /// part-time workers under current LPP law (art. 8), which creates
 /// a disproportionate penalty on lower activity rates.
 class GenderGapService {
   // ── Constants ──────────────────────────────────────────────
 
   /// LPP coordination deduction (art. 8). NOT prorated.
-  static const double deductionCoordination = 25725;
+  static const double deductionCoordination = 26460;
 
   /// Maximum coordinated salary (LPP).
-  static const double maxSalaireCoordonne = 62475;
+  static const double maxSalaireCoordonne = 64260;
 
   /// Minimum coordinated salary (LPP).
   static const double minSalaireCoordonne = 3780;

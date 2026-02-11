@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
@@ -499,8 +500,7 @@ class AmortizationResult {
 }
 
 class AmortizationCalculator {
-  /// Montant max 3a salarie 2026
-  static const double _max3aSalarie = 7258;
+  // Montant max 3a salarie: uses pilier3aPlafondAvecLpp from social_insurance.dart
 
   /// Compare l'amortissement direct vs indirect sur [dureeAns].
   ///
@@ -522,7 +522,7 @@ class AmortizationCalculator {
     final rend3a = rendement3a.clamp(0.0, 0.08);
 
     // Default : 1% de l'hypotheque, plafonne au max 3a (identique au backend)
-    final amortissementAnnuel = min(montant * 0.01, _max3aSalarie);
+    final amortissementAnnuel = min(montant * 0.01, pilier3aPlafondAvecLpp);
 
     // --- Direct : amortissement annuel reduit la dette ---
     final directPlan = <AmortizationYearPoint>[];

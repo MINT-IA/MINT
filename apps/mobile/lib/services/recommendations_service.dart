@@ -1,4 +1,6 @@
 import 'dart:math';
+
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/profile.dart';
 
@@ -109,7 +111,7 @@ class RecommendationsService {
   /// Recommandation : Pilier 3a
   static Recommendation _build3aRecommendation(Profile profile) {
     // Estimation économie fiscale (taux marginal ~25%)
-    final limit = 7258.0; // Limite 2025 avec LPP
+    final limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
     final taxSavings = limit * 0.25;
 
     return Recommendation(

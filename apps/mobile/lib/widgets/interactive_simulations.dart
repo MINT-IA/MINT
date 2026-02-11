@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
 import 'dart:math' as math;
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Widget interactif pour simulation 3a avec curseurs
 class Interactive3aSimulation extends StatefulWidget {
@@ -43,7 +44,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
   }
 
   double get _annualContribution => _monthlyContribution * 12;
-  double get _maxAnnual => widget.isEmployee ? 7258.0 : 36288.0;
+  double get _maxAnnual => widget.isEmployee ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
   bool get _exceedsLimit => _annualContribution > _maxAnnual;
 
   double get _taxSavings =>

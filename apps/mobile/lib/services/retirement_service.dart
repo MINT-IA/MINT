@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SERVICE — Sprint S21 / Retraite complete
 // ────────────────────────────────────────────────────────────
@@ -19,9 +21,6 @@ class RetirementService {
   // ════════════════════════════════════════════════════════════
   //  AVS CONSTANTS (LAVS art. 21-29, 2025/2026)
   // ════════════════════════════════════════════════════════════
-
-  /// Maximum AVS monthly pension (single person).
-  static const double avsMaxRenteMensuelle = 2520.0;
 
   /// Maximum AVS annual pension (single person).
   static const double avsMaxRenteAnnuelle = 30240.0;
@@ -165,7 +164,7 @@ class RetirementService {
         effectiveYears > 0 ? effectiveYears / maxContributionYears : 0.0;
 
     // Calculate rente
-    final baseRente = avsMaxRenteMensuelle * gapFactor;
+    final baseRente = avsRenteMaxMensuelle * gapFactor;
     final renteMensuelle = baseRente * factor;
     final renteAnnuelle = renteMensuelle * 12;
 
@@ -174,7 +173,7 @@ class RetirementService {
     if (isCouple) {
       renteCouple = min(
         renteMensuelle * 2,
-        avsMaxRenteMensuelle * avsCoupleFactor,
+        avsRenteMaxMensuelle * avsCoupleFactor,
       );
     }
 

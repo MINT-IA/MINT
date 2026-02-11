@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -458,8 +459,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildComparisonBars() {
     final r = _result!;
-    const petit = 7258.0;
-    const grand = 36288.0;
+    final petit = pilier3aPlafondAvecLpp;
+    final grand = pilier3aPlafondSansLpp;
     final plafondIndep = r.plafond;
 
     return Container(

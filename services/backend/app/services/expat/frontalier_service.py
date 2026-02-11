@@ -26,6 +26,18 @@ Sprint S23 — Expatriation + Frontaliers.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.constants.social_insurance import (
+    AVS_COTISATION_SALARIE,
+    AC_COTISATION_SALARIE,
+    AC_COTISATION_SOLIDARITE_SALARIE,
+    AC_PLAFOND_SALAIRE_ASSURE,
+    LPP_DEDUCTION_COORDINATION,
+    LPP_SEUIL_ENTREE,
+    LPP_SALAIRE_MAX,
+    LPP_BONIFICATIONS_DICT,
+    get_lpp_bonification_rate,
+)
+
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
@@ -145,29 +157,27 @@ REGLE_90_JOURS_SEUIL = 90  # jours de teletravail depuis le domicile a l'etrange
 # ---------------------------------------------------------------------------
 
 # AVS/AI/APG — cotisation salarie (LAVS art. 5 al. 1)
-AVS_AI_APG_TAUX_EMPLOYE = 0.053       # 5.3%
-AVS_AI_APG_TAUX_EMPLOYEUR = 0.053     # 5.3%
+# Source of truth: app.constants.social_insurance
+AVS_AI_APG_TAUX_EMPLOYE = AVS_COTISATION_SALARIE       # 5.3%
+AVS_AI_APG_TAUX_EMPLOYEUR = AVS_COTISATION_SALARIE     # 5.3%
 
 # AC (chomage) — cotisation salarie (LACI art. 3 al. 2)
-AC_TAUX_EMPLOYE = 0.011               # 1.1%
-AC_TAUX_EMPLOYEUR = 0.011             # 1.1%
-AC_PLAFOND = 148_200.0                # CHF (LACI art. 3 al. 2, 2025)
+# Source of truth: app.constants.social_insurance
+AC_TAUX_EMPLOYE = AC_COTISATION_SALARIE               # 1.1%
+AC_TAUX_EMPLOYEUR = AC_COTISATION_SALARIE             # 1.1%
+AC_PLAFOND = AC_PLAFOND_SALAIRE_ASSURE                # CHF (LACI art. 3 al. 2, 2025)
 
 # AC solidarite — sur la tranche depassant le plafond (LACI art. 3 al. 3)
-AC_SOLIDARITE_TAUX = 0.005            # 0.5%
+# Source of truth: app.constants.social_insurance
+AC_SOLIDARITE_TAUX = AC_COTISATION_SOLIDARITE_SALARIE  # 0.5%
 
 # LPP — estimation simplifiee (LPP art. 8, 16)
-LPP_DEDUCTION_COORDINATION = 25_725.0  # CHF (LPP art. 8 al. 1, 2025)
-LPP_SEUIL_ENTREE = 22_050.0           # CHF (LPP art. 2 al. 1, 2025)
-LPP_SALAIRE_MAX = 88_200.0            # CHF (LPP art. 8 al. 1, salaire coordonne max)
+# Source of truth: app.constants.social_insurance
+# LPP_DEDUCTION_COORDINATION, LPP_SEUIL_ENTREE, LPP_SALAIRE_MAX are imported directly
 
 # Taux de bonification LPP par age (LPP art. 16)
-LPP_BONIFICATION_RATES = {
-    25: 0.07,   # 25-34 ans: 7%
-    35: 0.10,   # 35-44 ans: 10%
-    45: 0.15,   # 45-54 ans: 15%
-    55: 0.18,   # 55-64/65 ans: 18%
-}
+# Source of truth: app.constants.social_insurance
+LPP_BONIFICATION_RATES = dict(LPP_BONIFICATIONS_DICT)
 
 # AANP (accidents non professionnels) — estimation
 AANP_TAUX = 0.014  # ~1.4% (LAA art. 91, moyenne)
@@ -269,15 +279,7 @@ def _calculate_source_tax_progressive(salary: float) -> float:
 
 def _get_lpp_rate(age: int) -> float:
     """Retourne le taux de bonification LPP selon l'age (LPP art. 16)."""
-    if age >= 55:
-        return LPP_BONIFICATION_RATES[55]
-    elif age >= 45:
-        return LPP_BONIFICATION_RATES[45]
-    elif age >= 35:
-        return LPP_BONIFICATION_RATES[35]
-    elif age >= 25:
-        return LPP_BONIFICATION_RATES[25]
-    return 0.0
+    return get_lpp_bonification_rate(age)
 
 
 # ---------------------------------------------------------------------------
@@ -652,16 +654,16 @@ class FrontalierService:
         country = country_of_residence.upper()
 
         # --- Charges CH ---
-        avs_employe = round(salary * AVS_AI_APG_TAUX_EMPLOYE, 2)
-        avs_employeur = round(salary * AVS_AI_APG_TAUX_EMPLOYEUR, 2)
+        avs_employe = round(salary * AVS_COTISATION_SALARIE, 2)
+        avs_employeur = round(salary * AVS_COTISATION_SALARIE, 2)
 
-        salaire_ac = min(salary, AC_PLAFOND)
-        ac_employe = round(salaire_ac * AC_TAUX_EMPLOYE, 2)
-        ac_employeur = round(salaire_ac * AC_TAUX_EMPLOYEUR, 2)
+        salaire_ac = min(salary, AC_PLAFOND_SALAIRE_ASSURE)
+        ac_employe = round(salaire_ac * AC_COTISATION_SALARIE, 2)
+        ac_employeur = round(salaire_ac * AC_COTISATION_SALARIE, 2)
 
         ac_solidarite = 0.0
-        if salary > AC_PLAFOND:
-            ac_solidarite = round((salary - AC_PLAFOND) * AC_SOLIDARITE_TAUX, 2)
+        if salary > AC_PLAFOND_SALAIRE_ASSURE:
+            ac_solidarite = round((salary - AC_PLAFOND_SALAIRE_ASSURE) * AC_COTISATION_SOLIDARITE_SALARIE, 2)
 
         # LPP
         salaire_coordonne = max(0, min(salary, LPP_SALAIRE_MAX + LPP_DEDUCTION_COORDINATION) - LPP_DEDUCTION_COORDINATION)

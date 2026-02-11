@@ -6,6 +6,7 @@ import 'package:mint_mobile/services/retirement_service.dart';
 import 'package:mint_mobile/widgets/retirement/avs_scenario_card.dart';
 import 'package:mint_mobile/widgets/retirement/lpp_comparison_card.dart';
 import 'package:mint_mobile/widgets/retirement/budget_gauge_widget.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SCREEN — Sprint S21 / Retraite complete
@@ -50,7 +51,7 @@ class _RetirementScreenState extends State<RetirementScreen>
   Map<String, dynamic>? _lppResult;
 
   // ── Tab 3: Budget inputs ─────────────────────────────────
-  double _budgetAvs = 2520;
+  double _budgetAvs = avsRenteMaxMensuelle;
   double _budgetLpp = 1500;
   double _budget3a = 100000;
   double _budgetAutres = 0;

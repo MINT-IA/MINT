@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  EXPAT SERVICE — Sprint S23 / Expatriation + Frontaliers
 // ────────────────────────────────────────────────────────────
@@ -69,16 +71,16 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS/AI/APG employee share (%).
-  static const double avsAiApgRate = 0.053;
+  static const double avsAiApgRate = avsCotisationSalarie;
 
   /// AC employee share up to CHF 148'200.
-  static const double acRate = 0.011;
+  static const double acRate = acCotisationSalarie;
 
   /// AC solidarite above CHF 148'200.
-  static const double acSolidariteRate = 0.005;
+  static const double acSolidariteRate = acCotisationSolidariteSalarie;
 
   /// AC ceiling.
-  static const double acCeiling = 148200.0;
+  static const double acCeiling = acPlafondSalaireAssure;
 
   /// Quasi-resident threshold: 90% of worldwide income in CH.
   static const double quasiResidentThreshold = 0.90;
@@ -146,16 +148,16 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS voluntary minimum contribution per year.
-  static const double avsVoluntaryMin = 514.0;
+  static const double avsVoluntaryMin = avsVolontaireCotisationMin;
 
   /// AVS voluntary maximum contribution per year.
-  static const double avsVoluntaryMax = 25700.0;
+  static const double avsVoluntaryMax = avsVolontaireCotisationMax;
 
   /// Rente reduction per missing year (~2.3% per year on 44 years).
-  static const double reductionPerMissingYear = 1.0 / 44.0;
+  static const double reductionPerMissingYear = 1.0 / avsDureeCotisationComplete;
 
   /// Full contribution years for max AVS rente.
-  static const int fullContributionYears = 44;
+  static const int fullContributionYears = avsDureeCotisationComplete;
 
   // ════════════════════════════════════════════════════════════
   //  NEIGHBOURING COUNTRY SOCIAL CHARGES (approx employee share)
@@ -446,7 +448,7 @@ class ExpatService {
     final chAc = chAcBase + chAcSolidarite;
 
     // Estimated LPP contribution (employee ~7% of coordinated salary)
-    final coordinatedSalary = max(0.0, min(annualSalary, 88200.0) - 25725.0);
+    final coordinatedSalary = max(0.0, min(annualSalary, lppSalaireMax) - lppDeductionCoordination);
     final chLpp = coordinatedSalary * 0.07;
 
     final chTotal = chAvs + chAc + chLpp;
@@ -562,7 +564,7 @@ class ExpatService {
     final reductionPercent = missingYears * reductionPerMissingYear * 100;
 
     // Max monthly AVS rente (2025/2026)
-    const maxRenteMensuelle = 2520.0;
+    const maxRenteMensuelle = avsRenteMaxMensuelle;
     final estimatedRente = maxRenteMensuelle * completeness;
     final monthlyLoss = maxRenteMensuelle - estimatedRente;
 

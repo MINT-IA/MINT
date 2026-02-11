@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Tab SUIVRE - Progrès et achievements
 ///
@@ -79,7 +80,7 @@ class TrackTab extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 MintColors.primary.withOpacity(0.1),
-                MintColors.accentPastel.withOpacity(0.3),
+                MintColors.appleSurface.withOpacity(0.3),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -189,7 +190,7 @@ class TrackTab extends StatelessWidget {
         _buildGoalProgress(
           title: '3a ouvert',
           current: 0,
-          target: 7258,
+          target: pilier3aPlafondAvecLpp,
           status: 'En attente versement',
           isCompleted: false,
           subtitle: 'Économie fiscale : CHF 1\'764/an',
@@ -451,7 +452,7 @@ class TrackTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isUnlocked ? MintColors.accentPastel : MintColors.surface,
+        color: isUnlocked ? MintColors.appleSurface : MintColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isUnlocked

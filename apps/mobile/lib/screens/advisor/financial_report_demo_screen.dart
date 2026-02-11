@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Écran de démo pour tester le rapport financier V2
 /// Utilise des données fictives d'un profil type
@@ -31,7 +32,7 @@ class FinancialReportDemoScreen extends StatelessWidget {
       'q_has_pension_fund': 'yes',
       'q_3a_accounts_count': 1, // Sous-optimal
       'q_3a_providers': ['bank'], // Banque classique
-      'q_3a_annual_contribution': 7258.0, // Max
+      'q_3a_annual_contribution': pilier3aPlafondAvecLpp, // Max
       'q_lpp_buyback_available': 200000.0, // 200k disponibles
       'q_avs_gaps': 'unknown',
 
@@ -189,7 +190,7 @@ class FinancialReportDemoScreen extends StatelessWidget {
                 'q_pay_frequency': 'monthly',
                 'q_3a_accounts_count': 3,
                 'q_3a_providers': ['fintech'], // Fintech
-                'q_3a_annual_contribution': 7258.0,
+                'q_3a_annual_contribution': pilier3aPlafondAvecLpp,
                 'q_lpp_buyback_available': 0,
                 'q_has_investments': 'yes',
                 'q_housing_status': 'owner',

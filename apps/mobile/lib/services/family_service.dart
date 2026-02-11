@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  FAMILY SERVICE — Sprint S22 / Famille & Concubinage
 // ────────────────────────────────────────────────────────────
@@ -51,8 +53,7 @@ class FamilyService {
   /// LPP survivor rente: 60% of insured rente (LPP art. 19).
   static const double lppSurvivorFactor = 0.60;
 
-  /// AVS max single rente mensuelle (2025/2026).
-  static const double avsMaxRenteMensuelle = 2520.0;
+  // AVS max single rente mensuelle: uses avsRenteMaxMensuelle from social_insurance.dart
 
   // ════════════════════════════════════════════════════════════
   //  APG / PARENTAL LEAVE CONSTANTS
@@ -483,7 +484,7 @@ class FamilyService {
     );
 
     // AVS survivor
-    final avsSurvivorRente = avsMaxRenteMensuelle * avsSurvivorFactor;
+    final avsSurvivorRente = avsRenteMaxMensuelle * avsSurvivorFactor;
 
     // Score comparison
     int scoreMariage = 0;

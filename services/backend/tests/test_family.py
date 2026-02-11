@@ -450,7 +450,7 @@ class TestCareerGap:
         result = naissance_service.project_career_gap(
             salaire_annuel=80_000, duree_interruption_mois=12, age=35,
         )
-        # Coordinated salary = 80000 - 25725 = 54275
+        # Coordinated salary = 80000 - 26460 = 53540
         # Rate at age 35 = 10%
         # Annual loss = 54275 * 0.10 = 5427.5
         salaire_coordonne = 80_000 - LPP_DEDUCTION_COORDINATION
@@ -665,7 +665,7 @@ class TestEdgeCases:
             duree_interruption_mois=12,
             age=30,
         )
-        # Coordinated salary = max(0, 20000 - 25725) = 0
+        # Coordinated salary = max(0, 20000 - 26460) = 0
         assert result.perte_lpp_annuelle == 0.0
         assert result.perte_lpp_totale == 0.0
 

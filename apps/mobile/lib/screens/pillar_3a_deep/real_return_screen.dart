@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -160,7 +161,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             label: 'Versement annuel',
             value: _versementAnnuel,
             min: 1000,
-            max: 7258,
+            max: pilier3aPlafondAvecLpp,
             divisions: 62,
             format: 'CHF ${formatChf(_versementAnnuel)}',
             onChanged: (v) => setState(() => _versementAnnuel = v),

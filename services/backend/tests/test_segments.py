@@ -553,7 +553,7 @@ class TestSegmentsEndpoints:
             "tauxActivite": 100,
             "age": 40,
             "revenuAnnuel": 100000,
-            "salaireCoordonne": 62475,
+            "salaireCoordonne": 64260,
             "avoirLpp": 200000,
             "anneesCotisation": 15,
             "canton": "ZH",

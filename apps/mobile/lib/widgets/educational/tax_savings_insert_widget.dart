@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Insert didactique pour q_has_3a
 /// Mini-simulateur d'économie fiscale 3a avec sliders
@@ -56,10 +57,10 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
 
   double get _max3aContribution {
     if (widget.hasPensionFund) {
-      return 7258;
+      return pilier3aPlafondAvecLpp;
     } else {
       final annual = _monthlyIncome * 12;
-      return (annual * 0.20).clamp(0, 36288);
+      return (annual * 0.20).clamp(0, pilier3aPlafondSansLpp);
     }
   }
 
@@ -224,8 +225,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     border: Border.all(color: MintColors.border),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF059669)
-                            .withOpacity(0.08), // Green tint
+                        color: MintColors.primary.withOpacity(0.05),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -260,19 +260,14 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                           style: GoogleFonts.inter(
                               fontSize: 13, color: MintColors.textSecondary)),
                       const SizedBox(height: 8),
-                      // Hero Number
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFF059669), Color(0xFF10B981)],
-                        ).createShader(bounds),
-                        child: Text(
-                          '~${_currencyFormat.format((_taxSavingsMin + _taxSavingsMax) / 2)}',
-                          style: GoogleFonts.outfit(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: -1,
-                          ),
+                      // Hero Number - Clean Anthracite
+                      Text(
+                        '~${_currencyFormat.format((_taxSavingsMin + _taxSavingsMax) / 2)}',
+                        style: GoogleFonts.outfit(
+                          fontSize: 38,
+                          fontWeight: FontWeight.bold,
+                          color: MintColors.textPrimary,
+                          letterSpacing: -1.5,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -280,7 +275,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                         'Soit ${(((_taxSavingsMin + _taxSavingsMax) / 2) / 12).toStringAsFixed(0)} CHF de plus par mois',
                         style: GoogleFonts.inter(
                             fontSize: 13,
-                            color: MintColors.success,
+                            color: MintColors.textSecondary,
                             fontWeight: FontWeight.w600),
                       ),
                     ],

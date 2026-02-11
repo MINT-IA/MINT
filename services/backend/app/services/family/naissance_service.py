@@ -19,6 +19,14 @@ Sprint S22 — Evenements de vie : Famille.
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from app.constants.social_insurance import (
+    LPP_SEUIL_ENTREE as _LPP_SEUIL_ENTREE,
+    LPP_DEDUCTION_COORDINATION as _LPP_DEDUCTION_COORDINATION,
+    LPP_BONIFICATIONS_VIEILLESSE,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    get_lpp_bonification_rate,
+)
+
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
@@ -80,7 +88,7 @@ DEDUCTION_FRAIS_GARDE_MAX = 25_500.0  # CHF
 LPP_SEUIL_ENTREE = 22_680.0  # CHF/an
 
 # Deduction de coordination (2025)
-LPP_DEDUCTION_COORDINATION = 25_725.0  # CHF/an
+LPP_DEDUCTION_COORDINATION = 26_460.0  # CHF/an
 
 # Taux de bonification LPP par tranche d'age (LPP art. 16)
 LPP_BONIFICATION_TAUX = {

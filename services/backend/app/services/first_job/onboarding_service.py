@@ -15,8 +15,8 @@ Sources:
     - LAVS art. 5 (cotisation AVS employe: 5.30%)
     - LACI art. 3 (cotisation chomage: 1.1%, solidarite: 0.5% au-dessus de 148'200)
     - LAA art. 91 (AANP: prime non-professionnel, ~1.0-1.5%)
-    - LPP art. 2, 7 (seuil d'acces: 22'050 CHF/an)
-    - LPP art. 8 (deduction de coordination: 25'725 CHF)
+    - LPP art. 2, 7 (seuil d'acces: 22'680 CHF/an)
+    - LPP art. 8 (deduction de coordination: 26'460 CHF)
     - LPP art. 16 (bonifications de vieillesse par tranche d'age)
     - OPP3 art. 7 al. 1 (plafond 3a salaries: 7'258 CHF)
     - LAMal art. 61-65 (franchises: 300-2'500, quote-part 10%, max 700 CHF)
@@ -27,36 +27,44 @@ Sprint S19 — Chomage (LACI) + Premier emploi.
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
+from app.constants.social_insurance import (
+    AVS_COTISATION_SALARIE,
+    AC_COTISATION_SALARIE,
+    AC_COTISATION_SOLIDARITE_SALARIE,
+    AC_PLAFOND_SALAIRE_ASSURE,
+    LPP_SEUIL_ENTREE,
+    LPP_DEDUCTION_COORDINATION,
+    LPP_SALAIRE_COORDONNE_MIN,
+    LPP_SALAIRE_COORDONNE_MAX,
+    LPP_BONIFICATIONS_VIEILLESSE,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+)
+
 
 # ---------------------------------------------------------------------------
-# Constants
+# Constants — from app.constants.social_insurance (centralized source of truth)
 # ---------------------------------------------------------------------------
 
 # Employee deduction rates
-AVS_AI_APG_RATE = 0.053  # 5.30% employee share (LAVS art. 5)
-AC_RATE = 0.011  # 1.1% employee (up to 148'200/year, LACI art. 3)
-AC_SOLIDARITY_RATE = 0.005  # 0.5% solidarity above 148'200
-AC_SALARY_CAP = 148_200.0  # CHF/year
-AANP_RATE = 0.013  # ~1.3% estimate (varies by employer/risk class)
+AVS_AI_APG_RATE = AVS_COTISATION_SALARIE  # 5.30% employee share (LAVS art. 5)
+AC_RATE = AC_COTISATION_SALARIE  # 1.1% employee (up to 148'200/year, LACI art. 3)
+AC_SOLIDARITY_RATE = AC_COTISATION_SOLIDARITE_SALARIE  # 0.5% solidarity above 148'200
+AC_SALARY_CAP = AC_PLAFOND_SALAIRE_ASSURE  # CHF/year
+AANP_RATE = 0.013  # ~1.3% estimate (varies by employer/risk class, not in centralized constants)
 
 # LPP (2nd pillar) thresholds
-LPP_ENTRY_THRESHOLD = 22_050.0  # CHF/year (LPP art. 2 al. 1)
-LPP_COORDINATION_DEDUCTION = 25_725.0  # CHF (LPP art. 8 al. 1)
-LPP_MIN_COORDINATED = 3_780.0  # CHF (LPP art. 8 al. 2)
-LPP_MAX_COORDINATED = 63_540.0  # CHF (LPP art. 8 al. 1)
+LPP_ENTRY_THRESHOLD = LPP_SEUIL_ENTREE  # CHF/year (LPP art. 2 al. 1)
+LPP_COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION  # CHF (LPP art. 8 al. 1)
+LPP_MIN_COORDINATED = LPP_SALAIRE_COORDONNE_MIN  # CHF (LPP art. 8 al. 2)
+LPP_MAX_COORDINATED = LPP_SALAIRE_COORDONNE_MAX  # CHF (LPP art. 8 al. 1)
 
 # Age-based LPP contribution rates (LPP art. 16)
 # (min_age, max_age, total_rate)
 # Employee pays half of total rate
-LPP_BONIFICATIONS: List[Tuple[int, int, float]] = [
-    (25, 34, 0.07),   # 7% total, 3.5% employee
-    (35, 44, 0.10),   # 10% total, 5% employee
-    (45, 54, 0.15),   # 15% total, 7.5% employee
-    (55, 65, 0.18),   # 18% total, 9% employee
-]
+LPP_BONIFICATIONS: List[Tuple[int, int, float]] = list(LPP_BONIFICATIONS_VIEILLESSE)
 
 # 3rd pillar
-PILLAR_3A_LIMIT = 7_258.0  # CHF/year for employees (OPP3 art. 7 al. 1)
+PILLAR_3A_LIMIT = PILIER_3A_PLAFOND_AVEC_LPP  # CHF/year for employees (OPP3 art. 7 al. 1)
 
 # LAMal franchise options
 LAMAL_FRANCHISES = [300, 500, 1000, 1500, 2000, 2500]
@@ -114,8 +122,8 @@ SOURCES = [
     "LAVS art. 5 (cotisation AVS employe: 5.30%)",
     "LACI art. 3 (cotisation chomage: 1.1%)",
     "LAA art. 91 (AANP: ~1.0-1.5%)",
-    "LPP art. 2, 7 (seuil d'acces: 22'050 CHF/an)",
-    "LPP art. 8 (deduction de coordination: 25'725 CHF, min coordonne: 3'780 CHF)",
+    "LPP art. 2, 7 (seuil d'acces: 22'680 CHF/an)",
+    "LPP art. 8 (deduction de coordination: 26'460 CHF, min coordonne: 3'780 CHF)",
     "LPP art. 16 (bonifications de vieillesse par tranche d'age)",
     "OPP3 art. 7 al. 1 (plafond 3a salaries: 7'258 CHF)",
     "LAMal art. 61-65 (franchises: 300-2'500, quote-part 10%, max 700 CHF)",

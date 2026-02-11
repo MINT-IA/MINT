@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/affiliate_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Widget comparatif des fournisseurs 3a avec projection
 class Pillar3aComparatorWidget extends StatelessWidget {
@@ -23,7 +24,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxAnnual = hasPensionFund ? 7258.0 : 36288.0;
+    final maxAnnual = hasPensionFund ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
     final currencyFormat =
         NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
 
@@ -299,6 +300,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               maxAnnual,
               maxAnnual * 0.35, // Économie fiscale estimée (35% taux marginal)
               0.045, // Rendement VIAC
+              yearsUntilRetirement,
             ),
             accentColor: Colors.green.shade700,
           ),

@@ -19,31 +19,36 @@ Sprint S18 — Module Independants complet.
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
+from app.constants.social_insurance import (
+    LPP_DEDUCTION_COORDINATION,
+    LPP_SALAIRE_COORDONNE_MIN,
+    LPP_SALAIRE_COORDONNE_MAX,
+    LPP_BONIFICATIONS_VIEILLESSE,
+    LPP_TAUX_INTERET_MIN,
+    AVS_AGE_REFERENCE_HOMME,
+    get_lpp_bonification_rate,
+)
+
 
 # ---------------------------------------------------------------------------
-# Constants — LPP 2025/2026
+# Constants — from app.constants.social_insurance (centralized source of truth)
 # ---------------------------------------------------------------------------
 
 # Coordination deduction (LPP art. 8)
-DEDUCTION_COORDINATION = 26_460.0
+DEDUCTION_COORDINATION = LPP_DEDUCTION_COORDINATION
 # Minimum coordinated salary
-SALAIRE_COORDONNE_MINIMUM = 3_780.0
+SALAIRE_COORDONNE_MINIMUM = LPP_SALAIRE_COORDONNE_MIN
 # Maximum insured salary (LPP art. 8)
-SALAIRE_COORDONNE_MAXIMUM = 63_540.0
+SALAIRE_COORDONNE_MAXIMUM = LPP_SALAIRE_COORDONNE_MAX
 
 # Age-based contribution rates (LPP art. 16)
 # These are the TOTAL rates (employer + employee), all paid by the self-employed
-BONIFICATIONS_VIEILLESSE: List[Tuple[int, int, float]] = [
-    (25, 34, 0.07),   # 7%
-    (35, 44, 0.10),   # 10%
-    (45, 54, 0.15),   # 15%
-    (55, 65, 0.18),   # 18%
-]
+BONIFICATIONS_VIEILLESSE: List[Tuple[int, int, float]] = list(LPP_BONIFICATIONS_VIEILLESSE)
 
 # Retirement age
-AGE_RETRAITE = 65
-# LPP minimum interest rate (approximation)
-TAUX_INTERET_LPP = 0.0125  # 1.25%
+AGE_RETRAITE = AVS_AGE_REFERENCE_HOMME
+# LPP minimum interest rate (centralized value is in %, convert to fraction)
+TAUX_INTERET_LPP = LPP_TAUX_INTERET_MIN / 100  # 1.25% -> 0.0125
 
 DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
@@ -88,10 +93,7 @@ def _get_bonification_rate(age: int) -> float:
 
     Returns 0 if the age is outside the insured range (25-65).
     """
-    for age_min, age_max, rate in BONIFICATIONS_VIEILLESSE:
-        if age_min <= age <= age_max:
-            return rate
-    return 0.0
+    return get_lpp_bonification_rate(age)
 
 
 def _calculer_salaire_coordonne(revenu_net: float) -> float:

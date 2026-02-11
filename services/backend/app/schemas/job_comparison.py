@@ -6,6 +6,11 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from enum import Enum
 
+from app.constants.social_insurance import (
+    LPP_DEDUCTION_COORDINATION,
+    LPP_TAUX_CONVERSION_MIN,
+)
+
 
 class DeductionType(str, Enum):
     fixed = "fixed"
@@ -20,7 +25,7 @@ class LPPPlanInput(BaseModel):
         None, description="Insured salary if known (CHF)", ge=0
     )
     deductionCoordination: float = Field(
-        25725.0, description="Coordination deduction (CHF)"
+        LPP_DEDUCTION_COORDINATION, description="Coordination deduction (CHF)"
     )
     deductionCoordinationType: DeductionType = Field(
         DeductionType.fixed, description="Type of coordination deduction"
@@ -42,7 +47,7 @@ class LPPPlanInput(BaseModel):
         0.0, description="Current old-age savings (CHF)", ge=0
     )
     tauxConversionObligatoire: float = Field(
-        6.8, description="Mandatory conversion rate (%)", ge=0
+        LPP_TAUX_CONVERSION_MIN, description="Mandatory conversion rate (%)", ge=0
     )
     tauxConversionSurobligatoire: Optional[float] = Field(
         None, description="Super-mandatory conversion rate (%)", ge=0

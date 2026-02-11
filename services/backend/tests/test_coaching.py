@@ -92,19 +92,19 @@ class TestCoaching3a:
 
     def test_3a_deadline_already_maxed(self, engine):
         """3a already at plafond: no deadline tip."""
-        profile = _profile(has_3a=True, montant_3a=7056.0)
+        profile = _profile(has_3a=True, montant_3a=7258.0)
         tips = engine.generate_tips(profile, today_date=date(2026, 11, 1))
         assert not _has_tip(tips, "3a_deadline")
 
     def test_3a_deadline_independant_plafond(self, engine):
-        """Independant: use higher plafond (35280)."""
+        """Independant: use higher plafond (36288)."""
         profile = _profile(
             has_3a=True,
-            montant_3a=7056.0,
+            montant_3a=7258.0,
             employment_status="independant",
         )
         tips = engine.generate_tips(profile, today_date=date(2026, 11, 1))
-        # 7056 < 35280 -> should generate tip
+        # 7258 < 36288 -> should generate tip
         assert _has_tip(tips, "3a_deadline")
         tip = _find_tip(tips, "3a_deadline")
         # Montant deductible = 35280 - 7056 = 28224
@@ -126,7 +126,7 @@ class TestCoaching3a:
         tips = engine.generate_tips(profile, today_date=date(2026, 5, 1))
         assert _has_tip(tips, "missing_3a")
         tip = _find_tip(tips, "missing_3a")
-        assert "7,056" in tip.message or "7'056" in tip.message or "7,056" in tip.message
+        assert "7,258" in tip.message or "7'258" in tip.message
         assert tip.priority == "haute"
         assert "LIFD" in tip.source
 
@@ -520,7 +520,7 @@ class TestCoachingIndependant:
         tips = engine.generate_tips(profile, today_date=date(2026, 5, 1))
         assert _has_tip(tips, "independant_no_lpp")
         tip = _find_tip(tips, "independant_no_lpp")
-        assert "35,280" in tip.message or "35'280" in tip.message
+        assert "36,288" in tip.message or "36'288" in tip.message
         assert "LPP art. 4" in tip.source
         assert tip.priority == "haute"
 

@@ -1,5 +1,7 @@
 import 'dart:math' show pow;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 import '../models/financial_report.dart';
 import '../models/circle_score.dart';
 import 'circle_scoring_service.dart';
@@ -172,7 +174,7 @@ class FinancialReportService {
         (answers['q_3a_providers'] as List?)?.cast<String>() ?? ['bank'];
 
     final contribution = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
-    final maxContribution = profile.isSalaried ? 7258.0 : 36288.0;
+    final maxContribution = profile.isSalaried ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
 
     // Projections par provider (simplifié)
     final projections = <String, double>{
@@ -439,7 +441,7 @@ class FinancialReportService {
       final part2 = 1890.0 * profile.spouseAvsReductionFactor;
       return part1 + part2;
     } else {
-      return 2520 * profile.avsReductionFactor;
+      return avsRenteMaxMensuelle * profile.avsReductionFactor;
     }
   }
 

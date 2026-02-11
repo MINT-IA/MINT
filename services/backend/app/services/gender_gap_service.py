@@ -6,7 +6,7 @@ factual analysis with actionable recommendations. Based on OFS 2024
 statistics and Swiss pension law.
 
 Sources:
-    - LPP art. 8 (deduction de coordination: 25'725 CHF)
+    - LPP art. 8 (deduction de coordination: 26'460 CHF)
     - LPP art. 14 (taux de conversion: 6.8% part obligatoire)
     - LPP art. 16 (taux de cotisation par age)
     - LPP art. 79b (rachat volontaire)
@@ -24,20 +24,30 @@ Ethical requirements:
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.constants.social_insurance import (
+    LPP_DEDUCTION_COORDINATION,
+    LPP_SALAIRE_COORDONNE_MAX as _LPP_SALAIRE_COORDONNE_MAX,
+    LPP_TAUX_CONVERSION_MIN,
+    LPP_SEUIL_ENTREE,
+    LPP_BONIFICATIONS_VIEILLESSE,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    AVS_AGE_REFERENCE_HOMME,
+    get_lpp_bonification_rate,
+)
+
 
 # ---------------------------------------------------------------------------
-# Constants
+# Constants — from app.constants.social_insurance (centralized source of truth)
 # ---------------------------------------------------------------------------
 
-# LPP art. 8: coordination deduction (2024 value)
-COORDINATION_DEDUCTION = 25_725.0
+# LPP art. 8: coordination deduction
+COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION
 
 # LPP: maximum coordinated salary = seuil superieur - deduction
-# Seuil superieur du salaire coordonne
-SALAIRE_COORDONNE_MAX = 62_475.0
+SALAIRE_COORDONNE_MAX = _LPP_SALAIRE_COORDONNE_MAX
 
-# LPP art. 14: conversion rate for mandatory part
-CONVERSION_RATE = 0.068
+# LPP art. 14: conversion rate for mandatory part (centralized value is in %, convert to fraction)
+CONVERSION_RATE = LPP_TAUX_CONVERSION_MIN / 100  # 6.8% -> 0.068
 
 # LPP art. 16: contribution rates by age band (employee + employer combined)
 LPP_CONTRIBUTION_RATES = {
@@ -48,13 +58,13 @@ LPP_CONTRIBUTION_RATES = {
 }
 
 # Retirement age (AVS/AHV)
-RETIREMENT_AGE = 65
+RETIREMENT_AGE = AVS_AGE_REFERENCE_HOMME
 
-# Minimum LPP entry threshold (2024)
-SEUIL_ENTREE_LPP = 22_050.0
+# Minimum LPP entry threshold
+SEUIL_ENTREE_LPP = LPP_SEUIL_ENTREE
 
 # 3a plafond for salaried workers (OPP3 art. 7)
-PLAFOND_3A_SALARIE = 7_056.0
+PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
 
 # Projected annual return on LPP capital (conservative estimate)
 PROJECTED_RETURN = 0.015

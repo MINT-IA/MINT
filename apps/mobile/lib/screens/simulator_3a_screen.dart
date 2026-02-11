@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -13,7 +14,7 @@ class Simulator3aScreen extends StatefulWidget {
 }
 
 class _Simulator3aScreenState extends State<Simulator3aScreen> {
-  double _annualContribution = 7258;
+  double _annualContribution = pilier3aPlafondAvecLpp;
   double _marginalTaxRate = 0.25;
   int _years = 30;
   double _annualReturn = 4.0;
@@ -162,7 +163,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           label: 'Versement annuel',
           value: _annualContribution,
           min: 1000,
-          max: 7258,
+          max: pilier3aPlafondAvecLpp,
           divisions: 62,
           format: (v) => _currencyFormat.format(v),
           onChanged: (v) {
@@ -273,7 +274,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: MintColors.accentPastel.withOpacity(0.3),
+        color: MintColors.appleSurface.withOpacity(0.3),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: MintColors.primary.withOpacity(0.1)),
       ),

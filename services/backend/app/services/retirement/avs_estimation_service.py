@@ -20,6 +20,15 @@ Sprint S21 — Retraite complete.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.constants.social_insurance import (
+    AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_COUPLE_MAX_MENSUELLE,
+    AVS_DUREE_COTISATION_COMPLETE,
+    AVS_REDUCTION_ANTICIPATION,
+    AVS_SUPPLEMENT_AJOURNEMENT,
+    AVS_SURVIVOR_FACTOR,
+)
+
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de ton "
@@ -27,31 +36,25 @@ DISCLAIMER = (
     "Ne constitue pas un conseil en prevoyance (LSFin). Consulte un ou une specialiste."
 )
 
-# AVS Constants (2025/2026)
-AVS_MAX_RENTE_MENSUELLE = 2520.0   # CHF/month (individual)
-AVS_MAX_RENTE_ANNUELLE = 30240.0   # CHF/year
-AVS_MAX_RENTE_COUPLE_FACTOR = 1.50  # couple capped at 150%
+# AVS Constants (2025/2026) — imported from app.constants.social_insurance
+AVS_MAX_RENTE_MENSUELLE = AVS_RENTE_MAX_MENSUELLE
+AVS_MAX_RENTE_ANNUELLE = AVS_RENTE_MAX_MENSUELLE * 12
+AVS_MAX_RENTE_COUPLE_FACTOR = AVS_RENTE_COUPLE_MAX_MENSUELLE / AVS_RENTE_MAX_MENSUELLE
 AVS_RETIREMENT_AGE = 65
 AVS_MIN_ANTICIPATION_AGE = 63      # can start at 63 (1 or 2 years early)
 AVS_MAX_DEFERRAL_YEARS = 5         # can defer up to 5 years (to age 70)
 
 # Full contribution period: 44 years (age 21 to 64 inclusive)
-AVS_FULL_CONTRIBUTION_YEARS = 44
+AVS_FULL_CONTRIBUTION_YEARS = AVS_DUREE_COTISATION_COMPLETE
 
 # Anticipation penalty (LAVS art. 21bis): -6.8% per year
-AVS_ANTICIPATION_PENALTY_PER_YEAR = 0.068
+AVS_ANTICIPATION_PENALTY_PER_YEAR = AVS_REDUCTION_ANTICIPATION
 
 # Deferral bonus (LAVS art. 21ter): cumulative rates
-AVS_DEFERRAL_BONUS = {
-    1: 0.052,   # +5.2% for 1 year deferral
-    2: 0.108,   # +10.8% for 2 years
-    3: 0.171,   # +17.1% for 3 years
-    4: 0.240,   # +24.0% for 4 years
-    5: 0.315,   # +31.5% for 5 years
-}
+AVS_DEFERRAL_BONUS = AVS_SUPPLEMENT_AJOURNEMENT
 
 # Survivor rente (LAVS art. 24)
-AVS_SURVIVOR_RENTE_FACTOR = 0.80   # 80% of deceased's rente
+AVS_SURVIVOR_RENTE_FACTOR = AVS_SURVIVOR_FACTOR
 
 
 @dataclass

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SERVICE — Sprint S19 / Chomage (LACI) + Premier emploi
 // ────────────────────────────────────────────────────────────
@@ -102,32 +104,17 @@ class FirstJobService {
   FirstJobService._();
 
   // ════════════════════════════════════════════════════════════
-  //  CONSTANTS
+  //  CONSTANTS (centralized in social_insurance.dart)
   // ════════════════════════════════════════════════════════════
 
   /// AVS/AI/APG employee share rate.
   static const double _avsAiApgRate = 0.053;
 
-  /// AC (chomage) employee share rate.
-  static const double _acRate = 0.011;
-
   /// AANP (accident non-professionnel) rate.
   static const double _aanpRate = 0.013;
 
-  /// LPP entry threshold (annual).
-  static const double _lppEntryThreshold = 22050.0;
-
-  /// LPP coordination deduction.
-  static const double _lppCoordinationDeduction = 25725.0;
-
-  /// LPP minimum coordinated salary.
-  static const double _lppMinCoordinated = 3780.0;
-
   /// LPP maximum coordinated salary.
   static const double _lppMaxCoordinated = 63540.0;
-
-  /// Pillar 3a annual limit.
-  static const double _pillar3aLimit = 7258.0;
 
   /// LAMal franchise options.
   static const List<int> _lamalFranchises = [300, 500, 1000, 1500, 2000, 2500];
@@ -151,14 +138,14 @@ class FirstJobService {
 
     // Deductions
     final avs = brut * _avsAiApgRate;
-    final ac = annuel <= 148200 ? brut * _acRate : brut * 0.005;
+    final ac = annuel <= acPlafondSalaireAssure ? brut * acCotisationSalarie : brut * 0.005;
     final aanp = brut * _aanpRate;
 
     // LPP
     double lppEmploye = 0;
-    if (annuel >= _lppEntryThreshold && age >= 25) {
-      double coordinated = annuel - _lppCoordinationDeduction;
-      coordinated = max(coordinated, _lppMinCoordinated);
+    if (annuel >= lppSeuilEntree && age >= 25) {
+      double coordinated = annuel - lppDeductionCoordination;
+      coordinated = max(coordinated, lppSalaireCoordMin);
       coordinated = min(coordinated, _lppMaxCoordinated);
       final lppRate = _getLppRate(age);
       lppEmploye = (coordinated * lppRate) / 12 / 2; // employee half
@@ -203,7 +190,7 @@ class FirstJobService {
     ];
 
     // 3a recommendation
-    final economie3a = _pillar3aLimit * 0.25; // ~25% marginal tax estimate
+    final economie3a = pilier3aPlafondAvecLpp * 0.25; // ~25% marginal tax estimate
 
     // LAMal franchise comparison
     final franchiseData = _calculateFranchiseOptions(age, canton);
@@ -224,8 +211,8 @@ class FirstJobService {
       cotisationsEmployeur: employeurTotal,
       deductionItems: deductionItems,
       eligible3a: true,
-      plafondAnnuel3a: _pillar3aLimit,
-      montantMensuelSuggere3a: _pillar3aLimit / 12,
+      plafondAnnuel3a: pilier3aPlafondAvecLpp,
+      montantMensuelSuggere3a: pilier3aPlafondAvecLpp / 12,
       economieFiscaleEstimee3a: economie3a,
       alerte3a: 'Evite les 3a lies a une assurance-vie ! '
           'Privilegie un 3a fintech (VIAC, finpension, frankly) avec frais < 0.5%.',

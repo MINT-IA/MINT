@@ -480,11 +480,11 @@ class CoachingService {
     final reductionPct = (100 - profile.tauxActivite).toStringAsFixed(0);
 
     // Rough estimate: LPP contribution gap
-    final salaireCoordonne = (profile.revenuAnnuel - 25725).clamp(0, 62475);
+    final salaireCoordonne = (profile.revenuAnnuel - 26460).clamp(0, 64260);
     final cotisLppAnnuelle = salaireCoordonne * 0.15; // ~15% average
     final cotisPleinTemps =
-        (profile.revenuAnnuel / (profile.tauxActivite / 100) - 25725)
-                .clamp(0, 62475) *
+        (profile.revenuAnnuel / (profile.tauxActivite / 100) - 26460)
+                .clamp(0, 64260) *
             0.15;
     final gap = cotisPleinTemps - cotisLppAnnuelle;
 
@@ -498,7 +498,7 @@ class CoachingService {
       message:
           'A $tauxPct% d\'activite, votre prevoyance professionnelle est '
           'reduite d\'environ $reductionPct%. La deduction de coordination '
-          'de CHF 25\'725 penalise davantage les temps partiels. '
+          'de CHF 26\'460 penalise davantage les temps partiels. '
           'Envisagez un rachat LPP ou un versement 3a supplementaire '
           'pour compenser.',
       action: 'Simuler ma prevoyance',

@@ -54,28 +54,28 @@ class TestInsuredSalary:
     """Tests for _calc_insured_salary."""
 
     def test_fixed_deduction_standard(self, comparator):
-        """Standard fixed deduction: 80'000 - 25'725 = 54'275."""
+        """Standard fixed deduction: 80'000 - 26'460 = 53'540."""
         plan = _plan(salaire_brut=80000.0)
         result = comparator._calc_insured_salary(plan)
-        assert result == pytest.approx(54275.0, abs=1)
+        assert result == pytest.approx(53540.0, abs=1)
 
     def test_fixed_deduction_high_salary(self, comparator):
-        """High salary: capped at max insured (88200 - 25725 = 62475)."""
+        """High salary: capped at max insured (90720 - 26460 = 64260)."""
         plan = _plan(salaire_brut=150000.0)
         result = comparator._calc_insured_salary(plan)
-        assert result == pytest.approx(62475.0, abs=1)
+        assert result == pytest.approx(64260.0, abs=1)
 
     def test_below_entry_threshold(self, comparator):
-        """Salary below 22'050: no LPP coverage."""
+        """Salary below 22'680: no LPP coverage."""
         plan = _plan(salaire_brut=20000.0)
         result = comparator._calc_insured_salary(plan)
         assert result == 0.0
 
     def test_just_above_entry_threshold(self, comparator):
         """Salary just above threshold: should return minimum insured salary."""
-        plan = _plan(salaire_brut=22100.0)
+        plan = _plan(salaire_brut=22700.0)
         result = comparator._calc_insured_salary(plan)
-        # 22100 - 25725 would be negative, so min insured salary applies
+        # 22700 - 26460 would be negative, so min insured salary applies
         assert result == pytest.approx(3780.0, abs=1)
 
     def test_explicit_insured_salary(self, comparator):
@@ -93,30 +93,30 @@ class TestInsuredSalary:
     def test_proportional_deduction(self, comparator):
         """Proportional deduction for part-time workers.
         With proportional type, deduction = salary * (deduction_param / COORDINATION_DEDUCTION),
-        capped at deduction_param. For 40k salary and 12862.5 deduction param:
-        40000 * (12862.5/25725) = 20000, but capped at 12862.5 => use 12862.5.
-        Insured = 40000 - 12862.5 = 27137.5."""
+        capped at deduction_param. For 40k salary and 13230 deduction param:
+        40000 * (13230/26460) = 20000, but capped at 13230 => use 13230.
+        Insured = 40000 - 13230 = 26770."""
         plan = _plan(
             salaire_brut=40000.0,
-            deduction_coordination=12862.5,  # 50% of 25725
+            deduction_coordination=13230.0,  # 50% of 26460
             deduction_coordination_type="proportional",
         )
         result = comparator._calc_insured_salary(plan)
-        assert result == pytest.approx(27137.5, abs=100)
+        assert result == pytest.approx(26770.0, abs=100)
 
     def test_at_exact_entry_threshold(self, comparator):
-        """Salary at exactly 22'050: above threshold, minimum applies."""
-        plan = _plan(salaire_brut=22050.0)
+        """Salary at exactly 22'680: above threshold, minimum applies."""
+        plan = _plan(salaire_brut=22680.0)
         result = comparator._calc_insured_salary(plan)
-        # 22050 - 25725 = negative, so min insured salary
+        # 22680 - 26460 = negative, so min insured salary
         assert result == pytest.approx(3780.0, abs=1)
 
     def test_salary_equals_max_insured(self, comparator):
-        """Salary at exactly 88'200."""
-        plan = _plan(salaire_brut=88200.0)
+        """Salary at exactly 90'720."""
+        plan = _plan(salaire_brut=90720.0)
         result = comparator._calc_insured_salary(plan)
-        # 88200 - 25725 = 62475 (= max_insured - deduction)
-        assert result == pytest.approx(62475.0, abs=1)
+        # 90720 - 26460 = 64260 (= max_insured - deduction)
+        assert result == pytest.approx(64260.0, abs=1)
 
 
 # ===========================================================================
@@ -135,11 +135,11 @@ class TestContributions:
         )
         insured = comparator._calc_insured_salary(plan)
         cotis = comparator._calc_contributions(plan, insured, 40)
-        # employee: 54275 * 5% = 2713.75
-        assert cotis["employee_annual"] == pytest.approx(2713.75, abs=1)
-        # employer: 54275 * 7% = 3799.25
-        assert cotis["employer_annual"] == pytest.approx(3799.25, abs=1)
-        assert cotis["total_annual"] == pytest.approx(6513.0, abs=1)
+        # employee: 53540 * 5% = 2677.0
+        assert cotis["employee_annual"] == pytest.approx(2677.0, abs=1)
+        # employer: 53540 * 7% = 3747.8
+        assert cotis["employer_annual"] == pytest.approx(3747.8, abs=1)
+        assert cotis["total_annual"] == pytest.approx(6424.8, abs=1)
 
     def test_age_bracket_25_34(self, comparator):
         """Age 30: BVG rate 7.0%, 50/50 split."""
@@ -151,9 +151,9 @@ class TestContributions:
         )
         insured = comparator._calc_insured_salary(plan)
         cotis = comparator._calc_contributions(plan, insured, 30)
-        # Total: 54275 * 7% = 3799.25, split 50/50
-        assert cotis["total_annual"] == pytest.approx(3799.25, abs=1)
-        assert cotis["employee_annual"] == pytest.approx(1899.63, abs=1)
+        # Total: 53540 * 7% = 3747.8, split 50/50
+        assert cotis["total_annual"] == pytest.approx(3747.8, abs=1)
+        assert cotis["employee_annual"] == pytest.approx(1873.9, abs=1)
 
     def test_age_bracket_35_44(self, comparator):
         """Age 40: BVG rate 10.0%."""
@@ -165,7 +165,7 @@ class TestContributions:
         )
         insured = comparator._calc_insured_salary(plan)
         cotis = comparator._calc_contributions(plan, insured, 40)
-        assert cotis["total_annual"] == pytest.approx(5427.5, abs=1)
+        assert cotis["total_annual"] == pytest.approx(5354.0, abs=1)
 
     def test_age_bracket_45_54(self, comparator):
         """Age 50: BVG rate 15.0%."""
@@ -177,7 +177,7 @@ class TestContributions:
         )
         insured = comparator._calc_insured_salary(plan)
         cotis = comparator._calc_contributions(plan, insured, 50)
-        assert cotis["total_annual"] == pytest.approx(8141.25, abs=1)
+        assert cotis["total_annual"] == pytest.approx(8031.0, abs=1)
 
     def test_age_bracket_55_64(self, comparator):
         """Age 60: BVG rate 18.0%."""
@@ -189,7 +189,7 @@ class TestContributions:
         )
         insured = comparator._calc_insured_salary(plan)
         cotis = comparator._calc_contributions(plan, insured, 60)
-        assert cotis["total_annual"] == pytest.approx(9769.5, abs=1)
+        assert cotis["total_annual"] == pytest.approx(9637.2, abs=1)
 
     def test_employer_share_65_percent(self, comparator):
         """Generous employer: 65% share."""
@@ -201,7 +201,7 @@ class TestContributions:
         )
         insured = comparator._calc_insured_salary(plan)
         cotis = comparator._calc_contributions(plan, insured, 40)
-        total = 54275.0 * 0.10
+        total = 53540.0 * 0.10
         assert cotis["employer_annual"] == pytest.approx(total * 0.65, abs=1)
         assert cotis["employee_annual"] == pytest.approx(total * 0.35, abs=1)
 
@@ -562,14 +562,14 @@ class TestScenarios:
         """Sophie: Part-time, same salary but different coordination deduction."""
         current = _plan(
             salaire_brut=50000.0,
-            deduction_coordination=25725.0,
+            deduction_coordination=26460.0,
             deduction_coordination_type="fixed",
             taux_cotisation_employe=5.0,
             taux_cotisation_employeur=5.0,
         )
         new = _plan(
             salaire_brut=50000.0,
-            deduction_coordination=12862.5,  # proportional for 50%
+            deduction_coordination=13230.0,  # proportional for 50%
             deduction_coordination_type="proportional",
             taux_cotisation_employe=5.0,
             taux_cotisation_employeur=5.0,
@@ -741,7 +741,7 @@ class TestEdgeCases:
         plan = _plan(salaire_brut=300000.0)
         insured = comparator._calc_insured_salary(plan)
         # Capped at max insured salary
-        assert insured <= 62475.0 + 1  # max_insured - deduction
+        assert insured <= 64260.0 + 1  # max_insured - deduction
 
     def test_lpp_rate_above_65(self, comparator):
         """Above 65: use last bracket rate (18%)."""
