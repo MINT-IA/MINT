@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 class RecommendationCard extends StatelessWidget {
   final Recommendation recommendation;
@@ -8,6 +11,26 @@ class RecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+
+    // Gate the entire recommendation card when debt is active
+    // except for debt-related recommendations themselves
+    final isDebtRelated = recommendation.kind.toLowerCase().contains('debt') ||
+        recommendation.kind.toLowerCase().contains('dette') ||
+        recommendation.title.toLowerCase().contains('dette') ||
+        recommendation.title.toLowerCase().contains('desendettement');
+
+    if (hasDebt && !isDebtRelated) {
+      return SafeModeGate(
+        hasDebt: true,
+        lockedTitle: 'Recommandation suspendue',
+        lockedMessage:
+            'Cette recommandation est desactivee en mode protection. '
+            'Ta priorite est de stabiliser ta situation financiere.',
+        child: const SizedBox.shrink(),
+      );
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -19,15 +42,15 @@ class RecommendationCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: MintColors.accentPastel,
-                    borderRadius: BorderRadius.circular(12),
+                    color: MintColors.primary,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     recommendation.kind.toUpperCase(),
                     style: const TextStyle(
                       fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.primary,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
                       letterSpacing: 0.5,
                     ),
                   ),

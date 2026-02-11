@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/simulators/buyback_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 class BuybackWidget extends StatefulWidget {
   final double totalBuybackPotential;
@@ -31,6 +34,8 @@ class _BuybackWidgetState extends State<BuybackWidget> {
       return const SizedBox.shrink(); // Hide if no potential
     }
 
+    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+
     final result = BuybackSimulator.compareStaggering(
       totalBuybackAmount: widget.totalBuybackPotential,
       years: _years,
@@ -39,7 +44,14 @@ class _BuybackWidgetState extends State<BuybackWidget> {
       civilStatus: widget.civilStatus,
     );
 
-    return SimulatorCard(
+    return SafeModeGate(
+      hasDebt: hasDebt,
+      lockedTitle: 'Rachat LPP bloque',
+      lockedMessage:
+          'Le rachat LPP est desactive en mode protection. '
+          'Un rachat bloque ta liquidite pendant 3 ans (LPP art. 79b al. 3). '
+          'Rembourse d\'abord tes dettes avant d\'immobiliser du capital.',
+      child: SimulatorCard(
       title: "Stratégie Rachat LPP",
       subtitle: "Optimisation par lissage (Staggering)",
       icon: Icons.calendar_view_week,
@@ -115,6 +127,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
             textAlign: TextAlign.justify,
           ),
         ],
+      ),
       ),
     );
   }

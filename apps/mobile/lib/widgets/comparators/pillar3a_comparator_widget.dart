@@ -8,6 +8,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Widget comparatif des fournisseurs 3a avec projection
 class Pillar3aComparatorWidget extends StatelessWidget {
@@ -24,6 +27,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
     final maxAnnual = hasPensionFund ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
     final currencyFormat =
         NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
@@ -193,68 +197,75 @@ class Pillar3aComparatorWidget extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Highlight gain VIAC
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.green.shade200, width: 2),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.trending_up,
-                        color: Colors.green.shade700, size: 32),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Avec VIAC au lieu d\'une banque :',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green.shade900,
+          // Highlight gain VIAC — gated when debt active
+          SafeModeGate(
+            hasDebt: hasDebt,
+            lockedTitle: 'Priorite au desendettement',
+            lockedMessage:
+                'Les recommandations de placement 3a sont desactivees en mode protection. '
+                'Rembourser tes dettes offre un rendement plus eleve que tout placement.',
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.green.shade200, width: 2),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.trending_up,
+                          color: Colors.green.shade700, size: 32),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Avec VIAC au lieu d\'une banque :',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green.shade900,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '+${currencyFormat.format(gainVsBank)}',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
+                            const SizedBox(height: 4),
+                            Text(
+                              '+${currencyFormat.format(gainVsBank)}',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'de plus à la retraite !',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.green.shade700),
-                          ),
-                        ],
+                            Text(
+                              'de plus a la retraite !',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.green.shade700),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        // TODO: Ouvrir modal "Comment ouvrir VIAC"
+                      },
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      label: const Text('Ouvrir mon compte VIAC'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.green.shade600,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      // TODO: Ouvrir modal "Comment ouvrir VIAC"
-                    },
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    label: const Text('Ouvrir mon compte VIAC'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 

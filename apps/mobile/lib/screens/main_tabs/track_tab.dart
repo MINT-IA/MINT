@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Tab SUIVRE - Progrès et achievements
 ///
@@ -11,6 +14,8 @@ class TrackTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -22,7 +27,14 @@ class TrackTab extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 _buildScoreSection(context),
                 const SizedBox(height: 32),
-                _buildGoalsSection(context),
+                SafeModeGate(
+                  hasDebt: hasDebt,
+                  lockedTitle: 'Priorite au desendettement',
+                  lockedMessage:
+                      'Tes objectifs d\'epargne et d\'investissement sont suspendus '
+                      'en mode protection. Concentre-toi sur la reduction de tes dettes.',
+                  child: _buildGoalsSection(context),
+                ),
                 const SizedBox(height: 32),
                 _buildImpactSection(context),
                 const SizedBox(height: 32),

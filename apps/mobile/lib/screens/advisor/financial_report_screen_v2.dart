@@ -10,6 +10,9 @@ import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Écran d'affichage du rapport financier exhaustif V2
 class FinancialReportScreenV2 extends StatelessWidget {
@@ -24,6 +27,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
+    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -49,8 +53,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Top 3 Priorités
-            _buildTopPriorities(report.priorityActions),
+            // Top 3 Priorites
+            SafeModeGate(
+              hasDebt: hasDebt,
+              lockedTitle: 'Priorite au desendettement',
+              lockedMessage:
+                  'Tes actions prioritaires sont remplacees par un plan de desendettement. '
+                  'Stabilise ta situation avant d\'explorer les recommandations.',
+              child: _buildTopPriorities(report.priorityActions),
+            ),
 
             const SizedBox(height: 24),
 
@@ -111,10 +122,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Pillar3aComparatorWidget(
-                  monthlyIncome: report.profile.monthlyNetIncome,
-                  yearsUntilRetirement: report.profile.yearsToRetirement,
-                  hasPensionFund: report.profile.isSalaried,
+                child: SafeModeGate(
+                  hasDebt: hasDebt,
+                  lockedTitle: 'Priorite au desendettement',
+                  lockedMessage:
+                      'Le comparateur 3a est desactive tant que tu as des dettes actives. '
+                      'Rembourser tes dettes est prioritaire avant toute epargne 3a.',
+                  child: Pillar3aComparatorWidget(
+                    monthlyIncome: report.profile.monthlyNetIncome,
+                    yearsUntilRetirement: report.profile.yearsToRetirement,
+                    hasPensionFund: report.profile.isSalaried,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -132,9 +150,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Stratégie rachat LPP
+            // Strategie rachat LPP
             if (report.lppBuybackStrategy != null)
-              _buildLppBuybackSection(report.lppBuybackStrategy!),
+              SafeModeGate(
+                hasDebt: hasDebt,
+                lockedTitle: 'Rachat LPP bloque',
+                lockedMessage:
+                    'Le rachat LPP est desactive en mode protection. '
+                    'Rembourser tes dettes avant de bloquer de la liquidite dans la prevoyance.',
+                child: _buildLppBuybackSection(report.lppBuybackStrategy!),
+              ),
 
             const SizedBox(height: 24),
 

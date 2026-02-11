@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({super.key});
@@ -43,7 +44,14 @@ class PortfolioScreen extends StatelessWidget {
             _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
             _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
             const SizedBox(height: 32),
-            _buildCoachAdvice(),
+            SafeModeGate(
+              hasDebt: hasDebt,
+              lockedTitle: 'Priorite au desendettement',
+              lockedMessage:
+                  'Les conseils d\'allocation sont desactives en mode protection. '
+                  'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
+              child: _buildCoachAdvice(),
+            ),
             const SizedBox(height: 100),
           ],
         ),

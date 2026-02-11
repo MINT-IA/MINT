@@ -5,6 +5,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -92,6 +93,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
@@ -114,9 +117,24 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             const SizedBox(height: 32),
             _buildInputSection(),
             const SizedBox(height: 32),
-            if (_result != null) _buildResultSection(),
+            if (_result != null)
+              SafeModeGate(
+                hasDebt: hasDebt,
+                lockedTitle: 'Priorite au desendettement',
+                lockedMessage:
+                    'En mode protection, les recommandations d\'action 3a sont desactivees. '
+                    'La priorite est de stabiliser ta situation financiere avant de verser dans le 3a.',
+                child: _buildResultSection(),
+              ),
             const SizedBox(height: 32),
-            _buildEducationSection(),
+            SafeModeGate(
+              hasDebt: hasDebt,
+              lockedTitle: 'Strategie bloquee',
+              lockedMessage:
+                  'Les strategies d\'investissement 3a sont desactivees tant que tu as des dettes actives. '
+                  'Rembourser tes dettes est un rendement plus eleve que tout placement.',
+              child: _buildEducationSection(),
+            ),
             const SizedBox(height: 48),
             _buildDisclaimer(),
             const SizedBox(height: 40),
