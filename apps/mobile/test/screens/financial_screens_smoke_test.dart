@@ -24,6 +24,9 @@ import 'package:mint_mobile/screens/lpp_deep/libre_passage_screen.dart';
 import 'package:mint_mobile/screens/lamal_franchise_screen.dart';
 import 'package:mint_mobile/screens/coverage_check_screen.dart';
 
+// Disability gap
+import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+
 void main() {
   // =========================================================================
   // MORTGAGE SUITE
@@ -250,6 +253,23 @@ void main() {
       expect(find.textContaining('Votre profil'), findsOneWidget);
       // Coverage section
       expect(find.textContaining('Ma couverture actuelle'), findsOneWidget);
+    });
+  });
+
+  // =========================================================================
+  // DISABILITY GAP SUITE
+  // =========================================================================
+
+  group('Disability gap screen', () {
+    testWidgets('SimulatorDisabilityGapScreen renders without error',
+        (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: SimulatorDisabilityGapScreen(),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(Scaffold), findsOneWidget);
     });
   });
 }
