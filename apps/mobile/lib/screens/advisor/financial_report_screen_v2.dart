@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/comparators/pillar3a_comparator_widget.dart'
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
+import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 
 /// Écran d'affichage du rapport financier exhaustif V2
 class FinancialReportScreenV2 extends StatelessWidget {
@@ -126,13 +127,28 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             // Projection retraite
             if (report.retirementProjection != null)
-              _buildRetirementSection(report.retirementProjection!),
+              _buildRetirementSection(
+                  report.retirementProjection!, report.profile.isMarried),
 
             const SizedBox(height: 24),
 
             // Stratégie rachat LPP
             if (report.lppBuybackStrategy != null)
               _buildLppBuybackSection(report.lppBuybackStrategy!),
+
+            const SizedBox(height: 24),
+
+            // Life event suggestions based on profile
+            LifeEventSuggestionsSection(
+              suggestions: buildLifeEventSuggestions(
+                age: report.profile.age,
+                civilStatus: report.profile.civilStatus,
+                childrenCount: report.profile.childrenCount,
+                employmentStatus: report.profile.employmentStatus,
+                monthlyNetIncome: report.profile.monthlyNetIncome,
+                canton: report.profile.canton,
+              ),
+            ),
 
             const SizedBox(height: 40),
           ],
@@ -409,7 +425,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildRetirementSection(RetirementProjection projection) {
+  Widget _buildRetirementSection(
+      RetirementProjection projection, bool isMarried) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -445,7 +462,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _buildRetirementRow('Rente AVS mensuelle',
+            _buildRetirementRow(
+                isMarried
+                    ? 'Rente AVS mensuelle (Couple)'
+                    : 'Rente AVS mensuelle',
                 'CHF ${projection.monthlyAvsRent.toStringAsFixed(0)}'),
             _buildRetirementRow('Rente LPP mensuelle',
                 'CHF ${projection.monthlyLppRent.toStringAsFixed(0)}'),
@@ -455,9 +475,82 @@ class FinancialReportScreenV2 extends StatelessWidget {
               'CHF ${projection.totalMonthlyIncome.toStringAsFixed(0)}',
               isBold: true,
             ),
+            if (projection.avsReductionFactor < 1.0 ||
+                projection.spouseAvsReductionFactor < 1.0)
+              _buildAvsGapWarning(projection),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAvsGapWarning(RetirementProjection projection) {
+    final profile = UserProfile(
+      birthYear: DateTime.now().year - (65 - projection.yearsUntilRetirement),
+      canton: 'VD', // Default fallback
+      civilStatus: 'single', // Default fallback
+      childrenCount: 0,
+      employmentStatus: 'employee',
+      monthlyNetIncome: 5000,
+    );
+
+    // Get contribution years from wizards answers if available, otherwise estimate from reduction factor
+    final years = (projection.avsReductionFactor * 44).round();
+    final gap = 44 - years;
+
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.orange.shade200),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.warning_amber_rounded,
+                  color: Colors.orange.shade800, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Attention : Lacunes AVS détectées ($gap ans)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Il te manque $gap années de cotisation sur les 44 requises. Ta rente sera réduite de ${(projection.avsReductionFactor * 100).toStringAsFixed(1)}% par rapport au maximum.',
+                      style: TextStyle(
+                          fontSize: 11, color: Colors.orange.shade800),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        EducationalExplanationWidget(
+          title: 'Comprendre mes lacunes AVS',
+          shortExplanation:
+              'Découvre pourquoi chaque année compte et comment éviter une perte de rente à vie.',
+          sections: FinancialExplanations.avsGapExplanation(
+            years,
+            projection.spouseAvsReductionFactor < 1.0,
+            (projection.spouseAvsReductionFactor * 44).round(),
+          ),
+          accentColor: Colors.orange.shade700,
+        ),
+      ],
     );
   }
 

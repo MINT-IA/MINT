@@ -3,6 +3,274 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
+// ────────────────────────────────────────────────────────────
+//  LIFE EVENT DEFINITION
+// ────────────────────────────────────────────────────────────
+
+class _LifeEvent {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final String route;
+  final Color accentColor;
+
+  const _LifeEvent({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.route,
+    required this.accentColor,
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+//  CATEGORY DEFINITION
+// ────────────────────────────────────────────────────────────
+
+class _EventCategory {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final List<_LifeEvent> events;
+
+  const _EventCategory({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.events,
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+//  ALL 18 LIFE EVENTS — organized by 6 categories
+// ────────────────────────────────────────────────────────────
+
+const _categories = <_EventCategory>[
+  _EventCategory(
+    label: 'FAMILLE',
+    icon: Icons.family_restroom,
+    color: MintColors.error,
+    events: [
+      _LifeEvent(
+        title: 'Mariage',
+        subtitle: 'Impact LPP, AVS, impots et regime matrimonial',
+        icon: Icons.favorite_outline,
+        route: '/mariage',
+        accentColor: MintColors.error,
+      ),
+      _LifeEvent(
+        title: 'Concubinage',
+        subtitle: 'Prevoyance, succession et fiscalite du couple non marie',
+        icon: Icons.people_outline,
+        route: '/concubinage',
+        accentColor: MintColors.warning,
+      ),
+      _LifeEvent(
+        title: 'Naissance',
+        subtitle: 'Allocations, deductions fiscales et assurances',
+        icon: Icons.child_care,
+        route: '/naissance',
+        accentColor: MintColors.info,
+      ),
+      _LifeEvent(
+        title: 'Divorce',
+        subtitle: 'Partage LPP, pension et reorganisation financiere',
+        icon: Icons.heart_broken_outlined,
+        route: '/life-event/divorce',
+        accentColor: MintColors.warning,
+      ),
+      _LifeEvent(
+        title: 'Succession',
+        subtitle: 'Reserves hereditaires, partage et impots (CC art. 457ss)',
+        icon: Icons.account_balance_outlined,
+        route: '/life-event/succession',
+        accentColor: MintColors.primary,
+      ),
+    ],
+  ),
+  _EventCategory(
+    label: 'PROFESSIONNEL',
+    icon: Icons.work_outline,
+    color: MintColors.info,
+    events: [
+      _LifeEvent(
+        title: 'Premier emploi',
+        subtitle: 'Premiers pas : AVS, LPP, 3a et budget',
+        icon: Icons.school_outlined,
+        route: '/first-job',
+        accentColor: MintColors.info,
+      ),
+      _LifeEvent(
+        title: 'Changement d\'emploi',
+        subtitle: 'Comparaison LPP, libre passage et negociation',
+        icon: Icons.swap_horiz,
+        route: '/simulator/job-comparison',
+        accentColor: MintColors.primary,
+      ),
+      _LifeEvent(
+        title: 'Independant',
+        subtitle: 'AVS, LPP volontaire, 3a elargi et dividende vs salaire',
+        icon: Icons.storefront_outlined,
+        route: '/segments/independant',
+        accentColor: MintColors.success,
+      ),
+      _LifeEvent(
+        title: 'Perte d\'emploi',
+        subtitle: 'Chomage, delai de carence et protection prevoyance',
+        icon: Icons.trending_down,
+        route: '/unemployment',
+        accentColor: MintColors.warning,
+      ),
+      _LifeEvent(
+        title: 'Retraite',
+        subtitle: 'Rente vs capital, echelonnement 3a, lacune AVS',
+        icon: Icons.elderly,
+        route: '/retirement',
+        accentColor: MintColors.primary,
+      ),
+    ],
+  ),
+  _EventCategory(
+    label: 'PATRIMOINE',
+    icon: Icons.account_balance_wallet_outlined,
+    color: MintColors.success,
+    events: [
+      _LifeEvent(
+        title: 'Achat immobilier',
+        subtitle: 'Capacite d\'emprunt, EPL et impot sur la valeur locative',
+        icon: Icons.home_outlined,
+        route: '/mortgage/affordability',
+        accentColor: MintColors.success,
+      ),
+      _LifeEvent(
+        title: 'Vente immobiliere',
+        subtitle: 'Plus-value, impot cantonal et remploi',
+        icon: Icons.real_estate_agent,
+        route: '/life-event/housing-sale',
+        accentColor: MintColors.warning,
+      ),
+      _LifeEvent(
+        title: 'Heritage',
+        subtitle: 'Estimation, impot cantonal et partage successoral',
+        icon: Icons.volunteer_activism,
+        route: '/life-event/succession',
+        accentColor: MintColors.info,
+      ),
+      _LifeEvent(
+        title: 'Donation',
+        subtitle: 'Impot cantonal, reserves et quotite disponible',
+        icon: Icons.card_giftcard,
+        route: '/life-event/donation',
+        accentColor: MintColors.primary,
+      ),
+    ],
+  ),
+  _EventCategory(
+    label: 'SANTE',
+    icon: Icons.health_and_safety_outlined,
+    color: MintColors.error,
+    events: [
+      _LifeEvent(
+        title: 'Invalidite',
+        subtitle: 'Lacune de couverture AI + LPP et prevention',
+        icon: Icons.accessible,
+        route: '/simulator/disability-gap',
+        accentColor: MintColors.error,
+      ),
+    ],
+  ),
+  _EventCategory(
+    label: 'MOBILITE',
+    icon: Icons.flight_takeoff,
+    color: MintColors.warning,
+    events: [
+      _LifeEvent(
+        title: 'Demenagement cantonal',
+        subtitle: 'Impact fiscal du changement de canton (26 baremes)',
+        icon: Icons.map_outlined,
+        route: '/fiscal',
+        accentColor: MintColors.warning,
+      ),
+      _LifeEvent(
+        title: 'Expatriation / Frontalier',
+        subtitle: 'Double imposition, 3a et couverture sociale',
+        icon: Icons.public,
+        route: '/expatriation',
+        accentColor: MintColors.info,
+      ),
+    ],
+  ),
+  _EventCategory(
+    label: 'CRISE',
+    icon: Icons.warning_amber_rounded,
+    color: MintColors.error,
+    events: [
+      _LifeEvent(
+        title: 'Surendettement',
+        subtitle: 'Ratio d\'endettement, plan de remboursement et aide',
+        icon: Icons.crisis_alert,
+        route: '/check/debt',
+        accentColor: MintColors.error,
+      ),
+    ],
+  ),
+];
+
+// ────────────────────────────────────────────────────────────
+//  QUICK ACTIONS (outils essentiels)
+// ────────────────────────────────────────────────────────────
+
+class _QuickAction {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final String route;
+  final Color color;
+
+  const _QuickAction({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.route,
+    required this.color,
+  });
+}
+
+const _quickActions = <_QuickAction>[
+  _QuickAction(
+    title: 'Check-up financier',
+    subtitle: 'Lancer le diagnostic complet',
+    icon: Icons.shield_outlined,
+    route: '/advisor',
+    color: MintColors.primary,
+  ),
+  _QuickAction(
+    title: 'Budget',
+    subtitle: 'Gerer le cashflow mensuel',
+    icon: Icons.pie_chart_outline,
+    route: '/budget',
+    color: MintColors.success,
+  ),
+  _QuickAction(
+    title: 'Pilier 3a',
+    subtitle: 'Optimiser la deduction fiscale',
+    icon: Icons.savings_outlined,
+    route: '/simulator/3a',
+    color: MintColors.info,
+  ),
+  _QuickAction(
+    title: 'Fiscalite',
+    subtitle: 'Comparer 26 cantons',
+    icon: Icons.receipt_long,
+    route: '/fiscal',
+    color: MintColors.warning,
+  ),
+];
+
+// ────────────────────────────────────────────────────────────
+//  TIMELINE SCREEN
+// ────────────────────────────────────────────────────────────
+
 class TimelineScreen extends StatelessWidget {
   const TimelineScreen({super.key});
 
@@ -14,97 +282,40 @@ class TimelineScreen extends StatelessWidget {
         slivers: [
           _buildAppBar(),
           SliverToBoxAdapter(child: _buildTimelineHeader()),
+          // Quick actions row
+          SliverToBoxAdapter(child: _buildQuickActions(context)),
+          // Life events by category
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHorizonHeader('IMMÉDIAT (THIS YEAR)'),
-                const SizedBox(height: 12),
-                _buildTimelineEvent(
-                  context,
-                  title: 'Maîtrise du Cashflow',
-                  date: 'Tous les mois',
-                  status: 'Essentiel',
-                  description:
-                      'Gérez votre budget dépenses variables vs futur.',
-                  icon: Icons.pie_chart_outline,
-                  route: '/budget',
-                  isNext: true,
-                ),
-                _buildConnector(),
-                _buildTimelineEvent(
-                  context,
-                  title: 'Protection de Base',
-                  date: 'Session immédiate',
-                  status: 'Prioritaire',
-                  description: 'Fonds d\'urgence, LPP et dettes.',
-                  icon: Icons.shield_outlined,
-                  route: '/advisor', // Lance le Wizard global pour l'instant
-                  isNext: true,
-                  buttonLabel: 'Lancer le Check-up',
-                ),
-                _buildConnector(),
                 const SizedBox(height: 24),
-                _buildHorizonHeader('COURT TERME (1-3 ANS)'),
-                const SizedBox(height: 12),
-                _buildTimelineEvent(
-                  context,
-                  title: 'Optimisation 3e Pilier',
-                  date: 'Décembre 2026',
-                  status: 'Opportunité',
-                  description: 'Maximiser la déduction fiscale.',
-                  icon: Icons.savings_outlined,
-                  route: '/simulator/3a',
+                _buildSectionTitle('EVENEMENTS DE VIE', Icons.timeline),
+                const SizedBox(height: 4),
+                Text(
+                  'Selectionne un evenement pour simuler son impact financier.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                  ),
                 ),
-                _buildConnector(),
-                _buildTimelineEvent(
-                  context,
-                  title: 'Projet Achat Immo',
-                  date: 'Horizon 2028',
-                  status: 'Planification',
-                  description: 'Simuler votre capacité d\'emprunt.',
-                  icon: Icons.home_outlined,
-                  route: '/simulator/compound', // Placeholder
-                ),
-                const SizedBox(height: 24),
-                _buildHorizonHeader('VIE & ÉVÉNEMENTS'),
-                const SizedBox(height: 12),
-                _buildEventTrigger(context, 'Mariage / Divorce',
-                    Icons.favorite_border, 'Impact sur LPP & AVS'),
-                const SizedBox(height: 12),
-                _buildEventTrigger(context, 'Retraite / Pré-retraite',
-                    Icons.elderly, 'Planification rente vs capital'),
+                const SizedBox(height: 16),
+                for (final category in _categories) ...[
+                  _buildCategoryHeader(category),
+                  const SizedBox(height: 8),
+                  for (var i = 0; i < category.events.length; i++) ...[
+                    _buildEventCard(context, category.events[i]),
+                    if (i < category.events.length - 1)
+                      const SizedBox(height: 8),
+                  ],
+                  const SizedBox(height: 20),
+                ],
+                const SizedBox(height: 80),
               ]),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
-    );
-  }
-
-  Widget _buildHorizonHeader(String title) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: const BoxDecoration(
-              color: MintColors.primary, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textMuted,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Expanded(child: Divider()),
-      ],
     );
   }
 
@@ -126,118 +337,98 @@ class TimelineScreen extends StatelessWidget {
 
   Widget _buildTimelineHeader() {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Votre vie financière,\nétape par étape.',
+            'Ta vie financiere,\netape par etape.',
             style: GoogleFonts.montserrat(
-                fontSize: 24, fontWeight: FontWeight.w800),
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: MintColors.textPrimary,
+            ),
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Sélectionnez un événement ou un outil pour adapter votre stratégie.',
-            style: TextStyle(color: MintColors.textSecondary, height: 1.5),
+          const SizedBox(height: 8),
+          Text(
+            'Outils essentiels et evenements de vie — tout est la.',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.textSecondary,
+              height: 1.5,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineEvent(
-    BuildContext context, {
-    required String title,
-    required String date,
-    required String status,
-    required String description,
-    required IconData icon,
-    required String route,
-    bool isNext = false,
-    String? buttonLabel,
-  }) {
-    return InkWell(
-      onTap: () => context.push(route),
-      borderRadius: BorderRadius.circular(20),
+  // ── Quick actions (horizontal scroll) ──────────────────────
+
+  Widget _buildQuickActions(BuildContext context) {
+    return SizedBox(
+      height: 110,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        itemCount: _quickActions.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final action = _quickActions[index];
+          return _buildQuickActionCard(context, action);
+        },
+      ),
+    );
+  }
+
+  Widget _buildQuickActionCard(BuildContext context, _QuickAction action) {
+    return GestureDetector(
+      onTap: () => context.push(action.route),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        width: 150,
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isNext ? Colors.white : MintColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: isNext ? MintColors.primary : MintColors.border,
-              width: isNext ? 2 : 1),
-          boxShadow: isNext
-              ? [
-                  BoxShadow(
-                      color: MintColors.primary.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10))
-                ]
-              : null,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: action.color.withValues(alpha: 0.25)),
+          boxShadow: [
+            BoxShadow(
+              color: action.color.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: isNext
-                    ? MintColors.primary.withOpacity(0.1)
-                    : MintColors.background,
-                shape: BoxShape.circle,
+                color: action.color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon,
-                  color: isNext ? MintColors.primary : MintColors.textMuted,
-                  size: 24),
+              child: Icon(action.icon, color: action.color, size: 18),
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(date,
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: MintColors.textMuted)),
-                      if (isNext)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                              color: MintColors.primary,
-                              borderRadius: BorderRadius.circular(8)),
-                          child: Text(status.toUpperCase(),
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold)),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(title,
-                      style: GoogleFonts.montserrat(
-                          fontSize: 16, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  Text(description,
-                      style: const TextStyle(
-                          fontSize: 13, color: MintColors.textSecondary)),
-                  if (isNext) const SizedBox(height: 16),
-                  if (isNext)
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => context.push(route),
-                        child: Text(buttonLabel ?? 'Ouvrir'),
-                      ),
-                    ),
-                ],
+            const Spacer(),
+            Text(
+              action.title,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
               ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              action.subtitle,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                color: MintColors.textSecondary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -245,53 +436,122 @@ class TimelineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildConnector() {
-    return Container(
-      margin: const EdgeInsets.only(left: 42),
-      width: 2,
-      height: 30,
-      color: MintColors.border,
+  // ── Section title ──────────────────────────────────────────
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: MintColors.primary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: MintColors.primary,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(child: Divider()),
+      ],
     );
   }
 
-  Widget _buildEventTrigger(
-      BuildContext context, String title, IconData icon, String subtitle) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: MintColors.textSecondary, size: 20),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                Text(subtitle,
-                    style: const TextStyle(
-                        fontSize: 12, color: MintColors.textMuted)),
-              ],
-            ),
+  // ── Category header ────────────────────────────────────────
+
+  Widget _buildCategoryHeader(_EventCategory category) {
+    return Row(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: category.color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(8),
           ),
-          OutlinedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Delta Session : Coming Soon')));
-            },
-            style: OutlinedButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-            child: const Text('Simuler'),
+          child: Icon(category.icon, color: category.color, size: 16),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          category.label,
+          style: GoogleFonts.montserrat(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: MintColors.textMuted,
+            letterSpacing: 1.0,
           ),
-        ],
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Divider(color: category.color.withValues(alpha: 0.2)),
+        ),
+      ],
+    );
+  }
+
+  // ── Event card ─────────────────────────────────────────────
+
+  Widget _buildEventCard(BuildContext context, _LifeEvent event) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.push(event.route),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: event.accentColor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child:
+                    Icon(event.icon, color: event.accentColor, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      event.subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: MintColors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right,
+                color: event.accentColor.withValues(alpha: 0.5),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
