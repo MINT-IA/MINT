@@ -27,6 +27,9 @@ from app.api.v1.endpoints import (
     retirement,
     family,
     expat,
+    disability_gap,
+    next_steps,
+    educational_content,
 )
 
 api_router = APIRouter()
@@ -93,4 +96,13 @@ api_router.include_router(
 )
 api_router.include_router(
     expat.router, prefix="/expat", tags=["expat"]
+)
+api_router.include_router(
+    disability_gap.router, prefix="/disability-gap", tags=["disability-gap"]
+)
+api_router.include_router(
+    next_steps.router, prefix="/next-steps", tags=["next-steps"]
+)
+api_router.include_router(
+    educational_content.router, prefix="/educational-content", tags=["educational-content"]
 )
