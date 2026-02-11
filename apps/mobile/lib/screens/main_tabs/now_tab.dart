@@ -4,12 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/recommendations_service.dart';
 import 'package:mint_mobile/services/timeline_service.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/mint_ui_kit.dart';
 import 'package:mint_mobile/widgets/action_card.dart';
+import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 
 /// Tab MAINTENANT - Actions contextuelles selon la situation
 class NowTab extends StatelessWidget {
@@ -143,6 +145,13 @@ class NowTab extends StatelessWidget {
                       MintAnimateFadeUp(
                         delayInMs: 450,
                         child: _buildLifeEventsSection(context),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Tes prochains pas — suggestions personnalisees
+                      MintAnimateFadeUp(
+                        delayInMs: 475,
+                        child: _buildNextStepsSection(profile),
                       ),
                       const SizedBox(height: 32),
 
@@ -1057,6 +1066,89 @@ class NowTab extends StatelessWidget {
             },
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildNextStepsSection(dynamic profile) {
+    final currentYear = DateTime.now().year;
+    final birthYear = (profile?.birthYear as int?) ?? (currentYear - 30);
+    final age = currentYear - birthYear;
+
+    // Map HouseholdType to civilStatus string
+    String civilStatus = 'single';
+    if (profile != null) {
+      switch (profile.householdType) {
+        case HouseholdType.couple:
+          civilStatus = 'married';
+          break;
+        case HouseholdType.family:
+          civilStatus = 'married';
+          break;
+        case HouseholdType.single:
+        default:
+          civilStatus = 'single';
+          break;
+      }
+    }
+
+    final childrenCount =
+        profile?.householdType == HouseholdType.family ? 1 : 0;
+
+    // Map EmploymentStatus enum to string
+    String employmentStatus = 'employee';
+    if (profile?.employmentStatus != null) {
+      switch (profile!.employmentStatus!) {
+        case EmploymentStatus.selfEmployed:
+          employmentStatus = 'independent';
+          break;
+        case EmploymentStatus.employee:
+          employmentStatus = 'employee';
+          break;
+        default:
+          employmentStatus = profile!.employmentStatus!.value;
+          break;
+      }
+    }
+
+    final monthlyNetIncome =
+        (profile?.incomeNetMonthly as double?) ??
+        ((profile?.incomeGrossYearly as double?) != null
+            ? (profile!.incomeGrossYearly as double) / 12
+            : 5000.0);
+    final canton = (profile?.canton as String?) ?? 'VD';
+
+    final suggestions = buildLifeEventSuggestions(
+      age: age,
+      civilStatus: civilStatus,
+      childrenCount: childrenCount,
+      employmentStatus: employmentStatus,
+      monthlyNetIncome: monthlyNetIncome,
+      canton: canton,
+    );
+
+    if (suggestions.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
+            const SizedBox(width: 8),
+            Text(
+              'TES PROCHAINS PAS',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textMuted,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        LifeEventSuggestionsSection(suggestions: suggestions),
       ],
     );
   }
