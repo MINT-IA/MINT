@@ -582,3 +582,107 @@ class ChecklistConcubinageResponse(FamilyBaseModel):
         default_factory=list,
         description="Sources legales",
     )
+
+
+# ===========================================================================
+# Mariage — Checklist
+# ===========================================================================
+
+class ChecklistMariageRequest(FamilyBaseModel):
+    """Requete pour la checklist mariage."""
+
+    has_3a: bool = Field(
+        default=False,
+        description="True si tu as un 3e pilier",
+    )
+    has_lpp: bool = Field(
+        default=True,
+        description="True si tu es affilie·e a une caisse de pension",
+    )
+    has_property: bool = Field(
+        default=False,
+        description="True si tu possedes un bien immobilier",
+    )
+    canton: str = Field(
+        default="ZH", min_length=2, max_length=2,
+        description="Code canton (2 lettres)",
+    )
+
+
+class ChecklistMariageResponse(FamilyBaseModel):
+    """Reponse pour la checklist mariage."""
+
+    items: List[str] = Field(
+        ..., description="Liste des actions recommandees",
+    )
+    priorite_haute: List[str] = Field(
+        ..., description="Actions urgentes",
+    )
+    priorite_moyenne: List[str] = Field(
+        ..., description="Actions importantes",
+    )
+    priorite_basse: List[str] = Field(
+        ..., description="Actions de confort",
+    )
+    chiffre_choc: str = Field(
+        ..., description="Chiffre choc pedagogique",
+    )
+    disclaimer: str = Field(
+        ..., description="Avertissement legal",
+    )
+    sources: List[str] = Field(
+        default_factory=list,
+        description="Sources legales",
+    )
+
+
+# ===========================================================================
+# Naissance — Checklist
+# ===========================================================================
+
+class ChecklistNaissanceRequest(FamilyBaseModel):
+    """Requete pour la checklist naissance."""
+
+    civil_status: str = Field(
+        default="celibataire",
+        description="Etat civil: celibataire, marie, concubin",
+    )
+    canton: str = Field(
+        default="ZH", min_length=2, max_length=2,
+        description="Code canton (2 lettres)",
+    )
+    has_3a: bool = Field(
+        default=False,
+        description="True si tu as un 3e pilier",
+    )
+    has_lpp: bool = Field(
+        default=True,
+        description="True si tu es affilie·e a une caisse de pension",
+    )
+
+
+class ChecklistNaissanceResponse(FamilyBaseModel):
+    """Reponse pour la checklist naissance."""
+
+    items: List[str] = Field(
+        ..., description="Liste des actions recommandees",
+    )
+    priorite_haute: List[str] = Field(
+        ..., description="Actions urgentes (delais legaux)",
+    )
+    priorite_moyenne: List[str] = Field(
+        ..., description="Actions importantes",
+    )
+    priorite_basse: List[str] = Field(
+        ..., description="Actions de confort / optimisation",
+    )
+    chiffre_choc: str = Field(
+        ..., description="Chiffre choc pedagogique",
+    )
+    disclaimer: str = Field(
+        ..., description="Avertissement legal",
+    )
+    sources: List[str] = Field(
+        default_factory=list,
+        description="Sources legales",
+    )

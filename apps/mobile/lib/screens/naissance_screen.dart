@@ -46,10 +46,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   int _nbEnfantsImpact = 1;
   double _fraisGarde = 1500;
 
+  // ── Tab 4: Checklist state ──────────────────────────────
+  final Set<int> _checkedItems = {};
+  final Map<int, bool> _expandedItems = {};
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _recalculateAll();
   }
 
@@ -101,6 +105,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             _buildTab1Conge(),
             _buildTab2Allocations(),
             _buildTab3Impact(),
+            _buildTab4Checklist(),
           ],
         ),
       ),
@@ -160,6 +165,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           Tab(text: 'Conge'),
           Tab(text: 'Allocations'),
           Tab(text: 'Impact'),
+          Tab(text: 'Checklist'),
         ],
       ),
     );
@@ -1110,6 +1116,304 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       ),
     );
   }
+
+  // ════════════════════════════════════════════════════════════
+  //  TAB 4: CHECKLIST — Essential steps for new parents
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildTab4Checklist() {
+    final items = _naissanceChecklistItems;
+    final nbChecked = _checkedItems.length;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      children: [
+        // Intro
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.appleSurface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.child_care,
+                  color: MintColors.info, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'L\'arrivee d\'un enfant implique de nombreuses demarches '
+                  'administratives et financieres. Voici les etapes a ne pas oublier.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Progress bar
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$nbChecked/${items.length} demarches effectuees',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    '${(nbChecked / items.length * 100).toStringAsFixed(0)}%',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: nbChecked == items.length
+                          ? MintColors.success
+                          : MintColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  child: LinearProgressIndicator(
+                    value: items.isNotEmpty ? nbChecked / items.length : 0,
+                    backgroundColor: MintColors.appleSurface,
+                    color: nbChecked == items.length
+                        ? MintColors.success
+                        : MintColors.primary,
+                    minHeight: 10,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Checklist items
+        ...items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          return _buildChecklistItem(
+            index: index,
+            title: item['title'] as String,
+            description: item['description'] as String,
+          );
+        }),
+        const SizedBox(height: 20),
+
+        _buildDisclaimer(),
+      ],
+    );
+  }
+
+  Widget _buildChecklistItem({
+    required int index,
+    required String title,
+    required String description,
+  }) {
+    final isChecked = _checkedItems.contains(index);
+    final isExpanded = _expandedItems[index] ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isChecked
+              ? MintColors.success.withValues(alpha: 0.04)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isChecked
+                ? MintColors.success.withValues(alpha: 0.3)
+                : MintColors.lightBorder,
+          ),
+        ),
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _expandedItems[index] = !isExpanded;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isChecked) {
+                            _checkedItems.remove(index);
+                          } else {
+                            _checkedItems.add(index);
+                          }
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: isChecked
+                              ? MintColors.success
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(7),
+                          border: Border.all(
+                            color: isChecked
+                                ? MintColors.success
+                                : MintColors.border,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: isChecked
+                            ? const Icon(Icons.check,
+                                size: 15, color: Colors.white)
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isChecked
+                              ? MintColors.textMuted
+                              : MintColors.textPrimary,
+                          decoration:
+                              isChecked ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: MintColors.textMuted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Container(
+                padding: const EdgeInsets.fromLTRB(52, 0, 16, 16),
+                child: Text(
+                  description,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              crossFadeState: isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 200),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Checklist Data ──────────────────────────────────────
+
+  static final List<Map<String, String>> _naissanceChecklistItems = [
+    {
+      'title': 'Inscrire bebe a l\'assurance maladie (3 mois)',
+      'description':
+          'Tu as 3 mois apres la naissance pour inscrire ton enfant aupres d\'une caisse '
+          'maladie. Si tu le fais dans ce delai, la couverture est retroactive des la naissance. '
+          'Passe ce delai, l\'enfant risque une interruption de couverture. '
+          'Compare les primes enfants entre caisses — les ecarts peuvent etre significatifs.',
+    },
+    {
+      'title': 'Demander les allocations familiales',
+      'description':
+          'Fais la demande aupres de ton employeur (ou de ta caisse d\'allocations si tu es '
+          'independant-e). Les allocations sont versees des le mois de naissance. '
+          'Le montant depend du canton (CHF 200 a CHF 305/mois par enfant).',
+    },
+    {
+      'title': 'Annoncer la naissance a l\'etat civil',
+      'description':
+          'L\'hopital transmet generalement l\'annonce a l\'office de l\'etat civil. '
+          'Verifie que l\'acte de naissance est bien etabli. '
+          'Tu en auras besoin pour toutes les demarches administratives.',
+    },
+    {
+      'title': 'Organiser le conge parental (APG)',
+      'description':
+          'Conge maternite : 14 semaines a 80% du salaire (max CHF 220/jour). '
+          'Conge paternite : 2 semaines (10 jours), a prendre dans les 6 mois. '
+          'L\'inscription APG se fait via ton employeur ou directement aupres de la caisse de compensation.',
+    },
+    {
+      'title': 'Mettre a jour la declaration fiscale',
+      'description':
+          'Un enfant supplementaire te donne droit a une deduction fiscale de CHF 6\'700/an '
+          '(LIFD art. 35). Si tu as des frais de garde, tu peux deduire jusqu\'a CHF 25\'500/an. '
+          'Pense a adapter tes acomptes d\'impots pour l\'annee en cours.',
+    },
+    {
+      'title': 'Adapter le budget familial',
+      'description':
+          'Un enfant coute en moyenne CHF 1\'200 a CHF 1\'500/mois en Suisse '
+          '(alimentation, vetements, activites, assurance, couches, etc.). '
+          'Reevalue ton budget avec le module Budget de MINT.',
+    },
+    {
+      'title': 'Verifier la prevoyance (LPP et 3a)',
+      'description':
+          'Si tu reduis ton taux d\'activite, tes cotisations LPP baissent. '
+          'Chaque annee a temps partiel represente moins de capital a la retraite. '
+          'Envisage de compenser en versant le maximum au 3e pilier (CHF 7\'258/an).',
+    },
+    {
+      'title': 'Rediger ou mettre a jour le testament',
+      'description':
+          'L\'arrivee d\'un enfant modifie l\'ordre successoral. '
+          'Les enfants sont des heritiers reservataires (CC art. 471). '
+          'Si tu as un testament, verifie qu\'il respecte les reserves legales.',
+    },
+    {
+      'title': 'Souscrire une assurance risque deces/invalidite',
+      'description':
+          'Avec un enfant a charge, la protection financiere en cas de deces ou d\'invalidite '
+          'devient encore plus importante. Verifie ta couverture actuelle (LPP, assurance-vie) '
+          'et complete si necessaire.',
+    },
+  ];
 
   // ════════════════════════════════════════════════════════════
   //  SHARED WIDGETS

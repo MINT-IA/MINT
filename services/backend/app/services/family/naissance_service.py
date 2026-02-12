@@ -155,6 +155,18 @@ class CareerGapProjection:
     sources: List[str] = field(default_factory=list)
 
 
+@dataclass
+class ChecklistNaissance:
+    """Checklist actionable pour les futurs parents."""
+    items: List[str]                       # Liste des actions recommandees
+    priorite_haute: List[str]              # Actions urgentes (delais legaux)
+    priorite_moyenne: List[str]            # Actions importantes
+    priorite_basse: List[str]              # Actions de confort / optimisation
+    chiffre_choc: str                      # Chiffre choc pedagogique
+    disclaimer: str                        # Avertissement legal
+    sources: List[str] = field(default_factory=list)
+
+
 def _get_lpp_bonification_rate(age: int) -> float:
     """Retourne le taux de bonification LPP pour un age donne.
 
@@ -405,5 +417,138 @@ class NaissanceService:
             perte_3a_totale=perte_3a_totale,
             perte_revenu_totale=perte_revenu_totale,
             chiffre_choc=chiffre_choc,
+            sources=sources,
+        )
+
+    def checklist_naissance(
+        self,
+        civil_status: str = "celibataire",
+        canton: str = "ZH",
+        has_3a: bool = False,
+        has_lpp: bool = True,
+    ) -> ChecklistNaissance:
+        """Retourne une checklist actionable pour les futurs parents.
+
+        Personnalisee selon la situation (etat civil, canton, 3a, LPP).
+
+        Args:
+            civil_status: Etat civil ("celibataire", "marie", "concubin").
+            canton: Code canton (2 lettres).
+            has_3a: True si tu as un 3e pilier.
+            has_lpp: True si tu es affilie·e a une caisse de pension.
+
+        Returns:
+            ChecklistNaissance avec les actions recommandees par priorite.
+        """
+        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(canton, 200.0)
+
+        # --- Priorite haute : delais legaux stricts ---
+        priorite_haute = [
+            "Inscrire la naissance a l'etat civil dans les 3 jours suivant "
+            "l'accouchement (CC art. 252). L'hopital peut s'en charger, mais verifie.",
+            "Demander les allocations familiales (LAFam art. 3) aupres de ton "
+            f"employeur ou de ta caisse de compensation — montant: CHF {alloc_base:,.0f}/mois "
+            f"dans le canton {canton}",
+            "Annoncer le conge maternite APG a ton employeur (14 semaines, 80% du salaire, "
+            "max CHF 220/jour — LAPG art. 16d-16h)",
+            "Annoncer le conge paternite APG a l'employeur du pere (2 semaines, 80% du salaire, "
+            "max CHF 220/jour — LAPG art. 16i-16l). A prendre dans les 6 mois suivant la naissance.",
+            "Inscrire le bebe a l'assurance maladie (LAMal art. 3) dans les 3 mois "
+            "suivant la naissance — retroactif au jour de la naissance. "
+            "Apres 3 mois, tu perds la couverture retroactive!",
+        ]
+
+        # --- Priorite moyenne : prevoyance et administratif ---
+        priorite_moyenne = []
+
+        # Personnalisation etat civil
+        if civil_status == "celibataire" or civil_status == "concubin":
+            priorite_moyenne.append(
+                "Reconnaissance de paternite a l'etat civil (si non marie) — "
+                "peut etre faite avant ou apres la naissance (CC art. 260)"
+            )
+            priorite_moyenne.append(
+                "Demander l'autorite parentale conjointe (si concubins) aupres de "
+                "l'Office de protection de l'enfant (CC art. 298a)"
+            )
+
+        # Personnalisation LPP
+        if has_lpp:
+            priorite_moyenne.append(
+                "Mettre a jour les beneficiaires de ta caisse de pension (LPP) — "
+                "verifier que tes enfants figurent comme beneficiaires "
+                "pour la rente d'orphelin (LPP art. 20)"
+            )
+
+        # Personnalisation 3a
+        if has_3a:
+            priorite_moyenne.append(
+                "Verifier les beneficiaires de ton pilier 3a — "
+                "tes enfants peuvent figurer dans l'ordre des beneficiaires"
+            )
+
+        priorite_moyenne.append(
+            "Adapter ton budget familial — un enfant coute en moyenne "
+            "CHF 1'200 a 1'500/mois en Suisse (alimentation, couches, creche, etc.)"
+        )
+
+        # --- Priorite basse : optimisation ---
+        priorite_basse = [
+            "Calculer l'impact fiscal de l'enfant — deduction de CHF 6'700 par enfant "
+            "(LIFD art. 35 al. 1 let. a) + frais de garde max CHF 25'500 "
+            "(LIFD art. 33 al. 1 let. hbis)",
+        ]
+
+        if civil_status == "marie" and has_3a:
+            priorite_basse.append(
+                "Couple marie avec 3a : les deux conjoints peuvent cotiser au 3e pilier "
+                f"(CHF {PLAFOND_3A:,.0f} chacun si salarie·e avec LPP), "
+                "ce qui double les deductions fiscales"
+            )
+        elif not has_3a:
+            priorite_basse.append(
+                "Envisager l'ouverture d'un 3e pilier — les deductions fiscales "
+                f"(max CHF {PLAFOND_3A:,.0f}/an) aident a compenser les depenses supplementaires"
+            )
+
+        priorite_basse.append(
+            "Anticiper l'impact d'une eventuelle reduction de temps de travail "
+            "sur la prevoyance (LPP + 3a) — utilise notre simulateur 'career gap'"
+        )
+        priorite_basse.append(
+            "Consulter un ou une specialiste pour un bilan prevoyance familiale complet"
+        )
+
+        items = priorite_haute + priorite_moyenne + priorite_basse
+
+        # Chiffre choc personnalise
+        nb_items = len(items)
+        nb_haute = len(priorite_haute)
+        chiffre_choc = (
+            f"L'arrivee d'un enfant implique {nb_items} demarches cles, dont {nb_haute} "
+            f"avec des delais legaux stricts (3 jours pour l'etat civil, 3 mois pour la LAMal, "
+            f"6 mois pour le conge paternite). "
+            f"Les allocations familiales representent CHF {alloc_base * 12:,.0f}/an "
+            f"dans le canton {canton}."
+        )
+
+        sources = [
+            "CC art. 252 (inscription naissance a l'etat civil — delai 3 jours)",
+            "CC art. 260 (reconnaissance de paternite)",
+            "CC art. 298a (autorite parentale conjointe pour parents non maries)",
+            "LAPG art. 16d-16h (conge maternite: 14 sem., 80%, max CHF 220/j)",
+            "LAPG art. 16i-16l (conge paternite: 2 sem., 80%, max CHF 220/j)",
+            "LAFam art. 3 (allocations familiales cantonales)",
+            "LAMal art. 3 (obligation d'assurance — inscription bebe dans les 3 mois)",
+            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)",
+        ]
+
+        return ChecklistNaissance(
+            items=items,
+            priorite_haute=priorite_haute,
+            priorite_moyenne=priorite_moyenne,
+            priorite_basse=priorite_basse,
+            chiffre_choc=chiffre_choc,
+            disclaimer=DISCLAIMER,
             sources=sources,
         )

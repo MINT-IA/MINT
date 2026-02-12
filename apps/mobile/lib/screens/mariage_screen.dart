@@ -46,10 +46,14 @@ class _MariageScreenState extends State<MariageScreen>
   // ── Tab 3: Protection ─────────────────────────────────
   double _renteLpp = 2500;
 
+  // ── Tab 4: Checklist ──────────────────────────────────
+  final Set<int> _checkedItems = {};
+  final Map<int, bool> _expandedItems = {};
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _recalculate();
   }
 
@@ -88,6 +92,7 @@ class _MariageScreenState extends State<MariageScreen>
             _buildTab1Impots(),
             _buildTab2Regime(),
             _buildTab3Protection(),
+            _buildTab4Checklist(),
           ],
         ),
       ),
@@ -147,6 +152,7 @@ class _MariageScreenState extends State<MariageScreen>
           Tab(text: 'Impots'),
           Tab(text: 'Regime'),
           Tab(text: 'Protection'),
+          Tab(text: 'Checklist'),
         ],
       ),
     );
@@ -1302,6 +1308,290 @@ class _MariageScreenState extends State<MariageScreen>
       ),
     );
   }
+
+  // ════════════════════════════════════════════════════════════
+  //  TAB 4: CHECKLIST — Essential steps before/after marriage
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildTab4Checklist() {
+    final items = _mariageChecklistItems;
+    final nbChecked = _checkedItems.length;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      children: [
+        // Intro
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.appleSurface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.checklist_rtl,
+                  color: MintColors.info, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Le mariage a des consequences financieres et juridiques. '
+                  'Voici les demarches essentielles a anticiper pour '
+                  'bien te preparer.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Progress bar
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$nbChecked/${items.length} demarches effectuees',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    '${(nbChecked / items.length * 100).toStringAsFixed(0)}%',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: nbChecked == items.length
+                          ? MintColors.success
+                          : MintColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  child: LinearProgressIndicator(
+                    value: items.isNotEmpty ? nbChecked / items.length : 0,
+                    backgroundColor: MintColors.appleSurface,
+                    color: nbChecked == items.length
+                        ? MintColors.success
+                        : MintColors.primary,
+                    minHeight: 10,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Checklist items
+        ...items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          return _buildChecklistItem(
+            index: index,
+            title: item['title'] as String,
+            description: item['description'] as String,
+          );
+        }),
+        const SizedBox(height: 20),
+
+        _buildDisclaimer(),
+      ],
+    );
+  }
+
+  Widget _buildChecklistItem({
+    required int index,
+    required String title,
+    required String description,
+  }) {
+    final isChecked = _checkedItems.contains(index);
+    final isExpanded = _expandedItems[index] ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isChecked
+              ? MintColors.success.withValues(alpha: 0.04)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isChecked
+                ? MintColors.success.withValues(alpha: 0.3)
+                : MintColors.lightBorder,
+          ),
+        ),
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _expandedItems[index] = !isExpanded;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isChecked) {
+                            _checkedItems.remove(index);
+                          } else {
+                            _checkedItems.add(index);
+                          }
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: isChecked
+                              ? MintColors.success
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(7),
+                          border: Border.all(
+                            color: isChecked
+                                ? MintColors.success
+                                : MintColors.border,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: isChecked
+                            ? const Icon(Icons.check,
+                                size: 15, color: Colors.white)
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isChecked
+                              ? MintColors.textMuted
+                              : MintColors.textPrimary,
+                          decoration:
+                              isChecked ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: MintColors.textMuted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Container(
+                padding: const EdgeInsets.fromLTRB(52, 0, 16, 16),
+                child: Text(
+                  description,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              crossFadeState: isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 200),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Checklist Data ──────────────────────────────────────
+
+  static final List<Map<String, String>> _mariageChecklistItems = [
+    {
+      'title': 'Simuler l\'impact fiscal du mariage',
+      'description':
+          'Avant de te marier, compare la charge fiscale a deux (maries vs celibataires). '
+          'Si vos revenus sont similaires et eleves, la penalite de mariage peut representer '
+          'plusieurs milliers de francs par an.',
+    },
+    {
+      'title': 'Choisir le regime matrimonial',
+      'description':
+          'Par defaut, c\'est la participation aux acquets (CC art. 181). '
+          'Si tu veux un autre regime (separation de biens, communaute de biens), '
+          'il faut signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.',
+    },
+    {
+      'title': 'Mettre a jour les clauses beneficiaires LPP et 3a',
+      'description':
+          'Le mariage change l\'ordre des beneficiaires. Ton conjoint devient '
+          'automatiquement beneficiaire de la rente de survivant LPP (LPP art. 19). '
+          'Verifie aussi les beneficiaires de ton 3e pilier.',
+    },
+    {
+      'title': 'Informer ton employeur et ta caisse maladie',
+      'description':
+          'Ton employeur doit mettre a jour tes donnees (etat civil, deductions). '
+          'Ta caisse maladie doit etre informee — les primes ne changent pas, '
+          'mais les subsides eventuels sont recalcules sur le revenu du menage.',
+    },
+    {
+      'title': 'Preparer la premiere declaration commune',
+      'description':
+          'Des l\'annee du mariage, vous faites une seule declaration fiscale commune. '
+          'Rassemble les justificatifs des deux (certificats de salaire, 3a, LPP, etc.). '
+          'Le passage a la declaration commune peut changer ta tranche d\'imposition.',
+    },
+    {
+      'title': 'Verifier les rentes AVS de couple',
+      'description':
+          'La rente AVS maximale pour un couple est plafonnee a 150% de la rente '
+          'individuelle maximale (LAVS art. 35). Si vous avez tous les deux droit '
+          'a la rente max, le plafond peut reduire votre total.',
+    },
+    {
+      'title': 'Adapter le testament',
+      'description':
+          'Le mariage modifie l\'ordre de succession. Le conjoint devient heritier legal '
+          'avec des droits importants (CC art. 462). Si tu avais un testament en faveur '
+          'd\'un tiers, il est peut-etre a revoir.',
+    },
+  ];
 
   // ════════════════════════════════════════════════════════════
   //  SHARED WIDGETS

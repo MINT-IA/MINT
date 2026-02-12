@@ -616,6 +616,219 @@ class TestChecklistConcubinage:
 
 
 # ===========================================================================
+# MariageService — Checklist Mariage (8 tests)
+# ===========================================================================
+
+class TestChecklistMariage:
+    """Tests for MariageService.checklist_mariage()."""
+
+    def test_checklist_has_items(self, mariage_service):
+        """Checklist should have at least 10 items."""
+        result = mariage_service.checklist_mariage()
+        assert len(result.items) >= 10
+
+    def test_checklist_priorite_haute_contains_etat_civil(self, mariage_service):
+        """High priority should mention etat civil."""
+        result = mariage_service.checklist_mariage()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "etat civil" in combined
+
+    def test_checklist_priorite_haute_contains_regime(self, mariage_service):
+        """High priority should mention regime matrimonial."""
+        result = mariage_service.checklist_mariage()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "regime matrimonial" in combined or "participation aux acquets" in combined
+
+    def test_checklist_priorite_haute_contains_declaration_fiscale(self, mariage_service):
+        """High priority should mention fiscal declaration."""
+        result = mariage_service.checklist_mariage()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "declaration fiscale" in combined or "fiscale commune" in combined
+
+    def test_checklist_with_3a_adds_item(self, mariage_service):
+        """Having 3a should add a 3a-specific item to medium priority."""
+        result_with = mariage_service.checklist_mariage(has_3a=True)
+        result_without = mariage_service.checklist_mariage(has_3a=False)
+        assert len(result_with.items) > len(result_without.items)
+        combined = " ".join(result_with.priorite_moyenne).lower()
+        assert "3a" in combined
+
+    def test_checklist_with_property_adds_item(self, mariage_service):
+        """Having property should add a property-specific item."""
+        result_with = mariage_service.checklist_mariage(has_property=True)
+        result_without = mariage_service.checklist_mariage(has_property=False)
+        assert len(result_with.items) > len(result_without.items)
+        combined = " ".join(result_with.priorite_moyenne).lower()
+        assert "hypothecaire" in combined or "copropriete" in combined
+
+    def test_checklist_with_lpp_adds_item(self, mariage_service):
+        """Having LPP should add a LPP-specific item."""
+        result_with = mariage_service.checklist_mariage(has_lpp=True)
+        result_without = mariage_service.checklist_mariage(has_lpp=False)
+        assert len(result_with.items) > len(result_without.items)
+        combined = " ".join(result_with.priorite_moyenne).lower()
+        assert "lpp" in combined or "caisse de pension" in combined
+
+    def test_checklist_sources_contain_cc_lifd_lpp(self, mariage_service):
+        """Sources should reference CC, LIFD, and LPP."""
+        result = mariage_service.checklist_mariage()
+        source_text = " ".join(result.sources)
+        assert "CC" in source_text
+        assert "LIFD" in source_text
+        assert "LPP" in source_text
+
+    def test_checklist_has_chiffre_choc(self, mariage_service):
+        """Checklist should include a chiffre choc."""
+        result = mariage_service.checklist_mariage()
+        assert len(result.chiffre_choc) > 0
+        assert "demarches" in result.chiffre_choc.lower() or "regime" in result.chiffre_choc.lower()
+
+    def test_checklist_has_disclaimer(self, mariage_service):
+        """Checklist should include a disclaimer."""
+        result = mariage_service.checklist_mariage()
+        assert len(result.disclaimer) > 0
+        assert "specialiste" in result.disclaimer.lower()
+
+    def test_checklist_canton_personalisation(self, mariage_service):
+        """Canton should appear in the checklist items."""
+        result = mariage_service.checklist_mariage(canton="GE")
+        combined = " ".join(result.items)
+        assert "GE" in combined
+
+    def test_checklist_no_banned_words(self, mariage_service):
+        """Checklist should not contain banned words."""
+        result = mariage_service.checklist_mariage(
+            has_3a=True, has_lpp=True, has_property=True, canton="VD",
+        )
+        banned = ["garanti", "certain", "assure", "sans risque", "optimal",
+                  "meilleur", "parfait", "conseiller"]
+        all_text = " ".join(result.items + [result.chiffre_choc, result.disclaimer])
+        for word in banned:
+            assert word not in all_text.lower(), f"Banned word '{word}' found in checklist"
+
+
+# ===========================================================================
+# NaissanceService — Checklist Naissance (8 tests)
+# ===========================================================================
+
+class TestChecklistNaissance:
+    """Tests for NaissanceService.checklist_naissance()."""
+
+    def test_checklist_has_items(self, naissance_service):
+        """Checklist should have at least 10 items."""
+        result = naissance_service.checklist_naissance()
+        assert len(result.items) >= 10
+
+    def test_checklist_priorite_haute_etat_civil(self, naissance_service):
+        """High priority should mention 3 jours etat civil."""
+        result = naissance_service.checklist_naissance()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "3 jours" in combined
+        assert "etat civil" in combined
+
+    def test_checklist_priorite_haute_allocations(self, naissance_service):
+        """High priority should mention allocations familiales."""
+        result = naissance_service.checklist_naissance()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "allocations familiales" in combined or "lafam" in combined
+
+    def test_checklist_priorite_haute_conge_maternite(self, naissance_service):
+        """High priority should mention conge maternite (14 semaines)."""
+        result = naissance_service.checklist_naissance()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "maternite" in combined
+        assert "14 semaines" in combined
+
+    def test_checklist_priorite_haute_conge_paternite(self, naissance_service):
+        """High priority should mention conge paternite (2 semaines)."""
+        result = naissance_service.checklist_naissance()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "paternite" in combined
+        assert "2 semaines" in combined
+
+    def test_checklist_priorite_haute_lamal_3_mois(self, naissance_service):
+        """High priority should mention LAMal 3-month deadline for baby."""
+        result = naissance_service.checklist_naissance()
+        combined = " ".join(result.priorite_haute).lower()
+        assert "3 mois" in combined
+        assert "lamal" in combined or "assurance maladie" in combined
+
+    def test_checklist_concubin_adds_reconnaissance_paternite(self, naissance_service):
+        """Concubins should get extra items for paternity recognition."""
+        result_concubin = naissance_service.checklist_naissance(civil_status="concubin")
+        result_marie = naissance_service.checklist_naissance(civil_status="marie")
+        assert len(result_concubin.items) > len(result_marie.items)
+        combined = " ".join(result_concubin.priorite_moyenne).lower()
+        assert "reconnaissance de paternite" in combined
+
+    def test_checklist_celibataire_adds_reconnaissance_paternite(self, naissance_service):
+        """Celibataires should get extra items for paternity recognition."""
+        result_celibataire = naissance_service.checklist_naissance(civil_status="celibataire")
+        combined = " ".join(result_celibataire.priorite_moyenne).lower()
+        assert "reconnaissance de paternite" in combined
+
+    def test_checklist_with_3a_adds_beneficiary_item(self, naissance_service):
+        """Having 3a should add a 3a beneficiary item in medium priority."""
+        result_with = naissance_service.checklist_naissance(has_3a=True)
+        combined = " ".join(result_with.priorite_moyenne).lower()
+        assert "3a" in combined
+        assert "beneficiaires" in combined
+
+    def test_checklist_with_lpp_adds_item(self, naissance_service):
+        """Having LPP should add a LPP-specific item."""
+        result_with = naissance_service.checklist_naissance(has_lpp=True)
+        result_without = naissance_service.checklist_naissance(has_lpp=False)
+        assert len(result_with.items) > len(result_without.items)
+
+    def test_checklist_sources_contain_key_laws(self, naissance_service):
+        """Sources should reference CC, LAPG, LAFam, LAMal."""
+        result = naissance_service.checklist_naissance()
+        source_text = " ".join(result.sources)
+        assert "CC" in source_text
+        assert "LAPG" in source_text
+        assert "LAFam" in source_text
+        assert "LAMal" in source_text
+
+    def test_checklist_has_chiffre_choc(self, naissance_service):
+        """Checklist should include a chiffre choc."""
+        result = naissance_service.checklist_naissance()
+        assert len(result.chiffre_choc) > 0
+        assert "CHF" in result.chiffre_choc
+
+    def test_checklist_has_disclaimer(self, naissance_service):
+        """Checklist should include a disclaimer."""
+        result = naissance_service.checklist_naissance()
+        assert len(result.disclaimer) > 0
+        assert "specialiste" in result.disclaimer.lower()
+
+    def test_checklist_canton_allocation_in_chiffre_choc(self, naissance_service):
+        """Chiffre choc should mention the canton allocation amount."""
+        result = naissance_service.checklist_naissance(canton="GE")
+        assert "GE" in result.chiffre_choc
+        # GE allocation = 300 * 12 = 3600
+        assert "3,600" in result.chiffre_choc or "3'600" in result.chiffre_choc or "3600" in result.chiffre_choc
+
+    def test_checklist_no_banned_words(self, naissance_service):
+        """Checklist should not contain banned words."""
+        result = naissance_service.checklist_naissance(
+            civil_status="concubin", canton="VD", has_3a=True, has_lpp=True,
+        )
+        banned = ["garanti", "certain", "assure", "sans risque", "optimal",
+                  "meilleur", "parfait", "conseiller"]
+        all_text = " ".join(result.items + [result.chiffre_choc, result.disclaimer])
+        for word in banned:
+            assert word not in all_text.lower(), f"Banned word '{word}' found in checklist"
+
+    def test_checklist_marie_with_3a_mentions_double_deduction(self, naissance_service):
+        """Married with 3a should mention double 3a deductions."""
+        result = naissance_service.checklist_naissance(
+            civil_status="marie", has_3a=True,
+        )
+        combined = " ".join(result.items).lower()
+        assert "double" in combined or "deux conjoints" in combined or "chacun" in combined
+
+
+# ===========================================================================
 # DISCLAIMER checks (3 tests)
 # ===========================================================================
 
@@ -860,6 +1073,50 @@ class TestFamilyEndpoints:
         assert "prioriteMoyenne" in data
         assert "prioriteBasse" in data
         assert "disclaimer" in data
+
+    def test_mariage_checklist_endpoint(self, client):
+        """POST /family/mariage/checklist should return 200."""
+        response = client.post(
+            "/api/v1/family/mariage/checklist",
+            json={
+                "has3A": True,
+                "hasLpp": True,
+                "hasProperty": False,
+                "canton": "ZH",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "items" in data
+        assert len(data["items"]) >= 10
+        assert "prioriteHaute" in data
+        assert "prioriteMoyenne" in data
+        assert "prioriteBasse" in data
+        assert "chiffreChoc" in data
+        assert "disclaimer" in data
+        assert "sources" in data
+
+    def test_naissance_checklist_endpoint(self, client):
+        """POST /family/naissance/checklist should return 200."""
+        response = client.post(
+            "/api/v1/family/naissance/checklist",
+            json={
+                "civilStatus": "concubin",
+                "canton": "GE",
+                "has3A": True,
+                "hasLpp": True,
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "items" in data
+        assert len(data["items"]) >= 10
+        assert "prioriteHaute" in data
+        assert "prioriteMoyenne" in data
+        assert "prioriteBasse" in data
+        assert "chiffreChoc" in data
+        assert "disclaimer" in data
+        assert "sources" in data
 
     def test_mariage_compare_camelcase_aliases(self, client):
         """API should accept camelCase and return camelCase."""

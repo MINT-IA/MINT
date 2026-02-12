@@ -1,14 +1,16 @@
 """
 Family life events endpoints — Sprint S22.
 
-POST /api/v1/family/mariage/compare     — Comparaison fiscale celibataire vs marie
-POST /api/v1/family/mariage/regime      — Simulation regime matrimonial
-POST /api/v1/family/mariage/survivant   — Estimation rente de survivant
-POST /api/v1/family/naissance/conge     — Calcul APG conge parental
+POST /api/v1/family/mariage/compare       — Comparaison fiscale celibataire vs marie
+POST /api/v1/family/mariage/regime        — Simulation regime matrimonial
+POST /api/v1/family/mariage/survivant     — Estimation rente de survivant
+POST /api/v1/family/mariage/checklist     — Checklist mariage personnalisee
+POST /api/v1/family/naissance/conge       — Calcul APG conge parental
 POST /api/v1/family/naissance/allocations — Allocations familiales cantonales
 POST /api/v1/family/naissance/impact-fiscal — Impact fiscal des enfants
-POST /api/v1/family/naissance/career-gap — Impact interruption de carriere
-POST /api/v1/family/concubinage/compare — Comparaison mariage vs concubinage
+POST /api/v1/family/naissance/career-gap  — Impact interruption de carriere
+POST /api/v1/family/naissance/checklist   — Checklist naissance personnalisee
+POST /api/v1/family/concubinage/compare   — Comparaison mariage vs concubinage
 POST /api/v1/family/concubinage/succession — Impot de succession compare
 GET  /api/v1/family/concubinage/checklist — Checklist concubinage
 
@@ -24,6 +26,8 @@ from app.schemas.family import (
     RegimeMatrimonialResponse,
     SurvivorBenefitsRequest,
     SurvivorBenefitsResponse,
+    ChecklistMariageRequest,
+    ChecklistMariageResponse,
     CongeParentalRequest,
     CongeParentalResponse,
     AllocationsFamilialesRequest,
@@ -32,6 +36,8 @@ from app.schemas.family import (
     ImpactFiscalEnfantResponse,
     CareerGapRequest,
     CareerGapResponse,
+    ChecklistNaissanceRequest,
+    ChecklistNaissanceResponse,
     ConcubinageCompareRequest,
     ConcubinageCompareResponse,
     ComparisonItemSchema,
@@ -140,6 +146,37 @@ def estimate_survivant(request: SurvivorBenefitsRequest) -> SurvivorBenefitsResp
         rente_survivant_lpp_annuelle=result.rente_survivant_lpp_annuelle,
         total_survivant_mensuel=result.total_survivant_mensuel,
         total_survivant_annuel=result.total_survivant_annuel,
+        chiffre_choc=result.chiffre_choc,
+        disclaimer=DISCLAIMER,
+        sources=result.sources,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Mariage — Checklist
+# ---------------------------------------------------------------------------
+
+@router.post("/mariage/checklist", response_model=ChecklistMariageResponse)
+def checklist_mariage(request: ChecklistMariageRequest) -> ChecklistMariageResponse:
+    """Retourne une checklist actionable personnalisee pour les futurs maries.
+
+    Actions classees par priorite (haute, moyenne, basse), personnalisees
+    selon la situation (3a, LPP, propriete, canton).
+
+    Sources: CC art. 159-251, LIFD art. 9, LPP art. 19-20.
+    """
+    service = MariageService()
+    result = service.checklist_mariage(
+        has_3a=request.has_3a,
+        has_lpp=request.has_lpp,
+        has_property=request.has_property,
+        canton=request.canton,
+    )
+    return ChecklistMariageResponse(
+        items=result.items,
+        priorite_haute=result.priorite_haute,
+        priorite_moyenne=result.priorite_moyenne,
+        priorite_basse=result.priorite_basse,
         chiffre_choc=result.chiffre_choc,
         disclaimer=DISCLAIMER,
         sources=result.sources,
@@ -266,6 +303,37 @@ def project_career_gap(request: CareerGapRequest) -> CareerGapResponse:
         perte_3a_annuelle=result.perte_3a_annuelle,
         perte_3a_totale=result.perte_3a_totale,
         perte_revenu_totale=result.perte_revenu_totale,
+        chiffre_choc=result.chiffre_choc,
+        disclaimer=DISCLAIMER,
+        sources=result.sources,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Naissance — Checklist
+# ---------------------------------------------------------------------------
+
+@router.post("/naissance/checklist", response_model=ChecklistNaissanceResponse)
+def checklist_naissance(request: ChecklistNaissanceRequest) -> ChecklistNaissanceResponse:
+    """Retourne une checklist actionable personnalisee pour les futurs parents.
+
+    Actions classees par priorite (haute, moyenne, basse), personnalisees
+    selon la situation (etat civil, canton, 3a, LPP).
+
+    Sources: CC art. 252, LAPG art. 16b-16l, LAFam art. 3, LAMal art. 3.
+    """
+    service = NaissanceService()
+    result = service.checklist_naissance(
+        civil_status=request.civil_status,
+        canton=request.canton,
+        has_3a=request.has_3a,
+        has_lpp=request.has_lpp,
+    )
+    return ChecklistNaissanceResponse(
+        items=result.items,
+        priorite_haute=result.priorite_haute,
+        priorite_moyenne=result.priorite_moyenne,
+        priorite_basse=result.priorite_basse,
         chiffre_choc=result.chiffre_choc,
         disclaimer=DISCLAIMER,
         sources=result.sources,

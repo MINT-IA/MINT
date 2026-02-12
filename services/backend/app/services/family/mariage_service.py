@@ -160,6 +160,18 @@ class SurvivorBenefits:
     sources: List[str] = field(default_factory=list)
 
 
+@dataclass
+class ChecklistMariage:
+    """Checklist actionable pour les futurs maries."""
+    items: List[str]                       # Liste des actions recommandees
+    priorite_haute: List[str]              # Actions urgentes
+    priorite_moyenne: List[str]            # Actions importantes
+    priorite_basse: List[str]              # Actions de confort
+    chiffre_choc: str                      # Chiffre choc pedagogique
+    disclaimer: str                        # Avertissement legal
+    sources: List[str] = field(default_factory=list)
+
+
 class MariageService:
     """Simulateur d'impact financier du mariage en droit suisse.
 
@@ -375,5 +387,109 @@ class MariageService:
             total_survivant_mensuel=total_mensuel,
             total_survivant_annuel=total_annuel,
             chiffre_choc=chiffre_choc,
+            sources=sources,
+        )
+
+    def checklist_mariage(
+        self,
+        has_3a: bool = False,
+        has_lpp: bool = True,
+        has_property: bool = False,
+        canton: str = "ZH",
+    ) -> ChecklistMariage:
+        """Retourne une checklist actionable pour les futurs maries.
+
+        Personnalisee selon la situation (3a, LPP, propriete, canton).
+
+        Args:
+            has_3a: True si tu as un 3e pilier.
+            has_lpp: True si tu es affilie·e a une caisse de pension.
+            has_property: True si tu possedes un bien immobilier.
+            canton: Code canton (2 lettres).
+
+        Returns:
+            ChecklistMariage avec les actions recommandees par priorite.
+        """
+        # --- Priorite haute : demarches obligatoires et urgentes ---
+        priorite_haute = [
+            "Fixer la date et demander un rendez-vous a l'etat civil (delai: ~2 mois avant)",
+            "Choisir le regime matrimonial — par defaut: participation aux acquets (CC art. 181). "
+            "Si tu veux un autre regime, un contrat de mariage notarie est necessaire AVANT la ceremonie",
+            "Annoncer le changement d'etat civil a ton employeur (impact sur le certificat de salaire et les cotisations)",
+            "Planifier la declaration fiscale commune des l'annee du mariage (LIFD art. 9 al. 1)",
+        ]
+
+        # --- Priorite moyenne : assurances et prevoyance ---
+        priorite_moyenne = [
+            "Verifier ta police d'assurance maladie (LAMal) — le mariage ne change pas ta prime, "
+            "mais c'est un bon moment pour comparer les franchises en couple",
+            "Mettre a jour les beneficiaires de ton assurance RC menage (couvrir les deux conjoints)",
+        ]
+
+        # Personnalisation LPP
+        if has_lpp:
+            priorite_moyenne.append(
+                "Mettre a jour le beneficiaire LPP aupres de ta caisse de pension — "
+                "ton conjoint est automatiquement beneficiaire (LPP art. 19-20), "
+                "mais verifie que les informations sont a jour"
+            )
+
+        # Personnalisation 3a
+        if has_3a:
+            priorite_moyenne.append(
+                "Mettre a jour le beneficiaire de ton pilier 3a aupres de ton prestataire — "
+                "en tant que marie·e, l'ordre des beneficiaires change (conjoint en premier)"
+            )
+
+        # Personnalisation propriete
+        if has_property:
+            priorite_moyenne.append(
+                "Adapter le contrat hypothecaire si necessaire — informer ta banque du mariage. "
+                "Verifier la copropriete vs propriete commune"
+            )
+
+        priorite_moyenne.append(
+            "Rediger ou mettre a jour ton testament — le mariage modifie la reserve "
+            "hereditaire de ton conjoint (CC art. 462: 1/2 de la succession en pleine propriete "
+            "ou 1/4 en pleine propriete + 1/2 en usufruit)"
+        )
+
+        # --- Priorite basse : optimisation et confort ---
+        priorite_basse = [
+            "Commander de nouvelles pieces d'identite (passeport, CI) si changement de nom",
+            "Informer ta banque, tes assurances et ton bailleur du changement d'etat civil",
+            "Evaluer l'impact fiscal avec notre simulateur — selon vos revenus, "
+            f"le mariage peut creer un bonus ou une penalite fiscale (canton: {canton})",
+            "Consulter un ou une specialiste pour un bilan patrimonial complet avant le mariage",
+        ]
+
+        items = priorite_haute + priorite_moyenne + priorite_basse
+
+        # Chiffre choc personnalise
+        nb_items = len(items)
+        nb_haute = len(priorite_haute)
+        chiffre_choc = (
+            f"Le mariage implique {nb_items} demarches cles, dont {nb_haute} "
+            f"a effectuer avant ou juste apres la ceremonie. "
+            f"Le regime matrimonial par defaut (participation aux acquets) s'applique "
+            f"automatiquement si tu ne fais rien — a toi de verifier que ca te convient."
+        )
+
+        sources = [
+            "CC art. 159-251 (droit du mariage, regimes matrimoniaux)",
+            "CC art. 181 (participation aux acquets — regime ordinaire)",
+            "CC art. 462 (droit successoral du conjoint survivant)",
+            "LIFD art. 9 al. 1 (imposition commune des epoux des l'annee du mariage)",
+            "LPP art. 19-20 (rente de survivant pour le conjoint)",
+            "LAMal (assurance maladie — pas d'impact direct du mariage sur la prime)",
+        ]
+
+        return ChecklistMariage(
+            items=items,
+            priorite_haute=priorite_haute,
+            priorite_moyenne=priorite_moyenne,
+            priorite_basse=priorite_basse,
+            chiffre_choc=chiffre_choc,
+            disclaimer=DISCLAIMER,
             sources=sources,
         )
