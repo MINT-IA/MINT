@@ -1,4 +1,4 @@
-enum HouseholdType { single, couple, family }
+enum HouseholdType { single, couple, concubine, family }
 
 enum Goal { house, retire, emergency, invest, optimizeTaxes, other }
 
