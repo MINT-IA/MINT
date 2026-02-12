@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/info_tooltip.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -103,12 +104,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           ),
           const SizedBox(height: 12),
           RichText(
-            text: const TextSpan(
-              style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            text: TextSpan(
+              style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
               children: [
-                TextSpan(text: 'Comprendre l\''),
+                const TextSpan(text: 'Comprendre l\''),
                 WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
-                TextSpan(text: ', c\'est comprendre comment votre argent travaille pour vous pendant que vous dormez.'),
+                const TextSpan(text: ', c\'est comprendre comment votre argent travaille pour vous pendant que vous dormez.'),
               ],
             ),
           ),

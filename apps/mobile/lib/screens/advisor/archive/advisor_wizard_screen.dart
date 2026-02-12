@@ -89,10 +89,6 @@ class _AdvisorSessionWizardScreenState
   }
 
   void _showReportPreview() {
-    setState(() {
-      _showingPreview = true;
-    });
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -116,11 +112,7 @@ class _AdvisorSessionWizardScreenState
           ),
         ),
       ),
-    ).then((_) {
-      setState(() {
-        _showingPreview = false;
-      });
-    });
+    );
   }
 
   void _showFinalReport() {

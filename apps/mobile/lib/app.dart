@@ -71,6 +71,9 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 // Expatriation + Frontaliers (Sprint S23)
 import 'package:mint_mobile/screens/expat_screen.dart';
+// Report Demo + V2
+import 'package:mint_mobile/screens/advisor/financial_report_demo_screen.dart';
+import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 // Housing Sale + Donation (Sprint S24)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
@@ -236,6 +239,19 @@ final _router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/report/demo',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FinancialReportDemoScreen(),
+    ),
+    GoRoute(
+      path: '/report/v2',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return FinancialReportScreenV2(wizardAnswers: extra);
+      },
+    ),
+    GoRoute(
       path: '/tools',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ToolsLibraryScreen(),
@@ -370,12 +386,7 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConcubinageScreen(),
     ),
-    // Expatriation + Frontaliers (Sprint S23)
-    GoRoute(
-      path: '/frontalier',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FrontalierScreen(),
-    ),
+    // Expatriation (Sprint S23) — frontalier already at /segments/frontalier
     GoRoute(
       path: '/expatriation',
       parentNavigatorKey: _rootNavigatorKey,
