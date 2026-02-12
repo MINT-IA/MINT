@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
@@ -33,6 +34,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── Shared inputs ───────────────────────────────────────
   double _revenuBrut = 100000;
   String _canton = 'VD';
+  String? _commune;
   String _etatCivil = 'celibataire';
   int _nombreEnfants = 0;
 
@@ -44,7 +46,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   // ── Tab 3: Demenager ───────────────────────────────────
   String _cantonDepart = 'VD';
+  String? _communeDepart;
   String _cantonArrivee = 'ZG';
+  String? _communeArrivee;
   Map<String, dynamic>? _moveResult;
 
   // ── Move checklist ─────────────────────────────────────
@@ -55,6 +59,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _recalculate();
+    // Charge les donnees communales (si pas deja chargees)
+    if (!CommuneData.isLoaded) {
+      CommuneData.load().then((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
@@ -70,6 +80,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         canton: _canton,
         etatCivil: _etatCivil,
         nombreEnfants: _nombreEnfants,
+        commune: _commune,
       );
       _allCantons = FiscalService.compareAllCantons(
         revenuBrut: _revenuBrut,
@@ -82,6 +93,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         cantonArrivee: _cantonArrivee,
         etatCivil: _etatCivil,
         nombreEnfants: _nombreEnfants,
+        communeDepart: _communeDepart,
+        communeArrivee: _communeArrivee,
       );
     });
   }
@@ -300,6 +313,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     onChanged: (v) {
                       if (v != null) {
                         _canton = v;
+                        _commune = null; // Reset commune when canton changes
                         _recalculate();
                       }
                     },
@@ -308,6 +322,19 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
             ],
           ),
+
+          // Commune dropdown (if commune data loaded)
+          if (CommuneData.isLoaded) ...[
+            const SizedBox(height: 16),
+            _buildCommuneDropdown(
+              value: _commune,
+              cantonCode: _canton,
+              onChanged: (v) {
+                _commune = v;
+                _recalculate();
+              },
+            ),
+          ],
           const SizedBox(height: 16),
 
           // Civil status toggle
@@ -1181,6 +1208,82 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ════════════════════════════════════════════════════════════
   //  SHARED WIDGETS
   // ════════════════════════════════════════════════════════════
+
+  /// Commune dropdown reusable widget.
+  /// Shows a list of communes for the given canton, sorted by multiplier.
+  Widget _buildCommuneDropdown({
+    required String? value,
+    required String cantonCode,
+    required ValueChanged<String?> onChanged,
+  }) {
+    final communes = CommuneData.listCommunes(cantonCode);
+    if (communes.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'Commune',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: MintColors.textPrimary,
+            ),
+          ),
+        ),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: MintColors.appleSurface,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String?>(
+                value: value,
+                isExpanded: true,
+                hint: Text(
+                  'Chef-lieu (par defaut)',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textPrimary,
+                ),
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text(
+                      'Chef-lieu (par defaut)',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  ),
+                  ...communes.map((c) {
+                    final name = c['name'] as String;
+                    final mult = c['multiplier'] as double;
+                    return DropdownMenuItem<String?>(
+                      value: name,
+                      child: Text(
+                        '$name (${mult.toStringAsFixed(2)})',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }),
+                ],
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildDisclaimer() {
     return Container(

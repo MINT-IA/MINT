@@ -44,3 +44,4 @@ flutter:
     - assets/config/tax_scales.json
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
+    - assets/config/commune_multipliers.json

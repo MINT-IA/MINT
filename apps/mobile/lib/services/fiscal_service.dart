@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:mint_mobile/data/commune_data.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL SERVICE — Sprint S20 / Comparateur 26 cantons
@@ -123,11 +124,14 @@ class FiscalService {
   ///
   /// Returns a map with: canton, cantonNom, revenuImposable,
   /// impotFederal, impotCantonalCommunal, chargeTotale, tauxEffectif.
+  /// When [commune] is provided, adjusts the cantonal+communal portion
+  /// using the commune multiplier vs chef-lieu multiplier ratio.
   static Map<String, dynamic> estimateTax({
     required double revenuBrut,
     required String canton,
     String etatCivil = 'celibataire',
     int nombreEnfants = 0,
+    String? commune,
   }) {
     final baseRate = effectiveRates100kSingle[canton] ?? 0.13;
     final incomeAdj = _interpolateIncomeAdjustment(revenuBrut);
@@ -135,20 +139,36 @@ class FiscalService {
     final familyAdj = _familyAdjustments[familyKey] ?? 1.0;
 
     final effectiveRate = baseRate * incomeAdj * familyAdj;
-    final chargeTotale = revenuBrut * effectiveRate;
+    final chargeTotaleBase = revenuBrut * effectiveRate;
 
     // Split: ~25% federal, ~75% cantonal+communal
-    final impotFederal = chargeTotale * 0.25;
-    final impotCantonalCommunal = chargeTotale * 0.75;
+    final impotFederal = chargeTotaleBase * 0.25;
+    double impotCantonalCommunal = chargeTotaleBase * 0.75;
+
+    // Ajustement communal (ratio commune / chef-lieu)
+    String communeLabel = '';
+    if (commune != null) {
+      final communeMult = CommuneData.getCommuneMultiplier(canton, commune);
+      final chefLieuMult = CommuneData.getChefLieuMultiplier(canton);
+      if (communeMult != null && chefLieuMult != null && chefLieuMult > 0) {
+        final communeRatio = communeMult / chefLieuMult;
+        impotCantonalCommunal *= communeRatio;
+        communeLabel = commune;
+      }
+    }
+
+    final chargeTotale = impotFederal + impotCantonalCommunal;
+    final tauxEffectif = revenuBrut > 0 ? (chargeTotale / revenuBrut) * 100 : 0.0;
 
     return {
       'canton': canton,
       'cantonNom': cantonNames[canton] ?? canton,
+      'commune': communeLabel,
       'revenuImposable': revenuBrut,
       'impotFederal': impotFederal,
       'impotCantonalCommunal': impotCantonalCommunal,
       'chargeTotale': chargeTotale,
-      'tauxEffectif': effectiveRate * 100,
+      'tauxEffectif': tauxEffectif,
     };
   }
 
@@ -186,25 +206,29 @@ class FiscalService {
   //  3. SIMULATE MOVE
   // ════════════════════════════════════════════════════════════
 
-  /// Simulate moving between two cantons.
+  /// Simulate moving between two cantons (optionally with communes).
   static Map<String, dynamic> simulateMove({
     required double revenuBrut,
     required String cantonDepart,
     required String cantonArrivee,
     String etatCivil = 'celibataire',
     int nombreEnfants = 0,
+    String? communeDepart,
+    String? communeArrivee,
   }) {
     final taxDepart = estimateTax(
       revenuBrut: revenuBrut,
       canton: cantonDepart,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
+      commune: communeDepart,
     );
     final taxArrivee = estimateTax(
       revenuBrut: revenuBrut,
       canton: cantonArrivee,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
+      commune: communeArrivee,
     );
 
     final economieAnnuelle = (taxDepart['chargeTotale'] as double) -

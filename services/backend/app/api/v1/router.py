@@ -30,6 +30,7 @@ from app.api.v1.endpoints import (
     disability_gap,
     next_steps,
     educational_content,
+    communes,
 )
 
 api_router = APIRouter()
@@ -105,4 +106,7 @@ api_router.include_router(
 )
 api_router.include_router(
     educational_content.router, prefix="/educational-content", tags=["educational-content"]
+)
+api_router.include_router(
+    communes.router, prefix="/communes", tags=["communes"]
 )

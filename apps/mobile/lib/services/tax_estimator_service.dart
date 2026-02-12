@@ -1,4 +1,5 @@
 import 'package:mint_mobile/data/cantonal_data.dart';
+import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/models/tax_scale.dart';
 import 'package:mint_mobile/data/average_tax_multipliers.dart';
@@ -12,6 +13,7 @@ class TaxEstimatorService {
     required int childrenCount,
     required int age,
     bool isSourceTaxed = false, // Impôt à la source (Permis B)
+    String? communeName, // Commune pour multiplicateur précis
   }) {
     if (isSourceTaxed) {
       return (netMonthlyIncome * 12) * 0.12;
@@ -44,7 +46,13 @@ class TaxEstimatorService {
       if (useSplitting) cantonBaseTax *= 2;
 
       // Application du multiplicateur (Canton + Commune)
-      double multiplier = AverageTaxMultipliers.get(cantonCode);
+      double multiplier;
+      if (communeName != null) {
+        multiplier = CommuneData.getCommuneMultiplier(cantonCode, communeName)
+            ?? AverageTaxMultipliers.get(cantonCode);
+      } else {
+        multiplier = AverageTaxMultipliers.get(cantonCode);
+      }
       double totalCantonCommune = cantonBaseTax * multiplier;
       double federal = estimateFederalTax(taxableIncomeApprox, civilStatus,
           childrenCount: childrenCount);
@@ -70,6 +78,7 @@ class TaxEstimatorService {
     required double netMonthlyIncome,
     required String cantonCode,
     required String civilStatus,
+    String? communeName, // Commune pour multiplicateur précis
   }) {
     final double taxableIncome = netMonthlyIncome * 12;
 
@@ -92,7 +101,13 @@ class TaxEstimatorService {
       // Non, car les brackets sont en Taux.
       // Si bracket dit "5%", et multiplicateurs totaux = 240%, alors marginal = 12%.
 
-      double multiplier = AverageTaxMultipliers.get(cantonCode);
+      double multiplier;
+      if (communeName != null) {
+        multiplier = CommuneData.getCommuneMultiplier(cantonCode, communeName)
+            ?? AverageTaxMultipliers.get(cantonCode);
+      } else {
+        multiplier = AverageTaxMultipliers.get(cantonCode);
+      }
       double totalMarginal = (marginalBaseRate / 100) * multiplier;
 
       // Ajouter marginal fédéral (LIFD art. 36)
