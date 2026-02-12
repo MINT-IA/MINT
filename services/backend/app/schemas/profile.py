@@ -50,6 +50,7 @@ class ProfileBase(BaseModel):
     commune: Optional[str] = None  # NPA ou nom commune → multiplicateur précis
     isChurchMember: bool = False  # Impôt ecclésiastique
     pillar3aAnnual: Optional[float] = None  # Versement annuel 3a → déduction fiscale
+    wealthEstimate: Optional[float] = None  # Fortune nette estimée → impôt sur la fortune
 
 
 class ProfileCreate(ProfileBase):
@@ -82,6 +83,7 @@ class ProfileUpdate(BaseModel):
     commune: Optional[str] = None
     isChurchMember: Optional[bool] = None
     pillar3aAnnual: Optional[float] = None
+    wealthEstimate: Optional[float] = None
 
 
 class Profile(ProfileBase):

@@ -24,6 +24,7 @@ from app.api.v1.endpoints import (
     unemployment,
     first_job,
     fiscal,
+    wealth_tax,
     retirement,
     family,
     expat,
@@ -88,6 +89,9 @@ api_router.include_router(
 )
 api_router.include_router(
     fiscal.router, prefix="/fiscal", tags=["fiscal"]
+)
+api_router.include_router(
+    wealth_tax.router, prefix="/fiscal/wealth-tax", tags=["wealth-tax"]
 )
 api_router.include_router(
     retirement.router, prefix="/retirement", tags=["retirement"]

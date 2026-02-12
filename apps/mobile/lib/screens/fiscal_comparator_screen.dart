@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
+import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 
@@ -38,8 +39,16 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   String _etatCivil = 'celibataire';
   int _nombreEnfants = 0;
 
+  // ── Wealth + Church tax inputs ────────────────────────
+  double _fortune = 0;
+  bool _isChurchMember = false;
+  final TextEditingController _fortuneController =
+      TextEditingController(text: '0');
+
   // ── Tab 1: Mon impot ───────────────────────────────────
   Map<String, dynamic>? _taxResult;
+  Map<String, dynamic>? _wealthTaxResult;
+  Map<String, dynamic>? _churchTaxResult;
 
   // ── Tab 2: 26 cantons ──────────────────────────────────
   List<Map<String, dynamic>> _allCantons = [];
@@ -70,6 +79,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _fortuneController.dispose();
     super.dispose();
   }
 
@@ -95,6 +105,21 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         nombreEnfants: _nombreEnfants,
         communeDepart: _communeDepart,
         communeArrivee: _communeArrivee,
+      );
+
+      // Wealth tax
+      _wealthTaxResult = WealthTaxService.estimateWealthTax(
+        fortune: _fortune,
+        canton: _canton,
+        etatCivil: _etatCivil,
+      );
+
+      // Church tax (based on cantonal+communal income tax)
+      final impotCantonalCommunal =
+          (_taxResult?['impotCantonalCommunal'] as double?) ?? 0.0;
+      _churchTaxResult = WealthTaxService.estimateChurchTax(
+        impotCantonalCommunal: impotCantonalCommunal,
+        canton: _canton,
       );
     });
   }
@@ -427,6 +452,100 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          Divider(color: MintColors.border.withValues(alpha: 0.5)),
+          const SizedBox(height: 12),
+
+          // Fortune (wealth) input
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Fortune nette',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 160,
+                child: TextField(
+                  controller: _fortuneController,
+                  keyboardType: TextInputType.number,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: MintColors.textPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    prefixText: 'CHF ',
+                    prefixStyle: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: MintColors.textMuted,
+                    ),
+                    filled: true,
+                    fillColor: MintColors.appleSurface,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    hintText: '0',
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    final parsed =
+                        double.tryParse(value.replaceAll("'", '')) ?? 0;
+                    _fortune = parsed;
+                    _recalculate();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Church member switch
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Membre d\'une Eglise',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Impot ecclesiastique',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: _isChurchMember,
+                activeColor: MintColors.primary,
+                onChanged: (v) {
+                  _isChurchMember = v;
+                  _recalculate();
+                },
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -520,6 +639,14 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   Widget _buildTaxBreakdownCard() {
     final tax = _taxResult!;
+    final wealthTax =
+        (_wealthTaxResult?['impotFortune'] as double?) ?? 0.0;
+    final churchTax =
+        (_isChurchMember ? (_churchTaxResult?['impotEglise'] as double?) : null) ?? 0.0;
+
+    final chargeTotaleAvecExtras =
+        (tax['chargeTotale'] as double) + wealthTax + churchTax;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -558,6 +685,22 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             tax['impotCantonalCommunal'] as double,
             const Color(0xFF8B5CF6),
           ),
+          if (_fortune > 0) ...[
+            const SizedBox(height: 10),
+            _buildBreakdownRow(
+              'Impot sur la fortune',
+              wealthTax,
+              const Color(0xFFE67E22),
+            ),
+          ],
+          if (_isChurchMember && churchTax > 0) ...[
+            const SizedBox(height: 10),
+            _buildBreakdownRow(
+              'Impot ecclesiastique',
+              churchTax,
+              const Color(0xFF16A085),
+            ),
+          ],
           const SizedBox(height: 16),
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
@@ -573,7 +716,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 ),
               ),
               Text(
-                FiscalService.formatChf(tax['chargeTotale'] as double),
+                FiscalService.formatChf(chargeTotaleAvecExtras),
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -586,7 +729,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '${FiscalService.formatChf((tax['chargeTotale'] as double) / 12)}/mois',
+              '${FiscalService.formatChf(chargeTotaleAvecExtras / 12)}/mois',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -940,6 +1083,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             economie10Ans: _moveResult!['economie10Ans'] as double,
             chiffreChoc: _moveResult!['chiffreChoc'] as String,
           ),
+        if (_fortune > 0) ...[
+          const SizedBox(height: 16),
+          _buildMoveWealthTaxComparison(),
+        ],
         const SizedBox(height: 24),
 
         // Moving checklist
@@ -952,6 +1099,135 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
         _buildDisclaimer(),
       ],
+    );
+  }
+
+  Widget _buildMoveWealthTaxComparison() {
+    final wealthDepart = WealthTaxService.estimateWealthTax(
+      fortune: _fortune,
+      canton: _cantonDepart,
+      etatCivil: _etatCivil,
+    );
+    final wealthArrivee = WealthTaxService.estimateWealthTax(
+      fortune: _fortune,
+      canton: _cantonArrivee,
+      etatCivil: _etatCivil,
+    );
+    final impotDepart = wealthDepart['impotFortune'] as double;
+    final impotArrivee = wealthArrivee['impotFortune'] as double;
+    final difference = impotDepart - impotArrivee;
+    final isSaving = difference > 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.account_balance_wallet_outlined,
+                  size: 16, color: MintColors.textMuted),
+              const SizedBox(width: 8),
+              Text(
+                'IMPOT SUR LA FORTUNE',
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textMuted,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Fortune nette : ${FiscalService.formatChf(_fortune)}',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      FiscalService.cantonNames[_cantonDepart] ?? _cantonDepart,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      FiscalService.formatChf(impotDepart),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward,
+                color: isSaving ? MintColors.success : MintColors.error,
+                size: 20,
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      FiscalService.cantonNames[_cantonArrivee] ??
+                          _cantonArrivee,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      FiscalService.formatChf(impotArrivee),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              isSaving
+                  ? 'Economie fortune : ${FiscalService.formatChf(difference)}/an'
+                  : difference < 0
+                      ? 'Surcout fortune : ${FiscalService.formatChf(-difference)}/an'
+                      : 'Impot fortune equivalent',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSaving
+                    ? MintColors.success
+                    : difference < 0
+                        ? MintColors.error
+                        : MintColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

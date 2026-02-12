@@ -79,6 +79,7 @@ class Profile {
   // ⭐ Nouveaux champs pour modèle fiscal MVP (Chantier 1)
   final String? commune; // NPA ou nom commune → multiplicateur précis
   final bool isChurchMember; // Impôt ecclésiastique
+  final double? wealthEstimate; // Fortune nette estimée → impôt sur la fortune
   final double? pillar3aAnnual; // Versement annuel 3a → déduction fiscale
 
   Profile({
@@ -107,6 +108,7 @@ class Profile {
     this.spouseAvsContributionYears,
     this.commune,
     this.isChurchMember = false,
+    this.wealthEstimate,
     this.pillar3aAnnual,
   });
 
@@ -174,6 +176,7 @@ class Profile {
       spouseAvsContributionYears: json['spouseAvsContributionYears'],
       commune: json['commune'],
       isChurchMember: json['isChurchMember'] ?? false,
+      wealthEstimate: json['wealthEstimate']?.toDouble(),
       pillar3aAnnual: json['pillar3aAnnual']?.toDouble(),
     );
   }
@@ -205,6 +208,7 @@ class Profile {
       'spouseAvsContributionYears': spouseAvsContributionYears,
       'commune': commune,
       'isChurchMember': isChurchMember,
+      'wealthEstimate': wealthEstimate,
       'pillar3aAnnual': pillar3aAnnual,
     };
   }
@@ -235,6 +239,7 @@ class Profile {
     int? spouseAvsContributionYears,
     String? commune,
     bool? isChurchMember,
+    double? wealthEstimate,
     double? pillar3aAnnual,
   }) {
     return Profile(
@@ -266,6 +271,7 @@ class Profile {
           spouseAvsContributionYears ?? this.spouseAvsContributionYears,
       commune: commune ?? this.commune,
       isChurchMember: isChurchMember ?? this.isChurchMember,
+      wealthEstimate: wealthEstimate ?? this.wealthEstimate,
       pillar3aAnnual: pillar3aAnnual ?? this.pillar3aAnnual,
     );
   }
