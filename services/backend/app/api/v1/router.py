@@ -32,6 +32,7 @@ from app.api.v1.endpoints import (
     next_steps,
     educational_content,
     communes,
+    privacy,
 )
 
 api_router = APIRouter()
@@ -113,4 +114,7 @@ api_router.include_router(
 )
 api_router.include_router(
     communes.router, prefix="/communes", tags=["communes"]
+)
+api_router.include_router(
+    privacy.router, prefix="/privacy", tags=["privacy"]
 )
