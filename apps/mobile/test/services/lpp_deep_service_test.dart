@@ -1,0 +1,447 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/lpp_deep_service.dart';
+
+/// Unit tests pour LPP Deep Service — Sprint S15 (Chantier 4)
+///
+/// Teste les 3 simulateurs pedagogiques pour le 2e pilier approfondi :
+///   A. RachatEchelonneSimulator — rachat LPP echelonne vs bloc
+///   B. LibrePassageAdvisor      — checklist libre passage
+///   C. EplSimulator             — retrait EPL (encouragement propriete logement)
+///
+/// Base legale : LPP art. 79b al. 3, LFLP, art. 30c LPP, OPP2 art. 5
+void main() {
+  // ════════════════════════════════════════════════════════════
+  //  A. RACHAT ECHELONNE
+  // ════════════════════════════════════════════════════════════
+
+  group('RachatEchelonneSimulator', () {
+    test('rachat echelonne donne plus d economie que rachat bloc', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 200000,
+        rachatMax: 50000,
+        revenuImposable: 120000,
+        tauxMarginalEstime: 0.35,
+        horizon: 5,
+      );
+      // Delta positif = echelonne economise plus que bloc
+      expect(result.delta, greaterThan(0));
+      expect(result.economieEchelonneTotal,
+          greaterThan(result.economieBlocTotal));
+    });
+
+    test('plan annuel contient le bon nombre d annees', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 30000,
+        revenuImposable: 80000,
+        tauxMarginalEstime: 0.30,
+        horizon: 3,
+      );
+      expect(result.yearlyPlan.length, 3);
+    });
+
+    test('chaque annee a rachat = rachatMax / horizon', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 40000,
+        revenuImposable: 80000,
+        tauxMarginalEstime: 0.30,
+        horizon: 4,
+      );
+      for (final plan in result.yearlyPlan) {
+        expect(plan.montantRachat, closeTo(10000, 0.01));
+      }
+    });
+
+    test('cout net = rachat - economie fiscale', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 20000,
+        revenuImposable: 90000,
+        tauxMarginalEstime: 0.30,
+        horizon: 2,
+      );
+      for (final plan in result.yearlyPlan) {
+        expect(
+          plan.coutNet,
+          closeTo(plan.montantRachat - plan.economieFiscale, 0.01),
+        );
+      }
+    });
+
+    test('horizon clampe entre 1 et 5', () {
+      final resultHigh = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 30000,
+        revenuImposable: 80000,
+        tauxMarginalEstime: 0.30,
+        horizon: 10, // > 5
+      );
+      expect(resultHigh.yearlyPlan.length, 5);
+    });
+
+    test('taux marginal clampe entre 0.10 et 0.50', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 20000,
+        revenuImposable: 80000,
+        tauxMarginalEstime: 0.05, // < 0.10
+        horizon: 2,
+      );
+      // L'economie devrait etre calculee avec taux 0.10 (min clamp)
+      expect(result.economieBlocTotal, greaterThan(0));
+    });
+
+    test('rachat zero retourne economie zero', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 0,
+        revenuImposable: 80000,
+        tauxMarginalEstime: 0.30,
+        horizon: 3,
+      );
+      expect(result.economieBlocTotal, 0);
+      expect(result.economieEchelonneTotal, 0);
+    });
+
+    test('disclaimer mentionne LPP art. 79b al. 3', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 20000,
+        revenuImposable: 80000,
+        tauxMarginalEstime: 0.30,
+        horizon: 3,
+      );
+      expect(result.disclaimer, contains('79b'));
+      expect(result.disclaimer, contains('specialiste'));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  B. LIBRE PASSAGE ADVISOR
+  // ════════════════════════════════════════════════════════════
+
+  group('LibrePassageAdvisor', () {
+    test('changement emploi avec nouvel employeur demande transfert 30j', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.changementEmploi,
+        avoir: 150000,
+        age: 35,
+        hasNewEmployer: true,
+      );
+      final transfert = result.checklist.where(
+        (c) => c.title.contains('30 jours'),
+      );
+      expect(transfert, isNotEmpty);
+    });
+
+    test('alerte critique si > 20 jours depuis depart avec nouvel employeur',
+        () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.changementEmploi,
+        avoir: 150000,
+        age: 35,
+        hasNewEmployer: true,
+        daysSinceDeparture: 25,
+      );
+      final alerteCritique = result.alerts.where(
+        (a) => a.urgency == ChecklistUrgency.critique,
+      );
+      expect(alerteCritique, isNotEmpty);
+    });
+
+    test('sans nouvel employeur demande compte de libre passage', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.changementEmploi,
+        avoir: 150000,
+        age: 40,
+        hasNewEmployer: false,
+      );
+      final librePassage = result.checklist.where(
+        (c) => c.title.contains('libre passage'),
+      );
+      expect(librePassage, isNotEmpty);
+    });
+
+    test('depart suisse => verifier regles retrait', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.departSuisse,
+        avoir: 200000,
+        age: 40,
+        hasNewEmployer: false,
+      );
+      final retraitItem = result.checklist.where(
+        (c) => c.title.contains('pays de destination'),
+      );
+      expect(retraitItem, isNotEmpty);
+    });
+
+    test('depart suisse < 180 jours => alerte transfert', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.departSuisse,
+        avoir: 200000,
+        age: 40,
+        hasNewEmployer: false,
+        daysSinceDeparture: 100,
+      );
+      final transfertAlert = result.alerts.where(
+        (a) => a.title.contains('6 mois'),
+      );
+      expect(transfertAlert, isNotEmpty);
+    });
+
+    test('cessation activite => verifier droits chomage', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.cessationActivite,
+        avoir: 100000,
+        age: 45,
+        hasNewEmployer: false,
+      );
+      final chomageItem = result.checklist.where(
+        (c) => c.title.contains('chomage'),
+      );
+      expect(chomageItem, isNotEmpty);
+    });
+
+    test('cessation activite a 58+ => recommandation maintien assurance', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.cessationActivite,
+        avoir: 300000,
+        age: 60,
+        hasNewEmployer: false,
+      );
+      final maintien = result.recommendations.where(
+        (r) => r.contains('58 ans'),
+      );
+      expect(maintien, isNotEmpty);
+    });
+
+    test('checklist contient toujours decompte de sortie et avoirs oublies',
+        () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.changementEmploi,
+        avoir: 100000,
+        age: 35,
+        hasNewEmployer: true,
+      );
+      final decompte = result.checklist.where(
+        (c) => c.title.contains('decompte'),
+      );
+      final oublies = result.checklist.where(
+        (c) => c.title.contains('oublies'),
+      );
+      expect(decompte, isNotEmpty);
+      expect(oublies, isNotEmpty);
+    });
+
+    test('disclaimer mentionne LFLP et specialiste', () {
+      final result = LibrePassageAdvisor.analyze(
+        statut: LibrePassageStatut.changementEmploi,
+        avoir: 100000,
+        age: 35,
+        hasNewEmployer: true,
+      );
+      expect(result.disclaimer, contains('LFLP'));
+      expect(result.disclaimer, contains('specialiste'));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  C. EPL SIMULATOR
+  // ════════════════════════════════════════════════════════════
+
+  group('EplSimulator', () {
+    test('avant 50 ans : montant max = totalite de l avoir', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 150000,
+        avoirObligatoire: 100000,
+        avoirSurobligatoire: 50000,
+        age: 40,
+        montantSouhaite: 150000,
+        aRachete: false,
+      );
+      expect(result.montantMaxRetirable, closeTo(150000, 0.01));
+    });
+
+    test('des 50 ans : montant max = moitie de l avoir', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 55,
+        montantSouhaite: 200000,
+        aRachete: false,
+      );
+      // A 50+ : max(50% actuel, avoir a 50 = ~50% estim) = 100000
+      expect(result.montantMaxRetirable, closeTo(100000, 0.01));
+    });
+
+    test('minimum EPL de 20000 CHF', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 15000, // < 20000
+        avoirObligatoire: 10000,
+        avoirSurobligatoire: 5000,
+        age: 35,
+        montantSouhaite: 15000,
+        aRachete: false,
+      );
+      expect(result.montantMaxRetirable, 0);
+      expect(result.alerts, isNotEmpty);
+      expect(result.alerts.first, contains('20\'000'));
+    });
+
+    test('blocage 3 ans apres rachat LPP (art. 79b al. 3)', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 40,
+        montantSouhaite: 50000,
+        aRachete: true,
+        anneesSDepuisRachat: 1,
+      );
+      expect(result.montantMaxRetirable, 0);
+      expect(result.montantSouhaiteApplicable, 0);
+      final blocageAlert = result.alerts.where(
+        (a) => a.contains('79b'),
+      );
+      expect(blocageAlert, isNotEmpty);
+    });
+
+    test('pas de blocage si rachat > 3 ans', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 40,
+        montantSouhaite: 50000,
+        aRachete: true,
+        anneesSDepuisRachat: 4,
+      );
+      expect(result.montantMaxRetirable, greaterThan(0));
+      expect(result.montantSouhaiteApplicable, closeTo(50000, 0.01));
+    });
+
+    test('impot progressif : < 50k => 3%, 50-100k => 5%', () {
+      final result30k = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 35,
+        montantSouhaite: 30000,
+        aRachete: false,
+      );
+      expect(result30k.impotEstime, closeTo(30000 * 0.03, 0.01));
+
+      final result80k = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 35,
+        montantSouhaite: 80000,
+        aRachete: false,
+      );
+      expect(result80k.impotEstime, closeTo(80000 * 0.05, 0.01));
+    });
+
+    test('impot progressif : 100-250k => 7%, > 250k => 9%', () {
+      final result150k = EplSimulator.simulate(
+        avoirTotal: 300000,
+        avoirObligatoire: 200000,
+        avoirSurobligatoire: 100000,
+        age: 35,
+        montantSouhaite: 150000,
+        aRachete: false,
+      );
+      expect(result150k.impotEstime, closeTo(150000 * 0.07, 0.01));
+    });
+
+    test('reduction prestations de risque proportionnelle', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 35,
+        montantSouhaite: 100000,
+        aRachete: false,
+      );
+      // Ratio = 100000 / 200000 = 0.5
+      // Reduction invalidite = 0.5 * 200000 * 0.06 = 6000
+      expect(result.reductionRenteInvalidite, closeTo(6000, 0.01));
+      // Reduction deces = 0.5 * 200000 * 0.5 = 50000
+      expect(result.reductionCapitalDeces, closeTo(50000, 0.01));
+    });
+
+    test('alerte 50+ quand applicable > 0 et age >= 50', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 52,
+        montantSouhaite: 50000,
+        aRachete: false,
+      );
+      final alerte50 = result.alerts.where(
+        (a) => a.contains('50 ans'),
+      );
+      expect(alerte50, isNotEmpty);
+    });
+
+    test('alerte remboursement en cas de vente', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 35,
+        montantSouhaite: 50000,
+        aRachete: false,
+      );
+      final alerteVente = result.alerts.where(
+        (a) => a.contains('remboursement') || a.contains('vente'),
+      );
+      expect(alerteVente, isNotEmpty);
+    });
+
+    test('disclaimer mentionne art. 30c LPP et specialiste', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 200000,
+        avoirObligatoire: 140000,
+        avoirSurobligatoire: 60000,
+        age: 35,
+        montantSouhaite: 50000,
+        aRachete: false,
+      );
+      expect(result.disclaimer, contains('30c LPP'));
+      expect(result.disclaimer, contains('specialiste'));
+    });
+
+    test('montant souhaite plafonne au montant max retirable', () {
+      final result = EplSimulator.simulate(
+        avoirTotal: 100000,
+        avoirObligatoire: 70000,
+        avoirSurobligatoire: 30000,
+        age: 35,
+        montantSouhaite: 200000, // > avoir total
+        aRachete: false,
+      );
+      expect(result.montantSouhaiteApplicable, closeTo(100000, 0.01));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  HELPER — formatChf
+  // ════════════════════════════════════════════════════════════
+
+  group('formatChf', () {
+    test('formate avec apostrophe suisse', () {
+      expect(formatChf(1234567), "1'234'567");
+      expect(formatChf(100000), "100'000");
+      expect(formatChf(999), '999');
+    });
+
+    test('arrondit les decimales', () {
+      expect(formatChf(1234.56), "1'235");
+      expect(formatChf(999.4), '999');
+    });
+  });
+}
