@@ -40,16 +40,6 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
   Future<void> _exportPdf() async {
     if (_result == null) return;
     
-    final results = {
-      'Score de risque': '${_result!['riskScore']} / 6',
-      'Niveau de risque': (_result!['riskLevel'] as String).toUpperCase(),
-    };
-
-    final recommendations = List<String>.from(_result!['recommendations']);
-    if (_result!['hasGamblingRisk']) {
-      recommendations.add('Ressource : SOS Jeu (sos-jeu.ch)');
-    }
-
     // TODO: Implement PDF export for debt risk check
     // await PdfService.generateBilanPdf(
     //   title: 'Bilan Risque d\'Endettement',

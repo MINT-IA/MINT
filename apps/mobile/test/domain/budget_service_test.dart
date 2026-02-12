@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
-import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 
 void main() {

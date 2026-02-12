@@ -214,47 +214,6 @@ class PortfolioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPositionItem(String ticker, String name, String value, String change) {
-    final bool isPositive = change.startsWith('+');
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: MintColors.border, width: 0.5)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(ticker, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                const SizedBox(height: 2),
-                Text(name, style: const TextStyle(color: MintColors.textMuted, fontSize: 12)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-              const SizedBox(height: 2),
-              Text(
-                change,
-                style: TextStyle(
-                  color: isPositive ? MintColors.success : MintColors.error,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          Icon(Icons.chevron_right, color: MintColors.textMuted.withValues(alpha: 0.5), size: 18),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCoachAdvice() {
     return Container(
       padding: const EdgeInsets.all(20),

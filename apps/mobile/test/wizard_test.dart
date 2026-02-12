@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/clarity_state.dart';
-import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/data/wizard_questions_v2.dart';
 

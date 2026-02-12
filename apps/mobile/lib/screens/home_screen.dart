@@ -7,7 +7,6 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/info_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:mint_mobile/screens/advisor/financial_report_demo_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -334,30 +333,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildKindLabel(String kind) {
-    final (String label, Color color) = switch (kind) {
-      'compound_interest' => ('Croissance', MintColors.primary),
-      'pillar3a' => ('Optimisation', MintColors.success),
-      'consumer_credit' => ('Risque', MintColors.warning),
-      _ => ('Info', MintColors.textMuted),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w700,
-            fontSize: 10,
-            letterSpacing: 0.5),
-      ),
-    );
-  }
 
   Widget _buildImpactBadge(Impact impact) {
     final periodLabel = switch (impact.period) {
@@ -401,12 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Demo Rapport V2
         InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const FinancialReportDemoScreen(),
-              ),
-            );
+            context.push('/report/demo');
           },
           borderRadius: BorderRadius.circular(12),
           child: Container(

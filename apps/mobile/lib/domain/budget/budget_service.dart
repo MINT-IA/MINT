@@ -64,7 +64,7 @@ class BudgetService {
     // (Consigne: stopRuleTriggered = (style=envelopes_3 && variables == 0))
     // Note: variables peut être 0 si available est 0, ou si l'user a tout mis dans future (peu probable mais possible).
     // La consigne semble impliquer une alerte si on n'a plus rien pour vivre.
-    final stopRuleTriggered = (inputs.style == BudgetStyle.envelopes3 &&
+    final _ = (inputs.style == BudgetStyle.envelopes3 &&
         variables <= 0.01 &&
         available > 0);
     // J'ajoute available > 0 pour ne pas trigger le stop rule si on n'a juste pas de revenus (cas edge).

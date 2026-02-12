@@ -1,10 +1,10 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/data/wizard_questions_v2.dart';
 import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/widgets/wizard_question_widget.dart';
-import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 import 'package:mint_mobile/services/fiscal_intelligence_service.dart';
 import 'package:mint_mobile/services/wizard_conditions_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
@@ -24,13 +24,6 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   int _currentQuestionIndex = 0;
   late List<WizardQuestion> _questions;
 
-  // Sections pour la barre de progression
-  final Map<String, int> _sectionRanges = {
-    'Profil': 6, // Questions 0-5
-    'Budget & Protection': 6, // Questions 6-11
-    'Prévoyance': 6, // Questions 12-17
-    'Patrimoine': 4, // Questions 18-21
-  };
 
   @override
   void initState() {
@@ -86,30 +79,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return 'Patrimoine';
   }
 
-  int get _sectionProgress {
-    final sectionStart = _getSectionStartIndex(_currentSection);
-    final sectionSize = _sectionRanges[_currentSection]!;
-    final positionInSection = _currentQuestionIndex - sectionStart;
-    return ((positionInSection / sectionSize) * 100).round();
-  }
-
   int get _overallProgress {
     return ((_currentQuestionIndex / _questions.length) * 100).round();
-  }
-
-  int _getSectionStartIndex(String section) {
-    switch (section) {
-      case 'Profil':
-        return 0;
-      case 'Budget & Protection':
-        return 6;
-      case 'Prévoyance':
-        return 12;
-      case 'Patrimoine':
-        return 18;
-      default:
-        return 0;
-    }
   }
 
   // Historique des questions posées pour pouvoir revenir en arrière correctement
@@ -163,7 +134,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
 
         // Si on est actuellement sur une question, on veut revenir à la PRÉCÉDENTE
         // Donc on doit d'abord vérifier si on doit dépiler celle d'avant
-        final currentId = _questions[_currentQuestionIndex].id;
+        final _ = _questions[_currentQuestionIndex].id;
 
         // Si l'historique contient la question actuelle (ce qui arrive quand on avance),
         // on l'enlève pour revenir à la précédente réelle.
@@ -205,14 +176,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
 
   void _showReport() {
     ReportPersistenceService.setCompleted(true);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FinancialReportScreenV2(
-          wizardAnswers: _answers,
-        ),
-      ),
-    );
+    context.go('/report', extra: _answers);
   }
 
   @override
@@ -220,12 +184,14 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     final currentQuestion = _questions[_currentQuestionIndex];
 
     return Scaffold(
-      backgroundColor: MintColors.surface,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        elevation: 0,
+        backgroundColor: Colors.white.withOpacity(0.8),
+        foregroundColor: MintColors.textPrimary,
+        centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: _goBack,
         ),
         title: Column(
@@ -233,83 +199,53 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           children: [
             Text(
               _currentSection,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: GoogleFonts.outfit(
+                fontSize: 16, 
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
             ),
             Text(
               'Question ${_currentQuestionIndex + 1}/${_questions.length}',
-              style: const TextStyle(fontSize: 11, color: Colors.white70),
+              style: GoogleFonts.inter(
+                fontSize: 12, 
+                color: MintColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Text(
-                '$_overallProgress%',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: MintColors.appleSurface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$_overallProgress%',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
               ),
             ),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(6),
+          preferredSize: const Size.fromHeight(2),
           child: LinearProgressIndicator(
             value: _overallProgress / 100,
-            backgroundColor: Colors.white.withOpacity(0.3),
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            minHeight: 6,
+            backgroundColor: MintColors.lightBorder,
+            valueColor: const AlwaysStoppedAnimation<Color>(MintColors.primary),
+            minHeight: 2,
           ),
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Section badge
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: _getSectionColor().withOpacity(0.1),
-                border: Border(
-                  bottom: BorderSide(
-                    color: _getSectionColor().withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: _getSectionColor(),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_getSectionIcon(), color: Colors.white, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          _currentSection,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             // Question widget
             Expanded(
               child: SingleChildScrollView(
@@ -395,14 +331,14 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             // Insight 1: Tax Freedom
             Container(
               key: const ValueKey('tax_freedom'),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: MintColors.primary.withOpacity(0.2)),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withOpacity(0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4)),
                 ],
@@ -411,12 +347,12 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3E0), // Orange very light
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F7),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.calendar_today,
-                        color: Colors.orange, size: 20),
+                    child: const Icon(Icons.auto_awesome,
+                        color: MintColors.primary, size: 20),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -424,31 +360,31 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Miroir Fiscal",
+                          "INSIGHT FISCAL",
                           style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                            letterSpacing: 1.0,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: MintColors.textMuted,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         RichText(
                           text: TextSpan(
                             style: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: MintColors.textPrimary,
-                                height: 1.4),
+                                height: 1.5),
                             children: [
                               const TextSpan(text: "Tu travailles jusqu'au "),
                               TextSpan(
                                   text: formattedDate,
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.orange)),
+                                      fontWeight: FontWeight.w700,
+                                      color: MintColors.primary)),
                               TextSpan(
                                   text:
-                                      " uniquement pour payer tes impôts (${monthsForTax.toStringAsFixed(1)} mois)."),
+                                      " pour couvrir tes impôts (${monthsForTax.toStringAsFixed(1)} mois)."),
                             ],
                           ),
                         ),
@@ -464,15 +400,14 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               // Insight 2: Neighbor Comparison
               Container(
                 key: const ValueKey('neighbor_comp'),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: const Color(0xFF81C784).withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: MintColors.lightBorder),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.green.withOpacity(0.05),
+                        color: Colors.black.withOpacity(0.02),
                         blurRadius: 10,
                         offset: const Offset(0, 4)),
                   ],
@@ -481,12 +416,12 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF5F5F7),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.location_on_outlined,
-                          color: Color(0xFF2E7D32), size: 20),
+                      child: const Icon(Icons.compare_arrows,
+                          color: MintColors.primary, size: 20),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -494,36 +429,36 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Le Voisin",
+                            "OPTIMISATION LOCALE",
                             style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF2E7D32),
-                              letterSpacing: 1.0,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: MintColors.textMuted,
+                              letterSpacing: 0.5,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           RichText(
                             text: TextSpan(
                               style: GoogleFonts.inter(
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   color: MintColors.textPrimary,
-                                  height: 1.4),
+                                  height: 1.5),
                               children: [
-                                const TextSpan(text: "En habitant à "),
+                                const TextSpan(text: "À "),
                                 TextSpan(
                                     text: "${neighborComp['canton']}",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E7D32))),
-                                const TextSpan(text: ", tu économiserais "),
+                                        fontWeight: FontWeight.w700,
+                                        color: MintColors.primary)),
+                                const TextSpan(text: ", l'économie serait de "),
                                 TextSpan(
                                     text:
                                         "CHF ${(neighborComp['savings'] as double).toStringAsFixed(0)}",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E7D32))),
-                                const TextSpan(text: " par an."),
+                                        fontWeight: FontWeight.w700,
+                                        color: MintColors.primary)),
+                                const TextSpan(text: "/an."),
                               ],
                             ),
                           ),
@@ -576,36 +511,6 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     }
 
     return const SizedBox.shrink(); // Pas d'insight pour le moment
-  }
-
-  Color _getSectionColor() {
-    switch (_currentSection) {
-      case 'Profil':
-        return Colors.purple;
-      case 'Budget & Protection':
-        return Colors.green;
-      case 'Prévoyance':
-        return Colors.blue;
-      case 'Patrimoine':
-        return Colors.orange;
-      default:
-        return MintColors.primary;
-    }
-  }
-
-  IconData _getSectionIcon() {
-    switch (_currentSection) {
-      case 'Profil':
-        return Icons.person;
-      case 'Budget & Protection':
-        return Icons.shield;
-      case 'Prévoyance':
-        return Icons.savings;
-      case 'Patrimoine':
-        return Icons.trending_up;
-      default:
-        return Icons.auto_awesome;
-    }
   }
 
   void _showSectionTransition(String nextSection, VoidCallback onComplete) {

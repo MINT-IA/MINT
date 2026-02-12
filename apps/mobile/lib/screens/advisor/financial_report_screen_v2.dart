@@ -510,15 +510,6 @@ class FinancialReportScreenV2 extends StatelessWidget {
   }
 
   Widget _buildAvsGapWarning(RetirementProjection projection) {
-    final profile = UserProfile(
-      birthYear: DateTime.now().year - (65 - projection.yearsUntilRetirement),
-      canton: 'VD', // Default fallback
-      civilStatus: 'single', // Default fallback
-      childrenCount: 0,
-      employmentStatus: 'employee',
-      monthlyNetIncome: 5000,
-    );
-
     // Get contribution years from wizards answers if available, otherwise estimate from reduction factor
     final years = (projection.avsReductionFactor * 44).round();
     final gap = 44 - years;

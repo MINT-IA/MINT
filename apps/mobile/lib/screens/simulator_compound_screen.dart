@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/info_tooltip.dart';
-import 'package:mint_mobile/services/pdf_service.dart';
 
 class SimulatorCompoundScreen extends StatefulWidget {
   const SimulatorCompoundScreen({super.key});
@@ -42,21 +40,6 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   Future<void> _exportPdf() async {
     if (_result == null) return;
     
-    final results = {
-      'Capital initial': _currencyFormat.format(_principal),
-      'Versement mensuel': _currencyFormat.format(_monthlyContribution),
-      'Taux annuel': '${_annualRate.toStringAsFixed(1)}%',
-      'Durée': '$_years ans',
-      'Valeur finale': _currencyFormat.format(_result!['finalValue']!),
-      'Gains générés': _currencyFormat.format(_result!['gains']!),
-    };
-
-    final recommendations = [
-      'La régularité est la clé : CHF 100 chaque mois font une immense différence avec le temps.',
-      'Le temps est votre meilleur allié. Plus vous commencez tôt, moins vous avez besoin d\'épargner.',
-      'Réinvestissez toujours vos gains pour maximiser l\'effet boule de neige.',
-    ];
-
     // TODO: Implement PDF export for compound interest simulator
     // await PdfService.generateBilanPdf(
     //   title: 'Simulation Intérêts Composés',
@@ -258,7 +241,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: MintColors.accentPastel.withValues(alpha: 0.3),
+        color: MintColors.appleSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),

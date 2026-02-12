@@ -1,5 +1,3 @@
-import 'dart:math';
-
 // ────────────────────────────────────────────────────────────
 //  DIVORCE SERVICE
 // ────────────────────────────────────────────────────────────
@@ -133,16 +131,8 @@ class DivorceService {
     // considered an acquêt and split 50/50.
     // Under séparation de biens, no split.
     // Under communauté de biens, 100% pooled and split 50/50.
-    double pillar3aShareC1;
-    double pillar3aShareC2;
-    if (input.regime == MatrimonialRegime.separationDeBiens) {
-      pillar3aShareC1 = input.pillar3aConjoint1;
-      pillar3aShareC2 = input.pillar3aConjoint2;
-    } else {
-      final total3a = input.pillar3aConjoint1 + input.pillar3aConjoint2;
-      pillar3aShareC1 = total3a / 2;
-      pillar3aShareC2 = total3a / 2;
-    }
+    // Note: 3a split depends on regime but is handled separately via
+    // the LPP/3a partage logic. The patrimoine split below covers net wealth.
 
     // ---- Patrimoine Split ----
     final fortuneNette = input.fortuneCommune - input.dettesCommunes;

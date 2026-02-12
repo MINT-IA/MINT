@@ -49,7 +49,7 @@ Pour compenser l'effet de la declaration commune, la Confederation applique un *
 - Si la penalite est importante, discute avec un-e specialiste des strategies possibles (rachat LPP, echelonnement du 3e pilier, etc.).
 - Le Tribunal federal a juge cette penalite anticonstitutionnelle en 1984 -- mais elle n'a toujours pas ete corrigee par le legislateur.
 
-## Hypotheses
+## Hypothèses
 - Taux d'imposition simplifies (taux effectif cantonal a 100k revenu).
 - Deductions forfaitaires standard (pas de deductions specifiques supplementaires).
 - Bareme federal + cantonal combine.

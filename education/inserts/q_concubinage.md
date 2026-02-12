@@ -63,7 +63,7 @@ En cas de deces, le/la partenaire marie-e est **exonere-e** d'impot successoral 
 5. **Etablir un mandat pour cause d'inaptitude** (CC art. 360 ss).
 6. **Rediger des directives anticipees** (CC art. 370 ss).
 
-## Hypotheses
+## Hypothèses
 - Taux d'impot successoral simplifies (taux cantonal median par tranche).
 - Comparaison fiscale basee sur les taux effectifs a 100k de revenu.
 - Pas de prise en compte des conventions cantonales specifiques.

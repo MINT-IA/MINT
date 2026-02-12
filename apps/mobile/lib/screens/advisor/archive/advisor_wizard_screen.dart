@@ -25,7 +25,6 @@ class _AdvisorSessionWizardScreenState
   final Map<String, dynamic> _completedActions = {};
   int _currentQuestionIndex = 0;
   bool _isSubmitting = false;
-  bool _showingPreview = false;
 
   late List<WizardQuestion> _questions;
   late ClarityState _clarityState;

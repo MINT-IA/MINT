@@ -20,7 +20,6 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final resources = DebtHelpResources.getResources(canton: _canton);
     final cantonalResource = DebtHelpResources.getCantonalResource(_canton);
 
     return Scaffold(

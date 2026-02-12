@@ -70,19 +70,6 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   Future<void> _exportPdf() async {
     if (_result == null) return;
     
-    final results = {
-      'Versement annuel': _currencyFormat.format(_annualContribution),
-      'Économie fiscale /an': _currencyFormat.format(_result!['annualTaxSaved']!),
-      'Économie totale': _currencyFormat.format(_result!['totalTaxSavedOverPeriod']!),
-      'Capital final': _currencyFormat.format(_result!['potentialFinalValue']!),
-    };
-
-    final recommendations = [
-      'Privilégiez le 3a bancaire pour sa flexibilité et ses coûts réduits.',
-      'Ouvrez plusieurs comptes (jusqu\'à 5) pour échelonner les retraits.',
-      'Réinvestissez votre économie d\'impôts pour un effet boule de neige maximal.',
-    ];
-
     // TODO: Implement PDF export for 3a simulator
     // await PdfService.generateBilanPdf(
     //   title: 'Bilan Optimisation Pilier 3a',

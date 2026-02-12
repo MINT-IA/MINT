@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/fiscal_intelligence_service.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
-import 'package:mint_mobile/data/cantonal_data.dart';
 import 'dart:convert';
 import 'dart:io';
 

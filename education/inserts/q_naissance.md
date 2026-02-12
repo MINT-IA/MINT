@@ -69,7 +69,7 @@ lifeEvent: "birth"
 - Simule l'impact sur ton budget avec le simulateur MINT.
 - Planifie ton retour au travail en tenant compte de l'impact LPP.
 
-## Hypotheses
+## Hypothèses
 - Cout moyen par enfant base sur les etudes de l'OFS (Office federal de la statistique).
 - Allocations au taux minimum legal si le canton n'est pas reconnu.
 - APG calculee sur base de 360 jours par an (methode LAPG).

@@ -65,17 +65,6 @@ void main() {
     test('FinancialReportService._estimateAvsRent with gaps', () {
       final service = FinancialReportService();
 
-      // Single, no gaps (max 2450)
-      final profileSingleNoGap = const UserProfile(
-        birthYear: 1980,
-        canton: 'VD',
-        civilStatus: 'single',
-        childrenCount: 0,
-        employmentStatus: 'employee',
-        monthlyNetIncome: 5000,
-        contributionYears: 44,
-      );
-
       // Note: FinancialReportService._estimateAvsRent is private,
       // but we can test it through buildRetirementProjection or
       // by making a test-only subclass if needed.

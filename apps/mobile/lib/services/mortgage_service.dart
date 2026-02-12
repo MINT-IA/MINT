@@ -80,7 +80,6 @@ class AffordabilityCalculator {
     // Charges max = revenu x 1/3
     // => prix <= (revenu x 1/3 + FP x 6%) / 7%
     // Aussi : prix <= FP / 20% (contrainte fonds propres)
-    final lppUtilisable = min(lpp, prix > 0 ? prix * 0.10 : double.infinity);
     final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * 0.10) : lpp);
     final prixMaxRevenu = revenu > 0
         ? (revenu / 3.0 + fondsPropresTotal * 0.06) / 0.07

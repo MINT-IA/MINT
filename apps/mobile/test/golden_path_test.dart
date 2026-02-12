@@ -1,16 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/wizard_conditions_service.dart';
-import 'package:mint_mobile/data/wizard_questions_v2.dart';
-import 'package:mint_mobile/models/wizard_question.dart';
 
 /// Test du "Golden Path" (Flux Utilisateur Idéal)
 /// Approche Herméneutique : Valider le tout (Le Parcours) par les parties (Les Questions/Logique)
 void main() {
   group('Advisor Wizard Golden Paths', () {
-    late List<WizardQuestion> questions;
-
     setUp(() {
-      questions = WizardQuestionsV2.questions;
+      // Questions loaded from WizardQuestionsV2.questions — used implicitly by WizardConditionsService
     });
 
     test('Path A: Standard Employee Journey (Zurich, Married, Kids)', () {

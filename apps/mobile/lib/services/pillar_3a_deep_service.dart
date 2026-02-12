@@ -131,7 +131,6 @@ class StaggeredWithdrawalSimulator {
     final clampedAvoir = avoirTotal.clamp(0.0, 1000000.0);
     final clampedDebut = ageRetraitDebut.clamp(59, 65);
     final clampedFin = ageRetraitFin.clamp(clampedDebut, 65);
-    final clampedRevenu = revenuImposable.clamp(30000.0, 300000.0);
 
     final tauxBase = _tauxRetraitCapital[canton.toUpperCase()] ?? 0.065;
 
@@ -287,12 +286,8 @@ class RealReturnCalculator {
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(1, 45);
     final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
-    final clampedInflation = inflation.clamp(0.0, 0.05);
-
     // Rendement net de frais
     final rendementNet = clampedRendement - clampedFrais;
-    // Rendement net d'inflation
-    final rendementReel = rendementNet - clampedInflation;
 
     // Capital final 3a (rendement compose)
     double capital3a = 0;

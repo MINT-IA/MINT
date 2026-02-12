@@ -3,8 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
-import 'package:mint_mobile/services/affiliate_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -43,7 +41,6 @@ class Pillar3aComparatorWidget extends StatelessWidget {
         _futureValue(maxAnnual, 0.010, yearsUntilRetirement); // 1.0%
 
     final gainVsBank = capitalViac - capitalBank;
-    final gainVsInsurance = capitalViac - capitalInsurance;
 
     return Container(
       padding: const EdgeInsets.all(24),

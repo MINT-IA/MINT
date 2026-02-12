@@ -493,34 +493,4 @@ class _AdvisorReportScreenState extends State<AdvisorReportScreen> {
     return LifeEventSuggestionsSection(suggestions: suggestions);
   }
 
-  Widget _buildDisclaimers(SessionReport report) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('MENTIONS LÉGALES',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: MintColors.textMuted,
-                letterSpacing: 1.2)),
-        const SizedBox(height: 16),
-        ...report.disclaimers.map((d) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('• ',
-                      style: TextStyle(color: MintColors.textMuted)),
-                  Expanded(
-                      child: Text(d,
-                          style: const TextStyle(
-                              fontSize: 12,
-                              color: MintColors.textMuted,
-                              height: 1.4))),
-                ],
-              ),
-            )),
-      ],
-    );
-  }
 }

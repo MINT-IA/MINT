@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/mint_ui_kit.dart';
 
 /// Carte d'action réutilisable
 ///

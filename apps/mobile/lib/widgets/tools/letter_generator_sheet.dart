@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/factory/letter_generator_service.dart';
-import 'package:mint_mobile/services/pdf_service.dart'; // Assume pdf_service can handle sharing generic pdf content??
-// Actually ReportPersistenceService/PdfService generates report.
-// Need generic Pdf generation from String content.
-// I will create a simple Pdf helper here or reuse printing if feasible.
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';

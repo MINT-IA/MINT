@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 

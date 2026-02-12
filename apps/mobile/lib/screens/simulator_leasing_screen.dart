@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/info_tooltip.dart';
-import 'package:mint_mobile/services/pdf_service.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -40,19 +38,6 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   Future<void> _exportPdf() async {
     if (_result == null) return;
     
-    final results = {
-      'Mensualité leasing': _currencyFormat.format(_monthlyPayment),
-      'Durée': '$_durationMonths mois',
-      'Coût total leasing': _currencyFormat.format(_result!['totalLeasingCost']),
-      'Coût d\'opportunité (20 ans)': _currencyFormat.format(_result!['opportunityCost']['20y']),
-    };
-
-    final recommendations = [
-      'Le leasing est une charge lourde qui réduit votre capacité d\'épargne.',
-      'Acheter un véhicule d\'occasion fiable permet d\'investir la différence.',
-      'Sur 20 ans, cette mensualité représentait un apport majeur pour un projet immobilier.',
-    ];
-
     // TODO: Implement PDF export for leasing simulator
     // await PdfService.generateBilanPdf(
     //   title: 'Bilan Anti-Leasing',

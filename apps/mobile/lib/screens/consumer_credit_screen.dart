@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/info_tooltip.dart';
-import 'package:mint_mobile/services/pdf_service.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -46,22 +43,6 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   Future<void> _exportPdf() async {
     if (_result == null) return;
     
-    final results = {
-      'Montant emprunté': _currencyFormat.format(_amount),
-      'Durée': '$_durationMonths mois',
-      'Taux annuel': '${_annualRate.toStringAsFixed(1)}%',
-      'Mensualité': _currencyFormat.format(_result!['monthlyPayment']),
-      'Total des intérêts': _currencyFormat.format(_result!['totalInterest']),
-      'Coût total': _currencyFormat.format(_result!['totalCost']),
-    };
-
-    final recommendations = [
-      'Le crédit à la consommation coûte cher. Intérêts payés : ${_currencyFormat.format(_result!['totalInterest'])}.',
-      'Alternative : Épargner avant d\'acheter pour économiser ces intérêts.',
-      'Alternative : Prêt familial sans intérêt si possible.',
-      'Conseil : Un crédit impacte votre capacité d\'emprunt hypothécaire future.',
-    ];
-
     // TODO: Implement PDF export for consumer credit simulator
     // await PdfService.generateBilanPdf(
     //   title: 'Simulation de Crédit à la Consommation',
@@ -256,7 +237,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: rateWarning ? MintColors.error.withOpacity(0.05) : MintColors.accentPastel.withOpacity(0.3),
+        color: rateWarning ? MintColors.error.withOpacity(0.05) : MintColors.appleSurface.withOpacity(0.3),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: rateWarning ? MintColors.error.withOpacity(0.2) : MintColors.primary.withOpacity(0.1),
