@@ -61,6 +61,9 @@ class TaxEstimatorService {
     }
 
     // FALLBACK ANCIENNE FORMULE (STATIQUE)
+    // ⚠️ Estimation approximative — utilise un facteur brut/net de 0.85
+    // (hypothèse: charges sociales ~15%). Résultat indicatif uniquement.
+    // Ce chemin est emprunté si TaxScalesLoader n'a pas de données pour ce canton.
     final double grossAnnualIncome = (netMonthlyIncome * 12) / 0.85;
     double baseRate = _getBaseProgressiveRate(grossAnnualIncome);
     final cantonProfile = CantonalDataService.getByCode(cantonCode);
@@ -229,9 +232,24 @@ class TaxEstimatorService {
   }
 
   /// Cantons à tarif unique "All" qui utilisent le splitting (revenu / 2)
-  /// pour les couples mariés. Source: LIPP art. 41 al. 2 (GE).
+  /// pour les couples mariés car ils n'ont pas de barème marié séparé.
+  /// Sources: LIPP art. 41 al. 2 (GE), StG §§ correspondants par canton.
+  /// Liste alignée avec TaxScalesLoader.getBrackets() fallback "All".
   static bool _usesSplitting(String cantonCode) {
-    const splittingCantons = {'GE', 'Geneva'};
+    const splittingCantons = {
+      'GE', 'Geneva',
+      'UR', 'Uri',
+      'OW', 'Obwalden',
+      'NW', 'Nidwalden',
+      'GL', 'Glarus',
+      'SO', 'Solothurn',
+      'SH', 'Schaffhausen',
+      'GR', 'Graubünden',
+      'AG', 'Aargau',
+      'TG', 'Thurgau',
+      'VS', 'Valais',
+      'NE', 'Neuchâtel',
+    };
     return splittingCantons.contains(cantonCode);
   }
 

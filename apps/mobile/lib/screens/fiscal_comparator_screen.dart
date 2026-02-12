@@ -554,7 +554,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── Tax gauge (effective rate circle) ──────────────────
 
   Widget _buildTaxGauge() {
-    final tax = _taxResult!;
+    final tax = _taxResult;
+    if (tax == null) return const SizedBox.shrink();
     final tauxEffectif = (tax['tauxEffectif'] as double);
     final avgAdjusted = FiscalService.estimateNationalAverageRate(
       revenuBrut: _revenuBrut,
@@ -638,7 +639,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── Tax breakdown card ─────────────────────────────────
 
   Widget _buildTaxBreakdownCard() {
-    final tax = _taxResult!;
+    final tax = _taxResult;
+    if (tax == null) return const SizedBox.shrink();
     final wealthTax =
         (_wealthTaxResult?['impotFortune'] as double?) ?? 0.0;
     final churchTax =

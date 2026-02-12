@@ -250,55 +250,58 @@ class _RetirementScreenState extends State<RetirementScreen>
           ],
         ),
         const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: AvsScenarioCard(
-                scenario: 'anticipation',
-                renteMensuelle:
-                    _avsAnticipation!['renteMensuelle'] as double,
-                penalitePct:
-                    _avsAnticipation!['penaliteOuBonusPct'] as double,
-                isSelected: _ageRetraite < 65,
-                onTap: () => setState(() {
-                  _ageRetraite = 63;
-                  _recalculateAvs();
-                }),
+        if (_avsAnticipation != null &&
+            _avsNormal != null &&
+            _avsAjournement != null)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: AvsScenarioCard(
+                  scenario: 'anticipation',
+                  renteMensuelle:
+                      _avsAnticipation!['renteMensuelle'] as double,
+                  penalitePct:
+                      _avsAnticipation!['penaliteOuBonusPct'] as double,
+                  isSelected: _ageRetraite < 65,
+                  onTap: () => setState(() {
+                    _ageRetraite = 63;
+                    _recalculateAvs();
+                  }),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: AvsScenarioCard(
-                scenario: 'normal',
-                renteMensuelle:
-                    _avsNormal!['renteMensuelle'] as double,
-                penalitePct:
-                    _avsNormal!['penaliteOuBonusPct'] as double,
-                isSelected: _ageRetraite == 65,
-                onTap: () => setState(() {
-                  _ageRetraite = 65;
-                  _recalculateAvs();
-                }),
+              const SizedBox(width: 8),
+              Expanded(
+                child: AvsScenarioCard(
+                  scenario: 'normal',
+                  renteMensuelle:
+                      _avsNormal!['renteMensuelle'] as double,
+                  penalitePct:
+                      _avsNormal!['penaliteOuBonusPct'] as double,
+                  isSelected: _ageRetraite == 65,
+                  onTap: () => setState(() {
+                    _ageRetraite = 65;
+                    _recalculateAvs();
+                  }),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: AvsScenarioCard(
-                scenario: 'ajournement',
-                renteMensuelle:
-                    _avsAjournement!['renteMensuelle'] as double,
-                penalitePct:
-                    _avsAjournement!['penaliteOuBonusPct'] as double,
-                isSelected: _ageRetraite > 65,
-                onTap: () => setState(() {
-                  _ageRetraite = 70;
-                  _recalculateAvs();
-                }),
+              const SizedBox(width: 8),
+              Expanded(
+                child: AvsScenarioCard(
+                  scenario: 'ajournement',
+                  renteMensuelle:
+                      _avsAjournement!['renteMensuelle'] as double,
+                  penalitePct:
+                      _avsAjournement!['penaliteOuBonusPct'] as double,
+                  isSelected: _ageRetraite > 65,
+                  onTap: () => setState(() {
+                    _ageRetraite = 70;
+                    _recalculateAvs();
+                  }),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         const SizedBox(height: 20),
 
         // ── Result card ───────────────────────────────

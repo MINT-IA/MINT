@@ -49,7 +49,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(provider.plan!),
+                _buildHeader(plan),
                 const SizedBox(height: 24),
                 SpendingMeter(
                   variablesAmount: plan.variables,
