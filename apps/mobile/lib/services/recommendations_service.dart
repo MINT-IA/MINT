@@ -15,6 +15,18 @@ import 'package:mint_mobile/models/profile.dart';
 class RecommendationsService {
   RecommendationsService._();
 
+  static const String disclaimer =
+      'Suggestions pédagogiques basées sur ton profil — outil éducatif '
+      'qui ne constitue pas un conseil financier personnalisé au sens de la LSFin. '
+      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+
+  static const List<String> sources = [
+    'LSFin art. 3 (Définition du conseil en placement)',
+    'OPP3 — plafonds 3a 2025/2026',
+    'LPP art. 79b (Rachat de prestations)',
+    'LIFD art. 33 al. 1 let. e (Déduction 3a)',
+  ];
+
   /// Génère les recommandations pour un profil donné
   ///
   /// Retourne une liste de recommandations triées par priorité :

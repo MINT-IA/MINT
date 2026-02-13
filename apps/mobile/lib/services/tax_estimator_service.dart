@@ -5,6 +5,20 @@ import 'package:mint_mobile/models/tax_scale.dart';
 import 'package:mint_mobile/data/average_tax_multipliers.dart';
 
 class TaxEstimatorService {
+  static const String disclaimer =
+      'Estimation approximative de l\'impôt (ICC + IFD) — outil éducatif '
+      'qui ne constitue pas un conseil fiscal. Les montants réels dépendent '
+      'de ta commune, de ta situation familiale et de tes déductions effectives. '
+      'Consultez un·e spécialiste fiscal·e pour un calcul personnalisé.';
+
+  static const List<String> sources = [
+    'LIFD art. 36 (Barèmes de l\'impôt fédéral direct)',
+    'LHID (Loi sur l\'harmonisation des impôts directs des cantons et des communes)',
+    'Lois cantonales sur les impôts directs (26 cantons)',
+    'LIFD art. 33 (Déductions générales)',
+    'LIFD art. 9 al. 1 (Imposition commune des époux)',
+  ];
+
   /// Estime l'impôt annuel total (ICC + IFD)
   static double estimateAnnualTax({
     required double netMonthlyIncome,

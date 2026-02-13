@@ -4,6 +4,22 @@ import 'package:mint_mobile/widgets/educational/educational_widgets.dart';
 /// Service de mapping entre les questions wizard et les inserts didactiques
 /// Implémente le pattern "just-in-time information" (OECD/INFE)
 class EducationalInsertService {
+  static const String disclaimer =
+      'Contenu pédagogique à caractère informatif — outil éducatif '
+      'qui ne constitue pas un conseil financier, fiscal ou juridique. '
+      'Les informations sont fournies à titre indicatif. '
+      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+
+  static const List<String> sources = [
+    'LPP (Loi sur la prévoyance professionnelle)',
+    'LAVS (Loi sur l\'AVS)',
+    'OPP3 (Ordonnance sur le 3e pilier)',
+    'LIFD (Loi sur l\'impôt fédéral direct)',
+    'LAMal (Loi sur l\'assurance-maladie)',
+    'LSFin art. 3 (Définition du conseil en placement)',
+    'CC art. 159-251 (Régime matrimonial)',
+    'FINMA circ. 2017/7 (Normes minimales hypothécaires)',
+  ];
   /// Questions qui ont un insert didactique associé
   static const Set<String> questionsWithInserts = {
     // Inserts existants (S16-S19)

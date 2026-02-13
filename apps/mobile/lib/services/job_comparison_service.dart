@@ -148,6 +148,19 @@ class JobComparisonResult {
 
 /// Service for comparing two LPP plans (job change scenario).
 class JobComparisonService {
+  static const String disclaimer =
+      'Comparaison indicative entre deux plans LPP — outil éducatif '
+      'qui ne constitue pas un conseil en prévoyance professionnelle. '
+      'Les projections reposent sur des hypothèses simplifiées. '
+      'Consultez un·e spécialiste LPP pour une analyse personnalisée.';
+
+  static const List<String> sources = [
+    'LPP art. 15-16 (Bonifications de vieillesse)',
+    'LPP art. 79b (Rachat de prestations)',
+    'LPP art. 2, 7, 8 (Assujettissement et salaire coordonné)',
+    'LIFD art. 33 al. 1 let. d (Déduction des cotisations LPP)',
+    'LFLP art. 17-18 (Libre passage — transfert de l\'avoir)',
+  ];
   /// Compare current job vs new job across 7 axes.
   static JobComparisonResult compare({
     required LPPPlanInput current,

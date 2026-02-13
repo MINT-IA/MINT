@@ -4,6 +4,19 @@ import '../models/circle_score.dart';
 
 /// Service de calcul du score de santé financière par cercles
 class CircleScoringService {
+  static const String disclaimer =
+      'Score indicatif de santé financière — outil éducatif qui ne constitue '
+      'pas un conseil financier. Ce score repose sur une approche propriétaire MINT '
+      'et ne remplace pas l\'avis d\'un·e spécialiste. '
+      'Consultez un·e spécialiste pour une analyse personnalisée.';
+
+  static const List<String> sources = [
+    'Approche propriétaire MINT — scoring par cercles concentriques',
+    'LPP art. 79b (Rachat de prestations — Cercle 2)',
+    'OPP3 — plafonds 3a 2025/2026 (Cercle 2)',
+    'LAVS art. 29 (Durée de cotisation AVS — Cercle 2)',
+    'LAMal art. 61 (Primes et franchise — Cercle 1)',
+  ];
   /// Calcule le score global à partir des réponses du wizard
   FinancialHealthScore calculateScore(Map<String, dynamic> answers) {
     final circle1 = _scoreCircle1Protection(answers);

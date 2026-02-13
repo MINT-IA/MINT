@@ -103,6 +103,21 @@ class FirstJobResult {
 class FirstJobService {
   FirstJobService._();
 
+  static const String disclaimer =
+      'Simulation du premier salaire — outil éducatif qui ne constitue pas '
+      'un conseil en matière de rémunération ou de prévoyance. '
+      'Les montants sont des estimations basées sur des taux moyens. '
+      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+
+  static const List<String> sources = [
+    'CO art. 322 (Obligation de payer le salaire)',
+    'LAVS art. 3, 5 (Cotisations AVS employé·e / employeur)',
+    'LAMal art. 61-65 (Primes et franchises)',
+    'LPP art. 2, 7 (Assujettissement LPP — seuil d\'entrée)',
+    'LACI art. 3 (Cotisations assurance-chômage)',
+    'OPP3 — plafonds 3a 2025/2026',
+  ];
+
   // ════════════════════════════════════════════════════════════
   //  CONSTANTS (centralized in social_insurance.dart)
   // ════════════════════════════════════════════════════════════
