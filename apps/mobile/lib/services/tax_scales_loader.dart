@@ -22,6 +22,10 @@ class TaxScalesLoader {
     'SO': 'Solothurn',
     'BS': 'Basel-Stadt',
     'BL': 'Basel-Landschaft',
+    // AR/AI/SG rates are 2024 estimates pending official data verification
+    'AR': 'Appenzell Ausserrhoden',
+    'AI': 'Appenzell Innerrhoden',
+    'SG': 'St. Gallen',
     'SH': 'Schaffhausen',
     'GR': 'Graubünden',
     'AG': 'Aargau',
@@ -52,6 +56,7 @@ class TaxScalesLoader {
             .toList();
       }
     });
+    _convertCumulativeThresholds();
     _isLoaded = true;
   }
 
@@ -72,6 +77,7 @@ class TaxScalesLoader {
         }
       });
 
+      _convertCumulativeThresholds();
       _isLoaded = true;
       print('✅ Tax scales loaded for ${_cache.length} cantons.');
     } catch (e) {
@@ -111,5 +117,71 @@ class TaxScalesLoader {
 
     // Fallback: cantons à tarif unique "All" (GE, UR, OW, NW, GL, SO, SH, GR, AG, TG, VS, NE)
     return cantonScales.where((s) => s.tariff == 'All').toList();
+  }
+
+  /// Cantons whose JSON data uses cumulative income thresholds
+  /// (e.g. BS: 0, 212500, 316300 = "up to 212500 CHF") instead of
+  /// bracket widths (e.g. ZH: 6900, 4900 = "for the next 6900 CHF").
+  /// These are converted to bracket widths at load time so that
+  /// _calculateFromScales() works uniformly.
+  /// Both full names (JSON keys) and codes (test fixtures) are listed.
+  static const Set<String> _cumulativeCantons = {
+    'Basel-Stadt', 'BS',
+    'Geneva', 'GE',
+  };
+
+  /// Detects cantons whose JSON uses cumulative income thresholds
+  /// and converts them to bracket widths.
+  static void _convertCumulativeThresholds() {
+    for (final canton in _cumulativeCantons) {
+      final scales = _cache[canton];
+      if (scales == null || scales.length < 2) continue;
+
+      // Group by tariff
+      final tariffs = <String>{};
+      for (final s in scales) {
+        tariffs.add(s.tariff);
+      }
+
+      // Convert all tariff groups for this canton
+      final List<TaxScale> converted = [];
+      for (final tariff in tariffs) {
+        final group = scales.where((s) => s.tariff == tariff).toList();
+        converted.addAll(_convertGroupToWidths(group));
+      }
+      _cache[canton] = converted;
+    }
+  }
+
+  /// Converts a group of TaxScale entries from cumulative thresholds to
+  /// bracket widths. E.g. [0, 212500, 316300] -> [212500, 103800].
+  static List<TaxScale> _convertGroupToWidths(List<TaxScale> group) {
+    if (group.length < 2) return group;
+
+    final List<TaxScale> result = [];
+    for (int i = 0; i < group.length; i++) {
+      final double width;
+      if (i == 0) {
+        // First bracket: if threshold is 0, width = next threshold (or a large number)
+        if (i + 1 < group.length) {
+          width = group[i + 1].incomeThreshold - group[i].incomeThreshold;
+        } else {
+          width = group[i].incomeThreshold;
+        }
+      } else if (i < group.length - 1) {
+        width = group[i + 1].incomeThreshold - group[i].incomeThreshold;
+      } else {
+        // Last bracket: use a very large width (catch-all)
+        width = 999999999;
+      }
+
+      result.add(TaxScale(
+        canton: group[i].canton,
+        tariff: group[i].tariff,
+        incomeThreshold: width > 0 ? width : 0,
+        rate: group[i].rate,
+      ));
+    }
+    return result;
   }
 }

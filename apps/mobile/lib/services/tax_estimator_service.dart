@@ -268,6 +268,8 @@ class TaxEstimatorService {
       'NW', 'Nidwalden',
       'GL', 'Glarus',
       'SO', 'Solothurn',
+      'AR', 'Appenzell Ausserrhoden',
+      'AI', 'Appenzell Innerrhoden',
       'SH', 'Schaffhausen',
       'GR', 'Graubünden',
       'AG', 'Aargau',
