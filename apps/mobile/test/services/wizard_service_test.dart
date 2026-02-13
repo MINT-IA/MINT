@@ -400,14 +400,9 @@ void main() {
       expect(next!.id, 'q_birth_year');
     });
 
-    test('throws on empty remaining list (known limitation in source)', () {
-      // The source code calls remainingQuestions.first in the orElse callback
-      // of firstWhere, which throws Bad state when list is empty.
-      // This test documents that behavior.
-      expect(
-        () => WizardService.getNextMostValuableQuestion([], {}),
-        throwsStateError,
-      );
+    test('returns null on empty remaining list', () {
+      final result = WizardService.getNextMostValuableQuestion([], {});
+      expect(result, isNull);
     });
 
     test('returns first question when no priority match found', () {

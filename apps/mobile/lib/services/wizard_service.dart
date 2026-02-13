@@ -152,18 +152,14 @@ class WizardService {
       'q_primary_goal',
     ];
 
-    for (final priorityId in priorityOrder) {
-      final question = remainingQuestions.firstWhere(
-        (q) => q.id == priorityId,
-        orElse: () => remainingQuestions.first,
-      );
+    if (remainingQuestions.isEmpty) return null;
 
-      if (question.id == priorityId) {
-        return question;
-      }
+    for (final priorityId in priorityOrder) {
+      final match = remainingQuestions.where((q) => q.id == priorityId);
+      if (match.isNotEmpty) return match.first;
     }
 
-    return remainingQuestions.isNotEmpty ? remainingQuestions.first : null;
+    return remainingQuestions.first;
   }
 
   /// Valide qu'une réponse respecte les contraintes

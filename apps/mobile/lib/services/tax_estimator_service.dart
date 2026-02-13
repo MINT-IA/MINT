@@ -5,6 +5,17 @@ import 'package:mint_mobile/models/tax_scale.dart';
 import 'package:mint_mobile/data/average_tax_multipliers.dart';
 
 class TaxEstimatorService {
+  // --- Constantes nommées ---
+  /// Taux moyen d'impôt à la source pour permis B (estimation simplifiée)
+  static const double _sourceTaxRate = 0.12;
+
+  /// Facteur net → brut (hypothèse: charges sociales ~15%)
+  /// Utilisé uniquement dans le fallback statique.
+  static const double _netToGrossFactor = 0.85;
+
+  /// Multiplicateur pour estimer le taux marginal à partir du taux effectif
+  static const double _marginalMultiplier = 1.4;
+
   static const String disclaimer =
       'Estimation approximative de l\'impôt (ICC + IFD) — outil éducatif '
       'qui ne constitue pas un conseil fiscal. Les montants réels dépendent '
@@ -30,7 +41,7 @@ class TaxEstimatorService {
     String? communeName, // Commune pour multiplicateur précis
   }) {
     if (isSourceTaxed) {
-      return (netMonthlyIncome * 12) * 0.12;
+      return (netMonthlyIncome * 12) * _sourceTaxRate;
     }
 
     // 1. Reconstitution Revenu Brut Annuel Imposable (Approx)
@@ -78,7 +89,7 @@ class TaxEstimatorService {
     // ⚠️ Estimation approximative — utilise un facteur brut/net de 0.85
     // (hypothèse: charges sociales ~15%). Résultat indicatif uniquement.
     // Ce chemin est emprunté si TaxScalesLoader n'a pas de données pour ce canton.
-    final double grossAnnualIncome = (netMonthlyIncome * 12) / 0.85;
+    final double grossAnnualIncome = (netMonthlyIncome * 12) / _netToGrossFactor;
     double baseRate = _getBaseProgressiveRate(grossAnnualIncome);
     final cantonProfile = CantonalDataService.getByCode(cantonCode);
     double cantonFactor = _getCantonFactor(cantonProfile.taxPressureIncome);
@@ -140,10 +151,10 @@ class TaxEstimatorService {
         civilStatus: civilStatus,
         childrenCount: 0,
         age: 30);
-    final grossAnnual = (netMonthlyIncome * 12) / 0.85;
+    final grossAnnual = (netMonthlyIncome * 12) / _netToGrossFactor;
     if (grossAnnual == 0) return 0.0;
     final effectiveRate = annualTax / grossAnnual;
-    return (effectiveRate * 1.4).clamp(0.10, 0.45);
+    return (effectiveRate * _marginalMultiplier).clamp(0.10, 0.45);
   }
 
   static double calculateTaxSavings(
