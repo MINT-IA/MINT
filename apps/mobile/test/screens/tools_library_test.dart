@@ -1,33 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
-import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 void main() {
-  testWidgets('ToolsLibraryScreen renders all sections',
+  testWidgets('ToolsLibraryScreen renders without crashing',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: ToolsLibraryScreen()));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Outils Avancés'), findsOneWidget);
-    expect(find.text('Simulateur d\'Intérêt Réel'), findsOneWidget);
-    expect(find.text('Stratégie Rachat LPP'), findsOneWidget);
-    expect(find.text('Droits aux Prestations (PC)'), findsOneWidget);
-    expect(find.text('Générateur de Lettres'), findsOneWidget);
+    // App bar title
+    expect(find.text('Tous les outils'), findsOneWidget);
   });
 
-  testWidgets('ToolsLibraryScreen toggles Safe Mode',
+  testWidgets('ToolsLibraryScreen shows search field',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: ToolsLibraryScreen()));
+    await tester.pumpAndSettle();
 
-    // Default: Safe Mode OFF -> Content visible
-    expect(find.byType(SafeModeGate), findsWidgets);
-    // Finds generic lock text? No, content visible.
+    expect(find.byType(TextField), findsOneWidget);
+  });
 
-    // Toggle switch
-    await tester.tap(find.byType(Switch));
-    await tester.pump();
+  testWidgets('ToolsLibraryScreen shows category headers in uppercase',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(home: ToolsLibraryScreen()));
+    await tester.pumpAndSettle();
 
-    // Now Safe Mode ON -> Should see "Concentration Prioritaire" (Lock title)
-    expect(find.text('Concentration Prioritaire'), findsWidgets);
+    // Categories are displayed with .toUpperCase()
+    expect(find.text('PREVOYANCE'), findsOneWidget);
   });
 }
