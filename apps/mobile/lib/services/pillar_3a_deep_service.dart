@@ -343,7 +343,7 @@ class RealReturnCalculator {
           'Simulation pedagogique basee sur des hypotheses de rendement '
           'constant. Les rendements passes ne prejugent pas des rendements '
           'futurs. Les frais et rendements varient selon le prestataire. '
-          'L\'economie fiscale depend de votre taux marginal reel. '
+          'L\'economie fiscale depend de ton taux marginal reel. '
           'Base legale : OPP3, LIFD art. 33 al. 1 let. e. '
           'Consultez un ou une specialiste avant toute decision.',
     );
@@ -538,7 +538,7 @@ class ProviderComparator {
         );
         final perte = capitalFintech - capital;
         warningMsg =
-            'A $clampedAge ans, une assurance 3a vous coute environ '
+            'A $clampedAge ans, une assurance 3a te coute environ '
             'CHF ${formatChf(perte)} de rendement perdu sur $clampedDuree ans '
             'par rapport a une fintech. Frais eleves et flexibilite reduite.';
       }
@@ -587,8 +587,8 @@ class ProviderComparator {
           'Rendements passes ne prejugent pas des rendements futurs. '
           'Les frais et rendements moyens sont bases sur des donnees '
           'historiques simplifiees a titre pedagogique. '
-          'Le choix d\'un prestataire 3a depend de votre situation personnelle, '
-          'de votre profil de risque et de votre horizon de placement. '
+          'Le choix d\'un prestataire 3a depend de ta situation personnelle, '
+          'de ton profil de risque et de ton horizon de placement. '
           'MINT n\'est pas un intermediaire financier et ne fournit aucun '
           'conseil en placement. Consultez un ou une specialiste.',
     );

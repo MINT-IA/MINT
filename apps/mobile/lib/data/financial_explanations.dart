@@ -1,4 +1,5 @@
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
+import 'dart:math' as math;
 
 /// Librairie d'explications pédagogiques pour le rapport financier
 class FinancialExplanations {
@@ -75,9 +76,28 @@ class FinancialExplanations {
     double annualContribution,
     double taxSavings,
     double investmentReturn,
+    int yearsUntilRetirement,
   ) {
     final realCost = annualContribution - taxSavings;
-    final realReturn = ((annualContribution * investmentReturn) / realCost) - 1;
+
+    // Calcul du capital final (Brut) avec intérêts composés
+    double targetCapital = 0;
+    if (investmentReturn == 0) {
+      targetCapital = annualContribution * yearsUntilRetirement;
+    } else {
+      targetCapital = annualContribution *
+          ((math.pow(1 + investmentReturn, yearsUntilRetirement) - 1) /
+              investmentReturn);
+    }
+
+    // Calcul du rendement équivalent sur le coût net (IRR)
+    // On cherche 'r' tel que realCost * ((1+r)^n - 1) / r = targetCapital
+    double effectiveYield = _solveForRate(
+      targetCapital: targetCapital,
+      annualPayment: realCost,
+      years: yearsUntilRetirement,
+      initialGuess: investmentReturn + 0.05,
+    );
 
     return [
       ExplanationSection(
@@ -88,12 +108,25 @@ class FinancialExplanations {
       ExplanationSection(
         title: '💰 Rendement réel (avec fiscal)',
         content:
-            'Chaque année, tu verses CHF ${annualContribution.toStringAsFixed(0)} et tu économises CHF ${taxSavings.toStringAsFixed(0)} d\'impôts.',
+            'Chaque année, tu ne payes réellement que CHF ${realCost.toStringAsFixed(0)} (après déduction fiscale) pour investir CHF ${annualContribution.toStringAsFixed(0)}.',
         example:
             'Coût réel = ${annualContribution.toStringAsFixed(0)} - ${taxSavings.toStringAsFixed(0)} = CHF ${realCost.toStringAsFixed(0)}\n\n'
             'Rendement investissement : ${(investmentReturn * 100).toStringAsFixed(1)}%\n'
-            'Rendement fiscal : ${((taxSavings / annualContribution) * 100).toStringAsFixed(0)}%\n'
-            '→ Rendement réel total : ~${(realReturn * 100).toStringAsFixed(0)}% !',
+            '→ Rendement réel total : ~${(effectiveYield * 100).toStringAsFixed(1)}% !\n\n'
+            'C\'est le taux qu\'il te faudrait sur un placement non-déductible pour arriver au même capital final.',
+      ),
+      ExplanationSection(
+        title: '📈 Indexation et Inflation',
+        content:
+            'Le plafond du 3a est lié à l\'AVS et est généralement indexé tous les 2 ans. Cela signifie que ta capacité d\'épargne fiscale augmente avec le temps !',
+        keyPoints: [
+          const KeyPoint(
+            'Bonus Indexation : Ton économie fiscale grandit tous les 2 ans',
+          ),
+          const KeyPoint(
+            'Protection Inflation : Investir en actions (via VIAC) protège ton pouvoir d\'achat',
+          ),
+        ],
       ),
       ExplanationSection(
         title: '✨ Impossible à battre',
@@ -109,11 +142,35 @@ class FinancialExplanations {
             isPositive: false,
           ),
           KeyPoint(
-            '3a VIAC : ${(realReturn * 100).toStringAsFixed(0)}% de rendement RÉEL (avec fiscal)',
+            '3a VIAC : ${(effectiveYield * 100).toStringAsFixed(1)}% de rendement RÉEL (avec fiscal)',
           ),
         ],
       ),
     ];
+  }
+
+  /// Résout l'équation de la valeur future pour trouver le taux (Newton-Raphson simplifié)
+  static double _solveForRate({
+    required double targetCapital,
+    required double annualPayment,
+    required int years,
+    required double initialGuess,
+  }) {
+    if (years <= 0) return 0;
+
+    double r = initialGuess;
+    for (int i = 0; i < 20; i++) {
+      double powR = math.pow(1 + r, years).toDouble();
+      double f = annualPayment * (powR - 1) / r - targetCapital;
+      double df = annualPayment *
+          (years * math.pow(1 + r, years - 1) * r - (powR - 1)) /
+          (r * r);
+
+      double nextR = r - f / df;
+      if ((nextR - r).abs() < 0.0001) return nextR;
+      r = nextR;
+    }
+    return r;
   }
 
   /// Explication des intérêts composés
@@ -143,6 +200,125 @@ class FinancialExplanations {
             'Régularité > Montant ponctuel',
           ),
         ],
+      ),
+    ];
+  }
+
+  /// Explication des lacunes AVS (1/44)
+  static List<ExplanationSection> avsGapExplanation(
+    int contributionYears,
+    bool isMarried,
+    int? spouseYears,
+  ) {
+    final gap = 44 - contributionYears;
+    final reductionPct = (gap / 44 * 100).toStringAsFixed(1);
+
+    final sections = [
+      ExplanationSection(
+        title: '📉 L\'impact des lacunes AVS',
+        content:
+            'Le système AVS suisse est basé sur 44 années de cotisation (de 21 à 65 ans). Chaque année manquante réduit ta rente de façon proportionnelle et définitive.',
+        keyPoints: [
+          KeyPoint(
+            'Rente complète = 44 années de cotisation non-interrompues',
+          ),
+          KeyPoint(
+            '1 année manquante = -1/44e de rente (~2.3% en moins)',
+            isPositive: false,
+          ),
+          if (gap > 0)
+            KeyPoint(
+              'Ton impact : -$reductionPct% sur ta future rente AVS',
+              isPositive: false,
+            ),
+        ],
+      ),
+      ExplanationSection(
+        title: '🌍 Séjours à l\'étranger',
+        content:
+            'Partir à l\'étranger sans cotiser au moins le minimum AVS (env. CHF 514/an) crée une lacune irrécupérable après 5 ans.',
+        keyPoints: [
+          const KeyPoint(
+            'Chaque année à l\'étranger sans cotisation = -2.3% de rente AVS à vie',
+            isPositive: false,
+          ),
+          const KeyPoint(
+            'Solution : Cotiser à l\'AVS facultative ou compenser par un 3e pilier plus fort',
+          ),
+        ],
+      ),
+    ];
+
+    if (isMarried && spouseYears != null) {
+      final spouseGap = 44 - spouseYears;
+      if (spouseGap > 0) {
+        final spouseReduction = (spouseGap / 44 * 100).toStringAsFixed(1);
+        sections.add(ExplanationSection(
+          title: '💍 Impact sur le couple',
+          content:
+              'Pour les couples mariés, les rentes sont plafonnées à 150% d\'une rente simple (max CHF 3\'675). Les lacunes de l\'un ou l\'autre réduisent ce plafond.',
+          keyPoints: [
+            KeyPoint(
+              'Lacune conjoint : -$spouseReduction% sur sa part de rente',
+              isPositive: false,
+            ),
+          ],
+        ));
+      }
+    }
+
+    sections.add(ExplanationSection(
+      title: '✅ Que faire ?',
+      content:
+          'Il est possible de racheter les 5 dernières années manquantes si tu étais domicilié en Suisse.',
+      keyPoints: [
+        const KeyPoint(
+          'Commande un extrait de compte individuel (CI) gratuit',
+        ),
+        const KeyPoint(
+          'Vérifie les années avec ta caisse de compensation',
+        ),
+        const KeyPoint(
+          'Rachète les lacunes récentes (< 5 ans) si possible',
+        ),
+      ],
+    ));
+
+    return sections;
+  }
+
+  /// Explication des subsides d'assurance maladie (Lien Groupe Mutuel)
+  static List<ExplanationSection> healthInsuranceSubsidyExplanation(
+    double netIncome,
+    String canton,
+  ) {
+    return [
+      ExplanationSection(
+        title: '💸 Les Subsides : L\'aide invisible',
+        content:
+            'En Suisse, si ton revenu est modeste, l\'État paye une partie de tes primes d\'assurance maladie. C\'est ce qu\'on appelle les subsides.',
+      ),
+      ExplanationSection(
+        title: '🎯 Es-tu éligible ?',
+        content:
+            'Les seuils d\'éligibilité varient énormément d\'un canton à l\'autre. En général, si ton revenu net est inférieur à un certain seuil (ex: CHF 60\'000 pour un célibataire à VD), tu as droit à une réduction.',
+        keyPoints: [
+          const KeyPoint(
+            'Réduction immédiate du coût de la vie',
+          ),
+          const KeyPoint(
+            'Demande souvent non-automatique (il faut la faire !)',
+            isPositive: false,
+          ),
+          KeyPoint(
+            'Canton de $canton : Les barèmes sont réactualisés chaque année',
+          ),
+        ],
+      ),
+      const ExplanationSection(
+        title: '💡 Le Conseil Mint',
+        content:
+            'Même si tu gagnes "bien" ta vie, des changements (mariage, enfants, baisse de temps de travail) peuvent t\'ouvrir des droits. Ne laisse pas cet argent sur la table.',
       ),
     ];
   }

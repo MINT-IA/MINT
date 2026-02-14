@@ -150,7 +150,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           ),
           SizedBox(height: 12),
           Text(
-            'Le 3a est votre meilleur outil d\'optimisation en Suisse. L\'économie fiscale immédiate est un "rendement" garanti.',
+            'Le 3a est ton meilleur outil d\'optimisation en Suisse. L\'économie fiscale immédiate est un "rendement" garanti.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],
@@ -162,7 +162,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Vos Paramètres'),
+        _buildSectionHeader('Tes Paramètres'),
         const SizedBox(height: 24),
         _buildSlider(
           label: 'Versement annuel',
@@ -323,7 +323,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         const SizedBox(height: 24),
         _buildSmartItem(Icons.account_balance_wallet_outlined, 'Bancaire > Assurance', 'Évitez les contrats d\'assurance liés. Restez flexible avec un 3a bancaire investi.'),
         _buildSmartItem(Icons.layers_outlined, 'La règle des 5 comptes', 'Ouvrez plusieurs comptes pour retirer de manière échelonnée et éviter la progression fiscale au retrait.'),
-        _buildSmartItem(Icons.trending_up, '100% Actions', 'Si votre retraite est dans plus de 15 ans, une stratégie actions maximise votre capital.'),
+        _buildSmartItem(Icons.trending_up, '100% Actions', 'Si ta retraite est dans plus de 15 ans, une stratégie actions maximise ton capital.'),
       ],
     );
   }
@@ -363,7 +363,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Text(
-          'Calculs basés sur des moyennes cantonales. Les économies réelles dépendent de votre lieu de résidence et situation familiale.',
+          'Calculs basés sur des moyennes cantonales. Les économies réelles dépendent de ton lieu de résidence et situation familiale.',
           style: TextStyle(color: MintColors.textMuted, fontSize: 11),
           textAlign: TextAlign.center,
         ),

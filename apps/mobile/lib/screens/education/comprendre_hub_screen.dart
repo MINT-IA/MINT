@@ -119,7 +119,7 @@ class _ThemeCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Comprendre en 1 min", // Static for now, could be dynamic
+                            "Lire + quiz \u2022 2 min",
                             style: TextStyle(
                               fontSize: 12,
                               color: MintColors.textMuted,

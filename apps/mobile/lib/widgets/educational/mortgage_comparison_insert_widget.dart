@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Insert didactique pour q_mortgage_type
 /// Comparateur neutre Fixe vs SARON
@@ -37,23 +38,23 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.amber.shade50,
+              color: MintColors.appleSurface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.shade300),
+              border: Border.all(color: MintColors.lightBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.balance, color: Colors.amber.shade700, size: 24),
+                    const Icon(Icons.balance, color: MintColors.primary, size: 24),
                     const SizedBox(width: 12),
                     Text(
                       'Aucune option n\'est universellement meilleure',
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.amber.shade900,
+                        color: MintColors.textPrimary,
                       ),
                     ),
                   ],
@@ -82,24 +83,24 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
           cells: ['Critère', 'Fixe', 'SARON'],
         ),
         _buildTableRow(
-          cells: ['Mensualités', '✅ Stables', '⚠️ Variables'],
-          colors: [null, Colors.green.shade50, Colors.orange.shade50],
+          cells: ['Mensualités', 'Stables', 'Variables'],
+          colors: [null, MintColors.appleSurface, null],
         ),
         _buildTableRow(
-          cells: ['Coût historique', '⚠️ Plus élevé', '✅ Plus bas'],
-          colors: [null, Colors.orange.shade50, Colors.green.shade50],
+          cells: ['Coût historique', 'Plus élevé', 'Plus bas'],
+          colors: [null, null, MintColors.appleSurface],
         ),
         _buildTableRow(
-          cells: ['Risque taux', '✅ Aucun', '⚠️ Exposition'],
-          colors: [null, Colors.green.shade50, Colors.orange.shade50],
+          cells: ['Risque taux', 'Aucun', 'Exposition'],
+          colors: [null, MintColors.appleSurface, null],
         ),
         _buildTableRow(
-          cells: ['Flexibilité', '❌ Pénalités', '✅ Souple'],
-          colors: [null, Colors.red.shade50, Colors.green.shade50],
+          cells: ['Flexibilité', 'Pénalités', 'Souple'],
+          colors: [null, null, MintColors.appleSurface],
         ),
         _buildTableRow(
-          cells: ['Planification', '✅ Budgétable', '⚠️ Incertain'],
-          colors: [null, Colors.green.shade50, Colors.orange.shade50],
+          cells: ['Planification', 'Budgétable', 'Incertain'],
+          colors: [null, MintColors.appleSurface, null],
         ),
       ],
     );

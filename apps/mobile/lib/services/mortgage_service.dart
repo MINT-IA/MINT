@@ -771,7 +771,7 @@ class EplCombinedCalculator {
         impotEstime: impotLpp,
         montantNet: lppUtilise - impotLpp,
         alerte:
-            'Le retrait LPP reduit vos prestations de risque (invalidite, deces). '
+            'Le retrait LPP reduit tes prestations de risque (invalidite, deces). '
             'Impot estime : CHF ${formatChf(impotLpp)}.',
       ));
     }
@@ -780,8 +780,8 @@ class EplCombinedCalculator {
     final alertes = <String>[];
     if (lppUtilise > 0) {
       alertes.add(
-        'Le retrait EPL (LPP) reduit proportionnellement vos prestations '
-        'd\'invalidite et de deces. Verifiez aupres de votre caisse de pension '
+        'Le retrait EPL (LPP) reduit proportionnellement tes prestations '
+        'd\'invalidite et de deces. Verifie aupres de ta caisse de pension '
         'les possibilites d\'assurance complementaire.',
       );
     }
@@ -793,14 +793,14 @@ class EplCombinedCalculator {
     }
     if (!objectifAtteint) {
       alertes.add(
-        'Vos fonds propres couvrent ${pourcentageCouvert.toStringAsFixed(1)}% du prix. '
+        'Tes fonds propres couvrent ${pourcentageCouvert.toStringAsFixed(1)}% du prix. '
         'Il manque environ CHF ${formatChf(restant)} pour atteindre les 20% requis.',
       );
     }
     if (lppUtilise >= lppMax && lpp > lppMax) {
       alertes.add(
         'Utilisation LPP limitee a 10% du prix d\'achat '
-        '(CHF ${formatChf(lppMax)}). Votre avoir LPP restant n\'est pas '
+        '(CHF ${formatChf(lppMax)}). Ton avoir LPP restant n\'est pas '
         'utilisable comme fonds propres.',
       );
     }

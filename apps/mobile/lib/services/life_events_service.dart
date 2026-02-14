@@ -217,7 +217,7 @@ class DivorceService {
       alerts.add(
         'Le transfert LPP est significatif ('
         '${_formatChf(lppTransfer)}). Verifiez les montants exacts '
-        'aupres de votre caisse de pension.',
+        'aupres de ta caisse de pension.',
       );
     }
 
@@ -232,7 +232,7 @@ class DivorceService {
       alerts.add(
         'L\'impact fiscal du divorce est important : '
         '+${_formatChf(taxImpact.delta)}/an. Anticipez ce surcout '
-        'dans votre budget.',
+        'dans ton budget.',
       );
     }
 
@@ -468,7 +468,7 @@ class SuccessionService {
 
     if (input.civilStatus == CivilStatus.concubinage) {
       alerts.add(
-        'En concubinage, votre partenaire n\'a AUCUN droit '
+        'En concubinage, ton/ta partenaire n\'a AUCUN droit '
         'successoral legal. Sans testament, il/elle ne recoit '
         'rien. La fiscalite est aussi nettement plus lourde '
         '(taux "tiers").',
@@ -479,9 +479,9 @@ class SuccessionService {
         (input.civilStatus == CivilStatus.concubinage ||
             input.civilStatus == CivilStatus.celibataire)) {
       alerts.add(
-        'Vos avoirs 3a (${_formatChf(input.avoirs3a)}) suivent '
-        'l\'ordre de beneficiaires OPP3, pas votre testament. '
-        'Verifiez vos clauses beneficiaires aupres de votre '
+        'Tes avoirs 3a (${_formatChf(input.avoirs3a)}) suivent '
+        'l\'ordre de beneficiaires OPP3, pas ton testament. '
+        'Verifie tes clauses beneficiaires aupres de ta '
         'fondation 3a.',
       );
     }
@@ -490,7 +490,7 @@ class SuccessionService {
       alerts.add(
         'Le capital-deces LPP (${_formatChf(input.capitalDecesLpp)}) '
         'n\'entre pas dans la masse successorale. Il est verse '
-        'selon le reglement de votre caisse de pension.',
+        'selon le reglement de ta caisse de pension.',
       );
     }
 
@@ -498,7 +498,7 @@ class SuccessionService {
       alerts.add(
         'Nouveau droit 2023 : la quotite disponible est desormais '
         'de ${(quotiteDisponiblePct * 100).toStringAsFixed(0)}% '
-        'de votre succession. Vous avez plus de liberte pour '
+        'de ta succession. Tu as plus de liberte pour '
         'avantager certains heritiers.',
       );
     }

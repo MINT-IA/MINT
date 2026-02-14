@@ -243,7 +243,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.language,
           title: 'Frontalier',
           subtitle: 'Impot source, 90 jours, charges sociales',
-          route: '/frontalier',
+          route: '/segments/frontalier',
           color: const Color(0xFF2563EB),
         ),
         _ToolItem(

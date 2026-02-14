@@ -55,7 +55,7 @@ class ReportBuilder {
       id: 'reco_budget_mvp',
       kind: 'budget_tool',
       title: 'Maîtriser le Cashflow',
-      summary: 'Votre budget disponible pour le mois.',
+      summary: 'Ton budget disponible pour le mois.',
       why: [
         'Savoir ce qui est vraiment disponible permet d\'éviter le stress.'
       ],
@@ -83,7 +83,7 @@ class ReportBuilder {
             title: 'Plan de désendettement',
             summary: 'Priorité absolue : réduire la dette.',
             why: [
-              'Les intérêts composés jouent contre vous.',
+              'Les intérêts composés jouent contre toi.',
               'Réduit le stress mental'
             ],
             assumptions: [],
@@ -107,7 +107,7 @@ class ReportBuilder {
           id: 'reco_3a_generic',
           kind: 'tax_optimization',
           title: 'Ouvrir un 3e pilier',
-          summary: 'Réduisez vos impôts dès maintenant.',
+          summary: 'Réduis tes impôts dès maintenant.',
           why: ['Économie d\'impôts immédiate (jusqu\'à 2000 CHF/an).'],
           assumptions: ['Revenu imposable suffisant'],
           impact: const Impact(amountCHF: 1500, period: Period.yearly),
@@ -125,8 +125,8 @@ class ReportBuilder {
         recommendations.add(Recommendation(
           id: 'reco_3a_opt',
           kind: 'tax_optimization',
-          title: 'Optimiser votre 3a',
-          summary: 'Vérifiez vos frais et rendements.',
+          title: 'Optimiser ton 3a',
+          summary: 'Vérifie tes frais et rendements.',
           why: ['Les frais mangent la performance sur le long terme.'],
           assumptions: [],
           impact: const Impact(amountCHF: 500, period: Period.yearly),
@@ -151,7 +151,7 @@ class ReportBuilder {
     if (isCohabiting) {
       topActions.add(TopAction(
         effortTag: 'Critique',
-        label: 'Protéger votre conjoint(e)',
+        label: 'Protéger ton/ta conjoint·e',
         why: 'En concubinage, 0% protection décès/héritage par défaut.',
         ifThen: 'SI décès ALORS partenaire sans droits.',
         nextAction: const NextAction(
@@ -166,7 +166,7 @@ class ReportBuilder {
       topActions.add(TopAction(
         effortTag: 'Priorité',
         label: 'Stopper l’hémorragie',
-        why: 'Vos dettes vous coûtent trop cher.',
+        why: 'Tes dettes te coûtent trop cher.',
         ifThen: 'SI dette > 0 ALORS rembourser avant d\'investir.',
         nextAction: const NextAction(
             label: 'Stratégie Avalanche', type: NextActionType.learn),
@@ -188,7 +188,7 @@ class ReportBuilder {
     // Action 2: Budget Control
     topActions.add(TopAction(
       effortTag: 'Habitude',
-      label: 'Ajuster vos enveloppes',
+      label: 'Ajuster tes enveloppes',
       why: 'Savoir où va l\'argent.',
       ifThen: 'SI dépenses > budget ALORS ajuster lifestyle.',
       nextAction: const NextAction(
@@ -231,7 +231,7 @@ class ReportBuilder {
       id: 'local_${now.millisecondsSinceEpoch}',
       sessionId: 'local_session',
       precisionScore: 0.85,
-      title: 'Votre Bilan Flash',
+      title: 'Ton Bilan Flash',
       overview: SessionReportOverview(
         canton: answers['q_canton'] ?? 'CH',
         householdType: answers['q_civil_status'] ?? 'Inconnu',
@@ -256,7 +256,7 @@ class ReportBuilder {
       disclaimers: [
         'Ceci n\'est pas un conseil financier personnalisé.',
         'Les performances passées ne préjugent pas des performances futures.',
-        'Vérifiez toujours vos capacités de remboursement avant de souscrire un crédit.',
+        'Vérifie toujours tes capacités de remboursement avant de souscrire un crédit.',
       ],
       generatedAt: now,
     );

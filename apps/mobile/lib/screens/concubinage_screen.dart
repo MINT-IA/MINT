@@ -993,7 +993,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       'description':
           'Un contrat ecrit qui regle le partage des frais, la propriete des biens, '
           'et ce qui se passe en cas de separation. Pas obligatoire, mais fortement '
-          'recommande — surtout si vous achetez un bien immobilier ensemble.',
+          'recommande — surtout si tu achetes un bien immobilier ensemble.',
     },
     {
       'title': 'Assurance-vie croisee',
@@ -1026,7 +1026,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     {
       'title': 'Bail commun ou individuel',
       'description':
-          'Si vous etes tous les deux sur le bail, vous etes solidairement responsables. '
+          'Si tu es sur le bail avec ton/ta partenaire, vous etes solidairement responsables. '
           'En cas de separation, les deux doivent donner conge. '
           'Si un seul est titulaire, l\'autre n\'a aucun droit sur le logement.',
     },

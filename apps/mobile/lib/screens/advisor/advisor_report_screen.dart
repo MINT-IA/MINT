@@ -95,7 +95,7 @@ class _AdvisorReportScreenState extends State<AdvisorReportScreen> {
                 ],
                 const SizedBox(height: 40),
                 Text(
-                  'Le Conseil de votre Mentor',
+                  'Le Conseil de ton Mentor',
                   style: GoogleFonts.outfit(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -208,8 +208,8 @@ class _AdvisorReportScreenState extends State<AdvisorReportScreen> {
                 ),
                 Text(
                   isLow
-                      ? 'Complétez votre FactFind pour rabaisser vos marges d\'erreur.'
-                      : 'Votre diagnostic est hautement personnalisé.',
+                      ? 'Complète ton FactFind pour rabaisser tes marges d\'erreur.'
+                      : 'Ton diagnostic est hautement personnalisé.',
                   style: const TextStyle(fontSize: 12),
                 ),
               ],

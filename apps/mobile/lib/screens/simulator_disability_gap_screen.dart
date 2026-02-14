@@ -818,9 +818,9 @@ class _SimulatorDisabilityGapScreenState
         _buildExpandableTile(
           'IJM vs AI : quelle différence ?',
           'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80% '
-              'de votre salaire pendant max. 720 jours en cas de maladie. L\'employeur '
+              'de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur '
               'n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance '
-              'collective. Sans IJM, après la période légale de maintien du salaire, vous ne '
+              'collective. Sans IJM, après la période légale de maintien du salaire, tu ne '
               'recevez plus rien jusqu\'à l\'éventuelle rente AI.',
         ),
         const SizedBox(height: 8),
@@ -887,9 +887,9 @@ class _SimulatorDisabilityGapScreenState
           Expanded(
             child: Text(
               'Ces résultats sont des estimations indicatives basées sur les barèmes '
-              'légaux. Votre couverture réelle dépend de votre contrat de travail, de '
-              'votre caisse de pension et de vos assurances individuelles. Consultez '
-              'votre employeur et un·e spécialiste qualifié·e.',
+              'légaux. Ta couverture réelle dépend de ton contrat de travail, de '
+              'ta caisse de pension et de tes assurances individuelles. Consulte '
+              'ton employeur et un·e spécialiste qualifié·e.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

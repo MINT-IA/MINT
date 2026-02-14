@@ -73,7 +73,7 @@ class PortfolioScreen extends StatelessWidget {
           SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Alerte Dettes : Votre priorité absolue est le désendettement avant tout réinvestissement.',
+              'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
               style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.bold),
             ),
           ),
@@ -228,7 +228,7 @@ class PortfolioScreen extends StatelessWidget {
           SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Votre allocation est saine. Pensez à rééquilibrer votre 3a prochainement.',
+              'Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.',
               style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.4),
             ),
           ),

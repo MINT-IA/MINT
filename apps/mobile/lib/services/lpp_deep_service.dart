@@ -105,7 +105,7 @@ class RachatEchelonneSimulator {
           'Simulation pedagogique basee sur une progressivite estimee. '
           'Le rachat LPP est soumis a acceptation par la caisse de pension. '
           'Blocage EPL de 3 ans apres chaque rachat (LPP art. 79b al. 3). '
-          'Consultez votre caisse de pension et un ou une specialiste '
+          'Consulte ta caisse de pension et un ou une specialiste '
           'en prevoyance avant toute decision.',
     );
   }
@@ -215,7 +215,7 @@ class LibrePassageAdvisor {
     checklist.add(const ChecklistItem(
       title: 'Demander un decompte de sortie',
       description:
-          'Exigez un decompte detaille de votre caisse de pension '
+          'Exige un decompte detaille de ta caisse de pension '
           'avec la repartition obligatoire / surobligatoire.',
       urgency: ChecklistUrgency.haute,
     ));
@@ -223,7 +223,7 @@ class LibrePassageAdvisor {
     // Transfert dans les 30 jours
     if (statut == LibrePassageStatut.changementEmploi && hasNewEmployer) {
       checklist.add(const ChecklistItem(
-        title: 'Transferer votre avoir dans les 30 jours',
+        title: 'Transferer ton avoir dans les 30 jours',
         description:
             'L\'avoir doit etre transfere a la nouvelle caisse de pension. '
             'Communiquez les coordonnees de la nouvelle caisse a l\'ancienne.',
@@ -234,8 +234,8 @@ class LibrePassageAdvisor {
         alerts.add(const LibrePassageAlert(
           title: 'Delai de transfert bientot echu',
           message:
-              'Le transfert de votre avoir doit intervenir dans les 30 jours. '
-              'Contactez votre ancienne caisse de pension rapidement.',
+              'Le transfert de ton avoir doit intervenir dans les 30 jours. '
+              'Contacte ton ancienne caisse de pension rapidement.',
           urgency: ChecklistUrgency.critique,
         ));
       }
@@ -251,7 +251,7 @@ class LibrePassageAdvisor {
       checklist.add(const ChecklistItem(
         title: 'Ouvrir un compte de libre passage',
         description:
-            'Sans nouvel employeur, votre avoir doit etre place sur un ou '
+            'Sans nouvel employeur, ton avoir doit etre place sur un ou '
             'deux comptes de libre passage (max. 2 selon la loi).',
         urgency: ChecklistUrgency.critique,
       ));
@@ -269,7 +269,7 @@ class LibrePassageAdvisor {
         '(ex: Finpension, VIAC, Freizugigkeit.ch).',
       );
       recommendations.add(
-        'Scinder votre avoir en 2 comptes permet d\'echelonner '
+        'Scinder ton avoir en 2 comptes permet d\'echelonner '
         'les retraits et de reduire la progressivite fiscale.',
       );
     }
@@ -286,9 +286,9 @@ class LibrePassageAdvisor {
       ));
 
       checklist.add(const ChecklistItem(
-        title: 'Annoncer votre depart a la caisse de pension',
+        title: 'Annoncer ton depart a la caisse de pension',
         description:
-            'Informez votre caisse dans les 30 jours suivant votre depart.',
+            'Informe ta caisse dans les 30 jours suivant ton depart.',
         urgency: ChecklistUrgency.haute,
       ));
 
@@ -296,8 +296,8 @@ class LibrePassageAdvisor {
         alerts.add(const LibrePassageAlert(
           title: 'Transfert a effectuer dans les 6 mois',
           message:
-              'Apres un depart de Suisse, vous disposez de 6 mois pour '
-              'transferer votre avoir ou ouvrir un compte de libre passage.',
+              'Apres un depart de Suisse, tu disposes de 6 mois pour '
+              'transferer ton avoir ou ouvrir un compte de libre passage.',
           urgency: ChecklistUrgency.haute,
         ));
       }
@@ -311,17 +311,17 @@ class LibrePassageAdvisor {
     // Cessation d'activite
     if (statut == LibrePassageStatut.cessationActivite) {
       checklist.add(const ChecklistItem(
-        title: 'Verifier vos droits au chomage',
+        title: 'Verifier tes droits au chomage',
         description:
-            'En cas de chomage, votre prevoyance professionnelle continue '
+            'En cas de chomage, ta prevoyance professionnelle continue '
             'via la fondation institution suppletive (Fondation LPP).',
         urgency: ChecklistUrgency.haute,
       ));
 
       if (age >= 58) {
         recommendations.add(
-          'A partir de 58 ans, vous pouvez demander le maintien de '
-          'l\'assurance complete aupres de votre ancienne caisse de pension.',
+          'A partir de 58 ans, tu peux demander le maintien de '
+          'l\'assurance complete aupres de ton ancienne caisse de pension.',
         );
       }
     }
@@ -340,7 +340,7 @@ class LibrePassageAdvisor {
       title: 'Verifier la couverture risque transitoire',
       description:
           'Pendant la periode de libre passage, la couverture deces '
-          'et invalidite peut etre reduite. Verifiez vos contrats.',
+          'et invalidite peut etre reduite. Verifie tes contrats.',
       urgency: ChecklistUrgency.haute,
     ));
 
@@ -351,7 +351,7 @@ class LibrePassageAdvisor {
       disclaimer:
           'Ces informations sont pedagogiques et ne constituent pas '
           'un conseil juridique ou financier personnalise. Les regles '
-          'dependent de votre caisse de pension et de votre situation. '
+          'dependent de ta caisse de pension et de ta situation. '
           'Base legale : LFLP, OLP. Consultez un ou une specialiste '
           'en prevoyance professionnelle.',
     );
@@ -422,7 +422,7 @@ class EplSimulator {
       montantMax = 0;
       alerts.add(
         'Le montant minimum de retrait EPL est de CHF 20\'000. '
-        'Votre avoir est insuffisant.',
+        'Ton avoir est insuffisant.',
       );
     }
 
@@ -431,7 +431,7 @@ class EplSimulator {
       final anneesRestantes = 3 - anneesSDepuisRachat;
       montantMax = 0;
       alerts.add(
-        'Blocage EPL : vous avez effectue un rachat LPP il y a moins de '
+        'Blocage EPL : tu as effectue un rachat LPP il y a moins de '
         '3 ans. Le retrait EPL sera possible dans $anneesRestantes an(s) '
         '(LPP art. 79b al. 3).',
       );
@@ -469,14 +469,14 @@ class EplSimulator {
     if (applicable > 0 && age >= 50) {
       alerts.add(
         'A partir de 50 ans, le montant retirable est limite. '
-        'Verifiez le montant exact aupres de votre caisse de pension.',
+        'Verifie le montant exact aupres de ta caisse de pension.',
       );
     }
 
     if (applicable > 0) {
       alerts.add(
-        'Le retrait EPL reduit vos prestations de risque '
-        '(invalidite et deces). Verifiez votre couverture residuelle.',
+        'Le retrait EPL reduit tes prestations de risque '
+        '(invalidite et deces). Verifie ta couverture residuelle.',
       );
       alerts.add(
         'En cas de vente du bien immobilier, le montant retire doit etre '
@@ -493,10 +493,10 @@ class EplSimulator {
       alerts: alerts,
       disclaimer:
           'Simulation pedagogique a titre indicatif. Le montant retirable '
-          'exact depend du reglement de votre caisse de pension et de '
-          'votre avoir a 50 ans. L\'impot varie selon le canton et '
+          'exact depend du reglement de ta caisse de pension et de '
+          'ton avoir a 50 ans. L\'impot varie selon le canton et '
           'la situation personnelle. Base legale : art. 30c LPP, '
-          'OEPL. Consultez votre caisse de pension et un ou une '
+          'OEPL. Consulte ta caisse de pension et un ou une '
           'specialiste avant toute decision.',
     );
   }

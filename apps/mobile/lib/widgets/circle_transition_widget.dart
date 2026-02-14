@@ -42,10 +42,7 @@ class _CircleTransitionWidgetState extends State<CircleTransitionWidget>
 
     _controller.forward();
 
-    // Auto-dismiss after 3 seconds, or allow user tap (in build)
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) widget.onComplete();
-    });
+    // User advances via "Continuer" button or tap
   }
 
   @override
@@ -107,6 +104,23 @@ class _CircleTransitionWidgetState extends State<CircleTransitionWidget>
                           fontSize: 16,
                           color: MintColors.textSecondary,
                           height: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    FilledButton(
+                      onPressed: widget.onComplete,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: widget.color,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        'Continuer',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
                       ),
                     ),

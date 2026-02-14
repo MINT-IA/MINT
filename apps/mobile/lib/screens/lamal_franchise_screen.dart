@@ -185,7 +185,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Trouvez la franchise ideale selon vos frais de sante',
+                'Trouve la franchise ideale selon tes frais de sante',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -215,8 +215,8 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Une franchise elevee reduit votre prime mensuelle, mais '
-              'augmente vos frais en cas de maladie. Deplacez les '
+              'Une franchise elevee reduit ta prime mensuelle, mais '
+              'augmente tes frais en cas de maladie. Deplace les '
               'curseurs pour trouver l\'equilibre ideal.',
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -794,7 +794,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
             child: Text(
               'Cette analyse est indicative. Les primes varient selon '
               'l\'assureur, la region et le modele d\'assurance. '
-              'Consultez votre caisse maladie pour des chiffres exacts.',
+              'Consulte ta caisse maladie pour des chiffres exacts.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

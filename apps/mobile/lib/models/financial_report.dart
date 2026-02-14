@@ -51,6 +51,9 @@ class UserProfile {
   final String employmentStatus;
   final double monthlyNetIncome;
 
+  final int? contributionYears;
+  final int? spouseContributionYears;
+
   const UserProfile({
     this.firstName,
     required this.birthYear,
@@ -59,6 +62,8 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
+    this.contributionYears,
+    this.spouseContributionYears,
   });
 
   int get age => DateTime.now().year - birthYear;
@@ -67,6 +72,19 @@ class UserProfile {
   bool get hasChildren => childrenCount > 0;
   bool get isSalaried => employmentStatus == 'employee';
   double get annualIncome => monthlyNetIncome * 12;
+
+  /// Facteur de réduction AVS (1/44 par année manquante)
+  double get avsReductionFactor {
+    final years = contributionYears ?? 44;
+    return (years / 44).clamp(0.0, 1.0);
+  }
+
+  /// Facteur de réduction AVS pour le conjoint
+  double get spouseAvsReductionFactor {
+    if (!isMarried) return 0.0;
+    final years = spouseContributionYears ?? 44;
+    return (years / 44).clamp(0.0, 1.0);
+  }
 }
 
 /// Simulation fiscale annuelle
@@ -111,6 +129,10 @@ class RetirementProjection {
   final double monthlyAvsRent;
   final double monthlyLppRent;
 
+  // Facteurs de réduction (Pédagogie)
+  final double avsReductionFactor;
+  final double spouseAvsReductionFactor;
+
   // Total
   final double totalCapital;
   final double totalMonthlyIncome;
@@ -123,6 +145,8 @@ class RetirementProjection {
     this.otherAssets,
     required this.monthlyAvsRent,
     required this.monthlyLppRent,
+    this.avsReductionFactor = 1.0,
+    this.spouseAvsReductionFactor = 1.0,
   })  : totalCapital = lppCapital + pillar3aCapital + (otherAssets ?? 0),
         totalMonthlyIncome = monthlyAvsRent + monthlyLppRent;
 

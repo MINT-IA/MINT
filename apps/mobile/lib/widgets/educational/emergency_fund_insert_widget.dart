@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Insert didactique pour q_emergency_fund
 /// Calculateur de fonds d'urgence (3-6 mois de charges)
@@ -138,7 +139,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.primary),
+              border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
                   color: MintColors.primary.withOpacity(0.1),
@@ -191,7 +192,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                         value: _currentProgress,
                         backgroundColor: Colors.grey.shade200,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          _currentProgress >= 1 ? Colors.green : MintColors.primary,
+                          _currentProgress >= 1 ? MintColors.success : MintColors.primary,
                         ),
                         minHeight: 8,
                         borderRadius: BorderRadius.circular(4),
@@ -205,11 +206,11 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       else
                         Row(
                           children: [
-                            Icon(Icons.check_circle, color: Colors.green.shade700, size: 16),
+                            Icon(Icons.check_circle, color: MintColors.success, size: 16),
                             const SizedBox(width: 8),
                             Text(
                               'Objectif atteint ! 🎉',
-                              style: TextStyle(fontSize: 13, color: Colors.green.shade700, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.inter(fontSize: 13, color: MintColors.success, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -224,20 +225,25 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
           
           // Pourquoi c'est important
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(8),
+              color: MintColors.appleSurface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.lightBorder),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                const Icon(Icons.security_rounded, color: MintColors.primary, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Ce fonds te protège des imprévus (perte d\'emploi, maladie, réparations) sans toucher à tes investissements.',
-                    style: TextStyle(fontSize: 13, color: Colors.blue.shade700),
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],

@@ -125,7 +125,7 @@ class MentorModal extends StatelessWidget {
                   color: MintColors.success,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Navigate to report
+                    context.push('/report');
                   },
                 ),
                 const SizedBox(height: 12),
@@ -137,7 +137,7 @@ class MentorModal extends StatelessWidget {
                   color: Colors.orange,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Show simulators
+                    context.push('/tools');
                   },
                 ),
                 const SizedBox(height: 12),
@@ -149,7 +149,7 @@ class MentorModal extends StatelessWidget {
                   color: Colors.purple,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Show learning modules
+                    context.push('/education/hub');
                   },
                 ),
                 const SizedBox(height: 12),

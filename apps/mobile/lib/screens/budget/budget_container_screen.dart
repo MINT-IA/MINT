@@ -34,13 +34,13 @@ class BudgetContainerScreen extends StatelessWidget {
                   size: 64, color: MintColors.textMuted),
               const SizedBox(height: 24),
               const Text(
-                'Votre Budget n\'est pas encore configuré',
+                'Ton Budget n\'est pas encore configuré',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               const Text(
-                'Définissez vos revenus et charges pour débloquer votre plan mensuel.',
+                'Définis tes revenus et charges pour débloquer ton plan mensuel.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: MintColors.textSecondary),
               ),

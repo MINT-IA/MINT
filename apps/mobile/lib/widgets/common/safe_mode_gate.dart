@@ -14,7 +14,7 @@ class SafeModeGate extends StatelessWidget {
     required this.child,
     this.lockedTitle = "Concentration Prioritaire",
     this.lockedMessage =
-        "Pour votre sécurité financière, nous désactivons les optimisations avancées tant qu'un signal de dette est actif. La priorité est de construire votre sécurité.",
+        "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu'un signal de dette est actif. La priorité est de construire ta sécurité.",
   });
 
   @override

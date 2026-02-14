@@ -966,7 +966,7 @@ class _MariageScreenState extends State<MariageScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Que se passe-t-il si l\'un de vous decede ? '
+                  'Que se passe-t-il si l\'un de vous deux decede ? '
                   'Compare la protection legale entre maries et concubins.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
@@ -1546,7 +1546,7 @@ class _MariageScreenState extends State<MariageScreen>
       'title': 'Simuler l\'impact fiscal du mariage',
       'description':
           'Avant de te marier, compare la charge fiscale a deux (maries vs celibataires). '
-          'Si vos revenus sont similaires et eleves, la penalite de mariage peut representer '
+          'Si tes revenus sont similaires et eleves, la penalite de mariage peut representer '
           'plusieurs milliers de francs par an.',
     },
     {
@@ -1573,7 +1573,7 @@ class _MariageScreenState extends State<MariageScreen>
     {
       'title': 'Preparer la premiere declaration commune',
       'description':
-          'Des l\'annee du mariage, vous faites une seule declaration fiscale commune. '
+          'Des l\'annee du mariage, tu fais une seule declaration fiscale commune. '
           'Rassemble les justificatifs des deux (certificats de salaire, 3a, LPP, etc.). '
           'Le passage a la declaration commune peut changer ta tranche d\'imposition.',
     },
@@ -1581,8 +1581,8 @@ class _MariageScreenState extends State<MariageScreen>
       'title': 'Verifier les rentes AVS de couple',
       'description':
           'La rente AVS maximale pour un couple est plafonnee a 150% de la rente '
-          'individuelle maximale (LAVS art. 35). Si vous avez tous les deux droit '
-          'a la rente max, le plafond peut reduire votre total.',
+          'individuelle maximale (LAVS art. 35). Si tu as droit '
+          'a la rente max avec ton conjoint, le plafond peut reduire ton total.',
     },
     {
       'title': 'Adapter le testament',

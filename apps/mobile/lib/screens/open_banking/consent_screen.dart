@@ -431,7 +431,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   color: Colors.teal.shade700, size: 20),
               const SizedBox(width: 10),
               Text(
-                'Vos droits (nLPD)',
+                'Tes droits (nLPD)',
                 style: GoogleFonts.outfit(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -442,7 +442,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'Vos droits selon la nLPD '
+            'Tes droits selon la nLPD '
             '(Loi federale sur la protection des donnees) :',
             style: GoogleFonts.inter(
               fontSize: 12,
@@ -452,10 +452,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
           ),
           const SizedBox(height: 10),
           _buildNlpdPoint(
-            '\u2022 Vous pouvez revoquer votre consentement a tout moment',
+            '\u2022 Tu peux revoquer ton consentement a tout moment',
           ),
           _buildNlpdPoint(
-            '\u2022 Vos donnees ne sont jamais partagees avec des tiers',
+            '\u2022 Tes donnees ne sont jamais partagees avec des tiers',
           ),
           _buildNlpdPoint(
             '\u2022 Acces en lecture seule \u2014 aucune operation financiere',
@@ -765,12 +765,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
           // Checkboxes — NOT pre-checked (nLPD compliance)
           _buildScopeCheckbox(
             value: _scopeAccounts,
-            label: 'Comptes (liste de vos comptes)',
+            label: 'Comptes (liste de tes comptes)',
             onChanged: (v) => setState(() => _scopeAccounts = v ?? false),
           ),
           _buildScopeCheckbox(
             value: _scopeBalances,
-            label: 'Soldes (solde actuel de vos comptes)',
+            label: 'Soldes (solde actuel de tes comptes)',
             onChanged: (v) => setState(() => _scopeBalances = v ?? false),
           ),
           _buildScopeCheckbox(
@@ -929,9 +929,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: Text(
-              'En confirmant, vous autorisez MINT a acceder aux '
+              'En confirmant, tu autorises MINT a acceder aux '
               'donnees selectionnees en lecture seule pour une duree '
-              'de 90 jours. Vous pouvez revoquer ce consentement '
+              'de 90 jours. Tu peux revoquer ce consentement '
               'a tout moment.',
               style: GoogleFonts.inter(
                 fontSize: 12,

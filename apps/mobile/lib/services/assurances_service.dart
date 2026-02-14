@@ -179,7 +179,7 @@ class LamalFranchiseService {
           '30 novembre de chaque annee pour l\'annee suivante.',
       disclaimer: 'Cette analyse est indicative. Les primes varient selon '
           'l\'assureur, la region et le modele d\'assurance. Consultez '
-          'votre caisse maladie pour des chiffres exacts. '
+          'ta caisse maladie pour des chiffres exacts. '
           'Source : LAMal art. 62-64, OAMal.',
     );
   }
@@ -270,7 +270,7 @@ class LamalFranchiseService {
     recs.add(
       'Envisagez un modele d\'assurance alternatif (medecin '
       'de famille, HMO, telmedecine) pour reduire davantage '
-      'vos primes. Source : LAMal art. 41a.',
+      'tes primes. Source : LAMal art. 41a.',
     );
 
     return recs;
@@ -446,7 +446,7 @@ class CoverageCheckService {
       id: 'ijm',
       title: 'IJM (indemnite journaliere maladie)',
       description: 'Couvre 80% du salaire en cas de maladie prolongee. '
-          '${isIndependant ? "En tant qu'independant, aucune couverture automatique." : "Verifiez si votre employeur propose une IJM collective."}',
+          '${isIndependant ? "En tant qu'independant, aucune couverture automatique." : "Verifie si ton employeur propose une IJM collective."}',
       urgency: _ijmUrgency(isIndependant, isSalarie, aIjmCollective),
       status: _ijmStatus(isIndependant, isSalarie, aIjmCollective),
       estimatedCostRange: '~500-2\'000 CHF/an',
@@ -504,7 +504,7 @@ class CoverageCheckService {
       recommandations: recommandations,
       disclaimer: 'Cette analyse est indicative et ne constitue pas '
           'un conseil en assurance personnalise. Les primes varient '
-          'selon l\'assureur et votre profil. Consultez un·e spécialiste '
+          'selon l\'assureur et ton profil. Consulte un·e spécialiste '
           'en assurances pour une evaluation complete.',
     );
   }

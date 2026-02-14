@@ -111,7 +111,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           ),
           SizedBox(height: 12),
           Text(
-            'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour votre avenir.',
+            'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour ton avenir.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],
@@ -245,7 +245,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       ),
       child: Column(
         children: [
-          const Text('Votre Mensualité', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
+          const Text('Ta Mensualité', style: TextStyle(fontSize: 14, color: MintColors.textSecondary)),
           const SizedBox(height: 8),
           Text(
             _currencyFormat.format(monthlyPayment),
@@ -297,9 +297,9 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       children: [
         _buildSectionHeader('Conseils du Mentor'),
         const SizedBox(height: 24),
-        _buildGuidanceItem(Icons.savings_outlined, 'Épargner d\'abord', 'En économisant pendant 12 mois au lieu d\'emprunter, vous gardez ${_currencyFormat.format(_result!['totalInterest'])} dans votre poche.'),
+        _buildGuidanceItem(Icons.savings_outlined, 'Épargner d\'abord', 'En économisant pendant 12 mois au lieu d\'emprunter, tu gardes ${_currencyFormat.format(_result!['totalInterest'])} dans ta poche.'),
         _buildGuidanceItem(Icons.family_restroom_outlined, 'Cercle de confiance', 'Un prêt familial peut souvent être obtenu à 0% d\'intérêt.'),
-        _buildGuidanceItem(Icons.help_outline_rounded, 'Dettes Conseils Suisse', 'Contactez-les AVANT de signer si votre situation est fragile.'),
+        _buildGuidanceItem(Icons.help_outline_rounded, 'Dettes Conseils Suisse', 'Contacte-les AVANT de signer si ta situation est fragile.'),
       ],
     );
   }

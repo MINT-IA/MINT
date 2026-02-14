@@ -139,8 +139,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     switch (_currentStep) {
       case 0:
         return _buildStep(
-          title: S.of(context)?.onboardingStep1Title ?? 'Bonjour, je suis votre mentor.',
-          subtitle: S.of(context)?.onboardingStep1Subtitle ?? 'Commençons par faire connaissance. Quelle est votre situation actuelle ?',
+          title: S.of(context)?.onboardingStep1Title ?? 'Bonjour, je suis ton mentor.',
+          subtitle: S.of(context)?.onboardingStep1Subtitle ?? 'Commençons par faire connaissance. Quelle est ta situation actuelle ?',
           child: Column(
             children: [
               _buildChoiceCard(
@@ -170,7 +170,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 1:
         return _buildStep(
           title: S.of(context)?.onboardingStep2Title ?? 'Très bien.',
-          subtitle: S.of(context)?.onboardingStep2Subtitle ?? 'Quel est le voyage financier que vous souhaitez entreprendre en priorité ?',
+          subtitle: S.of(context)?.onboardingStep2Subtitle ?? 'Quel est le voyage financier que tu souhaites entreprendre en priorité ?',
           child: Column(
             children: [
               _buildChoiceCard(
@@ -207,7 +207,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 2:
         return _buildStep(
           title: S.of(context)?.onboardingStep3Title ?? 'Presque là.',
-          subtitle: S.of(context)?.onboardingStep3Subtitle ?? 'Ces détails nous permettent de personnaliser vos calculs selon la loi suisse.',
+          subtitle: S.of(context)?.onboardingStep3Subtitle ?? 'Ces détails nous permettent de personnaliser tes calculs selon la loi suisse.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -220,7 +220,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 value: _selectedCanton,
                 style: GoogleFonts.montserrat(color: MintColors.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: S.of(context)?.onboardingCantonHint ?? 'Sélectionnez votre canton',
+                  hintText: S.of(context)?.onboardingCantonHint ?? 'Sélectionne ton canton',
                   hintStyle: const TextStyle(color: MintColors.textMuted, fontSize: 14),
                   fillColor: MintColors.surface,
                   filled: true,
@@ -275,12 +275,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 3:
         return _buildStep(
           title: S.of(context)?.onboardingStep4Title ?? 'Prêt à commencer ?',
-          subtitle: S.of(context)?.onboardingStep4Subtitle ?? 'Mint est un environnement sûr. Voici nos engagements envers vous.',
+          subtitle: S.of(context)?.onboardingStep4Subtitle ?? 'Mint est un environnement sûr. Voici nos engagements envers toi.',
           child: Column(
             children: [
               _buildTrustTile(Icons.remove_red_eye_outlined, S.of(context)?.onboardingTrustTransparency ?? 'Transparence totale', S.of(context)?.onboardingTrustTransparencyDesc ?? 'Toutes les hypothèses sont visibles.'),
               _buildTrustTile(Icons.lock_outline, S.of(context)?.onboardingTrustPrivacy ?? 'Vie privée', S.of(context)?.onboardingTrustPrivacyDesc ?? 'Calculs locaux, pas de stockage de données sensibles.'),
-              _buildTrustTile(Icons.shield_outlined, S.of(context)?.onboardingTrustSecurity ?? 'Sécurité', S.of(context)?.onboardingTrustSecurityDesc ?? 'Aucun accès direct à votre argent.'),
+              _buildTrustTile(Icons.shield_outlined, S.of(context)?.onboardingTrustSecurity ?? 'Sécurité', S.of(context)?.onboardingTrustSecurityDesc ?? 'Aucun accès direct à ton argent.'),
               const SizedBox(height: 48),
               SizedBox(
                 width: double.infinity,

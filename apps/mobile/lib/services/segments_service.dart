@@ -239,7 +239,7 @@ class GenderGapService {
             'Un rachat volontaire permet de combler partiellement la '
             'lacune de prevoyance tout en beneficiant d\'une deduction '
             'fiscale. Verifiez le montant de rachat possible aupres '
-            'de votre caisse de pension.',
+            'de ta caisse de pension.',
         source: 'LPP art. 79b',
         icon: 'account_balance',
       ));
@@ -265,7 +265,7 @@ class GenderGapService {
             'Plusieurs caisses de pension proratisent la deduction '
             'de coordination en fonction du taux d\'activite, ce qui '
             'ameliore significativement le salaire coordonne. Discutez-en '
-            'avec votre employeur ou votre caisse de pension.',
+            'avec ton employeur ou ta caisse de pension.',
         source: 'LPP art. 8 / Reglement de caisse',
         icon: 'balance',
       ));
@@ -490,7 +490,7 @@ class FrontalierService {
               'Le nouvel accord frontalier CH-IT prevoit une imposition '
               'concurrente : la Suisse preleve un impot a la source '
               '(max. 80% du taux normal), et l\'Italie peut imposer '
-              'la difference. Verifiez votre situation exacte.',
+              'la difference. Verifie ta situation exacte.',
           source: 'Accord frontalier CH-IT 2020 / entre en vigueur 2024',
           isAlert: true,
         ));
@@ -542,9 +542,9 @@ class FrontalierService {
         category: '3a',
         title: '3e pilier : pas de deduction possible',
         description:
-            'En tant que frontalier impose dans votre pays de '
-            'residence, vous ne pouvez pas deduire les versements '
-            '3a de vos impots suisses. Le 3e pilier reste possible '
+            'En tant que frontalier impose dans ton pays de '
+            'residence, tu ne peux pas deduire les versements '
+            '3a de tes impots suisses. Le 3e pilier reste possible '
             'mais sans avantage fiscal en Suisse.',
         source: 'OPP3 art. 7 / LIFD art. 33a',
         isAlert: true,
@@ -570,8 +570,8 @@ class FrontalierService {
       category: 'lpp',
       title: 'Libre passage au depart',
       description:
-          'En quittant la Suisse, votre avoir LPP est transfere '
-          'sur un compte de libre passage. Si vous residez dans '
+          'En quittant la Suisse, ton avoir LPP est transfere '
+          'sur un compte de libre passage. Si tu resides dans '
           'l\'UE/AELE, le transfert de la part obligatoire en cash '
           'n\'est pas possible (reste sur libre passage en CH). '
           'La part surobligatoire peut etre versee.',
@@ -590,9 +590,9 @@ class FrontalierService {
       description:
           'Les frontaliers cotisent a l\'AVS suisse (1er pilier). '
           'Les periodes de cotisation en Suisse sont totalisees '
-          'avec les periodes dans votre pays de residence '
+          'avec les periodes dans ton pays de residence '
           '(${_paysLabels[input.paysResidence]}) pour le calcul '
-          'de votre droit a la rente.',
+          'de ton droit a la rente.',
       source: 'LAVS / Accord CH-UE sur la coordination',
     ));
 
@@ -600,9 +600,9 @@ class FrontalierService {
       category: 'avs',
       title: 'Rente AVS : calcul pro rata',
       description:
-          'Votre rente AVS suisse sera calculee proportionnellement '
-          'aux annees de cotisation en Suisse. Vous recevrez '
-          'egalement une rente de votre pays de residence pour '
+          'Ta rente AVS suisse sera calculee proportionnellement '
+          'aux annees de cotisation en Suisse. Tu recevras '
+          'egalement une rente de ton pays de residence pour '
           'les periodes cotisees la-bas.',
       source: 'Reglement CE 883/2004',
     ));
@@ -617,8 +617,8 @@ class FrontalierService {
       cantonConcerne: 'GE',
       description:
           'Le statut de quasi-resident est accessible si au moins 90% '
-          'des revenus de votre menage proviennent de Suisse. Ce statut '
-          'vous permet de passer a la declaration ordinaire et de '
+          'des revenus de ton menage proviennent de Suisse. Ce statut '
+          'te permet de passer a la declaration ordinaire et de '
           'beneficier des memes deductions que les residents '
           '(3e pilier, frais effectifs, rachats LPP, etc.).',
       source: 'LIPP GE art. 6 / ATF 136 II 241',
@@ -628,10 +628,10 @@ class FrontalierService {
   /// Build a checklist for frontaliers.
   static List<String> _buildChecklist(FrontalierInput input) {
     final checklist = <String>[
-      'Verifier votre regime fiscal exact avec un fiduciaire',
-      'Demander votre certificat de salaire annuel',
+      'Verifier ton regime fiscal exact avec un fiduciaire',
+      'Demander ton certificat de salaire annuel',
       'Verifier les cotisations AVS (extrait de compte AVS)',
-      'Demander le certificat LPP de votre caisse de pension',
+      'Demander le certificat LPP de ta caisse de pension',
       'Verifier les prestations en cas d\'invalidite et de deces',
     ];
 
@@ -642,8 +642,8 @@ class FrontalierService {
     }
 
     checklist.addAll([
-      'Conserver les justificatifs pour la declaration dans votre pays',
-      'Verifier votre couverture maladie (LAMal ou pays de residence)',
+      'Conserver les justificatifs pour la declaration dans ton pays',
+      'Verifier ta couverture maladie (LAMal ou pays de residence)',
       'Planifier le libre passage en cas de depart de Suisse',
     ]);
 
@@ -837,9 +837,9 @@ class IndependantService {
         isCovered: input.hasLpp,
         urgency: input.hasLpp ? 'basse' : 'haute',
         recommendation: input.hasLpp
-            ? 'Vous etes affilie volontairement. Verifiez vos prestations.'
+            ? 'Tu es affilie volontairement. Verifie tes prestations.'
             : 'Envisagez une affiliation volontaire a une caisse de pension '
-                '(fondation collective ou caisse de votre branche).',
+                '(fondation collective ou caisse de ta branche).',
         source: 'LPP art. 4 / art. 44',
       ),
       CoverageGapItem(
@@ -848,9 +848,9 @@ class IndependantService {
         isCovered: input.hasIjm,
         urgency: input.hasIjm ? 'basse' : 'critique',
         recommendation: input.hasIjm
-            ? 'Votre couverture IJM est en place. Verifiez le delai de carence '
+            ? 'Ta couverture IJM est en place. Verifie le delai de carence '
                 'et le montant assure.'
-            : 'URGENT : sans IJM, vous n\'avez aucun revenu en cas de maladie. '
+            : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
                 'Souscrivez une assurance IJM individuelle (indemnite journaliere '
                 'en cas de maladie).',
         source: 'LAMal / Pratique independants',
@@ -861,7 +861,7 @@ class IndependantService {
         isCovered: input.hasLaa,
         urgency: input.hasLaa ? 'basse' : 'haute',
         recommendation: input.hasLaa
-            ? 'Votre couverture accident est en place.'
+            ? 'Ta couverture accident est en place.'
             : 'Souscrivez une assurance accident individuelle. '
                 'Sans LAA, les frais medicaux et la perte de gain '
                 'en cas d\'accident ne sont pas couverts.',
@@ -873,11 +873,11 @@ class IndependantService {
         isCovered: input.has3a,
         urgency: input.has3a ? 'basse' : 'haute',
         recommendation: input.has3a
-            ? 'Verifiez que vous versez le plafond '
+            ? 'Verifie que tu verses le plafond '
                 '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}).'
             : 'Ouvrez un 3e pilier et versez le maximum '
                 '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}). '
-                'Sans LPP, le 3a est votre principal outil de prevoyance.',
+                'Sans LPP, le 3a est ton principal outil de prevoyance.',
         source: 'OPP3 art. 7',
       ),
     ];
@@ -935,8 +935,8 @@ class IndependantService {
 
     if (!input.hasIjm) {
       alerts.add(
-        'CRITIQUE : Vous n\'avez pas d\'assurance IJM (indemnite '
-        'journaliere maladie). En cas de maladie, vous n\'aurez '
+        'CRITIQUE : Tu n\'as pas d\'assurance IJM (indemnite '
+        'journaliere maladie). En cas de maladie, tu n\'auras '
         'aucun revenu de remplacement. C\'est le risque le plus '
         'important pour un independant.',
       );
@@ -952,7 +952,7 @@ class IndependantService {
 
     if (!input.hasLpp) {
       alerts.add(
-        'Votre prevoyance repose uniquement sur l\'AVS (1er pilier) '
+        'Ta prevoyance repose uniquement sur l\'AVS (1er pilier) '
         'et le 3e pilier. La rente AVS seule ne couvre generalement '
         'que 40 a 50% du dernier revenu.',
       );
@@ -960,8 +960,8 @@ class IndependantService {
 
     if (!input.has3a) {
       alerts.add(
-        'Vous ne profitez pas du 3e pilier. En tant qu\'independant '
-        'sans LPP, vous pouvez deduire jusqu\'a '
+        'Tu ne profites pas du 3e pilier. En tant qu\'independant '
+        'sans LPP, tu peux deduire jusqu\'a '
         'CHF\u00A035\'280 par an (20% du revenu net).',
       );
     }
@@ -1010,7 +1010,7 @@ class IndependantService {
 
     // Always recommend
     recs.add(
-      'Verifier votre extrait AVS (compte individuel) pour '
+      'Verifier ton extrait AVS (compte individuel) pour '
       'confirmer que toutes les annees de cotisation sont '
       'enregistrees.',
     );

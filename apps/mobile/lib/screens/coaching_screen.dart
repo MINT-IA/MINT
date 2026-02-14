@@ -165,7 +165,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Vos suggestions personnalisees',
+                'Tes suggestions personnalisees',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -197,8 +197,8 @@ class _CoachingScreenState extends State<CoachingScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Suggestions personnalisees basees sur votre profil. '
-              'Plus votre profil est complet, plus les conseils sont pertinents.',
+              'Suggestions personnalisees basees sur ton profil. '
+              'Plus ton profil est complet, plus les conseils sont pertinents.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -280,7 +280,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Votre profil est complet et bien gere. Bravo !',
+            'Ton profil est complet et bien gere. Bravo !',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 16,
@@ -308,7 +308,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
           Expanded(
             child: Text(
               'Mode demo : profil exemple (35 ans, VD, CHF 85\'000). '
-              'Completez votre diagnostic pour des conseils personnalises.',
+              'Complete ton diagnostic pour des conseils personnalises.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.blue.shade700,

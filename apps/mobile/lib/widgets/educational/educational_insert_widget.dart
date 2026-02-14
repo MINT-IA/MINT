@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Widget de base pour tous les inserts éducatifs
@@ -26,31 +27,41 @@ class EducationalInsertWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
+      margin: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
-        color: MintColors.accentPastel.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: MintColors.primary.withOpacity(0.3),
+          color: MintColors.lightBorder,
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MintColors.primary.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
             child: Row(
               children: [
-                const Icon(
-                  Icons.lightbulb_outline,
-                  color: MintColors.primary,
-                  size: 24,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: MintColors.info.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.lightbulb_outline,
+                    color: MintColors.info,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -59,19 +70,20 @@ class EducationalInsertWidget extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: GoogleFonts.outfit(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: MintColors.primary,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
                         ),
                       ),
                       if (subtitle != null) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: const TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 13,
                             color: MintColors.textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -80,9 +92,8 @@ class EducationalInsertWidget extends StatelessWidget {
                 ),
                 if (onLearnMore != null)
                   IconButton(
-                    icon: const Icon(Icons.info_outline, color: MintColors.primary),
+                    icon: const Icon(Icons.info_outline, color: MintColors.textMuted, size: 20),
                     onPressed: onLearnMore,
-                    tooltip: 'En savoir plus',
                   ),
               ],
             ),
@@ -90,29 +101,37 @@ class EducationalInsertWidget extends StatelessWidget {
           
           // Content
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: content,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: DefaultTextStyle(
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: MintColors.textPrimary,
+                height: 1.5,
+              ),
+              child: content,
+            ),
           ),
           
           // Hypotheses (si fournies)
           if (hypotheses.isNotEmpty) ...[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ExpansionTile(
-                title: const Text(
+                title: Text(
                   'Hypothèses de calcul',
-                  style: TextStyle(fontSize: 12, color: MintColors.textMuted),
+                  style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted, fontWeight: FontWeight.w500),
                 ),
                 tilePadding: EdgeInsets.zero,
                 childrenPadding: EdgeInsets.zero,
+                shape: const RoundedRectangleBorder(side: BorderSide.none),
                 children: hypotheses.map((h) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('• ', style: TextStyle(fontSize: 12, color: MintColors.textMuted)),
                       Expanded(
-                        child: Text(h, style: const TextStyle(fontSize: 12, color: MintColors.textMuted)),
+                        child: Text(h, style: GoogleFonts.inter(fontSize: 12, color: MintColors.textMuted, height: 1.4)),
                       ),
                     ],
                   ),
@@ -124,22 +143,22 @@ class EducationalInsertWidget extends StatelessWidget {
           // Disclaimer (obligatoire)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: const BoxDecoration(
+              color: MintColors.appleSurface,
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(23)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info, size: 14, color: Colors.grey.shade600),
+                const Icon(Icons.info_outline, size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     disclaimer,
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: Colors.grey.shade600,
+                      color: MintColors.textMuted,
                       fontStyle: FontStyle.italic,
                     ),
                   ),

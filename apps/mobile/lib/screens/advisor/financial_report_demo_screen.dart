@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Écran de démo pour tester le rapport financier V2
@@ -111,14 +111,7 @@ class FinancialReportDemoScreen extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FinancialReportScreenV2(
-                        wizardAnswers: demoAnswers,
-                      ),
-                    ),
-                  );
+                  context.push('/report/v2', extra: demoAnswers);
                 },
                 icon: const Icon(Icons.analytics, size: 24),
                 label: const Text(
@@ -251,14 +244,7 @@ class FinancialReportDemoScreen extends StatelessWidget {
       elevation: 2,
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FinancialReportScreenV2(
-                wizardAnswers: answers,
-              ),
-            ),
-          );
+          context.push('/report/v2', extra: answers);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       title: 'Le pouvoir du temps',
       summary: 'CHF 500/mois à 5% = CHF 205\'000 en 20 ans.',
       why: [
-        'Les intérêts composés travaillent pour vous',
+        'Les intérêts composés travaillent pour toi',
         'Commencer tôt maximise l\'effet'
       ],
       assumptions: ['Rendement 5%/an', 'Versements réguliers'],
@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 _buildCoachBanner(context),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, S.of(context)?.recommendations ?? 'Vos Recommandations'),
+                _buildSectionHeader(context, S.of(context)?.recommendations ?? 'Tes Recommandations'),
                 const SizedBox(height: 16),
                 for (var rec in _recommendations)
                   Padding(
@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            S.of(context)?.homeSafeModeMessage ?? 'Nous avons détecté des signaux de tension. MINT vous conseille de stabiliser votre budget avant tout investissement.',
+            S.of(context)?.homeSafeModeMessage ?? 'Nous avons détecté des signaux de tension. MINT te conseille de stabiliser ton budget avant tout investissement.',
             style: const TextStyle(
                 fontSize: 13, height: 1.4, color: MintColors.textPrimary),
           ),
@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            S.of(context)?.homeMentorDescription ?? 'Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.',
+            S.of(context)?.homeMentorDescription ?? 'Lance ta session personnalisée pour obtenir un diagnostic complet de ta situation financière.',
             style: const TextStyle(
               fontSize: 15,
               color: MintColors.textSecondary,

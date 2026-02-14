@@ -114,27 +114,27 @@ class DebtRatioCalculator {
     final recommandations = <String>[];
     if (niveau == DebtRiskLevel.vert) {
       recommandations.add(
-        'Votre ratio d\'endettement est sain. Continuez a maintenir '
-        'vos dettes sous controle.',
+        'Ton ratio d\'endettement est sain. Continue a maintenir '
+        'tes dettes sous controle.',
       );
       recommandations.add(
         'Constituez un fonds d\'urgence de 3 a 6 mois de charges fixes.',
       );
     } else if (niveau == DebtRiskLevel.orange) {
       recommandations.add(
-        'Votre ratio d\'endettement est modere mais merite attention. '
-        'Evitez de contracter de nouvelles dettes.',
+        'Ton ratio d\'endettement est modere mais merite attention. '
+        'Evite de contracter de nouvelles dettes.',
       );
       recommandations.add(
         'Priorisez le remboursement des dettes au taux le plus eleve.',
       );
       recommandations.add(
         'Etablissez un budget strict pour reduire progressivement '
-        'vos charges de dette.',
+        'tes charges de dette.',
       );
     } else {
       recommandations.add(
-        'Votre ratio d\'endettement depasse le seuil critique de 30%. '
+        'Ton ratio d\'endettement depasse le seuil critique de 30%. '
         'Une aide professionnelle est recommandee.',
       );
       recommandations.add(
@@ -150,7 +150,7 @@ class DebtRatioCalculator {
     if (minimumVitalMenace) {
       recommandations.insert(
         0,
-        'ALERTE : Votre marge residuelle est inferieure au minimum vital '
+        'ALERTE : Ta marge residuelle est inferieure au minimum vital '
         '(LP art. 93 : CHF ${formatChf(minimumVital)}/mois). '
         'Contactez immediatement un service d\'aide.',
       );
@@ -323,7 +323,7 @@ class RepaymentPlanner {
           'La methode avalanche minimise les interets totaux, '
           'la methode boule de neige maximise la motivation par des '
           'victoires rapides. Consultez un·e spécialiste en dettes '
-          'pour un plan adapte a votre situation.',
+          'pour un plan adapte a ta situation.',
     );
   }
 

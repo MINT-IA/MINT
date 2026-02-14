@@ -134,7 +134,7 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
               fields.avoirVieillesseTotal,
-              'Total de votre capital de vieillesse',
+              'Total de ton capital de vieillesse',
             ),
           ],
         ),
@@ -184,7 +184,7 @@ class DocumentDetailScreen extends StatelessWidget {
               s?.documentsFieldTauxSurobligatoire ??
                   'Taux de conversion surobligatoire',
               fields.tauxConversionSurobligatoire,
-              'Fix\u00e9 par votre caisse de pension',
+              'Fix\u00e9 par ta caisse de pension',
             ),
             _fieldPercent(
               s?.documentsFieldTauxEnveloppe ??
@@ -239,7 +239,7 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
               fields.rachatMaximum,
-              'Montant pouvant \u00eatre rachet\u00e9 pour optimiser votre pr\u00e9voyance',
+              'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
             ),
           ],
         ),
@@ -256,13 +256,13 @@ class DocumentDetailScreen extends StatelessWidget {
               s?.documentsFieldCotisationEmploye ??
                   'Cotisation employ\u00e9 annuelle',
               fields.cotisationEmploye,
-              'Votre contribution annuelle',
+              'Ta contribution annuelle',
             ),
             _fieldYearly(
               s?.documentsFieldCotisationEmployeur ??
                   'Cotisation employeur annuelle',
               fields.cotisationEmployeur,
-              'Contribution de votre employeur',
+              'Contribution de ton employeur',
             ),
           ],
         ),

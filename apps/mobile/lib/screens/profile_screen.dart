@@ -131,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            s?.profilePrecisionMessage ?? 'Plus votre profil est complet, plus votre rapport "Statement of Advice" est puissant.',
+            s?.profilePrecisionMessage ?? 'Plus ton profil est complet, plus ton rapport "Statement of Advice" est puissant.',
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
           ),

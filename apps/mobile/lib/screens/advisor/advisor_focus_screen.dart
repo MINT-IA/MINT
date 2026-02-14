@@ -26,7 +26,7 @@ class AdvisorSessionFocusScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: MintColors.accentPastel,
+                  color: MintColors.appleSurface,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -51,17 +51,17 @@ class AdvisorSessionFocusScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Sur la base de votre profil, nous allons nous concentrer sur ces 3 axes pour maximiser votre impact.',
+                'Sur la base de ton profil, nous allons nous concentrer sur ces 3 axes pour maximiser ton impact.',
                 style: TextStyle(
                     fontSize: 16, color: MintColors.textSecondary, height: 1.5),
               ),
               const SizedBox(height: 40),
               _buildFocusTile(Icons.trending_up, 'Optimisation fiscale 3a',
-                  'Comment réduire votre charge fiscale annuelle.'),
+                  'Comment réduire ta charge fiscale annuelle.'),
               _buildFocusTile(Icons.account_balance, 'Intérêts composés',
-                  'L\'effet de levier sur votre épargne long terme.'),
+                  'L\'effet de levier sur ton épargne long terme.'),
               _buildFocusTile(Icons.shield_outlined, 'Prévention & Risques',
-                  'Solidifier vos bases financières.'),
+                  'Solidifier tes bases financières.'),
               const Spacer(),
               SizedBox(
                 width: double.infinity,

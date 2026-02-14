@@ -209,10 +209,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'independant, vous n\'avez pas de LPP '
-              'obligatoire, pas d\'IJM, et pas de LAA. Votre '
-              'protection sociale depend entierement de vos '
-              'demarches personnelles. Identifiez vos lacunes.',
+              'En tant qu\'independant, tu n\'as pas de LPP '
+              'obligatoire, pas d\'IJM, et pas de LAA. Ta '
+              'protection sociale depend entierement de tes '
+              'demarches personnelles. Identifie tes lacunes.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -713,7 +713,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Votre cotisation AVS estimee : '
+            'Ta cotisation AVS estimee : '
             '${IndependantService.formatChf(result.cotisationAvsAnnuelle)}/an '
             '(taux degressif pour les revenus inferieurs a CHF\u00A058\'800, '
             'puis ~10.6% au-dessus).',
@@ -878,9 +878,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
           Expanded(
             child: Text(
               'Les montants presentes sont des estimations indicatives. '
-              'Les cotisations reelles dependent de votre situation '
+              'Les cotisations reelles dependent de ta situation '
               'personnelle et des offres d\'assurance disponibles. '
-              'Consultez un fiduciaire ou un assureur avant toute '
+              'Consulte un fiduciaire ou un assureur avant toute '
               'decision.',
               style: GoogleFonts.inter(
                 fontSize: 12,

@@ -12,6 +12,7 @@ class WizardQuestionWidget extends StatefulWidget {
   final dynamic currentAnswer;
   final Map<String, dynamic>
       answers; // Nouveau: contexte des réponses précédentes
+  final bool defaultExpanded;
 
   const WizardQuestionWidget({
     super.key,
@@ -19,6 +20,7 @@ class WizardQuestionWidget extends StatefulWidget {
     required this.onAnswer,
     this.currentAnswer,
     this.answers = const {},
+    this.defaultExpanded = true,
   });
 
   @override
@@ -28,7 +30,7 @@ class WizardQuestionWidget extends StatefulWidget {
 class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   bool _showExplanation = false;
   bool _showSimulation = false;
-  bool _showEducationalInsert = true; // Auto-ouvert pour "just-in-time"
+  late bool _showEducationalInsert = widget.defaultExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +49,12 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               Expanded(
                 child: Text(
                   widget.question.title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.outfit(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
-                    height: 1.2,
+                    height: 1.1,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ),
@@ -84,9 +87,9 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: MintColors.accentPastel,
+                color: MintColors.appleSurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: MintColors.primary.withOpacity(0.3)),
+                border: Border.all(color: MintColors.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,10 +101,10 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                       const SizedBox(width: 8),
                       Text(
                         'Explication',
-                        style: GoogleFonts.montserrat(
+                        style: GoogleFonts.outfit(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: MintColors.primary,
+                          color: MintColors.textPrimary,
                         ),
                       ),
                     ],
@@ -277,22 +280,31 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
       },
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? MintColors.primary : MintColors.border,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? MintColors.primary : MintColors.lightBorder,
+            width: isSelected ? 1.5 : 1,
           ),
           borderRadius: BorderRadius.circular(20),
-          color: isSelected ? MintColors.accentPastel : Colors.white,
+          color: isSelected ? MintColors.selectionBg : Colors.white,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : null,
         ),
         child: Row(
           children: [
             if (option.icon != null)
               Icon(
                 _getIconData(option.icon!),
-                color:
-                    isSelected ? MintColors.primary : MintColors.textSecondary,
+                size: 20,
+                color: isSelected ? MintColors.primary : MintColors.textMuted,
               ),
             if (option.icon != null) const SizedBox(width: 20),
             Expanded(
@@ -301,12 +313,11 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                 children: [
                   Text(
                     option.label,
-                    style: TextStyle(
-                      fontSize: 18,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? MintColors.primary
-                          : MintColors.textPrimary,
+                      letterSpacing: -0.2,
+                      color: isSelected ? MintColors.primary : MintColors.textPrimary,
                     ),
                   ),
                   if (option.description != null) ...[
@@ -324,6 +335,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             ),
             Icon(
               isSelected ? Icons.check_circle : Icons.chevron_right,
+              size: 20,
               color: isSelected ? MintColors.primary : MintColors.textMuted,
             ),
           ],

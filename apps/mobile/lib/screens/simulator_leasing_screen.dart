@@ -101,7 +101,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           ),
           SizedBox(height: 12),
           Text(
-            'Le leasing est souvent une "fuite" de capital. Cet argent pourrait servir à construire votre patrimoine plutôt qu\'à financer la dépréciation d\'un véhicule.',
+            'Le leasing est souvent une "fuite" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu\'à financer la dépréciation d\'un véhicule.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],
@@ -232,7 +232,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Si vous investissiez cette mensualité au lieu de payer un leasing, voilà le capital que vous auriez construit.',
+            'Si tu investissais cette mensualité au lieu de payer un leasing, voilà le capital que tu aurais construit.',
             style: TextStyle(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
             textAlign: TextAlign.center,
           ),
@@ -269,7 +269,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
         const SizedBox(height: 24),
         _buildAltItem(Icons.directions_car_outlined, 'Occasion de Qualité', 'Acheter cash une voiture de 3-4 ans réduit drastiquement la perte de valeur.'),
         _buildAltItem(Icons.train_outlined, 'Abo Général / Transports', 'Le confort du train en Suisse est souvent plus rentable et serein.'),
-        _buildAltItem(Icons.share_outlined, 'Mobility / Partage', 'Ne payez que quand vous roulez. Pas d\'assurance, pas d\'entretien, pas de leasing.'),
+        _buildAltItem(Icons.share_outlined, 'Mobility / Partage', 'Ne paie que quand tu roules. Pas d\'assurance, pas d\'entretien, pas de leasing.'),
       ],
     );
   }

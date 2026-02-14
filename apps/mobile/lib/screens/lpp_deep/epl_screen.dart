@@ -128,10 +128,10 @@ class _EplScreenState extends State<EplScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'L\'EPL permet d\'utiliser votre avoir LPP pour financer '
+            'L\'EPL permet d\'utiliser ton avoir LPP pour financer '
             'l\'achat d\'un logement en propriete, amortir une hypotheque '
             'ou financer des renovations. Montant minimum : CHF 20\'000. '
-            'Ce retrait a un impact direct sur vos prestations de risque.',
+            'Ce retrait a un impact direct sur tes prestations de risque.',
             style: TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -217,7 +217,7 @@ class _EplScreenState extends State<EplScreen> {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'Avez-vous effectue un rachat LPP ces 3 dernieres annees ?',
+                      'As-tu effectue un rachat LPP ces 3 dernieres annees ?',
                       style: TextStyle(
                         fontSize: 11,
                         color: MintColors.textSecondary,
@@ -414,8 +414,8 @@ class _EplScreenState extends State<EplScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Le retrait EPL reduit proportionnellement vos prestations '
-            'de risque. Verifiez aupres de votre caisse de pension les '
+            'Le retrait EPL reduit proportionnellement tes prestations '
+            'de risque. Verifie aupres de ta caisse de pension les '
             'montants exacts et les possibilites d\'assurance complementaire.',
             style: TextStyle(
               fontSize: 11,

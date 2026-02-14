@@ -81,13 +81,13 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           'Gestion quotidienne',
           [
             _buildQuestionCard(
-              'Êtes-vous régulièrement à découvert ?',
-              'Votre compte passe en négatif avant la fin du mois.',
+              'Es-tu régulièrement à découvert ?',
+              'Ton compte passe en négatif avant la fin du mois.',
               _hasRegularOverdrafts,
               (v) => setState(() => _hasRegularOverdrafts = v),
             ),
             _buildQuestionCard(
-              'Avez-vous plusieurs crédits en cours ?',
+              'As-tu plusieurs crédits en cours ?',
               'Leasing, prêt, petits crédits, cartes de crédit...',
               _hasMultipleCredits,
               (v) => setState(() => _hasMultipleCredits = v),
@@ -99,13 +99,13 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           'Obligations',
           [
             _buildQuestionCard(
-              'Avez-vous des retards de paiement ?',
+              'As-tu des retards de paiement ?',
               'Factures, impôts ou loyers payés en retard.',
               _hasLatePayments,
               (v) => setState(() => _hasLatePayments = v),
             ),
             _buildQuestionCard(
-              'Avez-vous reçu des poursuites ?',
+              'As-tu reçu des poursuites ?',
               'Commandements de payer ou saisies.',
               _hasDebtCollection,
               (v) => setState(() => _hasDebtCollection = v),
@@ -118,12 +118,12 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           [
             _buildQuestionCard(
               'Des achats impulsifs fréquents ?',
-              'Des dépenses non planifiées que vous regrettez.',
+              'Des dépenses non planifiées que tu regrettes.',
               _hasImpulsiveBuying,
               (v) => setState(() => _hasImpulsiveBuying = v),
             ),
             _buildQuestionCard(
-              'Jouez-vous de l\'argent régulièrement ?',
+              'Joues-tu de l\'argent régulièrement ?',
               'Casinos, paris sportifs ou loteries fréquentes.',
               _hasGamblingHabit,
               (v) => setState(() => _hasGamblingHabit = v),
@@ -363,7 +363,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
   Widget _buildPrivacyNote() {
     return const Center(
       child: Text(
-        'Mint respecte votre vie privée. Aucune donnée n\'est stockée ou transmise.',
+        'Mint respecte ta vie privée. Aucune donnée n\'est stockée ou transmise.',
         style: TextStyle(color: MintColors.textMuted, fontSize: 11),
       ),
     );

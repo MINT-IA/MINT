@@ -109,7 +109,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
               children: [
                 const TextSpan(text: 'Comprendre l\''),
                 WidgetSpan(child: InfoTooltip(term: 'intérêt composé')),
-                const TextSpan(text: ', c\'est comprendre comment votre argent travaille pour vous pendant que vous dormez.'),
+                const TextSpan(text: ', c\'est comprendre comment ton argent travaille pour toi pendant que tu dors.'),
               ],
             ),
           ),
@@ -270,7 +270,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            '${gainPercentage.toStringAsFixed(0)}% de ce montant provient uniquement de vos gains de placement.',
+            '${gainPercentage.toStringAsFixed(0)}% de ce montant provient uniquement de tes gains de placement.',
             style: const TextStyle(fontSize: 13, color: MintColors.success, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
@@ -285,8 +285,8 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       children: [
         _buildSectionHeader('Leçons Méditées'),
         const SizedBox(height: 24),
-        _buildLessonItem(Icons.timer_outlined, 'Le temps est roi', 'Attendre 5 ans avant de commencer peut vous faire perdre la moitié de votre capital final.'),
-        _buildLessonItem(Icons.auto_graph_outlined, 'L\'effet de levier', 'Une fois lancé, votre capital génère ses propres intérêts, qui en génèrent d\'autres à leur tour.'),
+        _buildLessonItem(Icons.timer_outlined, 'Le temps est roi', 'Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.'),
+        _buildLessonItem(Icons.auto_graph_outlined, 'L\'effet de levier', 'Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d\'autres à leur tour.'),
         _buildLessonItem(Icons.psychology_outlined, 'Discipline', 'La régularité des versements mensuels bat souvent la recherche du meilleur moment pour investir.'),
       ],
     );

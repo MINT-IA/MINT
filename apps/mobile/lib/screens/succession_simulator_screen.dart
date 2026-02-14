@@ -234,8 +234,8 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           Expanded(
             child: Text(
               'Le nouveau droit successoral (2023) a elargi la quotite '
-              'disponible. Vous avez desormais plus de liberte pour '
-              'avantager certains heritiers. Cet outil vous montre la '
+              'disponible. Tu as desormais plus de liberte pour '
+              'avantager certains heritiers. Cet outil te montre la '
               'repartition legale et l\'impact d\'un testament.',
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -839,7 +839,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           const SizedBox(height: 12),
           Text(
             'Ce montant peut etre librement attribue par testament '
-            'a la personne de votre choix.',
+            'a la personne de ton choix.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -974,7 +974,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Le 3e pilier ne suit PAS votre testament. '
+            'Le 3e pilier ne suit PAS ton testament. '
             'L\'ordre de beneficiaires est fixe par la loi :',
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -1143,12 +1143,12 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         const SizedBox(height: 12),
         _buildExpandableTile(
           'Qu\'est-ce que la quotite disponible ?',
-          'La quotite disponible est la part de votre succession que vous '
-              'pouvez librement attribuer par testament. Depuis le 1er janvier '
+          'La quotite disponible est la part de ta succession que tu '
+              'peux librement attribuer par testament. Depuis le 1er janvier '
               '2023, la reserve des descendants a ete reduite de 3/4 a 1/2 de '
-              'leur part legale. Les parents n\'ont plus de reserve. Cela vous '
-              'donne plus de liberte pour favoriser votre conjoint, votre '
-              'concubin(e) ou toute autre personne.',
+              'leur part legale. Les parents n\'ont plus de reserve. Cela te '
+              'donne plus de liberte pour favoriser ton/ta conjoint·e, ton/ta '
+              'concubin·e ou toute autre personne.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
@@ -1168,7 +1168,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               'Sans testament, un concubin ne recoit rien. De plus, l\'impot '
               'successoral pour les concubins est generalement bien plus eleve '
               'que pour les conjoints (souvent 20-25% au lieu de 0%). Pour '
-              'proteger votre concubin(e), il est essentiel de rediger un '
+              'proteger ton/ta concubin·e, il est essentiel de rediger un '
               'testament, de verifier les clauses beneficiaires 3a/LPP et '
               'd\'envisager des assurances-vie.',
         ),

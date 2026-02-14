@@ -79,6 +79,36 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return 'Patrimoine';
   }
 
+  int get _sectionStart =>
+      _currentQuestionIndex < 6 ? 0 :
+      _currentQuestionIndex < 12 ? 6 :
+      _currentQuestionIndex < 18 ? 12 : 18;
+
+  int get _sectionEnd =>
+      _currentQuestionIndex < 6 ? 6 :
+      _currentQuestionIndex < 12 ? 12 :
+      _currentQuestionIndex < 18 ? 18 : _questions.length;
+
+  int get _sectionQuestionNumber {
+    int count = 0;
+    for (int i = _sectionStart; i <= _currentQuestionIndex; i++) {
+      if (WizardConditionsService.shouldAskQuestion(_questions[i].id, _answers)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  int get _sectionTotalQuestions {
+    int count = 0;
+    for (int i = _sectionStart; i < _sectionEnd; i++) {
+      if (WizardConditionsService.shouldAskQuestion(_questions[i].id, _answers)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   int get _overallProgress {
     return ((_currentQuestionIndex / _questions.length) * 100).round();
   }
@@ -129,34 +159,14 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   void _goBack() {
     if (_questionHistory.isNotEmpty) {
       setState(() {
-        // Revenir à la dernière question posée
         final lastQuestionId = _questionHistory.removeLast();
-
-        // Si on est actuellement sur une question, on veut revenir à la PRÉCÉDENTE
-        // Donc on doit d'abord vérifier si on doit dépiler celle d'avant
-        final _ = _questions[_currentQuestionIndex].id;
-
-        // Si l'historique contient la question actuelle (ce qui arrive quand on avance),
-        // on l'enlève pour revenir à la précédente réelle.
-        // MAIS attention : ici _questionHistory contient les questions DÉJÀ RÉPOLUES.
-        // Donc logiquement lastQuestionId EST la question précédente.
-
-        // Cas spécial : si on vient de répondre et qu'on fait back immédiatement,
-        // l'état courant est la NOUVELLE question.
-        // Donc on veut revenir à lastQuestionId.
-
         final lastIndex = _questions.indexWhere((q) => q.id == lastQuestionId);
         if (lastIndex != -1) {
           _currentQuestionIndex = lastIndex;
-          // On retire la réponse associée pour permettre de changer
-          // (Optionnel, mais plus propre de ne pas garder une réponse "future")
-          // _answers.remove(currentId);  <-- On garde la réponse pour pré-remplir
         }
       });
     } else if (_currentQuestionIndex > 0) {
-      // Fallback au cas où histo vide mais index > 0 (ex: init)
       setState(() {
-        // On cherche la question précédente valide à l'envers
         int prevIndex = _currentQuestionIndex - 1;
         while (prevIndex >= 0) {
           final q = _questions[prevIndex];
@@ -166,10 +176,117 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           }
           prevIndex--;
         }
-        // Si aucune trouvée
-        Navigator.pop(context);
+        _showExitConfirmation();
       });
     } else {
+      _showExitConfirmation();
+    }
+  }
+
+  Future<void> _showExitConfirmation() async {
+    final shouldExit = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: MintColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: MintColors.accentPastel,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.bookmark_outline,
+                  color: MintColors.primary, size: 32),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Sauvegarder et quitter ?',
+              style: GoogleFonts.montserrat(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tes reponses sont sauvegardees automatiquement. '
+              'Tu pourras reprendre exactement ou tu en etais.',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: MintColors.textSecondary,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: MintColors.surface,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '$_overallProgress% complete — $_currentSection',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, false),
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text('Continuer mon diagnostic',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: MintColors.textSecondary,
+                  side: const BorderSide(color: MintColors.border),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text('Sauvegarder et quitter'),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+
+    if (shouldExit == true && mounted) {
       Navigator.pop(context);
     }
   }
@@ -206,7 +323,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               ),
             ),
             Text(
-              'Question ${_currentQuestionIndex + 1}/${_questions.length}',
+              'Question $_sectionQuestionNumber/$_sectionTotalQuestions',
               style: GoogleFonts.inter(
                 fontSize: 12, 
                 color: MintColors.textSecondary,
@@ -217,7 +334,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.only(right: 16),
+            margin: const EdgeInsets.only(right: 4),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
@@ -232,6 +349,12 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               ),
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 22),
+            tooltip: 'Sauvegarder et quitter',
+            onPressed: _showExitConfirmation,
+          ),
+          const SizedBox(width: 4),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2),
@@ -258,6 +381,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                       onAnswer: _handleAnswer,
                       currentAnswer: _answers[currentQuestion.id],
                       answers: _answers,
+                      defaultExpanded: _currentQuestionIndex < 3,
                     ),
                     const SizedBox(height: 24),
                     const SizedBox(height: 24),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/financial_report.dart';
@@ -60,7 +61,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               lockedMessage:
                   'Tes actions prioritaires sont remplacees par un plan de desendettement. '
                   'Stabilise ta situation avant d\'explorer les recommandations.',
-              child: _buildTopPriorities(report.priorityActions),
+              child: _buildTopPriorities(context, report.priorityActions),
             ),
 
             const SizedBox(height: 24),
@@ -262,7 +263,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildTopPriorities(List<ActionItem> actions) {
+  Widget _buildTopPriorities(BuildContext context, List<ActionItem> actions) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -278,13 +279,27 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ...actions.map((action) => _buildActionCard(action)),
+          ...actions.map((action) => _buildActionCard(context, action)),
         ],
       ),
     );
   }
 
-  Widget _buildActionCard(ActionItem action) {
+  String _getActionRoute(String title) {
+    final lower = title.toLowerCase();
+    if (lower.contains('3a') || lower.contains('pilier')) return '/education/theme/3a';
+    if (lower.contains('lpp') || lower.contains('caisse')) return '/education/theme/lpp';
+    if (lower.contains('dette') || lower.contains('crédit')) return '/budget';
+    if (lower.contains('urgence') || lower.contains('épargne')) return '/education/theme/emergency';
+    if (lower.contains('impôt') || lower.contains('fiscal')) return '/tools';
+    if (lower.contains('avs')) return '/education/theme/avs';
+    if (lower.contains('budget')) return '/budget';
+    if (lower.contains('assurance') || lower.contains('lamal')) return '/education/theme/lamal';
+    if (lower.contains('hypothèque') || lower.contains('immobilier')) return '/tools';
+    return '/tools';
+  }
+
+  Widget _buildActionCard(BuildContext context, ActionItem action) {
     Color priorityColor;
     switch (action.priority) {
       case ActionPriority.critical:
@@ -370,6 +385,21 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ],
                 ),
               )),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => context.push(_getActionRoute(action.title)),
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: const Text('Commencer'),
+              style: FilledButton.styleFrom(
+                backgroundColor: priorityColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
         ],
       ),
     );

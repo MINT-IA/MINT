@@ -131,7 +131,7 @@ class _SimulatorRenteCapitalScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Simulez votre 2e pilier \u2022 LPP',
+                  'Simule ton 2e pilier \u2022 LPP',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -148,8 +148,8 @@ class _SimulatorRenteCapitalScreenState
   // --- Inputs Section ---
   Widget _buildInputsSection() {
     return SimulatorCard(
-      title: 'Vos parametres',
-      subtitle: 'Ajustez selon votre certificat LPP',
+      title: 'Tes parametres',
+      subtitle: 'Ajuste selon ton certificat LPP',
       icon: Icons.tune,
       child: Column(
         children: [
@@ -830,8 +830,8 @@ class _SimulatorRenteCapitalScreenState
         const SizedBox(height: 12),
         _buildExpandableTile(
           'Qu\'est-ce que le taux de conversion ?',
-          'Le taux de conversion determine le montant de votre rente annuelle '
-              'en fonction de votre avoir de vieillesse. Le taux legal minimum est '
+          'Le taux de conversion determine le montant de ta rente annuelle '
+              'en fonction de ton avoir de vieillesse. Le taux legal minimum est '
               'de 6.8% pour la part obligatoire (LPP art. 14). Pour la part '
               'surobligatoire, chaque caisse de pension fixe son propre taux, '
               'generalement entre 3% et 6%.',
@@ -903,7 +903,7 @@ class _SimulatorRenteCapitalScreenState
             child: Text(
               'Les resultats presentes sont des estimations a titre indicatif. '
               'Ils ne constituent pas un conseil financier personnalise. '
-              'Consultez votre caisse de pension et un·e spécialiste qualifié·e '
+              'Consulte ta caisse de pension et un·e spécialiste qualifié·e '
               'avant toute decision.',
               style: GoogleFonts.inter(
                 fontSize: 11,

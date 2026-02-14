@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
@@ -53,19 +54,24 @@ class LppPivotInsertWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(8),
+              color: MintColors.appleSurface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.lightBorder),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                const Icon(Icons.auto_awesome, color: MintColors.primary, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Le 3a reste le meilleur outil de défiscalisation en Suisse, quel que soit ton statut.',
-                    style: TextStyle(fontSize: 13, color: Colors.blue.shade700),
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],

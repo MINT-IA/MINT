@@ -54,8 +54,14 @@ class WizardConditionsService {
     // Si le but principal est "Achat immobilier", on s'assure de poser q_real_estate_project
     // (C'est une question de Section 4, donc toujours posée si on arrive là, sauf si...)
 
-    // 6. Logique Enfants
-    // Pas de logique d'exclusion spéciale, mais impactera le calcul fiscal
+    // 6. Logique AVS
+    if (questionId == 'q_avs_contribution_years') {
+      return answers['q_avs_gaps'] != 'no';
+    }
+    if (questionId == 'q_spouse_avs_contribution_years') {
+      return answers['q_civil_status'] == 'married' &&
+          answers['q_avs_gaps'] != 'no';
+    }
 
     return true; // Par défaut, on pose la question
   }

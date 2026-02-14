@@ -341,7 +341,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Mode demo : profil exemple. Completez votre diagnostic '
+                    'Mode demo : profil exemple. Complete ton diagnostic '
                     'pour des resultats personnalises.',
                     style: GoogleFonts.inter(
                       fontSize: 11,
@@ -567,9 +567,9 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(height: 12),
           Text(
             'La deduction de coordination est un montant fixe de '
-            'CHF\u00A025\'725 soustrait de votre salaire brut pour '
+            'CHF\u00A025\'725 soustrait de ton salaire brut pour '
             'calculer le salaire coordonne (base LPP). Ce montant '
-            'est le meme que vous travailliez a 100% ou a 50%.',
+            'est le meme que tu travailles a 100% ou a 50%.',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -791,7 +791,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             child: Text(
               'Les resultats presentes sont des estimations simplifiees '
               'a titre indicatif. Ils ne constituent pas un conseil '
-              'financier personnalise. Consultez votre caisse de pension '
+              'financier personnalise. Consulte ta caisse de pension '
               'et un professionnel qualifie avant toute decision.',
               style: GoogleFonts.inter(
                 fontSize: 12,

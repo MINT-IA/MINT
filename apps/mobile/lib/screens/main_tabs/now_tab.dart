@@ -398,7 +398,7 @@ class NowTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Conseils personnalises selon votre profil \u2192',
+                    'Conseils personnalises selon ton profil \u2192',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.black.withValues(alpha: 0.6),
@@ -571,7 +571,7 @@ class NowTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        'Connectez vos comptes bancaires',
+                        'Connecte tes comptes bancaires',
                         style: TextStyle(
                           fontSize: 12,
                           color: MintColors.textSecondary,
@@ -614,7 +614,7 @@ class NowTab extends StatelessWidget {
           icon: Icons.trending_up,
           color: Colors.green,
           title: 'Rachat echelonne',
-          subtitle: 'Optimisez vos rachats LPP sur plusieurs annees',
+          subtitle: 'Optimise tes rachats LPP sur plusieurs annees',
           route: '/lpp-deep/rachat',
         ),
         const SizedBox(height: 12),
@@ -632,7 +632,7 @@ class NowTab extends StatelessWidget {
           icon: Icons.home_outlined,
           color: Colors.teal,
           title: 'Retrait EPL',
-          subtitle: 'Financer un logement avec votre 2e pilier',
+          subtitle: 'Financer un logement avec ton 2e pilier',
           route: '/lpp-deep/epl',
         ),
       ],
@@ -673,7 +673,7 @@ class NowTab extends StatelessWidget {
           icon: Icons.verified_user,
           color: Colors.indigo,
           title: 'Check-up couverture',
-          subtitle: 'Evaluez votre protection assurantielle',
+          subtitle: 'Evalue ta protection assurantielle',
           route: '/assurances/coverage',
         ),
       ],
@@ -715,7 +715,7 @@ class NowTab extends StatelessWidget {
           color: Colors.blue,
           title: 'Frontalier',
           subtitle: 'Impot source, 90 jours, charges sociales',
-          route: '/frontalier',
+          route: '/segments/frontalier',
         ),
         const SizedBox(height: 12),
         _buildSegmentTile(

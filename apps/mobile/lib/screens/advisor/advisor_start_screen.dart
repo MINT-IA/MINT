@@ -32,7 +32,7 @@ class AdvisorSessionStartScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                'Votre Session\nSpécialiste',
+                'Ta Session\nSpécialiste',
                 style: GoogleFonts.montserrat(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
@@ -42,7 +42,7 @@ class AdvisorSessionStartScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Je vais vous guider à travers un diagnostic rapide pour identifier vos leviers d\'optimisation en Suisse.',
+                'Je vais te guider à travers un diagnostic rapide pour identifier tes leviers d\'optimisation en Suisse.',
                 style: TextStyle(
                   fontSize: 17,
                   color: MintColors.textSecondary,
@@ -59,7 +59,7 @@ class AdvisorSessionStartScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => context.push('/advisor/focus'),
+                  onPressed: () => context.push('/advisor'),
                   child: const Text('Commencer le diagnostic'),
                 ),
               ),
