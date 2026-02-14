@@ -719,7 +719,7 @@ class IndependantResult {
   final List<CoverageGapItem> coverageGaps;
   final ProtectionCost protectionCost;
   final double cotisationAvsAnnuelle;
-  final double plafond3a; // max 3a amount (20% of net income, max 35'280)
+  final double plafond3a; // max 3a amount (20% of net income, max 36'288)
   final List<String> alerts;
   final List<String> recommendations;
 
@@ -741,11 +741,11 @@ class IndependantResult {
 class IndependantService {
   // ── Constants ──────────────────────────────────────────────
 
-  /// 3a ceiling for self-employed without LPP (20% of net income).
-  static const double plafond3aMax = 35280;
+  /// 3a ceiling for self-employed without LPP (20% of net income, OPP3 art. 7).
+  static const double plafond3aMax = 36288;
 
-  /// 3a ceiling for self-employed WITH voluntary LPP.
-  static const double plafond3aAvecLpp = 7056;
+  /// 3a ceiling for self-employed WITH voluntary LPP (OPP3 art. 7, 2025/2026).
+  static const double plafond3aAvecLpp = 7258;
 
   /// AVS rate for self-employed (full rate at income > 58'800).
   static const double tauxAvsPlein = 0.106;
@@ -782,7 +782,7 @@ class IndependantService {
     final cotisationAvs = _computeAvsContribution(input.revenuNet);
 
     // 3a ceiling: 20% of net income if no LPP, max 35'280
-    // If voluntary LPP: standard 7'056
+    // If voluntary LPP: standard 7'258
     final plafond3a = input.hasLpp
         ? plafond3aAvecLpp
         : min(input.revenuNet * 0.20, plafond3aMax);

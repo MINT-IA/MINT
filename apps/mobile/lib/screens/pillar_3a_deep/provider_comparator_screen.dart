@@ -19,7 +19,7 @@ class ProviderComparatorScreen extends StatefulWidget {
 
 class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   int _age = 30;
-  double _versementAnnuel = 7056;
+  double _versementAnnuel = 7258;
   int _duree = 35;
   ProfilRisque _profilRisque = ProfilRisque.dynamique;
 

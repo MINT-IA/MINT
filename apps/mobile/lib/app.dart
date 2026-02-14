@@ -386,7 +386,13 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConcubinageScreen(),
     ),
-    // Expatriation (Sprint S23) — frontalier already at /segments/frontalier
+    // Frontalier alias (direct route)
+    GoRoute(
+      path: '/frontalier',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FrontalierScreen(),
+    ),
+    // Expatriation (Sprint S23)
     GoRoute(
       path: '/expatriation',
       parentNavigatorKey: _rootNavigatorKey,
