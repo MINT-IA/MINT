@@ -120,6 +120,40 @@ class _BuybackWidgetState extends State<BuybackWidget> {
           ),
 
           const SizedBox(height: 12),
+
+          // Educational tooltip for taux marginal
+          GestureDetector(
+            onTap: () => _showTauxMarginalInfo(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: MintColors.info.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: MintColors.info.withOpacity(0.15)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline,
+                      color: MintColors.info, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Qu'est-ce que le taux marginal d'imposition ?",
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.info,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right,
+                      color: MintColors.info, size: 16),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
           Text(
             result.disclaimer,
             style: GoogleFonts.inter(
@@ -129,6 +163,83 @@ class _BuybackWidgetState extends State<BuybackWidget> {
         ],
       ),
       ),
+    );
+  }
+
+  void _showTauxMarginalInfo(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(32, 16, 32, 48),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: MintColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                "Taux marginal d'imposition",
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: MintColors.primary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. "
+                "Plus ton revenu est élevé, plus ce taux est fort.",
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  color: MintColors.textPrimary,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: MintColors.accentPastel,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lightbulb_outline,
+                        color: MintColors.primary, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "En lissant tes rachats, tu restes dans des tranches "
+                        "d'imposition plus basses chaque année, ce qui augmente "
+                        "ton économie fiscale totale.",
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: MintColors.primary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

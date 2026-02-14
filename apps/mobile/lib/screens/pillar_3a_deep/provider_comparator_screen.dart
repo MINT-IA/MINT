@@ -43,7 +43,20 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             pinned: true,
             backgroundColor: MintColors.primary,
             foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      MintColors.primary,
+                      MintColors.primary.withAlpha(220),
+                    ],
+                  ),
+                ),
+              ),
               title: Text(
                 'COMPARATEUR 3A',
                 style: GoogleFonts.montserrat(

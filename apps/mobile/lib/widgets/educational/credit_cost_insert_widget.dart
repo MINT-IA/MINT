@@ -23,11 +23,14 @@ class CreditCostInsertWidget extends StatefulWidget {
   State<CreditCostInsertWidget> createState() => _CreditCostInsertWidgetState();
 }
 
-class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
+class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
+    with SingleTickerProviderStateMixin {
   late double _amount;
   late double _rate;
   late int _months;
-  
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
   final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
 
   @override
@@ -36,6 +39,29 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
     _amount = widget.creditAmount ?? 10000;
     _rate = widget.interestRate ?? 9.9;
     _months = widget.durationMonths ?? 36;
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _pulseAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.06), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.06, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _onValueChanged(VoidCallback update) {
+    setState(update);
+    _pulseController.forward(from: 0);
   }
 
   double get _totalInterest {
@@ -69,11 +95,11 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
             max: 50000,
             divisions: 49,
             format: (v) => _currencyFormat.format(v),
-            onChanged: (v) => setState(() => _amount = v),
+            onChanged: (v) => _onValueChanged(() => _amount = v),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Slider taux
           _buildSlider(
             label: 'Taux d\'intérêt (TAEG)',
@@ -82,12 +108,12 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
             max: 15,
             divisions: 22,
             format: (v) => '${v.toStringAsFixed(1)}%',
-            onChanged: (v) => setState(() => _rate = v),
+            onChanged: (v) => _onValueChanged(() => _rate = v),
             isWarning: _rate > 10,
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Slider durée
           _buildSlider(
             label: 'Durée du crédit',
@@ -96,53 +122,87 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
             max: 84,
             divisions: 12,
             format: (v) => '${v.toInt()} mois',
-            onChanged: (v) => setState(() => _months = v.toInt()),
+            onChanged: (v) => _onValueChanged(() => _months = v.toInt()),
           ),
           
           const SizedBox(height: 24),
           
-          // Résultat avec alerte
+          // Chiffre choc — prominent interest cost
+          ScaleTransition(
+            scale: _pulseAnimation,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red.shade700,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.shade700.withOpacity(0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.warning_amber, color: Colors.white, size: 28),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Cout total des interets',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _currencyFormat.format(_totalInterest),
+                    style: const TextStyle(
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'soit ${(_totalInterest / _amount * 100).toStringAsFixed(0)}% du montant emprunte',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withOpacity(0.95),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Details section
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.red.shade300, width: 2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.shade200),
             ),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.warning_amber, color: Colors.red.shade700, size: 28),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Coût total des intérêts',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _currencyFormat.format(_totalInterest),
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red.shade700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'soit ${(_totalInterest / _amount * 100).toStringAsFixed(0)}% du montant emprunté',
-                  style: TextStyle(fontSize: 14, color: Colors.red.shade600),
-                ),
-                
-                const Divider(height: 24),
-                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -157,7 +217,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Mensualité'),
+                    const Text('Mensualite'),
                     Text(
                       '${_currencyFormat.format(_monthlyPayment)} / mois',
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -195,8 +255,8 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Rembourser ce crédit en priorité est souvent ta meilleure décision financière. '
-                  'L\'économie d\'intérêts est garantie, contrairement aux rendements d\'investissement.',
+                  'Rembourser ce credit en priorite est souvent la decision financiere la plus efficace. '
+                  'L\'economie d\'interets est acquise, contrairement aux rendements d\'investissement.',
                   style: TextStyle(fontSize: 13),
                 ),
               ],

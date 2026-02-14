@@ -31,7 +31,20 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             pinned: true,
             backgroundColor: MintColors.primary,
             foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      MintColors.primary,
+                      MintColors.primary.withAlpha(220),
+                    ],
+                  ),
+                ),
+              ),
               title: Text(
                 'AIDE EN CAS DE DETTE',
                 style: GoogleFonts.montserrat(

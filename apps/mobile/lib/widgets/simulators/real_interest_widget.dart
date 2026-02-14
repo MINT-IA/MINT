@@ -89,8 +89,82 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
                 fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
+
+          const SizedBox(height: 20),
+
+          // Educational footer
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: MintColors.info.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.info.withOpacity(0.15)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.school_outlined,
+                        color: MintColors.info, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Comprendre le rendement réel",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: MintColors.info,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildBulletPoint(
+                  "Le rendement réel = rendement nominal \u2212 inflation \u2212 frais",
+                ),
+                const SizedBox(height: 6),
+                _buildBulletPoint(
+                  "Un placement a 3% avec 1.5% d'inflation et 0.5% de frais rapporte seulement 1% en reel",
+                ),
+                const SizedBox(height: 6),
+                _buildBulletPoint(
+                  "Sur 30 ans, cette difference peut representer des dizaines de milliers de francs",
+                ),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBulletPoint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Container(
+            width: 5,
+            height: 5,
+            decoration: const BoxDecoration(
+              color: MintColors.info,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

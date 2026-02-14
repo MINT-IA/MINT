@@ -166,7 +166,7 @@ class EducationalInsertService {
             'LPart art. 1ss (Partenariat enregistre)',
           ],
           actionLabel: 'Simuler l\'impact financier de mon etat civil',
-          actionRoute: '/simulators/civil_status',
+          actionRoute: '/mariage',
           onLearnMore: onLearnMore,
         );
 
@@ -196,7 +196,7 @@ class EducationalInsertService {
             'OPP3 art. 7 (3a independant sans LPP)',
           ],
           actionLabel: 'Explorer les outils adaptes a mon statut',
-          actionRoute: '/tools/employment_status',
+          actionRoute: '/tools',
           onLearnMore: onLearnMore,
         );
 
@@ -227,7 +227,7 @@ class EducationalInsertService {
             'OPP2 art. 30d-30g (Modalites EPL)',
           ],
           actionLabel: 'Simuler ma capacite d\'emprunt',
-          actionRoute: '/simulators/mortgage',
+          actionRoute: '/mortgage/affordability',
           onLearnMore: onLearnMore,
         );
 
@@ -256,7 +256,7 @@ class EducationalInsertService {
             'OFS Statistique fiscale de la Suisse',
           ],
           actionLabel: 'Comparer la fiscalite des 26 cantons',
-          actionRoute: '/simulators/cantonal_tax',
+          actionRoute: '/fiscal',
           onLearnMore: onLearnMore,
         );
 
@@ -287,7 +287,7 @@ class EducationalInsertService {
             'OPP2 art. 60a (Calcul du potentiel de rachat)',
           ],
           actionLabel: 'Simuler l\'economie fiscale de mon rachat',
-          actionRoute: '/simulators/lpp_buyback',
+          actionRoute: '/lpp-deep/rachat',
           onLearnMore: onLearnMore,
         );
 
@@ -316,7 +316,7 @@ class EducationalInsertService {
             'OPP3 art. 2 (Plafond annuel 3a)',
           ],
           actionLabel: 'Simuler l\'economie avec l\'echelonnement 3a',
-          actionRoute: '/simulators/3a_staggering',
+          actionRoute: '/3a-deep/staggered-withdrawal',
           onLearnMore: onLearnMore,
         );
 
@@ -348,7 +348,7 @@ class EducationalInsertService {
             'FINMA circ. 2018/3 (Regles de conduite)',
           ],
           actionLabel: 'Decouvrir les bases de la diversification',
-          actionRoute: '/learn/investments_basics',
+          actionRoute: '/education/hub',
           onLearnMore: onLearnMore,
         );
 
@@ -379,7 +379,7 @@ class EducationalInsertService {
             'LIFD art. 21 al. 1 let. b (Valeur locative)',
           ],
           actionLabel: 'Simuler ma capacite d\'emprunt',
-          actionRoute: '/simulators/mortgage',
+          actionRoute: '/mortgage/affordability',
           onLearnMore: onLearnMore,
         );
 
