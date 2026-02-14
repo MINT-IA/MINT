@@ -54,7 +54,7 @@ class RachatEchelonneSimulator {
   /// [rachatMax]           — montant total du rachat possible (CHF)
   /// [revenuImposable]     — revenu imposable annuel (CHF)
   /// [tauxMarginalEstime]  — taux marginal estime (0.25 – 0.45)
-  /// [horizon]             — nombre d'annees d'echelonnement (1 – 5)
+  /// [horizon]             — nombre d'annees d'echelonnement (1 – 15)
   ///
   /// Regle : Pas d'EPL dans les 3 ans suivant un rachat (LPP art. 79b al. 3).
   static RachatEchelonneResult compare({
@@ -66,7 +66,7 @@ class RachatEchelonneSimulator {
   }) {
     // Clamp inputs
     final clampedTaux = tauxMarginalEstime.clamp(0.10, 0.50);
-    final clampedHorizon = horizon.clamp(1, 5);
+    final clampedHorizon = horizon.clamp(1, 15);
     final clampedRachat = rachatMax.clamp(0.0, 500000.0);
 
     // --- Bloc (1 an) ---

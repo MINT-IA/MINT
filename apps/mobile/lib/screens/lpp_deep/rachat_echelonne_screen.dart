@@ -349,8 +349,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             label: 'Rachat maximum',
             value: _rachatMax,
             min: 0,
-            max: 200000,
-            divisions: 40,
+            max: 500000,
+            divisions: 100,
             format: 'CHF ${formatChf(_rachatMax)}',
             onChanged: (v) {
               _rachatMax = v;
@@ -787,8 +787,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             label: 'Horizon (annees)',
             value: _horizon.toDouble(),
             min: 1,
-            max: 5,
-            divisions: 4,
+            max: 15,
+            divisions: 14,
             format: '$_horizon an${_horizon > 1 ? 's' : ''}',
             onChanged: (v) {
               _horizon = v.round();
@@ -1559,7 +1559,7 @@ class _WaterfallPainter extends CustomPainter {
 
   double _getBarHeight(double deduction, double chartHeight) {
     // Max deduction for scale = 200k (matches slider max)
-    final maxDeduction = 200000.0;
+    final maxDeduction = 500000.0;
     return (deduction / maxDeduction * chartHeight).clamp(8.0, chartHeight);
   }
 
