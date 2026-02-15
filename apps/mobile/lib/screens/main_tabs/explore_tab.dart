@@ -96,7 +96,7 @@ class ExploreTab extends StatelessWidget {
           subtitle: 'Simuler mon achat → 5 min',
           gradient: [Colors.blue.shade50, Colors.blue.shade100],
           color: Colors.blue.shade700,
-          onTap: () {},
+          onTap: () => context.push('/mortgage/affordability'),
         ),
         const SizedBox(height: 12),
         _buildGoalCard(
@@ -116,7 +116,7 @@ class ExploreTab extends StatelessWidget {
           subtitle: 'Voir mon plan → 10 min',
           gradient: [Colors.purple.shade50, Colors.purple.shade100],
           color: Colors.purple.shade700,
-          onTap: () {},
+          onTap: () => context.push('/retirement'),
         ),
       ],
     );
@@ -642,7 +642,7 @@ class ExploreTab extends StatelessWidget {
     required String duration,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: () => context.push('/education/hub'),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),

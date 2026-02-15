@@ -7,8 +7,7 @@ import 'package:mint_mobile/widgets/mint_ui_kit.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
-import 'dart:ui' as ui; // For BackdropFilter blur
-import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -32,24 +31,24 @@ class _LandingScreenState extends State<LandingScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 1. Background Aurora Mesh (iOS 26 Style)
+          // Background Aurora Mesh
           Positioned(
             top: -100,
             left: -50,
-            child: _buildBlurBlob(const Color(0xFFE5E5E7), 300), // Neutral Light Gray
+            child: _buildBlurBlob(const Color(0xFFE5E5E7), 300),
           ),
           Positioned(
             top: 200,
             right: -100,
-            child: _buildBlurBlob(const Color(0xFF4F46E5), 350), // Deep Indigo
+            child: _buildBlurBlob(const Color(0xFF4F46E5), 350),
           ),
           Positioned(
             bottom: -100,
             left: 50,
-            child: _buildBlurBlob(const Color(0xFF0EA5E9), 300), // Sky Blue
+            child: _buildBlurBlob(const Color(0xFF0EA5E9), 300),
           ),
 
-          // 2. Content with Glassmorphism
+          // Content
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -65,64 +64,14 @@ class _LandingScreenState extends State<LandingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header Logo
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildLogoPill(),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.5),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.white),
-                                    ),
-                                    child: Text(
-                                      S.of(context)?.landingBetaBadge ?? "Bêta Privée",
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: MintColors.textSecondary,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  TextButton(
-                                    onPressed: () {
-                                      _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
-                                      context.go('/auth/login');
-                                    },
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 8),
-                                      backgroundColor:
-                                          Colors.white.withOpacity(0.7),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      S.of(context)?.authLogin ?? "Se connecter",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: MintColors.textPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                          // Header
+                          _buildHeader(context),
 
                           const SizedBox(height: 48),
 
-                          // Hero Text
+                          // Hero — user-centered, no jargon
                           Text(
-                            S.of(context)?.landingHeroPrefix ?? "Le premier",
+                            'Tes finances',
                             style: GoogleFonts.outfit(
                               fontSize: 56,
                               fontWeight: FontWeight.w400,
@@ -136,11 +85,11 @@ class _LandingScreenState extends State<LandingScreen> {
                               colors: [MintColors.primary, Color(0xFF6E6E73)],
                             ).createShader(bounds),
                             child: Text(
-                              S.of(context)?.landingHero ?? "Financial OS.",
+                              'Enfin claires.',
                               style: GoogleFonts.outfit(
                                 fontSize: 62,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white, // Masked
+                                color: Colors.white,
                                 height: 0.95,
                                 letterSpacing: -2.5,
                               ),
@@ -149,8 +98,9 @@ class _LandingScreenState extends State<LandingScreen> {
 
                           const SizedBox(height: 24),
 
+                          // Subtitle — emotional hook, compliant
                           Text(
-                            S.of(context)?.landingSubtitleLong ?? "L'intelligence d'un CFO, dans ta poche.\nZéro bullshit. Pur conseil.",
+                            '3a, LPP, impots, retraite —\nMINT t\'explique tout, simplement.',
                             style: GoogleFonts.inter(
                               fontSize: 19,
                               color: MintColors.textSecondary,
@@ -159,72 +109,61 @@ class _LandingScreenState extends State<LandingScreen> {
                             ),
                           ),
 
+                          const SizedBox(height: 48),
+
+                          // Glass Card — user outcomes, not features
+                          _buildValuePropsCard(context),
+
                           const SizedBox(height: 56),
 
-                          // Glass Card Features
-                          Container(
-                            padding: const EdgeInsets.all(28),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(36),
-                              border: Border.all(
-                                  color: MintColors.lightBorder.withOpacity(0.5)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 40,
-                                  offset: const Offset(0, 20),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                _buildFeatureRow(
-                                  Icons.bolt_rounded,
-                                  S.of(context)?.landingFeature1Title ?? "Diagnostic Instantané",
-                                  S.of(context)?.landingFeature1Desc ?? "Analyse 360° en 5 min chrono.",
-                                  MintColors.primary,
-                                ),
-                                const SizedBox(height: 32),
-                                _buildFeatureRow(
-                                  Icons.shield_rounded,
-                                  S.of(context)?.landingFeature2Title ?? "100% Privé & Local",
-                                  S.of(context)?.landingFeature2Desc ?? "Tes données restent sur ton device.",
-                                  MintColors.primary,
-                                ),
-                                const SizedBox(height: 32),
-                                _buildFeatureRow(
-                                  Icons.auto_graph_rounded,
-                                  S.of(context)?.landingFeature3Title ?? "Stratégie Neutre",
-                                  S.of(context)?.landingFeature3Desc ?? "Zéro commission. Zéro conflit.",
-                                  MintColors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 64),
-
-                          // Floating Action Button
-                          _buildPremiumButton(context),
+                          // Primary CTA
+                          _buildPrimaryCTA(context),
 
                           const SizedBox(height: 24),
 
+                          // Tertiary CTA — curious path
                           Center(
                             child: TextButton(
                               onPressed: () {
-                                _analytics.trackCTAClick('cta_resume_diagnostic', screenName: '/');
+                                _analytics.trackCTAClick(
+                                    'cta_explore', screenName: '/');
+                                context.go('/home');
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: MintColors.textSecondary,
+                              ),
+                              child: const Text(
+                                'Je veux juste explorer',
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Secondary CTA
+                          Center(
+                            child: TextButton(
+                              onPressed: () {
+                                _analytics.trackCTAClick(
+                                    'cta_continue', screenName: '/');
                                 context.go('/home');
                               },
                               style: TextButton.styleFrom(
                                 foregroundColor: MintColors.textMuted,
                               ),
-                              child: Text(
-                                S.of(context)?.landingResumeDiagnostic ?? "Reprendre mon diagnostic",
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                              child: const Text(
+                                'J\'ai deja un compte',
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
+
+                          const SizedBox(height: 16),
+
+                          // Trust footer
+                          _buildTrustFooter(),
+
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -241,12 +180,145 @@ class _LandingScreenState extends State<LandingScreen> {
     );
   }
 
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildLogoPill(),
+        Row(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white),
+              ),
+              child: Text(
+                S.of(context)?.landingBetaBadge ?? 'Beta Privee',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: () {
+                _analytics.trackCTAClick(
+                    'cta_login_clicked', screenName: '/');
+                context.go('/auth/login');
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8),
+                backgroundColor: Colors.white.withValues(alpha: 0.7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                S.of(context)?.authLogin ?? 'Se connecter',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildValuePropsCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(
+            color: MintColors.lightBorder.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildFeatureRow(
+            Icons.speed_rounded,
+            'Ton score financier',
+            'Sache exactement ou tu en es.',
+            MintColors.primary,
+          ),
+          const SizedBox(height: 32),
+          _buildFeatureRow(
+            Icons.show_chart_rounded,
+            'Ta trajectoire retraite',
+            'Visualise l\'impact de tes decisions.',
+            MintColors.primary,
+          ),
+          const SizedBox(height: 32),
+          _buildFeatureRow(
+            Icons.lock_rounded,
+            '100% sur ton appareil',
+            'Tes donnees ne quittent jamais ton telephone.',
+            MintColors.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrimaryCTA(BuildContext context) {
+    return MintPremiumButton(
+      title: 'Decouvrir mon score',
+      subtitle: 'Gratuit \u2022 5 minutes',
+      onTap: () async {
+        _analytics.trackCTAClick('cta_score_clicked', screenName: '/');
+        final isCompleted = await ReportPersistenceService.isCompleted();
+        if (context.mounted) {
+          if (isCompleted) {
+            context.go('/home');
+          } else {
+            context.go('/advisor');
+          }
+        }
+      },
+    );
+  }
+
+  Widget _buildTrustFooter() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          'Outil educatif — ne constitue pas un conseil financier. '
+          'Tes donnees restent sur ton appareil.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            color: MintColors.textMuted,
+            height: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildBlurBlob(Color color, double size) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.35),
+        color: color.withValues(alpha: 0.35),
         shape: BoxShape.circle,
       ),
       child: BackdropFilter(
@@ -264,13 +336,14 @@ class _LandingScreenState extends State<LandingScreen> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: const Icon(Icons.token_rounded, color: MintColors.primary, size: 28),
+      child: const Icon(
+          Icons.token_rounded, color: MintColors.primary, size: 28),
     );
   }
 
@@ -281,7 +354,7 @@ class _LandingScreenState extends State<LandingScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Icon(icon, color: color, size: 26),
@@ -312,24 +385,6 @@ class _LandingScreenState extends State<LandingScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPremiumButton(BuildContext context) {
-    return MintPremiumButton(
-      title: S.of(context)?.startDiagnostic ?? "Démarrer mon diagnostic",
-      subtitle: S.of(context)?.landingDiagnosticSubtitle ?? "Bilan 360° • 5 minutes",
-      onTap: () async {
-        _analytics.trackCTAClick('cta_diagnostic_clicked', screenName: '/');
-        final isCompleted = await ReportPersistenceService.isCompleted();
-        if (context.mounted) {
-          if (isCompleted) {
-            context.go('/report');
-          } else {
-            context.push('/home');
-          }
-        }
-      },
     );
   }
 }

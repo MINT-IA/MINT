@@ -16,13 +16,14 @@ class BudgetProvider with ChangeNotifier {
   BudgetInputs? get inputs => _lastInputs;
 
   /// Initialise ou met à jour le budget avec de nouveaux inputs.
-  /// Tente de récupérer les overrides sauvegardés si c'est la première charge.
+  /// Persiste les inputs et restaure les overrides sauvegardés.
   Future<void> setInputs(BudgetInputs inputs) async {
     _lastInputs = inputs;
 
-    // Tentative de récupération des overrides existants
-    // Note: Dans une version avancée, on lierait ça à un ID de session ou de user.
-    // Ici c'est local device global.
+    // Persister les inputs pour les retrouver au prochain lancement
+    _store.saveInputs(inputs);
+
+    // Récupérer les overrides existants
     final savedFuture = await _store.getOverride('future');
     final savedVariables = await _store.getOverride('variables');
 
@@ -32,11 +33,31 @@ class BudgetProvider with ChangeNotifier {
     _recalculate();
   }
 
+  /// Charge le budget depuis SharedPreferences au démarrage.
+  /// Retourne true si des inputs ont été restaurés.
+  Future<bool> loadFromStorage() async {
+    final savedInputs = await _store.loadInputs();
+    if (savedInputs != null) {
+      await setInputs(savedInputs);
+      return true;
+    }
+    return false;
+  }
+
   void updateOverride(String key, double value) {
     _overrides[key] = value;
     _recalculate();
     // Sauvegarde "fire and forget"
     _store.saveOverride(key, value);
+  }
+
+  /// Efface le budget (Reset / Supprimer mes données)
+  Future<void> clear() async {
+    _lastInputs = null;
+    _currentPlan = null;
+    _overrides.clear();
+    await _store.clear();
+    notifyListeners();
   }
 
   void _recalculate() {

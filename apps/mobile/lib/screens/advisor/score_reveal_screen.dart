@@ -1,0 +1,907 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+
+// ────────────────────────────────────────────────────────────
+//  SCORE REVEAL SCREEN — Post-Wizard "Ta-Da" Moment
+// ────────────────────────────────────────────────────────────
+//
+//  Ecran plein ecran anime qui revele le Financial Fitness Score
+//  apres la completion du wizard. Inspire de :
+//    - Strava Activity Summary (stats animees, achievements)
+//    - TrainerRoad Workout Complete (fitness score update)
+//    - Apple Watch closing rings
+//
+//  5 phases d'animation :
+//    Phase 1 (0-800ms)    : Fond gradient + titre "Ton diagnostic est pret"
+//    Phase 2 (800-2000ms) : Jauge circulaire anime de 0 au score
+//    Phase 3 (2000-3000ms): 3 barres sous-scores (slide in echelonne)
+//    Phase 4 (3000-3500ms): Message coach avec effet machine a ecrire
+//    Phase 5 (3500ms+)    : Bouton CTA "Voir mon dashboard"
+//
+//  Widget pur — recoit FinancialFitnessScore et CoachProfile en props.
+// ────────────────────────────────────────────────────────────
+
+class ScoreRevealScreen extends StatefulWidget {
+  final FinancialFitnessScore score;
+  final CoachProfile profile;
+
+  const ScoreRevealScreen({
+    super.key,
+    required this.score,
+    required this.profile,
+  });
+
+  @override
+  State<ScoreRevealScreen> createState() => _ScoreRevealScreenState();
+}
+
+class _ScoreRevealScreenState extends State<ScoreRevealScreen>
+    with TickerProviderStateMixin {
+  // ── Master timeline controller (0.0 → 1.0 over 4200ms) ──
+  late AnimationController _masterController;
+
+  // ── Phase animations (driven by Interval on master) ──
+  late Animation<double> _backgroundOpacity;
+  late Animation<double> _titleScale;
+  late Animation<double> _titleOpacity;
+  late Animation<double> _gaugeProgress;
+  late Animation<double> _gaugeOpacity;
+  late Animation<double> _subScoreBudgetSlide;
+  late Animation<double> _subScorePrevoyanceSlide;
+  late Animation<double> _subScorePatrimoineSlide;
+  late Animation<double> _subScoreOpacity;
+  late Animation<double> _coachMessageOpacity;
+  late Animation<double> _ctaOpacity;
+
+  // ── Typing effect controller ──
+  late AnimationController _typingController;
+  String _displayedMessage = '';
+
+  // ── Particle / glow pulse controller ──
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // ── Computed values ──
+  late String _coachMessage;
+  late String _levelLabel;
+  late Color _scoreColor;
+  late String _firstName;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _computeDisplayValues();
+    _initAnimations();
+  }
+
+  void _computeDisplayValues() {
+    final score = widget.score;
+    _firstName = widget.profile.firstName ?? 'toi';
+
+    // Level label
+    if (score.global >= 80) {
+      _levelLabel = 'Excellent';
+    } else if (score.global >= 60) {
+      _levelLabel = 'Bon';
+    } else if (score.global >= 40) {
+      _levelLabel = 'Attention';
+    } else {
+      _levelLabel = 'Critique';
+    }
+
+    // Score color
+    if (score.global >= 80) {
+      _scoreColor = MintColors.scoreExcellent;
+    } else if (score.global >= 60) {
+      _scoreColor = MintColors.scoreBon;
+    } else if (score.global >= 40) {
+      _scoreColor = MintColors.scoreAttention;
+    } else {
+      _scoreColor = MintColors.scoreCritique;
+    }
+
+    // Coach message (personalized)
+    _coachMessage = score.coachMessage;
+  }
+
+  void _initAnimations() {
+    // ── Master: 4200ms total ──
+    _masterController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4200),
+    );
+
+    // Phase 1: Background + Title (0-800ms → 0.0-0.19)
+    _backgroundOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.0, 0.12, curve: Curves.easeOut),
+      ),
+    );
+
+    _titleOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.05, 0.19, curve: Curves.easeOut),
+      ),
+    );
+
+    _titleScale = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.05, 0.19, curve: Curves.easeOutBack),
+      ),
+    );
+
+    // Phase 2: Gauge (800-2000ms → 0.19-0.48)
+    _gaugeOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.17, 0.24, curve: Curves.easeOut),
+      ),
+    );
+
+    _gaugeProgress = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.19, 0.48, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    // Phase 3: Sub-scores (2000-3000ms → 0.48-0.71)
+    _subScoreOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.48, 0.55, curve: Curves.easeOut),
+      ),
+    );
+
+    _subScoreBudgetSlide = Tween<double>(begin: -60.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.48, 0.60, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _subScorePrevoyanceSlide = Tween<double>(begin: -60.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.52, 0.64, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _subScorePatrimoineSlide = Tween<double>(begin: -60.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.56, 0.68, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    // Phase 4: Coach message (3000-3500ms → 0.71-0.83)
+    _coachMessageOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.71, 0.78, curve: Curves.easeOut),
+      ),
+    );
+
+    // Phase 5: CTA button (3500ms+ → 0.83-1.0)
+    _ctaOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _masterController,
+        curve: const Interval(0.83, 0.95, curve: Curves.easeOut),
+      ),
+    );
+
+    // ── Typing controller (starts at phase 4) ──
+    _typingController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: _coachMessage.length * 30),
+    );
+
+    _typingController.addListener(() {
+      final charCount =
+          (_typingController.value * _coachMessage.length).round();
+      if (charCount != _displayedMessage.length) {
+        setState(() {
+          _displayedMessage = _coachMessage.substring(0, charCount);
+        });
+      }
+    });
+
+    // ── Pulse controller (infinite gentle glow after gauge reveals) ──
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    );
+
+    _pulseAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    // ── Listen to master to trigger sub-animations ──
+    _masterController.addListener(() {
+      // Start typing effect at ~71% (phase 4 start)
+      if (_masterController.value >= 0.71 &&
+          !_typingController.isAnimating &&
+          _typingController.value == 0) {
+        _typingController.forward();
+      }
+
+      // Start pulse after gauge is done
+      if (_masterController.value >= 0.48 && !_pulseController.isAnimating) {
+        _pulseController.repeat(reverse: true);
+      }
+    });
+
+    // Start the show
+    _masterController.forward();
+  }
+
+  @override
+  void dispose() {
+    _masterController.dispose();
+    _typingController.dispose();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  BUILD
+  // ════════════════════════════════════════════════════════════════
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: AnimatedBuilder(
+        animation: Listenable.merge([
+          _masterController,
+          _pulseController,
+        ]),
+        builder: (context, _) {
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.lerp(
+                    Colors.white,
+                    const Color(0xFF0A0A0F),
+                    _backgroundOpacity.value,
+                  )!,
+                  Color.lerp(
+                    Colors.white,
+                    const Color(0xFF1A1A2E),
+                    _backgroundOpacity.value,
+                  )!,
+                  Color.lerp(
+                    Colors.white,
+                    const Color(0xFF0D1117),
+                    _backgroundOpacity.value,
+                  )!,
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 40),
+                        _buildPhase1Title(),
+                        const SizedBox(height: 36),
+                        _buildPhase2Gauge(),
+                        const SizedBox(height: 32),
+                        _buildPhase3SubScores(),
+                        const SizedBox(height: 28),
+                        _buildPhase4CoachMessage(),
+                        const SizedBox(height: 32),
+                        _buildPhase5Cta(),
+                        const SizedBox(height: 40),
+                        _buildDisclaimer(),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  PHASE 1: Title "Ton diagnostic est pret"
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildPhase1Title() {
+    return Opacity(
+      opacity: _titleOpacity.value,
+      child: Transform.scale(
+        scale: _titleScale.value,
+        child: Column(
+          children: [
+            // Greeting with first name
+            Text(
+              'Bravo $_firstName,',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.6),
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Main title
+            Text(
+              'Ton diagnostic\nest pret.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 34,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                height: 1.15,
+                letterSpacing: -0.8,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  PHASE 2: Circular Score Gauge
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildPhase2Gauge() {
+    final displayScore =
+        (widget.score.global * _gaugeProgress.value).round();
+
+    return Opacity(
+      opacity: _gaugeOpacity.value,
+      child: SizedBox(
+        width: 220,
+        height: 220,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Subtle glow behind the gauge
+            if (_pulseAnimation.value > 0)
+              Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: _scoreColor.withValues(
+                        alpha: 0.12 + 0.08 * _pulseAnimation.value,
+                      ),
+                      blurRadius: 40 + 20 * _pulseAnimation.value,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+              ),
+            // The gauge arc
+            CustomPaint(
+              painter: _RevealGaugePainter(
+                score: widget.score.global,
+                progress: _gaugeProgress.value,
+                scoreColor: _scoreColor,
+              ),
+              size: const Size(220, 220),
+            ),
+            // Center content
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Animated score number
+                Text(
+                  '$displayScore',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 56,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '/100',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Level badge
+                AnimatedOpacity(
+                  opacity: _gaugeProgress.value > 0.8 ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 400),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _scoreColor.withValues(alpha: 0.20),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _scoreColor.withValues(alpha: 0.40),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      _levelLabel,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: _scoreColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  PHASE 3: Sub-Score Bars (staggered slide-in)
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildPhase3SubScores() {
+    return Opacity(
+      opacity: _subScoreOpacity.value,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+        ),
+        child: Column(
+          children: [
+            _buildSubScoreRow(
+              label: 'Budget',
+              score: widget.score.budget.score,
+              icon: Icons.account_balance_wallet_outlined,
+              slideOffset: _subScoreBudgetSlide.value,
+            ),
+            const SizedBox(height: 14),
+            _buildSubScoreRow(
+              label: 'Prevoyance',
+              score: widget.score.prevoyance.score,
+              icon: Icons.shield_outlined,
+              slideOffset: _subScorePrevoyanceSlide.value,
+            ),
+            const SizedBox(height: 14),
+            _buildSubScoreRow(
+              label: 'Patrimoine',
+              score: widget.score.patrimoine.score,
+              icon: Icons.trending_up,
+              slideOffset: _subScorePatrimoineSlide.value,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubScoreRow({
+    required String label,
+    required int score,
+    required IconData icon,
+    required double slideOffset,
+  }) {
+    final barColor = _colorForScore(score);
+    // Animate bar fill in sync with the slide
+    final normalizedSlide =
+        ((60 + slideOffset) / 60).clamp(0.0, 1.0); // 0 when offset=-60, 1 when 0
+    final barProgress = normalizedSlide;
+    final displayScore = (score * barProgress).round();
+    final ratio = (score / 100.0).clamp(0.0, 1.0) * barProgress;
+
+    return Transform.translate(
+      offset: Offset(slideOffset, 0),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.5)),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 82,
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: SizedBox(
+                height: 8,
+                child: Stack(
+                  children: [
+                    // Track
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    // Filled bar
+                    FractionallySizedBox(
+                      widthFactor: ratio,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              barColor.withValues(alpha: 0.6),
+                              barColor,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: barColor.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 32,
+            child: Text(
+              '$displayScore',
+              textAlign: TextAlign.right,
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: barColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _colorForScore(int score) {
+    if (score >= 80) return MintColors.scoreExcellent;
+    if (score >= 60) return MintColors.scoreBon;
+    if (score >= 40) return MintColors.scoreAttention;
+    return MintColors.scoreCritique;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  PHASE 4: Coach Message (typing effect)
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildPhase4CoachMessage() {
+    return Opacity(
+      opacity: _coachMessageOpacity.value,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Coach avatar
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _scoreColor.withValues(alpha: 0.8),
+                    _scoreColor,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                size: 18,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'TON COACH',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: _scoreColor.withValues(alpha: 0.8),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _displayedMessage.isEmpty ? ' ' : _displayedMessage,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withValues(alpha: 0.85),
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  PHASE 5: CTA Button
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildPhase5Cta() {
+    return Opacity(
+      opacity: _ctaOpacity.value,
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _ctaOpacity.value > 0.5
+                  ? () => context.go('/home')
+                  : null,
+              style: FilledButton.styleFrom(
+                backgroundColor: _scoreColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Voir mon dashboard',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Secondary action
+          TextButton(
+            onPressed: _ctaOpacity.value > 0.5
+                ? () => context.go('/report/v2', extra: {})
+                : null,
+            child: Text(
+              'Voir le rapport detaille',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  DISCLAIMER
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildDisclaimer() {
+    return Opacity(
+      opacity: _ctaOpacity.value * 0.8,
+      child: Text(
+        'Outil educatif \u2014 ne constitue pas un conseil financier (LSFin).',
+        textAlign: TextAlign.center,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          color: Colors.white.withValues(alpha: 0.25),
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  REVEAL GAUGE PAINTER
+// ────────────────────────────────────────────────────────────
+//
+//  Arc de 270 degres sur fond sombre.
+//  Track tres subtil + arc colore avec gradient + glow au bout.
+//  Coherent avec _ScoreGaugePainter de MintScoreGauge.
+// ────────────────────────────────────────────────────────────
+
+class _RevealGaugePainter extends CustomPainter {
+  final int score;
+  final double progress;
+  final Color scoreColor;
+
+  _RevealGaugePainter({
+    required this.score,
+    required this.progress,
+    required this.scoreColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width, size.height) / 2 - 18;
+    const strokeWidth = 12.0;
+
+    // Start angle: bottom-left (consistent with MintScoreGauge)
+    const startAngle = 0.75 * pi; // 135 degrees
+    const totalSweep = 1.5 * pi; // 270 degrees
+
+    // ── Background track (very subtle on dark bg) ──
+    final trackPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.06)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngle,
+      totalSweep,
+      false,
+      trackPaint,
+    );
+
+    // ── Tick marks at 0, 25, 50, 75, 100 ──
+    _drawTickMarks(canvas, center, radius, strokeWidth);
+
+    // ── Filled arc (animated) ──
+    final scoreFraction = (score / 100.0).clamp(0.0, 1.0);
+    final valueSweep = totalSweep * scoreFraction * progress;
+
+    if (valueSweep > 0.001) {
+      final arcRect = Rect.fromCircle(center: center, radius: radius);
+
+      // Gradient arc
+      final fillPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..shader = SweepGradient(
+          startAngle: startAngle,
+          endAngle: startAngle + valueSweep,
+          colors: [
+            scoreColor.withValues(alpha: 0.3),
+            scoreColor.withValues(alpha: 0.7),
+            scoreColor,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+          transform: GradientRotation(startAngle),
+        ).createShader(arcRect);
+
+      canvas.drawArc(arcRect, startAngle, valueSweep, false, fillPaint);
+
+      // ── Glow at endpoint ──
+      final endAngle = startAngle + valueSweep;
+      final glowCenter = Offset(
+        center.dx + radius * cos(endAngle),
+        center.dy + radius * sin(endAngle),
+      );
+
+      // Outer glow
+      final glowPaint = Paint()
+        ..shader = RadialGradient(
+          colors: [
+            scoreColor.withValues(alpha: 0.5),
+            scoreColor.withValues(alpha: 0.0),
+          ],
+        ).createShader(
+          Rect.fromCircle(center: glowCenter, radius: 18),
+        );
+      canvas.drawCircle(glowCenter, 18, glowPaint);
+
+      // Bright tip dot
+      final tipPaint = Paint()..color = scoreColor;
+      canvas.drawCircle(glowCenter, 5, tipPaint);
+
+      // Inner bright core
+      final corePaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.8);
+      canvas.drawCircle(glowCenter, 2.5, corePaint);
+    }
+  }
+
+  void _drawTickMarks(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double strokeWidth,
+  ) {
+    const startAngle = 0.75 * pi;
+    const totalSweep = 1.5 * pi;
+    final tickRadius = radius + strokeWidth / 2 + 4;
+
+    for (int i = 0; i <= 4; i++) {
+      final fraction = i / 4;
+      final angle = startAngle + totalSweep * fraction;
+      final innerPoint = Offset(
+        center.dx + tickRadius * cos(angle),
+        center.dy + tickRadius * sin(angle),
+      );
+      final outerPoint = Offset(
+        center.dx + (tickRadius + 4) * cos(angle),
+        center.dy + (tickRadius + 4) * sin(angle),
+      );
+
+      final tickPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.15)
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawLine(innerPoint, outerPoint, tickPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _RevealGaugePainter oldDelegate) {
+    return oldDelegate.score != score ||
+        oldDelegate.progress != progress ||
+        oldDelegate.scoreColor != scoreColor;
+  }
+}

@@ -276,7 +276,7 @@ class NowTab extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {},
+              onPressed: () => context.push('/check/debt'),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.warning,
               ),

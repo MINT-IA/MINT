@@ -7,6 +7,9 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -38,12 +41,14 @@ class ProfileScreen extends StatelessWidget {
                     status: S.of(context)?.profileStatusComplete ?? 'Complet',
                     isComplete: true,
                     icon: Icons.person_outline,
+                    onTap: () => context.push('/advisor/wizard'),
                   ),
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionIncome ?? 'Revenus & Épargne',
                     status: S.of(context)?.profileStatusPartial ?? 'Partial (Net)',
                     isComplete: false,
                     icon: Icons.account_balance_wallet_outlined,
+                    onTap: () => context.push('/advisor/wizard'),
                   ),
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionPension ?? 'Prévoyance (LPP)',
@@ -51,6 +56,7 @@ class ProfileScreen extends StatelessWidget {
                     isComplete: false,
                     icon: Icons.security_outlined,
                     reward: S.of(context)?.profileReward15 ?? '+15% de précision',
+                    onTap: () => context.push('/advisor/wizard'),
                   ),
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionProperty ?? 'Immobilier & Dettes',
@@ -58,6 +64,7 @@ class ProfileScreen extends StatelessWidget {
                     isComplete: false,
                     icon: Icons.home_outlined,
                     reward: S.of(context)?.profileReward10 ?? '+10% de précision',
+                    onTap: () => context.push('/advisor/wizard'),
                   ),
                   const SizedBox(height: 32),
                   Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -279,7 +286,37 @@ class ProfileScreen extends StatelessWidget {
         const Divider(),
         const SizedBox(height: 16),
         TextButton(
-          onPressed: () {},
+          onPressed: () async {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Supprimer mes donnees ?'),
+                content: const Text(
+                  'Tes reponses et preferences seront effacees. '
+                  'Cette action est irreversible.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text('Annuler'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    child: const Text('Supprimer'),
+                  ),
+                ],
+              ),
+            );
+            if (confirmed == true && context.mounted) {
+              await ReportPersistenceService.clear();
+              if (context.mounted) {
+                context.read<CoachProfileProvider>().clear();
+                await context.read<BudgetProvider>().clear();
+                if (context.mounted) context.go('/');
+              }
+            }
+          },
           style: TextButton.styleFrom(foregroundColor: Colors.red),
           child: Text(S.of(context)?.profileDeleteData ?? 'Supprimer mes données locales'),
         ),

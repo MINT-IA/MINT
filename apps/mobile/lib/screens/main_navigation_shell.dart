@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/screens/main_tabs/now_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/main_tabs/track_tab.dart';
+import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
+import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
 
-/// Shell principal de navigation MINT
+/// Shell principal de navigation MINT Coach
 ///
-/// Architecture révolutionnaire : 3 tabs situation-centrés + FAB Mentor
-/// - MAINTENANT : Actions contextuelles selon la situation
-/// - EXPLORER : Objectifs de vie et simulateurs
-/// - SUIVRE : Progrès et achievements
+/// Architecture 4 tabs — Sprint C10 :
+/// - DASHBOARD : Tableau de bord coach (CoachDashboardScreen)
+/// - AGIR : Timeline d'actions et check-in (CoachAgirScreen)
+/// - APPRENDRE : Simulateurs, evenements de vie, education (ExploreTab)
+/// - PROFIL : Profil utilisateur (ProfileScreen)
 /// - MENTOR : Compagnon toujours accessible (FAB)
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
@@ -24,17 +27,33 @@ class MainNavigationShell extends StatefulWidget {
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
   final AnalyticsService _analytics = AnalyticsService();
+  bool _budgetLoaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_budgetLoaded) {
+      _budgetLoaded = true;
+      // Restaurer le budget depuis SharedPreferences si disponible
+      final budgetProvider = context.read<BudgetProvider>();
+      if (budgetProvider.inputs == null) {
+        budgetProvider.loadFromStorage();
+      }
+    }
+  }
 
   final List<Widget> _tabs = const [
-    NowTab(),
+    CoachDashboardScreen(),
+    CoachAgirScreen(),
     ExploreTab(),
-    TrackTab(),
+    ProfileScreen(),
   ];
 
   final List<String> _tabNames = const [
-    'now',
-    'explore',
-    'track',
+    'dashboard',
+    'agir',
+    'apprendre',
+    'profil',
   ];
 
   @override
@@ -66,7 +85,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -80,21 +99,27 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             children: [
               _buildNavItem(
                 index: 0,
-                icon: Icons.bolt_outlined,
-                activeIcon: Icons.bolt,
-                label: S.of(context)?.tabNow ?? 'MAINTENANT',
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'Dashboard',
               ),
               _buildNavItem(
                 index: 1,
-                icon: Icons.explore_outlined,
-                activeIcon: Icons.explore,
-                label: S.of(context)?.tabExplore ?? 'EXPLORER',
+                icon: Icons.flash_on_outlined,
+                activeIcon: Icons.flash_on,
+                label: 'Agir',
               ),
               _buildNavItem(
                 index: 2,
-                icon: Icons.insights_outlined,
-                activeIcon: Icons.insights,
-                label: S.of(context)?.tabTrack ?? 'SUIVRE',
+                icon: Icons.explore_outlined,
+                activeIcon: Icons.explore,
+                label: 'Apprendre',
+              ),
+              _buildNavItem(
+                index: 3,
+                icon: Icons.person_outline,
+                activeIcon: Icons.person,
+                label: 'Profil',
               ),
             ],
           ),

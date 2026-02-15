@@ -74,6 +74,10 @@ import 'package:mint_mobile/screens/expat_screen.dart';
 // Report Demo + V2
 import 'package:mint_mobile/screens/advisor/financial_report_demo_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+// Score Reveal (Post-Wizard)
+import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_fitness_service.dart';
 // Housing Sale + Donation (Sprint S24)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
@@ -93,6 +97,13 @@ import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 // Timeline
 import 'package:mint_mobile/screens/timeline_screen.dart';
+// Coach screens (Sprint C5-C10)
+import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
+import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
+import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/providers/subscription_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -118,6 +129,27 @@ final _router = GoRouter(
     GoRoute(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
+    ),
+    // Coach routes (Sprint C10)
+    GoRoute(
+      path: '/coach/dashboard',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachDashboardScreen(),
+    ),
+    GoRoute(
+      path: '/coach/agir',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachAgirScreen(),
+    ),
+    GoRoute(
+      path: '/coach/checkin',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachCheckinScreen(),
+    ),
+    GoRoute(
+      path: '/coach/chat',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachChatScreen(),
     ),
     // Feature Routes (Full Screen)
     GoRoute(
@@ -249,6 +281,24 @@ final _router = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>? ?? {};
         return FinancialReportScreenV2(wizardAnswers: extra);
+      },
+    ),
+    // Score Reveal (Post-Wizard animation)
+    GoRoute(
+      path: '/score-reveal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        if (extra != null &&
+            extra['score'] is FinancialFitnessScore &&
+            extra['profile'] is CoachProfile) {
+          return ScoreRevealScreen(
+            score: extra['score'] as FinancialFitnessScore,
+            profile: extra['profile'] as CoachProfile,
+          );
+        }
+        // Fallback: navigate home if data is missing
+        return const MainNavigationShell();
       },
     ),
     GoRoute(
@@ -386,12 +436,6 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConcubinageScreen(),
     ),
-    // Frontalier alias (direct route)
-    GoRoute(
-      path: '/frontalier',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FrontalierScreen(),
-    ),
     // Expatriation (Sprint S23)
     GoRoute(
       path: '/expatriation',
@@ -518,6 +562,12 @@ class _MintAppState extends State<MintApp> {
           return provider;
         }),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
+        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (_) {
+          final provider = CoachProfileProvider();
+          provider.loadFromWizard();
+          return provider;
+        }),
       ],
       child: MaterialApp.router(
         title: 'Mint',

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure this path is correct alias
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 import 'package:mint_mobile/widgets/budget/envelope_slider.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
@@ -65,6 +67,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   const StopRuleCallout(),
                   const SizedBox(height: 24),
                 ],
+                if (plan.emergencyFundMonths > 0 ||
+                    widget.inputs.emergencyFundMonths > 0)
+                  _buildEmergencyFundCard(plan),
+                const SizedBox(height: 24),
                 _buildDisclaimers(context),
               ],
             ),
@@ -117,6 +123,125 @@ class _BudgetScreenState extends State<BudgetScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildEmergencyFundCard(BudgetPlan plan) {
+    final months = plan.emergencyFundMonths;
+    final target = BudgetPlan.emergencyFundTarget;
+    final progress = plan.emergencyFundProgress;
+    final isComplete = months >= target;
+
+    final progressColor = isComplete
+        ? const Color(0xFF34C759)
+        : months >= 3
+            ? const Color(0xFFFF9500)
+            : const Color(0xFFFF3B30);
+
+    final statusText = isComplete
+        ? 'Objectif atteint'
+        : months >= 3
+            ? 'En bonne voie'
+            : 'A renforcer';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isComplete ? Icons.shield_rounded : Icons.shield_outlined,
+                color: progressColor,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                "Fonds d'urgence",
+                style: GoogleFonts.montserrat(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: progressColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  statusText,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: progressColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 10,
+              backgroundColor: MintColors.surface,
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${months.toStringAsFixed(1)} mois couverts',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              Text(
+                'Cible : ${target.toStringAsFixed(0)} mois',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isComplete
+                ? 'Tu es protege contre les imprevu. Continue ainsi.'
+                : 'Epargne au moins ${target.toStringAsFixed(0)} mois de depenses '
+                    'pour te proteger contre un imprévu (perte d\'emploi, reparation...).',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

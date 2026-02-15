@@ -1,0 +1,901 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
+
+// ────────────────────────────────────────────────────────────
+//  COACH AGIR SCREEN — Sprint C7 / MINT Coach
+// ────────────────────────────────────────────────────────────
+//
+// Tab Agir — la timeline d'actions, comme un calendrier
+// d'entrainement. Affiche les versements du mois en cours,
+// la timeline des evenements a venir, et l'historique
+// des check-ins passes.
+//
+// Aucun terme banni. Ton pedagogique, tutoiement.
+// ────────────────────────────────────────────────────────────
+
+/// Element de la timeline
+class _TimelineEvent {
+  final DateTime date;
+  final String title;
+  final String? subtitle;
+  final IconData icon;
+  final Color color;
+  final String? cta;
+
+  const _TimelineEvent({
+    required this.date,
+    required this.title,
+    this.subtitle,
+    required this.icon,
+    required this.color,
+    this.cta,
+  });
+}
+
+class CoachAgirScreen extends StatelessWidget {
+  const CoachAgirScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final profile = coachProvider.profile ?? CoachProfile.buildDemo();
+    final now = DateTime.now();
+    final currentMonthLabel =
+        '${kFrenchMonths[now.month - 1]} ${now.year}';
+
+    // Check if current month's check-in is done
+    final hasCurrentCheckIn = profile.checkIns.any(
+      (ci) => ci.month.year == now.year && ci.month.month == now.month,
+    );
+
+    // Build timeline events from profile + milestones
+    final timelineEvents = _buildTimelineEvents(profile);
+
+    return Scaffold(
+      backgroundColor: MintColors.background,
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(context),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                const SizedBox(height: 8),
+
+                // ── Section: Ce mois ─────────────────────────
+                _buildSectionHeader(
+                  title: 'Ce mois',
+                  subtitle: currentMonthLabel,
+                  icon: Icons.calendar_today,
+                  color: MintColors.coachAccent,
+                ),
+                const SizedBox(height: 16),
+
+                // Planned contributions for this month
+                ...profile.plannedContributions.map(
+                  (c) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _MonthlyContributionRow(
+                      contribution: c,
+                      isDone: hasCurrentCheckIn,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Check-in action row
+                _buildCheckinAction(
+                  context: context,
+                  isDone: hasCurrentCheckIn,
+                  monthLabel: currentMonthLabel,
+                ),
+
+                const SizedBox(height: 36),
+
+                // ── Section: Timeline ────────────────────────
+                _buildSectionHeader(
+                  title: 'Timeline',
+                  subtitle: 'Tes prochaines echeances',
+                  icon: Icons.timeline,
+                  color: MintColors.info,
+                ),
+                const SizedBox(height: 16),
+
+                // Timeline items
+                ...timelineEvents.asMap().entries.map(
+                  (entry) => _TimelineItem(
+                    event: entry.value,
+                    isFirst: entry.key == 0,
+                    isLast: entry.key == timelineEvents.length - 1,
+                  ),
+                ),
+
+                const SizedBox(height: 36),
+
+                // ── Section: Historique ──────────────────────
+                _buildSectionHeader(
+                  title: 'Historique',
+                  subtitle: 'Tes check-ins passes',
+                  icon: Icons.history,
+                  color: MintColors.success,
+                ),
+                const SizedBox(height: 16),
+
+                if (profile.checkIns.isEmpty)
+                  _buildEmptyHistory()
+                else
+                  ...profile.checkIns
+                      .toList()
+                      .reversed
+                      .map(
+                        (ci) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _HistoryRow(checkIn: ci),
+                        ),
+                      ),
+
+                const SizedBox(height: 32),
+
+                // Disclaimer
+                _buildDisclaimer(),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── AppBar ─────────────────────────────────────────────────
+  Widget _buildAppBar(BuildContext context) {
+    return SliverAppBar(
+      pinned: true,
+      automaticallyImplyLeading: false,
+      backgroundColor: MintColors.background,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      title: Text(
+        'AGIR',
+        style: GoogleFonts.montserrat(
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
+          letterSpacing: 1.5,
+          color: MintColors.textMuted,
+        ),
+      ),
+    );
+  }
+
+  // ── Section header ─────────────────────────────────────────
+  Widget _buildSectionHeader({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.montserrat(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Check-in action ────────────────────────────────────────
+  Widget _buildCheckinAction({
+    required BuildContext context,
+    required bool isDone,
+    required String monthLabel,
+  }) {
+    if (isDone) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: MintColors.success.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.success.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: MintColors.success,
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Check-in $monthLabel effectue',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.success,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Fait',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.success,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          // Navigate to check-in screen via GoRouter
+          context.push('/coach/checkin');
+        },
+        icon: const Icon(Icons.edit_calendar, size: 20),
+        label: Text(
+          'Faire mon check-in $monthLabel',
+          style: GoogleFonts.montserrat(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: MintColors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 0,
+        ),
+      ),
+    );
+  }
+
+  // ── Empty history ──────────────────────────────────────────
+  Widget _buildEmptyHistory() {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.history_toggle_off,
+            color: MintColors.textMuted,
+            size: 40,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Pas encore de check-in',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Fais ton premier check-in pour commencer a suivre ta progression.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textMuted,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Build timeline events ──────────────────────────────────
+  List<_TimelineEvent> _buildTimelineEvents(CoachProfile profile) {
+    final now = DateTime.now();
+    final events = <_TimelineEvent>[];
+
+    // 1. 3a deadline — Dec of current year
+    events.add(_TimelineEvent(
+      date: DateTime(now.year, 12, 31),
+      title: 'Dernier jour versement 3a',
+      subtitle: 'Verifie que ton plafond est atteint avant fin decembre.',
+      icon: Icons.savings,
+      color: const Color(0xFF4F46E5),
+      cta: 'Verifier mon 3a',
+    ));
+
+    // 2. Tax filing — March of next year
+    final taxYear = now.month <= 3 ? now.year : now.year + 1;
+    events.add(_TimelineEvent(
+      date: DateTime(taxYear, 3, 31),
+      title: 'Declaration impots ${profile.canton}',
+      subtitle: 'Pense a rassembler tes attestations 3a et LPP.',
+      icon: Icons.description,
+      color: MintColors.warning,
+      cta: 'Preparer mes documents',
+    ));
+
+    // 3. LAMal franchise — November of current year
+    final lamalYear = now.month <= 11 ? now.year : now.year + 1;
+    events.add(_TimelineEvent(
+      date: DateTime(lamalYear, 11, 30),
+      title: 'Franchise LAMal (changer?)',
+      subtitle: 'Evalue si ta franchise actuelle est toujours adaptee.',
+      icon: Icons.health_and_safety,
+      color: MintColors.error,
+      cta: 'Simuler les franchises',
+    ));
+
+    // 4. Milestones from ForecasterService
+    final projection = ForecasterService.project(profile: profile);
+    for (final milestone in projection.milestones.take(3)) {
+      events.add(_TimelineEvent(
+        date: milestone.date,
+        title: milestone.label,
+        icon: Icons.flag,
+        color: MintColors.trajectoryBase,
+      ));
+    }
+
+    // 5. Retirement
+    events.add(_TimelineEvent(
+      date: profile.goalA.targetDate,
+      title: 'Retraite ${profile.firstName ?? ''} (65 ans)',
+      subtitle: 'Ton objectif principal.',
+      icon: Icons.beach_access,
+      color: MintColors.trajectoryOptimiste,
+    ));
+
+    // Sort by date
+    events.sort((a, b) => a.date.compareTo(b.date));
+
+    // Filter to only future events
+    return events
+        .where((e) => e.date.isAfter(now.subtract(const Duration(days: 1))))
+        .toList();
+  }
+
+  // ── Disclaimer ─────────────────────────────────────────────
+  Widget _buildDisclaimer() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: MintColors.textMuted,
+            size: 16,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Outil educatif — ne constitue pas un conseil financier personnalise. '
+              'Les echeances et projections sont indicatives. '
+              'Consulte un·e specialiste pour un accompagnement adapte. LSFin.',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: MintColors.textMuted,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MONTHLY CONTRIBUTION ROW
+// ════════════════════════════════════════════════════════════════
+
+class _MonthlyContributionRow extends StatelessWidget {
+  final PlannedMonthlyContribution contribution;
+  final bool isDone;
+
+  const _MonthlyContributionRow({
+    required this.contribution,
+    required this.isDone,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = iconForCategory(contribution.category);
+    final color = colorForCategory(contribution.category);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Checkbox area
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: isDone
+                  ? MintColors.success.withValues(alpha: 0.12)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isDone
+                    ? MintColors.success
+                    : MintColors.border,
+                width: isDone ? 1.5 : 1,
+              ),
+            ),
+            child: isDone
+                ? const Icon(
+                    Icons.check,
+                    color: MintColors.success,
+                    size: 18,
+                  )
+                : null,
+          ),
+          const SizedBox(width: 12),
+
+          // Category icon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+
+          // Label
+          Expanded(
+            child: Text(
+              contribution.label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isDone
+                    ? MintColors.textSecondary
+                    : MintColors.textPrimary,
+                decoration: isDone ? TextDecoration.lineThrough : null,
+              ),
+            ),
+          ),
+
+          // Amount
+          Text(
+            ForecasterService.formatChf(contribution.amount),
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isDone
+                  ? MintColors.textMuted
+                  : MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Auto/Manual badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            decoration: BoxDecoration(
+              color: contribution.isAutomatic
+                  ? MintColors.success.withValues(alpha: 0.1)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              contribution.isAutomatic ? 'Auto' : 'Manuel',
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: contribution.isAutomatic
+                    ? MintColors.success
+                    : MintColors.textMuted,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TIMELINE ITEM WIDGET
+// ════════════════════════════════════════════════════════════════
+
+class _TimelineItem extends StatelessWidget {
+  final _TimelineEvent event;
+  final bool isFirst;
+  final bool isLast;
+
+  const _TimelineItem({
+    required this.event,
+    this.isFirst = false,
+    this.isLast = false,
+  });
+
+  String _formatDate(DateTime date) {
+    final monthShort = kFrenchMonthsShort[date.month - 1];
+    return '$monthShort ${date.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Timeline column (dot + connecting line)
+          SizedBox(
+            width: 40,
+            child: Column(
+              children: [
+                // Top connector line
+                if (!isFirst)
+                  Container(
+                    width: 2,
+                    height: 12,
+                    color: MintColors.border,
+                  )
+                else
+                  const SizedBox(height: 12),
+
+                // Dot
+                Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: event.color,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: event.color.withValues(alpha: 0.3),
+                        blurRadius: 6,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Bottom connector line
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: MintColors.border,
+                    ),
+                  )
+                else
+                  const Spacer(),
+              ],
+            ),
+          ),
+
+          // Content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: MintColors.lightBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Date badge + icon row
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: event.color.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _formatDate(event.date),
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: event.color,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Icon(
+                          event.icon,
+                          color: event.color,
+                          size: 18,
+                        ),
+                        const Spacer(),
+                        // Years until
+                        Text(
+                          _yearsUntil(event.date),
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Title
+                    Text(
+                      event.title,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+
+                    // Subtitle
+                    if (event.subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        event.subtitle!,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: MintColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+
+                    // CTA
+                    if (event.cta != null) ...[
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: () {
+                          final cta = event.cta;
+                          if (cta == null) return;
+                          if (cta.contains('3a')) {
+                            context.push('/simulator/3a');
+                          } else if (cta.contains('documents')) {
+                            context.push('/documents');
+                          } else if (cta.contains('franchises')) {
+                            context.push('/assurances/lamal');
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          backgroundColor:
+                              event.color.withValues(alpha: 0.08),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          event.cta!,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: event.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _yearsUntil(DateTime target) {
+    final now = DateTime.now();
+    final months =
+        (target.year - now.year) * 12 + (target.month - now.month);
+    if (months < 1) return 'Ce mois';
+    if (months < 12) return 'dans $months mois';
+    final years = months ~/ 12;
+    final remainingMonths = months % 12;
+    if (remainingMonths == 0) return 'dans $years an${years > 1 ? 's' : ''}';
+    return 'dans $years an${years > 1 ? 's' : ''}';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  HISTORY ROW WIDGET
+// ════════════════════════════════════════════════════════════════
+
+class _HistoryRow extends StatelessWidget {
+  final MonthlyCheckIn checkIn;
+
+  const _HistoryRow({required this.checkIn});
+
+  @override
+  Widget build(BuildContext context) {
+    final monthLabel =
+        '${kFrenchMonths[checkIn.month.month - 1]} ${checkIn.month.year}';
+
+    // Build summary of versements
+    final summaryParts = <String>[];
+    for (final entry in checkIn.versements.entries) {
+      final shortId = _shortLabel(entry.key);
+      summaryParts.add('$shortId ${ForecasterService.formatChf(entry.value)}');
+    }
+    final summary = summaryParts.join(' | ');
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Green check icon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: MintColors.success.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.check_circle,
+              color: MintColors.success,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  monthLabel,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  summary,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                if (checkIn.note != null && checkIn.note!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    checkIn.note!,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      color: MintColors.textMuted,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // Total
+          Text(
+            ForecasterService.formatChf(checkIn.totalVersements),
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: MintColors.success,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Short human-readable label from versement ID
+  String _shortLabel(String id) {
+    if (id.contains('3a')) return '3a';
+    if (id.contains('lpp')) return 'LPP';
+    if (id.contains('ib') || id.contains('invest')) return 'Invest.';
+    if (id.contains('epargne')) return 'Epargne';
+    return id;
+  }
+}
+

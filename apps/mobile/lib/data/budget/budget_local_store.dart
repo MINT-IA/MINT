@@ -1,29 +1,68 @@
-// TODO: Intégrer shared_preferences pour persistance réelle cross-sessions
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../domain/budget/budget_inputs.dart';
 
-/// Service responsable de la persistance locale des overrides du budget (sliders).
-/// Pour le MVP, si shared_preferences n'est pas dispo, on fait in-memory (perdu au restart).
+/// Persistance locale du budget via SharedPreferences.
+///
+/// Stocke les overrides des sliders (future/variables) et les BudgetInputs
+/// pour que le budget survive au redemarrage de l'app.
 class BudgetLocalStore {
-  // Singleton pattern possible, mais ici simple class injectable
+  static const String _overridePrefix = 'budget_override_';
+  static const String _inputsKey = 'budget_inputs_v1';
 
-  final Map<String, dynamic> _inMemoryStorage = {};
+  // ── Overrides (sliders) ─────────────────────────────────────
 
   Future<void> saveOverride(String key, double value) async {
-    // print('BudgetLocalStore: Saving $key = $value');
-    _inMemoryStorage[key] = value;
-    // final prefs = await SharedPreferences.getInstance();
-    // await prefs.setDouble(key, value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('$_overridePrefix$key', value);
   }
 
   Future<double?> getOverride(String key) async {
-    // final prefs = await SharedPreferences.getInstance();
-    // return prefs.getDouble(key);
-    return _inMemoryStorage[key] as double?;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble('$_overridePrefix$key');
   }
 
+  // ── BudgetInputs ───────────────────────────────────────────
+
+  Future<void> saveInputs(BudgetInputs inputs) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_inputsKey, json.encode(inputs.toMap()));
+  }
+
+  Future<BudgetInputs?> loadInputs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_inputsKey);
+    if (raw == null) return null;
+    try {
+      final map = Map<String, dynamic>.from(json.decode(raw));
+      return BudgetInputs(
+        payFrequency: PayFrequency.values.firstWhere(
+          (e) => e.name == map['q_pay_frequency'],
+          orElse: () => PayFrequency.monthly,
+        ),
+        netIncome: (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0,
+        housingCost:
+            (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0,
+        debtPayments:
+            (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0,
+        style: BudgetStyle.values.firstWhere(
+          (e) => e.name == map['q_budget_style'],
+          orElse: () => BudgetStyle.envelopes3,
+        ),
+        emergencyFundMonths:
+            (map['emergency_fund_months'] as num?)?.toDouble() ?? 0,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Clear ──────────────────────────────────────────────────
+
   Future<void> clear() async {
-    _inMemoryStorage.clear();
-    // final prefs = await SharedPreferences.getInstance();
-    // await prefs.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('${_overridePrefix}future');
+    await prefs.remove('${_overridePrefix}variables');
+    await prefs.remove(_inputsKey);
   }
 }

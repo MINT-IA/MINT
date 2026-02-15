@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/data/wizard_questions_v2.dart';
 import 'package:mint_mobile/models/wizard_question.dart';
@@ -9,7 +10,13 @@ import 'package:mint_mobile/services/fiscal_intelligence_service.dart';
 import 'package:mint_mobile/services/wizard_conditions_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/circle_transition_widget.dart';
+import 'package:mint_mobile/widgets/wizard/wizard_score_preview.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
 
 /// Wizard V2 avec ordre logique : Profil → Budget → Prévoyance → Patrimoine
 class AdvisorWizardScreenV2 extends StatefulWidget {
@@ -293,7 +300,22 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
 
   void _showReport() {
     ReportPersistenceService.setCompleted(true);
-    context.go('/report', extra: _answers);
+    // Update CoachProfileProvider with wizard answers for immediate display
+    context.read<CoachProfileProvider>().updateFromAnswers(_answers);
+
+    // Auto-init budget from wizard answers
+    final budgetInputs = BudgetInputs.fromMap(_answers);
+    context.read<BudgetProvider>().setInputs(budgetInputs);
+
+    // Build CoachProfile and compute Financial Fitness Score for the reveal
+    final profile = CoachProfile.fromWizardAnswers(_answers);
+    final score = FinancialFitnessService.calculate(profile: profile);
+
+    // Navigate to the score reveal screen (the "ta-da" moment)
+    context.go('/score-reveal', extra: {
+      'score': score,
+      'profile': profile,
+    });
   }
 
   @override
@@ -396,6 +418,14 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                   ],
                 ),
               ),
+            ),
+            // Score preview — persistent bottom bar
+            WizardScorePreview(
+              key: ValueKey('score_preview_${_answers.length}'),
+              answers: Map<String, dynamic>.from(_answers),
+              currentQuestionIndex: _currentQuestionIndex,
+              totalQuestions: _questions.length,
+              currentSection: _currentSection,
             ),
           ],
         ),

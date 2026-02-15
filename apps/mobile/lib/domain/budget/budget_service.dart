@@ -31,6 +31,7 @@ class BudgetService {
             available, // Tout est considéré comme disponible/variable par défaut
         future: 0,
         stopRuleTriggered: false,
+        emergencyFundMonths: inputs.emergencyFundMonths,
       );
     }
 
@@ -77,6 +78,7 @@ class BudgetService {
       variables: variables,
       future: future,
       stopRuleTriggered: variables <= 0.01, /* quasi 0 */
+      emergencyFundMonths: inputs.emergencyFundMonths,
     );
   }
 }
