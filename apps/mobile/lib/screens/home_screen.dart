@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: () => context.push('/debt/help'),
             icon: const Icon(Icons.help_outline, size: 16),
             label: Text(S.of(context)?.homeSafeModeResources ?? 'Ressources & Aides gratuites'),
             style: TextButton.styleFrom(

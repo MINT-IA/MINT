@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/budget/budget_report_section.dart';
 import 'package:mint_mobile/widgets/recommendation_card.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:go_router/go_router.dart';
 
 class AdvisorReportScreen extends StatefulWidget {
   final String? sessionId;
@@ -367,7 +368,12 @@ class _AdvisorReportScreenState extends State<AdvisorReportScreen> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                final link = action.nextAction.deepLink;
+                if (link != null && link.isNotEmpty) {
+                  context.push(link);
+                }
+              },
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 20),

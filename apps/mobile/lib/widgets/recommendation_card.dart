@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
@@ -110,8 +112,11 @@ class RecommendationCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: InkWell(
-                  onTap: () {
-                    // Launch URL logic
+                  onTap: () async {
+                    final uri = Uri.tryParse(link.url);
+                    if (uri != null && await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
                   },
                   child: Row(
                     children: [
@@ -129,15 +134,19 @@ class RecommendationCard extends StatelessWidget {
               ),
             if (recommendation.evidenceLinks.isNotEmpty) const SizedBox(height: 8),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {
-                  // Handle next action (e.g. navigation or link)
-                },
-                child: Text(recommendation.nextActions.first.label),
+            if (recommendation.nextActions.isNotEmpty)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    final action = recommendation.nextActions.first;
+                    if (action.deepLink != null && action.deepLink!.isNotEmpty) {
+                      context.push(action.deepLink!);
+                    }
+                  },
+                  child: Text(recommendation.nextActions.first.label),
+                ),
               ),
-            ),
           ],
         ),
       ),

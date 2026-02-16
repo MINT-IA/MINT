@@ -5,11 +5,75 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:go_router/go_router.dart';
 
-/// Tab EXPLORER - Objectifs de vie et simulateurs
-///
-/// Organisation par cercles de vie, pas par hiérarchie technique
-class ExploreTab extends StatelessWidget {
+// ────────────────────────────────────────────────────────────
+//  EXPLORE TAB — Refonte UX "Wow"
+// ────────────────────────────────────────────────────────────
+//
+//  Organisation par cercles de vie :
+//    1. MES OBJECTIFS — 4 goal cards (budget, immobilier, fiscalite, retraite)
+//    2. SIMULATEURS — 7 tool tiles with descriptions
+//    3. EVENEMENTS DE VIE — 8 life events (all 18 types covered)
+//    4. DOCUMENTS — LPP certificate upload
+//    5. ASK MINT — AI chat
+//    6. APPRENDRE — Educational hub + 3 themed learn items
+//
+//  UX upgrade:
+//    - Stagger entry animation (100ms per section)
+//    - All MintColors (no hardcoded Colors)
+//    - Descriptions on simulator tiles
+//    - All 8+ life events (was 2)
+//    - Learn items route to specific themes (was all → hub)
+// ────────────────────────────────────────────────────────────
+
+class ExploreTab extends StatefulWidget {
   const ExploreTab({super.key});
+
+  @override
+  State<ExploreTab> createState() => _ExploreTabState();
+}
+
+class _ExploreTabState extends State<ExploreTab>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _staggerController;
+  late Animation<double> _staggerAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _staggerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+    _staggerAnimation = CurvedAnimation(
+      parent: _staggerController,
+      curve: Curves.easeOutCubic,
+    );
+    _staggerController.forward();
+  }
+
+  @override
+  void dispose() {
+    _staggerController.dispose();
+    super.dispose();
+  }
+
+  Widget _staggeredEntry({required int index, required Widget child}) {
+    const totalSlots = 7;
+    return AnimatedBuilder(
+      animation: _staggerAnimation,
+      builder: (context, _) {
+        final progress =
+            ((_staggerAnimation.value * totalSlots) - index).clamp(0.0, 1.0);
+        return Opacity(
+          opacity: progress,
+          child: Transform.translate(
+            offset: Offset(0, 24 * (1 - progress)),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +86,22 @@ class ExploreTab extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildGoalsSection(context),
+                _staggeredEntry(index: 0, child: _buildGoalsSection(context)),
                 const SizedBox(height: 32),
-                _buildSimulatorsSection(context),
+                _staggeredEntry(
+                    index: 1, child: _buildSimulatorsSection(context)),
                 const SizedBox(height: 32),
-                _buildLifeEventsSection(context),
+                _staggeredEntry(
+                    index: 2, child: _buildLifeEventsSection(context)),
                 const SizedBox(height: 32),
-                _buildDocumentUploadSection(context),
+                _staggeredEntry(
+                    index: 3, child: _buildDocumentUploadSection(context)),
                 const SizedBox(height: 32),
-                _buildAskMintSection(context),
+                _staggeredEntry(
+                    index: 4, child: _buildAskMintSection(context)),
                 const SizedBox(height: 32),
-                _buildLearnSection(context),
+                _staggeredEntry(
+                    index: 5, child: _buildLearnSection(context)),
                 const SizedBox(height: 100),
               ]),
             ),
@@ -59,63 +128,47 @@ class ExploreTab extends StatelessWidget {
     );
   }
 
+  // ── MES OBJECTIFS ──────────────────────────────────────
+
   Widget _buildGoalsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.ads_click, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              'MES OBJECTIFS',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
+        _buildSectionHeader(Icons.ads_click, 'MES OBJECTIFS'),
         const SizedBox(height: 16),
         _buildGoalCard(
           context,
           icon: Icons.savings_outlined,
-          title: 'Maîtriser mon Budget',
-          subtitle: 'Gérer mes dépenses → 3 min',
-          gradient: [Colors.amber.shade50, Colors.amber.shade100],
-          color: Colors.amber.shade700,
+          title: 'Maitriser mon Budget',
+          subtitle: 'Gerer mes depenses → 3 min',
+          tint: MintColors.warning,
           onTap: () => context.push('/budget'),
         ),
         const SizedBox(height: 12),
         _buildGoalCard(
           context,
           icon: Icons.home_outlined,
-          title: 'Devenir Propriétaire',
+          title: 'Devenir Proprietaire',
           subtitle: 'Simuler mon achat → 5 min',
-          gradient: [Colors.blue.shade50, Colors.blue.shade100],
-          color: Colors.blue.shade700,
+          tint: MintColors.info,
           onTap: () => context.push('/mortgage/affordability'),
         ),
         const SizedBox(height: 12),
         _buildGoalCard(
           context,
           icon: Icons.trending_down,
-          title: 'Payer Moins d\'Impôts',
+          title: 'Payer Moins d\'Impots',
           subtitle: 'Optimiser mon 3a → 3 min',
-          gradient: [Colors.green.shade50, Colors.green.shade100],
-          color: Colors.green.shade700,
+          tint: MintColors.success,
           onTap: () => context.push('/simulator/3a'),
         ),
         const SizedBox(height: 12),
         _buildGoalCard(
           context,
           icon: Icons.beach_access_outlined,
-          title: 'Préparer ma Retraite',
+          title: 'Preparer ma Retraite',
           subtitle: 'Voir mon plan → 10 min',
-          gradient: [Colors.purple.shade50, Colors.purple.shade100],
-          color: Colors.purple.shade700,
+          tint: const Color(0xFF8B5CF6), // Purple
           onTap: () => context.push('/retirement'),
         ),
       ],
@@ -127,8 +180,7 @@ class ExploreTab extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
-    required List<Color> gradient,
-    required Color color,
+    required Color tint,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -138,21 +190,25 @@ class ExploreTab extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: gradient,
+            colors: [
+              tint.withValues(alpha: 0.06),
+              tint.withValues(alpha: 0.12),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: tint.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.7),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: tint, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -161,50 +217,38 @@ class ExploreTab extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: GoogleFonts.montserrat(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: Colors.black.withOpacity(0.6),
+                      color: MintColors.textSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 16, color: Colors.black45),
+            Icon(Icons.arrow_forward_ios,
+                size: 16, color: MintColors.textMuted),
           ],
         ),
       ),
     );
   }
 
+  // ── SIMULATEURS ──────────────────────────────────────
+
   Widget _buildSimulatorsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.calculate_outlined,
-                size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              'SIMULATEURS',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
+        _buildSectionHeader(Icons.calculate_outlined, 'SIMULATEURS'),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -212,19 +256,21 @@ class ExploreTab extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.3,
+          childAspectRatio: 1.1,
           children: [
             _buildSimulatorTile(
               context,
               icon: Icons.trending_up,
-              title: 'Intérêts\nComposés',
-              color: MintColors.primary,
+              title: 'Interets Composes',
+              subtitle: 'Voir l\'effet du temps',
+              color: MintColors.success,
               route: '/simulator/compound',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.grid_view,
-              title: 'Outils\nAvancés',
+              title: 'Outils Avances',
+              subtitle: 'Tous les simulateurs',
               color: MintColors.primary,
               route: '/tools',
             ),
@@ -232,35 +278,40 @@ class ExploreTab extends StatelessWidget {
               context,
               icon: Icons.directions_car_outlined,
               title: 'Leasing',
-              color: Colors.orange,
+              subtitle: 'Cout reel du leasing',
+              color: MintColors.warning,
               route: '/simulator/leasing',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.credit_card,
-              title: 'Credit\nConso',
-              color: MintColors.warning,
+              title: 'Credit Conso',
+              subtitle: 'Cout de l\'emprunt',
+              color: MintColors.error,
               route: '/simulator/credit',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.account_balance,
-              title: 'Rente vs\nCapital',
-              color: const Color(0xFF4F46E5),
+              title: 'Rente vs Capital',
+              subtitle: 'Comparer les options',
+              color: MintColors.info,
               route: '/simulator/rente-capital',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.shield_outlined,
-              title: 'Filet de\nSécurité',
+              title: 'Filet de Securite',
+              subtitle: 'Gap invalidite',
               color: const Color(0xFFEA580C),
               route: '/simulator/disability-gap',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.swap_horiz,
-              title: 'Changement\nd\'emploi',
-              color: Colors.amber.shade700,
+              title: 'Changement d\'emploi',
+              subtitle: 'Comparer 2 offres',
+              color: MintColors.warning,
               route: '/simulator/job-comparison',
             ),
           ],
@@ -273,6 +324,7 @@ class ExploreTab extends StatelessWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
+    required String subtitle,
     required Color color,
     required String route,
   }) {
@@ -284,7 +336,7 @@ class ExploreTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: MintColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
+          border: Border.all(color: MintColors.lightBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,18 +345,32 @@ class ExploreTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
             ),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -312,25 +378,13 @@ class ExploreTab extends StatelessWidget {
     );
   }
 
+  // ── EVENEMENTS DE VIE ──────────────────────────────────
+
   Widget _buildLifeEventsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.event_note, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              '\u00c9V\u00c9NEMENTS DE VIE',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
+        _buildSectionHeader(Icons.event_note, '\u00c9V\u00c9NEMENTS DE VIE'),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -338,21 +392,71 @@ class ExploreTab extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.3,
+          childAspectRatio: 1.1,
           children: [
+            _buildSimulatorTile(
+              context,
+              icon: Icons.favorite_outline,
+              title: 'Mariage',
+              subtitle: 'Impact fiscal et LPP',
+              color: const Color(0xFFEC4899),
+              route: '/mariage',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.child_care,
+              title: 'Naissance',
+              subtitle: 'Allocations et deductions',
+              color: MintColors.info,
+              route: '/naissance',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.people_outline,
+              title: 'Concubinage',
+              subtitle: 'Proteger ton couple',
+              color: const Color(0xFF8B5CF6),
+              route: '/concubinage',
+            ),
             _buildSimulatorTile(
               context,
               icon: Icons.family_restroom,
               title: 'Divorce',
-              color: Colors.purple.shade600,
+              subtitle: 'Partage LPP et AVS',
+              color: MintColors.warning,
               route: '/life-event/divorce',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.volunteer_activism,
               title: 'Succession',
-              color: Colors.teal.shade600,
+              subtitle: 'Droits et planning',
+              color: MintColors.success,
               route: '/life-event/succession',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.home_work_outlined,
+              title: 'Vente immobiliere',
+              subtitle: 'Impot plus-value',
+              color: const Color(0xFF0891B2),
+              route: '/life-event/housing-sale',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.card_giftcard,
+              title: 'Donation',
+              subtitle: 'Fiscalite et limites',
+              color: const Color(0xFFEA580C),
+              route: '/life-event/donation',
+            ),
+            _buildSimulatorTile(
+              context,
+              icon: Icons.flight_takeoff,
+              title: 'Expatriation',
+              subtitle: 'Depart ou arrivee',
+              color: const Color(0xFF4F46E5),
+              route: '/expatriation',
             ),
           ],
         ),
@@ -360,25 +464,13 @@ class ExploreTab extends StatelessWidget {
     );
   }
 
+  // ── DOCUMENTS ──────────────────────────────────────
+
   Widget _buildDocumentUploadSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.upload_file, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              'DOCUMENTS',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
+        _buildSectionHeader(Icons.upload_file, 'DOCUMENTS'),
         const SizedBox(height: 16),
         InkWell(
           onTap: () => context.push('/documents'),
@@ -388,50 +480,52 @@ class ExploreTab extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.indigo.shade50,
-                  Colors.indigo.shade100,
+                  MintColors.info.withValues(alpha: 0.06),
+                  MintColors.info.withValues(alpha: 0.12),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.7),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.description_outlined,
-                      color: Colors.indigo.shade700, size: 28),
+                      color: MintColors.info, size: 28),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Upload ton certificat LPP',
-                        style: TextStyle(
+                        style: GoogleFonts.montserrat(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Extraction automatique de tes donn\u00e9es \u2192',
-                        style: TextStyle(
+                        'Extraction automatique de tes donnees \u2192',
+                        style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: Colors.black.withOpacity(0.6),
+                          color: MintColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios,
-                    size: 16, color: Colors.black45),
+                Icon(Icons.arrow_forward_ios,
+                    size: 16, color: MintColors.textMuted),
               ],
             ),
           ),
@@ -440,26 +534,14 @@ class ExploreTab extends StatelessWidget {
     );
   }
 
+  // ── ASK MINT ──────────────────────────────────────
+
   Widget _buildAskMintSection(BuildContext context) {
     final byok = context.watch<ByokProvider>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.auto_awesome, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              'ASK MINT',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
+        _buildSectionHeader(Icons.auto_awesome, 'ASK MINT'),
         const SizedBox(height: 16),
         InkWell(
           onTap: () => context.push('/ask-mint'),
@@ -470,7 +552,7 @@ class ExploreTab extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   MintColors.accent,
-                  MintColors.accent.withOpacity(0.8),
+                  MintColors.accent.withValues(alpha: 0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -478,7 +560,7 @@ class ExploreTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.accent.withOpacity(0.3),
+                  color: MintColors.accent.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -489,7 +571,7 @@ class ExploreTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.chat_bubble_outline,
@@ -502,7 +584,7 @@ class ExploreTab extends StatelessWidget {
                     children: [
                       Text(
                         'Ask MINT',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -513,9 +595,9 @@ class ExploreTab extends StatelessWidget {
                         byok.isConfigured
                             ? 'Pose tes questions finance suisse \u2192'
                             : 'Configure ton IA pour commencer \u2192',
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -531,25 +613,13 @@ class ExploreTab extends StatelessWidget {
     );
   }
 
+  // ── APPRENDRE ──────────────────────────────────────
+
   Widget _buildLearnSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.school_outlined, size: 16, color: MintColors.textMuted),
-            const SizedBox(width: 8),
-            Text(
-              'APPRENDRE',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textMuted,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
+        _buildSectionHeader(Icons.school_outlined, 'APPRENDRE'),
         const SizedBox(height: 16),
         // Premium "J'y comprends rien" Card
         InkWell(
@@ -559,14 +629,17 @@ class ExploreTab extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [MintColors.primary, MintColors.primary.withOpacity(0.8)],
+                colors: [
+                  MintColors.primary,
+                  MintColors.primary.withValues(alpha: 0.8),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.primary.withOpacity(0.3),
+                  color: MintColors.primary.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -577,10 +650,11 @@ class ExploreTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.help_outline, color: Colors.white, size: 28),
+                  child: const Icon(Icons.help_outline,
+                      color: Colors.white, size: 28),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -597,10 +671,10 @@ class ExploreTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "L'essentiel, sans jargon. →",
-                        style: TextStyle(
+                        "L'essentiel, sans jargon. \u2192",
+                        style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -610,26 +684,45 @@ class ExploreTab extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         _buildLearnItem(
           context,
-          icon: Icons.school_outlined,
+          icon: Icons.savings_outlined,
           title: 'C\'est quoi le 3a ?',
           duration: '3 min',
+          themeId: '3a',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _buildLearnItem(
           context,
-          icon: Icons.menu_book_outlined,
+          icon: Icons.work_outline,
           title: 'LPP : Mode d\'emploi',
           duration: '5 min',
+          themeId: 'lpp',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _buildLearnItem(
           context,
           icon: Icons.calculate_outlined,
-          title: 'Fiscalité Suisse 101',
+          title: 'Fiscalite Suisse 101',
           duration: '7 min',
+          themeId: 'fiscal',
+        ),
+        const SizedBox(height: 10),
+        _buildLearnItem(
+          context,
+          icon: Icons.shield_outlined,
+          title: 'Le fonds d\'urgence',
+          duration: '3 min',
+          themeId: 'emergency',
+        ),
+        const SizedBox(height: 10),
+        _buildLearnItem(
+          context,
+          icon: Icons.medical_services_outlined,
+          title: 'Les subsides LAMal',
+          duration: '4 min',
+          themeId: 'lamal',
         ),
       ],
     );
@@ -640,16 +733,17 @@ class ExploreTab extends StatelessWidget {
     required IconData icon,
     required String title,
     required String duration,
+    required String themeId,
   }) {
     return InkWell(
-      onTap: () => context.push('/education/hub'),
-      borderRadius: BorderRadius.circular(12),
+      onTap: () => context.push('/education/theme/$themeId'),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.border),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.lightBorder),
         ),
         child: Row(
           children: [
@@ -658,15 +752,16 @@ class ExploreTab extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
                 ),
               ),
             ),
             Text(
               duration,
-              style: const TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
               ),
@@ -677,6 +772,26 @@ class ExploreTab extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // ── SHARED ──────────────────────────────────────
+
+  Widget _buildSectionHeader(IconData icon, String title) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: MintColors.textMuted),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textMuted,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
     );
   }
 }

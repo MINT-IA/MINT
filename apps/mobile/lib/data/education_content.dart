@@ -347,6 +347,52 @@ class EducationContentData {
     ),
 
     // ─── LAMal : Les subsides ───
+    // ─── Fiscal : La fiscalité suisse ───
+    'fiscal': EducationTopicContent(
+      chiffreChoc: '~35%',
+      chiffreChocUnit: 'du revenu',
+      chiffreChocLabel:
+          'Pression fiscale moyenne en Suisse (federal + cantonal + communal)',
+      intro:
+          'En Suisse, tu payes des impots a 3 niveaux : federal, cantonal et '
+          'communal. Le taux varie enormement selon ton canton, ta commune et '
+          'ta situation familiale. Bonne nouvelle : il existe de nombreuses '
+          'deductions legales pour reduire ta facture fiscale.',
+      keyFacts: [
+        'L\'impot federal est le meme partout (max ~11.5%), mais cantonal et communal varient enormement',
+        'Le versement 3a est la deduction la plus rentable : jusqu\'a 7\'258 CHF deductibles (2025)',
+        'Le rachat LPP est 100% deductible du revenu imposable (LPP art. 79b)',
+        'Les frais effectifs (trajets, repas, formation) peuvent depasser le forfait',
+        'Un demenagement dans un canton fiscalement avantageux peut faire economiser des milliers de CHF/an',
+      ],
+      quiz: QuizQuestion(
+        question:
+            'Combien peux-tu deduire de tes impots avec un versement 3a en 2025 ?',
+        options: [
+          '5\'000 CHF',
+          '6\'883 CHF',
+          '7\'258 CHF',
+          '10\'000 CHF',
+        ],
+        correctIndex: 2,
+        explanation:
+            'Le plafond 3a pour un salarie avec LPP est de 7\'258 CHF en 2025 '
+            '(OPP3 art. 7). C\'est la deduction fiscale la plus simple et la '
+            'plus efficace a mettre en place.',
+      ),
+      funFact:
+          'Un couple avec deux revenus a Zoug paie environ 4 fois moins d\'impots '
+          'qu\'un couple identique a Geneve. La concurrence fiscale entre cantons '
+          'est unique au monde.',
+      sources: [
+        'LIFD art. 33 (Deductions generales)',
+        'LIFD art. 82 (Deduction 3a)',
+        'LPP art. 79b (Rachat LPP)',
+        'LHID art. 9 (Harmonisation des deductions cantonales)',
+        'OPP3 art. 7 (Plafond 3a)',
+      ],
+    ),
+
     'lamal': EducationTopicContent(
       chiffreChoc: '~350',
       chiffreChocUnit: 'CHF/mois',
