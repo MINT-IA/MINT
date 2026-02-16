@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 
 class BudgetReportSection extends StatelessWidget {
@@ -19,10 +20,10 @@ class BudgetReportSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: MintColors.primary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -42,7 +43,7 @@ class BudgetReportSection extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.tune, color: Colors.blue),
+                icon: const Icon(Icons.tune, color: MintColors.info),
                 onPressed: onEdit,
               ),
             ],
@@ -68,10 +69,10 @@ class BudgetReportSection extends StatelessWidget {
                         isTotal: true),
                     const Divider(),
                     _buildRow(context, "Variables (Vivre)", plan.variables,
-                        color: Colors.tealAccent.shade700),
+                        color: MintColors.success),
                     const SizedBox(height: 8),
                     _buildRow(context, "Futur (Épargne)", plan.future,
-                        color: Colors.indigo.shade300),
+                        color: MintColors.info),
                   ],
                 ),
               ),
@@ -82,19 +83,19 @@ class BudgetReportSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50,
+                color: MintColors.warning.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
-                      size: 16, color: Colors.amber.shade900),
+                      size: 16, color: MintColors.warning),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       "Attention: Aucune marge de manœuvre pour les dépenses variables.",
                       style:
-                          TextStyle(fontSize: 12, color: Colors.amber.shade900),
+                          TextStyle(fontSize: 12, color: MintColors.warning),
                     ),
                   ),
                 ],
@@ -115,7 +116,7 @@ class BudgetReportSection extends StatelessWidget {
           style: TextStyle(
             fontSize: isTotal ? 14 : 12,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-            color: Colors.grey.shade700,
+            color: MintColors.textSecondary,
           ),
         ),
         Text(
@@ -123,7 +124,7 @@ class BudgetReportSection extends StatelessWidget {
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,
-            color: color ?? Colors.black,
+            color: color ?? MintColors.textPrimary,
           ),
         ),
       ],

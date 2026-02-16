@@ -5,17 +5,27 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
 // ────────────────────────────────────────────────────────────
-//  BUDGET GAUGE WIDGET — Sprint S21
+//  BUDGET GAUGE WIDGET — Sprint S21 + Sprint 2 UX Upgrade
 // ────────────────────────────────────────────────────────────
 //
-// Circular gauge showing taux de remplacement:
+// Animated circular gauge showing taux de remplacement:
 //   Green zone:  60-80%+
 //   Orange zone: 40-60%
 //   Red zone:    <40%
-//   Center: percentage number
+//   Center: animated percentage number
+//
+// Upgrade (Sprint 2):
+//   - StatefulWidget with animation (1400ms easeOutCubic)
+//   - SweepGradient on the value arc
+//   - Glow at arc endpoint (RadialGradient) + bright tip dot
+//   - Tick marks at 0%, 40%, 60%, 80%, 100%
+//   - Animated center percentage text
+//   - Animated comparison bars
+//   - Pulse glow on deficit zone
+//   - didUpdateWidget restarts animation
 // ────────────────────────────────────────────────────────────
 
-class BudgetGaugeWidget extends StatelessWidget {
+class BudgetGaugeWidget extends StatefulWidget {
   final double revenus;
   final double depenses;
   final double tauxRemplacement;
@@ -27,22 +37,61 @@ class BudgetGaugeWidget extends StatelessWidget {
     required this.tauxRemplacement,
   });
 
+  @override
+  State<BudgetGaugeWidget> createState() => _BudgetGaugeWidgetState();
+}
+
+class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fillAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+    _fillAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(BudgetGaugeWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tauxRemplacement != widget.tauxRemplacement ||
+        oldWidget.revenus != widget.revenus ||
+        oldWidget.depenses != widget.depenses) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Color get _gaugeColor {
-    if (tauxRemplacement >= 60) return MintColors.success;
-    if (tauxRemplacement >= 40) return MintColors.warning;
+    if (widget.tauxRemplacement >= 60) return MintColors.success;
+    if (widget.tauxRemplacement >= 40) return MintColors.warning;
     return MintColors.error;
   }
 
   String get _gaugeLabel {
-    if (tauxRemplacement >= 80) return 'Excellent';
-    if (tauxRemplacement >= 60) return 'Suffisant';
-    if (tauxRemplacement >= 40) return 'Insuffisant';
+    if (widget.tauxRemplacement >= 80) return 'Excellent';
+    if (widget.tauxRemplacement >= 60) return 'Suffisant';
+    if (widget.tauxRemplacement >= 40) return 'Insuffisant';
     return 'Critique';
   }
 
   @override
   Widget build(BuildContext context) {
-    final solde = revenus - depenses;
+    final solde = widget.revenus - widget.depenses;
     final isSurplus = solde >= 0;
 
     return Container(
@@ -58,34 +107,47 @@ class BudgetGaugeWidget extends StatelessWidget {
           SizedBox(
             width: 160,
             height: 160,
-            child: CustomPaint(
-              painter: _GaugePainter(
-                percentage: tauxRemplacement.clamp(0, 120),
-                color: _gaugeColor,
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+            child: AnimatedBuilder(
+              animation: _fillAnimation,
+              builder: (context, _) {
+                final displayPercent =
+                    (widget.tauxRemplacement * _fillAnimation.value).round();
+
+                return Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Text(
-                      '${tauxRemplacement.toStringAsFixed(0)}%',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
+                    CustomPaint(
+                      painter: _GaugePainter(
+                        percentage: widget.tauxRemplacement.clamp(0, 120),
                         color: _gaugeColor,
+                        progress: _fillAnimation.value,
                       ),
+                      size: const Size(160, 160),
                     ),
-                    Text(
-                      _gaugeLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: _gaugeColor,
-                      ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$displayPercent%',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: _gaugeColor,
+                          ),
+                        ),
+                        Text(
+                          _gaugeLabel,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: _gaugeColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 8),
@@ -107,19 +169,28 @@ class BudgetGaugeWidget extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // ── Revenus vs Depenses bars ──────────────────
-          _buildComparisonBar(
-            label: 'Revenus retraite',
-            value: revenus,
-            maxValue: max(revenus, depenses),
-            color: MintColors.success,
-          ),
-          const SizedBox(height: 10),
-          _buildComparisonBar(
-            label: 'Depenses mensuelles',
-            value: depenses,
-            maxValue: max(revenus, depenses),
-            color: MintColors.error,
+          // ── Revenus vs Depenses bars (animated) ──────
+          AnimatedBuilder(
+            animation: _fillAnimation,
+            builder: (context, _) {
+              return Column(
+                children: [
+                  _buildComparisonBar(
+                    label: 'Revenus retraite',
+                    value: widget.revenus,
+                    maxValue: max(widget.revenus, widget.depenses),
+                    color: MintColors.success,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildComparisonBar(
+                    label: 'Depenses mensuelles',
+                    value: widget.depenses,
+                    maxValue: max(widget.revenus, widget.depenses),
+                    color: MintColors.error,
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16),
 
@@ -137,13 +208,44 @@ class BudgetGaugeWidget extends StatelessWidget {
                   color: MintColors.textPrimary,
                 ),
               ),
-              Text(
-                '${isSurplus ? '+' : ''}${RetirementService.formatChf(solde)}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: isSurplus ? MintColors.success : MintColors.error,
-                ),
+              AnimatedBuilder(
+                animation: _fillAnimation,
+                builder: (context, _) {
+                  final displaySolde = solde * _fillAnimation.value;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Pulse glow when in deficit
+                      if (!isSurplus && _fillAnimation.value > 0.8)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          margin: const EdgeInsets.only(right: 6),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: MintColors.error,
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    MintColors.error.withValues(alpha: 0.4),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                      Text(
+                        '${isSurplus ? '+' : ''}${RetirementService.formatChf(displaySolde)}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color:
+                              isSurplus ? MintColors.success : MintColors.error,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -158,7 +260,8 @@ class BudgetGaugeWidget extends StatelessWidget {
     required double maxValue,
     required Color color,
   }) {
-    final ratio = maxValue > 0 ? (value / maxValue).clamp(0.0, 1.0) : 0.0;
+    final rawRatio = maxValue > 0 ? (value / maxValue).clamp(0.0, 1.0) : 0.0;
+    final ratio = rawRatio * _fillAnimation.value;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,32 +302,35 @@ class BudgetGaugeWidget extends StatelessWidget {
 }
 
 // ────────────────────────────────────────────────────────────
-//  CUSTOM GAUGE PAINTER
+//  CUSTOM GAUGE PAINTER — Animated with gradient + glow + ticks
 // ────────────────────────────────────────────────────────────
 
 class _GaugePainter extends CustomPainter {
   final double percentage;
   final Color color;
+  final double progress;
 
   _GaugePainter({
     required this.percentage,
     required this.color,
+    required this.progress,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width, size.height) / 2 - 12;
-
-    // Background arc
-    final bgPaint = Paint()
-      ..color = MintColors.appleSurface
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
+    const strokeWidth = 10.0;
 
     const startAngle = 0.75 * pi;
     const sweepAngle = 1.5 * pi;
+
+    // ── Background arc ──
+    final bgPaint = Paint()
+      ..color = MintColors.appleSurface
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -234,26 +340,132 @@ class _GaugePainter extends CustomPainter {
       bgPaint,
     );
 
-    // Value arc
-    final valuePaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
+    // ── Tick marks at 0%, 40%, 60%, 80%, 100% ──
+    _drawTickMarks(canvas, center, radius, strokeWidth);
 
-    final valueSweep = sweepAngle * (percentage / 120).clamp(0.0, 1.0);
+    // ── Value arc (animated with gradient + glow) ──
+    final valueSweep =
+        sweepAngle * (percentage / 120).clamp(0.0, 1.0) * progress;
 
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      valueSweep,
-      false,
-      valuePaint,
-    );
+    if (valueSweep > 0.001) {
+      final arcRect = Rect.fromCircle(center: center, radius: radius);
+
+      // SweepGradient fill
+      final fillPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..shader = SweepGradient(
+          startAngle: startAngle,
+          endAngle: startAngle + valueSweep,
+          colors: [
+            color.withValues(alpha: 0.5),
+            color.withValues(alpha: 0.8),
+            color,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+          transform: GradientRotation(startAngle),
+        ).createShader(arcRect);
+
+      canvas.drawArc(arcRect, startAngle, valueSweep, false, fillPaint);
+
+      // ── Glow at endpoint ──
+      final endAngle = startAngle + valueSweep;
+      final glowCenter = Offset(
+        center.dx + radius * cos(endAngle),
+        center.dy + radius * sin(endAngle),
+      );
+
+      final glowPaint = Paint()
+        ..shader = RadialGradient(
+          colors: [
+            color.withValues(alpha: 0.35),
+            color.withValues(alpha: 0.0),
+          ],
+        ).createShader(
+          Rect.fromCircle(center: glowCenter, radius: 14),
+        );
+      canvas.drawCircle(glowCenter, 14, glowPaint);
+
+      // Bright tip dot
+      final tipPaint = Paint()..color = color;
+      canvas.drawCircle(glowCenter, 4.5, tipPaint);
+    }
+  }
+
+  /// Tick marks at 0%, 40%, 60%, 80%, 100% on the arc
+  void _drawTickMarks(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double strokeWidth,
+  ) {
+    const startAngle = 0.75 * pi;
+    const totalSweep = 1.5 * pi;
+    final tickRadius = radius + strokeWidth / 2 + 4;
+
+    // Positions: 0%, 40%, 60%, 80%, 100% map to fractions 0/120, 40/120, 60/120, 80/120, 100/120
+    // The gauge goes 0-120 so 100% mark is at 100/120 of the arc
+    final tickPositions = [
+      {'fraction': 0.0 / 120.0, 'label': '0%'},
+      {'fraction': 40.0 / 120.0, 'label': '40%'},
+      {'fraction': 60.0 / 120.0, 'label': '60%'},
+      {'fraction': 80.0 / 120.0, 'label': '80%'},
+      {'fraction': 100.0 / 120.0, 'label': '100%'},
+    ];
+
+    for (final tick in tickPositions) {
+      final fraction = tick['fraction'] as double;
+      final label = tick['label'] as String;
+      final angle = startAngle + totalSweep * fraction;
+
+      final innerPoint = Offset(
+        center.dx + tickRadius * cos(angle),
+        center.dy + tickRadius * sin(angle),
+      );
+      final outerPoint = Offset(
+        center.dx + (tickRadius + 5) * cos(angle),
+        center.dy + (tickRadius + 5) * sin(angle),
+      );
+
+      final tickPaint = Paint()
+        ..color = MintColors.border.withValues(alpha: 0.5)
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawLine(innerPoint, outerPoint, tickPaint);
+
+      // Label
+      final labelTp = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: GoogleFonts.inter(
+            fontSize: 8,
+            fontWeight: FontWeight.w500,
+            color: MintColors.textMuted,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      labelTp.layout();
+      final labelCenter = Offset(
+        center.dx + (tickRadius + 14) * cos(angle),
+        center.dy + (tickRadius + 14) * sin(angle),
+      );
+      labelTp.paint(
+        canvas,
+        Offset(
+          labelCenter.dx - labelTp.width / 2,
+          labelCenter.dy - labelTp.height / 2,
+        ),
+      );
+    }
   }
 
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) {
-    return oldDelegate.percentage != percentage || oldDelegate.color != color;
+    return oldDelegate.percentage != percentage ||
+        oldDelegate.color != color ||
+        oldDelegate.progress != progress;
   }
 }

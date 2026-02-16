@@ -204,16 +204,16 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: MintColors.success.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.green.shade200, width: 2),
+                border: Border.all(color: MintColors.success.withOpacity(0.3), width: 2),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
                       Icon(Icons.trending_up,
-                          color: Colors.green.shade700, size: 32),
+                          color: MintColors.success, size: 32),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -224,7 +224,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.green.shade900,
+                                color: MintColors.success,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -233,13 +233,13 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                               style: GoogleFonts.montserrat(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green.shade700,
+                                color: MintColors.success,
                               ),
                             ),
                             Text(
                               'de plus a la retraite !',
                               style: TextStyle(
-                                  fontSize: 12, color: Colors.green.shade700),
+                                  fontSize: 12, color: MintColors.success),
                             ),
                           ],
                         ),
@@ -256,7 +256,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                       icon: const Icon(Icons.open_in_new, size: 18),
                       label: const Text('Ouvrir mon compte VIAC'),
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
+                        backgroundColor: MintColors.success,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
@@ -272,20 +272,20 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: MintColors.warning.withOpacity(0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline,
-                    size: 16, color: Colors.orange.shade700),
+                    size: 16, color: MintColors.warning),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne garantissent pas rendements futurs.',
                     style:
-                        TextStyle(fontSize: 11, color: Colors.orange.shade700),
+                        TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -310,7 +310,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               0.045, // Rendement VIAC
               yearsUntilRetirement,
             ),
-            accentColor: Colors.green.shade700,
+            accentColor: MintColors.success,
           ),
 
           const SizedBox(height: 16),
@@ -336,9 +336,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: MintColors.info.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: MintColors.info.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +413,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green.shade700,
+                        color: MintColors.success,
                       ),
                       textAlign: TextAlign.right,
                     ),
@@ -429,7 +429,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               '💡 Les dernières années font +50% du gain total grâce aux intérêts composés !',
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.blue.shade700,
+                color: MintColors.info,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -468,11 +468,11 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     Color borderColor = MintColors.border;
 
     if (isRecommended) {
-      bgColor = Colors.green.shade50;
-      borderColor = Colors.green.shade300;
+      bgColor = MintColors.success.withOpacity(0.05);
+      borderColor = MintColors.success.withOpacity(0.5);
     } else if (isWarning) {
-      bgColor = Colors.red.shade50;
-      borderColor = Colors.red.shade200;
+      bgColor = MintColors.error.withOpacity(0.05);
+      borderColor = MintColors.error.withOpacity(0.3);
     }
 
     return Container(
@@ -512,7 +512,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade600,
+                    color: MintColors.success,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -564,7 +564,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: isRecommended
-                          ? Colors.green.shade700
+                          ? MintColors.success
                           : MintColors.textPrimary,
                     ),
                   ),
@@ -577,7 +577,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: gain > 0 ? Colors.green.shade100 : Colors.red.shade100,
+                color: gain > 0 ? MintColors.success.withOpacity(0.15) : MintColors.error.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -585,7 +585,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: gain > 0 ? Colors.green.shade700 : Colors.red.shade700,
+                  color: gain > 0 ? MintColors.success : MintColors.error,
                 ),
               ),
             ),

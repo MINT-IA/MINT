@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
-//  FISCAL IMPACT WATERFALL CHART
+//  FISCAL IMPACT WATERFALL CHART — Sprint S22 + Sprint 3 UX
 // ────────────────────────────────────────────────────────────
 //
 //  Waterfall/bridge chart showing child tax deduction impact:
@@ -12,8 +12,10 @@ import 'package:mint_mobile/theme/colors.dart';
 //    - Negative steps: deductions (orange)
 //    - Positive steps: allocations (green)
 //    - Ending bar: "Impact net"
-//    - Sequential cascade animation
-//    - Dashed connecting lines
+//    - Spring animation (elasticOut) on each bar
+//    - Animated dashed connecting lines
+//    - Cumulative line overlay (running total)
+//    - Tap-to-highlight with tooltip
 //    - Savings badge at bottom
 // ────────────────────────────────────────────────────────────
 
@@ -67,6 +69,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _cascadeAnimation;
+  int _highlightedIndex = -1;
 
   @override
   void initState() {
@@ -88,6 +91,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
   void didUpdateWidget(FiscalImpactWaterfall oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.steps != widget.steps) {
+      _highlightedIndex = -1;
       _controller.forward(from: 0);
     }
   }
@@ -201,32 +205,140 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
 
     final totals = _runningTotals;
     final allValues = <double>[...totals];
-    // Also include starting amounts for total bars
     for (final step in widget.steps) {
       allValues.add(step.amount.abs());
     }
     final maxVal =
         allValues.isEmpty ? 1.0 : allValues.map((v) => v.abs()).reduce(max);
 
+    final chartWidth = availableWidth - 32;
+
     return AnimatedBuilder(
       animation: _cascadeAnimation,
       builder: (context, _) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: SizedBox(
-            height: 260,
-            child: CustomPaint(
-              painter: _WaterfallPainter(
-                steps: widget.steps,
-                runningTotals: totals,
-                maxValue: maxVal,
-                progress: _cascadeAnimation.value,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTapDown: (details) {
+                  // Determine which bar was tapped
+                  final spacing = chartWidth / widget.steps.length;
+                  final tappedIndex =
+                      (details.localPosition.dx / spacing).floor();
+                  if (tappedIndex >= 0 && tappedIndex < widget.steps.length) {
+                    setState(() {
+                      _highlightedIndex = _highlightedIndex == tappedIndex
+                          ? -1
+                          : tappedIndex;
+                    });
+                  }
+                },
+                child: SizedBox(
+                  height: 260,
+                  child: CustomPaint(
+                    painter: _WaterfallPainter(
+                      steps: widget.steps,
+                      runningTotals: totals,
+                      maxValue: maxVal,
+                      progress: _cascadeAnimation.value,
+                      highlightedIndex: _highlightedIndex,
+                    ),
+                    size: Size(chartWidth, 260),
+                  ),
+                ),
               ),
-              size: Size(availableWidth - 32, 260),
-            ),
+              // Tooltip for highlighted step
+              if (_highlightedIndex >= 0 &&
+                  _highlightedIndex < widget.steps.length)
+                _buildTooltip(widget.steps[_highlightedIndex], totals),
+            ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTooltip(WaterfallStep step, List<double> totals) {
+    final color = step.isTotal
+        ? MintColors.primary
+        : step.amount < 0
+            ? MintColors.warning
+            : MintColors.success;
+    final runningTotal = totals[_highlightedIndex];
+
+    return AnimatedOpacity(
+      opacity: 1.0,
+      duration: const Duration(milliseconds: 200),
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 4,
+              height: 32,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    step.label,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    '${step.isTotal ? '' : step.amount < 0 ? '' : '+'}${_formatChf(step.amount)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Total courant',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                Text(
+                  _formatChf(runningTotal),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -355,13 +467,24 @@ class _WaterfallPainter extends CustomPainter {
   final List<double> runningTotals;
   final double maxValue;
   final double progress;
+  final int highlightedIndex;
 
   _WaterfallPainter({
     required this.steps,
     required this.runningTotals,
     required this.maxValue,
     required this.progress,
+    this.highlightedIndex = -1,
   });
+
+  /// Spring-like overshoot curve for bar animation.
+  double _springProgress(double t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    // Elastic overshoot: overshoots to ~1.08 then settles
+    const c4 = (2 * pi) / 4.5;
+    return pow(2, -8 * t).toDouble() * sin((t * 8 - 0.75) * c4) + 1;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -369,12 +492,10 @@ class _WaterfallPainter extends CustomPainter {
 
     final barWidth = (size.width / steps.length) * 0.55;
     final spacing = size.width / steps.length;
-    final chartHeight = size.height - 60; // Leave room for labels
+    final chartHeight = size.height - 60;
     const chartTop = 10.0;
     final chartBottom = chartTop + chartHeight;
 
-    // Compute the base line (0 level)
-    // We need to fit all running totals plus the step amounts
     var minVal = 0.0;
     var maxVal = 0.0;
     for (var i = 0; i < steps.length; i++) {
@@ -395,15 +516,21 @@ class _WaterfallPainter extends CustomPainter {
       return chartBottom - ((val - minVal) / range) * chartHeight;
     }
 
+    // ── Cumulative line points (draw after bars) ──
+    final cumulativePoints = <Offset>[];
+
     for (var i = 0; i < steps.length; i++) {
-      // Cascade: each bar appears sequentially
-      final stepProgress =
+      final rawStepProgress =
           ((progress * steps.length) - i).clamp(0.0, 1.0);
-      if (stepProgress <= 0) continue;
+      if (rawStepProgress <= 0) continue;
+
+      // Apply spring overshoot
+      final stepProgress = _springProgress(rawStepProgress);
 
       final step = steps[i];
       final x = spacing * i + (spacing - barWidth) / 2;
       final centerX = spacing * i + spacing / 2;
+      final isHighlighted = i == highlightedIndex;
 
       Color barColor;
       double barTop;
@@ -414,19 +541,16 @@ class _WaterfallPainter extends CustomPainter {
         barTop = yForValue(step.amount);
         barBottom = yForValue(0);
       } else if (step.amount < 0) {
-        // Deduction (negative) — orange
         barColor = MintColors.warning;
         final prevTotal = i > 0 ? runningTotals[i - 1] : 0.0;
         barTop = yForValue(prevTotal);
         barBottom = yForValue(prevTotal + step.amount);
-        // Swap so barTop < barBottom (top is less in Y)
         if (barTop > barBottom) {
           final tmp = barTop;
           barTop = barBottom;
           barBottom = tmp;
         }
       } else {
-        // Addition (positive) — green
         barColor = MintColors.success;
         final prevTotal = i > 0 ? runningTotals[i - 1] : 0.0;
         barTop = yForValue(prevTotal + step.amount);
@@ -438,43 +562,77 @@ class _WaterfallPainter extends CustomPainter {
         }
       }
 
-      // Animate bar height
-      final animatedBarHeight = (barBottom - barTop) * stepProgress;
+      // Animate bar height with spring
+      final targetHeight = barBottom - barTop;
+      final animatedBarHeight = targetHeight * stepProgress.clamp(0.0, 1.15);
       final animatedBarTop = barBottom - animatedBarHeight;
 
-      // Draw bar
-      final barPaint = Paint()..color = barColor.withValues(alpha: 0.85);
+      // ── Highlight glow behind selected bar ──
+      if (isHighlighted) {
+        final glowPaint = Paint()
+          ..color = barColor.withValues(alpha: 0.15)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(
+              x - 4,
+              animatedBarTop - 4,
+              barWidth + 8,
+              animatedBarHeight + 8,
+            ),
+            const Radius.circular(6),
+          ),
+          glowPaint,
+        );
+      }
+
+      // ── Draw bar ──
+      final barAlpha = isHighlighted ? 1.0 : 0.85;
+      final barPaint = Paint()..color = barColor.withValues(alpha: barAlpha);
       final barRect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(x, animatedBarTop, barWidth, animatedBarHeight),
+        Rect.fromLTWH(
+          x,
+          animatedBarTop,
+          barWidth,
+          max(0, animatedBarHeight),
+        ),
         const Radius.circular(4),
       );
       canvas.drawRRect(barRect, barPaint);
 
-      // Draw dashed connector line to next bar
-      if (i < steps.length - 1 && stepProgress >= 1.0) {
-        final nextX = spacing * (i + 1) + (spacing - barWidth) / 2;
-        final connectorY =
-            step.isTotal ? yForValue(step.amount) : yForValue(runningTotals[i]);
-        final dashPaint = Paint()
-          ..color = MintColors.border
-          ..strokeWidth = 1.5
-          ..style = PaintingStyle.stroke;
+      // ── Animated dashed connector line ──
+      if (i < steps.length - 1) {
+        final nextStepProgress =
+            ((progress * steps.length) - (i + 1)).clamp(0.0, 1.0);
+        if (nextStepProgress > 0) {
+          final nextX = spacing * (i + 1) + (spacing - barWidth) / 2;
+          final connectorY = step.isTotal
+              ? yForValue(step.amount)
+              : yForValue(runningTotals[i]);
+          final dashPaint = Paint()
+            ..color = MintColors.border.withValues(alpha: 0.6)
+            ..strokeWidth = 1.5
+            ..style = PaintingStyle.stroke;
 
-        // Draw dashed line
-        const dashWidth = 4.0;
-        const dashSpace = 3.0;
-        var startX = x + barWidth;
-        while (startX < nextX) {
-          canvas.drawLine(
-            Offset(startX, connectorY),
-            Offset(min(startX + dashWidth, nextX), connectorY),
-            dashPaint,
-          );
-          startX += dashWidth + dashSpace;
+          final totalLineWidth = nextX - (x + barWidth);
+          final animatedLineEnd =
+              x + barWidth + totalLineWidth * nextStepProgress;
+
+          const dashWidth = 4.0;
+          const dashSpace = 3.0;
+          var startX = x + barWidth;
+          while (startX < animatedLineEnd) {
+            canvas.drawLine(
+              Offset(startX, connectorY),
+              Offset(min(startX + dashWidth, animatedLineEnd), connectorY),
+              dashPaint,
+            );
+            startX += dashWidth + dashSpace;
+          }
         }
       }
 
-      // Draw amount label above/below bar
+      // ── Amount label ──
       final amountText = step.isTotal
           ? _formatChfShort(step.amount)
           : '${step.amount < 0 ? '' : '+'}${_formatChfShort(step.amount)}';
@@ -482,7 +640,7 @@ class _WaterfallPainter extends CustomPainter {
         text: TextSpan(
           text: amountText,
           style: GoogleFonts.montserrat(
-            fontSize: 10,
+            fontSize: isHighlighted ? 11 : 10,
             fontWeight: FontWeight.w700,
             color: barColor,
           ),
@@ -498,14 +656,16 @@ class _WaterfallPainter extends CustomPainter {
         Offset(centerX - amountPainter.width / 2, labelY),
       );
 
-      // Draw step label at bottom
+      // ── Step label at bottom ──
       final labelPainter = TextPainter(
         text: TextSpan(
           text: step.label,
           style: GoogleFonts.inter(
             fontSize: 9,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textSecondary,
+            fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w500,
+            color: isHighlighted
+                ? MintColors.textPrimary
+                : MintColors.textSecondary,
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -517,6 +677,36 @@ class _WaterfallPainter extends CustomPainter {
         canvas,
         Offset(centerX - labelPainter.width / 2, chartBottom + 6),
       );
+
+      // ── Collect cumulative line point ──
+      if (rawStepProgress >= 0.5) {
+        cumulativePoints.add(Offset(
+          centerX,
+          yForValue(runningTotals[i]),
+        ));
+      }
+    }
+
+    // ── Draw cumulative line overlay ──
+    if (cumulativePoints.length >= 2) {
+      final linePaint = Paint()
+        ..color = MintColors.primary.withValues(alpha: 0.35)
+        ..strokeWidth = 2.0
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+
+      final path = Path()..moveTo(cumulativePoints[0].dx, cumulativePoints[0].dy);
+      for (var i = 1; i < cumulativePoints.length; i++) {
+        path.lineTo(cumulativePoints[i].dx, cumulativePoints[i].dy);
+      }
+      canvas.drawPath(path, linePaint);
+
+      // Draw dots at each point
+      final dotPaint = Paint()..color = MintColors.primary.withValues(alpha: 0.5);
+      for (final pt in cumulativePoints) {
+        canvas.drawCircle(pt, 3, dotPaint);
+      }
     }
   }
 
@@ -532,6 +722,7 @@ class _WaterfallPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _WaterfallPainter oldDelegate) {
     return oldDelegate.progress != progress ||
-        oldDelegate.steps != steps;
+        oldDelegate.steps != steps ||
+        oldDelegate.highlightedIndex != highlightedIndex;
   }
 }

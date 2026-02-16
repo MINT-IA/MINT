@@ -229,7 +229,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                 ),
               ),
               Text(
-                '26 cantons  ·  Taux indicatifs',
+                '26 cantons  ·  Celibataire, CHF 80\'000',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,

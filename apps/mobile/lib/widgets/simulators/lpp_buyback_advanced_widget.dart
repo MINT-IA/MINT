@@ -24,6 +24,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   late int _yearsToRetirement;
   int _staggeringYears = 5;
   double _fundRate = 0.02;
+  double _taxableIncome = 120000;
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       yearsUntilRetirement: _yearsToRetirement,
       staggeringYears: _staggeringYears,
       annualInterestRate: _fundRate,
-      taxableIncome: 120000, // Hardcoded for this demo, usually from profile
+      taxableIncome: _taxableIncome,
     );
 
     return SimulatorCard(
@@ -96,6 +97,26 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           divisions: 9,
           unit: "ans",
           onChanged: (v) => setState(() => _staggeringYears = v.toInt()),
+        ),
+        const SizedBox(height: 12),
+        _buildSlider(
+          label: "Taux de la caisse LPP",
+          value: _fundRate * 100,
+          min: 1,
+          max: 4,
+          divisions: 6,
+          unit: "%",
+          onChanged: (v) => setState(() => _fundRate = v / 100),
+        ),
+        const SizedBox(height: 12),
+        _buildSlider(
+          label: "Revenu imposable",
+          value: _taxableIncome,
+          min: 50000,
+          max: 300000,
+          divisions: 25,
+          unit: "CHF",
+          onChanged: (v) => setState(() => _taxableIncome = v),
         ),
       ],
     );
@@ -347,7 +368,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      "Simulation incluant l'intérêt de la caisse (2%) et l'économie d'impôt lissée sur $_staggeringYears ans. Le rendement réel est calculé sur ton effort net réel.",
+      "Simulation incluant l'interet de la caisse (${(_fundRate * 100).toStringAsFixed(1)}%) et l'economie d'impot lissee sur $_staggeringYears ans pour un revenu imposable de CHF ${_taxableIncome.toStringAsFixed(0)}. Le rendement reel est calcule sur ton effort net reel.",
       style: GoogleFonts.inter(
           fontSize: 10,
           color: MintColors.textMuted,

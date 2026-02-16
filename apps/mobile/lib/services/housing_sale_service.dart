@@ -23,6 +23,7 @@ class HousingSaleResult {
   final String disclaimer;
   final List<String> sources;
   final String chiffreChoc;
+  final bool cantonExplicit;
 
   const HousingSaleResult({
     required this.plusValueBrute,
@@ -41,6 +42,7 @@ class HousingSaleResult {
     required this.disclaimer,
     required this.sources,
     required this.chiffreChoc,
+    required this.cantonExplicit,
   });
 }
 
@@ -122,6 +124,9 @@ class HousingSaleService {
     bool projetRemploi = false,
     double prixRemploi = 0,
   }) {
+    // ── Canton coverage check ──
+    final cantonExplicit = tauxPlusValueImmobiliere.containsKey(canton);
+
     // ── Duration of ownership ──
     final dureeDetention = anneeVente - anneeAchat;
 
@@ -236,6 +241,14 @@ class HousingSaleService {
       );
     }
 
+    if (!cantonExplicit) {
+      alerts.add(
+        'Ton canton ($canton) n\'a pas de bareme detaille dans notre base. '
+        'Les taux de Vaud (VD) sont utilises par defaut. '
+        'Consulte l\'administration fiscale de ton canton pour des chiffres precis.',
+      );
+    }
+
     // ── Checklist ──
     final checklist = <String>[
       'Demander une estimation immobilière professionnelle',
@@ -273,13 +286,13 @@ class HousingSaleService {
         : 'Attention : produit net negatif de CHF ${produitNet.abs().round()}';
 
     // ── Disclaimer ──
-    const disclaimer =
+    final disclaimer =
         'Cet outil educatif fournit des estimations indicatives et '
         'ne constitue pas un conseil fiscal, juridique ou immobilier '
         'personnalise au sens de la LSFin. Les taux d\'imposition '
         'sont simplifies et peuvent varier selon la commune et les '
-        'deductions applicables. Consulte un·e specialiste pour ta '
-        'situation personnelle.';
+        'deductions applicables. ${!cantonExplicit ? "Le bareme utilise est celui de VD par defaut. " : ""}'
+        'Consulte un·e specialiste pour ta situation personnelle.';
 
     // ── Sources ──
     const sources = [
@@ -307,6 +320,7 @@ class HousingSaleService {
       disclaimer: disclaimer,
       sources: sources,
       chiffreChoc: chiffreChoc,
+      cantonExplicit: cantonExplicit,
     );
   }
 }

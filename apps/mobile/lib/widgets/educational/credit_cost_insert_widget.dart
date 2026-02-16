@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -64,23 +65,25 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
     _pulseController.forward(from: 0);
   }
 
-  double get _totalInterest {
-    // Calcul simplifié
-    return _amount * (_rate / 100) * (_months / 12);
+  double get _monthlyPayment {
+    final r = (_rate / 100) / 12; // monthly rate
+    final n = _months;
+    if (r == 0) return _amount / n;
+    return _amount * (r * pow(1 + r, n)) / (pow(1 + r, n) - 1);
   }
 
-  double get _totalCost => _amount + _totalInterest;
-  double get _monthlyPayment => _totalCost / _months;
+  double get _totalCost => _monthlyPayment * _months;
+  double get _totalInterest => _totalCost - _amount;
 
   @override
   Widget build(BuildContext context) {
     return EducationalInsertWidget(
       title: 'Le vrai coût de ton crédit',
       subtitle: 'Comprendre combien tu paies réellement',
-      disclaimer: 'Calcul simplifié basé sur un remboursement linéaire. Le coût réel peut varier selon les conditions de ton contrat.',
+      disclaimer: 'Calcul par annuites constantes (amortissement). Le cout reel peut varier selon les conditions de ton contrat.',
       hypotheses: const [
         'Taux effectif global annuel (TAEG)',
-        'Remboursement mensuel constant (simplification)',
+        'Amortissement par annuites constantes (methode bancaire standard)',
         'Pas de frais de dossier inclus',
       ],
       onLearnMore: widget.onLearnMore,
@@ -133,11 +136,11 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.red.shade700,
+                color: MintColors.error,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.red.shade700.withOpacity(0.35),
+                    color: MintColors.error.withOpacity(0.35),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -197,9 +200,9 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
+              color: MintColors.error.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.red.shade200),
+              border: Border.all(color: MintColors.error.withOpacity(0.3)),
             ),
             child: Column(
               children: [
@@ -290,7 +293,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 min: min,
                 max: max,
                 divisions: divisions,
-                activeColor: isWarning ? Colors.red : MintColors.primary,
+                activeColor: isWarning ? MintColors.error : MintColors.primary,
                 onChanged: onChanged,
               ),
             ),
@@ -300,7 +303,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 format(value),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isWarning ? Colors.red : null,
+                  color: isWarning ? MintColors.error : null,
                 ),
                 textAlign: TextAlign.right,
               ),
