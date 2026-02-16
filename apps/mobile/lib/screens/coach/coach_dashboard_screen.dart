@@ -11,6 +11,8 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH DASHBOARD SCREEN — Sprint C5 / MINT Coach
@@ -144,6 +146,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 _buildTrajectorySection(),
                 const SizedBox(height: 24),
                 _buildQuickActions(),
+                const SizedBox(height: 24),
+                _buildAskMintCard(),
                 const SizedBox(height: 32),
                 _buildDisclaimer(),
                 const SizedBox(height: 40),
@@ -175,6 +179,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 const SizedBox(height: 24),
                 _buildQuickWinCards(),
                 const SizedBox(height: 24),
+                _buildAskMintCard(),
+                const SizedBox(height: 24),
                 _buildMotivationBanner(),
                 const SizedBox(height: 32),
                 _buildDisclaimer(),
@@ -192,6 +198,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyAppBar() {
+    final l10n = S.of(context);
     return SliverAppBar(
       pinned: true,
       expandedHeight: 120,
@@ -200,7 +207,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 24, bottom: 16, right: 24),
         title: Text(
-          'Bienvenue sur MINT',
+          l10n?.coachWelcome ?? 'Bienvenue sur MINT',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -228,11 +235,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyScoreCard() {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ton Fitness Financier',
+          l10n?.coachFitnessTitle ?? 'Ton Fitness Financier',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -280,7 +288,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Forme financiere',
+                            l10n?.coachFinancialForm ?? 'Forme financière',
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -288,7 +296,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                             ),
                           ),
                           Text(
-                            'Score composite  ·  3 piliers',
+                            l10n?.coachScoreComposite ?? 'Score composite · 3 piliers',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: MintColors.textSecondary,
@@ -364,17 +372,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                   child: Column(
                     children: [
                       _buildEmptySubScoreBar(
-                        label: 'Budget',
+                        label: l10n?.coachPillarBudget ?? 'Budget',
                         icon: Icons.account_balance_wallet_outlined,
                       ),
                       const SizedBox(height: 12),
                       _buildEmptySubScoreBar(
-                        label: 'Prevoyance',
+                        label: l10n?.coachPillarPrevoyance ?? 'Prévoyance',
                         icon: Icons.shield_outlined,
                       ),
                       const SizedBox(height: 12),
                       _buildEmptySubScoreBar(
-                        label: 'Patrimoine',
+                        label: l10n?.coachPillarPatrimoine ?? 'Patrimoine',
                         icon: Icons.trending_up,
                       ),
                     ],
@@ -384,7 +392,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
                 // ── CTA text ──
                 Text(
-                  'Complete ton diagnostic pour decouvrir ton score',
+                  l10n?.coachCompletePrompt ?? 'Complète ton diagnostic pour découvrir ton score',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 14,
@@ -402,7 +410,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     onPressed: () => context.push('/advisor'),
                     icon: const Icon(Icons.play_arrow_rounded, size: 20),
                     label: Text(
-                      'Decouvrir mon score \u2014 10 min',
+                      l10n?.coachDiscoverScore ?? 'Découvrir mon score \u2014 10 min',
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -481,11 +489,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildTeaserTrajectory() {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ta trajectoire',
+          l10n?.coachTrajectory ?? 'Ta trajectoire',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -570,7 +579,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Ta trajectoire financiere t\'attend',
+                            l10n?.coachTrajectoryPrompt ?? 'Ta trajectoire financière t\'attend',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
@@ -608,11 +617,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildQuickWinCards() {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Le savais-tu ?',
+          l10n?.coachDidYouKnow ?? 'Le savais-tu ?',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -623,31 +633,25 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         _buildQuickWinCard(
           icon: Icons.savings_outlined,
           iconColor: MintColors.scoreExcellent,
-          fact: 'Le 3e pilier peut te faire economiser '
-              'jusqu\'a CHF 2\'500 d\'impots par an, '
-              'selon ton canton et ton revenu.',
+          fact: l10n?.coachFact3a ?? 'Le 3e pilier peut te faire économiser jusqu\'à CHF 2\'500 d\'impôts par an, selon ton canton et ton revenu.',
           route: '/simulator/3a',
-          linkLabel: 'Simuler mon economie 3a',
+          linkLabel: l10n?.coachFact3aLink ?? 'Simuler mon économie 3a',
         ),
         const SizedBox(height: 12),
         _buildQuickWinCard(
           icon: Icons.shield_outlined,
           iconColor: MintColors.scoreAttention,
-          fact: 'En Suisse, chaque annee AVS manquante = '
-              '-2.3% de rente a vie. '
-              'Un rattrapage est possible dans certains cas.',
+          fact: l10n?.coachFactAvs ?? 'En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.',
           route: '/simulator/avs',
-          linkLabel: 'Verifier mes annees AVS',
+          linkLabel: l10n?.coachFactAvsLink ?? 'Vérifier mes années AVS',
         ),
         const SizedBox(height: 12),
         _buildQuickWinCard(
           icon: Icons.account_balance_outlined,
           iconColor: MintColors.coachAccent,
-          fact: 'Le rachat LPP est l\'un des leviers fiscaux '
-              'les plus puissants pour les salarie\u00B7es en Suisse. '
-              'Il est integralement deductible du revenu imposable.',
+          fact: l10n?.coachFactLpp ?? 'Le rachat LPP est l\'un des leviers fiscaux les plus puissants pour les salarié·es en Suisse. Il est intégralement déductible du revenu imposable.',
           route: '/lpp-deep/rachat',
-          linkLabel: 'Explorer le rachat LPP',
+          linkLabel: l10n?.coachFactLppLink ?? 'Explorer le rachat LPP',
         ),
       ],
     );
@@ -737,6 +741,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildMotivationBanner() {
+    final l10n = S.of(context);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -774,8 +779,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'Rejoins les milliers d\'utilisateurs '
-            'qui ont deja fait leur diagnostic financier',
+            l10n?.coachMotivation ?? 'Rejoins les milliers d\'utilisateurs qui ont déjà fait leur diagnostic financier',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 16,
@@ -786,8 +790,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            '10 minutes pour comprendre ta situation '
-            'et recevoir des actions concretes.',
+            l10n?.coachMotivationSub ?? 'et recevoir des actions concrètes.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -810,7 +813,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 ),
               ),
               child: Text(
-                'Lancer mon diagnostic',
+                l10n?.coachLaunchDiagnostic ?? 'Lancer mon diagnostic',
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -832,6 +835,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildAppBar() {
+    final l10n = S.of(context);
     final firstName = _profile!.firstName ?? 'Coach';
     return SliverAppBar(
       pinned: true,
@@ -841,7 +845,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 24, bottom: 16, right: 24),
         title: Text(
-          'Bonjour $firstName',
+          l10n?.coachHello(firstName) ?? 'Bonjour $firstName',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -869,6 +873,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildCoachAlertCard() {
+    final l10n = S.of(context);
     final level = _score!.level;
 
     // Border color and icon based on fitness level
@@ -939,7 +944,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Explorer',
+                    l10n?.coachExplore ?? 'Explorer',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -961,11 +966,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildScoreSection() {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ton Fitness Financier',
+          l10n?.coachFitnessTitle ?? 'Ton Fitness Financier',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -1010,11 +1016,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildTrajectorySection() {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ta trajectoire',
+          l10n?.coachTrajectory ?? 'Ta trajectoire',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -1053,11 +1060,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildQuickActions() {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Actions rapides',
+          l10n?.coachQuickActions ?? 'Actions rapides',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -1070,7 +1078,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             Expanded(
               child: _buildActionChip(
                 icon: Icons.calendar_today_outlined,
-                label: 'Check-in\nmensuel',
+                label: l10n?.coachCheckin ?? 'Check-in\nmensuel',
                 route: '/coach/checkin',
               ),
             ),
@@ -1078,7 +1086,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             Expanded(
               child: _buildActionChip(
                 icon: Icons.savings_outlined,
-                label: 'Verser\n3a',
+                label: l10n?.coachVerse3a ?? 'Verser\n3a',
                 route: '/simulator/3a',
               ),
             ),
@@ -1086,7 +1094,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             Expanded(
               child: _buildActionChip(
                 icon: Icons.account_balance_outlined,
-                label: 'Simuler\nrachat',
+                label: l10n?.coachSimBuyback ?? 'Simuler\nrachat',
                 route: '/lpp-deep/rachat',
               ),
             ),
@@ -1139,10 +1147,202 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   }
 
   // ════════════════════════════════════════════════════════════════
+  //  5b. ASK MINT CARD — Contextual AI entry point
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildAskMintCard() {
+    final byok = context.watch<ByokProvider>();
+
+    if (byok.isConfigured) {
+      return _buildAskMintCardActive();
+    }
+    return _buildAskMintCardSetup();
+  }
+
+  /// BYOK configured — "Ton IA est pr\u00eate, pose ta question"
+  Widget _buildAskMintCardActive() {
+    return GestureDetector(
+      onTap: () => context.push('/ask-mint'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1D1D1F),
+              Color(0xFF2D2D30),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: MintColors.primary.withValues(alpha: 0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Ask MINT',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: MintColors.success.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'ACTIF',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: MintColors.success,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Pose ta question sur la finance suisse',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withValues(alpha: 0.7),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white.withValues(alpha: 0.5),
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// BYOK not configured — "Active l'IA"
+  Widget _buildAskMintCardSetup() {
+    return GestureDetector(
+      onTap: () => context.push('/profile/byok'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: MintColors.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: MintColors.lightBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.accentPastel,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: MintColors.accent,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ask MINT',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Active l\'IA pour des r\u00e9ponses personnalis\u00e9es',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: MintColors.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'Configurer',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
   //  6. DISCLAIMER
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildDisclaimer() {
+    final l10n = S.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1150,9 +1350,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'Estimations educatives — ne constitue pas un conseil financier. '
-        'Les rendements passes ne presagent pas des rendements futurs. '
-        'Consulte un\u00B7e specialiste pour un plan personnalise. LSFin.',
+        l10n?.coachDisclaimer ?? 'Estimations éducatives \u2014 ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un\u00B7e spécialiste pour un plan personnalisé. LSFin.',
         style: GoogleFonts.inter(
           fontSize: 11,
           color: MintColors.textMuted,

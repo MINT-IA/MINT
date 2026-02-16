@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class EducationalTheme {
@@ -21,6 +22,80 @@ class EducationalTheme {
     required this.icon,
     required this.color,
   });
+
+  /// Returns a copy with localized strings (fallback = French const values)
+  EducationalTheme localized(S? l10n) {
+    if (l10n == null) return this;
+    final t = _localizedStrings[id];
+    if (t == null) return this;
+    return EducationalTheme(
+      id: id,
+      title: t['title']!(l10n) ?? title,
+      question: t['question']!(l10n) ?? question,
+      actionLabel: t['actionLabel']!(l10n) ?? actionLabel,
+      route: route,
+      reminderText: t['reminderText']!(l10n) ?? reminderText,
+      icon: icon,
+      color: color,
+    );
+  }
+
+  static final Map<String, Map<String, String? Function(S)>> _localizedStrings = {
+    '3a': {
+      'title': (l) => l.eduTheme3aTitle,
+      'question': (l) => l.eduTheme3aQuestion,
+      'actionLabel': (l) => l.eduTheme3aAction,
+      'reminderText': (l) => l.eduTheme3aReminder,
+    },
+    'lpp': {
+      'title': (l) => l.eduThemeLppTitle,
+      'question': (l) => l.eduThemeLppQuestion,
+      'actionLabel': (l) => l.eduThemeLppAction,
+      'reminderText': (l) => l.eduThemeLppReminder,
+    },
+    'avs': {
+      'title': (l) => l.eduThemeAvsTitle,
+      'question': (l) => l.eduThemeAvsQuestion,
+      'actionLabel': (l) => l.eduThemeAvsAction,
+      'reminderText': (l) => l.eduThemeAvsReminder,
+    },
+    'emergency': {
+      'title': (l) => l.eduThemeEmergencyTitle,
+      'question': (l) => l.eduThemeEmergencyQuestion,
+      'actionLabel': (l) => l.eduThemeEmergencyAction,
+      'reminderText': (l) => l.eduThemeEmergencyReminder,
+    },
+    'debt': {
+      'title': (l) => l.eduThemeDebtTitle,
+      'question': (l) => l.eduThemeDebtQuestion,
+      'actionLabel': (l) => l.eduThemeDebtAction,
+      'reminderText': (l) => l.eduThemeDebtReminder,
+    },
+    'mortgage': {
+      'title': (l) => l.eduThemeMortgageTitle,
+      'question': (l) => l.eduThemeMortgageQuestion,
+      'actionLabel': (l) => l.eduThemeMortgageAction,
+      'reminderText': (l) => l.eduThemeMortgageReminder,
+    },
+    'budget': {
+      'title': (l) => l.eduThemeBudgetTitle,
+      'question': (l) => l.eduThemeBudgetQuestion,
+      'actionLabel': (l) => l.eduThemeBudgetAction,
+      'reminderText': (l) => l.eduThemeBudgetReminder,
+    },
+    'lamal': {
+      'title': (l) => l.eduThemeLamalTitle,
+      'question': (l) => l.eduThemeLamalQuestion,
+      'actionLabel': (l) => l.eduThemeLamalAction,
+      'reminderText': (l) => l.eduThemeLamalReminder,
+    },
+    'fiscal': {
+      'title': (l) => l.eduThemeFiscalTitle,
+      'question': (l) => l.eduThemeFiscalQuestion,
+      'actionLabel': (l) => l.eduThemeFiscalAction,
+      'reminderText': (l) => l.eduThemeFiscalReminder,
+    },
+  };
 }
 
 class EducationData {

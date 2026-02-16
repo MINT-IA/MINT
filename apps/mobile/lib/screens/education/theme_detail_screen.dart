@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/data/educational_themes.dart';
@@ -52,7 +53,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = EducationData.getById(widget.themeId);
+    final theme = EducationData.getById(widget.themeId).localized(S.of(context));
     final content = EducationContentData.getContent(widget.themeId);
 
     return Scaffold(

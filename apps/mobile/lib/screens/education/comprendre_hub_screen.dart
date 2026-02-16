@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/data/educational_themes.dart';
@@ -13,7 +14,7 @@ class ComprendreHubScreen extends StatelessWidget {
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          "J'Y COMPRENDS RIEN",
+          S.of(context)?.eduHubTitle ?? "J'Y COMPRENDS RIEN",
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -34,7 +35,7 @@ class ComprendreHubScreen extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 24.0),
               child: Text(
-                "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
+                S.of(context)?.eduHubSubtitle ?? "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
                 style: TextStyle(
                   fontSize: 16,
                   color: MintColors.textMuted,
@@ -43,7 +44,7 @@ class ComprendreHubScreen extends StatelessWidget {
               ),
             );
           }
-          final theme = EducationData.themes[index - 1];
+          final theme = EducationData.themes[index - 1].localized(S.of(context));
           return Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: _ThemeCard(theme: theme),
@@ -119,7 +120,7 @@ class _ThemeCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Lire + quiz \u2022 2 min",
+                            S.of(context)?.eduHubReadQuiz ?? "Lire + quiz \u2022 2 min",
                             style: TextStyle(
                               fontSize: 12,
                               color: MintColors.textMuted,

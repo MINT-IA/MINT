@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -112,12 +113,13 @@ class _ExploreTabState extends State<ExploreTab>
   }
 
   Widget _buildAppBar(BuildContext context) {
+    final l10n = S.of(context);
     return SliverAppBar(
       floating: true,
       backgroundColor: MintColors.background,
       elevation: 0,
       title: Text(
-        'EXPLORER',
+        l10n?.exploreTitle ?? 'EXPLORER',
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -131,16 +133,17 @@ class _ExploreTabState extends State<ExploreTab>
   // ── MES OBJECTIFS ──────────────────────────────────────
 
   Widget _buildGoalsSection(BuildContext context) {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(Icons.ads_click, 'MES OBJECTIFS'),
+        _buildSectionHeader(Icons.ads_click, l10n?.exploreGoalsSection ?? 'MES OBJECTIFS'),
         const SizedBox(height: 16),
         _buildGoalCard(
           context,
           icon: Icons.savings_outlined,
-          title: 'Ma\u00eetriser mon Budget',
-          subtitle: 'G\u00e9rer mes d\u00e9penses \u2192 3 min',
+          title: l10n?.exploreGoalBudget ?? 'Maîtriser mon Budget',
+          subtitle: l10n?.exploreGoalBudgetSub ?? 'Gérer mes dépenses → 3 min',
           tint: MintColors.warning,
           onTap: () => context.push('/budget'),
         ),
@@ -148,8 +151,8 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.home_outlined,
-          title: 'Devenir Propri\u00e9taire',
-          subtitle: 'Simuler mon achat → 5 min',
+          title: l10n?.exploreGoalProperty ?? 'Devenir Propriétaire',
+          subtitle: l10n?.exploreGoalPropertySub ?? 'Simuler mon achat → 5 min',
           tint: MintColors.info,
           onTap: () => context.push('/mortgage/affordability'),
         ),
@@ -157,8 +160,8 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.trending_down,
-          title: 'Payer Moins d\'Imp\u00f4ts',
-          subtitle: 'Optimiser mon 3a → 3 min',
+          title: l10n?.exploreGoalTax ?? 'Payer Moins d\'Impôts',
+          subtitle: l10n?.exploreGoalTaxSub ?? 'Optimiser mon 3a → 3 min',
           tint: MintColors.success,
           onTap: () => context.push('/simulator/3a'),
         ),
@@ -166,8 +169,8 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.beach_access_outlined,
-          title: 'Pr\u00e9parer ma Retraite',
-          subtitle: 'Voir mon plan → 10 min',
+          title: l10n?.exploreGoalRetirement ?? 'Préparer ma Retraite',
+          subtitle: l10n?.exploreGoalRetirementSub ?? 'Voir mon plan → 10 min',
           tint: MintColors.purple, // Purple
           onTap: () => context.push('/retirement'),
         ),
@@ -245,10 +248,11 @@ class _ExploreTabState extends State<ExploreTab>
   // ── SIMULATEURS ──────────────────────────────────────
 
   Widget _buildSimulatorsSection(BuildContext context) {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(Icons.calculate_outlined, 'SIMULATEURS'),
+        _buildSectionHeader(Icons.calculate_outlined, l10n?.exploreSimulatorsSection ?? 'SIMULATEURS'),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -261,56 +265,56 @@ class _ExploreTabState extends State<ExploreTab>
             _buildSimulatorTile(
               context,
               icon: Icons.trending_up,
-              title: 'Int\u00e9r\u00eats Compos\u00e9s',
-              subtitle: 'Voir l\'effet du temps',
+              title: l10n?.exploreSimCompound ?? 'Intérêts Composés',
+              subtitle: l10n?.exploreSimCompoundSub ?? 'Voir l\'effet du temps',
               color: MintColors.success,
               route: '/simulator/compound',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.grid_view,
-              title: 'Outils Avanc\u00e9s',
-              subtitle: 'Tous les simulateurs',
+              title: l10n?.exploreSimAdvanced ?? 'Outils Avancés',
+              subtitle: l10n?.exploreSimAdvancedSub ?? 'Tous les simulateurs',
               color: MintColors.primary,
               route: '/tools',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.directions_car_outlined,
-              title: 'Leasing',
-              subtitle: 'Co\u00fbt r\u00e9el du leasing',
+              title: l10n?.exploreSimLeasing ?? 'Leasing',
+              subtitle: l10n?.exploreSimLeasingSub ?? 'Coût réel du leasing',
               color: MintColors.warning,
               route: '/simulator/leasing',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.credit_card,
-              title: 'Cr\u00e9dit Conso',
-              subtitle: 'Co\u00fbt de l\'emprunt',
+              title: l10n?.exploreSimCredit ?? 'Crédit Conso',
+              subtitle: l10n?.exploreSimCreditSub ?? 'Coût de l\'emprunt',
               color: MintColors.error,
               route: '/simulator/credit',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.account_balance,
-              title: 'Rente vs Capital',
-              subtitle: 'Comparer les options',
+              title: l10n?.exploreSimRenteCapital ?? 'Rente vs Capital',
+              subtitle: l10n?.exploreSimRenteCapitalSub ?? 'Comparer les options',
               color: MintColors.info,
               route: '/simulator/rente-capital',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.shield_outlined,
-              title: 'Filet de S\u00e9curit\u00e9',
-              subtitle: 'Gap invalidit\u00e9',
+              title: l10n?.exploreSimDisability ?? 'Filet de Sécurité',
+              subtitle: l10n?.exploreSimDisabilitySub ?? 'Gap invalidité',
               color: MintColors.deepOrange,
               route: '/simulator/disability-gap',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.swap_horiz,
-              title: 'Changement d\'emploi',
-              subtitle: 'Comparer 2 offres',
+              title: l10n?.exploreSimJobChange ?? 'Changement d\'emploi',
+              subtitle: l10n?.exploreSimJobChangeSub ?? 'Comparer 2 offres',
               color: MintColors.warning,
               route: '/simulator/job-comparison',
             ),
@@ -381,10 +385,11 @@ class _ExploreTabState extends State<ExploreTab>
   // ── EVENEMENTS DE VIE ──────────────────────────────────
 
   Widget _buildLifeEventsSection(BuildContext context) {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(Icons.event_note, '\u00c9V\u00c9NEMENTS DE VIE'),
+        _buildSectionHeader(Icons.event_note, l10n?.exploreLifeEventsSection ?? 'ÉVÉNEMENTS DE VIE'),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -397,64 +402,64 @@ class _ExploreTabState extends State<ExploreTab>
             _buildSimulatorTile(
               context,
               icon: Icons.favorite_outline,
-              title: 'Mariage',
-              subtitle: 'Impact fiscal et LPP',
+              title: l10n?.exploreEventMarriage ?? 'Mariage',
+              subtitle: l10n?.exploreEventMarriageSub ?? 'Impact fiscal et LPP',
               color: MintColors.pink,
               route: '/mariage',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.child_care,
-              title: 'Naissance',
-              subtitle: 'Allocations et d\u00e9ductions',
+              title: l10n?.exploreEventBirth ?? 'Naissance',
+              subtitle: l10n?.exploreEventBirthSub ?? 'Allocations et déductions',
               color: MintColors.info,
               route: '/naissance',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.people_outline,
-              title: 'Concubinage',
-              subtitle: 'Prot\u00e9ger ton couple',
+              title: l10n?.exploreEventConcubinage ?? 'Concubinage',
+              subtitle: l10n?.exploreEventConcubinageSub ?? 'Protéger ton couple',
               color: MintColors.purple,
               route: '/concubinage',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.family_restroom,
-              title: 'Divorce',
-              subtitle: 'Partage LPP et AVS',
+              title: l10n?.exploreEventDivorce ?? 'Divorce',
+              subtitle: l10n?.exploreEventDivorceSub ?? 'Partage LPP et AVS',
               color: MintColors.warning,
               route: '/life-event/divorce',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.volunteer_activism,
-              title: 'Succession',
-              subtitle: 'Droits et planning',
+              title: l10n?.exploreEventSuccession ?? 'Succession',
+              subtitle: l10n?.exploreEventSuccessionSub ?? 'Droits et planning',
               color: MintColors.success,
               route: '/life-event/succession',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.home_work_outlined,
-              title: 'Vente immobili\u00e8re',
-              subtitle: 'Imp\u00f4t plus-value',
+              title: l10n?.exploreEventHouseSale ?? 'Vente immobilière',
+              subtitle: l10n?.exploreEventHouseSaleSub ?? 'Impôt plus-value',
               color: MintColors.cyan,
               route: '/life-event/housing-sale',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.card_giftcard,
-              title: 'Donation',
-              subtitle: 'Fiscalit\u00e9 et limites',
+              title: l10n?.exploreEventDonation ?? 'Donation',
+              subtitle: l10n?.exploreEventDonationSub ?? 'Fiscalité et limites',
               color: MintColors.deepOrange,
               route: '/life-event/donation',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.flight_takeoff,
-              title: 'Expatriation',
-              subtitle: 'D\u00e9part ou arriv\u00e9e',
+              title: l10n?.exploreEventExpat ?? 'Expatriation',
+              subtitle: l10n?.exploreEventExpatSub ?? 'Départ ou arrivée',
               color: MintColors.indigo,
               route: '/expatriation',
             ),
@@ -467,10 +472,11 @@ class _ExploreTabState extends State<ExploreTab>
   // ── DOCUMENTS ──────────────────────────────────────
 
   Widget _buildDocumentUploadSection(BuildContext context) {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(Icons.upload_file, 'DOCUMENTS'),
+        _buildSectionHeader(Icons.upload_file, l10n?.exploreDocumentsSection ?? 'DOCUMENTS'),
         const SizedBox(height: 16),
         InkWell(
           onTap: () => context.push('/documents'),
@@ -506,7 +512,7 @@ class _ExploreTabState extends State<ExploreTab>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Upload ton certificat LPP',
+                        l10n?.exploreDocUploadLpp ?? 'Upload ton certificat LPP',
                         style: GoogleFonts.montserrat(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -515,7 +521,7 @@ class _ExploreTabState extends State<ExploreTab>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Extraction automatique de tes donn\u00e9es \u2192',
+                        l10n?.exploreDocUploadLppSub ?? 'Extraction automatique de tes données →',
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: MintColors.textSecondary,
@@ -537,11 +543,12 @@ class _ExploreTabState extends State<ExploreTab>
   // ── ASK MINT ──────────────────────────────────────
 
   Widget _buildAskMintSection(BuildContext context) {
+    final l10n = S.of(context);
     final byok = context.watch<ByokProvider>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(Icons.auto_awesome, 'ASK MINT'),
+        _buildSectionHeader(Icons.auto_awesome, l10n?.exploreAskMintSection ?? 'ASK MINT'),
         const SizedBox(height: 16),
         InkWell(
           onTap: () => context.push('/ask-mint'),
@@ -583,7 +590,7 @@ class _ExploreTabState extends State<ExploreTab>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ask MINT',
+                        l10n?.exploreAskMintTitle ?? 'Ask MINT',
                         style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -593,8 +600,8 @@ class _ExploreTabState extends State<ExploreTab>
                       const SizedBox(height: 4),
                       Text(
                         byok.isConfigured
-                            ? 'Pose tes questions finance suisse \u2192'
-                            : 'Configure ton IA pour commencer \u2192',
+                            ? l10n?.exploreAskMintConfigured ?? 'Pose tes questions finance suisse →'
+                            : l10n?.exploreAskMintNotConfigured ?? 'Configure ton IA pour commencer →',
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: Colors.white.withValues(alpha: 0.9),
@@ -616,10 +623,11 @@ class _ExploreTabState extends State<ExploreTab>
   // ── APPRENDRE ──────────────────────────────────────
 
   Widget _buildLearnSection(BuildContext context) {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(Icons.school_outlined, 'APPRENDRE'),
+        _buildSectionHeader(Icons.school_outlined, l10n?.exploreLearnSection ?? 'APPRENDRE'),
         const SizedBox(height: 16),
         // Premium "J'y comprends rien" Card
         InkWell(
@@ -662,7 +670,7 @@ class _ExploreTabState extends State<ExploreTab>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "J'y comprends rien",
+                        l10n?.exploreLearnHub ?? "J'y comprends rien",
                         style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -671,7 +679,7 @@ class _ExploreTabState extends State<ExploreTab>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "L'essentiel, sans jargon. \u2192",
+                        l10n?.exploreLearnHubSub ?? "L'essentiel, sans jargon. →",
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           color: Colors.white.withValues(alpha: 0.9),
@@ -688,7 +696,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildLearnItem(
           context,
           icon: Icons.savings_outlined,
-          title: 'C\'est quoi le 3a ?',
+          title: l10n?.exploreLearn3a ?? 'C\'est quoi le 3a ?',
           duration: '3 min',
           themeId: '3a',
         ),
@@ -696,7 +704,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildLearnItem(
           context,
           icon: Icons.work_outline,
-          title: 'LPP : Mode d\'emploi',
+          title: l10n?.exploreLearnLpp ?? 'LPP : Mode d\'emploi',
           duration: '5 min',
           themeId: 'lpp',
         ),
@@ -704,7 +712,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildLearnItem(
           context,
           icon: Icons.calculate_outlined,
-          title: 'Fiscalit\u00e9 Suisse 101',
+          title: l10n?.exploreLearnFiscal ?? 'Fiscalité Suisse 101',
           duration: '7 min',
           themeId: 'fiscal',
         ),
@@ -712,7 +720,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildLearnItem(
           context,
           icon: Icons.shield_outlined,
-          title: 'Le fonds d\'urgence',
+          title: l10n?.exploreLearnEmergency ?? 'Le fonds d\'urgence',
           duration: '3 min',
           themeId: 'emergency',
         ),
@@ -720,7 +728,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildLearnItem(
           context,
           icon: Icons.medical_services_outlined,
-          title: 'Les subsides LAMal',
+          title: l10n?.exploreLearnLamal ?? 'Les subsides LAMal',
           duration: '4 min',
           themeId: 'lamal',
         ),
