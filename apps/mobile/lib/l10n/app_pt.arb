@@ -174,8 +174,8 @@
   "askMintEmptyTitle": "Faz-me uma pergunta",
   "askMintEmptySubtitle": "Posso ajudar-te com financas suicas: 3\u00ba pilar, LPP, impostos, orcamento...",
   "askMintSuggestedTitle": "SUGESTOES",
-  "askMintSuggestion1": "Como funciona o 3\u00ba pilar?",
-  "askMintSuggestion2": "Devo escolher a renda ou o capital?",
+  "askMintSuggestion1": "Comment fonctionne le 3e pilier en Suisse ?",
+  "askMintSuggestion2": "Dois-je choisir la rente ou le capital LPP ?",
   "askMintSuggestion3": "Como posso otimizar os meus impostos?",
   "askMintSuggestion4": "O que e o resgate LPP?",
   "askMintInputHint": "Faz a tua pergunta sobre financas suicas...",
@@ -1118,5 +1118,52 @@
   "eduThemeFiscalReminder": "Deadline déclaration fiscale : 31 mars (extensible)",
   "eduHubTitle": "J'Y COMPRENDS RIEN",
   "eduHubSubtitle": "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
-  "eduHubReadQuiz": "Lire + quiz \u2022 2 min"
+  "eduHubReadQuiz": "Lire + quiz \u2022 2 min",
+
+  "askMintSuggestDebt": "J'ai des dettes \u2014 par o\u00f9 commencer pour m'en sortir ?",
+  "askMintSuggestAge3a": "J'ai {age} ans, est-ce que je devrais d\u00e9j\u00e0 cotiser au 3e pilier ?",
+  "@askMintSuggestAge3a": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestAgeLpp": "J'ai {age} ans, est-ce que je devrais racheter du LPP ?",
+  "@askMintSuggestAgeLpp": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestAgeRetirement": "J'ai {age} ans, comment pr\u00e9parer ma retraite au mieux ?",
+  "@askMintSuggestAgeRetirement": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestSelfEmployed": "Je suis ind\u00e9pendant\u00b7e \u2014 comment me prot\u00e9ger sans LPP ?",
+  "askMintSuggestUnemployed": "Je suis au ch\u00f4mage \u2014 quel impact sur ma pr\u00e9voyance ?",
+  "askMintSuggestCanton": "Quelles d\u00e9ductions fiscales sont possibles dans le canton de {canton} ?",
+  "@askMintSuggestCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "askMintSuggestIncome": "Avec mon revenu, combien je peux d\u00e9duire fiscalement par an ?",
+  "askMintSuggestGeneric1": "Rente ou capital LPP \u2014 quelle est la diff\u00e9rence ?",
+  "askMintSuggestGeneric2": "Comment optimiser mes imp\u00f4ts cette ann\u00e9e ?",
+  "askMintSuggestGeneric3": "Qu'est-ce que le rachat LPP et est-ce que \u00e7a vaut le coup ?",
+  "askMintSuggestGeneric4": "Comment fonctionne la franchise LAMal ?",
+  "askMintEmptyBody": "Finance suisse, d\u00e9cryptage des lois, simulateurs \u2014 je t'explique tout, sources \u00e0 l'appui.",
+  "askMintPrivacyBadge": "Tes donn\u00e9es restent sur ton appareil",
+  "askMintForYou": "POUR TOI",
+
+  "byokRecommended": "Recommand\u00e9",
+  "byokGetKeyOn": "Obtenir une cl\u00e9 sur {provider}",
+  "@byokGetKeyOn": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "byokCopilotActivated": "Ton copilote financier est activ\u00e9",
+  "byokCopilotBody": "Pose ta premi\u00e8re question sur la finance suisse \u2014 3e pilier, imp\u00f4ts, LPP, budget...",
+  "byokTryNow": "Essayer maintenant"
 }

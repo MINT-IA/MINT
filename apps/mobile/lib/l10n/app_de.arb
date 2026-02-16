@@ -174,8 +174,8 @@
   "askMintEmptyTitle": "Stelle mir eine Frage",
   "askMintEmptySubtitle": "Ich kann dir bei Schweizer Finanzen helfen: S\u00e4ule 3a, BVG, Steuern, Budget...",
   "askMintSuggestedTitle": "VORSCHL\u00c4GE",
-  "askMintSuggestion1": "Wie funktioniert die S\u00e4ule 3a?",
-  "askMintSuggestion2": "Soll ich Rente oder Kapital w\u00e4hlen?",
+  "askMintSuggestion1": "Wie funktioniert die 3. S\u00e4ule in der Schweiz?",
+  "askMintSuggestion2": "Soll ich Rente oder Kapital aus der Pensionskasse w\u00e4hlen?",
   "askMintSuggestion3": "Wie kann ich meine Steuern optimieren?",
   "askMintSuggestion4": "Was ist ein BVG-Einkauf?",
   "askMintInputHint": "Stelle deine Frage zur Schweizer Finanzwelt...",
@@ -1118,5 +1118,52 @@
   "eduThemeFiscalReminder": "Frist Steuererklaerung: 31. Maerz (verlaengerbar)",
   "eduHubTitle": "ICH VERSTEH' NIX",
   "eduHubSubtitle": "Keine Panik. Waehle ein Thema, wir erklaeren dir das Wichtigste und geben dir eine einfache Aktion.",
-  "eduHubReadQuiz": "Lesen + Quiz \u2022 2 Min"
+  "eduHubReadQuiz": "Lesen + Quiz \u2022 2 Min",
+
+  "askMintSuggestDebt": "Ich habe Schulden \u2014 wo soll ich anfangen?",
+  "askMintSuggestAge3a": "Ich bin {age} Jahre alt, sollte ich schon in die 3. S\u00e4ule einzahlen?",
+  "@askMintSuggestAge3a": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestAgeLpp": "Ich bin {age} Jahre alt, sollte ich einen Pensionskasseneinkauf machen?",
+  "@askMintSuggestAgeLpp": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestAgeRetirement": "Ich bin {age} Jahre alt, wie bereite ich mich am besten auf die Pension vor?",
+  "@askMintSuggestAgeRetirement": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestSelfEmployed": "Ich bin selbstst\u00e4ndig \u2014 wie sch\u00fctze ich mich ohne Pensionskasse?",
+  "askMintSuggestUnemployed": "Ich bin arbeitslos \u2014 welche Auswirkungen auf meine Vorsorge?",
+  "askMintSuggestCanton": "Welche Steuerabz\u00fcge sind im Kanton {canton} m\u00f6glich?",
+  "@askMintSuggestCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "askMintSuggestIncome": "Mit meinem Einkommen, wie viel kann ich j\u00e4hrlich steuerlich abziehen?",
+  "askMintSuggestGeneric1": "Rente oder Kapital \u2014 was ist der Unterschied?",
+  "askMintSuggestGeneric2": "Wie kann ich dieses Jahr meine Steuern optimieren?",
+  "askMintSuggestGeneric3": "Was ist ein Pensionskasseneinkauf und lohnt er sich?",
+  "askMintSuggestGeneric4": "Wie funktioniert die Franchise bei der Krankenkasse?",
+  "askMintEmptyBody": "Schweizer Finanzen, Gesetze erkl\u00e4rt, Simulatoren \u2014 ich erkl\u00e4re dir alles, mit Quellen.",
+  "askMintPrivacyBadge": "Deine Daten bleiben auf deinem Ger\u00e4t",
+  "askMintForYou": "F\u00dcR DICH",
+
+  "byokRecommended": "Empfohlen",
+  "byokGetKeyOn": "Schl\u00fcssel bei {provider} erhalten",
+  "@byokGetKeyOn": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "byokCopilotActivated": "Dein Finanz-Copilot ist aktiviert",
+  "byokCopilotBody": "Stelle deine erste Frage zur Schweizer Finanz \u2014 3. S\u00e4ule, Steuern, Pensionskasse, Budget...",
+  "byokTryNow": "Jetzt ausprobieren"
 }

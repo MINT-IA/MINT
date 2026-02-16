@@ -174,8 +174,8 @@
   "askMintEmptyTitle": "Ask me a question",
   "askMintEmptySubtitle": "I can help you with Swiss finance: pillar 3a, pension fund, taxes, budget...",
   "askMintSuggestedTitle": "SUGGESTIONS",
-  "askMintSuggestion1": "How does the 3rd pillar work?",
-  "askMintSuggestion2": "Should I choose the annuity or lump sum?",
+  "askMintSuggestion1": "How does the 3rd pillar work in Switzerland?",
+  "askMintSuggestion2": "Should I choose annuity or lump sum from my pension fund?",
   "askMintSuggestion3": "How can I optimise my taxes?",
   "askMintSuggestion4": "What is a pension fund buyback?",
   "askMintInputHint": "Ask your question about Swiss finance...",
@@ -1118,5 +1118,52 @@
   "eduThemeFiscalReminder": "Tax return deadline: March 31 (extendable)",
   "eduHubTitle": "I DON'T GET IT",
   "eduHubSubtitle": "Don't panic. Pick a topic, we'll explain the essentials and give you a simple action.",
-  "eduHubReadQuiz": "Read + quiz \u2022 2 min"
+  "eduHubReadQuiz": "Read + quiz \u2022 2 min",
+
+  "askMintSuggestDebt": "I have debts \u2014 where should I start to get out?",
+  "askMintSuggestAge3a": "I'm {age} years old, should I already contribute to pillar 3a?",
+  "@askMintSuggestAge3a": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestAgeLpp": "I'm {age} years old, should I buy back into my pension fund?",
+  "@askMintSuggestAgeLpp": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestAgeRetirement": "I'm {age} years old, how can I best prepare for retirement?",
+  "@askMintSuggestAgeRetirement": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "askMintSuggestSelfEmployed": "I'm self-employed \u2014 how do I protect myself without a pension fund?",
+  "askMintSuggestUnemployed": "I'm unemployed \u2014 what impact on my pension?",
+  "askMintSuggestCanton": "What tax deductions are available in the canton of {canton}?",
+  "@askMintSuggestCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "askMintSuggestIncome": "With my income, how much can I deduct from taxes per year?",
+  "askMintSuggestGeneric1": "Annuity or lump sum \u2014 what's the difference?",
+  "askMintSuggestGeneric2": "How can I optimize my taxes this year?",
+  "askMintSuggestGeneric3": "What is a pension fund buyback and is it worth it?",
+  "askMintSuggestGeneric4": "How does the LAMal health insurance franchise work?",
+  "askMintEmptyBody": "Swiss finance, laws explained, simulators \u2014 I'll explain everything, with sources.",
+  "askMintPrivacyBadge": "Your data stays on your device",
+  "askMintForYou": "FOR YOU",
+
+  "byokRecommended": "Recommended",
+  "byokGetKeyOn": "Get a key from {provider}",
+  "@byokGetKeyOn": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "byokCopilotActivated": "Your financial copilot is activated",
+  "byokCopilotBody": "Ask your first question about Swiss finance \u2014 3rd pillar, taxes, pension fund, budget...",
+  "byokTryNow": "Try now"
 }

@@ -236,7 +236,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               if (isRecommended) ...[
                 const SizedBox(height: 4),
                 Text(
-                  'Recommand\u00e9',
+                  S.of(context)?.byokRecommended ?? 'Recommand\u00e9',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -309,7 +309,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           const Icon(Icons.open_in_new, size: 14, color: MintColors.info),
           const SizedBox(width: 6),
           Text(
-            'Obtenir une cl\u00e9 sur $label',
+            S.of(context)?.byokGetKeyOn(label) ?? 'Obtenir une cl\u00e9 sur $label',
             style: const TextStyle(
               fontSize: 13,
               color: MintColors.info,
@@ -441,7 +441,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Ton copilote financier est activ\u00e9',
+                s?.byokCopilotActivated ?? 'Ton copilote financier est activ\u00e9',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
@@ -452,6 +452,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               ),
               const SizedBox(height: 8),
               Text(
+                s?.byokCopilotBody ??
                 'Pose ta premi\u00e8re question sur la finance suisse '
                 '\u2014 3e pilier, imp\u00f4ts, LPP, budget...',
                 textAlign: TextAlign.center,
@@ -467,7 +468,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 child: FilledButton.icon(
                   onPressed: () => context.push('/ask-mint'),
                   icon: const Icon(Icons.chat_outlined, size: 18),
-                  label: const Text('Essayer maintenant'),
+                  label: Text(s?.byokTryNow ?? 'Essayer maintenant'),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: MintColors.primary,

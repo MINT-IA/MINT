@@ -198,22 +198,22 @@ class _AskMintScreenState extends State<AskMintScreen> {
   }
 
   /// Build contextual suggested questions based on user profile.
-  List<String> _buildContextualSuggestions(Profile? profile) {
+  List<String> _buildContextualSuggestions(Profile? profile, S? s) {
     final suggestions = <String>[];
 
     if (profile == null) {
       return [
-        'Comment fonctionne le 3e pilier en Suisse ?',
-        'Dois-je choisir la rente ou le capital LPP ?',
-        'Comment optimiser mes imp\u00f4ts ?',
-        'Qu\'est-ce que le rachat LPP ?',
+        s?.askMintSuggestion1 ?? 'Comment fonctionne le 3e pilier en Suisse ?',
+        s?.askMintSuggestion2 ?? 'Dois-je choisir la rente ou le capital LPP ?',
+        s?.askMintSuggestion3 ?? 'Comment optimiser mes imp\u00f4ts ?',
+        s?.askMintSuggestion4 ?? 'Qu\'est-ce que le rachat LPP ?',
       ];
     }
 
     // Debt-first (Safe Mode)
     if (profile.hasDebt) {
       suggestions.add(
-        'J\'ai des dettes \u2014 par o\u00f9 commencer pour m\'en sortir ?',
+        s?.askMintSuggestDebt ?? 'J\'ai des dettes \u2014 par o\u00f9 commencer pour m\'en sortir ?',
       );
     }
 
@@ -224,15 +224,15 @@ class _AskMintScreenState extends State<AskMintScreen> {
     if (age != null) {
       if (age < 30) {
         suggestions.add(
-          'J\'ai $age ans, est-ce que je devrais d\u00e9j\u00e0 cotiser au 3e pilier ?',
+          s?.askMintSuggestAge3a(age.toString()) ?? 'J\'ai $age ans, est-ce que je devrais d\u00e9j\u00e0 cotiser au 3e pilier ?',
         );
       } else if (age >= 30 && age < 50) {
         suggestions.add(
-          'J\'ai $age ans, est-ce que je devrais racheter du LPP ?',
+          s?.askMintSuggestAgeLpp(age.toString()) ?? 'J\'ai $age ans, est-ce que je devrais racheter du LPP ?',
         );
       } else if (age >= 50) {
         suggestions.add(
-          'J\'ai $age ans, comment pr\u00e9parer ma retraite au mieux ?',
+          s?.askMintSuggestAgeRetirement(age.toString()) ?? 'J\'ai $age ans, comment pr\u00e9parer ma retraite au mieux ?',
         );
       }
     }
@@ -241,34 +241,34 @@ class _AskMintScreenState extends State<AskMintScreen> {
     final employment = profile.employmentStatus?.value;
     if (employment == 'self_employed') {
       suggestions.add(
-        'Je suis ind\u00e9pendant\u00b7e \u2014 comment me prot\u00e9ger sans LPP ?',
+        s?.askMintSuggestSelfEmployed ?? 'Je suis ind\u00e9pendant\u00b7e \u2014 comment me prot\u00e9ger sans LPP ?',
       );
     } else if (employment == 'unemployed') {
       suggestions.add(
-        'Je suis au ch\u00f4mage \u2014 quel impact sur ma pr\u00e9voyance ?',
+        s?.askMintSuggestUnemployed ?? 'Je suis au ch\u00f4mage \u2014 quel impact sur ma pr\u00e9voyance ?',
       );
     }
 
     // Canton-based
     if (profile.canton != null) {
       suggestions.add(
-        'Quelles d\u00e9ductions fiscales sont possibles dans le canton de ${profile.canton} ?',
+        s?.askMintSuggestCanton(profile.canton!) ?? 'Quelles d\u00e9ductions fiscales sont possibles dans le canton de ${profile.canton} ?',
       );
     }
 
     // Income-based
     if (profile.incomeNetMonthly != null && profile.incomeNetMonthly! > 0) {
       suggestions.add(
-        'Avec mon revenu, combien je peux d\u00e9duire fiscalement par an ?',
+        s?.askMintSuggestIncome ?? 'Avec mon revenu, combien je peux d\u00e9duire fiscalement par an ?',
       );
     }
 
     // Fill up to 4 with generic if needed
     final generics = [
-      'Rente ou capital LPP \u2014 quelle est la diff\u00e9rence ?',
-      'Comment optimiser mes imp\u00f4ts cette ann\u00e9e ?',
-      'Qu\'est-ce que le rachat LPP et est-ce que \u00e7a vaut le coup ?',
-      'Comment fonctionne la franchise LAMal ?',
+      s?.askMintSuggestGeneric1 ?? 'Rente ou capital LPP \u2014 quelle est la diff\u00e9rence ?',
+      s?.askMintSuggestGeneric2 ?? 'Comment optimiser mes imp\u00f4ts cette ann\u00e9e ?',
+      s?.askMintSuggestGeneric3 ?? 'Qu\'est-ce que le rachat LPP et est-ce que \u00e7a vaut le coup ?',
+      s?.askMintSuggestGeneric4 ?? 'Comment fonctionne la franchise LAMal ?',
     ];
     for (final g in generics) {
       if (suggestions.length >= 4) break;
@@ -280,7 +280,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
 
   Widget _buildEmptyState(S? s) {
     final profile = context.read<ProfileProvider>().profile;
-    final suggestions = _buildContextualSuggestions(profile);
+    final suggestions = _buildContextualSuggestions(profile, s);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -330,6 +330,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           ),
           const SizedBox(height: 10),
           Text(
+            s?.askMintEmptyBody ??
             'Finance suisse, d\u00e9cryptage des lois, simulateurs \u2014 '
             'je t\'explique tout, sources \u00e0 l\'appui.',
             textAlign: TextAlign.center,
@@ -355,7 +356,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                     size: 13, color: MintColors.success.withOpacity(0.8)),
                 const SizedBox(width: 6),
                 Text(
-                  'Tes donn\u00e9es restent sur ton appareil',
+                  s?.askMintPrivacyBadge ?? 'Tes donn\u00e9es restent sur ton appareil',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -370,7 +371,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           // Contextual suggested questions
           _buildSectionLabel(
             profile != null
-                ? 'POUR TOI'
+                ? (s?.askMintForYou ?? 'POUR TOI')
                 : (s?.askMintSuggestedTitle ?? 'SUGGESTIONS'),
             context,
           ),
