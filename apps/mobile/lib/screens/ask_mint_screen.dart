@@ -197,37 +197,141 @@ class _AskMintScreenState extends State<AskMintScreen> {
     );
   }
 
+  /// Build contextual suggested questions based on user profile.
+  List<String> _buildContextualSuggestions(Profile? profile) {
+    final suggestions = <String>[];
+
+    if (profile == null) {
+      return [
+        'Comment fonctionne le 3e pilier en Suisse ?',
+        'Dois-je choisir la rente ou le capital LPP ?',
+        'Comment optimiser mes imp\u00f4ts ?',
+        'Qu\'est-ce que le rachat LPP ?',
+      ];
+    }
+
+    // Debt-first (Safe Mode)
+    if (profile.hasDebt) {
+      suggestions.add(
+        'J\'ai des dettes \u2014 par o\u00f9 commencer pour m\'en sortir ?',
+      );
+    }
+
+    // Age-based
+    final age = profile.birthYear != null
+        ? DateTime.now().year - profile.birthYear!
+        : null;
+    if (age != null) {
+      if (age < 30) {
+        suggestions.add(
+          'J\'ai $age ans, est-ce que je devrais d\u00e9j\u00e0 cotiser au 3e pilier ?',
+        );
+      } else if (age >= 30 && age < 50) {
+        suggestions.add(
+          'J\'ai $age ans, est-ce que je devrais racheter du LPP ?',
+        );
+      } else if (age >= 50) {
+        suggestions.add(
+          'J\'ai $age ans, comment pr\u00e9parer ma retraite au mieux ?',
+        );
+      }
+    }
+
+    // Employment-based
+    final employment = profile.employmentStatus?.value;
+    if (employment == 'self_employed') {
+      suggestions.add(
+        'Je suis ind\u00e9pendant\u00b7e \u2014 comment me prot\u00e9ger sans LPP ?',
+      );
+    } else if (employment == 'unemployed') {
+      suggestions.add(
+        'Je suis au ch\u00f4mage \u2014 quel impact sur ma pr\u00e9voyance ?',
+      );
+    }
+
+    // Canton-based
+    if (profile.canton != null) {
+      suggestions.add(
+        'Quelles d\u00e9ductions fiscales sont possibles dans le canton de ${profile.canton} ?',
+      );
+    }
+
+    // Income-based
+    if (profile.incomeNetMonthly != null && profile.incomeNetMonthly! > 0) {
+      suggestions.add(
+        'Avec mon revenu, combien je peux d\u00e9duire fiscalement par an ?',
+      );
+    }
+
+    // Fill up to 4 with generic if needed
+    final generics = [
+      'Rente ou capital LPP \u2014 quelle est la diff\u00e9rence ?',
+      'Comment optimiser mes imp\u00f4ts cette ann\u00e9e ?',
+      'Qu\'est-ce que le rachat LPP et est-ce que \u00e7a vaut le coup ?',
+      'Comment fonctionne la franchise LAMal ?',
+    ];
+    for (final g in generics) {
+      if (suggestions.length >= 4) break;
+      if (!suggestions.contains(g)) suggestions.add(g);
+    }
+
+    return suggestions.take(4).toList();
+  }
+
   Widget _buildEmptyState(S? s) {
+    final profile = context.read<ProfileProvider>().profile;
+    final suggestions = _buildContextualSuggestions(profile);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
+
+          // Animated logo
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: MintColors.accentPastel,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF1D1D1F),
+                  Color(0xFF2D2D30),
+                ],
+              ),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: MintColors.primary.withOpacity(0.15),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: const Icon(
-              Icons.chat_bubble_outline,
-              color: MintColors.accent,
-              size: 36,
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 32,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
+
+          // Greeting
           Text(
-            s?.askMintEmptyTitle ?? 'Pose-moi une question',
+            s?.askMintEmptyTitle ?? 'Pose-moi ta question',
+            textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
+              height: 1.2,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
-            s?.askMintEmptySubtitle ??
-                'Je peux t\'aider sur la finance suisse : 3e pilier, LPP, imp\u00f4ts, budget...',
+            'Finance suisse, d\u00e9cryptage des lois, simulateurs \u2014 '
+            'je t\'explique tout, sources \u00e0 l\'appui.',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 14,
@@ -235,31 +339,47 @@ class _AskMintScreenState extends State<AskMintScreen> {
               height: 1.5,
             ),
           ),
+          const SizedBox(height: 12),
+
+          // Privacy badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: MintColors.success.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.lock_outline,
+                    size: 13, color: MintColors.success.withOpacity(0.8)),
+                const SizedBox(width: 6),
+                Text(
+                  'Tes donn\u00e9es restent sur ton appareil',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: MintColors.success.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
 
-          // Suggested questions
+          // Contextual suggested questions
           _buildSectionLabel(
-              s?.askMintSuggestedTitle ?? 'SUGGESTIONS', context),
+            profile != null
+                ? 'POUR TOI'
+                : (s?.askMintSuggestedTitle ?? 'SUGGESTIONS'),
+            context,
+          ),
           const SizedBox(height: 12),
-          _buildSuggestedChip(
-            s?.askMintSuggestion1 ??
-                'Comment fonctionne le 3e pilier ?',
-          ),
-          const SizedBox(height: 8),
-          _buildSuggestedChip(
-            s?.askMintSuggestion2 ??
-                'Dois-je choisir la rente ou le capital ?',
-          ),
-          const SizedBox(height: 8),
-          _buildSuggestedChip(
-            s?.askMintSuggestion3 ??
-                'Comment optimiser mes imp\u00f4ts ?',
-          ),
-          const SizedBox(height: 8),
-          _buildSuggestedChip(
-            s?.askMintSuggestion4 ??
-                'Qu\'est-ce que le rachat LPP ?',
-          ),
+          for (int i = 0; i < suggestions.length; i++) ...[
+            if (i > 0) const SizedBox(height: 8),
+            _buildSuggestedChip(suggestions[i]),
+          ],
+          const SizedBox(height: 32),
         ],
       ),
     );

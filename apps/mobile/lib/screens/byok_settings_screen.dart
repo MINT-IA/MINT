@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -375,27 +376,116 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
   }
 
   Widget _buildSuccessFeedback(S? s) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.success.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.success.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle, color: MintColors.success, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              s?.byokTestSuccess ??
-                  'Connexion r\u00e9ussie ! Ton IA est pr\u00eate.',
-              style: const TextStyle(
-                  fontSize: 14, color: MintColors.success, height: 1.4),
-            ),
+    return Column(
+      children: [
+        // Success confirmation
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.success.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.success.withOpacity(0.3)),
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle, color: MintColors.success, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  s?.byokTestSuccess ??
+                      'Connexion r\u00e9ussie ! Ton IA est pr\u00eate.',
+                  style: const TextStyle(
+                      fontSize: 14, color: MintColors.success, height: 1.4),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // A-ha CTA — "Try it now"
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1D1D1F),
+                Color(0xFF2D2D30),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: MintColors.primary.withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Ton copilote financier est activ\u00e9',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.3,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Pose ta premi\u00e8re question sur la finance suisse '
+                '\u2014 3e pilier, imp\u00f4ts, LPP, budget...',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white.withOpacity(0.75),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => context.push('/ask-mint'),
+                  icon: const Icon(Icons.chat_outlined, size: 18),
+                  label: const Text('Essayer maintenant'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    textStyle: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
