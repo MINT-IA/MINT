@@ -223,7 +223,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Connectez vos comptes bancaires',
+                'Connecte tes comptes bancaires',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,

@@ -143,9 +143,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Si tu possedes une SA ou Sarl, tu peux te verser une '
+              'Si tu possèdes une SA ou Sàrl, tu peux te verser une '
               'combinaison de salaire et de dividendes. Le dividende '
-              'est impose a 50% (participation qualifiante) et echappe '
+              'est imposé à 50% (participation qualifiante) et échappe '
               'aux cotisations AVS. Trouve le split optimal.',
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -163,7 +163,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   Widget _buildBeneficeSlider() {
     return _buildSliderCard(
-      title: 'Benefice total',
+      title: 'Bénéfice total',
       valueLabel: IndependantsService.formatChf(_benefice),
       minLabel: 'CHF 0',
       maxLabel: "CHF 500'000",
@@ -308,10 +308,10 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(height: 8),
           Text(
             saving > 0
-                ? 'Le split optimal te fait economiser '
+                ? 'Le split optimal te fait économiser '
                   '${IndependantsService.formatChf(saving)}/an '
-                  'par rapport a 100% salaire'
-                : 'Ajuste le split pour trouver une economie',
+                  'par rapport à 100% salaire'
+                : 'Ajuste le split pour trouver une économie',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: saving > 0
@@ -355,10 +355,10 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Si la part salaire est inferieure a ~60% du benefice, '
+                  'Si la part salaire est inférieure à ~60% du bénéfice, '
                   'l\'administration fiscale peut requalifier une partie '
                   'des dividendes en salaire (pratique cantonale variable). '
-                  'Cela entraine des cotisations AVS retroactives.',
+                  'Cela entraîne des cotisations AVS rétroactives.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.error.withValues(alpha: 0.8),
@@ -389,13 +389,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           _buildResultRow(
             'Part salaire',
             IndependantsService.formatChf(r.partSalaire),
-            subtitle: '${_partSalairePct.toInt()}% du benefice',
+            subtitle: '${_partSalairePct.toInt()}% du bénéfice',
           ),
           const SizedBox(height: 12),
           _buildResultRow(
             'Part dividende',
             IndependantsService.formatChf(r.partDividende),
-            subtitle: '${(100 - _partSalairePct).toInt()}% du benefice',
+            subtitle: '${(100 - _partSalairePct).toInt()}% du bénéfice',
           ),
           const Divider(height: 24),
           _buildResultRow(
@@ -569,7 +569,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'A RETENIR',
+              'À RETENIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -582,23 +582,23 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'Impot sur le benefice',
-          'Rappelle-toi que le benefice distribue en dividende est '
-          'impose d\'abord au niveau de la societe (impot sur le benefice), '
-          'puis au niveau personnel (double imposition economique).',
+          'Impôt sur le bénéfice',
+          'Rappelle-toi que le bénéfice distribué en dividende est '
+          'imposé d\'abord au niveau de la société (impôt sur le bénéfice), '
+          'puis au niveau personnel (double imposition économique).',
         ),
         _buildEduCard(
           Icons.people_outline,
           'AVS uniquement sur le salaire',
           'Les cotisations AVS (environ 12.5% au total) ne s\'appliquent '
-          'qu\'a la part salaire. Le dividende echappe aux charges sociales, '
-          'd\'ou l\'interet d\'optimiser le split.',
+          'qu\'à la part salaire. Le dividende échappe aux charges sociales, '
+          'd\'où l\'intérêt d\'optimiser le split.',
         ),
         _buildEduCard(
           Icons.gavel_outlined,
           'Pratique cantonale',
-          'Les autorites fiscales surveillent les distributions excessives '
-          'de dividendes. Un salaire "conforme au marche" est attendu. '
+          'Les autorités fiscales surveillent les distributions excessives '
+          'de dividendes. Un salaire "conforme au marché" est attendu. '
           'La limite varie selon les cantons.',
         ),
       ],
@@ -673,10 +673,10 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Simulation simplifiee. L\'impot sur le benefice de la societe, '
-              'les deductions personnelles et les regles cantonales ne sont '
-              'pas integres dans ce calcul. Consulte un\u00B7e specialiste '
-              'pour une analyse complete.',
+              'Simulation simplifiée. L\'impôt sur le bénéfice de la société, '
+              'les déductions personnelles et les règles cantonales ne sont '
+              'pas intégrés dans ce calcul. Consulte un\u00B7e spécialiste '
+              'pour une analyse complète.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,
@@ -697,7 +697,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'L\'optimisation fiscale depend de la pratique cantonale. '
+        'L\'optimisation fiscale dépend de la pratique cantonale. '
         'Les seuils de requalification varient d\'un canton a l\'autre.',
         style: GoogleFonts.inter(
           fontSize: 11,

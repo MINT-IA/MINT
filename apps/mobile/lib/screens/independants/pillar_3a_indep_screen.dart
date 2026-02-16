@@ -96,7 +96,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
         title: Text(
-          '3e pilier independant',
+          '3e pilier indépendant',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -136,10 +136,10 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'independant\u00B7e sans LPP, tu as acces au '
-              '"grand 3a" : tu peux deduire jusqu\'a 20% de ton revenu '
+              'En tant qu\'indépendant\u00B7e sans LPP, tu as accès au '
+              '"grand 3a" : tu peux déduire jusqu\'à 20% de ton revenu '
               'net (max CHF 36\'288/an), au lieu de CHF 7\'258 pour '
-              'un\u00B7e salarie\u00B7e. C\'est un avantage fiscal majeur.',
+              'un\u00B7e salarié\u00B7e. C\'est un avantage fiscal majeur.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -169,7 +169,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Affilie\u00B7e a une LPP volontaire ?',
+                  'Affilié\u00B7e à une LPP volontaire ?',
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -357,7 +357,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'd\'economie fiscale annuelle grace au 3e pilier',
+              'd\'économie fiscale annuelle grâce au 3e pilier',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: MintColors.textSecondary,
@@ -388,8 +388,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tu economises ${IndependantsService.formatChf(r.avantageSurSalarie)}/an '
-            'd\'impots de plus qu\'un\u00B7e salarie\u00B7e grace au grand 3a',
+            'Tu économises ${IndependantsService.formatChf(r.avantageSurSalarie)}/an '
+            'd\'impôts de plus qu\'un\u00B7e salarié\u00B7e grâce au grand 3a',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.9),
@@ -417,16 +417,16 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         children: [
           _buildResultRow('Plafond applicable', IndependantsService.formatChf(r.plafond)),
           const SizedBox(height: 12),
-          _buildResultRow('Economie fiscale /an', IndependantsService.formatChf(r.economieFiscale)),
+          _buildResultRow('Économie fiscale /an', IndependantsService.formatChf(r.economieFiscale)),
           const Divider(height: 24),
           _buildResultRow(
-            'Plafond salarie\u00B7e',
+            'Plafond salarié\u00B7e',
             IndependantsService.formatChf(r.plafondSalarie),
             color: MintColors.textMuted,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Economie salarie\u00B7e',
+            'Économie salarié\u00B7e',
             IndependantsService.formatChf(r.economieSalarie),
             color: MintColors.textMuted,
           ),
@@ -478,7 +478,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               const Icon(Icons.bar_chart, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PLAFONDS COMPARES',
+                'PLAFONDS COMPARÉS',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -492,7 +492,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Salarie bar
           _buildPlafondBar(
-            label: 'Salarie\u00B7e',
+            label: 'Salarié\u00B7e',
             value: petit,
             maxValue: grand,
             color: MintColors.info,
@@ -501,7 +501,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Independant bar
           _buildPlafondBar(
-            label: 'Independant\u00B7e (toi)',
+            label: 'Indépendant\u00B7e (toi)',
             value: plafondIndep,
             maxValue: grand,
             color: MintColors.success,
@@ -511,7 +511,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Max bar
           _buildPlafondBar(
-            label: 'Grand 3a (max legal)',
+            label: 'Grand 3a (max légal)',
             value: grand,
             maxValue: grand,
             color: MintColors.textMuted.withValues(alpha: 0.3),
@@ -578,7 +578,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON A SAVOIR',
+              'BON À SAVOIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -592,23 +592,23 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         _buildEduCard(
           Icons.layers_outlined,
           'Ouvre plusieurs comptes 3a',
-          'Meme avec le grand 3a, la strategie des comptes '
-          'multiples (jusqu\'a 5) est recommandee pour optimiser '
-          'le retrait echelonne a la retraite.',
+          'Même avec le grand 3a, la stratégie des comptes '
+          'multiples (jusqu\'à 5) est recommandée pour optimiser '
+          'le retrait échelonné à la retraite.',
         ),
         _buildEduCard(
           Icons.warning_amber_rounded,
           'Condition : pas de LPP',
           'Le grand 3a (20% du revenu, max 36\'288) n\'est '
-          'accessible que si tu n\'es pas affilie\u00B7e a une '
-          'LPP volontaire. Avec LPP, le plafond tombe a 7\'258.',
+          'accessible que si tu n\'es pas affilié\u00B7e à une '
+          'LPP volontaire. Avec LPP, le plafond tombe à 7\'258.',
         ),
         _buildEduCard(
           Icons.trending_up,
-          'Investir plutot qu\'epargner',
+          'Investir plutôt qu\'épargner',
           'Pour un horizon long (>10 ans), un 3a investi en '
-          'actions peut offrir un rendement bien superieur a un '
-          'compte d\'epargne 3a classique.',
+          'actions peut offrir un rendement bien supérieur à un '
+          'compte d\'épargne 3a classique.',
         ),
       ],
     );
@@ -682,10 +682,10 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les economies fiscales sont calculees sur la base du '
-              'taux marginal indique. Le taux reel depend de ton '
+              'Les économies fiscales sont calculées sur la base du '
+              'taux marginal indiqué. Le taux réel dépend de ton '
               'canton, de ta commune et de ta situation familiale. '
-              'Consulte un\u00B7e specialiste pour un calcul personnalise.',
+              'Consulte un\u00B7e spécialiste pour un calcul personnalisé.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

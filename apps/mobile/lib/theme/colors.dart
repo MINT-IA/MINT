@@ -33,4 +33,19 @@ class MintColors {
   // Borders
   static const Color border = Color(0xFFD2D2D7);
   static const Color lightBorder = Color(0xFFE5E5E7);
+
+  // Trajectory colors (MINT Coach)
+  static const Color trajectoryOptimiste = Color(0xFF24B14D);
+  static const Color trajectoryBase = Color(0xFF007AFF);
+  static const Color trajectoryPrudent = Color(0xFFFF9F0A);
+
+  // Score gradient (MINT Coach)
+  static const Color scoreExcellent = Color(0xFF24B14D);
+  static const Color scoreBon = Color(0xFF8BC34A);
+  static const Color scoreAttention = Color(0xFFFF9F0A);
+  static const Color scoreCritique = Color(0xFFFF453A);
+
+  // Coach (MINT Coach)
+  static const Color coachBubble = Color(0xFFF0F7FF);
+  static const Color coachAccent = Color(0xFF007AFF);
 }

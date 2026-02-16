@@ -191,15 +191,15 @@ class HousingSaleService {
 
     if (plusValueBrute < 0) {
       alerts.add(
-        'Attention : la vente se fait a perte '
+        'Attention : la vente se fait à perte '
         '(moins-value de CHF ${plusValueBrute.abs().round()}). '
-        'Aucun impot sur les gains immobiliers ne sera du.',
+        'Aucun impôt sur les gains immobiliers ne sera dû.',
       );
     }
 
     if (dureeDetention < 2) {
       alerts.add(
-        'Vente speculative : la detention est inferieure a 2 ans. '
+        'Vente spéculative : la détention est inférieure à 2 ans. '
         'Le taux d\'imposition est au maximum. '
         'Envisage de reporter la vente si possible.',
       );
@@ -208,7 +208,7 @@ class HousingSaleService {
     if (remboursementEplLpp > 0 || remboursementEpl3a > 0) {
       alerts.add(
         'Obligation de remboursement EPL : tu dois rembourser '
-        'les fonds de prevoyance utilises pour l\'achat '
+        'les fonds de prévoyance utilisés pour l\'achat '
         '(LPP art. 30d, OPP2 art. 30e).',
       );
     }
@@ -216,38 +216,38 @@ class HousingSaleService {
     if (projetRemploi && !residencePrincipale) {
       alerts.add(
         'Le report d\'imposition (remploi) n\'est possible que '
-        'pour la residence principale. Verifie ta situation.',
+        'pour la résidence principale. Vérifie ta situation.',
       );
     }
 
     if (produitNet < 0) {
       alerts.add(
-        'Attention : le produit net est negatif. La vente ne couvre '
-        'pas l\'ensemble des charges (hypotheque, impots, EPL). '
-        'Consulte un·e specialiste avant de proceder.',
+        'Attention : le produit net est négatif. La vente ne couvre '
+        'pas l\'ensemble des charges (hypothèque, impôts, EPL). '
+        'Consulte un·e spécialiste avant de procéder.',
       );
     }
 
     if (hypothequeRestante > prixVente * 0.8) {
       alerts.add(
-        'Le solde hypothecaire depasse 80% du prix de vente. '
-        'Verifie les conditions de remboursement anticipe '
-        'avec ta banque (penalite de sortie possible).',
+        'Le solde hypothécaire dépasse 80% du prix de vente. '
+        'Vérifie les conditions de remboursement anticipé '
+        'avec ta banque (pénalité de sortie possible).',
       );
     }
 
     // ── Checklist ──
     final checklist = <String>[
-      'Demander une estimation immobiliere professionnelle',
-      'Verifier le delai de detention pour le taux d\'imposition',
-      'Contacter ta caisse de pension pour les modalites EPL',
-      'Verifier les conditions de remboursement hypothecaire',
+      'Demander une estimation immobilière professionnelle',
+      'Vérifier le délai de détention pour le taux d\'imposition',
+      'Contacter ta caisse de pension pour les modalités EPL',
+      'Vérifier les conditions de remboursement hypothécaire',
       'Consulter un notaire pour la transaction',
     ];
 
     if (projetRemploi) {
       checklist.add(
-        'Preparer le dossier de remploi aupres de l\'administration fiscale',
+        'Préparer le dossier de remploi auprès de l\'administration fiscale',
       );
     }
 

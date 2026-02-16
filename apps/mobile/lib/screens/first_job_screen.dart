@@ -160,9 +160,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Comprends ta fiche de salaire ! On te montre ou vont tes '
+              'Comprends ta fiche de salaire ! On te montre où vont tes '
               'cotisations, ce que ton employeur paie en plus, et les '
-              'premiers reflexes financiers a adopter.',
+              'premiers réflexes financiers à adopter.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -196,7 +196,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton age',
+      title: 'Ton âge',
       valueLabel: '$_age ans',
       minLabel: '18 ans',
       maxLabel: '30 ans',
@@ -350,7 +350,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Taux d\'activite',
+                'Taux d\'activité',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -458,7 +458,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PILIER 3A — A OUVRIR MAINTENANT',
+                'PILIER 3A — À OUVRIR MAINTENANT',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -500,7 +500,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Economie fiscale estimee : ~${FirstJobService.formatChf(r.economieFiscaleEstimee3a)}/an',
+                    'Économie fiscale estimée : ~${FirstJobService.formatChf(r.economieFiscaleEstimee3a)}/an',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -716,7 +716,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Franchise 2500 vs 300 : economie estimee de ~'
+                    'Franchise 2500 vs 300 : économie estimée de ~'
                     '${FirstJobService.formatChf(r.economieAnnuelleVs300)}/an en primes',
                     style: GoogleFonts.inter(
                       fontSize: 13,
@@ -764,7 +764,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PREMIERS REFLEXES',
+                'PREMIERS RÉFLEXES',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -859,7 +859,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON A SAVOIR',
+              'BON À SAVOIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -872,29 +872,29 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'LPP des 25 ans',
-          'La cotisation LPP (2e pilier) commence a 25 ans pour '
-          'l\'epargne vieillesse. Avant 25 ans, seuls les risques '
-          'deces et invalidite sont couverts.',
+          'LPP dès 25 ans',
+          'La cotisation LPP (2e pilier) commence à 25 ans pour '
+          'l\'épargne vieillesse. Avant 25 ans, seuls les risques '
+          'décès et invalidité sont couverts.',
         ),
         _buildEduCard(
           Icons.receipt_long_outlined,
           '13e salaire',
-          'Si ton contrat prevoit un 13e salaire, celui-ci est aussi '
-          'soumis aux deductions sociales. Ton salaire mensuel brut '
-          'est alors le salaire annuel divise par 13.',
+          'Si ton contrat prévoit un 13e salaire, celui-ci est aussi '
+          'soumis aux déductions sociales. Ton salaire mensuel brut '
+          'est alors le salaire annuel divisé par 13.',
         ),
         _buildEduCard(
           Icons.savings_outlined,
-          'Regle du 50/30/20',
-          'Un bon reflexe pour ton premier salaire : 50% pour les '
-          'depenses fixes, 30% pour les loisirs, 20% pour l\'epargne '
-          'et la prevoyance (3a inclus).',
+          'Règle du 50/30/20',
+          'Un bon réflexe pour ton premier salaire : 50% pour les '
+          'dépenses fixes, 30% pour les loisirs, 20% pour l\'épargne '
+          'et la prévoyance (3a inclus).',
         ),
         _buildEduCard(
           Icons.description_outlined,
-          'Declaration fiscale',
-          'Des ton premier emploi, tu devras remplir une declaration '
+          'Déclaration fiscale',
+          'Dès ton premier emploi, tu devras remplir une déclaration '
           'fiscale. Garde toutes tes attestations (salaire, 3a, '
           'frais professionnels).',
         ),
@@ -970,11 +970,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations educatives — ne constitue pas un conseil — '
+              'Estimations éducatives — ne constitue pas un conseil — '
               'LACI/LPP/OPP3. Les montants sont approximatifs et ne '
-              'tiennent pas compte de toutes les specificites cantonales. '
+              'tiennent pas compte de toutes les spécificités cantonales. '
               'Consulte priminfo.admin.ch pour les primes LAMal exactes. '
-              'Consulte un\u00B7e specialiste en prevoyance.',
+              'Consulte un\u00B7e spécialiste en prévoyance.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

@@ -79,8 +79,8 @@ class _PCWidgetState extends State<PCWidget> {
                 Expanded(
                   child: Text(
                     isEligible
-                        ? "Votre situation suggère un droit potentiel aux PC."
-                        : "Vos revenus semblent suffisants selon les barèmes standards.",
+                        ? "Ta situation suggère un droit potentiel aux PC."
+                        : "Tes revenus semblent suffisants selon les barèmes standards.",
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

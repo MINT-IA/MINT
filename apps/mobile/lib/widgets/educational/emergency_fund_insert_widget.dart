@@ -44,7 +44,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
     return EducationalInsertWidget(
       title: 'Ton filet de sécurité',
       subtitle: 'Calcule ton fonds d\'urgence idéal',
-      disclaimer: 'L\'objectif de 3-6 mois est une recommandation générale. Votre situation personnelle peut nécessiter un montant différent.',
+      disclaimer: 'L\'objectif de 3-6 mois est une recommandation générale. Ta situation personnelle peut nécessiter un montant différent.',
       hypotheses: const [
         'Charges fixes = loyer + assurances + abonnements + crédits',
         'Objectif recommandé : 3 mois (minimum) à 6 mois (confort)',

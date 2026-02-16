@@ -127,9 +127,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'independant\u00B7e, tu paies l\'integralite des '
-              'cotisations AVS/AI/APG toi-meme. Un\u00B7e salarie\u00B7e '
-              'n\'en paie que la moitie (5.3%), l\'employeur couvrant le reste.',
+              'En tant qu\'indépendant\u00B7e, tu paies l\'intégralité des '
+              'cotisations AVS/AI/APG toi-même. Un\u00B7e salarié\u00B7e '
+              'n\'en paie que la moitié (5.3%), l\'employeur couvrant le reste.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -235,9 +235,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'En tant qu\'independant\u00B7e, tu paies '
+            'En tant qu\'indépendant\u00B7e, tu paies '
             '${IndependantsService.formatChf(r.differenceAnnuelle)}/an '
-            'de plus qu\'un\u00B7e salarie\u00B7e',
+            'de plus qu\'un\u00B7e salarié\u00B7e',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.9),
@@ -376,7 +376,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
 
           // Independant bar
           _buildComparisonBar(
-            label: 'Independant\u00B7e',
+            label: 'Indépendant\u00B7e',
             value: r.cotisationAnnuelle,
             ratio: indepRatio,
             color: MintColors.error,
@@ -385,7 +385,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
 
           // Salarie bar
           _buildComparisonBar(
-            label: 'Salarie\u00B7e (part employee)',
+            label: 'Salarié\u00B7e (part employée)',
             value: r.cotisationSalarie,
             ratio: salarieRatio,
             color: MintColors.success,
@@ -405,7 +405,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Surcout independant\u00B7e : +${IndependantsService.formatChf(r.differenceAnnuelle)}/an',
+                    'Surcoût indépendant\u00B7e : +${IndependantsService.formatChf(r.differenceAnnuelle)}/an',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -483,7 +483,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
               const Icon(Icons.speed_outlined, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'TON POSITIONNEMENT SUR LE BAREME',
+                'TON POSITIONNEMENT SUR LE BARÈME',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -566,7 +566,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON A SAVOIR',
+              'BON À SAVOIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -579,7 +579,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.trending_down,
-          'Bareme degressif',
+          'Barème dégressif',
           'Le taux diminue pour les bas revenus (entre CHF 10\'100 et '
           'CHF 60\'500). Au-dessus de CHF 60\'500, le taux plein de '
           '10.6% s\'applique.',
@@ -587,14 +587,14 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         _buildEduCard(
           Icons.people_outline,
           'Double charge',
-          'Un\u00B7e salarie\u00B7e ne paie que 5.3% ; l\'employeur prend '
-          'en charge l\'autre moitie. En tant qu\'independant\u00B7e, tu '
-          'assumes la totalite.',
+          'Un\u00B7e salarié\u00B7e ne paie que 5.3% ; l\'employeur prend '
+          'en charge l\'autre moitié. En tant qu\'indépendant\u00B7e, tu '
+          'assumes la totalité.',
         ),
         _buildEduCard(
           Icons.calendar_today_outlined,
           'Cotisation minimale',
-          "Meme avec un revenu tres faible, la cotisation minimale est "
+          "Même avec un revenu très faible, la cotisation minimale est "
           "de CHF 530/an.",
         ),
       ],
@@ -669,10 +669,10 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les montants presentes sont des estimations basees sur le '
-              'bareme AVS/AI/APG en vigueur. Les cotisations reelles peuvent '
+              'Les montants présentés sont des estimations basées sur le '
+              'barème AVS/AI/APG en vigueur. Les cotisations réelles peuvent '
               'varier selon ta situation personnelle. Consulte ta caisse de '
-              'compensation pour un decompte exact.',
+              'compensation pour un décompte exact.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

@@ -146,17 +146,17 @@ class MoveSavingsCard extends StatelessWidget {
 
               // Savings breakdown
               _buildSavingsRow(
-                'Economie mensuelle',
+                'Économie mensuelle',
                 economieMensuelle,
               ),
               const SizedBox(height: 8),
               _buildSavingsRow(
-                'Economie annuelle',
+                'Économie annuelle',
                 economieAnnuelle,
               ),
               const SizedBox(height: 8),
               _buildSavingsRow(
-                'Economie sur 10 ans',
+                'Économie sur 10 ans',
                 economie10Ans,
                 isBold: true,
               ),

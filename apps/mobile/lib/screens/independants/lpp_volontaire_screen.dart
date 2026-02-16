@@ -138,9 +138,9 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'independant\u00B7e, tu peux t\'affilier '
-              'volontairement a une caisse de pension (LPP). Les '
-              'cotisations sont entierement deductibles de ton revenu '
+              'En tant qu\'indépendant\u00B7e, tu peux t\'affilier '
+              'volontairement à une caisse de pension (LPP). Les '
+              'cotisations sont entièrement déductibles de ton revenu '
               'imposable, et tu construis ton 2e pilier retraite.',
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -175,7 +175,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton age',
+      title: 'Ton âge',
       valueLabel: '$_age ans',
       minLabel: '25 ans',
       maxLabel: '65 ans',
@@ -325,7 +325,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Salaire coordonne',
+                'Salaire coordonné',
                 IndependantsService.formatChf(r.salaireCoordonne),
                 Icons.account_balance_outlined,
               ),
@@ -353,7 +353,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Economie fiscale /an',
+                'Économie fiscale /an',
                 IndependantsService.formatChf(r.economieFiscale),
                 Icons.savings_outlined,
                 valueColor: MintColors.success,
@@ -363,7 +363,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         ),
         const SizedBox(height: 12),
         _buildMetricCard(
-          'Tranche d\'age',
+          'Tranche d\'âge',
           r.ageBracketLabel,
           Icons.person_outline,
           small: true,
@@ -489,7 +489,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                   child: Text(
                     'La LPP volontaire pourrait ajouter '
                     '${IndependantsService.formatChf(gap)}/an '
-                    'a ta rente de retraite',
+                    'à ta rente de retraite',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -572,7 +572,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
               const Icon(Icons.table_chart_outlined, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'TAUX DE BONIFICATION PAR AGE',
+                'TAUX DE BONIFICATION PAR ÂGE',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -656,7 +656,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON A SAVOIR',
+              'BON À SAVOIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -670,23 +670,23 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         _buildEduCard(
           Icons.account_balance_outlined,
           'Affiliation volontaire',
-          'Les independant\u00B7e\u00B7s peuvent s\'affilier volontairement '
-          'a la LPP via une fondation collective, une caisse de branche '
+          'Les indépendant\u00B7e\u00B7s peuvent s\'affilier volontairement '
+          'à la LPP via une fondation collective, une caisse de branche '
           'ou la caisse cantonale.',
         ),
         _buildEduCard(
           Icons.savings_outlined,
           'Double avantage fiscal',
-          'Les cotisations LPP volontaires sont entierement deductibles '
+          'Les cotisations LPP volontaires sont entièrement déductibles '
           'du revenu imposable. De plus, le capital LPP n\'est pas soumis '
-          'a l\'impot sur la fortune.',
+          'à l\'impôt sur la fortune.',
         ),
         _buildEduCard(
           Icons.warning_amber_rounded,
           'Impact sur le 3a',
-          'Si tu t\'affilies a une LPP volontaire, ton plafond 3a '
+          'Si tu t\'affilies à une LPP volontaire, ton plafond 3a '
           'passe du "grand 3a" (max CHF 36\'288) au "petit 3a" '
-          '(CHF 7\'258). Evalue le trade-off.',
+          '(CHF 7\'258). Évalue le trade-off.',
         ),
       ],
     );
@@ -760,11 +760,11 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les projections de rente sont des estimations basees sur '
-              'un rendement projete de 1.5%/an et un taux de conversion '
-              'de 6.8%. Les prestations reelles dependent de la caisse '
-              'de pension choisie et de l\'evolution des marches. '
-              'Consulte un\u00B7e specialiste en prevoyance.',
+              'Les projections de rente sont des estimations basées sur '
+              'un rendement projeté de 1.5%/an et un taux de conversion '
+              'de 6.8%. Les prestations réelles dépendent de la caisse '
+              'de pension choisie et de l\'évolution des marchés. '
+              'Consulte un\u00B7e spécialiste en prévoyance.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

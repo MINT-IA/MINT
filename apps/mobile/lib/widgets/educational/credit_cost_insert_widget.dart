@@ -77,7 +77,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
     return EducationalInsertWidget(
       title: 'Le vrai coût de ton crédit',
       subtitle: 'Comprendre combien tu paies réellement',
-      disclaimer: 'Calcul simplifié basé sur un remboursement linéaire. Le coût réel peut varier selon les conditions de votre contrat.',
+      disclaimer: 'Calcul simplifié basé sur un remboursement linéaire. Le coût réel peut varier selon les conditions de ton contrat.',
       hypotheses: const [
         'Taux effectif global annuel (TAEG)',
         'Remboursement mensuel constant (simplification)',

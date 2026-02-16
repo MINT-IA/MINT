@@ -51,6 +51,7 @@ F. Assurances (Suisse)
 - **Copy Compliance**: Hypothèses et limites toujours visibles. Toujours mentionner l'existence d'un aléa et l'incertitude du résultat.
 
 Exemples requis:
+- q_financial_stress_check -> identifie le levier prioritaire -> redirection JIT vers simulateur adéquat
 - q_has_pension_fund -> schéma LPP oui/non -> impact plafond 3a
 - q_has_3a / q_3a_annual_amount -> mini simulateur économie fiscale (avec hypothèses)
 - q_mortgage_type -> comparateur Fixe vs SARON (neutre)
@@ -62,7 +63,8 @@ Exemples requis:
 - Le "taux marginal" est une estimation en fourchette, jamais présenté comme une décision fiscale définitive.
 - Aucun scénario "marché 8%" sans bande d'incertitude et sans mention explicite d'hypothèses.
 - Partner handoff: disclosure requise + alternatives; jamais lié à une récompense UX.
-- Retraits échelonnés 3a: mentionner progressivité et variabilité cantonale (pas de promesse) et renvoyer vers "learn more".
+- Retraits échelonnés 3a: mentionner progressivité et variabilité cantonale (pas de promesse) et renvoyer vers "learn more."
+- **Non-médicalisation**: Le stress financier est traité comme une "charge mentale" ou "bruit cognitif". Interdiction stricte de vocabulaire médical (diagnostic, traitement, dépression, thérapie) ou de promesses de guérison. Le ton reste celui d'un mentor éducatif financier.
 Références: pratiques FINMA sur devoir d'information/communication non trompeuse et transparence sur rétrocessions. [FINMA]
 
 ### 2.5 Nouveaux Simulateurs & Outils

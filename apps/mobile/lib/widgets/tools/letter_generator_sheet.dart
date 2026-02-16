@@ -40,11 +40,11 @@ class LetterGeneratorSheet extends StatelessWidget {
             context,
             icon: Icons.savings,
             title: "Demande de Rachat LPP",
-            subtitle: "Pour connaître votre potentiel de rachat.",
+            subtitle: "Pour connaître ton potentiel de rachat.",
             onTap: () async {
               final letter = LetterGeneratorService.generateBuybackRequest(
                 userName: userName,
-                userAddress: "[Votre Adresse]",
+                userAddress: "[Ton Adresse]",
                 insuranceNumber: "[N° AVS]",
               );
               await _generateAndSharePdf(letter);
@@ -54,7 +54,7 @@ class LetterGeneratorSheet extends StatelessWidget {
             context,
             icon: Icons.receipt_long,
             title: "Attestation Fiscale",
-            subtitle: "Pour votre déclaration d'impôts.",
+            subtitle: "Pour ta déclaration d'impôts.",
             onTap: () async {
               final letter =
                   LetterGeneratorService.generateTaxCertificateRequest(

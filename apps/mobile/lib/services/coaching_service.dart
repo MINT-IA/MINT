@@ -233,11 +233,11 @@ class CoachingService {
       id: 'deadline_3a',
       category: 'fiscalite',
       priority: CoachingPriority.haute,
-      title: 'Versement 3a avant le 31 decembre',
+      title: 'Versement 3a avant le 31 décembre',
       message:
           'Il te reste ${_formatChf(restant)} de marge sur ton plafond 3a '
-          '(${_formatChf(plafond)}). Un versement avant le 31 decembre '
-          'pourrait reduire ta charge fiscale de ${_formatChf(impact)} '
+          '(${_formatChf(plafond)}). Un versement avant le 31 décembre '
+          'pourrait réduire ta charge fiscale de ${_formatChf(impact)} '
           'environ.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
@@ -266,11 +266,11 @@ class CoachingService {
       priority: CoachingPriority.haute,
       title: 'Tu n\'as pas de 3e pilier',
       message:
-          'Ouvrir un 3e pilier te permettrait de deduire jusqu\'a '
-          '${_formatChf(plafond)} de ton revenu imposable chaque annee. '
-          'L\'economie fiscale estimee est de ${_formatChf(impact)} par an '
+          'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
+          '${_formatChf(plafond)} de ton revenu imposable chaque année. '
+          'L\'économie fiscale estimée est de ${_formatChf(impact)} par an '
           'dans le canton de ${profile.canton}.',
-      action: 'Decouvrir le 3e pilier',
+      action: 'Découvrir le 3e pilier',
       estimatedImpactChf: impact,
       source: 'LPP art. 82 / OPP3 art. 7',
       icon: Icons.savings_outlined,
@@ -301,10 +301,10 @@ class CoachingService {
       priority: priority,
       title: 'Rachat LPP possible',
       message:
-          'Tu as une lacune de prevoyance de ${_formatChf(profile.lacuneLpp)}. '
+          'Tu as une lacune de prévoyance de ${_formatChf(profile.lacuneLpp)}. '
           'Un rachat volontaire de ${_formatChf(rachatRecommande)} '
-          'pourrait te faire economiser environ ${_formatChf(impact)} '
-          'd\'impots tout en ameliorant ta retraite.',
+          'pourrait te faire économiser environ ${_formatChf(impact)} '
+          'd\'impôts tout en améliorant ta retraite.',
       action: 'Simuler un rachat LPP',
       estimatedImpactChf: impact,
       source: 'LPP art. 79b',
@@ -332,15 +332,15 @@ class CoachingService {
       priority: daysLeft <= 14
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Declaration d\'impots a rendre',
+      title: 'Déclaration d\'impôts à rendre',
       message:
-          'Le delai pour ta declaration fiscale dans le canton de '
+          'Le délai pour ta déclaration fiscale dans le canton de '
           '${profile.canton} est le 31 mars. Il reste $daysLeft jours. '
-          'Pense a rassembler tes attestations 3a, certificats LPP, '
-          'frais effectifs et dons deductibles.',
+          'Pense à rassembler tes attestations 3a, certificats LPP, '
+          'frais effectifs et dons déductibles.',
       action: 'Voir ma checklist fiscale',
       estimatedImpactChf: null,
-      source: 'LIFD / LHID — delai cantonal',
+      source: 'LIFD / LHID — délai cantonal',
       icon: Icons.description_outlined,
     ));
   }
@@ -364,9 +364,9 @@ class CoachingService {
       priority: priority,
       title: 'Retraite dans $yearsLeft ans',
       message:
-          'A $yearsLeft ans de la retraite, il est important de verifier '
-          'ta strategie de prevoyance. As-tu optimise tes rachats '
-          'LPP ? Tes comptes 3a sont-ils diversifies ? Rente ou capital : '
+          'À $yearsLeft ans de la retraite, il est important de vérifier '
+          'ta stratégie de prévoyance. As-tu optimisé tes rachats '
+          'LPP ? Tes comptes 3a sont-ils diversifiés ? Rente ou capital : '
           'as-tu fait ton choix ?',
       action: 'Planifier ma retraite',
       estimatedImpactChf: null,
@@ -393,12 +393,12 @@ class CoachingService {
       priority: monthsCovered < 1
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Reserve d\'urgence insuffisante',
+      title: 'Réserve d\'urgence insuffisante',
       message:
-          'Ton epargne disponible couvre ${monthsCovered.toStringAsFixed(1)} '
+          'Ton épargne disponible couvre ${monthsCovered.toStringAsFixed(1)} '
           'mois de charges fixes. Les experts recommandent au moins 3 mois. '
           'Il te manque environ ${_formatChf(deficit)} pour atteindre '
-          'ce seuil de securite.',
+          'ce seuil de sécurité.',
       action: 'Voir mon budget',
       estimatedImpactChf: deficit,
       source: 'Recommandation Budget-conseil Suisse',
@@ -429,12 +429,12 @@ class CoachingService {
       priority: ratio > 0.50
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Taux d\'endettement eleve ($ratioPct%)',
+      title: 'Taux d\'endettement élevé ($ratioPct%)',
       message:
-          'Ton taux d\'endettement estime est de $ratioPct%, '
-          'au-dessus du seuil de 33% recommande par les banques suisses. '
-          'Reduire tes dettes ameliore ta capacite d\'emprunt et '
-          'ta tranquillite financiere.',
+          'Ton taux d\'endettement estimé est de $ratioPct%, '
+          'au-dessus du seuil de 33% recommandé par les banques suisses. '
+          'Réduire tes dettes améliore ta capacité d\'emprunt et '
+          'ta tranquillité financière.',
       action: 'Analyser mes dettes',
       estimatedImpactChf: null,
       source: 'Directives FINMA / pratique bancaire',
@@ -494,14 +494,14 @@ class CoachingService {
       priority: profile.tauxActivite < 60
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Temps partiel : lacune de prevoyance',
+      title: 'Temps partiel : lacune de prévoyance',
       message:
-          'A $tauxPct% d\'activite, ta prevoyance professionnelle est '
-          'reduite d\'environ $reductionPct%. La deduction de coordination '
-          'de CHF 26\'460 penalise davantage les temps partiels. '
-          'Envisagez un rachat LPP ou un versement 3a supplementaire '
+          'À $tauxPct% d\'activité, ta prévoyance professionnelle est '
+          'réduite d\'environ $reductionPct%. La déduction de coordination '
+          'de CHF 26\'460 pénalise davantage les temps partiels. '
+          'Envisagez un rachat LPP ou un versement 3a supplémentaire '
           'pour compenser.',
-      action: 'Simuler ma prevoyance',
+      action: 'Simuler ma prévoyance',
       estimatedImpactChf: gap > 0 ? gap : null,
       source: 'LPP art. 8 / OPP2 art. 5',
       icon: Icons.schedule,
@@ -523,12 +523,12 @@ class CoachingService {
       id: 'independant_alert',
       category: 'prevoyance',
       priority: CoachingPriority.haute,
-      title: 'Independant : pas de LPP obligatoire',
+      title: 'Indépendant : pas de LPP obligatoire',
       message:
-          'En tant qu\'independant, tu n\'es pas soumis a la LPP '
-          'obligatoire. Ta prevoyance repose sur l\'AVS et ton 3e '
-          'pilier (plafond ${_formatChf(plafond3a)}). Pense a une '
-          'affiliation volontaire a une caisse de pension ou a maximiser '
+          'En tant qu\'indépendant, tu n\'es pas soumis à la LPP '
+          'obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e '
+          'pilier (plafond ${_formatChf(plafond3a)}). Pense à une '
+          'affiliation volontaire à une caisse de pension ou à maximiser '
           'ton 3a.',
       action: 'Explorer mes options',
       estimatedImpactChf: impact,
@@ -550,11 +550,11 @@ class CoachingService {
       priority: CoachingPriority.moyenne,
       title: 'Pas encore de budget',
       message:
-          'Un budget structure est la base de toute strategie financiere. '
-          'Il permet d\'identifier ta capacite d\'epargne reelle et '
-          'de fixer des objectifs concrets. MINT peut t\'aider a en '
-          'creer un en quelques minutes.',
-      action: 'Creer mon budget',
+          'Un budget structuré est la base de toute stratégie financière. '
+          'Il permet d\'identifier ta capacité d\'épargne réelle et '
+          'de fixer des objectifs concrets. MINT peut t\'aider à en '
+          'créer un en quelques minutes.',
+      action: 'Créer mon budget',
       estimatedImpactChf: null,
       source: 'Recommandation Budget-conseil Suisse',
       icon: Icons.pie_chart_outline,
@@ -588,7 +588,7 @@ class CoachingService {
       message:
           'Ton versement 3a actuel est de ${_formatChf(profile.montant3a)} '
           'sur un plafond de ${_formatChf(plafond)}. Verser le solde de '
-          '${_formatChf(restant)} pourrait representer une economie fiscale '
+          '${_formatChf(restant)} pourrait représenter une économie fiscale '
           'd\'environ ${_formatChf(impact)}.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
@@ -605,79 +605,79 @@ class CoachingService {
     switch (age) {
       case 25:
         return const _MilestoneInfo(
-          title: '25 ans : demarrer son 3e pilier',
+          title: '25 ans : démarrer son 3e pilier',
           message:
-              'A 25 ans, c\'est le moment ideal pour ouvrir un 3e pilier. '
-              'Grace aux interets composes, chaque annee compte. '
-              'Meme un petit versement mensuel fait une grande difference '
+              'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. '
+              'Grâce aux intérêts composés, chaque année compte. '
+              'Même un petit versement mensuel fait une grande différence '
               'sur 40 ans.',
-          action: 'Simuler les interets composes',
-          source: 'OPP3 / Recommandation pedagogique',
+          action: 'Simuler les intérêts composés',
+          source: 'OPP3 / Recommandation pédagogique',
         );
       case 35:
         return const _MilestoneInfo(
-          title: '35 ans : faire le point prevoyance',
+          title: '35 ans : faire le point prévoyance',
           message:
-              'A 35 ans, verifie que ta prevoyance est sur la bonne '
+              'À 35 ans, vérifie que ta prévoyance est sur la bonne '
               'trajectoire. As-tu un 3a ? Ta LPP est-elle '
-              'suffisante ? C\'est aussi l\'age ou un rachat LPP '
-              'commence a devenir interessant fiscalement.',
-          action: 'Faire mon bilan prevoyance',
-          source: 'LPP / Recommandation pedagogique',
+              'suffisante ? C\'est aussi l\'âge où un rachat LPP '
+              'commence à devenir intéressant fiscalement.',
+          action: 'Faire mon bilan prévoyance',
+          source: 'LPP / Recommandation pédagogique',
         );
       case 45:
         return const _MilestoneInfo(
-          title: '45 ans : optimiser sa strategie',
+          title: '45 ans : optimiser sa stratégie',
           message:
-              'A 45 ans, il reste 20 ans avant la retraite. C\'est le '
+              'À 45 ans, il reste 20 ans avant la retraite. C\'est le '
               'moment d\'optimiser : maximiser le 3a, envisager des '
               'rachats LPP, et diversifier. Chaque franc investi '
               'aujourd\'hui a encore du temps pour fructifier.',
-          action: 'Optimiser ma strategie',
-          source: 'LPP art. 79b / Recommandation pedagogique',
+          action: 'Optimiser ma stratégie',
+          source: 'LPP art. 79b / Recommandation pédagogique',
         );
       case 50:
         return const _MilestoneInfo(
-          title: '50 ans : preparer sa retraite',
+          title: '50 ans : préparer sa retraite',
           message:
-              'A 50 ans, la retraite se rapproche. Verifie ton avoir '
-              'LPP, planifie tes derniers rachats, et commence a '
-              'reflechir au choix rente vs capital. Anticipez aussi '
+              'À 50 ans, la retraite se rapproche. Vérifie ton avoir '
+              'LPP, planifie tes derniers rachats, et commence à '
+              'réfléchir au choix rente vs capital. Anticipez aussi '
               'l\'impact fiscal du retrait.',
           action: 'Planifier ma retraite',
           source: 'LPP / LAVS art. 21',
         );
       case 55:
         return const _MilestoneInfo(
-          title: '55 ans : derniere ligne droite',
+          title: '55 ans : dernière ligne droite',
           message:
-              'A 55 ans, la planification fiscale du retrait devient '
-              'cruciale. Echelonner les retraits 3a sur plusieurs annees '
-              'fiscales peut representer une economie significative. '
-              'Prepare ta strategie de decumulation.',
+              'À 55 ans, la planification fiscale du retrait devient '
+              'cruciale. Échelonner les retraits 3a sur plusieurs années '
+              'fiscales peut représenter une économie significative. '
+              'Prépare ta stratégie de décumulation.',
           action: 'Planifier mes retraits',
           source: 'LPP / LIFD art. 38',
         );
       case 58:
         return const _MilestoneInfo(
-          title: '58 ans : retraite anticipee possible',
+          title: '58 ans : retraite anticipée possible',
           message:
-              'Des 58 ans, tu peux envisager un retrait anticipe de '
+              'Dès 58 ans, tu peux envisager un retrait anticipé de '
               'ton 2e pilier dans certaines caisses. Attention : la '
-              'rente sera reduite (environ 6% par annee d\'anticipation). '
-              'Evalue l\'impact sur ton budget.',
-          action: 'Simuler ma retraite anticipee',
+              'rente sera réduite (environ 6% par année d\'anticipation). '
+              'Évalue l\'impact sur ton budget.',
+          action: 'Simuler ma retraite anticipée',
           source: 'LPP art. 13 al. 2',
         );
       case 63:
         return const _MilestoneInfo(
           title: '63 ans : derniers ajustements',
           message:
-              'A 2 ans de la retraite legale, finalise ta strategie. '
-              'Dernier rachat LPP (attention au delai de 3 ans avant '
+              'À 2 ans de la retraite légale, finalise ta stratégie. '
+              'Dernier rachat LPP (attention au délai de 3 ans avant '
               'retrait), choix rente/capital, et organisation du '
               'budget post-retraite.',
-          action: 'Finaliser ma preparation',
+          action: 'Finaliser ma préparation',
           source: 'LPP art. 79b al. 3',
         );
       default:

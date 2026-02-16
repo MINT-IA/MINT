@@ -139,10 +139,10 @@ class _IjmScreenState extends State<IjmScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'L\'assurance IJM (indemnite journaliere maladie) compense '
+              'L\'assurance IJM (indemnité journalière maladie) compense '
               'ta perte de revenu en cas de maladie. En tant '
-              'qu\'independant\u00B7e, aucune protection n\'est prevue '
-              'par defaut : c\'est a toi de t\'assurer.',
+              'qu\'indépendant\u00B7e, aucune protection n\'est prévue '
+              'par défaut : c\'est à toi de t\'assurer.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -178,7 +178,7 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton age',
+      title: 'Ton âge',
       valueLabel: '$_age ans',
       minLabel: '18 ans',
       maxLabel: '65 ans',
@@ -278,7 +278,7 @@ class _IjmScreenState extends State<IjmScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Delai de carence',
+            'Délai de carence',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -287,7 +287,7 @@ class _IjmScreenState extends State<IjmScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Periode pendant laquelle tu ne recois aucune indemnite',
+            'Période pendant laquelle tu ne reçois aucune indemnité',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -377,7 +377,7 @@ class _IjmScreenState extends State<IjmScreen> {
           Text(
             'Sans assurance IJM, tu perds '
             '${IndependantsService.formatChf(r.perteCarence)} '
-            'pendant le delai de carence de ${r.delaiCarence} jours',
+            'pendant le délai de carence de ${r.delaiCarence} jours',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.9),
@@ -410,7 +410,7 @@ class _IjmScreenState extends State<IjmScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Primes elevees apres 50 ans',
+                  'Primes élevées après 50 ans',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -419,10 +419,10 @@ class _IjmScreenState extends State<IjmScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Les primes IJM augmentent fortement avec l\'age. '
-                  'Apres 50 ans, le cout peut etre 3 a 4 fois superieur '
-                  'a celui d\'un\u00B7e assure\u00B7e de 30 ans. '
-                  'Considere un delai de carence plus long pour reduire la prime.',
+                  'Les primes IJM augmentent fortement avec l\'âge. '
+                  'Après 50 ans, le coût peut être 3 à 4 fois supérieur '
+                  'à celui d\'un\u00B7e assuré\u00B7e de 30 ans. '
+                  'Considère un délai de carence plus long pour réduire la prime.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -467,7 +467,7 @@ class _IjmScreenState extends State<IjmScreen> {
           children: [
             Expanded(
               child: _buildResultCard(
-                'Indemnite /jour',
+                'Indemnité /jour',
                 IndependantsService.formatChf(r.indemniteJournaliere),
                 Icons.today_outlined,
               ),
@@ -475,7 +475,7 @@ class _IjmScreenState extends State<IjmScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildResultCard(
-                'Tranche d\'age',
+                'Tranche d\'âge',
                 r.ageBandLabel,
                 Icons.person_outline,
                 small: true,
@@ -617,7 +617,7 @@ class _IjmScreenState extends State<IjmScreen> {
             ),
             child: Text(
               'Pendant les ${r.delaiCarence} premiers jours de maladie, '
-              'tu n\'as aucun revenu. Ensuite, tu recois '
+              'tu n\'as aucun revenu. Ensuite, tu reçois '
               '${IndependantsService.formatChf(r.indemniteJournaliere)}/jour '
               '(80% de ton revenu mensuel).',
               style: GoogleFonts.inter(
@@ -664,7 +664,7 @@ class _IjmScreenState extends State<IjmScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'STRATEGIES',
+              'STRATÉGIES',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -678,22 +678,22 @@ class _IjmScreenState extends State<IjmScreen> {
         _buildEduCard(
           Icons.savings_outlined,
           'Constitution d\'un fonds de carence',
-          'Mets de cote l\'equivalent de 3 mois de revenus pour '
-          'couvrir le delai de carence. Cela te permet de choisir '
-          'un delai de 90 jours et de reduire ta prime.',
+          'Mets de côté l\'équivalent de 3 mois de revenus pour '
+          'couvrir le délai de carence. Cela te permet de choisir '
+          'un délai de 90 jours et de réduire ta prime.',
         ),
         _buildEduCard(
           Icons.compare_arrows,
           'Comparer les offres',
           'Les primes varient fortement entre assureurs. Demande '
           'plusieurs devis et compare les conditions (exclusions, '
-          'duree des prestations, montant couvert).',
+          'durée des prestations, montant couvert).',
         ),
         _buildEduCard(
           Icons.shield_outlined,
           'Couverture LAMal insuffisante',
-          'La LAMal ne couvre que les frais medicaux, pas la perte '
-          'de gain. L\'IJM est indispensable pour proteger ton revenu.',
+          'La LAMal ne couvre que les frais médicaux, pas la perte '
+          'de gain. L\'IJM est indispensable pour protéger ton revenu.',
         ),
       ],
     );
@@ -767,10 +767,10 @@ class _IjmScreenState extends State<IjmScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les primes presentees sont des estimations basees sur des '
-              'moyennes du marche. Les primes reelles dependent de '
-              'l\'assureur, de ta profession et de ton etat de sante. '
-              'Demande un devis personnalise a un\u00B7e specialiste.',
+              'Les primes présentées sont des estimations basées sur des '
+              'moyennes du marché. Les primes réelles dépendent de '
+              'l\'assureur, de ta profession et de ton état de santé. '
+              'Demande un devis personnalisé à un\u00B7e spécialiste.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

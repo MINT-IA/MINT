@@ -67,8 +67,8 @@ class FiscalService {
     'ZG': 'Zoug',
     'FR': 'Fribourg',
     'SO': 'Soleure',
-    'BS': 'Bale-Ville',
-    'BL': 'Bale-Campagne',
+    'BS': 'Bâle-Ville',
+    'BL': 'Bâle-Campagne',
     'SH': 'Schaffhouse',
     'AR': 'Appenzell RE',
     'AI': 'Appenzell RI',
@@ -79,8 +79,8 @@ class FiscalService {
     'TI': 'Tessin',
     'VD': 'Vaud',
     'VS': 'Valais',
-    'NE': 'Neuchatel',
-    'GE': 'Geneve',
+    'NE': 'Neuchâtel',
+    'GE': 'Genève',
     'JU': 'Jura',
   };
 
@@ -239,15 +239,15 @@ class FiscalService {
     String chiffreChoc;
     if (economieAnnuelle > 0) {
       chiffreChoc =
-          'En demenageant de ${cantonNames[cantonDepart]} a ${cantonNames[cantonArrivee]}, '
-          'tu economiserais ~${formatChf(economieAnnuelle)}/an soit '
+          'En déménageant de ${cantonNames[cantonDepart]} à ${cantonNames[cantonArrivee]}, '
+          'tu économiserais ~${formatChf(economieAnnuelle)}/an soit '
           '${formatChf(economie10Ans)} sur 10 ans';
     } else if (economieAnnuelle < 0) {
       chiffreChoc =
-          'Attention : ce demenagement te couterait ~${formatChf(-economieAnnuelle)}/an '
-          'en impots supplementaires';
+          'Attention : ce déménagement te coûterait ~${formatChf(-economieAnnuelle)}/an '
+          'en impôts supplémentaires';
     } else {
-      chiffreChoc = 'Charge fiscale equivalente dans les deux cantons';
+      chiffreChoc = 'Charge fiscale équivalente dans les deux cantons';
     }
 
     return {

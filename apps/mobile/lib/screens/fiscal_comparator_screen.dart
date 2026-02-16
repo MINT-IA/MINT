@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/data/commune_data.dart';
+import 'package:mint_mobile/data/average_tax_multipliers.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
@@ -114,12 +115,22 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         etatCivil: _etatCivil,
       );
 
-      // Church tax (based on cantonal+communal income tax)
+      // Church tax (based on cantonal BASE tax, not full cantonal+communal)
       final impotCantonalCommunal =
           (_taxResult?['impotCantonalCommunal'] as double?) ?? 0.0;
+      // Get the commune multiplier to extract base cantonal tax
+      double communeMultiplier;
+      if (_commune != null && CommuneData.isLoaded) {
+        communeMultiplier =
+            CommuneData.getCommuneMultiplier(_canton, _commune!)
+                ?? AverageTaxMultipliers.get(_canton);
+      } else {
+        communeMultiplier = AverageTaxMultipliers.get(_canton);
+      }
       _churchTaxResult = WealthTaxService.estimateChurchTax(
         impotCantonalCommunal: impotCantonalCommunal,
         canton: _canton,
+        communeMultiplier: communeMultiplier,
       );
     });
   }
@@ -198,9 +209,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           fontWeight: FontWeight.w400,
         ),
         tabs: const [
-          Tab(text: 'Mon impot'),
+          Tab(text: 'Mon impôt'),
           Tab(text: '26 cantons'),
-          Tab(text: 'Demenager'),
+          Tab(text: 'Déménager'),
         ],
       ),
     );
@@ -367,7 +378,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Etat civil',
+                  'État civil',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -384,11 +395,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 segments: const [
                   ButtonSegment(
                     value: 'celibataire',
-                    label: Text('Celibataire'),
+                    label: Text('Célibataire'),
                   ),
                   ButtonSegment(
                     value: 'marie',
-                    label: Text('Marie-e'),
+                    label: Text('Marié·e'),
                   ),
                 ],
                 selected: {_etatCivil},
@@ -518,7 +529,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Membre d\'une Eglise',
+                      'Membre d\'une Église',
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -527,7 +538,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Impot ecclesiastique',
+                      'Impôt ecclésiastique',
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         color: MintColors.textMuted,
@@ -599,7 +610,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Taux effectif estime',
+                  'Taux effectif estimé',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -609,8 +620,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 const SizedBox(height: 4),
                 Text(
                   isBelow
-                      ? 'Inferieur a la moyenne suisse (~${avgAdjusted.toStringAsFixed(1)}%)'
-                      : 'Superieur a la moyenne suisse (~${avgAdjusted.toStringAsFixed(1)}%)',
+                      ? 'Inférieur à la moyenne suisse (~${avgAdjusted.toStringAsFixed(1)}%)'
+                      : 'Supérieur à la moyenne suisse (~${avgAdjusted.toStringAsFixed(1)}%)',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: isBelow ? MintColors.success : MintColors.error,
@@ -665,7 +676,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DECOMPOSITION FISCALE',
+                'DÉCOMPOSITION FISCALE',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -677,20 +688,20 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           ),
           const SizedBox(height: 16),
           _buildBreakdownRow(
-            'Impot federal',
+            'Impôt fédéral',
             tax['impotFederal'] as double,
             const Color(0xFF3B82F6),
           ),
           const SizedBox(height: 10),
           _buildBreakdownRow(
-            'Impot cantonal + communal',
+            'Impôt cantonal + communal',
             tax['impotCantonalCommunal'] as double,
             const Color(0xFF8B5CF6),
           ),
           if (_fortune > 0) ...[
             const SizedBox(height: 10),
             _buildBreakdownRow(
-              'Impot sur la fortune',
+              'Impôt sur la fortune',
               wealthTax,
               const Color(0xFFE67E22),
             ),
@@ -698,7 +709,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           if (_isChurchMember && churchTax > 0) ...[
             const SizedBox(height: 10),
             _buildBreakdownRow(
-              'Impot ecclesiastique',
+              'Impôt ecclésiastique',
               churchTax,
               const Color(0xFF16A085),
             ),
@@ -909,7 +920,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               ),
               const SizedBox(height: 6),
               Text(
-                'd\'ecart entre le canton le moins et le plus cher',
+                'd\'écart entre le canton le moins et le plus cher',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: Colors.white70,
@@ -935,7 +946,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const SizedBox(width: 8),
               Text(
                 'Revenu : ${FiscalService.formatChf(_revenuBrut)} | '
-                '${_etatCivil == 'marie' ? 'Marie-e' : 'Celibataire'}'
+                '${_etatCivil == 'marie' ? 'Marié·e' : 'Célibataire'}'
                 '${_nombreEnfants > 0 ? ' + $_nombreEnfants enfant${_nombreEnfants > 1 ? 's' : ''}' : ''}',
                 style: GoogleFonts.inter(
                   fontSize: 12,
@@ -1000,9 +1011,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Simule l\'impact fiscal d\'un demenagement entre '
-                  'deux cantons. Les parametres de revenu et situation '
-                  'familiale sont partages avec l\'onglet "Mon impot".',
+                  'Simule l\'impact fiscal d\'un déménagement entre '
+                  'deux cantons. Les paramètres de revenu et situation '
+                  'familiale sont partagés avec l\'onglet "Mon impôt".',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1136,7 +1147,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'IMPOT SUR LA FORTUNE',
+                'IMPÔT SUR LA FORTUNE',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1213,10 +1224,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           Center(
             child: Text(
               isSaving
-                  ? 'Economie fortune : ${FiscalService.formatChf(difference)}/an'
+                  ? 'Économie fortune : ${FiscalService.formatChf(difference)}/an'
                   : difference < 0
-                      ? 'Surcout fortune : ${FiscalService.formatChf(-difference)}/an'
-                      : 'Impot fortune equivalent',
+                      ? 'Surcoût fortune : ${FiscalService.formatChf(-difference)}/an'
+                      : 'Impôt fortune équivalent',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -1287,12 +1298,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   Widget _buildMoveChecklist() {
     final items = [
-      'Declarer ton depart a ta commune actuelle',
-      'S\'annoncer a la nouvelle commune dans les 14 jours',
-      'Mettre a jour l\'adresse aupres de la caisse maladie',
-      'Adapter la declaration d\'impots (prorata temporis)',
-      'Verifier les subsides LAMal du nouveau canton',
-      'Transferer les inscriptions (vehicule, ecoles, etc.)',
+      'Déclarer ton départ à ta commune actuelle',
+      'S\'annoncer à la nouvelle commune dans les 14 jours',
+      'Mettre à jour l\'adresse auprès de la caisse maladie',
+      'Adapter la déclaration d\'impôts (prorata temporis)',
+      'Vérifier les subsides LAMal du nouveau canton',
+      'Transférer les inscriptions (véhicule, écoles, etc.)',
     ];
 
     return Container(
@@ -1310,7 +1321,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHECKLIST DEMENAGEMENT',
+                'CHECKLIST DÉMÉNAGEMENT',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1396,7 +1407,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON A SAVOIR',
+              'BON À SAVOIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -1409,24 +1420,24 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.calendar_today_outlined,
-          'Date de reference : 31 decembre',
-          'Tu es impose dans le canton ou tu residais au 31 decembre '
-          'de l\'annee fiscale. Un demenagement au 30 decembre '
-          'compte pour toute l\'annee !',
+          'Date de référence : 31 décembre',
+          'Tu es imposé dans le canton où tu résidais au 31 décembre '
+          'de l\'année fiscale. Un déménagement au 30 décembre '
+          'compte pour toute l\'année !',
         ),
         _buildEduCard(
           Icons.account_balance_outlined,
           'Prorata temporis',
-          'L\'impot federal est toujours le meme. Seuls les impots '
+          'L\'impôt fédéral est toujours le même. Seuls les impôts '
           'cantonaux et communaux changent. Le prorata s\'applique '
-          'l\'annee du demenagement.',
+          'l\'année du déménagement.',
         ),
         _buildEduCard(
           Icons.home_outlined,
-          'Loyers et cout de la vie',
-          'N\'oublie pas que les economies fiscales peuvent etre '
-          'compensees par des differences de loyer et de cout de la vie. '
-          'Compare le budget global, pas seulement les impots.',
+          'Loyers et coût de la vie',
+          'N\'oublie pas que les économies fiscales peuvent être '
+          'compensées par des différences de loyer et de coût de la vie. '
+          'Compare le budget global, pas seulement les impôts.',
         ),
       ],
     );
@@ -1521,7 +1532,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 value: value,
                 isExpanded: true,
                 hint: Text(
-                  'Chef-lieu (par defaut)',
+                  'Chef-lieu (par défaut)',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textMuted,
@@ -1535,7 +1546,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   DropdownMenuItem<String?>(
                     value: null,
                     child: Text(
-                      'Chef-lieu (par defaut)',
+                      'Chef-lieu (par défaut)',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textMuted,
@@ -1578,10 +1589,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations simplifiees a but educatif — ne constitue pas '
-              'un conseil fiscal. Les taux effectifs dependent de nombreux '
-              'facteurs (deductions, fortune, commune, etc.). '
-              'Consulte un-e specialiste fiscal-e pour un calcul personnalise.',
+              'Estimations simplifiées à but éducatif — ne constitue pas '
+              'un conseil fiscal. Les taux effectifs dépendent de nombreux '
+              'facteurs (déductions, fortune, commune, etc.). '
+              'Consulte un·e spécialiste fiscal·e pour un calcul personnalisé.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

@@ -136,7 +136,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'PARCOURS INDEPENDANT',
+        'PARCOURS INDÉPENDANT',
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -170,7 +170,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Independant',
+                'Indépendant',
                 style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -209,10 +209,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'independant, tu n\'as pas de LPP '
+              'En tant qu\'indépendant, tu n\'as pas de LPP '
               'obligatoire, pas d\'IJM, et pas de LAA. Ta '
-              'protection sociale depend entierement de tes '
-              'demarches personnelles. Identifie tes lacunes.',
+              'protection sociale dépend entièrement de tes '
+              'démarches personnelles. Identifie tes lacunes.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -333,7 +333,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             _hasLpp = v;
             _compute();
           }),
-          _buildToggleRow('IJM (indemnite journaliere maladie)', _hasIjm, (v) {
+          _buildToggleRow('IJM (indemnité journalière maladie)', _hasIjm, (v) {
             _hasIjm = v;
             _compute();
           }),
@@ -579,7 +579,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Cout de ma protection complete',
+            'Coût de ma protection complète',
             style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -702,7 +702,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               Icon(Icons.people_outline, color: Colors.teal.shade700, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Cotisation AVS independant',
+                'Cotisation AVS indépendant',
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -713,9 +713,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ta cotisation AVS estimee : '
+            'Ta cotisation AVS estimée : '
             '${IndependantService.formatChf(result.cotisationAvsAnnuelle)}/an '
-            '(taux degressif pour les revenus inferieurs a CHF\u00A058\'800, '
+            '(taux dégressif pour les revenus inférieurs à CHF\u00A058\'800, '
             'puis ~10.6% au-dessus).',
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -751,7 +751,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               const Icon(Icons.savings_outlined, color: Color(0xFF4F46E5), size: 20),
               const SizedBox(width: 8),
               Text(
-                '3e pilier — plafond independant',
+                '3e pilier — plafond indépendant',
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -877,11 +877,11 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les montants presentes sont des estimations indicatives. '
-              'Les cotisations reelles dependent de ta situation '
+              'Les montants présentés sont des estimations indicatives. '
+              'Les cotisations réelles dépendent de ta situation '
               'personnelle et des offres d\'assurance disponibles. '
               'Consulte un fiduciaire ou un assureur avant toute '
-              'decision.',
+              'décision.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,
@@ -910,10 +910,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'LPP art. 4 (pas d\'obligation pour independants) / '
+          'LPP art. 4 (pas d\'obligation pour indépendants) / '
           'LPP art. 44 (affiliation volontaire) / '
           'OPP3 art. 7 (3a grand : 20% du revenu net, max 35\'280) / '
-          'LAVS art. 8 (cotisations independants) / '
+          'LAVS art. 8 (cotisations indépendants) / '
           'LAA art. 4 / LAMal',
           style: GoogleFonts.inter(
             fontSize: 11,

@@ -316,7 +316,7 @@ class LppBuybackSimulation extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Vérifier avec votre certificat LPP et un·e spécialiste en fiscalité.',
+                  'Vérifie avec ton certificat LPP et un·e spécialiste en fiscalité.',
                   style: TextStyle(fontSize: 10, color: Colors.orange, fontStyle: FontStyle.italic),
                 ),
               ],

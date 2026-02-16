@@ -347,7 +347,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      "Simulation incluant l'intérêt de la caisse (2%) et l'économie d'impôt lissée sur $_staggeringYears ans. Le rendement réel est calculé sur votre effort net réel.",
+      "Simulation incluant l'intérêt de la caisse (2%) et l'économie d'impôt lissée sur $_staggeringYears ans. Le rendement réel est calculé sur ton effort net réel.",
       style: GoogleFonts.inter(
           fontSize: 10,
           color: MintColors.textMuted,

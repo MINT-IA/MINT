@@ -1,1 +1,21 @@
 mint.db
+
+# System files
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.venv/
+services/backend/.venv/
+
+# Flutter generated
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+
+# Logs
+*.log
+tools/tax_fetch.log

@@ -3,6 +3,9 @@
 ## The Problem
 Swiss financial products are complex (Pillar 3a, LPP, tax optimization). The 22-35 segment (qualified professionals) enters peak capital formation but is paralyzed by complexity or biased advice. Existing tools ask for everything before giving anything.
 
+### Stress financier = charge mentale
+Le stress financier n'est pas qu'une affaire de chiffres, c'est une **charge mentale** qui paralyse la prise de décision. Plutôt que de "médicaliser" le problème, MINT traite la complexité comme un bruit cognitif à éliminer. La promesse JIT (Just-In-Time) vise à transformer cette anxiété en une suite d'actions simples et maîtrisées.
+
 ## The Promise: The Financial OS (Timeline-First)
 **Mint is the proactive mentor for the next generation of Swiss wealth.**
 **Tagline**: "Juste quand il faut: une explication, une action, un rappel."

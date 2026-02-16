@@ -237,8 +237,8 @@ class GenderGapService {
         title: 'Rachat LPP volontaire',
         description:
             'Un rachat volontaire permet de combler partiellement la '
-            'lacune de prevoyance tout en beneficiant d\'une deduction '
-            'fiscale. Verifiez le montant de rachat possible aupres '
+            'lacune de prévoyance tout en bénéficiant d\'une déduction '
+            'fiscale. Vérifiez le montant de rachat possible auprès '
             'de ta caisse de pension.',
         source: 'LPP art. 79b',
         icon: 'account_balance',
@@ -247,11 +247,11 @@ class GenderGapService {
 
     // 2. 3a maximise
     recs.add(const GenderGapRecommendation(
-      title: '3e pilier maximise',
+      title: '3e pilier maximisé',
       description:
-          'Versez le plafond annuel de CHF\u00A07\'056 (salaries) pour '
-          'compenser partiellement la lacune LPP. La deduction fiscale '
-          'est immediate et le capital reste disponible sous certaines '
+          'Versez le plafond annuel de CHF\u00A07\'056 (salariés) pour '
+          'compenser partiellement la lacune LPP. La déduction fiscale '
+          'est immédiate et le capital reste disponible sous certaines '
           'conditions.',
       source: 'OPP3 art. 7',
       icon: 'savings',
@@ -260,13 +260,13 @@ class GenderGapService {
     // 3. Proratisation coordination
     if (input.tauxActivite < 100 && salaireCoordonneActuel < maxSalaireCoordonne * 0.5) {
       recs.add(const GenderGapRecommendation(
-        title: 'Verifier la proratisation de la coordination',
+        title: 'Vérifier la proratisation de la coordination',
         description:
-            'Plusieurs caisses de pension proratisent la deduction '
-            'de coordination en fonction du taux d\'activite, ce qui '
-            'ameliore significativement le salaire coordonne. Discutez-en '
+            'Plusieurs caisses de pension proratisent la déduction '
+            'de coordination en fonction du taux d\'activité, ce qui '
+            'améliore significativement le salaire coordonné. Discutez-en '
             'avec ton employeur ou ta caisse de pension.',
-        source: 'LPP art. 8 / Reglement de caisse',
+        source: 'LPP art. 8 / Règlement de caisse',
         icon: 'balance',
       ));
     }
@@ -274,13 +274,13 @@ class GenderGapService {
     // 4. Augmenter taux d'activite
     if (input.tauxActivite < 80) {
       recs.add(const GenderGapRecommendation(
-        title: 'Explorer une augmentation du taux d\'activite',
+        title: 'Explorer une augmentation du taux d\'activité',
         description:
-            'Meme une augmentation de 10 a 20 points de pourcentage '
-            'du taux d\'activite peut reduire significativement la '
-            'lacune de prevoyance, surtout si la deduction de '
-            'coordination n\'est pas proratisee.',
-        source: 'Analyse prevoyance MINT',
+            'Même une augmentation de 10 à 20 points de pourcentage '
+            'du taux d\'activité peut réduire significativement la '
+            'lacune de prévoyance, surtout si la déduction de '
+            'coordination n\'est pas proratisée.',
+        source: 'Analyse prévoyance MINT',
         icon: 'trending_up',
       ));
     }
@@ -451,22 +451,22 @@ class FrontalierService {
         if (input.cantonTravail == 'GE') {
           rules.add(const FrontalierRule(
             category: 'fiscal',
-            title: 'Imposition a la source en Suisse (GE)',
+            title: 'Imposition à la source en Suisse (GE)',
             description:
-                'Les frontaliers travaillant a Geneve sont imposes a la '
-                'source en Suisse (accord CH-FR de 1983 specifique GE). '
-                'Une retenue de 4.5% est cependant reversee a la France.',
+                'Les frontaliers travaillant à Genève sont imposés à la '
+                'source en Suisse (accord CH-FR de 1983 spécifique GE). '
+                'Une retenue de 4.5% est cependant reversée à la France.',
             source: 'Accord CH-FR du 11.04.1983 / CDI CH-FR',
           ));
         } else {
           rules.add(const FrontalierRule(
             category: 'fiscal',
-            title: 'Imposition en France (residence)',
+            title: 'Imposition en France (résidence)',
             description:
-                'Les frontaliers residant en France et travaillant hors '
-                'du canton de Geneve sont imposes en France sur leurs '
-                'revenus suisses. L\'employeur ne preleve pas d\'impot '
-                'a la source.',
+                'Les frontaliers résidant en France et travaillant hors '
+                'du canton de Genève sont imposés en France sur leurs '
+                'revenus suisses. L\'employeur ne prélève pas d\'impôt '
+                'à la source.',
             source: 'CDI CH-FR art. 17 / Accord frontalier 1983',
           ));
         }
@@ -474,10 +474,10 @@ class FrontalierService {
       case PaysResidence.de:
         rules.add(const FrontalierRule(
           category: 'fiscal',
-          title: 'Imposition en Allemagne (residence)',
+          title: 'Imposition en Allemagne (résidence)',
           description:
-              'Les frontaliers residant en Allemagne sont en principe '
-              'imposes en Allemagne. La Suisse retient un impot a la '
+              'Les frontaliers résidant en Allemagne sont en principe '
+              'imposés en Allemagne. La Suisse retient un impôt à la '
               'source de max. 4.5%, imputable en Allemagne.',
           source: 'CDI CH-DE art. 15a',
         ));
@@ -487,11 +487,11 @@ class FrontalierService {
           category: 'fiscal',
           title: 'Nouvel accord fiscal CH-IT (2024)',
           description:
-              'Le nouvel accord frontalier CH-IT prevoit une imposition '
-              'concurrente : la Suisse preleve un impot a la source '
+              'Le nouvel accord frontalier CH-IT prévoit une imposition '
+              'concurrente : la Suisse prélève un impôt à la source '
               '(max. 80% du taux normal), et l\'Italie peut imposer '
-              'la difference. Verifie ta situation exacte.',
-          source: 'Accord frontalier CH-IT 2020 / entre en vigueur 2024',
+              'la différence. Vérifie ta situation exacte.',
+          source: 'Accord frontalier CH-IT 2020 / entré en vigueur 2024',
           isAlert: true,
         ));
 
@@ -500,19 +500,19 @@ class FrontalierService {
           category: 'fiscal',
           title: 'Imposition en Suisse (source)',
           description:
-              'Les frontaliers residant en Autriche sont en principe '
-              'imposes a la source en Suisse. L\'Autriche peut '
-              'egalement imposer ces revenus avec credit d\'impot.',
+              'Les frontaliers résidant en Autriche sont en principe '
+              'imposés à la source en Suisse. L\'Autriche peut '
+              'également imposer ces revenus avec crédit d\'impôt.',
           source: 'CDI CH-AT art. 15',
         ));
 
       case PaysResidence.li:
         rules.add(const FrontalierRule(
           category: 'fiscal',
-          title: 'Accord special CH-LI',
+          title: 'Accord spécial CH-LI',
           description:
-              'Les frontaliers du Liechtenstein beneficient d\'un accord '
-              'special. L\'imposition se fait generalement dans le pays '
+              'Les frontaliers du Liechtenstein bénéficient d\'un accord '
+              'spécial. L\'imposition se fait généralement dans le pays '
               'd\'emploi (Suisse). Le Liechtenstein pratique des taux bas.',
           source: 'Accord CH-LI / EEE',
         ));
@@ -529,22 +529,22 @@ class FrontalierService {
     if (isGE) {
       rules.add(const FrontalierRule(
         category: '3a',
-        title: '3e pilier : possible si quasi-resident GE',
+        title: '3e pilier : possible si quasi-résident GE',
         description:
-            'Les frontaliers travaillant a Geneve peuvent deduire '
-            'le 3e pilier s\'ils obtiennent le statut de quasi-resident '
-            '(>= 90% des revenus du menage provenant de Suisse). '
-            'Condition : passage a la declaration ordinaire.',
+            'Les frontaliers travaillant à Genève peuvent déduire '
+            'le 3e pilier s\'ils obtiennent le statut de quasi-résident '
+            '(>= 90% des revenus du ménage provenant de Suisse). '
+            'Condition : passage à la déclaration ordinaire.',
         source: 'LIPP GE art. 6 al. 1 / LIFD art. 83 al. 3',
       ));
     } else {
       rules.add(const FrontalierRule(
         category: '3a',
-        title: '3e pilier : pas de deduction possible',
+        title: '3e pilier : pas de déduction possible',
         description:
-            'En tant que frontalier impose dans ton pays de '
-            'residence, tu ne peux pas deduire les versements '
-            '3a de tes impots suisses. Le 3e pilier reste possible '
+            'En tant que frontalier imposé dans ton pays de '
+            'résidence, tu ne peux pas déduire les versements '
+            '3a de tes impôts suisses. Le 3e pilier reste possible '
             'mais sans avantage fiscal en Suisse.',
         source: 'OPP3 art. 7 / LIFD art. 33a',
         isAlert: true,
@@ -560,21 +560,21 @@ class FrontalierService {
       category: 'lpp',
       title: 'LPP : affiliation obligatoire',
       description:
-          'Les frontaliers sont obligatoirement affilies a la LPP '
-          'de leur employeur suisse, comme tout employe. Les memes '
-          'regles de cotisation et de prestation s\'appliquent.',
+          'Les frontaliers sont obligatoirement affiliés à la LPP '
+          'de leur employeur suisse, comme tout employé. Les mêmes '
+          'règles de cotisation et de prestation s\'appliquent.',
       source: 'LPP art. 2',
     ));
 
     rules.add(const FrontalierRule(
       category: 'lpp',
-      title: 'Libre passage au depart',
+      title: 'Libre passage au départ',
       description:
-          'En quittant la Suisse, ton avoir LPP est transfere '
-          'sur un compte de libre passage. Si tu resides dans '
+          'En quittant la Suisse, ton avoir LPP est transféré '
+          'sur un compte de libre passage. Si tu résides dans '
           'l\'UE/AELE, le transfert de la part obligatoire en cash '
           'n\'est pas possible (reste sur libre passage en CH). '
-          'La part surobligatoire peut etre versee.',
+          'La part surobligatoire peut être versée.',
       source: 'LFLP art. 25f / Accord CH-UE',
       isAlert: true,
     ));
@@ -588,9 +588,9 @@ class FrontalierService {
       category: 'avs',
       title: 'AVS : cotisation en Suisse',
       description:
-          'Les frontaliers cotisent a l\'AVS suisse (1er pilier). '
-          'Les periodes de cotisation en Suisse sont totalisees '
-          'avec les periodes dans ton pays de residence '
+          'Les frontaliers cotisent à l\'AVS suisse (1er pilier). '
+          'Les périodes de cotisation en Suisse sont totalisées '
+          'avec les périodes dans ton pays de résidence '
           '(${_paysLabels[input.paysResidence]}) pour le calcul '
           'de ton droit a la rente.',
       source: 'LAVS / Accord CH-UE sur la coordination',
@@ -600,11 +600,11 @@ class FrontalierService {
       category: 'avs',
       title: 'Rente AVS : calcul pro rata',
       description:
-          'Ta rente AVS suisse sera calculee proportionnellement '
-          'aux annees de cotisation en Suisse. Tu recevras '
-          'egalement une rente de ton pays de residence pour '
-          'les periodes cotisees la-bas.',
-      source: 'Reglement CE 883/2004',
+          'Ta rente AVS suisse sera calculée proportionnellement '
+          'aux années de cotisation en Suisse. Tu recevras '
+          'également une rente de ton pays de résidence pour '
+          'les périodes cotisées là-bas.',
+      source: 'Règlement CE 883/2004',
     ));
   }
 
@@ -616,10 +616,10 @@ class FrontalierService {
       isEligible: true, // depends on actual income proportion
       cantonConcerne: 'GE',
       description:
-          'Le statut de quasi-resident est accessible si au moins 90% '
-          'des revenus de ton menage proviennent de Suisse. Ce statut '
-          'te permet de passer a la declaration ordinaire et de '
-          'beneficier des memes deductions que les residents '
+          'Le statut de quasi-résident est accessible si au moins 90% '
+          'des revenus de ton ménage proviennent de Suisse. Ce statut '
+          'te permet de passer à la déclaration ordinaire et de '
+          'bénéficier des mêmes déductions que les résidents '
           '(3e pilier, frais effectifs, rachats LPP, etc.).',
       source: 'LIPP GE art. 6 / ATF 136 II 241',
     );
@@ -628,23 +628,23 @@ class FrontalierService {
   /// Build a checklist for frontaliers.
   static List<String> _buildChecklist(FrontalierInput input) {
     final checklist = <String>[
-      'Verifier ton regime fiscal exact avec un fiduciaire',
+      'Vérifier ton régime fiscal exact avec un fiduciaire',
       'Demander ton certificat de salaire annuel',
-      'Verifier les cotisations AVS (extrait de compte AVS)',
+      'Vérifier les cotisations AVS (extrait de compte AVS)',
       'Demander le certificat LPP de ta caisse de pension',
-      'Verifier les prestations en cas d\'invalidite et de deces',
+      'Vérifier les prestations en cas d\'invalidité et de décès',
     ];
 
     if (input.cantonTravail == 'GE') {
       checklist.add(
-        'Evaluer l\'interet du statut de quasi-resident (si >= 90% revenus CH)',
+        'Évaluer l\'intérêt du statut de quasi-résident (si >= 90% revenus CH)',
       );
     }
 
     checklist.addAll([
-      'Conserver les justificatifs pour la declaration dans ton pays',
-      'Verifier ta couverture maladie (LAMal ou pays de residence)',
-      'Planifier le libre passage en cas de depart de Suisse',
+      'Conserver les justificatifs pour la déclaration dans ton pays',
+      'Vérifier ta couverture maladie (LAMal ou pays de résidence)',
+      'Planifier le libre passage en cas de départ de Suisse',
     ]);
 
     return checklist;
@@ -833,51 +833,51 @@ class IndependantService {
     return [
       CoverageGapItem(
         label: 'LPP (2e pilier)',
-        description: 'Prevoyance professionnelle obligatoire pour les salaries',
+        description: 'Prévoyance professionnelle obligatoire pour les salariés',
         isCovered: input.hasLpp,
         urgency: input.hasLpp ? 'basse' : 'haute',
         recommendation: input.hasLpp
-            ? 'Tu es affilie volontairement. Verifie tes prestations.'
-            : 'Envisagez une affiliation volontaire a une caisse de pension '
+            ? 'Tu es affilié volontairement. Vérifie tes prestations.'
+            : 'Envisagez une affiliation volontaire à une caisse de pension '
                 '(fondation collective ou caisse de ta branche).',
         source: 'LPP art. 4 / art. 44',
       ),
       CoverageGapItem(
-        label: 'IJM (Indemnite journaliere maladie)',
+        label: 'IJM (Indemnité journalière maladie)',
         description: 'Couverture du revenu en cas de maladie',
         isCovered: input.hasIjm,
         urgency: input.hasIjm ? 'basse' : 'critique',
         recommendation: input.hasIjm
-            ? 'Ta couverture IJM est en place. Verifie le delai de carence '
-                'et le montant assure.'
+            ? 'Ta couverture IJM est en place. Vérifie le délai de carence '
+                'et le montant assuré.'
             : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
-                'Souscrivez une assurance IJM individuelle (indemnite journaliere '
+                'Souscrivez une assurance IJM individuelle (indemnité journalière '
                 'en cas de maladie).',
-        source: 'LAMal / Pratique independants',
+        source: 'LAMal / Pratique indépendants',
       ),
       CoverageGapItem(
         label: 'LAA (Assurance accident)',
-        description: 'Couverture en cas d\'accident professionnel ou prive',
+        description: 'Couverture en cas d\'accident professionnel ou privé',
         isCovered: input.hasLaa,
         urgency: input.hasLaa ? 'basse' : 'haute',
         recommendation: input.hasLaa
             ? 'Ta couverture accident est en place.'
             : 'Souscrivez une assurance accident individuelle. '
-                'Sans LAA, les frais medicaux et la perte de gain '
+                'Sans LAA, les frais médicaux et la perte de gain '
                 'en cas d\'accident ne sont pas couverts.',
         source: 'LAA art. 4',
       ),
       CoverageGapItem(
         label: '3e pilier (3a)',
-        description: 'Prevoyance individuelle avec avantage fiscal',
+        description: 'Prévoyance individuelle avec avantage fiscal',
         isCovered: input.has3a,
         urgency: input.has3a ? 'basse' : 'haute',
         recommendation: input.has3a
-            ? 'Verifie que tu verses le plafond '
+            ? 'Vérifie que tu verses le plafond '
                 '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}).'
             : 'Ouvrez un 3e pilier et versez le maximum '
                 '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}). '
-                'Sans LPP, le 3a est ton principal outil de prevoyance.',
+                'Sans LPP, le 3a est ton principal outil de prévoyance.',
         source: 'OPP3 art. 7',
       ),
     ];
@@ -935,33 +935,33 @@ class IndependantService {
 
     if (!input.hasIjm) {
       alerts.add(
-        'CRITIQUE : Tu n\'as pas d\'assurance IJM (indemnite '
-        'journaliere maladie). En cas de maladie, tu n\'auras '
+        'CRITIQUE : Tu n\'as pas d\'assurance IJM (indemnité '
+        'journalière maladie). En cas de maladie, tu n\'auras '
         'aucun revenu de remplacement. C\'est le risque le plus '
-        'important pour un independant.',
+        'important pour un indépendant.',
       );
     }
 
     if (!input.hasLaa) {
       alerts.add(
         'IMPORTANT : Sans assurance accident individuelle (LAA), '
-        'les frais medicaux en cas d\'accident et la perte de '
-        'gain ne sont pas couverts de maniere adequate.',
+        'les frais médicaux en cas d\'accident et la perte de '
+        'gain ne sont pas couverts de manière adéquate.',
       );
     }
 
     if (!input.hasLpp) {
       alerts.add(
-        'Ta prevoyance repose uniquement sur l\'AVS (1er pilier) '
-        'et le 3e pilier. La rente AVS seule ne couvre generalement '
-        'que 40 a 50% du dernier revenu.',
+        'Ta prévoyance repose uniquement sur l\'AVS (1er pilier) '
+        'et le 3e pilier. La rente AVS seule ne couvre généralement '
+        'que 40 à 50% du dernier revenu.',
       );
     }
 
     if (!input.has3a) {
       alerts.add(
-        'Tu ne profites pas du 3e pilier. En tant qu\'independant '
-        'sans LPP, tu peux deduire jusqu\'a '
+        'Tu ne profites pas du 3e pilier. En tant qu\'indépendant '
+        'sans LPP, tu peux déduire jusqu\'à '
         'CHF\u00A035\'280 par an (20% du revenu net).',
       );
     }
@@ -979,7 +979,7 @@ class IndependantService {
     if (!input.hasIjm) {
       recs.add(
         'Souscrire une assurance IJM individuelle : '
-        'comparer les offres (delai de carence 30, 60 ou 90 jours, '
+        'comparer les offres (délai de carence 30, 60 ou 90 jours, '
         'couverture 80% du revenu).',
       );
     }
@@ -987,14 +987,14 @@ class IndependantService {
     if (!input.hasLaa) {
       recs.add(
         'Souscrire une assurance accident individuelle (LAA) : '
-        'verifier que la couverture inclut l\'accident professionnel '
+        'vérifier que la couverture inclut l\'accident professionnel '
         'et non-professionnel.',
       );
     }
 
     if (!input.hasLpp) {
       recs.add(
-        'Explorer l\'affiliation volontaire a une caisse de pension : '
+        'Explorer l\'affiliation volontaire à une caisse de pension : '
         'fondation collective, caisse de branche, ou fondation '
         'individuelle. Comparer les conditions.',
       );
@@ -1003,20 +1003,20 @@ class IndependantService {
     if (!input.has3a) {
       recs.add(
         'Ouvrir un 3e pilier et verser le maximum annuel de '
-        '${formatChf(plafond3a)}. L\'economie fiscale est '
+        '${formatChf(plafond3a)}. L\'économie fiscale est '
         'significative.',
       );
     }
 
     // Always recommend
     recs.add(
-      'Verifier ton extrait AVS (compte individuel) pour '
-      'confirmer que toutes les annees de cotisation sont '
-      'enregistrees.',
+      'Vérifier ton extrait AVS (compte individuel) pour '
+      'confirmer que toutes les années de cotisation sont '
+      'enregistrées.',
     );
 
     recs.add(
-      'Etablir un budget previsionnel pour anticiper les '
+      'Établir un budget prévisionnel pour anticiper les '
       'cotisations sociales (AVS, IJM, LAA, 3a).',
     );
 

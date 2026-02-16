@@ -440,7 +440,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Vous pouvez combler des lacunes en cotisant volontairement dans les 5 ans suivant votre depart.',
+                          'Tu peux combler des lacunes en cotisant volontairement dans les 5 ans suivant ton depart.',
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: MintColors.textSecondary,

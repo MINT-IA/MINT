@@ -389,24 +389,26 @@ void main() {
       expect(find.byType(MainNavigationShell), findsOneWidget);
     });
 
-    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
+    testWidgets('shows bottom navigation with 4 tabs', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Tab labels appear in the bottom nav (may also appear in tab content)
-      expect(find.textContaining('MAINTENANT'), findsWidgets);
-      expect(find.textContaining('EXPLORER'), findsWidgets);
-      expect(find.textContaining('SUIVRE'), findsWidgets);
+      // Tab labels appear in the bottom nav (Sprint C10: 4-tab coach layout)
+      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.text('Agir'), findsOneWidget);
+      expect(find.text('Apprendre'), findsOneWidget);
+      expect(find.text('Profil'), findsOneWidget);
     });
 
     testWidgets('shows tab icons', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Active tab shows filled icon, others show outlined
-      expect(find.byIcon(Icons.bolt), findsOneWidget); // Active (MAINTENANT)
+      // Active tab shows filled icon (Dashboard = home), others show outlined
+      expect(find.byIcon(Icons.home), findsOneWidget); // Active (Dashboard)
+      expect(find.byIcon(Icons.flash_on_outlined), findsOneWidget);
       expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.insights_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.person_outline), findsOneWidget);
     });
 
     testWidgets('shows floating mentor FAB', (tester) async {

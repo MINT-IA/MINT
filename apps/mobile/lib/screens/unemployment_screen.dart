@@ -157,9 +157,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estime tes droits au chomage (LACI). Le calcul depend de ton '
-              'gain assure, de ton age et de la duree de cotisation au cours '
-              'des 2 dernieres annees.',
+              'Estime tes droits au chômage (LACI). Le calcul dépend de ton '
+              'gain assuré, de ton âge et de la durée de cotisation au cours '
+              'des 2 dernières années.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -176,7 +176,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildGainSlider() {
     return _buildSliderCard(
-      title: 'Gain assure mensuel',
+      title: 'Gain assuré mensuel',
       valueLabel: UnemploymentService.formatChf(_gainAssure),
       minLabel: 'CHF 0',
       maxLabel: "CHF 12'350",
@@ -193,7 +193,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton age',
+      title: 'Ton âge',
       valueLabel: '$_age ans',
       minLabel: '18 ans',
       maxLabel: '65 ans',
@@ -210,7 +210,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildMoisCotisationSlider() {
     return _buildSliderCard(
-      title: 'Mois de cotisation (2 dernieres annees)',
+      title: 'Mois de cotisation (2 dernières années)',
       valueLabel: '$_moisCotisation mois',
       minLabel: '0',
       maxLabel: '24 mois',
@@ -407,7 +407,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Non eligible',
+                  'Non éligible',
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -517,7 +517,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                 const SizedBox(height: 4),
                 Text(
                   isEnhanced
-                      ? 'Taux majore (80%) : obligation d\'entretien, '
+                      ? 'Taux majoré (80%) : obligation d\'entretien, '
                         'handicap, ou salaire < CHF 3\'797'
                       : 'Taux standard (70%) : applicable dans les '
                         'autres situations',
@@ -545,7 +545,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Indemnite /jour',
+                'Indemnité /jour',
                 UnemploymentService.formatChf(r.indemniteJournaliere),
                 Icons.today_outlined,
               ),
@@ -553,7 +553,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Indemnite /mois',
+                'Indemnité /mois',
                 UnemploymentService.formatChf(r.indemniteMensuelle),
                 Icons.calendar_month_outlined,
               ),
@@ -565,7 +565,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Gain assure retenu',
+                'Gain assuré retenu',
                 UnemploymentService.formatChf(r.gainAssureRetenu),
                 Icons.account_balance_wallet_outlined,
               ),
@@ -573,7 +573,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Delai de carence',
+                'Délai de carence',
                 '${r.delaiCarenceJours} jours',
                 Icons.hourglass_empty,
                 small: true,
@@ -639,7 +639,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               const Icon(Icons.access_time, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DUREE DES PRESTATIONS',
+                'DURÉE DES PRESTATIONS',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -665,7 +665,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                       ),
                     ),
                     Text(
-                      'indemnites journalieres',
+                      'indemnités journalières',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textSecondary,
@@ -713,10 +713,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildDurationTable() {
     final brackets = [
-      ('< 25 ans, >= 12 mois cotis.', '200 indemnites', _age < 25 && _moisCotisation >= 12),
-      ('>= 25 ans, >= 18 mois cotis.', '260 indemnites', _age >= 25 && _moisCotisation >= 18 && _age < 55),
-      ('>= 55 ans, >= 22 mois cotis.', '400 indemnites', _age >= 55 && _age < 60 && _moisCotisation >= 22),
-      ('>= 60 ans, >= 22 mois cotis.', '520 indemnites', _age >= 60 && _moisCotisation >= 22),
+      ('< 25 ans, >= 12 mois cotis.', '200 indemnités', _age < 25 && _moisCotisation >= 12),
+      ('>= 25 ans, >= 18 mois cotis.', '260 indemnités', _age >= 25 && _moisCotisation >= 18 && _age < 55),
+      ('>= 55 ans, >= 22 mois cotis.', '400 indemnités', _age >= 55 && _age < 60 && _moisCotisation >= 22),
+      ('>= 60 ans, >= 22 mois cotis.', '520 indemnités', _age >= 60 && _moisCotisation >= 22),
     ];
 
     return Column(
@@ -792,12 +792,12 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildChecklist() {
     final items = [
-      'S\'inscrire a l\'ORP des le 1er jour sans emploi',
-      'Deposer le dossier a la caisse de chomage',
+      'S\'inscrire à l\'ORP dès le 1er jour sans emploi',
+      'Déposer le dossier à la caisse de chômage',
       'Adapter le budget au nouveau revenu',
-      'Transferer l\'avoir LPP sur un compte de libre passage',
-      'Verifier les droits a une reduction de prime LAMal',
-      'Mettre a jour le budget MINT avec le nouveau revenu',
+      'Transférer l\'avoir LPP sur un compte de libre passage',
+      'Vérifier les droits à une réduction de prime LAMal',
+      'Mettre à jour le budget MINT avec le nouveau revenu',
     ];
 
     return Container(
@@ -901,7 +901,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                 size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON A SAVOIR',
+              'BON À SAVOIR',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -915,28 +915,28 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
         _buildEduCard(
           Icons.timer_outlined,
           'Inscription rapide',
-          'Inscris-toi a l\'ORP le plus tot possible. Chaque jour de retard '
-          'peut entrainer une suspension de tes indemnites.',
+          'Inscris-toi à l\'ORP le plus tôt possible. Chaque jour de retard '
+          'peut entraîner une suspension de tes indemnités.',
         ),
         _buildEduCard(
           Icons.savings_outlined,
           '3e pilier en pause',
-          'Sans revenu lucratif, tu ne peux plus cotiser au 3a. Les indemnites '
-          'de chomage ne sont pas considerees comme un revenu lucratif '
+          'Sans revenu lucratif, tu ne peux plus cotiser au 3a. Les indemnités '
+          'de chômage ne sont pas considérées comme un revenu lucratif '
           'au sens du 3e pilier.',
         ),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'LPP et chomage',
-          'Pendant le chomage, seuls les risques deces et invalidite sont '
-          'couverts par le LPP. L\'epargne vieillesse s\'arrete. '
-          'Transfere ton avoir sur un compte de libre passage.',
+          'LPP et chômage',
+          'Pendant le chômage, seuls les risques décès et invalidité sont '
+          'couverts par le LPP. L\'épargne vieillesse s\'arrête. '
+          'Transfère ton avoir sur un compte de libre passage.',
         ),
         _buildEduCard(
           Icons.health_and_safety_outlined,
-          'Reduction de prime LAMal',
-          'Avec un revenu plus bas, tu pourrais avoir droit a des subsides '
-          'LAMal. Fais la demande aupres de ton canton.',
+          'Réduction de prime LAMal',
+          'Avec un revenu plus bas, tu pourrais avoir droit à des subsides '
+          'LAMal. Fais la demande auprès de ton canton.',
         ),
       ],
     );
@@ -1010,10 +1010,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations educatives — ne constitue pas un conseil — '
-              'LACI/LPP/OPP3. Les montants presentes sont approximatifs '
-              'et dependent de ta situation personnelle. Consulte '
-              'un\u00B7e specialiste ou l\'ORP de ton canton.',
+              'Estimations éducatives — ne constitue pas un conseil — '
+              'LACI/LPP/OPP3. Les montants présentés sont approximatifs '
+              'et dépendent de ta situation personnelle. Consulte '
+              'un\u00B7e spécialiste ou l\'ORP de ton canton.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

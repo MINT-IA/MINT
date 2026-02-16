@@ -102,11 +102,11 @@ class RachatEchelonneSimulator {
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
       disclaimer:
-          'Simulation pedagogique basee sur une progressivite estimee. '
-          'Le rachat LPP est soumis a acceptation par la caisse de pension. '
-          'Blocage EPL de 3 ans apres chaque rachat (LPP art. 79b al. 3). '
-          'Consulte ta caisse de pension et un ou une specialiste '
-          'en prevoyance avant toute decision.',
+          'Simulation pédagogique basée sur une progressivité estimée. '
+          'Le rachat LPP est soumis à acceptation par la caisse de pension. '
+          'Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). '
+          'Consulte ta caisse de pension et un ou une spécialiste '
+          'en prévoyance avant toute décision.',
     );
   }
 
@@ -213,26 +213,26 @@ class LibrePassageAdvisor {
 
     // Regles communes
     checklist.add(const ChecklistItem(
-      title: 'Demander un decompte de sortie',
+      title: 'Demander un décompte de sortie',
       description:
-          'Exige un decompte detaille de ta caisse de pension '
-          'avec la repartition obligatoire / surobligatoire.',
+          'Exige un décompte détaillé de ta caisse de pension '
+          'avec la répartition obligatoire / surobligatoire.',
       urgency: ChecklistUrgency.haute,
     ));
 
     // Transfert dans les 30 jours
     if (statut == LibrePassageStatut.changementEmploi && hasNewEmployer) {
       checklist.add(const ChecklistItem(
-        title: 'Transferer ton avoir dans les 30 jours',
+        title: 'Transférer ton avoir dans les 30 jours',
         description:
-            'L\'avoir doit etre transfere a la nouvelle caisse de pension. '
-            'Communiquez les coordonnees de la nouvelle caisse a l\'ancienne.',
+            'L\'avoir doit être transféré à la nouvelle caisse de pension. '
+            'Communiquez les coordonnées de la nouvelle caisse à l\'ancienne.',
         urgency: ChecklistUrgency.critique,
       ));
 
       if (daysSinceDeparture > 20) {
         alerts.add(const LibrePassageAlert(
-          title: 'Delai de transfert bientot echu',
+          title: 'Délai de transfert bientôt échu',
           message:
               'Le transfert de ton avoir doit intervenir dans les 30 jours. '
               'Contacte ton ancienne caisse de pension rapidement.',
@@ -241,7 +241,7 @@ class LibrePassageAdvisor {
       }
 
       recommendations.add(
-        'Verifiez que le reglement de la nouvelle caisse autorise les rachats '
+        'Vérifiez que le règlement de la nouvelle caisse autorise les rachats '
         'et comparez les taux de conversion surobligatoires.',
       );
     }
@@ -251,7 +251,7 @@ class LibrePassageAdvisor {
       checklist.add(const ChecklistItem(
         title: 'Ouvrir un compte de libre passage',
         description:
-            'Sans nouvel employeur, ton avoir doit etre place sur un ou '
+            'Sans nouvel employeur, ton avoir doit être placé sur un ou '
             'deux comptes de libre passage (max. 2 selon la loi).',
         urgency: ChecklistUrgency.critique,
       ));
@@ -259,88 +259,88 @@ class LibrePassageAdvisor {
       checklist.add(const ChecklistItem(
         title: 'Choisir entre compte bancaire et police de libre passage',
         description:
-            'Le compte bancaire offre plus de flexibilite. La police '
+            'Le compte bancaire offre plus de flexibilité. La police '
             'd\'assurance peut inclure une couverture risque.',
         urgency: ChecklistUrgency.haute,
       ));
 
       recommendations.add(
-        'Comparez les taux d\'interet des fondations de libre passage '
+        'Comparez les taux d\'intérêt des fondations de libre passage '
         '(ex: Finpension, VIAC, Freizugigkeit.ch).',
       );
       recommendations.add(
-        'Scinder ton avoir en 2 comptes permet d\'echelonner '
-        'les retraits et de reduire la progressivite fiscale.',
+        'Scinder ton avoir en 2 comptes permet d\'échelonner '
+        'les retraits et de réduire la progressivité fiscale.',
       );
     }
 
     // Depart de Suisse
     if (statut == LibrePassageStatut.departSuisse) {
       checklist.add(const ChecklistItem(
-        title: 'Verifier les regles de retrait selon le pays de destination',
+        title: 'Vérifier les règles de retrait selon le pays de destination',
         description:
-            'UE/AELE : seule la part surobligatoire peut etre retiree en '
-            'especes. La part obligatoire reste en Suisse. '
+            'UE/AELE : seule la part surobligatoire peut être retirée en '
+            'espèces. La part obligatoire reste en Suisse. '
             'Hors UE/AELE : retrait total possible.',
         urgency: ChecklistUrgency.critique,
       ));
 
       checklist.add(const ChecklistItem(
-        title: 'Annoncer ton depart a la caisse de pension',
+        title: 'Annoncer ton départ à la caisse de pension',
         description:
-            'Informe ta caisse dans les 30 jours suivant ton depart.',
+            'Informe ta caisse dans les 30 jours suivant ton départ.',
         urgency: ChecklistUrgency.haute,
       ));
 
       if (daysSinceDeparture > 0 && daysSinceDeparture <= 180) {
         alerts.add(const LibrePassageAlert(
-          title: 'Transfert a effectuer dans les 6 mois',
+          title: 'Transfert à effectuer dans les 6 mois',
           message:
-              'Apres un depart de Suisse, tu disposes de 6 mois pour '
-              'transferer ton avoir ou ouvrir un compte de libre passage.',
+              'Après un départ de Suisse, tu disposes de 6 mois pour '
+              'transférer ton avoir ou ouvrir un compte de libre passage.',
           urgency: ChecklistUrgency.haute,
         ));
       }
 
       recommendations.add(
-        'En cas de depart vers l\'UE, la part obligatoire reste en Suisse '
-        'et peut etre retiree a l\'age de la retraite.',
+        'En cas de départ vers l\'UE, la part obligatoire reste en Suisse '
+        'et peut être retirée à l\'âge de la retraite.',
       );
     }
 
     // Cessation d'activite
     if (statut == LibrePassageStatut.cessationActivite) {
       checklist.add(const ChecklistItem(
-        title: 'Verifier tes droits au chomage',
+        title: 'Vérifier tes droits au chômage',
         description:
-            'En cas de chomage, ta prevoyance professionnelle continue '
-            'via la fondation institution suppletive (Fondation LPP).',
+            'En cas de chômage, ta prévoyance professionnelle continue '
+            'via la fondation institution supplétive (Fondation LPP).',
         urgency: ChecklistUrgency.haute,
       ));
 
       if (age >= 58) {
         recommendations.add(
-          'A partir de 58 ans, tu peux demander le maintien de '
-          'l\'assurance complete aupres de ton ancienne caisse de pension.',
+          'À partir de 58 ans, tu peux demander le maintien de '
+          'l\'assurance complète auprès de ton ancienne caisse de pension.',
         );
       }
     }
 
     // Avoirs oublies
     checklist.add(const ChecklistItem(
-      title: 'Rechercher des avoirs oublies',
+      title: 'Rechercher des avoirs oubliés',
       description:
           'Utilisez la Centrale du 2e pilier (sfbvg.ch) pour '
-          'rechercher d\'eventuels avoirs de libre passage oublies.',
+          'rechercher d\'éventuels avoirs de libre passage oubliés.',
       urgency: ChecklistUrgency.moyenne,
     ));
 
     // Couverture risque
     checklist.add(const ChecklistItem(
-      title: 'Verifier la couverture risque transitoire',
+      title: 'Vérifier la couverture risque transitoire',
       description:
-          'Pendant la periode de libre passage, la couverture deces '
-          'et invalidite peut etre reduite. Verifie tes contrats.',
+          'Pendant la période de libre passage, la couverture décès '
+          'et invalidité peut être réduite. Vérifie tes contrats.',
       urgency: ChecklistUrgency.haute,
     ));
 
@@ -349,11 +349,11 @@ class LibrePassageAdvisor {
       alerts: alerts,
       recommendations: recommendations,
       disclaimer:
-          'Ces informations sont pedagogiques et ne constituent pas '
-          'un conseil juridique ou financier personnalise. Les regles '
-          'dependent de ta caisse de pension et de ta situation. '
-          'Base legale : LFLP, OLP. Consultez un ou une specialiste '
-          'en prevoyance professionnelle.',
+          'Ces informations sont pédagogiques et ne constituent pas '
+          'un conseil juridique ou financier personnalisé. Les règles '
+          'dépendent de ta caisse de pension et de ta situation. '
+          'Base légale : LFLP, OLP. Consultez un ou une spécialiste '
+          'en prévoyance professionnelle.',
     );
   }
 }
@@ -431,7 +431,7 @@ class EplSimulator {
       final anneesRestantes = 3 - anneesSDepuisRachat;
       montantMax = 0;
       alerts.add(
-        'Blocage EPL : tu as effectue un rachat LPP il y a moins de '
+        'Blocage EPL : tu as effectué un rachat LPP il y a moins de '
         '3 ans. Le retrait EPL sera possible dans $anneesRestantes an(s) '
         '(LPP art. 79b al. 3).',
       );
@@ -468,19 +468,19 @@ class EplSimulator {
     // Alertes supplementaires
     if (applicable > 0 && age >= 50) {
       alerts.add(
-        'A partir de 50 ans, le montant retirable est limite. '
-        'Verifie le montant exact aupres de ta caisse de pension.',
+        'À partir de 50 ans, le montant retirable est limité. '
+        'Vérifie le montant exact auprès de ta caisse de pension.',
       );
     }
 
     if (applicable > 0) {
       alerts.add(
-        'Le retrait EPL reduit tes prestations de risque '
-        '(invalidite et deces). Verifie ta couverture residuelle.',
+        'Le retrait EPL réduit tes prestations de risque '
+        '(invalidité et décès). Vérifie ta couverture résiduelle.',
       );
       alerts.add(
-        'En cas de vente du bien immobilier, le montant retire doit etre '
-        'rembourse a la caisse de pension (obligation de remboursement).',
+        'En cas de vente du bien immobilier, le montant retiré doit être '
+        'remboursé à la caisse de pension (obligation de remboursement).',
       );
     }
 
@@ -492,12 +492,12 @@ class EplSimulator {
       reductionCapitalDeces: reductionDeces,
       alerts: alerts,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. Le montant retirable '
-          'exact depend du reglement de ta caisse de pension et de '
-          'ton avoir a 50 ans. L\'impot varie selon le canton et '
-          'la situation personnelle. Base legale : art. 30c LPP, '
+          'Simulation pédagogique à titre indicatif. Le montant retirable '
+          'exact dépend du règlement de ta caisse de pension et de '
+          'ton avoir à 50 ans. L\'impôt varie selon le canton et '
+          'la situation personnelle. Base légale : art. 30c LPP, '
           'OEPL. Consulte ta caisse de pension et un ou une '
-          'specialiste avant toute decision.',
+          'spécialiste avant toute décision.',
     );
   }
 }

@@ -153,13 +153,14 @@ void main() {
   });
 
   group('WealthTaxService.estimateChurchTax', () {
-    test('church tax basic — ZH, 10% of cantonal', () {
+    test('church tax basic — ZH, 11% of cantonal base', () {
       final result = WealthTaxService.estimateChurchTax(
         impotCantonalCommunal: 10000,
         canton: 'ZH',
       );
-      expect(result['churchTaxRate'], 0.10);
-      expect(result['impotEglise'], 1000);
+      expect(result['churchTaxRate'], 0.11);
+      // With default multiplier 1.0: base = 10000, church = 10000 * 0.11 = 1100
+      expect(result['impotEglise'], 1100);
       expect(result['isMandatory'], true);
     });
 
@@ -178,13 +179,24 @@ void main() {
       }
     });
 
-    test('church tax — BE has highest rate (15%)', () {
+    test('church tax — SG has highest rate (25%)', () {
       final result = WealthTaxService.estimateChurchTax(
         impotCantonalCommunal: 10000,
-        canton: 'BE',
+        canton: 'SG',
       );
-      expect(result['churchTaxRate'], 0.15);
-      expect(result['impotEglise'], 1500);
+      expect(result['churchTaxRate'], 0.25);
+      expect(result['impotEglise'], 2500);
+    });
+
+    test('church tax — VS has very low rate (3%)', () {
+      final result = WealthTaxService.estimateChurchTax(
+        impotCantonalCommunal: 10000,
+        canton: 'VS',
+        communeMultiplier: 2.35, // Sion
+      );
+      expect(result['churchTaxRate'], 0.03);
+      // base = 10000 / 2.35 ≈ 4255, church = 4255 * 0.03 ≈ 128
+      expect((result['impotEglise'] as double), closeTo(128, 1));
     });
 
     test('all 26 cantons have church tax rates', () {

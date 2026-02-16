@@ -20,7 +20,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
     return EducationalInsertWidget(
       title: 'Fixe vs SARON : comprendre les options',
       subtitle: 'Chaque type d\'hypothèque a ses avantages',
-      disclaimer: 'Comparaison simplifiée à titre pédagogique. Les conditions varient selon les prêteurs et votre profil. Ne constitue pas un conseil hypothécaire.',
+      disclaimer: 'Comparaison simplifiée à titre pédagogique. Les conditions varient selon les prêteurs et ton profil. Ne constitue pas un conseil hypothécaire.',
       hypotheses: const [
         'Comparaison basée sur conditions marché 2024-2026',
         'SARON = Swiss Average Rate Overnight',

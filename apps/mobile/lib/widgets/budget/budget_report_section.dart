@@ -35,7 +35,7 @@ class BudgetReportSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Votre Budget Calculé',
+                'Ton Budget Calculé',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

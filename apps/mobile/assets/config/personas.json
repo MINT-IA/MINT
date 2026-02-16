@@ -1,0 +1,92 @@
+[
+  {
+    "id": "young_professional",
+    "name": "The Young Professional",
+    "description": "High income, no debt, looking for 3a optimization.",
+    "answers": {
+      "q_birth_year": 1995,
+      "q_canton": "ZH",
+      "q_civil_status": "single",
+      "q_children": "0",
+      "q_employment_status": "employee",
+      "q_net_income_period_chf": 9500,
+      "q_pay_frequency": "monthly",
+      "q_housing_status": "renter",
+      "q_housing_cost_period_chf": 2200,
+      "q_has_consumer_debt": "no",
+      "q_emergency_fund": "yes_6months",
+      "q_savings_monthly": 2000,
+      "q_has_pension_fund": "yes",
+      "q_has_3a": "no",
+      "q_main_goal": "retirement"
+    }
+  },
+  {
+    "id": "stressed_student",
+    "name": "The Stressed Student",
+    "description": "Low income, high consumer debt, needs budget control.",
+    "answers": {
+      "q_birth_year": 2001,
+      "q_canton": "VD",
+      "q_civil_status": "single",
+      "q_children": "0",
+      "q_employment_status": "employee",
+      "q_net_income_period_chf": 3200,
+      "q_pay_frequency": "monthly",
+      "q_housing_status": "family",
+      "q_housing_cost_period_chf": 0,
+      "q_has_consumer_debt": "yes",
+      "q_emergency_fund": "no",
+      "q_savings_monthly": 100,
+      "q_has_pension_fund": "no",
+      "q_has_3a": "no",
+      "q_main_goal": "independence"
+    }
+  },
+  {
+    "id": "self_employed",
+    "name": "The Self-Employed",
+    "description": "Variable income, no LPP, high 3a ceiling.",
+    "answers": {
+      "q_birth_year": 1988,
+      "q_canton": "GE",
+      "q_civil_status": "married",
+      "q_children": "2",
+      "q_employment_status": "self_employed",
+      "q_net_income_period_chf": 12000,
+      "q_pay_frequency": "monthly",
+      "q_housing_status": "owner",
+      "q_housing_cost_period_chf": 4500,
+      "q_has_consumer_debt": "no",
+      "q_emergency_fund": "yes_3months",
+      "q_savings_monthly": 3000,
+      "q_has_pension_fund": "no",
+      "q_has_3a": "yes",
+      "q_3a_annual_contribution": 7000,
+      "q_main_goal": "real_estate"
+    }
+  },
+  {
+    "id": "family_plan",
+    "name": "The Family Plan",
+    "description": "Married, children, mortgage projects, high tax burden.",
+    "answers": {
+      "q_birth_year": 1985,
+      "q_canton": "BE",
+      "q_civil_status": "married",
+      "q_children": "2",
+      "q_employment_status": "employee",
+      "q_net_income_period_chf": 15000,
+      "q_pay_frequency": "monthly",
+      "q_housing_status": "renter",
+      "q_housing_cost_period_chf": 3500,
+      "q_has_consumer_debt": "yes",
+      "q_emergency_fund": "yes_3months",
+      "q_savings_monthly": 1500,
+      "q_has_pension_fund": "yes",
+      "q_has_3a": "yes",
+      "q_3a_annual_contribution": 14516,
+      "q_main_goal": "real_estate"
+    }
+  }
+]

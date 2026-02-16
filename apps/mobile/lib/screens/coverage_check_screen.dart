@@ -198,7 +198,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Evaluez votre protection assurantielle',
+                'Evalue ta protection assurantielle',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -233,7 +233,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Votre profil',
+            'Ton profil',
             style: GoogleFonts.outfit(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -779,7 +779,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             child: Text(
               'Cette analyse est indicative et ne constitue pas un '
               'conseil en assurance personnalise. Les primes varient '
-              'selon l\'assureur et votre profil. Consultez un '
+              'selon l\'assureur et ton profil. Consulte un '
               'spécialiste en assurances pour une evaluation complete.',
               style: GoogleFonts.inter(
                 fontSize: 12,

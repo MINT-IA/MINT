@@ -7,6 +7,80 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ---
 
+## [1.4.0] - 2026-02-09 — S20 Fiscalité cantonale
+
+### Ajouté
+
+#### Backend
+- **Comparateur cantonal** : comparaison fiscale des 26 cantons (revenu, fortune, ecclésiastique, multiplicateur communal)
+- **Simulateur de déménagement** : projection économies annuelles et 10 ans après changement de canton
+
+#### Flutter
+- **Ecran fiscal 3 onglets** : estimation (canton actuel), comparaison (ranking 26 cantons), simulation déménagement
+- Ranking interactif avec économies annuelles par canton
+- Projection 10 ans de l'impact fiscal d'un déménagement
+
+#### Fonctionnalités clés
+- Classement automatique des 26 cantons par charge fiscale selon le profil utilisateur
+- Calcul des économies annuelles pour chaque canton cible
+- Projection cumulative sur 10 ans
+
+---
+
+## [1.3.0] - 2026-02-09 — S19 Chômage + Premier emploi
+
+### Ajouté
+
+#### Backend
+- **Calculateur chômage** : indemnités LACI (70/80%), durée par âge (200-520 indemnités), délai-cadre, gain assuré max
+- **Onboarding premier emploi** : parcours structuré pour comprendre fiche de salaire, cotisations, 3a, LAMal
+- Références légales : LACI art. 28-30, OAC, LPP art. 2 (libre passage), OPP3, LAMal art. 62-64
+
+#### Flutter
+- **2 écrans** : calculateur indemnités chômage, onboarding premier emploi
+- **2 services** : unemployment_service.dart, first_job_service.dart
+- **2 widgets éducatifs** : explications LACI, guidance premier emploi
+
+#### Fonctionnalités clés
+- Calculateur d'indemnités : 70% du gain assuré (80% si enfants, handicap, ou salaire < 3'797 CHF)
+- Durée par âge et cotisations : 200 (< 25 ans), 400 (25-54 ans), 520 (55+ ans)
+- Analyseur de fiche de salaire (décryptage cotisations)
+- Guidance 3a et LAMal pour nouveaux actifs
+
+---
+
+## [1.2.0] - 2026-02-09 — S18 Indépendants complet (`5ed7c24`)
+
+### Ajouté
+
+#### Backend — 5 services
+- **AVS cotisations indépendants** : barème dégressif selon revenu (RAVS art. 21)
+- **IJM perte de gain** : indemnités journalières maladie pour indépendants (LAMal art. 67-77)
+- **3a indépendant** : plafond grand pilier 3a sans LPP (OPP3 art. 7)
+- **Dividende vs salaire** : optimisation fiscale SA/Sàrl (LIFD art. 20)
+- **LPP volontaire** : affiliation facultative pour indépendants (LPP art. 44/46)
+
+#### Flutter — 5 écrans + 1 service
+- 5 écrans dédiés aux indépendants (AVS, IJM, 3a, dividende/salaire, LPP volontaire)
+- `independants_service.dart` : logique métier Flutter miroir du backend
+
+#### Tests
+- 66 nouveaux tests backend
+- 876 tests backend au total (passed)
+
+#### Audit qualité
+- 11 divergences CRIT identifiées entre backend et Flutter
+- 7 corrigées : IJM /21.75, prime 80%, LPP max 63'540 CHF, taux d'intérêt 1.25%
+
+#### Références légales
+- RAVS art. 21 (barème AVS indépendants)
+- LAMal art. 67-77 (IJM)
+- OPP3 art. 7 (3a indépendant)
+- LIFD art. 20 (imposition dividendes)
+- LPP art. 44/46 (LPP volontaire)
+
+---
+
 ## [1.1.0] - 2026-01-18 (Swiss Hermeneutic Update)
 
 ### 🚀 Majeur
@@ -403,6 +477,6 @@ enum LifeEventType {
 
 ---
 
-**Dernière mise à jour** : 2026-01-11  
-**Version actuelle** : 1.0.0 (Spécification)  
-**Prochaine version prévue** : 1.0.0 (Implémentation) - Q1 2026
+**Dernière mise à jour** : 2026-02-09
+**Version actuelle** : 1.4.0 (S20 — Fiscalité cantonale)
+**Prochaine version prévue** : 1.5.0 (S21 — Retraite complète) - Q1 2026

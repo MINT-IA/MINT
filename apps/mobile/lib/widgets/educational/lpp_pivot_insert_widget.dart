@@ -24,7 +24,7 @@ class LppPivotInsertWidget extends StatelessWidget {
       subtitle:
           'Ton affiliation au 2e pilier détermine combien tu peux verser au 3a',
       disclaimer:
-          'Information pédagogique. Votre situation peut varier selon votre employeur et caisse de pension.',
+          'Information pédagogique. Ta situation peut varier selon ton employeur et ta caisse de pension.',
       hypotheses: const [
         'Plafonds 2026 : CHF 7\'258 (avec LPP) ou 20% du revenu (sans LPP, max 36\'288)',
         'Source : VIAC, UBS, ch.ch',

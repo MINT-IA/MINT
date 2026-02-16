@@ -184,8 +184,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: 8),
           const Text(
             'L\'impot sur le retrait en capital de prevoyance est progressif. '
-            'En repartissant vos avoirs 3a sur plusieurs comptes et en les '
-            'retirant sur differentes annees fiscales, vous reduisez le taux '
+            'En repartissant tes avoirs 3a sur plusieurs comptes et en les '
+            'retirant sur differentes annees fiscales, tu reduis le taux '
             'moyen d\'imposition. La loi autorise jusqu\'a 5 comptes 3a par '
             'personne (OPP3). Les retraits peuvent commencer des 5 ans avant '
             'l\'age de la retraite.',
@@ -431,7 +431,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'En echelonnant, vous payez CHF ${formatChf(result.economie)} '
+                    'En echelonnant, tu paies CHF ${formatChf(result.economie)} '
                     'de moins en impots.',
                     style: TextStyle(
                       fontSize: 14,

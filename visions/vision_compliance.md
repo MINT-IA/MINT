@@ -17,6 +17,12 @@ Mint adopts the spirit of Swiss rules of conduct (LSFin) and clarifications from
 - **H1 (Acquisition)**: Toute estimation fiscale en H1 est **éducative**: elle déclenche une action de compréhension dans MINT, pas un calcul officiel ni une projection de rendement.
 - **Transparence**: Chaque hook visuel (pub / social) doit inclure une micro-ligne "estimation basée sur hypothèses".
 
+## Règle "Stress ≠ santé" (Qualité & Ethique)
+- **Posture**: Le stress financier est une **charge mentale** ou un **bruit cognitif**, jamais une pathologie.
+- **Wording Proscrit**: Diagnostic, traitement, dépression, thérapie, guérir, soigner, patient.
+- **Injonctions**: Formulations impératives interdites (ex: injonctions directes). On utilise "Le conseil MINT", "Si... alors...", ou "Il est recommandé de...".
+- **Limites**: Toujours rappeler que MINT est un outil pédagogique et ne remplace pas un professionnel de santé.
+
 ## Key UX Obligations
 - **Disclaimers**: Present on the Report Screen, PDF Export, and any Simulator.
 - **Letter Models**: Any generated letter must bear a footer stating: "Template only. Not legal advice. User responsibility."

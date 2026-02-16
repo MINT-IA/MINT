@@ -2,7 +2,7 @@
 
 **Date** : 9 février 2026 (mis à jour)
 **Mode** : Claude Code Agent Teams + Dream Team parallel agents
-**Statut** : S17 shipped, S18 in progress
+**Statut** : S20 shipped, S21 next
 
 ---
 
@@ -247,7 +247,7 @@ Chaque teammate prefixe ses commits :
 
 ## SPRINT ROADMAP (actualisé 9 février 2026)
 
-### Sprints livrés (S0-S17)
+### Sprints livrés (S0-S20)
 
 | Sprint | Module | Commit | Tests |
 |--------|--------|--------|-------|
@@ -261,17 +261,17 @@ Chaque teammate prefixe ses commits :
 | S15 | LPP Deep Dive (rachat, LP, EPL) | `8259894` | +50 |
 | S16 | 3a Deep + Debt Prevention | `aa9b607` | +59 |
 | S17 | Mortgage + Real Estate (5 services) | `71460f9` | +68 |
+| S18 | Indépendants complet (5 services) | `5ed7c24` | +66 |
+| S19 | Chômage + Premier emploi | — | — |
+| S20 | Fiscalité cantonale (26 cantons) | — | — |
 
-**Total backend tests : ~810 passed**
+**Total backend tests : ~876 passed**
 **Flutter analyze : 0 errors**
 
 ### Sprints à venir
 
 | Sprint | Module | Événement de vie | Cible |
 |--------|--------|-----------------|-------|
-| **S18** | **Indépendants complet** | `selfEmployment` → L4 | AVS barème, IJM, 3a grand, div vs sal, LPP vol |
-| S19 | Chômage + Premier emploi | `jobLoss` + `firstJob` → L4 | LACI, délai-cadre, onboarding financier |
-| S20 | Fiscalité avancée 26 cantons | `cantonMove` → L4 | Comparateur fiscal intercantonal |
 | S21 | Retraite complète | `retirement` → L4 | AVS+LPP+3a: rente vs capital, planification |
 | S22 | Mariage + Naissance + Concubinage | famille → L3+ | Splitting, allocations, testament |
 

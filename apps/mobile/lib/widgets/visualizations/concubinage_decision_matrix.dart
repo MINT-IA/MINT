@@ -522,7 +522,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Le choix depend de votre situation personnelle. '
+                    'Le choix depend de ta situation personnelle. '
                     'Consultez un notaire pour une analyse complete.',
                     style: GoogleFonts.inter(
                       fontSize: 12,

@@ -1333,3 +1333,140 @@ Phase 4 (S15+)  : Actions automatisées (virement 3a, alertes épargne)
 | Docling parsing incorrect | Moyenne | Extraction vérifiable par l'user (preview + édition). Jamais d'auto-action sans confirmation. |
 | Privacy documents uploadés | Faible | Traitement local. Chiffrement at-rest. Option suppression. Jamais de stockage tiers sans consentement. |
 | Open Banking régulation | Haute | Phase S12+ = APRÈS validation juridique. CSV/PDF import d'abord (aucune régulation). |
+
+---
+
+## REVUE STRATÉGIQUE — 9 février 2026 (post S0-S15)
+
+> Audit complet après 15 sprints livrés. Identification des 8 gaps thématiques critiques
+> et cartographie exhaustive des 18 événements de vie.
+
+### ÉTAT D'AVANCEMENT POST S0-S15
+
+```
+Sprint   Chantier                                    État     Commit
+────────────────────────────────────────────────────────────────────
+S0       Fiscal MVP (6 cantons)                      ✅ FAIT
+S1       Rente vs Capital LPP                        ✅ FAIT
+S2       Invalidité / Gap                            ✅ FAIT
+S3       Auth + persistence backend                  ✅ FAIT
+S4       Analytics + Onboarding                      ✅ FAIT
+S5       Multilinguisme DE                           ✅ FAIT
+S6       RAG Phase 0 (BYOK)                          ✅ FAIT
+S7       Docling Phase 1 (certificat LPP)            ✅ FAIT
+S8       Docling Phase 2 (relevés bancaires)         ✅ FAIT
+S9       Événement : Changement emploi               ✅ FAIT  6e37675
+S10      Divorce + Succession                        ✅ FAIT
+S11      Coaching proactif                           ✅ FAIT
+S12      Segments sociologiques                      ✅ FAIT
+S13      LAMal + Franchise                           ✅ FAIT
+S14      Open Banking (bLink)                        ✅ FAIT  49c64be
+S15      LPP Deep (rachat, libre passage, EPL)       ✅ FAIT  8259894
+────────────────────────────────────────────────────────────────────
+```
+
+### MATRICE DES GAPS THÉMATIQUES
+
+| # | Thème | Couverture | Gap principal | Impact CHF |
+|---|-------|-----------|---------------|-----------|
+| G1 | **3a Deep** | 70% | Retrait fiscal, multi-comptes, assurance vs banque | 50-200k |
+| G2 | **Hypothèque** | 5% | Capacité d'achat, SARON, valeur locative, EPL | 100-500k |
+| G3 | **Indépendants** | 30% | Cotisations AVS, IJM, dividende vs salaire | 30-100k/an |
+| G4 | **Chômage** | 0% | Indemnités LACI, délai cadre, impact LPP/3a | 20-80k |
+| G5 | **Impôts avancés** | 50% | Frais effectifs, déductions oubliées, valeur locative | 5-25k/an |
+| G6 | **Prévention dette** | 25% | Caritas, ratio surendettement, remboursement | Prévention faillite |
+| G7 | **AVS avancé** | 40% | Anticipation, ajournement, rente survivant | 20-80k cumulé |
+| G8 | **Mariage / Couple** | 15% | Bonus/pénalité fiscal, optimisation couple | 5-20k/an |
+
+### 18 ÉVÉNEMENTS DE VIE — LISTE DÉFINITIVE
+
+> Réf. complète : docs/ROADMAP_EVENEMENTS_VIE.md
+
+```
+FAMILLE (5)         PROFESSIONNEL (5)    PATRIMOINE (3)
+─────────────       ──────────────────   ──────────────
+marriage            firstJob             housingPurchase
+divorce        ✅   newJob          ✅   housingSale
+birth               selfEmployment       inheritance    ✅
+concubinage         jobLoss
+deathOfRelative ✅  retirement
+
+SANTÉ (1)           MOBILITÉ (2)         CRISE (2)
+──────────          ────────────         ──────────
+disability     ✅   cantonMove           debtCrisis
+                    countryMove          donation
+```
+
+✅ = simulateur complet (L4). Reste = L0-L2 seulement.
+
+**Couverture actuelle** : 5/18 événements à L4 (28%)
+**Cible 6 mois** : 12/18 à L3-L4 (67%)
+**Cible 12 mois** : 16/18 à L3-L4 (89%)
+
+### PLANNING RÉVISÉ S16-S22
+
+```
+Sprint   Durée   Thème                                  Événements couverts
+─────────────────────────────────────────────────────────────────────────────
+S16      2 sem   3a Deep + Prévention dette              debtCrisis (L4)
+                 • Multi-comptes, retrait fiscal 3a
+                 • Fintech comparator (Frankly ajouté)
+                 • Assurance vs banque (warning jeunes)
+                 • Caritas/Dettes Conseils + ratio dette
+                 • Remboursement boule de neige/avalanche
+
+S17      2 sem   Hypothèque + Achat immobilier           housingPurchase (L4)
+                 • Capacité d'achat (règle 1/3 + 20%)
+                 • EPL multi-sources (3a + LPP)
+                 • SARON vs taux fixe
+                 • Valeur locative + déductions proprio
+                 • Amortissement direct vs indirect
+
+S18      2 sem   Indépendants complet                    selfEmployment (L4)
+                 • Cotisations AVS/AI/APG (barème réel)
+                 • IJM perte de gain
+                 • 3a grand (36'288 CHF)
+                 • Dividende vs salaire (SA/Sàrl)
+                 • LPP volontaire
+
+S19      2 sem   Chômage + Premier emploi                jobLoss (L4), firstJob (L4)
+                 • Indemnités LACI (70/80%, durée)
+                 • Impact LPP/3a pendant chômage
+                 • Onboarding "Premier emploi"
+                 • Comprendre sa fiche de salaire
+
+S20      2 sem   Impôts avancés + Déménagement           cantonMove (L4)
+                 • Frais effectifs vs forfaitaires
+                 • Top 10 déductions oubliées
+                 • Simulateur déménagement fiscal
+                 • Checklist "avant le 31 décembre"
+
+S21      2 sem   AVS avancé + Retraite                   retirement (L4)
+                 • Anticipation AVS (-6.8%/an)
+                 • Ajournement AVS (+5.2-31.5%)
+                 • Stratégie retrait 3a → LPP → AVS
+                 • Rente de survivant
+
+S22      2 sem   Mariage / Couple + Naissance             marriage (L4), birth (L4)
+                 • Bonus vs pénalité fiscale
+                 • Concubinage : zéro droit
+                 • Allocations familiales par canton
+                 • Impact temps partiel sur retraite
+─────────────────────────────────────────────────────────────────────────────
+```
+
+**Post S22** : countryMove (L3), housingSale (L3), donation (L2), concubinage (L3)
+
+### CRITÈRE DE SUCCÈS RÉVISÉ
+
+MINT sera "le meilleur système de guidance financière suisse" quand :
+
+- [ ] 16/18 événements de vie à L3+ (simulateur)
+- [ ] 8/8 gaps thématiques couverts
+- [ ] Précision fiscale < ±10% (6 cantons principaux)
+- [ ] 3 langues (FR, DE, EN) — IT en L2
+- [ ] 0 recommandation d'investissement quand dette détectée (Safe Mode)
+- [ ] Chaque écran cite sa base légale (LPP art. X, LIFD art. Y)
+- [ ] Chaque calcul a un disclaimer conforme
+- [ ] Tests : 90%+ coverage sur rules_engine
+- [ ] Liens vers aide professionnelle (Caritas, notaire, ORP) pour chaque situation de crise

@@ -12,6 +12,48 @@ Format d’entrée:
 
 ## Entries
 
+### 2026-02-08 — Agent Skills Setup (.claude/skills/)
+- **Date:** 2026-02-08
+- **Sujet:** Mise en place des Agent Skills pour standardiser le travail de la dream team
+- **Symptôme:** Les agents répétaient les mêmes erreurs (MintColors.text au lieu de textPrimary, tests sans GoRouter, commits sans format conventionnel) car les conventions n'étaient pas formalisées de manière lisible par les agents.
+- **Cause racine:** Les conventions étaient dispersées dans AGENTS.md, rules.md, et dans la mémoire du team-lead. Les agents spawned n'avaient pas accès à ces connaissances capitalisées.
+- **Fix:**
+  - Création de 5 skills dans `.claude/skills/` (format Agent Skills spec — agentskills.io)
+  - `mint-flutter-dev` : patterns Flutter, UI kit MintColors, GoRouter, Provider, checklists
+  - `mint-backend-dev` : patterns backend, rules_engine, schemas Pydantic, TestClient (pas httpx)
+  - `mint-swiss-compliance` : droit suisse (LPP, LIFD, LAVS), mots interdits, format specs
+  - `mint-test-suite` : commandes, erreurs courantes (GoRouter missing, findsOneWidget vs findsWidgets)
+  - `mint-commit` : conventional commits, scopes MINT, format PR
+  - Mise à jour AGENTS.md : chaque fiche agent référence son skill, prompts de spawn mis à jour
+  - Ajout section SKILLS dans la hiérarchie de vérité (rang 3)
+- **Test ajouté:** N/A (documentation)
+- **Doc/règle mise à jour:** AGENTS.md, AGENTS_LOG.md, `.claude/skills/*`
+- **Lien PR/commit:** Commit suivant
+
+---
+
+### 2026-02-08 — 114/114 Flutter Tests Green + 59/59 Backend Tests
+- **Date:** 2026-02-08
+- **Sujet:** Suite de tests complète verte après multiple sessions de fix
+- **Symptôme:** 11 tests Flutter échouaient, 17 tests backend échouaient
+- **Cause racine:**
+  - Flutter: Wizard V2 ajoutait q_financial_stress_check comme première question, tests pas mis à jour
+  - Flutter: GoRouter manquant dans les persona tests (MaterialApp au lieu de MaterialApp.router)
+  - Flutter: MintColors.text n'existe pas (textPrimary/textSecondary/textMuted)
+  - Flutter: Duplicate imports dans mint_ui_kit.dart, bracket cassé dans explore_tab.dart
+  - Backend: httpx.AsyncClient incompatible → TestClient(app) synchrone
+  - Backend: topActions pas paddé à 3 éléments minimum
+- **Fix:**
+  - Compilation: 4 fichiers source fixes (mint_ui_kit, comprendre_hub, theme_detail, explore_tab)
+  - Flutter tests: GoRouter setup ajouté, stress check step ajouté, findsWidgets, scrollUntilVisible
+  - Backend tests: Conversion async→sync, padding topActions, compliance test fix
+  - dart-agent a finalisé les 5 derniers (wizard_insight, persona_marc flow)
+- **Test ajouté:** apps/mobile/test/services/avs_logic_test.dart (nouveau)
+- **Doc/règle mise à jour:** Pièges documentés dans `.claude/skills/mint-test-suite/SKILL.md`
+- **Lien PR/commit:** 775a3e3, c82cf07
+
+---
+
 ### 2026-01-10 — Anti-Surendettement Feature: Privacy Pitfall Avoided
 - **Date:** 2026-01-10
 - **Sujet:** Questionnaire Risque d'Endettement (debt_risk)
@@ -156,6 +198,105 @@ ne trouvait rien → fallback heuristique en production. Les données réelles n
 
 **Fix** : Ajout d'un mapping `_codeToName` dans TaxScalesLoader avec `_resolveCantonKey()`.
 Les deux formats (code et nom complet) fonctionnent maintenant.
+
+#### CHANTIER 1 — COMPLÉTÉ ✅
+
+Le chantier 1 (Modèle fiscal MVP 6 cantons) est **terminé**.
+55 tests passent (30 Flutter + 25 Backend). Précision ±10% sur ZH/BE/LU/VD, ±30% sur BS/GE (données hétérogènes).
+
+---
+
+### 2026-02-08 — DREAM TEAM MINT CONFIGURÉE
+
+**Sujet** : Mise en place de l'agent team mode + revue critique du PLAN_ACTION_10_CHANTIERS.md
+
+#### CE QUI A ÉTÉ FAIT
+
+1. **Agent Teams activé** : `~/.claude/settings.json` → `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+2. **Settings projet** : `.claude/settings.json` créé (env + permissions safe)
+3. **AGENTS.md refondu** : Dream team avec 3 teammates + protocole + sprints séquencés
+4. **PLAN_ACTION_10_CHANTIERS.md mis à jour** : Revue critique ajoutée en section finale
+
+#### DREAM TEAM — COMPOSITION
+
+| Agent | Nom | Modèle | Rôle | Scope |
+|-------|-----|--------|------|-------|
+| Team Lead | (session principale) | Opus | Orchestre, review, merge | Tout |
+| Flutter Engineer | `dart-agent` | Sonnet | UI, widgets, screens, tests widget | `apps/mobile/` |
+| Backend Engineer | `python-agent` | Sonnet | FastAPI, rules_engine, tests pytest | `services/backend/` |
+| Expert Finance CH | `swiss-brain` | Opus | Specs, formules, cas de test, compliance, textes | `docs/`, `education/`, pas de code |
+
+#### WORKFLOW OBLIGATOIRE (chantier métier)
+
+```
+swiss-brain (spec + cas de test + textes éducatifs)
+    → python-agent (implémentation backend + tests)
+        → dart-agent (UI Flutter + tests widget)
+            → Team Lead (review + merge)
+```
+
+#### COMMENT SPAWNER (copier-coller dans un nouveau chat)
+
+**dart-agent :**
+```
+Spawn a teammate named "dart-agent" with model sonnet.
+Prompt: "Tu es le Flutter/Dart engineer de MINT. Lis AGENTS.md, rules.md et SOT.md avant d'agir.
+Tu travailles exclusivement dans apps/mobile/. Tu suis le pattern existant.
+Avant chaque changement : flutter analyze && flutter test.
+Ne touche JAMAIS au backend."
+```
+
+**python-agent :**
+```
+Spawn a teammate named "python-agent" with model sonnet.
+Prompt: "Tu es le Backend Python engineer de MINT. Lis AGENTS.md, rules.md et SOT.md avant d'agir.
+Tu travailles exclusivement dans services/backend/.
+Avant chaque changement : ruff check . && pytest -q.
+Ne touche JAMAIS au code Flutter.
+Si tu changes un contrat API → mettre à jour tools/openapi/mint.openapi.yaml ET SOT.md."
+```
+
+**swiss-brain :**
+```
+Spawn a teammate named "swiss-brain" with model opus.
+Prompt: "Tu es l'expert finance suisse et compliance de MINT.
+Lis AGENTS.md, rules.md, AGENT_SYSTEM_PROMPT.md, LEGAL_RELEASE_CHECK.md et visions/*.md.
+Tu ne codes PAS. Tu produis : specs calcul (avec sources juridiques), cas de test, textes éducatifs conformes, alertes compliance.
+Tu es le garde-fou. Si un calcul est faux ou un wording non conforme, tu bloques."
+```
+
+#### DÉCISION LLM — BYOK (Bring Your Own Key)
+
+**Rejet** du modèle "MINT paie l'API LLM".
+**Adopté** : Architecture 3 tiers :
+- **Free** : Rules engine + simulateurs + contenu statique (pas de LLM)
+- **BYOK** : L'user branche sa clé Claude/OpenAI/Mistral, MINT orchestre
+- **Local (v2)** : Ollama pour privacy-first
+
+Justification : 0 coût variable pour MINT, modèle prouvé (Cursor/Continue), l'user choisit.
+
+#### PLANNING RÉVISÉ — NEXT SPRINTS
+
+| Sprint | Chantier | État |
+|--------|----------|------|
+| S0 | Fiscal MVP 6 cantons | ✅ FAIT |
+| **S1** | **Rente vs Capital (LPP simplifié)** | **NEXT** |
+| S2 | Invalidité / Gap | Backlog |
+| S3 | Auth + persistence backend | Backlog |
+| S4 | Analytics + Onboarding | Backlog |
+| S5 | Multilinguisme DE | Backlog |
+| S6 | RAG allégé + BYOK | Backlog |
+
+#### PROBLÈMES CONNUS À REPRENDRE
+
+| Problème | Priorité | Détail |
+|----------|----------|--------|
+| BS/GE données incorrectes (seuils cumulatifs vs largeurs) | P1 | ±30% d'erreur. Normaliser dans le scraper ou détecter par canton |
+| AR, AI, SG manquants dans tax_scales.json | P2 | Noms avec caractères spéciaux cassent le scraper |
+| Pas d'auth backend | P1 (pour rétention) | Pas de persistence cross-session sans auth |
+| Pas d'analytics | P1 (pour mesure) | Impossible de mesurer l'Action Conversion à 14j |
+
+---
 
 #### DATA FORMAT — BS et GE (non résolu, toléré MVP)
 

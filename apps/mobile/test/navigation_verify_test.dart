@@ -55,13 +55,13 @@ void main() {
     await tester.tap(targetFinder);
     await tester.pumpAndSettle();
 
-    // --- DASHBOARD (NowTab) ---
-    // We look for "Bonjour" or "MAINTENANT" header (may appear multiple times)
-    expect(find.textContaining('MAINTENANT'), findsWidgets,
+    // --- DASHBOARD (CoachDashboardScreen) ---
+    // We look for "Bonjour" header (from CoachDashboardScreen)
+    expect(find.textContaining('Bonjour'), findsWidgets,
         reason: "Dashboard loaded");
-    expect(find.text('EXPLORER'), findsWidgets, reason: "Bottom Nav visible");
+    expect(find.text('Apprendre'), findsOneWidget, reason: "Bottom Nav visible");
 
-    // 3. Navigate to EXPLORER Tab
+    // 3. Navigate to APPRENDRE Tab (formerly EXPLORER)
     await tester.tap(find.byIcon(Icons.explore_outlined));
     await tester.pumpAndSettle();
 
