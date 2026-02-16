@@ -15,7 +15,7 @@ import 'package:go_router/go_router.dart';
 //    3. EVENEMENTS DE VIE — 8 life events (all 18 types covered)
 //    4. DOCUMENTS — LPP certificate upload
 //    5. ASK MINT — AI chat
-//    6. APPRENDRE — Educational hub + 3 themed learn items
+//    6. APPRENDRE — Educational hub + 5 themed learn items
 //
 //  UX upgrade:
 //    - Stagger entry animation (100ms per section)
@@ -58,7 +58,7 @@ class _ExploreTabState extends State<ExploreTab>
   }
 
   Widget _staggeredEntry({required int index, required Widget child}) {
-    const totalSlots = 7;
+    const totalSlots = 6;
     return AnimatedBuilder(
       animation: _staggerAnimation,
       builder: (context, _) {
@@ -139,8 +139,8 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.savings_outlined,
-          title: 'Maitriser mon Budget',
-          subtitle: 'Gerer mes depenses → 3 min',
+          title: 'Ma\u00eetriser mon Budget',
+          subtitle: 'G\u00e9rer mes d\u00e9penses \u2192 3 min',
           tint: MintColors.warning,
           onTap: () => context.push('/budget'),
         ),
@@ -148,7 +148,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.home_outlined,
-          title: 'Devenir Proprietaire',
+          title: 'Devenir Propri\u00e9taire',
           subtitle: 'Simuler mon achat → 5 min',
           tint: MintColors.info,
           onTap: () => context.push('/mortgage/affordability'),
@@ -157,7 +157,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.trending_down,
-          title: 'Payer Moins d\'Impots',
+          title: 'Payer Moins d\'Imp\u00f4ts',
           subtitle: 'Optimiser mon 3a → 3 min',
           tint: MintColors.success,
           onTap: () => context.push('/simulator/3a'),
@@ -166,9 +166,9 @@ class _ExploreTabState extends State<ExploreTab>
         _buildGoalCard(
           context,
           icon: Icons.beach_access_outlined,
-          title: 'Preparer ma Retraite',
+          title: 'Pr\u00e9parer ma Retraite',
           subtitle: 'Voir mon plan → 10 min',
-          tint: const Color(0xFF8B5CF6), // Purple
+          tint: MintColors.purple, // Purple
           onTap: () => context.push('/retirement'),
         ),
       ],
@@ -261,7 +261,7 @@ class _ExploreTabState extends State<ExploreTab>
             _buildSimulatorTile(
               context,
               icon: Icons.trending_up,
-              title: 'Interets Composes',
+              title: 'Int\u00e9r\u00eats Compos\u00e9s',
               subtitle: 'Voir l\'effet du temps',
               color: MintColors.success,
               route: '/simulator/compound',
@@ -269,7 +269,7 @@ class _ExploreTabState extends State<ExploreTab>
             _buildSimulatorTile(
               context,
               icon: Icons.grid_view,
-              title: 'Outils Avances',
+              title: 'Outils Avanc\u00e9s',
               subtitle: 'Tous les simulateurs',
               color: MintColors.primary,
               route: '/tools',
@@ -278,15 +278,15 @@ class _ExploreTabState extends State<ExploreTab>
               context,
               icon: Icons.directions_car_outlined,
               title: 'Leasing',
-              subtitle: 'Cout reel du leasing',
+              subtitle: 'Co\u00fbt r\u00e9el du leasing',
               color: MintColors.warning,
               route: '/simulator/leasing',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.credit_card,
-              title: 'Credit Conso',
-              subtitle: 'Cout de l\'emprunt',
+              title: 'Cr\u00e9dit Conso',
+              subtitle: 'Co\u00fbt de l\'emprunt',
               color: MintColors.error,
               route: '/simulator/credit',
             ),
@@ -301,9 +301,9 @@ class _ExploreTabState extends State<ExploreTab>
             _buildSimulatorTile(
               context,
               icon: Icons.shield_outlined,
-              title: 'Filet de Securite',
-              subtitle: 'Gap invalidite',
-              color: const Color(0xFFEA580C),
+              title: 'Filet de S\u00e9curit\u00e9',
+              subtitle: 'Gap invalidit\u00e9',
+              color: MintColors.deepOrange,
               route: '/simulator/disability-gap',
             ),
             _buildSimulatorTile(
@@ -399,14 +399,14 @@ class _ExploreTabState extends State<ExploreTab>
               icon: Icons.favorite_outline,
               title: 'Mariage',
               subtitle: 'Impact fiscal et LPP',
-              color: const Color(0xFFEC4899),
+              color: MintColors.pink,
               route: '/mariage',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.child_care,
               title: 'Naissance',
-              subtitle: 'Allocations et deductions',
+              subtitle: 'Allocations et d\u00e9ductions',
               color: MintColors.info,
               route: '/naissance',
             ),
@@ -414,8 +414,8 @@ class _ExploreTabState extends State<ExploreTab>
               context,
               icon: Icons.people_outline,
               title: 'Concubinage',
-              subtitle: 'Proteger ton couple',
-              color: const Color(0xFF8B5CF6),
+              subtitle: 'Prot\u00e9ger ton couple',
+              color: MintColors.purple,
               route: '/concubinage',
             ),
             _buildSimulatorTile(
@@ -437,25 +437,25 @@ class _ExploreTabState extends State<ExploreTab>
             _buildSimulatorTile(
               context,
               icon: Icons.home_work_outlined,
-              title: 'Vente immobiliere',
-              subtitle: 'Impot plus-value',
-              color: const Color(0xFF0891B2),
+              title: 'Vente immobili\u00e8re',
+              subtitle: 'Imp\u00f4t plus-value',
+              color: MintColors.cyan,
               route: '/life-event/housing-sale',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.card_giftcard,
               title: 'Donation',
-              subtitle: 'Fiscalite et limites',
-              color: const Color(0xFFEA580C),
+              subtitle: 'Fiscalit\u00e9 et limites',
+              color: MintColors.deepOrange,
               route: '/life-event/donation',
             ),
             _buildSimulatorTile(
               context,
               icon: Icons.flight_takeoff,
               title: 'Expatriation',
-              subtitle: 'Depart ou arrivee',
-              color: const Color(0xFF4F46E5),
+              subtitle: 'D\u00e9part ou arriv\u00e9e',
+              color: MintColors.indigo,
               route: '/expatriation',
             ),
           ],
@@ -515,7 +515,7 @@ class _ExploreTabState extends State<ExploreTab>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Extraction automatique de tes donnees \u2192',
+                        'Extraction automatique de tes donn\u00e9es \u2192',
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: MintColors.textSecondary,
@@ -704,7 +704,7 @@ class _ExploreTabState extends State<ExploreTab>
         _buildLearnItem(
           context,
           icon: Icons.calculate_outlined,
-          title: 'Fiscalite Suisse 101',
+          title: 'Fiscalit\u00e9 Suisse 101',
           duration: '7 min',
           themeId: 'fiscal',
         ),

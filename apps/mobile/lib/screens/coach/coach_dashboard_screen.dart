@@ -930,10 +930,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () {
-                // Navigate to detailed score breakdown
-                // (will be wired in a future sprint)
-              },
+              onPressed: () => context.push('/report'),
               style: TextButton.styleFrom(
                 foregroundColor: MintColors.coachAccent,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

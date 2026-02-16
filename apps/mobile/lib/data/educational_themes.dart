@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/theme/colors.dart';
 
 class EducationalTheme {
   final String id;
@@ -32,7 +33,7 @@ class EducationData {
       route: '/simulator/3a',
       reminderText: "Décembre → Dernier moment pour verser cette année",
       icon: Icons.savings_outlined,
-      color: Colors.green,
+      color: MintColors.success,
     ),
     EducationalTheme(
       id: 'lpp',
@@ -42,7 +43,7 @@ class EducationData {
       route: '/documents',
       reminderText: "Demander mon certificat LPP à mon employeur",
       icon: Icons.work_outline,
-      color: Colors.blue,
+      color: MintColors.info,
     ),
      EducationalTheme(
       id: 'avs',
@@ -52,7 +53,7 @@ class EducationData {
       route: '/retirement',
       reminderText: "Commander mon extrait sur ahv-iv.ch",
       icon: Icons.accessibility_new_outlined,
-      color: Colors.orange,
+      color: MintColors.warning,
     ),
     EducationalTheme(
       id: 'emergency',
@@ -62,7 +63,7 @@ class EducationData {
       route: '/budget',
       reminderText: "Vérifier mon épargne de sécurité chaque trimestre",
       icon: Icons.shield_outlined,
-      color: Colors.redAccent,
+      color: MintColors.error,
     ),
     EducationalTheme(
       id: 'debt',
@@ -72,7 +73,7 @@ class EducationData {
       route: '/simulator/credit',
       reminderText: "Priorité: rembourser avant d'investir",
       icon: Icons.credit_card_off_outlined,
-      color: Colors.deepOrange,
+      color: MintColors.deepOrange,
     ),
     EducationalTheme(
       id: 'mortgage',
@@ -82,7 +83,7 @@ class EducationData {
       route: '/mortgage/saron-vs-fixed',
       reminderText: "Avant renouvellement: comparer 3 mois à l'avance",
       icon: Icons.house_outlined,
-      color: Colors.indigo,
+      color: MintColors.indigo,
     ),
     EducationalTheme(
       id: 'budget',
@@ -92,7 +93,7 @@ class EducationData {
       route: '/budget', // Using budget route
       reminderText: "Revoir mon budget chaque mois",
       icon: Icons.account_balance_wallet_outlined,
-      color: Colors.teal,
+      color: MintColors.teal,
     ),
     EducationalTheme(
       id: 'lamal',
@@ -102,7 +103,7 @@ class EducationData {
       route: '/assurances/lamal',
       reminderText: "Les critères changent selon le canton",
       icon: Icons.medical_services_outlined,
-      color: Colors.pink,
+      color: MintColors.pink,
     ),
     EducationalTheme(
       id: 'fiscal',
@@ -112,7 +113,7 @@ class EducationData {
       route: '/simulator/3a',
       reminderText: "Deadline declaration fiscale : 31 mars (extensible)",
       icon: Icons.calculate_outlined,
-      color: Colors.amber,
+      color: MintColors.amber,
     ),
   ];
 

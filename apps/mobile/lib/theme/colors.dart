@@ -48,4 +48,13 @@ class MintColors {
   // Coach (MINT Coach)
   static const Color coachBubble = Color(0xFFF0F7FF);
   static const Color coachAccent = Color(0xFF007AFF);
+
+  // Extended palette (educational themes & life events)
+  static const Color purple = Color(0xFF8B5CF6);
+  static const Color pink = Color(0xFFEC4899);
+  static const Color cyan = Color(0xFF0891B2);
+  static const Color indigo = Color(0xFF4F46E5);
+  static const Color deepOrange = Color(0xFFEA580C);
+  static const Color teal = Color(0xFF0D9488);
+  static const Color amber = Color(0xFFF59E0B);
 }
