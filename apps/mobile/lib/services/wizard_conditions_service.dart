@@ -63,6 +63,46 @@ class WizardConditionsService {
           answers['q_avs_gaps'] != 'no';
     }
 
+    // 7. Logique Emploi → Fréquence de salaire
+    // Retraité(e) et Étudiant(e) n'ont pas de fréquence de salaire standard
+    if (questionId == 'q_pay_frequency') {
+      final status = answers['q_employment_status'];
+      if (status == 'retired' || status == 'student') return false;
+    }
+
+    // 8. Logique Emploi → LPP non pertinent pour étudiants
+    if (questionId == 'q_has_pension_fund') {
+      if (answers['q_employment_status'] == 'student') return false;
+    }
+
+    // 9. Logique Emploi → Rachat LPP impossible pour retraités
+    if (questionId == 'q_lpp_buyback_available') {
+      if (answers['q_employment_status'] == 'retired') return false;
+    }
+
+    // 10. Logique Logement → Pas de coût si chez parents
+    if (questionId == 'q_housing_cost_period_chf') {
+      if (answers['q_housing_status'] == 'family') return false;
+    }
+
+    // 11. Logique Âge → AVS non pertinent si < 21 ans
+    if (questionId == 'q_avs_gaps' || questionId == 'q_avs_contribution_years') {
+      final birthYear = answers['q_birth_year'];
+      if (birthYear != null) {
+        final age = DateTime.now().year - (birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0);
+        if (age < 21) return false;
+      }
+    }
+
+    // 12. Logique Âge → Rachat LPP pas avant 25 ans (épargne LPP commence à 25)
+    if (questionId == 'q_lpp_buyback_available') {
+      final birthYear = answers['q_birth_year'];
+      if (birthYear != null) {
+        final age = DateTime.now().year - (birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0);
+        if (age < 25) return false;
+      }
+    }
+
     return true; // Par défaut, on pose la question
   }
 

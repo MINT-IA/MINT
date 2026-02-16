@@ -84,6 +84,10 @@ class WizardQuestionsV2 {
                 label: 'Marié(e)', value: 'married', icon: 'favorite'),
             QuestionOption(
                 label: 'Divorcé(e)', value: 'divorced', icon: 'person_remove'),
+            QuestionOption(
+                label: 'Veuf/Veuve', value: 'widowed', icon: 'sentiment_very_dissatisfied'),
+            QuestionOption(
+                label: 'Partenariat enregistré', value: 'registered_partner', icon: 'diversity_1'),
           ],
           tags: ['profil'],
         ),
@@ -115,6 +119,10 @@ class WizardQuestionsV2 {
                 label: 'Indépendant(e)',
                 value: 'self_employed',
                 icon: 'business'),
+            QuestionOption(
+                label: 'Étudiant(e)',
+                value: 'student',
+                icon: 'school'),
             QuestionOption(
                 label: 'Sans emploi', value: 'unemployed', icon: 'person_off'),
             QuestionOption(
@@ -158,7 +166,7 @@ class WizardQuestionsV2 {
 
         WizardQuestion(
           id: 'q_housing_status',
-          title: 'Tu es... ?',
+          title: 'Quel est ton statut de logement ?',
           subtitle: 'Ton type de logement',
           type: QuestionType.choice,
           options: [
@@ -253,7 +261,7 @@ class WizardQuestionsV2 {
         WizardQuestion(
           id: 'q_has_3a',
           title: 'As-tu déjà ouvert un compte 3e pilier (3a) ?',
-          subtitle: 'C\'est le meilleur outil fiscal en Suisse.',
+          subtitle: 'C\'est l\'un des outils fiscaux les plus avantageux en Suisse.',
           type: QuestionType.choice,
           options: [
             QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
@@ -266,7 +274,7 @@ class WizardQuestionsV2 {
           id: 'q_3a_accounts_count',
           title: 'Combien de comptes 3a as-tu ?',
           subtitle:
-              '💡 Optimal : 2-3 comptes pour optimiser la fiscalité au retrait',
+              '💡 Recommandé : 2-3 comptes pour répartir la fiscalité au retrait',
           type: QuestionType.choice,
           options: [
             QuestionOption(label: 'Aucun', value: '0'),
@@ -308,17 +316,24 @@ class WizardQuestionsV2 {
 
         WizardQuestion(
           id: 'q_avs_gaps',
-          title: 'As-tu des lacunes dans ton compte AVS ?',
+          title: 'As-tu toujours cotisé à l\'AVS depuis tes 20 ans ?',
           subtitle:
-              'Commande ton extrait gratuit sur ahv-iv.ch\nChaque année manquante = -2.3% de rente AVS à vie',
+              'Études, séjour à l\'étranger, année sabbatique = année sans cotisation\n'
+              'Chaque année manquante = -2.3% de rente AVS à vie',
           type: QuestionType.choice,
           options: [
             QuestionOption(
-                label: 'Non, tout complet', value: 'no', icon: 'check_circle'),
+                label: 'Oui, sans interruption',
+                value: 'no',
+                icon: 'check_circle'),
             QuestionOption(
-                label: 'Oui, j\'ai des lacunes', value: 'yes', icon: 'warning'),
+                label: 'Non, j\'ai eu des périodes sans',
+                value: 'yes',
+                icon: 'warning'),
             QuestionOption(
-                label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
+                label: 'Je ne suis pas sûr(e)',
+                value: 'unknown',
+                icon: 'help'),
           ],
           tags: ['prevoyance', 'avs'],
         ),
@@ -326,7 +341,7 @@ class WizardQuestionsV2 {
         WizardQuestion(
           id: 'q_avs_contribution_years',
           title: 'Combien d\'années as-tu cotisé à l\'AVS ?',
-          subtitle: 'Une carrière complète en Suisse est de 44 ans.',
+          subtitle: 'Cotisation obligatoire dès 20 ans (ou dès le 1er emploi si avant).\nCarrière complète : 44 ans (hommes) / 43 ans (femmes, transition AVS21).',
           type: QuestionType.number,
           minValue: 0,
           maxValue: 44,
@@ -423,4 +438,24 @@ class WizardQuestionsV2 {
           tags: ['patrimoine', 'risk'],
         ),
       ];
+
+  /// Retourne un subtitle adapté au profil pour certaines questions
+  static String? getDynamicSubtitle(String questionId, Map<String, dynamic> answers) {
+    if (questionId == 'q_net_income_period_chf') {
+      final status = answers['q_employment_status'];
+      switch (status) {
+        case 'retired':
+          return 'Tes rentes totales (AVS + LPP + éventuels 3a)';
+        case 'unemployed':
+          return 'Tes indemnités chômage nettes';
+        case 'student':
+          return 'Ton revenu (job étudiant, bourse, soutien familial)';
+        case 'self_employed':
+          return 'Ton revenu net après charges professionnelles';
+        default:
+          return null; // Use default subtitle
+      }
+    }
+    return null;
+  }
 }

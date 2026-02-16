@@ -121,39 +121,23 @@ class _LandingScreenState extends State<LandingScreen> {
 
                           const SizedBox(height: 24),
 
-                          // Tertiary CTA — curious path
+                          // Tertiary CTA — explore path
                           Center(
-                            child: TextButton(
+                            child: OutlinedButton.icon(
                               onPressed: () {
                                 _analytics.trackCTAClick(
                                     'cta_explore', screenName: '/');
                                 context.go('/home');
                               },
-                              style: TextButton.styleFrom(
-                                foregroundColor: MintColors.textSecondary,
-                              ),
-                              child: const Text(
-                                'Je veux juste explorer',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-
-                          // Secondary CTA
-                          Center(
-                            child: TextButton(
-                              onPressed: () {
-                                _analytics.trackCTAClick(
-                                    'cta_continue', screenName: '/');
-                                context.go('/home');
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: MintColors.textMuted,
-                              ),
-                              child: const Text(
-                                'J\'ai deja un compte',
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                              icon: const Icon(Icons.explore_outlined, size: 18),
+                              label: const Text('Explorer librement'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: MintColors.textPrimary,
+                                side: const BorderSide(color: MintColors.border),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
                               ),
                             ),
                           ),

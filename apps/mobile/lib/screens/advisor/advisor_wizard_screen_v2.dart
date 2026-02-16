@@ -134,6 +134,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         _questionHistory.add(currentQuestion.id);
       }
 
+      // Auto-inference LPP : salarié avec revenu > 22'680 CHF/an = LPP obligatoire
+      _autoInferLpp();
+
       final nextQuestion =
           WizardConditionsService.getNextQuestion(currentQuestion.id, _answers);
 
@@ -162,6 +165,23 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       }
     });
   }
+
+  /// Auto-remplir q_has_pension_fund si salarié avec revenu > seuil LPP
+  void _autoInferLpp() {
+    if (_answers.containsKey('q_has_pension_fund')) return; // Déjà répondu
+    final status = _answers['q_employment_status'];
+    final income = _answers['q_net_income_period_chf'];
+    if (status == 'employee' && income != null) {
+      final monthlyIncome = (income as num).toDouble();
+      // Seuil LPP : 22'680 CHF/an (LPP art. 7)
+      if (monthlyIncome * 12 > 22680) {
+        _answers['q_has_pension_fund'] = 'yes';
+        _lppAutoInferred = true;
+      }
+    }
+  }
+
+  bool _lppAutoInferred = false;
 
   void _goBack() {
     if (_questionHistory.isNotEmpty) {
@@ -322,6 +342,22 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   Widget build(BuildContext context) {
     final currentQuestion = _questions[_currentQuestionIndex];
 
+    // Dynamic subtitle override based on profile context
+    final dynamicSubtitle = WizardQuestionsV2.getDynamicSubtitle(
+        currentQuestion.id, _answers);
+    final displayQuestion = dynamicSubtitle != null
+        ? WizardQuestion(
+            id: currentQuestion.id,
+            title: currentQuestion.title,
+            subtitle: dynamicSubtitle,
+            type: currentQuestion.type,
+            options: currentQuestion.options,
+            tags: currentQuestion.tags,
+            minValue: currentQuestion.minValue,
+            maxValue: currentQuestion.maxValue,
+          )
+        : currentQuestion;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -397,9 +433,41 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                 key: const ValueKey('wizard_scroll_view'),
                 child: Column(
                   children: [
+                    // LPP auto-inference banner
+                    if (_lppAutoInferred &&
+                        currentQuestion.id == 'q_has_pension_fund')
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 8),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: MintColors.info.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                              color: MintColors.info.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.auto_awesome,
+                                color: MintColors.info, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'En tant que salarié(e) avec un revenu > 22\'680 CHF/an, '
+                                'tu es automatiquement affilié(e) à la LPP (art. 7).',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: MintColors.textPrimary,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     WizardQuestionWidget(
-                      key: ValueKey(currentQuestion.id),
-                      question: currentQuestion,
+                      key: ValueKey(displayQuestion.id),
+                      question: displayQuestion,
                       onAnswer: _handleAnswer,
                       currentAnswer: _answers[currentQuestion.id],
                       answers: _answers,
