@@ -102,7 +102,7 @@ class DocumentDetailScreen extends StatelessWidget {
 
   Widget _buildDetailContent(BuildContext context, S? s,
       DocumentUploadResult result, DocumentProvider docProvider) {
-    final fields = result.extractedFields;
+    final lppFields = result.extractedFields.lpp;
     final confidence = (result.confidence * 100).round();
 
     return Column(
@@ -122,18 +122,18 @@ class DocumentDetailScreen extends StatelessWidget {
             _field(
               s?.documentsFieldAvoirObligatoire ??
                   'Avoir de vieillesse obligatoire',
-              fields.avoirObligatoire,
+              lppFields?.avoirObligatoire,
               'Montant accumul\u00e9 dans la part obligatoire LPP',
             ),
             _field(
               s?.documentsFieldAvoirSurobligatoire ??
                   'Avoir de vieillesse surobligatoire',
-              fields.avoirSurobligatoire,
+              lppFields?.avoirSurobligatoire,
               'Part au-del\u00e0 du minimum l\u00e9gal',
             ),
             _field(
               s?.documentsFieldAvoirTotal ?? 'Avoir de vieillesse total',
-              fields.avoirVieillesseTotal,
+              lppFields?.avoirVieillesseTotal,
               'Total de ton capital de vieillesse',
             ),
           ],
@@ -149,18 +149,18 @@ class DocumentDetailScreen extends StatelessWidget {
           fields: [
             _field(
               s?.documentsFieldSalaireAssure ?? 'Salaire assur\u00e9',
-              fields.salaireAssure,
+              lppFields?.salaireAssure,
               'Salaire sur lequel les cotisations sont calcul\u00e9es',
             ),
             _field(
               s?.documentsFieldSalaireAvs ?? 'Salaire AVS',
-              fields.salaireAvs,
+              lppFields?.salaireAvs,
               'Salaire d\u00e9terminant pour l\'AVS',
             ),
             _field(
               s?.documentsFieldDeductionCoordination ??
                   'D\u00e9duction de coordination',
-              fields.deductionCoordination,
+              lppFields?.deductionCoordination,
               'Montant d\u00e9duit pour coordonner avec l\'AVS',
             ),
           ],
@@ -177,19 +177,19 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldPercent(
               s?.documentsFieldTauxObligatoire ??
                   'Taux de conversion obligatoire',
-              fields.tauxConversionObligatoire,
+              lppFields?.tauxConversionObligatoire,
               'L\u00e9gal minimum : 6.8%',
             ),
             _fieldPercent(
               s?.documentsFieldTauxSurobligatoire ??
                   'Taux de conversion surobligatoire',
-              fields.tauxConversionSurobligatoire,
+              lppFields?.tauxConversionSurobligatoire,
               'Fix\u00e9 par ta caisse de pension',
             ),
             _fieldPercent(
               s?.documentsFieldTauxEnveloppe ??
                   'Taux de conversion enveloppe',
-              fields.tauxConversionEnveloppe,
+              lppFields?.tauxConversionEnveloppe,
               'Taux moyen pond\u00e9r\u00e9',
             ),
           ],
@@ -206,23 +206,23 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldYearly(
               s?.documentsFieldRenteInvalidite ??
                   'Rente d\'invalidit\u00e9 annuelle',
-              fields.renteInvalidite,
+              lppFields?.renteInvalidite,
               'Rente en cas d\'incapacit\u00e9 de travail',
             ),
             _field(
               s?.documentsFieldCapitalDeces ?? 'Capital-d\u00e9c\u00e8s',
-              fields.capitalDeces,
+              lppFields?.capitalDeces,
               'Montant vers\u00e9 aux b\u00e9n\u00e9ficiaires en cas de d\u00e9c\u00e8s',
             ),
             _fieldYearly(
               s?.documentsFieldRenteConjoint ??
                   'Rente de conjoint annuelle',
-              fields.renteConjoint,
+              lppFields?.renteConjoint,
               'Rente vers\u00e9e au conjoint survivant',
             ),
             _fieldYearly(
               s?.documentsFieldRenteEnfant ?? 'Rente d\'enfant annuelle',
-              fields.renteEnfant,
+              lppFields?.renteEnfant,
               'Rente vers\u00e9e par enfant',
             ),
           ],
@@ -238,7 +238,7 @@ class DocumentDetailScreen extends StatelessWidget {
           fields: [
             _field(
               s?.documentsFieldRachatMax ?? 'Rachat maximum possible',
-              fields.rachatMaximum,
+              lppFields?.rachatMaximum,
               'Montant pouvant \u00eatre rachet\u00e9 pour optimiser ta pr\u00e9voyance',
             ),
           ],
@@ -255,13 +255,13 @@ class DocumentDetailScreen extends StatelessWidget {
             _fieldYearly(
               s?.documentsFieldCotisationEmploye ??
                   'Cotisation employ\u00e9 annuelle',
-              fields.cotisationEmploye,
+              lppFields?.cotisationEmploye,
               'Ta contribution annuelle',
             ),
             _fieldYearly(
               s?.documentsFieldCotisationEmployeur ??
                   'Cotisation employeur annuelle',
-              fields.cotisationEmployeur,
+              lppFields?.cotisationEmployeur,
               'Contribution de ton employeur',
             ),
           ],

@@ -31,6 +31,7 @@ enum CoachFeature {
   coachLlm,
   scenariosEtSi,
   exportPdf,
+  vault, // Document vault — unlimited uploads
 }
 
 class SubscriptionState {

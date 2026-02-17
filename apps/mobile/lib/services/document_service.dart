@@ -5,6 +5,74 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
 // ──────────────────────────────────────────────────────────
+// Shared helper
+// ──────────────────────────────────────────────────────────
+
+/// Safely convert a dynamic JSON value to double.
+double? _toDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
+// ──────────────────────────────────────────────────────────
+// Enum: Vault Document Type
+// ──────────────────────────────────────────────────────────
+
+/// Types of documents supported by the MINT vault.
+enum VaultDocumentType {
+  lppCertificate, // Certificat de prévoyance LPP
+  salaryCertificate, // Certificat de salaire
+  pillar3aAttestation, // Attestation 3e pilier
+  insurancePolicy, // Police d'assurance (RC, ménage, vie, etc.)
+  lease, // Bail / contrat de location
+  lamalStatement, // Décompte LAMal / caisse maladie
+  other, // Autre document
+}
+
+extension VaultDocumentTypeX on VaultDocumentType {
+  String get apiValue {
+    switch (this) {
+      case VaultDocumentType.lppCertificate:
+        return 'lpp_certificate';
+      case VaultDocumentType.salaryCertificate:
+        return 'salary_certificate';
+      case VaultDocumentType.pillar3aAttestation:
+        return 'pillar_3a_attestation';
+      case VaultDocumentType.insurancePolicy:
+        return 'insurance_policy';
+      case VaultDocumentType.lease:
+        return 'lease';
+      case VaultDocumentType.lamalStatement:
+        return 'lamal_statement';
+      case VaultDocumentType.other:
+        return 'other';
+    }
+  }
+
+  static VaultDocumentType fromApi(String value) {
+    switch (value) {
+      case 'lpp_certificate':
+        return VaultDocumentType.lppCertificate;
+      case 'salary_certificate':
+        return VaultDocumentType.salaryCertificate;
+      case 'pillar_3a_attestation':
+        return VaultDocumentType.pillar3aAttestation;
+      case 'insurance_policy':
+        return VaultDocumentType.insurancePolicy;
+      case 'lease':
+        return VaultDocumentType.lease;
+      case 'lamal_statement':
+        return VaultDocumentType.lamalStatement;
+      default:
+        return VaultDocumentType.other;
+    }
+  }
+}
+
+// ──────────────────────────────────────────────────────────
 // Model: LPP Extracted Fields
 // ──────────────────────────────────────────────────────────
 
@@ -130,13 +198,447 @@ class LppExtractedFields {
   }
 
   static const int fieldsTotal = 16;
+}
 
-  static double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value);
-    return null;
+// ──────────────────────────────────────────────────────────
+// Model: Salary Extracted Fields
+// ──────────────────────────────────────────────────────────
+
+/// Fields extracted from a Swiss salary certificate (Lohnausweis).
+class SalaryExtractedFields {
+  final double? salaireBrut;
+  final double? salaireNet;
+  final double? cotisationAvs;
+  final double? cotisationLpp;
+  final double? cotisationAc;
+  final double? cotisationLamal;
+  final double? impotSource;
+  final double? fraisProfessionnels;
+  final double? allocationsEnfants;
+  final String? employeur;
+  final int? annee;
+
+  const SalaryExtractedFields({
+    this.salaireBrut,
+    this.salaireNet,
+    this.cotisationAvs,
+    this.cotisationLpp,
+    this.cotisationAc,
+    this.cotisationLamal,
+    this.impotSource,
+    this.fraisProfessionnels,
+    this.allocationsEnfants,
+    this.employeur,
+    this.annee,
+  });
+
+  factory SalaryExtractedFields.fromJson(Map<String, dynamic> json) {
+    return SalaryExtractedFields(
+      salaireBrut: _toDouble(json['salaire_brut']),
+      salaireNet: _toDouble(json['salaire_net']),
+      cotisationAvs: _toDouble(json['cotisation_avs']),
+      cotisationLpp: _toDouble(json['cotisation_lpp']),
+      cotisationAc: _toDouble(json['cotisation_ac']),
+      cotisationLamal: _toDouble(json['cotisation_lamal']),
+      impotSource: _toDouble(json['impot_source']),
+      fraisProfessionnels: _toDouble(json['frais_professionnels']),
+      allocationsEnfants: _toDouble(json['allocations_enfants']),
+      employeur: json['employeur'] as String?,
+      annee: json['annee'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (salaireBrut != null) map['salaire_brut'] = salaireBrut;
+    if (salaireNet != null) map['salaire_net'] = salaireNet;
+    if (cotisationAvs != null) map['cotisation_avs'] = cotisationAvs;
+    if (cotisationLpp != null) map['cotisation_lpp'] = cotisationLpp;
+    if (cotisationAc != null) map['cotisation_ac'] = cotisationAc;
+    if (cotisationLamal != null) map['cotisation_lamal'] = cotisationLamal;
+    if (impotSource != null) map['impot_source'] = impotSource;
+    if (fraisProfessionnels != null) {
+      map['frais_professionnels'] = fraisProfessionnels;
+    }
+    if (allocationsEnfants != null) {
+      map['allocations_enfants'] = allocationsEnfants;
+    }
+    if (employeur != null) map['employeur'] = employeur;
+    if (annee != null) map['annee'] = annee;
+    return map;
+  }
+
+  /// Number of non-null fields found.
+  int get fieldsFound {
+    int count = 0;
+    if (salaireBrut != null) count++;
+    if (salaireNet != null) count++;
+    if (cotisationAvs != null) count++;
+    if (cotisationLpp != null) count++;
+    if (cotisationAc != null) count++;
+    if (cotisationLamal != null) count++;
+    if (impotSource != null) count++;
+    if (fraisProfessionnels != null) count++;
+    if (allocationsEnfants != null) count++;
+    if (employeur != null) count++;
+    if (annee != null) count++;
+    return count;
+  }
+
+  static const int fieldsTotal = 11;
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: Pillar 3a Extracted Fields
+// ──────────────────────────────────────────────────────────
+
+/// Fields extracted from a 3a attestation.
+class Pillar3aExtractedFields {
+  final double? montantVerse;
+  final String? prestataire;
+  final int? annee;
+  final String? typeCompte; // "bank" or "insurance"
+
+  const Pillar3aExtractedFields({
+    this.montantVerse,
+    this.prestataire,
+    this.annee,
+    this.typeCompte,
+  });
+
+  factory Pillar3aExtractedFields.fromJson(Map<String, dynamic> json) {
+    return Pillar3aExtractedFields(
+      montantVerse: _toDouble(json['montant_verse']),
+      prestataire: json['prestataire'] as String?,
+      annee: json['annee'] as int?,
+      typeCompte: json['type_compte'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (montantVerse != null) map['montant_verse'] = montantVerse;
+    if (prestataire != null) map['prestataire'] = prestataire;
+    if (annee != null) map['annee'] = annee;
+    if (typeCompte != null) map['type_compte'] = typeCompte;
+    return map;
+  }
+
+  /// Number of non-null fields found.
+  int get fieldsFound {
+    int count = 0;
+    if (montantVerse != null) count++;
+    if (prestataire != null) count++;
+    if (annee != null) count++;
+    if (typeCompte != null) count++;
+    return count;
+  }
+
+  static const int fieldsTotal = 4;
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: Insurance Extracted Fields
+// ──────────────────────────────────────────────────────────
+
+/// Fields extracted from an insurance policy.
+class InsuranceExtractedFields {
+  final String? assureur;
+  final String? typeAssurance; // "RC", "menage", "vie", "maladie_complementaire"
+  final double? primeAnnuelle;
+  final double? franchise;
+  final double? couverture;
+  final String? dateDebut;
+  final String? dateFin;
+  final String? numeroPolice;
+
+  const InsuranceExtractedFields({
+    this.assureur,
+    this.typeAssurance,
+    this.primeAnnuelle,
+    this.franchise,
+    this.couverture,
+    this.dateDebut,
+    this.dateFin,
+    this.numeroPolice,
+  });
+
+  factory InsuranceExtractedFields.fromJson(Map<String, dynamic> json) {
+    return InsuranceExtractedFields(
+      assureur: json['assureur'] as String?,
+      typeAssurance: json['type_assurance'] as String?,
+      primeAnnuelle: _toDouble(json['prime_annuelle']),
+      franchise: _toDouble(json['franchise']),
+      couverture: _toDouble(json['couverture']),
+      dateDebut: json['date_debut'] as String?,
+      dateFin: json['date_fin'] as String?,
+      numeroPolice: json['numero_police'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (assureur != null) map['assureur'] = assureur;
+    if (typeAssurance != null) map['type_assurance'] = typeAssurance;
+    if (primeAnnuelle != null) map['prime_annuelle'] = primeAnnuelle;
+    if (franchise != null) map['franchise'] = franchise;
+    if (couverture != null) map['couverture'] = couverture;
+    if (dateDebut != null) map['date_debut'] = dateDebut;
+    if (dateFin != null) map['date_fin'] = dateFin;
+    if (numeroPolice != null) map['numero_police'] = numeroPolice;
+    return map;
+  }
+
+  /// Number of non-null fields found.
+  int get fieldsFound {
+    int count = 0;
+    if (assureur != null) count++;
+    if (typeAssurance != null) count++;
+    if (primeAnnuelle != null) count++;
+    if (franchise != null) count++;
+    if (couverture != null) count++;
+    if (dateDebut != null) count++;
+    if (dateFin != null) count++;
+    if (numeroPolice != null) count++;
+    return count;
+  }
+
+  static const int fieldsTotal = 8;
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: Lease Extracted Fields
+// ──────────────────────────────────────────────────────────
+
+/// Fields extracted from a lease agreement (bail).
+class LeaseExtractedFields {
+  final double? loyerNet;
+  final double? charges;
+  final double? loyerBrut;
+  final String? adresse;
+  final String? regie;
+  final int? preavisMois;
+  final String? dateDebut;
+  final String? prochaineEcheance;
+  final double? tauxHypothecaireReference;
+
+  const LeaseExtractedFields({
+    this.loyerNet,
+    this.charges,
+    this.loyerBrut,
+    this.adresse,
+    this.regie,
+    this.preavisMois,
+    this.dateDebut,
+    this.prochaineEcheance,
+    this.tauxHypothecaireReference,
+  });
+
+  factory LeaseExtractedFields.fromJson(Map<String, dynamic> json) {
+    return LeaseExtractedFields(
+      loyerNet: _toDouble(json['loyer_net']),
+      charges: _toDouble(json['charges']),
+      loyerBrut: _toDouble(json['loyer_brut']),
+      adresse: json['adresse'] as String?,
+      regie: json['regie'] as String?,
+      preavisMois: json['preavis_mois'] as int?,
+      dateDebut: json['date_debut'] as String?,
+      prochaineEcheance: json['prochaine_echeance'] as String?,
+      tauxHypothecaireReference:
+          _toDouble(json['taux_hypothecaire_reference']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (loyerNet != null) map['loyer_net'] = loyerNet;
+    if (charges != null) map['charges'] = charges;
+    if (loyerBrut != null) map['loyer_brut'] = loyerBrut;
+    if (adresse != null) map['adresse'] = adresse;
+    if (regie != null) map['regie'] = regie;
+    if (preavisMois != null) map['preavis_mois'] = preavisMois;
+    if (dateDebut != null) map['date_debut'] = dateDebut;
+    if (prochaineEcheance != null) {
+      map['prochaine_echeance'] = prochaineEcheance;
+    }
+    if (tauxHypothecaireReference != null) {
+      map['taux_hypothecaire_reference'] = tauxHypothecaireReference;
+    }
+    return map;
+  }
+
+  /// Number of non-null fields found.
+  int get fieldsFound {
+    int count = 0;
+    if (loyerNet != null) count++;
+    if (charges != null) count++;
+    if (loyerBrut != null) count++;
+    if (adresse != null) count++;
+    if (regie != null) count++;
+    if (preavisMois != null) count++;
+    if (dateDebut != null) count++;
+    if (prochaineEcheance != null) count++;
+    if (tauxHypothecaireReference != null) count++;
+    return count;
+  }
+
+  static const int fieldsTotal = 9;
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: LAMal Extracted Fields
+// ──────────────────────────────────────────────────────────
+
+/// Fields extracted from a LAMal/health insurance statement.
+class LamalExtractedFields {
+  final String? caisse;
+  final double? franchiseAnnuelle;
+  final double? primesMensuelles;
+  final double? fraisMedicaux;
+  final double? participationAssuree;
+  final double? remboursements;
+  final int? annee;
+
+  const LamalExtractedFields({
+    this.caisse,
+    this.franchiseAnnuelle,
+    this.primesMensuelles,
+    this.fraisMedicaux,
+    this.participationAssuree,
+    this.remboursements,
+    this.annee,
+  });
+
+  factory LamalExtractedFields.fromJson(Map<String, dynamic> json) {
+    return LamalExtractedFields(
+      caisse: json['caisse'] as String?,
+      franchiseAnnuelle: _toDouble(json['franchise_annuelle']),
+      primesMensuelles: _toDouble(json['primes_mensuelles']),
+      fraisMedicaux: _toDouble(json['frais_medicaux']),
+      participationAssuree: _toDouble(json['participation_assuree']),
+      remboursements: _toDouble(json['remboursements']),
+      annee: json['annee'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (caisse != null) map['caisse'] = caisse;
+    if (franchiseAnnuelle != null) {
+      map['franchise_annuelle'] = franchiseAnnuelle;
+    }
+    if (primesMensuelles != null) map['primes_mensuelles'] = primesMensuelles;
+    if (fraisMedicaux != null) map['frais_medicaux'] = fraisMedicaux;
+    if (participationAssuree != null) {
+      map['participation_assuree'] = participationAssuree;
+    }
+    if (remboursements != null) map['remboursements'] = remboursements;
+    if (annee != null) map['annee'] = annee;
+    return map;
+  }
+
+  /// Number of non-null fields found.
+  int get fieldsFound {
+    int count = 0;
+    if (caisse != null) count++;
+    if (franchiseAnnuelle != null) count++;
+    if (primesMensuelles != null) count++;
+    if (fraisMedicaux != null) count++;
+    if (participationAssuree != null) count++;
+    if (remboursements != null) count++;
+    if (annee != null) count++;
+    return count;
+  }
+
+  static const int fieldsTotal = 7;
+}
+
+// ──────────────────────────────────────────────────────────
+// Model: Vault Extracted Fields (generic wrapper)
+// ──────────────────────────────────────────────────────────
+
+/// Generic container for extracted fields from any document type.
+class VaultExtractedFields {
+  final VaultDocumentType documentType;
+  final LppExtractedFields? lpp;
+  final SalaryExtractedFields? salary;
+  final Pillar3aExtractedFields? pillar3a;
+  final InsuranceExtractedFields? insurance;
+  final LeaseExtractedFields? lease;
+  final LamalExtractedFields? lamal;
+
+  const VaultExtractedFields({
+    required this.documentType,
+    this.lpp,
+    this.salary,
+    this.pillar3a,
+    this.insurance,
+    this.lease,
+    this.lamal,
+  });
+
+  factory VaultExtractedFields.fromJson(
+      Map<String, dynamic> json, VaultDocumentType type) {
+    switch (type) {
+      case VaultDocumentType.lppCertificate:
+        return VaultExtractedFields(
+          documentType: type,
+          lpp: LppExtractedFields.fromJson(json),
+        );
+      case VaultDocumentType.salaryCertificate:
+        return VaultExtractedFields(
+          documentType: type,
+          salary: SalaryExtractedFields.fromJson(json),
+        );
+      case VaultDocumentType.pillar3aAttestation:
+        return VaultExtractedFields(
+          documentType: type,
+          pillar3a: Pillar3aExtractedFields.fromJson(json),
+        );
+      case VaultDocumentType.insurancePolicy:
+        return VaultExtractedFields(
+          documentType: type,
+          insurance: InsuranceExtractedFields.fromJson(json),
+        );
+      case VaultDocumentType.lease:
+        return VaultExtractedFields(
+          documentType: type,
+          lease: LeaseExtractedFields.fromJson(json),
+        );
+      case VaultDocumentType.lamalStatement:
+        return VaultExtractedFields(
+          documentType: type,
+          lamal: LamalExtractedFields.fromJson(json),
+        );
+      case VaultDocumentType.other:
+        return VaultExtractedFields(documentType: type);
+    }
+  }
+
+  int get fieldsFound {
+    return lpp?.fieldsFound ??
+        salary?.fieldsFound ??
+        pillar3a?.fieldsFound ??
+        insurance?.fieldsFound ??
+        lease?.fieldsFound ??
+        lamal?.fieldsFound ??
+        0;
+  }
+
+  int get fieldsTotal {
+    return lpp != null
+        ? LppExtractedFields.fieldsTotal
+        : salary != null
+            ? SalaryExtractedFields.fieldsTotal
+            : pillar3a != null
+                ? Pillar3aExtractedFields.fieldsTotal
+                : insurance != null
+                    ? InsuranceExtractedFields.fieldsTotal
+                    : lease != null
+                        ? LeaseExtractedFields.fieldsTotal
+                        : lamal != null
+                            ? LamalExtractedFields.fieldsTotal
+                            : 0;
   }
 }
 
@@ -147,8 +649,8 @@ class LppExtractedFields {
 /// Result returned after uploading and processing a document.
 class DocumentUploadResult {
   final String id;
-  final String documentType;
-  final LppExtractedFields extractedFields;
+  final VaultDocumentType documentType;
+  final VaultExtractedFields extractedFields;
   final double confidence;
   final int fieldsFound;
   final int fieldsTotal;
@@ -167,10 +669,13 @@ class DocumentUploadResult {
   factory DocumentUploadResult.fromJson(Map<String, dynamic> json) {
     final extractedMap =
         json['extracted_fields'] as Map<String, dynamic>? ?? {};
+    // Parse document type first, default to LPP for backward compatibility
+    final rawType = json['document_type'] as String? ?? 'lpp_certificate';
+    final docType = VaultDocumentTypeX.fromApi(rawType);
     return DocumentUploadResult(
       id: json['id'] as String? ?? '',
-      documentType: json['document_type'] as String? ?? 'unknown',
-      extractedFields: LppExtractedFields.fromJson(extractedMap),
+      documentType: docType,
+      extractedFields: VaultExtractedFields.fromJson(extractedMap, docType),
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
       fieldsFound: json['fields_found'] as int? ?? 0,
       fieldsTotal: json['fields_total'] as int? ?? 0,
@@ -189,7 +694,7 @@ class DocumentUploadResult {
 /// Summary of a previously uploaded document.
 class DocumentSummary {
   final String id;
-  final String documentType;
+  final VaultDocumentType documentType;
   final DateTime uploadDate;
   final double confidence;
   final int fieldsFound;
@@ -205,7 +710,8 @@ class DocumentSummary {
   factory DocumentSummary.fromJson(Map<String, dynamic> json) {
     return DocumentSummary(
       id: json['id'] as String? ?? '',
-      documentType: json['document_type'] as String? ?? 'unknown',
+      documentType: VaultDocumentTypeX.fromApi(
+          json['document_type'] as String? ?? 'other'),
       uploadDate: DateTime.tryParse(json['upload_date'] as String? ?? '') ??
           DateTime.now(),
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
@@ -392,8 +898,13 @@ class DocumentService {
 
   /// Upload a PDF document for analysis.
   ///
+  /// [type] specifies the kind of document being uploaded. Defaults to
+  /// [VaultDocumentType.lppCertificate] for backward compatibility.
   /// Returns a [DocumentUploadResult] with extracted fields and confidence.
-  Future<DocumentUploadResult> uploadDocument(File file) async {
+  Future<DocumentUploadResult> uploadDocument(
+    File file, {
+    VaultDocumentType type = VaultDocumentType.lppCertificate,
+  }) async {
     final token = await AuthService.getToken();
     final uri = Uri.parse('$_baseUrl/documents/upload');
 
@@ -401,6 +912,7 @@ class DocumentService {
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }
+    request.fields['document_type'] = type.apiValue;
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
     final streamedResponse =

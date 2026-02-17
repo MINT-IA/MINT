@@ -212,9 +212,9 @@ void main() {
       final result = DocumentUploadResult.fromJson(json);
 
       expect(result.id, 'doc-abc-123');
-      expect(result.documentType, 'lpp_certificate');
-      expect(result.extractedFields.avoirObligatoire, 120000.0);
-      expect(result.extractedFields.salaireAssure, 85000.0);
+      expect(result.documentType, VaultDocumentType.lppCertificate);
+      expect(result.extractedFields.lpp?.avoirObligatoire, 120000.0);
+      expect(result.extractedFields.lpp?.salaireAssure, 85000.0);
       expect(result.confidence, 0.92);
       expect(result.fieldsFound, 2);
       expect(result.fieldsTotal, 16);
@@ -226,7 +226,8 @@ void main() {
       final result = DocumentUploadResult.fromJson({});
 
       expect(result.id, '');
-      expect(result.documentType, 'unknown');
+      // Default to lpp_certificate for backward compatibility
+      expect(result.documentType, VaultDocumentType.lppCertificate);
       expect(result.confidence, 0.0);
       expect(result.fieldsFound, 0);
       expect(result.fieldsTotal, 0);
@@ -262,7 +263,7 @@ void main() {
       final summary = DocumentSummary.fromJson(json);
 
       expect(summary.id, 'doc-abc-123');
-      expect(summary.documentType, 'lpp_certificate');
+      expect(summary.documentType, VaultDocumentType.lppCertificate);
       expect(summary.uploadDate, DateTime.utc(2025, 6, 15, 10, 30));
       expect(summary.confidence, 0.88);
       expect(summary.fieldsFound, 12);
@@ -272,7 +273,7 @@ void main() {
       final summary = DocumentSummary.fromJson({});
 
       expect(summary.id, '');
-      expect(summary.documentType, 'unknown');
+      expect(summary.documentType, VaultDocumentType.other);
       expect(summary.confidence, 0.0);
       expect(summary.fieldsFound, 0);
     });

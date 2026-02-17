@@ -29,16 +29,29 @@ class DocumentProvider extends ChangeNotifier {
   String? get error => _error;
   int get documentCount => _documents.length;
 
+  /// Returns documents filtered by [type].
+  List<DocumentSummary> documentsOfType(VaultDocumentType type) =>
+      _documents.where((d) => d.documentType == type).toList();
+
+  /// Returns the count of documents matching [type].
+  int countOfType(VaultDocumentType type) =>
+      _documents.where((d) => d.documentType == type).length;
+
   // ──────────────────────────────────────────────────────────
   // Upload
   // ──────────────────────────────────────────────────────────
 
   /// Upload a document from the given file path.
   ///
+  /// [type] specifies the kind of document being uploaded. Defaults to
+  /// [VaultDocumentType.lppCertificate] for backward compatibility.
   /// Sets [isUploading] to true during the upload.
   /// On success, sets [lastUploadResult] and refreshes the document list.
   /// On failure, sets [error].
-  Future<void> uploadDocument(String filePath) async {
+  Future<void> uploadDocument(
+    String filePath, {
+    VaultDocumentType type = VaultDocumentType.lppCertificate,
+  }) async {
     _isUploading = true;
     _error = null;
     _lastUploadResult = null;
@@ -46,7 +59,7 @@ class DocumentProvider extends ChangeNotifier {
 
     try {
       final file = File(filePath);
-      final result = await _service.uploadDocument(file);
+      final result = await _service.uploadDocument(file, type: type);
       _lastUploadResult = result;
       // Refresh documents list after upload
       await _loadDocumentsSilently();
