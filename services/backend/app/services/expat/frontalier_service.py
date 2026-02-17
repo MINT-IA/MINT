@@ -32,7 +32,6 @@ from app.constants.social_insurance import (
     AC_COTISATION_SOLIDARITE_SALARIE,
     AC_PLAFOND_SALAIRE_ASSURE,
     LPP_DEDUCTION_COORDINATION,
-    LPP_SEUIL_ENTREE,
     LPP_SALAIRE_MAX,
     LPP_BONIFICATIONS_DICT,
     get_lpp_bonification_rate,

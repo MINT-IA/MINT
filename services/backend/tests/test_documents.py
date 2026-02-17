@@ -12,7 +12,6 @@ Tests the 6 routes in /api/v1/documents:
 Uses mocked docling dependencies so tests run without pdfplumber/docling installed.
 """
 
-import io
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional

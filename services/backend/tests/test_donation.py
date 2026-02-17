@@ -20,12 +20,8 @@ import pytest
 from app.services.donation_service import (
     DonationService,
     DonationInput,
-    DonationResult,
-    DISCLAIMER,
-    SOURCES,
     TAUX_DONATION_CANTONAL,
     TAUX_DONATION_DEFAULT,
-    RESERVES_2023,
 )
 
 

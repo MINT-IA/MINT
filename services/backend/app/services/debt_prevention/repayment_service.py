@@ -14,8 +14,7 @@ Sprint S16 — Gap G6: Prevention dette.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
-from copy import deepcopy
+from typing import List
 
 
 DISCLAIMER = (

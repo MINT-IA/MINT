@@ -4,9 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// A single chat message in the Ask MINT conversation.
@@ -761,6 +765,110 @@ class _AskMintScreenState extends State<AskMintScreen> {
   // Actions
   // ──────────────────────────────────────────────────────────
 
+  /// Build a rich financial summary from Profile + CoachProfile data
+  /// for injection into the LLM system prompt.
+  String _buildFinancialSummary(Profile profile, CoachProfile? coachProfile) {
+    final parts = <String>[];
+    final age = profile.birthYear != null
+        ? DateTime.now().year - profile.birthYear!
+        : null;
+
+    // Basic profile
+    if (age != null) parts.add('Age : $age ans');
+    if (profile.canton != null) parts.add('Canton : ${profile.canton}');
+    parts.add('Ménage : ${profile.householdType.name}');
+    if (profile.employmentStatus != null) {
+      parts.add('Statut : ${profile.employmentStatus!.value}');
+    }
+    if (profile.incomeNetMonthly != null && profile.incomeNetMonthly! > 0) {
+      parts.add('Revenu net mensuel : ${profile.incomeNetMonthly!.toStringAsFixed(0)} CHF');
+    }
+    if (profile.hasDebt) parts.add('A des dettes');
+
+    // CoachProfile data (from wizard)
+    if (coachProfile != null) {
+      if (coachProfile.salaireBrutMensuel > 0) {
+        parts.add('Salaire brut mensuel : ${coachProfile.salaireBrutMensuel.toStringAsFixed(0)} CHF');
+      }
+
+      // Prévoyance
+      final prev = coachProfile.prevoyance;
+      if (prev.totalEpargne3a > 0) parts.add('Avoir 3a : ${prev.totalEpargne3a.toStringAsFixed(0)} CHF');
+      if (prev.nombre3a > 0) parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
+      if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
+        parts.add('Avoir LPP : ${prev.avoirLppTotal!.toStringAsFixed(0)} CHF');
+      }
+      if (prev.lacuneRachatRestante > 0) {
+        parts.add('Lacune rachat LPP : ${prev.lacuneRachatRestante.toStringAsFixed(0)} CHF');
+      }
+
+      // Patrimoine
+      final pat = coachProfile.patrimoine;
+      if (pat.totalPatrimoine > 0) parts.add('Patrimoine total : ${pat.totalPatrimoine.toStringAsFixed(0)} CHF');
+      if (pat.immobilier != null && pat.immobilier! > 0) parts.add('Immobilier : ${pat.immobilier!.toStringAsFixed(0)} CHF');
+
+      // Dettes
+      if (coachProfile.dettes.totalDettes > 0) {
+        parts.add('Total dettes : ${coachProfile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+      }
+
+      // Dépenses
+      final dep = coachProfile.depenses;
+      if (dep.loyer > 0) parts.add('Loyer : ${dep.loyer.toStringAsFixed(0)} CHF/mois');
+      if (dep.assuranceMaladie > 0) parts.add('Assurance maladie : ${dep.assuranceMaladie.toStringAsFixed(0)} CHF/mois');
+
+      // Planned contributions
+      if (coachProfile.plannedContributions.isNotEmpty) {
+        final contribs = coachProfile.plannedContributions
+            .map((c) => '${c.label} (${c.amount.toStringAsFixed(0)} CHF/mois)')
+            .join(', ');
+        parts.add('Versements planifiés : $contribs');
+      }
+
+      // Check-ins (last 3)
+      if (coachProfile.checkIns.isNotEmpty) {
+        final recent = coachProfile.checkIns.length > 3
+            ? coachProfile.checkIns.sublist(coachProfile.checkIns.length - 3)
+            : coachProfile.checkIns;
+        final checkInSummary = recent.map((ci) {
+          final month = '${ci.month.month}/${ci.month.year}';
+          return '$month: ${ci.totalVersements.toStringAsFixed(0)} CHF versés';
+        }).join(', ');
+        parts.add('Derniers check-ins : $checkInSummary');
+        parts.add('Série : ${coachProfile.checkIns.length} check-in(s)');
+      }
+
+      // Financial fitness score
+      try {
+        final fitness = FinancialFitnessService.calculate(profile: coachProfile);
+        parts.add('Score fitness financier : ${fitness.global}/100 '
+            '(Budget ${fitness.budget.score}/100, '
+            'Prévoyance ${fitness.prevoyance.score}/100, '
+            'Patrimoine ${fitness.patrimoine.score}/100)');
+      } catch (_) {
+        // Skip if fitness calculation fails
+      }
+
+      // Projection
+      try {
+        final projection = ForecasterService.project(profile: coachProfile);
+        parts.add('Capital projeté à la retraite (scénario base) : '
+            '${ForecasterService.formatChf(projection.base.capitalFinal)}');
+      } catch (_) {
+        // Skip if projection fails
+      }
+
+      // Goal
+      parts.add('Objectif principal : ${coachProfile.goalA.label}');
+      if (coachProfile.goalsB.isNotEmpty) {
+        final goalLabels = coachProfile.goalsB.map((g) => g.label).join(', ');
+        parts.add('Objectifs secondaires : $goalLabels');
+      }
+    }
+
+    return parts.join('\n');
+  }
+
   void _onSend() {
     final text = _inputController.text.trim();
     if (text.isEmpty || _isLoading) return;
@@ -779,20 +887,22 @@ class _AskMintScreenState extends State<AskMintScreen> {
 
     final byok = context.read<ByokProvider>();
     final profile = context.read<ProfileProvider>().profile;
+    final coachProfile = context.read<CoachProfileProvider>().profile;
 
     // Build profile context for personalization
     Map<String, dynamic>? profileContext;
     if (profile != null) {
+      final age = profile.birthYear != null
+          ? DateTime.now().year - profile.birthYear!
+          : null;
       profileContext = {
         if (profile.canton != null) 'canton': profile.canton,
-        if (profile.birthYear != null) 'birth_year': profile.birthYear,
+        if (age != null) 'age': age,
         'household_type': profile.householdType.name,
-        if (profile.incomeNetMonthly != null)
-          'income_net_monthly': profile.incomeNetMonthly,
         if (profile.employmentStatus != null)
           'employment_status': profile.employmentStatus!.value,
-        'has_debt': profile.hasDebt,
-        'goal': profile.goal.name,
+        // Rich financial summary from CoachProfile
+        'financial_summary': _buildFinancialSummary(profile, coachProfile),
       };
     }
 

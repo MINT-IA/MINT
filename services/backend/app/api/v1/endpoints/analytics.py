@@ -10,7 +10,6 @@ from sqlalchemy import func, distinct
 from app.core.database import get_db
 from app.models.analytics_event import AnalyticsEvent
 from app.schemas.analytics import (
-    AnalyticsEventCreate,
     AnalyticsEventBatch,
     AnalyticsEventBatchResponse,
     AnalyticsSummaryResponse,

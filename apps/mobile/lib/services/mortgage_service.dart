@@ -736,8 +736,8 @@ class EplCombinedCalculator {
     final totalImpots = impot3a + impotLpp;
     final montantNetTotal = fondsPropresTotal - totalImpots;
     final pourcentageCouvert =
-        prix > 0 ? (fondsPropresTotal / prix) * 100 : 0.0;
-    final objectifAtteint = fondsPropresTotal >= fondsPropresRequis;
+        prix > 0 ? (montantNetTotal / prix) * 100 : 0.0;
+    final objectifAtteint = montantNetTotal >= fondsPropresRequis;
 
     // Sources
     final sources = <FundingSource>[];

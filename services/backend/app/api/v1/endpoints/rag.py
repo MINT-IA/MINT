@@ -7,7 +7,6 @@ MINT never stores API keys; they are used per-request only.
 
 import logging
 import os
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 

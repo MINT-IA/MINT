@@ -47,10 +47,26 @@ class CoachAgirScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final coachProvider = context.watch<CoachProfileProvider>();
-    final profile = coachProvider.profile ?? CoachProfile.buildDemo();
+    final profile = coachProvider.profile;
     final now = DateTime.now();
     final currentMonthLabel =
         '${kFrenchMonths[now.month - 1]} ${now.year}';
+
+    // If no profile, show empty state prompting wizard
+    if (profile == null) {
+      return Scaffold(
+        backgroundColor: MintColors.background,
+        body: CustomScrollView(
+          slivers: [
+            _buildAppBar(context),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildEmptyProfile(context, s),
+            ),
+          ],
+        ),
+      );
+    }
 
     // Check if current month's check-in is done
     final hasCurrentCheckIn = profile.checkIns.any(
@@ -81,24 +97,28 @@ class CoachAgirScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Planned contributions for this month
-                ...profile.plannedContributions.map(
-                  (c) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _MonthlyContributionRow(
-                      contribution: c,
-                      isDone: hasCurrentCheckIn,
+                if (profile.plannedContributions.isEmpty)
+                  _buildNoContributions(context, s)
+                else
+                  ...profile.plannedContributions.map(
+                    (c) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _MonthlyContributionRow(
+                        contribution: c,
+                        isDone: hasCurrentCheckIn,
+                      ),
                     ),
                   ),
-                ),
 
                 const SizedBox(height: 12),
 
                 // Check-in action row
-                _buildCheckinAction(
-                  context: context,
-                  isDone: hasCurrentCheckIn,
-                  monthLabel: currentMonthLabel,
-                ),
+                if (profile.plannedContributions.isNotEmpty)
+                  _buildCheckinAction(
+                    context: context,
+                    isDone: hasCurrentCheckIn,
+                    monthLabel: currentMonthLabel,
+                  ),
 
                 const SizedBox(height: 36),
 
@@ -304,6 +324,140 @@ class CoachAgirScreen extends StatelessWidget {
           ),
           elevation: 0,
         ),
+      ),
+    );
+  }
+
+  // ── Empty profile state ───────────────────────────────────
+  Widget _buildEmptyProfile(BuildContext context, S? s) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: MintColors.coachAccent.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.flash_on,
+                color: MintColors.coachAccent,
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Ton plan d\'action t\'attend',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Complète ton diagnostic pour obtenir un plan mensuel personnalisé '
+              'basé sur ta situation réelle.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: MintColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () => context.push('/advisor'),
+                icon: const Icon(Icons.play_arrow, size: 20),
+                label: Text(
+                  'Lancer mon diagnostic — 10 min',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── No contributions state ──────────────────────────────
+  Widget _buildNoContributions(BuildContext context, S? s) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.add_circle_outline,
+            color: MintColors.coachAccent,
+            size: 36,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Aucun versement planifié',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Fais ton premier check-in pour configurer tes versements mensuels.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textMuted,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton(
+              onPressed: () => context.push('/coach/checkin'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: MintColors.coachAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Configurer mes versements',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

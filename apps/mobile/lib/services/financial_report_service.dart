@@ -225,10 +225,18 @@ class FinancialReportService {
     final lppBuybacks = _parseDouble(answers['q_lpp_buyback_available']) ?? 0;
     // Year-by-year LPP growth using real age-band bonification rates (LPP art. 16)
     double estimatedLppGrowth = 0;
-    final annualIncome = profile.monthlyNetIncome * 12;
+    // Note: LPP art. 8 uses gross insured salary; monthlyNetIncome is net.
+    // We approximate brut ≈ net / 0.87 (inverse of social charges deduction).
+    final annualGrossApprox = profile.monthlyNetIncome * 12 / 0.87;
     // Use LPP constants for coordinated salary (LPP art. 8)
-    final coordinatedSalary = (annualIncome - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin.toDouble(), double.infinity);
+    // Guard: if gross < seuil d'accès LPP (22'680), no LPP coverage
+    final double coordinatedSalary;
+    if (annualGrossApprox < lppSeuilEntree) {
+      coordinatedSalary = 0.0; // Not eligible for LPP
+    } else {
+      coordinatedSalary = (annualGrossApprox - lppDeductionCoordination)
+          .clamp(lppSalaireCoordMin.toDouble(), lppSalaireCoordMax.toDouble());
+    }
     for (int year = 0; year < profile.yearsToRetirement; year++) {
       final ageThisYear = profile.age + year;
       if (ageThisYear >= 25 && ageThisYear <= 65) {

@@ -812,7 +812,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '$cantonNom offre les meilleures allocations familiales de Suisse !',
+                '$cantonNom offre parmi les allocations familiales les plus avantageuses de Suisse !',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

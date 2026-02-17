@@ -974,7 +974,17 @@ class DocumentService {
         .timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
-      final list = jsonDecode(response.body) as List<dynamic>;
+      final decoded = jsonDecode(response.body);
+      // Handle both wrapped {"documents": [...]} and bare [...] responses
+      final List<dynamic> list;
+      if (decoded is List) {
+        list = decoded;
+      } else if (decoded is Map<String, dynamic> &&
+          decoded.containsKey('documents')) {
+        list = decoded['documents'] as List<dynamic>;
+      } else {
+        list = [];
+      }
       return list
           .map((item) =>
               DocumentSummary.fromJson(item as Map<String, dynamic>))

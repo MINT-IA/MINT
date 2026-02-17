@@ -10,7 +10,6 @@ Verifie que:
 Lance: pytest tests/test_constants.py -v
 """
 
-import importlib
 import re
 from pathlib import Path
 

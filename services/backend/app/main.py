@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Create database tables and auto-ingest RAG knowledge base on startup."""
     # Import models to ensure they're registered with Base
-    from app.models import User, ProfileModel, SessionModel, AnalyticsEvent
     Base.metadata.create_all(bind=engine)
 
     # Auto-ingest education inserts into RAG vector store if empty

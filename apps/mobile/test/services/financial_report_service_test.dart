@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
-import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Unit tests for FinancialReportService

@@ -24,8 +24,7 @@ Sources:
 Sprint S19 — Chomage (LACI) + Premier emploi.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from app.constants.social_insurance import (
     AVS_COTISATION_SALARIE,

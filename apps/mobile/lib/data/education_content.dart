@@ -243,8 +243,8 @@ class EducationContentData {
         ],
         correctIndex: 1,
         explanation:
-            'Rembourser une dette a 9% equivaut a un rendement garanti de '
-            '9% sans risque. Aucun investissement ne bat ca de facon fiable. '
+            'Rembourser une dette a 9% equivaut a un rendement effectif de '
+            '9% sans alea. Tres peu d\'investissements battent ca de facon fiable. '
             'Priorite absolue : eliminer les dettes couteuses, puis investir.',
       ),
       funFact:

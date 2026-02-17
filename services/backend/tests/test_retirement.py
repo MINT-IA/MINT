@@ -17,23 +17,19 @@ import pytest
 from app.services.retirement.avs_estimation_service import (
     AvsEstimationService,
     AVS_MAX_RENTE_MENSUELLE,
-    AVS_MAX_RENTE_ANNUELLE,
     AVS_MAX_RENTE_COUPLE_FACTOR,
     AVS_RETIREMENT_AGE,
     AVS_ANTICIPATION_PENALTY_PER_YEAR,
     AVS_DEFERRAL_BONUS,
     AVS_FULL_CONTRIBUTION_YEARS,
-    DISCLAIMER as AVS_DISCLAIMER,
 )
 from app.services.retirement.lpp_conversion_service import (
     LppConversionService,
     LPP_CONVERSION_RATE,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    DISCLAIMER as LPP_DISCLAIMER,
 )
 from app.services.retirement.retirement_budget_service import (
     RetirementBudgetService,
-    DISCLAIMER as BUDGET_DISCLAIMER,
 )
 
 

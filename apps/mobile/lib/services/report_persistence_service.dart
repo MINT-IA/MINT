@@ -59,11 +59,77 @@ class ReportPersistenceService {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════
+  //  PLANNED CONTRIBUTIONS PERSISTENCE
+  // ═══════════════════════════════════════════════════════════
+
+  static const String _contributionsKey = 'planned_contributions_v1';
+
+  /// Sauvegarde les versements planifiés (JSON list)
+  static Future<void> saveContributions(
+      List<Map<String, dynamic>> contributions) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_contributionsKey, json.encode(contributions));
+  }
+
+  /// Charge les versements planifiés
+  static Future<List<Map<String, dynamic>>> loadContributions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_contributionsKey);
+    if (jsonString == null) return [];
+    try {
+      return List<Map<String, dynamic>>.from(
+        (json.decode(jsonString) as List).map(
+          (e) => Map<String, dynamic>.from(e as Map),
+        ),
+      );
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Vérifie si des contributions ont été personnalisées
+  static Future<bool> hasCustomContributions() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey(_contributionsKey);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  CHECK-INS PERSISTENCE
+  // ═══════════════════════════════════════════════════════════
+
+  static const String _checkInsKey = 'monthly_checkins_v1';
+
+  /// Sauvegarde l'historique des check-ins (JSON list)
+  static Future<void> saveCheckIns(
+      List<Map<String, dynamic>> checkIns) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_checkInsKey, json.encode(checkIns));
+  }
+
+  /// Charge l'historique des check-ins
+  static Future<List<Map<String, dynamic>>> loadCheckIns() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_checkInsKey);
+    if (jsonString == null) return [];
+    try {
+      return List<Map<String, dynamic>>.from(
+        (json.decode(jsonString) as List).map(
+          (e) => Map<String, dynamic>.from(e as Map),
+        ),
+      );
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Efface tout (Logout / Reset)
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_wizardKey);
     await prefs.remove(_completedKey);
     await prefs.remove(_lettersKey);
+    await prefs.remove(_contributionsKey);
+    await prefs.remove(_checkInsKey);
   }
 }

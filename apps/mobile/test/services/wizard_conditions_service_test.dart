@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/wizard_conditions_service.dart';
 import 'package:mint_mobile/data/wizard_questions_v2.dart';
-import 'package:mint_mobile/models/wizard_question.dart';
 
 /// Deep unit tests for WizardConditionsService
 ///
@@ -13,10 +12,6 @@ import 'package:mint_mobile/models/wizard_question.dart';
 /// - Edge cases: empty answers, unknown IDs, boundary questions
 /// - Swiss-specific profiles (independant, retraite, frontalier patterns)
 void main() {
-  // Helper to get all question IDs for reference
-  List<String> allQuestionIds() =>
-      WizardQuestionsV2.questions.map((q) => q.id).toList();
-
   // ═══════════════════════════════════════════════════════════════════════
   // shouldAskQuestion — Combination & Edge Cases
   // ═══════════════════════════════════════════════════════════════════════

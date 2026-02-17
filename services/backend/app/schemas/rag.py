@@ -34,6 +34,13 @@ class ProfileContext(BaseModel):
     age: Optional[int] = Field(None, ge=16, le=120, description="User's age")
     civil_status: Optional[str] = Field(None, description="Civil status (single, married, etc.)")
     employment_status: Optional[str] = Field(None, description="Employment status (employed, self-employed, etc.)")
+    financial_summary: Optional[str] = Field(
+        None,
+        max_length=3000,
+        description="Rich financial summary built from user's diagnostic, "
+        "contributions, check-ins, and fitness score. "
+        "Injected into the system prompt for personalized responses.",
+    )
 
 
 class RAGQueryRequest(BaseModel):

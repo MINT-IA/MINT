@@ -27,7 +27,6 @@ from app.services.open_banking.transaction_categorizer import (
 )
 from app.services.open_banking.consent_manager import (
     ConsentManager,
-    VALID_SCOPES,
     MAX_CONSENT_DURATION_DAYS,
 )
 from app.services.open_banking.account_aggregator import AccountAggregator

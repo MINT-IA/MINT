@@ -22,11 +22,9 @@ from app.services.unemployment.calculator import (
     GAIN_ASSURE_MAX,
     UNEMPLOYMENT_RATE_BASE,
     UNEMPLOYMENT_RATE_ENHANCED,
-    SALARY_THRESHOLD_ENHANCED,
     DELAI_CARENCE_STANDARD,
     WORKING_DAYS_PER_MONTH,
     get_orp_link,
-    get_unemployment_checklist,
 )
 
 

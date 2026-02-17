@@ -21,7 +21,7 @@ Sprint S22 — Evenements de vie : Famille.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List
 
 
 DISCLAIMER = (

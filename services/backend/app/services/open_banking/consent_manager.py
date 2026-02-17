@@ -11,7 +11,7 @@ Rules (nLPD / Nouvelle Loi sur la Protection des Donnees):
 Sprint S14 — Open Banking infrastructure.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 import uuid

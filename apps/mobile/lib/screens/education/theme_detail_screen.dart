@@ -62,7 +62,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
         slivers: [
           // ── Compact colored header ──
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 240,
             pinned: true,
             backgroundColor: theme.color,
             leading: IconButton(

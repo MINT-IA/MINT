@@ -11,10 +11,9 @@ Sprint S14 — Open Banking infrastructure.
 Lecture seule. Aucune operation d'ecriture ou de transfert.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
-from datetime import datetime, timedelta
-import uuid
+from datetime import datetime
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +107,6 @@ _MOCK_ACCOUNTS: List[BankAccount] = [
 
 def _generate_mock_transactions(account_id: str) -> List[Transaction]:
     """Generate realistic Swiss mock transactions for an account."""
-    base_date = datetime(2025, 1, 15)
     transactions = []
 
     # Transactions for checking account (UBS)

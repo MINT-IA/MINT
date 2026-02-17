@@ -22,7 +22,6 @@ from app.services.fiscal.cantonal_comparator import (
     SOURCES,
     CANTON_NAMES,
     EFFECTIVE_RATES_100K_SINGLE,
-    INCOME_ADJUSTMENT,
     FAMILY_ADJUSTMENTS,
 )
 
@@ -304,7 +303,7 @@ class TestMoveSimulation:
         sim = comparator.simulate_move(100_000, "GE", "ZG", "marie", 2)
         assert sim.economie_annuelle > 0
         # Family savings should be less than single (both cantons reduce)
-        sim_single = comparator.simulate_move(100_000, "GE", "ZG", "celibataire", 0)
+        _sim_single = comparator.simulate_move(100_000, "GE", "ZG", "celibataire", 0)
         # Not necessarily less, but should be positive
         assert sim.economie_annuelle > 0
 

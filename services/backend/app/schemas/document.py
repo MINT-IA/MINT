@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 class DocumentUploadResponse(BaseModel):
     """Response from a document upload and extraction."""
 
-    document_id: str = Field(..., description="Unique identifier for the uploaded document")
+    id: str = Field(..., description="Unique identifier for the uploaded document")
     document_type: str = Field(
         ...,
         description="Detected document type: 'lpp_certificate', 'salary_slip', 'unknown'",

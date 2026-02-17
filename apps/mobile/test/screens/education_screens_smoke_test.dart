@@ -5,8 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 
-// Dependencies
-import 'package:mint_mobile/data/educational_themes.dart';
 
 void main() {
   // ===========================================================================

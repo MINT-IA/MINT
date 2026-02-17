@@ -190,7 +190,7 @@ class ConcubinageService:
             ComparisonItem(
                 domaine="Protection enfants",
                 mariage="Autorite parentale conjointe automatique. Allocations familiales coordonnees.",
-                concubinage=f"Reconnaissance de paternite necessaire. Autorite parentale conjointe sur demande.",
+                concubinage="Reconnaissance de paternite necessaire. Autorite parentale conjointe sur demande.",
                 avantage="mariage" if enfants > 0 else "neutre",
             ),
         ]

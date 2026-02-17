@@ -15,7 +15,7 @@ Run: cd services/backend && python3 -m pytest tests/test_privacy.py -v
 """
 
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 
 from app.services.privacy_service import (
     PrivacyService,
@@ -23,10 +23,8 @@ from app.services.privacy_service import (
     GRACE_PERIOD_DAYS,
     RESPONSABLE_TRAITEMENT,
     RETENTION_POLICIES,
-    CONSENT_CATEGORIES,
     SOURCES_EXPORT,
     SOURCES_DELETION,
-    SOURCES_CONSENT,
 )
 
 

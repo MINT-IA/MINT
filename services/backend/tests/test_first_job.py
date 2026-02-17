@@ -24,13 +24,8 @@ from app.services.first_job.onboarding_service import (
     AVS_AI_APG_RATE,
     AC_RATE,
     AANP_RATE,
-    LPP_ENTRY_THRESHOLD,
-    LPP_COORDINATION_DEDUCTION,
-    LPP_MIN_COORDINATED,
     PILLAR_3A_LIMIT,
     LAMAL_FRANCHISES,
-    LAMAL_QUOTE_PART_MAX,
-    get_first_job_checklist,
 )
 
 

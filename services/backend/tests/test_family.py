@@ -19,7 +19,6 @@ from app.services.family.mariage_service import (
     DEDUCTION_DOUBLE_ACTIVITE,
     DEDUCTION_MARIES,
     DEDUCTION_ASSURANCES_MARIES,
-    DEDUCTION_ASSURANCES_CELIBATAIRE,
     DEDUCTION_PAR_ENFANT,
     AVS_SURVIVOR_FACTOR,
     LPP_SURVIVOR_FACTOR,
@@ -27,10 +26,6 @@ from app.services.family.mariage_service import (
 )
 from app.services.family.naissance_service import (
     NaissanceService,
-    APG_MATERNITE_SEMAINES,
-    APG_MATERNITE_JOURS,
-    APG_PATERNITE_SEMAINES,
-    APG_PATERNITE_JOURS_CALENDAIRES,
     APG_TAUX,
     APG_MAX_JOUR,
     ALLOCATIONS_ENFANT_PAR_CANTON,

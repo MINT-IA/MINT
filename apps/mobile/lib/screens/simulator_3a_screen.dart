@@ -150,7 +150,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           ),
           SizedBox(height: 12),
           Text(
-            'Le 3a est ton meilleur outil d\'optimisation en Suisse. L\'économie fiscale immédiate est un "rendement" garanti.',
+            'Le 3a est l\'un des outils les plus efficaces d\'optimisation en Suisse. L\'économie fiscale immédiate est un avantage concret.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],

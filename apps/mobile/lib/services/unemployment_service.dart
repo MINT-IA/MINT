@@ -97,6 +97,26 @@ class UnemploymentService {
     bool hasChildren = false,
     bool hasDisability = false,
   }) {
+    // 0. Validate gain assure > 0 (aligned with backend)
+    if (gainAssureMensuel <= 0) {
+      return UnemploymentResult(
+        eligible: false,
+        raisonNonEligible:
+            'Le gain assuré mensuel doit être supérieur à 0 CHF. '
+            'Vérifie le montant de ton dernier salaire.',
+        tauxIndemnite: 0,
+        gainAssureRetenu: 0,
+        indemniteJournaliere: 0,
+        indemniteMensuelle: 0,
+        nombreIndemnites: 0,
+        dureeMois: 0,
+        delaiCarenceJours: _delaiCarenceStandard,
+        perteMensuelle: 0,
+        chiffreChoc: '',
+        timeline: _buildTimeline(),
+      );
+    }
+
     // 1. Check eligibility: minimum 12 months
     if (moisCotisation < 12) {
       return UnemploymentResult(

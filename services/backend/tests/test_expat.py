@@ -19,17 +19,11 @@ import pytest
 from app.services.expat.frontalier_service import (
     FrontalierService,
     DISCLAIMER as FRONTALIER_DISCLAIMER,
-    QUASI_RESIDENT_SEUIL,
-    REGLE_90_JOURS_SEUIL,
     AVS_AI_APG_TAUX_EMPLOYE,
     AC_TAUX_EMPLOYE,
     AC_PLAFOND,
     AC_SOLIDARITE_TAUX,
-    CANTON_SOURCE_TAX_RATES,
     LAMAL_PRIMES_MENSUELLES,
-    DEDUCTION_ENFANT_SOURCE,
-    CHARGES_SOCIALES_PAYS,
-    AANP_TAUX,
 )
 from app.services.expat.expat_service import (
     ExpatService,
@@ -40,12 +34,8 @@ from app.services.expat.expat_service import (
     CDI_PARTENAIRES,
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_MIN_MENSUELLE,
-    AVS_ANNEES_COTISATION_PLEINES,
     AVS_COTISATION_MIN_VOLONTAIRE,
     AVS_COTISATION_MAX_VOLONTAIRE,
-    TAUX_IMPOSITION_CAPITAL_PREVOYANCE,
-    TAUX_GLOBAL_PAR_PAYS,
-    CHECKLIST_DEPART,
 )
 
 

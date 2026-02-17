@@ -5,7 +5,7 @@ Session model - stores wizard session data.
 import json
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.types import TypeDecorator, TEXT

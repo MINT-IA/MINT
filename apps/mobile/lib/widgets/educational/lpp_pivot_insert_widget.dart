@@ -66,7 +66,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Le 3a reste le meilleur outil de défiscalisation en Suisse, quel que soit ton statut.',
+                    'Le 3a reste l\'un des outils les plus efficaces de défiscalisation en Suisse, quel que soit ton statut.',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textPrimary,

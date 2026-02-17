@@ -460,7 +460,8 @@ void main() {
 
       // FP requis = 200000
       // Cash: 50000, 3a: 80000, LPP: min(200000, 100000) -> max LPP = 100000 -> utilise 70000
-      expect(r.objectifAtteint, isTrue);
+      // Gross = 200000 but net < 200000 after progressive tax on 150k withdrawals
+      expect(r.objectifAtteint, isFalse);
       expect(r.sources.length, 3);
       expect(r.sources[0].label, 'Epargne cash');
       expect(r.sources[0].montant, closeTo(50000, 1));

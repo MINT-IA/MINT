@@ -15,7 +15,6 @@ Covers:
     - camelCase serialization
 """
 
-import pytest
 
 
 BASE_URL = "/api/v1/educational-content"

@@ -235,6 +235,40 @@ class WizardQuestionsV2 {
           tags: ['budget', 'savings'],
         ),
 
+        WizardQuestion(
+          id: 'q_savings_allocation',
+          title: 'Où va ton épargne mensuelle ?',
+          subtitle:
+              'Sélectionne tous les postes vers lesquels tu diriges ton épargne chaque mois.\n'
+              'Tu pourras ajuster les montants ensuite.',
+          type: QuestionType.multiChoice,
+          options: [
+            QuestionOption(
+                label: '💰 Pilier 3a',
+                value: '3a',
+                icon: 'savings'),
+            QuestionOption(
+                label: '🏛️ Rachat LPP',
+                value: 'lpp_buyback',
+                icon: 'account_balance'),
+            QuestionOption(
+                label: '📈 Investissements (ETF, actions...)',
+                value: 'investissement',
+                icon: 'trending_up'),
+            QuestionOption(
+                label: '🏦 Épargne libre (compte épargne)',
+                value: 'epargne_libre',
+                icon: 'wallet'),
+          ],
+          tags: ['budget', 'savings', 'allocation'],
+          condition: (answers) {
+            final savings = answers['q_savings_monthly'];
+            if (savings == null) return false;
+            final amount = double.tryParse(savings.toString()) ?? 0;
+            return amount > 0;
+          },
+        ),
+
         // ═══════════════════════════════════════════════════════════
         // SECTION 3 : CERCLE 2 - PRÉVOYANCE FISCALE (7 questions - 4 min)
         // Objectif : Optimiser la prévoyance MAINTENANT qu'on connaît le budget

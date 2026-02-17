@@ -35,11 +35,16 @@ class LPPPlanInput {
   });
 
   /// Effective insured salary, applying coordination deduction.
+  /// Aligned with backend: seuil d'entrée, min/max coordonné (LPP art. 7, 8).
   double get effectiveSalaireAssure {
     if (salaireAssure != null) return salaireAssure!;
-    final coordination = deductionCoordination ?? lppDeductionCoordination; // 2025 default
+    // Below LPP entry threshold: no coverage (LPP art. 7)
+    if (salaireBrut < lppSeuilEntree) return 0.0;
+    final coordination = deductionCoordination ?? lppDeductionCoordination;
     final insured = salaireBrut - coordination;
-    return insured > 0 ? insured : 0;
+    // Apply min/max coordinated salary (LPP art. 8 al. 2)
+    if (insured <= 0) return lppSalaireCoordMin;
+    return insured.clamp(lppSalaireCoordMin, lppSalaireCoordMax);
   }
 
   /// Total annual LPP contribution (employee + employer).
@@ -374,7 +379,7 @@ class JobComparisonService {
     // with a conservative 1% annual return on existing capital.
     double capital = plan.avoirVieillesse;
     final annualContribution = plan.totalCotisationAnnuelle;
-    const annualReturn = 0.01; // BVG minimum interest rate
+    const annualReturn = 0.0125; // BVG minimum interest rate (LPP)
 
     for (int i = 0; i < yearsToRetirement; i++) {
       capital = capital * (1 + annualReturn) + annualContribution;

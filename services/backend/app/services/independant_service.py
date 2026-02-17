@@ -20,8 +20,8 @@ Ethical requirements:
     - Mandatory disclaimer on every response
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import List
 
 
 # ---------------------------------------------------------------------------

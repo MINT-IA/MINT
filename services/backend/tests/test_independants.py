@@ -16,7 +16,6 @@ Run: cd services/backend && python3 -m pytest tests/test_independants.py -v
 """
 
 import re
-import pytest
 
 from app.services.independants.avs_cotisations_service import (
     calculer_cotisation_avs,
@@ -27,7 +26,6 @@ from app.services.independants.avs_cotisations_service import (
 )
 from app.services.independants.ijm_service import (
     simuler_ijm,
-    IJM_PRIMES,
     DISCLAIMER as IJM_DISCLAIMER,
     SOURCES as IJM_SOURCES,
 )
@@ -40,13 +38,11 @@ from app.services.independants.pillar_3a_indep_service import (
 )
 from app.services.independants.dividende_vs_salaire_service import (
     simuler_dividende_vs_salaire,
-    SEUIL_REQUALIFICATION,
     DISCLAIMER as DIV_DISCLAIMER,
     SOURCES as DIV_SOURCES,
 )
 from app.services.independants.lpp_volontaire_service import (
     simuler_lpp_volontaire,
-    BONIFICATIONS_VIEILLESSE,
     DEDUCTION_COORDINATION,
     SALAIRE_COORDONNE_MINIMUM,
     DISCLAIMER as LPP_DISCLAIMER,

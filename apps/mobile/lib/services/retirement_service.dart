@@ -218,11 +218,13 @@ class RetirementService {
     final duree = esperanceVie - ageRetraite;
     int breakeven = ageRetraite;
     double cumul = 0;
-    for (int y = 0; y <= duree; y++) {
-      cumul += renteAnnuelle;
-      if (cumul >= capitalNet) {
-        breakeven = ageRetraite + y;
-        break;
+    if (duree > 0 && renteAnnuelle > 0) {
+      for (int y = 0; y <= duree; y++) {
+        cumul += renteAnnuelle;
+        if (cumul >= capitalNet) {
+          breakeven = ageRetraite + y;
+          break;
+        }
       }
     }
 

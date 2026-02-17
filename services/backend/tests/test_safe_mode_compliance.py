@@ -25,15 +25,12 @@ import pytest
 
 from app.services.next_steps_service import (
     NextStepsInput,
-    NextStepsResult,
     NextStepsService,
     DISCLAIMER,
-    SOURCES,
 )
 
 from app.services.educational_content_service import (
     EducationalContentService,
-    InsertContent,
     BANNED_TERMS,
 )
 

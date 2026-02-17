@@ -375,12 +375,13 @@ void main() {
     });
 
     test('onLearnMore callback is passed through', () {
-      bool called = false;
+      var called = false;
       final widget = EducationalInsertService.getInsertWidget(
         questionId: 'q_canton',
         answers: {},
         onLearnMore: () => called = true,
       );
+      expect(called, isFalse); // callback exists but not invoked without rendering
       expect(widget, isNotNull);
       // We cannot easily invoke onLearnMore without rendering,
       // but we verify the widget was created without error.

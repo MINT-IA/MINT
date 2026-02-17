@@ -28,8 +28,8 @@ Ethical requirements:
     - Mandatory disclaimer on every response
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from dataclasses import dataclass
+from typing import List, Dict
 
 from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_AVEC_LPP,

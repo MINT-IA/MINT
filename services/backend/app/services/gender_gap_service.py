@@ -21,18 +21,16 @@ Ethical requirements:
     - Mandatory disclaimer on every response
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import List
 
 from app.constants.social_insurance import (
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MAX as _LPP_SALAIRE_COORDONNE_MAX,
     LPP_TAUX_CONVERSION_MIN,
     LPP_SEUIL_ENTREE,
-    LPP_BONIFICATIONS_VIEILLESSE,
     PILIER_3A_PLAFOND_AVEC_LPP,
     AVS_AGE_REFERENCE_HOMME,
-    get_lpp_bonification_rate,
 )
 
 

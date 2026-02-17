@@ -394,8 +394,8 @@ class ForecasterService {
       investmentBalance += monthlyInvestment;
       savingsBalance += monthlySavings;
 
-      // Conjoint free savings
-      conjSavingsBalance += monthlySavings; // simplified: same rate
+      // Conjoint free savings — only add conjoint-specific contributions
+      // (monthlySavings already counted in savingsBalance above)
 
       // --- Record point ---
       final totalCapital = lppBalance + threeABalance +

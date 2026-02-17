@@ -52,7 +52,7 @@ class PensionCompletenessRing extends StatefulWidget {
     required this.contributedYears,
     this.totalYearsRequired = 44,
     this.reductionPerMissingYear = 55.0,
-    this.fullMonthlyPension = 2450.0,
+    this.fullMonthlyPension = 2520.0,
     this.onTap,
   });
 

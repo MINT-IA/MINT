@@ -22,7 +22,7 @@ class PdfService {
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'RECOMMANDATION PROFESSIONNELLE - CONFIDENTIEL',
+              'MENTORAT ÉDUCATIF — CONFIDENTIEL',
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],

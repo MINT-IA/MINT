@@ -18,15 +18,10 @@ import pytest
 from app.services.gender_gap_service import (
     GenderGapService,
     GenderGapInput,
-    COORDINATION_DEDUCTION,
-    SALAIRE_COORDONNE_MAX,
-    CONVERSION_RATE,
-    OFS_GENDER_GAP_STAT,
 )
 from app.services.frontalier_service import (
     FrontalierService,
     FrontalierInput,
-    COUNTRY_RULES,
     PAYS_FRONTALIERS,
 )
 from app.services.independant_service import (
@@ -34,9 +29,7 @@ from app.services.independant_service import (
     IndependantInput,
     AVS_FULL_RATE,
     AVS_MINIMUM_CONTRIBUTION,
-    AVS_MINIMUM_INCOME_THRESHOLD,
     PLAFOND_3A_INDEPENDANT_MAX,
-    PLAFOND_3A_INDEPENDANT_TAUX,
     PLAFOND_3A_SALARIE,
 )
 

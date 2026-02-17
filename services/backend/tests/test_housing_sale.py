@@ -20,11 +20,6 @@ import pytest
 from app.services.housing_sale_service import (
     HousingSaleService,
     HousingSaleInput,
-    HousingSaleResult,
-    DISCLAIMER,
-    SOURCES,
-    TAUX_PLUS_VALUE_IMMOBILIERE,
-    TAUX_PLUS_VALUE_DEFAULT,
 )
 
 

@@ -519,6 +519,22 @@ class PlannedMonthlyContribution {
     'category': category,
     'isAutomatic': isAutomatic,
   };
+
+  PlannedMonthlyContribution copyWith({
+    String? id,
+    String? label,
+    double? amount,
+    String? category,
+    bool? isAutomatic,
+  }) {
+    return PlannedMonthlyContribution(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      isAutomatic: isAutomatic ?? this.isAutomatic,
+    );
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -708,6 +724,37 @@ class CoachProfile {
       goalsB: goalsB,
       plannedContributions: contributions,
       checkIns: checkIns,
+      housingStatus: housingStatus,
+      riskTolerance: riskTolerance,
+      realEstateProject: realEstateProject,
+      providers3a: providers3a,
+      createdAt: createdAt,
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  /// Copie le profil avec une nouvelle liste de check-ins
+  CoachProfile copyWithCheckIns(List<MonthlyCheckIn> newCheckIns) {
+    return CoachProfile(
+      firstName: firstName,
+      birthYear: birthYear,
+      canton: canton,
+      commune: commune,
+      etatCivil: etatCivil,
+      nombreEnfants: nombreEnfants,
+      conjoint: conjoint,
+      salaireBrutMensuel: salaireBrutMensuel,
+      nombreDeMois: nombreDeMois,
+      bonusPourcentage: bonusPourcentage,
+      employmentStatus: employmentStatus,
+      depenses: depenses,
+      prevoyance: prevoyance,
+      patrimoine: patrimoine,
+      dettes: dettes,
+      goalA: goalA,
+      goalsB: goalsB,
+      plannedContributions: plannedContributions,
+      checkIns: newCheckIns,
       housingStatus: housingStatus,
       riskTolerance: riskTolerance,
       realEstateProject: realEstateProject,
@@ -963,26 +1010,95 @@ class CoachProfile {
     final goalA = _parseGoalA(mainGoalRaw, birthYear);
 
     // ── Planned contributions ───────────────────────────────
+    // Built from q_savings_allocation (multi-choice) + wizard data
     final contributions = <PlannedMonthlyContribution>[];
-    if (has3a && contribution3a > 0) {
-      contributions.add(PlannedMonthlyContribution(
-        id: '3a_user',
-        label: '3a ${firstName ?? "Toi"}',
-        amount: contribution3a / 12, // annual → monthly
-        category: '3a',
-        isAutomatic: false,
-      ));
-    }
-    if (savingsMonthly > 0 && savingsMonthly > (contribution3a / 12)) {
-      final epargneLibre = savingsMonthly - (contribution3a / 12);
-      if (epargneLibre > 50) {
+    final allocationRaw = answers['q_savings_allocation'];
+    final allocations = allocationRaw is List
+        ? allocationRaw.cast<String>()
+        : <String>[];
+
+    if (allocations.isNotEmpty && savingsMonthly > 0) {
+      // Smart allocation: distribute savings across selected categories
+      final monthly3a = contribution3a > 0 ? contribution3a / 12 : 0.0;
+      double remaining = savingsMonthly;
+
+      // 1. 3a — if selected and user has 3a contribution
+      if (allocations.contains('3a')) {
+        final amount3a = (monthly3a > 0 ? monthly3a : (remaining * 0.4).clamp(0.0, 604.83)).toDouble();
+        if (amount3a > 0) {
+          contributions.add(PlannedMonthlyContribution(
+            id: '3a_user',
+            label: '3a ${firstName ?? "Toi"}',
+            amount: amount3a,
+            category: '3a',
+            isAutomatic: false,
+          ));
+          remaining -= amount3a;
+        }
+      }
+
+      // 2. LPP buyback — if selected and has buyback available
+      if (allocations.contains('lpp_buyback') && remaining > 0) {
+        final lppAmount = (remaining * 0.3).clamp(0.0, remaining).toDouble();
+        if (lppAmount >= 50) {
+          contributions.add(PlannedMonthlyContribution(
+            id: 'lpp_buyback_user',
+            label: 'Rachat LPP ${firstName ?? "Toi"}',
+            amount: lppAmount,
+            category: 'lpp_buyback',
+            isAutomatic: false,
+          ));
+          remaining -= lppAmount;
+        }
+      }
+
+      // 3. Investissement — if selected
+      if (allocations.contains('investissement') && remaining > 0) {
+        final investAmount = (remaining * 0.5).clamp(0.0, remaining).toDouble();
+        if (investAmount >= 50) {
+          contributions.add(PlannedMonthlyContribution(
+            id: 'invest_user',
+            label: 'Investissements',
+            amount: investAmount,
+            category: 'investissement',
+            isAutomatic: false,
+          ));
+          remaining -= investAmount;
+        }
+      }
+
+      // 4. Épargne libre — if selected or remaining
+      if (allocations.contains('epargne_libre') && remaining > 0) {
         contributions.add(PlannedMonthlyContribution(
           id: 'epargne_user',
-          label: 'Epargne libre',
-          amount: epargneLibre,
+          label: 'Épargne libre',
+          amount: remaining,
           category: 'epargne_libre',
           isAutomatic: false,
         ));
+      }
+    } else {
+      // Fallback: no allocation question answered — use legacy logic
+      if (has3a && contribution3a > 0) {
+        contributions.add(PlannedMonthlyContribution(
+          id: '3a_user',
+          label: '3a ${firstName ?? "Toi"}',
+          amount: contribution3a / 12,
+          category: '3a',
+          isAutomatic: false,
+        ));
+      }
+      if (savingsMonthly > 0 && savingsMonthly > (contribution3a / 12)) {
+        final epargneLibre = savingsMonthly - (contribution3a / 12);
+        if (epargneLibre > 50) {
+          contributions.add(PlannedMonthlyContribution(
+            id: 'epargne_user',
+            label: 'Épargne libre',
+            amount: epargneLibre,
+            category: 'epargne_libre',
+            isAutomatic: false,
+          ));
+        }
       }
     }
 

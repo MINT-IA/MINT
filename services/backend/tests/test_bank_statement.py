@@ -5,7 +5,6 @@ Tests CSV/PDF bank statement extraction, transaction categorization,
 recurring detection, budget preview, and FastAPI endpoints.
 """
 
-import io
 
 import pytest
 from fastapi.testclient import TestClient

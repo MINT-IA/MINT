@@ -25,8 +25,8 @@ Ethical requirements:
     - No banned terms: garanti, certain, assure, sans risque, optimal, meilleur, parfait
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from dataclasses import dataclass
+from typing import List, Dict
 
 
 # ══════════════════════════════════════════════════════════════════════════════

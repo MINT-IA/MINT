@@ -13,7 +13,7 @@ Covers:
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 
 # ===========================================================================

@@ -83,7 +83,9 @@ class RAGOrchestrator:
         )
 
         # Step 4: Generate response with guardrails system prompt
-        system_prompt = self.guardrails.build_system_prompt(language)
+        system_prompt = self.guardrails.build_system_prompt(
+            language, profile_context=profile_context
+        )
         raw_response = await llm_client.generate(
             system_prompt=system_prompt,
             user_message=question,

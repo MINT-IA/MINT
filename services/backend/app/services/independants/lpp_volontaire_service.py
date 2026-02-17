@@ -17,7 +17,7 @@ Sprint S18 — Module Independants complet.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from app.constants.social_insurance import (
     LPP_DEDUCTION_COORDINATION,

@@ -334,17 +334,17 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('UnemploymentService - Edge cases', () {
-    test('gain assure zero => eligible mais indemnite zero', () {
+    test('gain assure zero => non eligible (backend aligned)', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 0,
         age: 30,
         moisCotisation: 18,
       );
 
-      expect(result.eligible, isTrue);
+      // Backend validates gain_assure_mensuel > 0 (calculator.py:163)
+      expect(result.eligible, isFalse);
       expect(result.indemniteJournaliere, 0);
       expect(result.indemniteMensuelle, 0);
-      expect(result.perteMensuelle, 0);
     });
 
     test('salaire tres eleve plafonne correctement', () {

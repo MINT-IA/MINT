@@ -24,8 +24,6 @@ from app.services.lpp_deep.rachat_echelonne_service import (
 from app.services.lpp_deep.libre_passage_service import (
     LibrePassageService,
     DISCLAIMER as LP_DISCLAIMER,
-    StatutLibrePassage,
-    DestinationDepart,
 )
 from app.services.lpp_deep.epl_service import (
     EPLService,

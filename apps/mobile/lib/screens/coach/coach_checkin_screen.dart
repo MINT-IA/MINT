@@ -53,12 +53,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   @override
   void initState() {
     super.initState();
-    _profile = CoachProfile.buildDemo(); // Fallback until provider loads
-
-    // Init controllers with pre-filled amounts
-    _amountControllers = _profile.plannedContributions
-        .map((c) => TextEditingController(text: c.amount.toStringAsFixed(2)))
-        .toList();
+    // Will be initialized from provider in didChangeDependencies
+    _amountControllers = [];
 
     _checkAnimController = AnimationController(
       vsync: this,
@@ -78,14 +74,26 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
-        // Recreate controllers with real profile data
-        for (final c in _amountControllers) {
-          c.dispose();
-        }
-        _amountControllers = _profile.plannedContributions
-            .map((c) => TextEditingController(text: c.amount.toStringAsFixed(2)))
-            .toList();
+      } else {
+        // Build empty profile if wizard not completed
+        _profile = CoachProfile(
+          birthYear: 1990,
+          canton: 'ZH',
+          salaireBrutMensuel: 0,
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055, 12, 31),
+            label: 'Retraite',
+          ),
+        );
       }
+      // Init controllers from profile data
+      for (final c in _amountControllers) {
+        c.dispose();
+      }
+      _amountControllers = _profile.plannedContributions
+          .map((c) => TextEditingController(text: c.amount.toStringAsFixed(2)))
+          .toList();
     }
   }
 
@@ -111,13 +119,25 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
-    // Build versements map
+    final coachProvider = context.read<CoachProfileProvider>();
+
+    // Build versements map + detect amount changes
     final versements = <String, double>{};
+    final updatedContributions = <PlannedMonthlyContribution>[];
+    bool contributionsChanged = false;
+
     for (int i = 0; i < _profile.plannedContributions.length; i++) {
       final contribution = _profile.plannedContributions[i];
       final amount = double.tryParse(_amountControllers[i].text) ?? 0;
       if (amount > 0) {
         versements[contribution.id] = amount;
+      }
+      // Track if user edited the amount (update planned for next month)
+      if (amount != contribution.amount && amount > 0) {
+        updatedContributions.add(contribution.copyWith(amount: amount));
+        contributionsChanged = true;
+      } else {
+        updatedContributions.add(contribution);
       }
     }
 
@@ -145,6 +165,14 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     // Get coach message from fitness score
     final fitnessScore = FinancialFitnessService.calculate(profile: _profile);
     _coachTip = fitnessScore.coachMessage;
+
+    // Persist check-in via provider
+    coachProvider.addCheckIn(checkIn);
+
+    // Persist updated contribution amounts if changed
+    if (contributionsChanged) {
+      coachProvider.updateContributions(updatedContributions);
+    }
 
     setState(() {
       _isSubmitted = true;
@@ -388,6 +416,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   void _removeContribution(int index) {
+    final coachProvider = context.read<CoachProfileProvider>();
     setState(() {
       final contributions = List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
       contributions.removeAt(index);
@@ -395,6 +424,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       _amountControllers.removeAt(index);
       _profile = _profile.copyWithContributions(contributions);
     });
+    // Persist via provider
+    coachProvider.removeContribution(index);
   }
 
   void _showAddContributionSheet() {
@@ -637,6 +668,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   void _addContribution(PlannedMonthlyContribution contribution) {
+    final coachProvider = context.read<CoachProfileProvider>();
     setState(() {
       final contributions = List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
       contributions.add(contribution);
@@ -645,6 +677,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       );
       _profile = _profile.copyWithContributions(contributions);
     });
+    // Persist via provider
+    coachProvider.addContribution(contribution);
   }
 
   // ── Exceptional field ──────────────────────────────────────

@@ -19,13 +19,6 @@ Sprint S22 — Evenements de vie : Famille.
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from app.constants.social_insurance import (
-    LPP_SEUIL_ENTREE as _LPP_SEUIL_ENTREE,
-    LPP_DEDUCTION_COORDINATION as _LPP_DEDUCTION_COORDINATION,
-    LPP_BONIFICATIONS_VIEILLESSE,
-    PILIER_3A_PLAFOND_AVEC_LPP,
-    get_lpp_bonification_rate,
-)
 
 
 DISCLAIMER = (

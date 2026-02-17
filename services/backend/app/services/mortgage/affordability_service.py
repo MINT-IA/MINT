@@ -16,7 +16,7 @@ Sprint S17 — Mortgage & Real Estate.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List
 
 
 DISCLAIMER = (

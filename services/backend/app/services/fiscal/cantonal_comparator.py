@@ -19,8 +19,8 @@ Sources:
 Sprint S20 — Fiscalite cantonale — Comparateur 26 cantons.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from typing import List
 
 
 # ---------------------------------------------------------------------------

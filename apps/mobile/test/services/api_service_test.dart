@@ -187,7 +187,7 @@ void main() {
       final body = {
         'email': 'test@mint.ch',
         'password': 'securePassword123',
-        if (displayName != null) 'display_name': displayName,
+        'display_name': displayName,
       };
       expect(body.containsKey('display_name'), isTrue);
       expect(body['display_name'], equals('Jean Dupont'));

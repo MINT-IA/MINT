@@ -22,16 +22,7 @@ from app.services.disability_gap_service import (
     get_employer_coverage_weeks,
     get_ai_rente_mensuelle,
     EmploymentStatus,
-    DisabilityGapResult,
-    ECHELLE_BERNOISE,
-    ECHELLE_ZURICHOISE,
-    ECHELLE_BALOISE,
-    CANTON_SCALE_MAP,
     SUPPORTED_CANTONS,
-    IJM_COVERAGE_RATE,
-    IJM_MAX_DURATION_MONTHS,
-    DISCLAIMER,
-    SOURCES,
 )
 from app.constants.social_insurance import (
     AI_RENTE_ENTIERE,

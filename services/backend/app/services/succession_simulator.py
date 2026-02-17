@@ -26,7 +26,7 @@ Ethical requirements:
     - Concubin alert: no automatic rights, must plan ahead
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional, Dict
 
 
@@ -527,7 +527,7 @@ class SuccessionSimulator:
         rates = self.CANTON_SUCCESSION_TAX.get(
             data.canton, self.DEFAULT_TAX_RATES
         )
-        estate = data.fortune_totale
+        _estate = data.fortune_totale
         tax_details: Dict[str, dict] = {}
 
         # Conjoint

@@ -11,12 +11,10 @@ Privacy: raw file bytes are never stored permanently. Only extracted fields
 are kept in the in-memory document store.
 """
 
-import hashlib
 import logging
 import os
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 

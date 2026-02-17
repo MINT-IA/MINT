@@ -255,9 +255,37 @@ class ComplianceGuardrails:
             "disclaimers_added": disclaimers_added,
         }
 
-    def build_system_prompt(self, language: str = "fr") -> str:
-        """Return the MINT compliance system prompt for the given language."""
-        return self.SYSTEM_PROMPTS.get(language, self.SYSTEM_PROMPTS["fr"])
+    def build_system_prompt(
+        self,
+        language: str = "fr",
+        profile_context: Optional[dict] = None,
+    ) -> str:
+        """Return the MINT compliance system prompt for the given language.
+
+        If profile_context contains a financial_summary, it is injected
+        into the system prompt so the LLM can personalize its answers.
+        """
+        base = self.SYSTEM_PROMPTS.get(language, self.SYSTEM_PROMPTS["fr"])
+
+        if not profile_context:
+            return base
+
+        summary = profile_context.get("financial_summary")
+        if not summary:
+            return base
+
+        # Inject the user's financial profile into the system prompt
+        profile_block = (
+            "\n\n--- PROFIL FINANCIER DE L'UTILISATEUR ---\n"
+            f"{summary}\n"
+            "--- FIN DU PROFIL ---\n\n"
+            "Utilise ces informations pour personnaliser tes réponses "
+            "à la situation spécifique de l'utilisateur. "
+            "Ne répète pas ces données textuellement, "
+            "mais adapte tes explications et exemples en conséquence."
+        )
+
+        return base + profile_block
 
     def _get_replacement(self, term: str, language: str) -> str:
         """Get a softer replacement for a banned term."""

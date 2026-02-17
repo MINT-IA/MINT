@@ -9,16 +9,15 @@ buyback potential, salary components, and contributions.
 from __future__ import annotations
 
 import logging
-import os
 import re
-from dataclasses import dataclass, field, fields, asdict
+from dataclasses import dataclass, asdict
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 # Try loading the YAML template; fall back to hardcoded patterns if pyyaml not available
 try:
-    import yaml
+    import yaml  # noqa: F401
 
     _YAML_AVAILABLE = True
 except ImportError:

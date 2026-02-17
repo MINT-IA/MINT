@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/services/wizard_conditions_service.dart';
-import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 /// Unit tests for WizardService and WizardConditionsService

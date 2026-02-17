@@ -67,7 +67,6 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
   late Animation<double> _glowAnimation;
 
   // --- Section completion tracking ---
-  bool _profilComplete = false;
   bool _budgetComplete = false;
   bool _prevoyanceComplete = false;
   bool _patrimoineComplete = false;
@@ -168,7 +167,6 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
 
   void _updateSectionCompletion() {
     setState(() {
-      _profilComplete = widget.currentQuestionIndex >= 6;
       _budgetComplete = widget.currentQuestionIndex >= 12;
       _prevoyanceComplete = widget.currentQuestionIndex >= 18;
       _patrimoineComplete =

@@ -20,8 +20,8 @@ Sources:
 Sprint S22+ — Chantier 1: Impot sur la fortune.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import List
 
 
 # ---------------------------------------------------------------------------

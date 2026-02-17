@@ -319,8 +319,8 @@ void main() {
         'provider': 'openai',
         'language': 'fr',
       };
-      const String? model = 'gpt-4';
-      if (model != null) body['model'] = model;
+      const String model = 'gpt-4';
+      body['model'] = model;
 
       expect(body.containsKey('model'), isTrue);
       expect(body['model'], equals('gpt-4'));

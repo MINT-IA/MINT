@@ -19,7 +19,6 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
 import 'package:mint_mobile/screens/advisor/advisor_onboarding_screen.dart';
-import 'package:mint_mobile/screens/advisor/advisor_report_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';

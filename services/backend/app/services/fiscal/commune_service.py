@@ -18,7 +18,6 @@ Sources:
 Sprint S20+ — Extension fiscalite communale.
 """
 
-from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 import unicodedata
 

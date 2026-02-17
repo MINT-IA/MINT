@@ -308,7 +308,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(height: 8),
           Text(
             saving > 0
-                ? 'Le split optimal te fait économiser '
+                ? 'Le split adapté te fait économiser '
                   '${IndependantsService.formatChf(saving)}/an '
                   'par rapport à 100% salaire'
                 : 'Ajuste le split pour trouver une économie',

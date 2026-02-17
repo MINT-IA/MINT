@@ -10,7 +10,7 @@ Sprint S14 — Open Banking infrastructure.
 Lecture seule. Aucune operation d'ecriture ou de transfert.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 from app.services.open_banking.blink_connector import BLinkConnector

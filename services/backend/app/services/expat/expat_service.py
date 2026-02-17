@@ -590,7 +590,7 @@ class ExpatService:
 
         optimisations = [
             "La Suisse n'a PAS d'exit tax — tu peux quitter sans impot sur les plus-values latentes.",
-            f"Planifie le timing du depart pour optimiser la declaration de l'annee de depart.",
+            "Planifie le timing du depart pour optimiser la declaration de l'annee de depart.",
         ]
         if cdi.get("pension_avs") == "residence":
             optimisations.append(

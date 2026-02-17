@@ -55,26 +55,29 @@ void main() {
       expect(plan.effectiveSalaireAssure, closeTo(63540, 0.01));
     });
 
-    test('applies custom coordination deduction', () {
+    test('applies custom coordination deduction, capped at max (LPP art. 8)', () {
       final plan = makePlan(salaireBrut: 90000, deductionCoordination: 20000);
-      expect(plan.effectiveSalaireAssure, closeTo(70000, 0.01));
+      // 90000 - 20000 = 70000, capped at lppSalaireCoordMax = 64260
+      expect(plan.effectiveSalaireAssure, closeTo(lppSalaireCoordMax, 0.01));
     });
 
-    test('floors to zero when salary below coordination deduction', () {
+    test('floors to zero when salary below LPP entry threshold (LPP art. 7)', () {
       final plan = makePlan(salaireBrut: 20000);
-      // 20000 - 26460 = -6460 -> floored to 0
+      // 20000 < lppSeuilEntree (22680) -> no LPP coverage -> 0
       expect(plan.effectiveSalaireAssure, 0.0);
     });
 
-    test('minimum coordinated salary edge — exactly at threshold', () {
-      // Salary exactly equals coordination deduction -> insured = 0
+    test('minimum coordinated salary edge — exactly at coordination deduction', () {
+      // Salary exactly equals coordination deduction (26460 > 22680 seuil)
+      // 26460 - 26460 = 0, but clamped to lppSalaireCoordMin = 3780 (LPP art. 8 al. 2)
       final plan = makePlan(salaireBrut: lppDeductionCoordination);
-      expect(plan.effectiveSalaireAssure, 0.0);
+      expect(plan.effectiveSalaireAssure, lppSalaireCoordMin);
     });
 
-    test('salary just above coordination deduction', () {
+    test('salary just above coordination deduction clamps to min coordinated', () {
       final plan = makePlan(salaireBrut: lppDeductionCoordination + 100);
-      expect(plan.effectiveSalaireAssure, closeTo(100, 0.01));
+      // 26560 - 26460 = 100, but clamped to lppSalaireCoordMin = 3780
+      expect(plan.effectiveSalaireAssure, lppSalaireCoordMin);
     });
   });
 
@@ -108,7 +111,7 @@ void main() {
         () {
       // No explicit rates -> _estimateCotisationRate => 10 * (100-50)/100 = 5%
       final plan = makePlan(salaireBrut: 90000, partEmployeurPct: 50.0);
-      final insured = plan.effectiveSalaireAssure; // 63540
+      // effectiveSalaireAssure = 63540
       // Employee rate estimated at 5%, employer also 5% (50/50 split)
       // Total = 63540 * 10% = 6354
       expect(plan.totalCotisationAnnuelle, closeTo(6354, 0.01));
