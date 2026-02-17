@@ -344,11 +344,307 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           child: _ContributionRow(
             contribution: contribution,
             controller: _amountControllers[i],
+            onDelete: () => _removeContribution(i),
           ),
         ),
       );
     }
+    // Add button
+    rows.add(_buildAddContributionButton());
     return rows;
+  }
+
+  Widget _buildAddContributionButton() {
+    final s = S.of(context);
+    return GestureDetector(
+      onTap: _showAddContributionSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.coachAccent.withValues(alpha: 0.3),
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_circle_outline, color: MintColors.coachAccent, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              s?.checkinAddContribution ?? 'Ajouter un versement',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: MintColors.coachAccent,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _removeContribution(int index) {
+    setState(() {
+      final contributions = List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
+      contributions.removeAt(index);
+      _amountControllers[index].dispose();
+      _amountControllers.removeAt(index);
+      _profile = _profile.copyWithContributions(contributions);
+    });
+  }
+
+  void _showAddContributionSheet() {
+    final s = S.of(context);
+    final categories = [
+      ('3a', s?.checkinCat3a ?? 'Pilier 3a', Icons.savings, const Color(0xFF4F46E5)),
+      ('lpp_buyback', s?.checkinCatLpp ?? 'Rachat LPP', Icons.account_balance, const Color(0xFF0891B2)),
+      ('investissement', s?.checkinCatInvest ?? 'Investissement', Icons.trending_up, MintColors.success),
+      ('epargne_libre', s?.checkinCatEpargne ?? 'Epargne libre', Icons.wallet, MintColors.warning),
+    ];
+
+    String selectedCategory = '3a';
+    final labelController = TextEditingController();
+    final amountController = TextEditingController();
+    bool isAutomatic = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return Container(
+              padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: MintColors.border,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    s?.checkinAddContribution ?? 'Ajouter un versement',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Category chips
+                  Text(
+                    s?.checkinCategoryLabel ?? 'Catégorie',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: categories.map((cat) {
+                      final isSelected = selectedCategory == cat.$1;
+                      return GestureDetector(
+                        onTap: () => setSheetState(() => selectedCategory = cat.$1),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? cat.$4.withValues(alpha: 0.12) : MintColors.surface,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected ? cat.$4 : MintColors.lightBorder,
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(cat.$3, size: 16, color: isSelected ? cat.$4 : MintColors.textMuted),
+                              const SizedBox(width: 6),
+                              Text(
+                                cat.$2,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                  color: isSelected ? cat.$4 : MintColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Label
+                  Text(
+                    s?.checkinLabelField ?? 'Nom',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: labelController,
+                    style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: s?.checkinLabelHint ?? 'Ex: 3a VIAC, Epargne vacances...',
+                      hintStyle: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
+                      filled: true,
+                      fillColor: MintColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: MintColors.lightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: MintColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: MintColors.coachAccent, width: 1.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Amount
+                  Text(
+                    s?.checkinAmountField ?? 'Montant mensuel',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+                    decoration: InputDecoration(
+                      prefixText: 'CHF ',
+                      prefixStyle: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
+                      hintText: '0.00',
+                      hintStyle: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
+                      filled: true,
+                      fillColor: MintColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: MintColors.lightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: MintColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: MintColors.coachAccent, width: 1.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Auto/Manual toggle
+                  Row(
+                    children: [
+                      Text(
+                        s?.checkinAutoToggle ?? 'Ordre permanent (automatique)',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                      const Spacer(),
+                      Switch.adaptive(
+                        value: isAutomatic,
+                        onChanged: (v) => setSheetState(() => isAutomatic = v),
+                        activeColor: MintColors.coachAccent,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Confirm button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final label = labelController.text.trim();
+                        final amount = double.tryParse(amountController.text) ?? 0;
+                        if (label.isEmpty || amount <= 0) return;
+
+                        final id = '${selectedCategory}_${label.toLowerCase().replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}';
+                        final contribution = PlannedMonthlyContribution(
+                          id: id,
+                          label: label,
+                          amount: amount,
+                          category: selectedCategory,
+                          isAutomatic: isAutomatic,
+                        );
+
+                        Navigator.of(ctx).pop();
+                        _addContribution(contribution);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MintColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        s?.checkinAddConfirm ?? 'Ajouter',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _addContribution(PlannedMonthlyContribution contribution) {
+    setState(() {
+      final contributions = List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
+      contributions.add(contribution);
+      _amountControllers.add(
+        TextEditingController(text: contribution.amount.toStringAsFixed(2)),
+      );
+      _profile = _profile.copyWithContributions(contributions);
+    });
   }
 
   // ── Exceptional field ──────────────────────────────────────
@@ -800,10 +1096,12 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 class _ContributionRow extends StatelessWidget {
   final PlannedMonthlyContribution contribution;
   final TextEditingController controller;
+  final VoidCallback? onDelete;
 
   const _ContributionRow({
     required this.contribution,
     required this.controller,
+    this.onDelete,
   });
 
   @override
@@ -812,124 +1110,145 @@ class _ContributionRow extends StatelessWidget {
     final icon = iconForCategory(contribution.category);
     final color = colorForCategory(contribution.category);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1D1D1F).withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1D1D1F).withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Category icon
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 14),
+          child: Row(
+            children: [
+              // Category icon
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 14),
 
-          // Label + auto/manual badge
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  contribution.label,
+              // Label + auto/manual badge
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      contribution.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: contribution.isAutomatic
+                            ? MintColors.success.withValues(alpha: 0.1)
+                            : MintColors.surface,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        contribution.isAutomatic ? (s?.checkinAuto ?? 'Auto') : (s?.checkinManuel ?? 'Manuel'),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: contribution.isAutomatic
+                              ? MintColors.success
+                              : MintColors.textMuted,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Amount input
+              SizedBox(
+                width: 120,
+                child: TextFormField(
+                  controller: controller,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textAlign: TextAlign.right,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: contribution.isAutomatic
-                        ? MintColors.success.withValues(alpha: 0.1)
-                        : MintColors.surface,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    contribution.isAutomatic ? (s?.checkinAuto ?? 'Auto') : (s?.checkinManuel ?? 'Manuel'),
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: contribution.isAutomatic
-                          ? MintColors.success
-                          : MintColors.textMuted,
+                  decoration: InputDecoration(
+                    prefixText: 'CHF ',
+                    prefixStyle: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textMuted,
                     ),
+                    filled: true,
+                    fillColor: MintColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: MintColors.lightBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: MintColors.coachAccent,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    isDense: true,
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return null; // optional
+                    if (double.tryParse(value) == null) return s?.checkinInvalidAmount ?? 'Montant invalide';
+                    return null;
+                  },
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+        // Delete button
+        if (onDelete != null)
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: onDelete,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: MintColors.error.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.close, size: 14, color: MintColors.error),
+              ),
             ),
           ),
-
-          // Amount input
-          SizedBox(
-            width: 120,
-            child: TextFormField(
-              controller: controller,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              textAlign: TextAlign.right,
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
-              decoration: InputDecoration(
-                prefixText: 'CHF ',
-                prefixStyle: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textMuted,
-                ),
-                filled: true,
-                fillColor: MintColors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: MintColors.lightBorder),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                    color: MintColors.coachAccent,
-                    width: 1.5,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 12,
-                ),
-                isDense: true,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) return null; // optional
-                if (double.tryParse(value) == null) return s?.checkinInvalidAmount ?? 'Montant invalide';
-                return null;
-              },
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

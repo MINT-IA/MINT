@@ -686,6 +686,37 @@ class CoachProfile {
       etatCivil == CoachCivilStatus.marie ||
       etatCivil == CoachCivilStatus.concubinage;
 
+  /// Copie le profil avec une nouvelle liste de contributions
+  CoachProfile copyWithContributions(List<PlannedMonthlyContribution> contributions) {
+    return CoachProfile(
+      firstName: firstName,
+      birthYear: birthYear,
+      canton: canton,
+      commune: commune,
+      etatCivil: etatCivil,
+      nombreEnfants: nombreEnfants,
+      conjoint: conjoint,
+      salaireBrutMensuel: salaireBrutMensuel,
+      nombreDeMois: nombreDeMois,
+      bonusPourcentage: bonusPourcentage,
+      employmentStatus: employmentStatus,
+      depenses: depenses,
+      prevoyance: prevoyance,
+      patrimoine: patrimoine,
+      dettes: dettes,
+      goalA: goalA,
+      goalsB: goalsB,
+      plannedContributions: contributions,
+      checkIns: checkIns,
+      housingStatus: housingStatus,
+      riskTolerance: riskTolerance,
+      realEstateProject: realEstateProject,
+      providers3a: providers3a,
+      createdAt: createdAt,
+      updatedAt: DateTime.now(),
+    );
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  BRIDGE → BUDGET
   // ════════════════════════════════════════════════════════════════
