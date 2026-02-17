@@ -21,7 +21,17 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.v1.endpoints.documents import _detect_document_type, _document_store
+from app.core.auth import require_current_user
 from app.main import app
+
+
+def _fake_user():
+    """Return a mock user object for auth override."""
+    from unittest.mock import MagicMock
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    return user
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -31,10 +41,12 @@ from app.main import app
 
 @pytest.fixture
 def client():
-    """Test client with a clean document store."""
+    """Test client with a clean document store and auth override."""
     _document_store.clear()
+    app.dependency_overrides[require_current_user] = _fake_user
     with TestClient(app) as c:
         yield c
+    app.dependency_overrides.pop(require_current_user, None)
     _document_store.clear()
 
 
@@ -478,7 +490,7 @@ class TestUploadWithMockedDocling:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "document_id" in data
+        assert "id" in data
         assert data["document_type"] in ("lpp_certificate", "salary_slip", "unknown")
         assert "extracted_fields" in data
         assert "confidence" in data
@@ -592,7 +604,7 @@ class TestIntegration:
             files={"file": ("cert.pdf", b"%PDF-1.4 data", "application/pdf")},
         )
         assert upload_resp.status_code == 200
-        doc_id = upload_resp.json()["document_id"]
+        doc_id = upload_resp.json()["id"]
 
         # List
         list_resp = client.get("/api/v1/documents/")
@@ -629,7 +641,7 @@ class TestIntegration:
             files={"file": ("cert.pdf", b"%PDF-1.4 data", "application/pdf")},
         )
         assert response.status_code == 200
-        doc_id = response.json()["document_id"]
+        doc_id = response.json()["id"]
 
         # Get the stored document and verify type is set
         get_resp = client.get(f"/api/v1/documents/{doc_id}")
@@ -653,7 +665,7 @@ class TestIntegration:
                 },
             )
             assert resp.status_code == 200
-            doc_ids.append(resp.json()["document_id"])
+            doc_ids.append(resp.json()["id"])
 
         # List shows 3
         list_resp = client.get("/api/v1/documents/")
@@ -700,13 +712,13 @@ class TestSchemaValidation:
         from app.schemas.document import DocumentUploadResponse
 
         resp = DocumentUploadResponse(
-            document_id="test-123",
+            id="test-123",
             document_type="lpp_certificate",
             confidence=0.85,
             fields_found=15,
             fields_total=18,
         )
-        assert resp.document_id == "test-123"
+        assert resp.id == "test-123"
         assert resp.rag_indexed is False
         assert resp.warnings == []
 
