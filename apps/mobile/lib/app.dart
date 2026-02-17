@@ -265,10 +265,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/report',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return AdvisorReportScreen(answers: extra);
-      },
+      redirect: (context, state) => '/report/v2',
     ),
     GoRoute(
       path: '/report/demo',
@@ -295,6 +292,7 @@ final _router = GoRouter(
           return ScoreRevealScreen(
             score: extra['score'] as FinancialFitnessScore,
             profile: extra['profile'] as CoachProfile,
+            wizardAnswers: extra['wizardAnswers'] as Map<String, dynamic>? ?? {},
           );
         }
         // Fallback: navigate home if data is missing

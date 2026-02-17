@@ -138,7 +138,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Column(
       children: [
         Text(
-          "Disponible cette periode",
+          "Disponible ce mois",
           style: GoogleFonts.inter(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -159,6 +159,77 @@ class _BudgetScreenState extends State<BudgetScreen>
               ),
             );
           },
+        ),
+        const SizedBox(height: 16),
+        _buildBreakdown(),
+      ],
+    );
+  }
+
+  Widget _buildBreakdown() {
+    final income = widget.inputs.netIncome;
+    final housing = widget.inputs.housingCost;
+    final debt = widget.inputs.debtPayments;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          _breakdownRow('Revenu net', income, isPositive: true),
+          if (housing > 0) ...[
+            const SizedBox(height: 8),
+            _breakdownRow('Logement', housing),
+          ],
+          if (debt > 0) ...[
+            const SizedBox(height: 8),
+            _breakdownRow('Remboursement dettes', debt),
+          ],
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Divider(height: 1),
+          ),
+          _breakdownRow(
+            'Disponible',
+            income - housing - debt,
+            isPositive: true,
+            isBold: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _breakdownRow(String label, double amount,
+      {bool isPositive = false, bool isBold = false}) {
+    final sign = isPositive ? '' : '– ';
+    final displayAmount = isPositive ? amount : amount;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+            color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+          ),
+        ),
+        Text(
+          '$sign CHF ${displayAmount.toStringAsFixed(0)}',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+            color: isBold
+                ? MintColors.primary
+                : isPositive
+                    ? MintColors.textPrimary
+                    : MintColors.error,
+          ),
         ),
       ],
     );

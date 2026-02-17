@@ -137,28 +137,10 @@ class WizardQuestionsV2 {
         // ═══════════════════════════════════════════════════════════
 
         WizardQuestion(
-          id: 'q_pay_frequency',
-          title: 'À quelle fréquence reçois-tu ton salaire ?',
-          subtitle: 'Pour calculer ton revenu mensuel précisément',
-          type: QuestionType.choice,
-          options: [
-            QuestionOption(
-                label: 'Mensuel', value: 'monthly', icon: 'calendar_month'),
-            QuestionOption(
-                label: 'Bimensuel (2x/mois)',
-                value: 'biweekly',
-                icon: 'timelapse'),
-            QuestionOption(
-                label: 'Hebdomadaire', value: 'weekly', icon: 'view_week'),
-          ],
-          tags: ['budget'],
-        ),
-
-        WizardQuestion(
           id: 'q_net_income_period_chf',
-          title: 'Revenu net par période ?',
+          title: 'Ton revenu net mensuel ?',
           subtitle:
-              'Ce que tu reçois sur ton compte. Si marié(e), indique le revenu total du ménage.',
+              'Ce que tu reçois sur ton compte chaque mois.\nSi marié·e, indique le revenu total du ménage.',
           type: QuestionType.number,
           tags: ['budget', 'sensitive'],
           minValue: 0,
@@ -183,8 +165,8 @@ class WizardQuestionsV2 {
 
         WizardQuestion(
           id: 'q_housing_cost_period_chf',
-          title: 'Coût logement par période ?',
-          subtitle: 'Loyer ou Hypothèque + Charges.',
+          title: 'Coût logement par mois ?',
+          subtitle: 'Loyer ou hypothèque + charges.',
           type: QuestionType.number,
           tags: ['budget', 'housing'],
           minValue: 0,
@@ -201,6 +183,30 @@ class WizardQuestionsV2 {
             QuestionOption(label: 'Oui', value: 'yes', icon: 'warning'),
           ],
           tags: ['budget', 'debt'],
+        ),
+
+        // Follow-up: montant mensuel des remboursements
+        WizardQuestion(
+          id: 'q_debt_payments_period_chf',
+          title: 'Combien rembourses-tu par mois ?',
+          subtitle:
+              'Total de tous tes remboursements mensuels\n(leasing, petit crédit, cartes de crédit…)',
+          type: QuestionType.number,
+          tags: ['budget', 'debt'],
+          minValue: 0,
+          condition: (answers) => answers['q_has_consumer_debt'] == 'yes',
+        ),
+
+        // Follow-up: solde total restant
+        WizardQuestion(
+          id: 'q_total_debt_balance_chf',
+          title: 'Quel est le solde total de tes dettes ?',
+          subtitle:
+              'Montant total restant à rembourser (tous crédits confondus).\nNécessaire pour calculer un plan de sortie.',
+          type: QuestionType.number,
+          tags: ['budget', 'debt'],
+          minValue: 0,
+          condition: (answers) => answers['q_has_consumer_debt'] == 'yes',
         ),
 
         WizardQuestion(

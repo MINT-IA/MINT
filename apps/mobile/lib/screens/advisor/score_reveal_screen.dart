@@ -10,30 +10,32 @@ import 'package:mint_mobile/theme/colors.dart';
 //  SCORE REVEAL SCREEN — Post-Wizard "Ta-Da" Moment
 // ────────────────────────────────────────────────────────────
 //
-//  Ecran plein ecran anime qui revele le Financial Fitness Score
-//  apres la completion du wizard. Inspire de :
-//    - Strava Activity Summary (stats animees, achievements)
+//  Écran plein écran animé qui révèle le Financial Fitness Score
+//  après la complétion du wizard. Inspiré de :
+//    - Strava Activity Summary (stats animées, achievements)
 //    - TrainerRoad Workout Complete (fitness score update)
 //    - Apple Watch closing rings
 //
 //  5 phases d'animation :
-//    Phase 1 (0-800ms)    : Fond gradient + titre "Ton diagnostic est pret"
-//    Phase 2 (800-2000ms) : Jauge circulaire anime de 0 au score
-//    Phase 3 (2000-3000ms): 3 barres sous-scores (slide in echelonne)
-//    Phase 4 (3000-3500ms): Message coach avec effet machine a ecrire
+//    Phase 1 (0-800ms)    : Fond gradient + titre "Ton diagnostic est prêt"
+//    Phase 2 (800-2000ms) : Jauge circulaire animé de 0 au score
+//    Phase 3 (2000-3000ms): 3 barres sous-scores (slide in échelonné)
+//    Phase 4 (3000-3500ms): Message coach avec effet machine à écrire
 //    Phase 5 (3500ms+)    : Bouton CTA "Voir mon dashboard"
 //
-//  Widget pur — recoit FinancialFitnessScore et CoachProfile en props.
+//  Widget pur — reçoit FinancialFitnessScore et CoachProfile en props.
 // ────────────────────────────────────────────────────────────
 
 class ScoreRevealScreen extends StatefulWidget {
   final FinancialFitnessScore score;
   final CoachProfile profile;
+  final Map<String, dynamic> wizardAnswers;
 
   const ScoreRevealScreen({
     super.key,
     required this.score,
     required this.profile,
+    this.wizardAnswers = const {},
   });
 
   @override
@@ -332,7 +334,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  PHASE 1: Title "Ton diagnostic est pret"
+  //  PHASE 1: Title "Ton diagnostic est prêt"
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildPhase1Title() {
@@ -355,7 +357,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             const SizedBox(height: 8),
             // Main title
             Text(
-              'Ton diagnostic\nest pret.',
+              'Ton diagnostic\nest prêt.',
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontSize: 34,
@@ -499,7 +501,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             ),
             const SizedBox(height: 14),
             _buildSubScoreRow(
-              label: 'Prevoyance',
+              label: 'Prévoyance',
               score: widget.score.prevoyance.score,
               icon: Icons.shield_outlined,
               slideOffset: _subScorePrevoyanceSlide.value,
@@ -727,10 +729,10 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
           // Secondary action
           TextButton(
             onPressed: _ctaOpacity.value > 0.5
-                ? () => context.go('/report/v2', extra: {})
+                ? () => context.go('/report/v2', extra: widget.wizardAnswers)
                 : null,
             child: Text(
-              'Voir le rapport detaille',
+              'Voir le rapport détaillé',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -751,7 +753,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
     return Opacity(
       opacity: _ctaOpacity.value * 0.8,
       child: Text(
-        'Outil educatif \u2014 ne constitue pas un conseil financier (LSFin).',
+        'Outil éducatif \u2014 ne constitue pas un conseil financier (LSFin).',
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 10,
@@ -767,9 +769,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
 //  REVEAL GAUGE PAINTER
 // ────────────────────────────────────────────────────────────
 //
-//  Arc de 270 degres sur fond sombre.
-//  Track tres subtil + arc colore avec gradient + glow au bout.
-//  Coherent avec _ScoreGaugePainter de MintScoreGauge.
+//  Arc de 270 degrés sur fond sombre.
+//  Track très subtil + arc coloré avec gradient + glow au bout.
+//  Cohérent avec _ScoreGaugePainter de MintScoreGauge.
 // ────────────────────────────────────────────────────────────
 
 class _RevealGaugePainter extends CustomPainter {

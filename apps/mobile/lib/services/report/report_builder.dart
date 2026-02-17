@@ -95,7 +95,7 @@ class ReportBuilder {
               const NextAction(
                   label: 'Lire le guide "Sortir du rouge"',
                   type: NextActionType.learn,
-                  deepLink: 'https://mint.ch/dette')
+                  deepLink: '/debt/repayment')
             ],
           ));
     }
@@ -118,7 +118,7 @@ class ReportBuilder {
             const NextAction(
                 label: 'Comparer les offres',
                 type: NextActionType.partnerHandoff,
-                deepLink: 'https://mint.ch/3a')
+                deepLink: '/simulator/3a')
           ],
         ));
       } else {
@@ -137,7 +137,7 @@ class ReportBuilder {
             const NextAction(
                 label: 'Checklist frais',
                 type: NextActionType.checklist,
-                deepLink: 'https://mint.ch/3a-check')
+                deepLink: '/3a-deep/comparator')
           ],
         ));
       }
@@ -157,7 +157,7 @@ class ReportBuilder {
         nextAction: const NextAction(
             label: 'Lire guide "Concubinage"',
             type: NextActionType.learn,
-            deepLink: 'https://mint.ch/concubinage'),
+            deepLink: '/concubinage'),
       ));
     }
 
@@ -169,7 +169,9 @@ class ReportBuilder {
         why: 'Tes dettes te coûtent trop cher.',
         ifThen: 'SI dette > 0 ALORS rembourser avant d\'investir.',
         nextAction: const NextAction(
-            label: 'Stratégie Avalanche', type: NextActionType.learn),
+            label: 'Stratégie Avalanche',
+            type: NextActionType.simulate,
+            deepLink: '/debt/repayment'),
       ));
     } else if (!isCohabiting) {
       // Si pas de warning concubinage, on met le budget en top

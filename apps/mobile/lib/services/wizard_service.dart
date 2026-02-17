@@ -144,7 +144,6 @@ class WizardService {
       'q_canton',
       'q_birth_year',
       'q_household_type',
-      'q_pay_frequency', // Priorité budget
       'q_net_income_period_chf', // Priorité budget
       'q_savings_monthly',
       'q_has_3a',

@@ -47,7 +47,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (civilStatus == 'single' || civilStatus == 'concubinage') {
     suggestions.add(const LifeEventSuggestion(
       title: 'Mariage',
-      reason: 'Decouvre l\'impact fiscal et sur la prevoyance',
+      reason: 'Découvre l\'impact fiscal et sur la prévoyance',
       icon: Icons.favorite_outline,
       route: '/mariage',
       color: MintColors.error,
@@ -57,7 +57,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (civilStatus == 'concubinage') {
     suggestions.add(const LifeEventSuggestion(
       title: 'Concubinage',
-      reason: 'Attention : aucune protection legale automatique',
+      reason: 'Attention : aucune protection légale automatique',
       icon: Icons.people_outline,
       route: '/concubinage',
       color: MintColors.warning,
@@ -79,7 +79,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (age >= 50 && childrenCount > 0) {
     suggestions.add(const LifeEventSuggestion(
       title: 'Planification successorale',
-      reason: 'Reserves hereditaires et quotite disponible (CC art. 470)',
+      reason: 'Réserves héréditaires et quotité disponible (CC art. 470)',
       icon: Icons.account_balance_outlined,
       route: '/life-event/succession',
       color: MintColors.primary,
@@ -89,7 +89,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (age >= 55 && monthlyNetIncome * 12 > 100000) {
     suggestions.add(const LifeEventSuggestion(
       title: 'Donation entre vifs',
-      reason: 'Anticipe ta succession et optimise la fiscalite',
+      reason: 'Anticipe ta succession et optimise la fiscalité',
       icon: Icons.card_giftcard,
       route: '/life-event/donation',
       color: MintColors.info,
@@ -121,7 +121,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (employmentStatus == 'independent') {
     suggestions.add(const LifeEventSuggestion(
       title: 'Outils independant',
-      reason: 'AVS, LPP volontaire, 3a elargi et dividende vs salaire',
+      reason: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
       icon: Icons.storefront_outlined,
       route: '/segments/independant',
       color: MintColors.success,
@@ -131,7 +131,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (age >= 55) {
     suggestions.add(const LifeEventSuggestion(
       title: 'Planification retraite',
-      reason: 'Rente vs capital, echelonnement 3a, lacune AVS',
+      reason: 'Rente vs capital, échelonnement 3a, lacune AVS',
       icon: Icons.elderly,
       route: '/retirement',
       color: MintColors.primary,
@@ -143,7 +143,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (monthlyNetIncome >= 5000 && age >= 25 && age <= 50) {
     suggestions.add(const LifeEventSuggestion(
       title: 'Achat immobilier',
-      reason: 'Simule ta capacite d\'emprunt et l\'apport EPL',
+      reason: 'Simule ta capacité d\'emprunt et l\'apport EPL',
       icon: Icons.home_outlined,
       route: '/mortgage/affordability',
       color: MintColors.success,
@@ -157,7 +157,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   if (highTaxCantons.contains(canton.toUpperCase())) {
     suggestions.add(const LifeEventSuggestion(
       title: 'Demenagement cantonal',
-      reason: 'Ton canton est parmi les plus imposes — compare les 26',
+      reason: 'Ton canton est parmi les plus imposés — compare les 26',
       icon: Icons.map_outlined,
       route: '/fiscal',
       color: MintColors.warning,
@@ -227,7 +227,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Modules adaptes a ton profil',
+                      'Modules adaptés à ton profil',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,

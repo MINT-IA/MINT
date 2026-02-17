@@ -30,11 +30,26 @@ class FinancialReportService {
     // 6. Stratégie rachat LPP (si applicable)
     final lppStrategy = _buildLppStrategy(answers, profile);
 
-    // 7. Actions prioritaires (top 3 from scoring)
-    final priorityActions = _buildPriorityActions(healthScore);
+    // 7. Actions prioritaires (top 3 from scoring) — enrichies avec gains calculés
+    final priorityActions = _buildPriorityActions(
+      healthScore,
+      taxSim: taxSim,
+      lppStrategy: lppStrategy,
+      pillar3aAnalysis: pillar3aAnalysis,
+    );
 
     // 8. Roadmap personnalisée
     final roadmap = _buildRoadmap(healthScore, answers, profile);
+
+    // 9. Sources juridiques par cercle
+    final sources = _buildJuridicalSources(healthScore);
+
+    // 10. Disclaimers dynamiques
+    final disclaimers = _buildDisclaimers(
+      taxSim: taxSim,
+      retirementProj: retirementProj,
+      lppStrategy: lppStrategy,
+    );
 
     return FinancialReport(
       profile: profile,
@@ -45,9 +60,78 @@ class FinancialReportService {
       lppBuybackStrategy: lppStrategy,
       priorityActions: priorityActions,
       personalizedRoadmap: roadmap,
+      disclaimers: disclaimers,
+      sources: sources,
       generatedAt: DateTime.now(),
       reportVersion: '2.0',
     );
+  }
+
+  /// Construit la liste des sources juridiques en fonction des cercles activés
+  List<String> _buildJuridicalSources(FinancialHealthScore healthScore) {
+    final sources = <String>[];
+
+    // Cercle 1 — Protection / dette / urgence
+    if (healthScore.circle1Protection.items.isNotEmpty) {
+      sources.add('LP art. 93 — Minimum vital');
+      sources.add('Directives CSIAS');
+    }
+
+    // Cercle 2 — Prévoyance / LPP / AVS / 3a
+    if (healthScore.circle2Prevoyance.items.isNotEmpty) {
+      sources.add('LPP art. 14 — Taux de conversion');
+      sources.add('OPP3 — 3e pilier');
+      sources.add('LAVS — Rentes');
+    }
+
+    // Cercle 3 — Croissance / investissement / fiscalité
+    if (healthScore.circle3Croissance.items.isNotEmpty) {
+      sources.add('LIFD art. 33 — Déductions fiscales');
+    }
+
+    // Cercle 4 — Optimisation / succession / assurance
+    if (healthScore.circle4Optimisation.items.isNotEmpty) {
+      sources.add('CC art. 470 — Réserves héréditaires');
+      sources.add('LIFD — Impôt fédéral');
+    }
+
+    return sources;
+  }
+
+  /// Construit la liste des disclaimers dynamiques selon les simulations actives
+  List<String> _buildDisclaimers({
+    required TaxSimulation taxSim,
+    RetirementProjection? retirementProj,
+    LppBuybackStrategy? lppStrategy,
+  }) {
+    final disclaimers = <String>[
+      'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
+      'Les montants sont des estimations basées sur les données déclarées.',
+      'Les performances passées ne préjugent pas des performances futures.',
+    ];
+
+    // Disclaimer fiscal (toujours présent car taxSim est required)
+    if (taxSim.totalTax > 0) {
+      disclaimers.add(
+        'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
+      );
+    }
+
+    // Disclaimer retraite
+    if (retirementProj != null) {
+      disclaimers.add(
+        'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
+      );
+    }
+
+    // Disclaimer rachat LPP
+    if (lppStrategy != null) {
+      disclaimers.add(
+        'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
+      );
+    }
+
+    return disclaimers;
   }
 
   UserProfile _buildUserProfile(Map<String, dynamic> answers) {
@@ -295,29 +379,50 @@ class FinancialReportService {
     );
   }
 
-  List<ActionItem> _buildPriorityActions(FinancialHealthScore healthScore) {
+  List<ActionItem> _buildPriorityActions(
+    FinancialHealthScore healthScore, {
+    TaxSimulation? taxSim,
+    LppBuybackStrategy? lppStrategy,
+    Pillar3aAnalysis? pillar3aAnalysis,
+  }) {
     final actions = <ActionItem>[];
 
     // Extraire les top recommandations de chaque cercle
     for (final reco in healthScore.topPriorities) {
-      final action = _parseRecommendationToAction(reco);
+      final action = _parseRecommendationToAction(
+        reco,
+        taxSim: taxSim,
+        lppStrategy: lppStrategy,
+        pillar3aAnalysis: pillar3aAnalysis,
+      );
       if (action != null) actions.add(action);
     }
 
     return actions.take(3).toList();
   }
 
-  ActionItem? _parseRecommendationToAction(String recommendation) {
-    // Parsing simple basé sur keywords
+  ActionItem? _parseRecommendationToAction(
+    String recommendation, {
+    TaxSimulation? taxSim,
+    LppBuybackStrategy? lppStrategy,
+    Pillar3aAnalysis? pillar3aAnalysis,
+  }) {
+    // Parsing basé sur keywords avec gains calculés à partir des données réelles
     if (recommendation.contains('2e compte 3a')) {
-      return const ActionItem(
+      // Gain réel : économie fiscale au retrait via échelonnement + rendement vs banque
+      final gainVsBank = pillar3aAnalysis?.potentialGainVsBank;
+      final withdrawalSavings = pillar3aAnalysis?.withdrawalOptimizationSavings;
+      final totalGain = (gainVsBank ?? 0) + (withdrawalSavings ?? 0);
+      final computedGain = totalGain > 0 ? totalGain : 12000.0;
+
+      return ActionItem(
         title: 'Ouvre un 2e compte 3a chez VIAC',
         description:
             'Optimise ta fiscalité au retrait et diversifie tes placements.',
         priority: ActionPriority.high,
-        potentialGainChf: 12000,
+        potentialGainChf: computedGain,
         category: ActionCategory.pillar3a,
-        steps: [
+        steps: const [
           '1. Va sur viac.ch',
           '2. Crée ton compte (10 min)',
           '3. Choisis stratégie 60% actions',
@@ -327,16 +432,22 @@ class FinancialReportService {
     }
 
     if (recommendation.contains('rachat LPP')) {
-      return const ActionItem(
+      // Gain réel : économie fiscale totale calculée par la stratégie LPP
+      final computedGain = lppStrategy?.totalTaxSavings ?? 0;
+      final displayGain = computedGain > 0 ? computedGain : 60000.0;
+      final nbYears = lppStrategy?.yearlyPlan.length ?? 4;
+
+      return ActionItem(
         title: 'Planifie ton rachat LPP échelonné',
-        description: 'Économise jusqu\'à 60\'000 CHF d\'impôts sur 4 ans.',
+        description:
+            'Économise jusqu\'à CHF ${displayGain.toStringAsFixed(0)} d\'impôts sur $nbYears ans.',
         priority: ActionPriority.critical,
-        potentialGainChf: 60000,
+        potentialGainChf: displayGain,
         category: ActionCategory.lpp,
-        steps: [
+        steps: const [
           '1. Demande certificat LPP à ta caisse',
           '2. Vérifie montant rachetable exact',
-          '3. Planifie rachat 50k CHF/an sur 4 ans',
+          '3. Planifie rachat échelonné avant retraite',
           '4. Effectue 1er rachat avant 31 décembre',
         ],
       );
@@ -359,7 +470,8 @@ class FinancialReportService {
     if (recommendation.contains('dette') || recommendation.contains('crédit')) {
       return const ActionItem(
         title: 'Rembourse tes dettes de consommation',
-        description: 'C\'est le placement le plus rentable (6-10% garanti).',
+        description:
+            'C\'est le placement le plus rentable : tu économises 6-10% par an sur les intérêts.',
         priority: ActionPriority.critical,
         potentialGainChf: 2000,
         category: ActionCategory.protection,

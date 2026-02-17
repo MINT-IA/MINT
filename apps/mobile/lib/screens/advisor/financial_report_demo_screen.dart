@@ -24,7 +24,6 @@ class FinancialReportDemoScreen extends StatelessWidget {
       'q_emergency_fund': 'yes_3months', // 3-6 mois
       'q_has_consumer_debt': 'no',
       'q_net_income_period_chf': 7800.0,
-      'q_pay_frequency': 'monthly',
       'q_housing_status': 'renter',
       'q_housing_cost_period_chf': 1830.0,
 

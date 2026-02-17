@@ -63,11 +63,10 @@ class WizardConditionsService {
           answers['q_avs_gaps'] != 'no';
     }
 
-    // 7. Logique Emploi → Fréquence de salaire
-    // Retraité(e) et Étudiant(e) n'ont pas de fréquence de salaire standard
-    if (questionId == 'q_pay_frequency') {
-      final status = answers['q_employment_status'];
-      if (status == 'retired' || status == 'student') return false;
+    // 7. Logique Dettes → Détails uniquement si dettes déclarées
+    if (questionId == 'q_debt_payments_period_chf' ||
+        questionId == 'q_total_debt_balance_chf') {
+      if (answers['q_has_consumer_debt'] != 'yes') return false;
     }
 
     // 8. Logique Emploi → LPP non pertinent pour étudiants

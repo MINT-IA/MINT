@@ -18,6 +18,10 @@ class FinancialReport {
   final List<ActionItem> priorityActions;
   final Roadmap personalizedRoadmap;
 
+  // Conformité & Sources juridiques
+  final List<String> disclaimers;
+  final List<String> sources; // ["LPP art. 14", "LIFD art. 33", ...]
+
   // Metadata & Traçabilité (Aligned with SOT.md)
   final DateTime generatedAt;
   final String reportVersion;
@@ -34,6 +38,8 @@ class FinancialReport {
     this.lppBuybackStrategy,
     required this.priorityActions,
     required this.personalizedRoadmap,
+    this.disclaimers = const [],
+    this.sources = const [],
     required this.generatedAt,
     this.reportVersion = '2.0',
     this.simulationAssumptions,

@@ -335,6 +335,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     context.go('/score-reveal', extra: {
       'score': score,
       'profile': profile,
+      'wizardAnswers': Map<String, dynamic>.from(_answers),
     });
   }
 

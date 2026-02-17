@@ -15,7 +15,7 @@ import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 
-/// Écran d'affichage du rapport financier exhaustif V2
+/// Ecran d'affichage du rapport financier exhaustif V2
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
 
@@ -23,6 +23,20 @@ class FinancialReportScreenV2 extends StatelessWidget {
     super.key,
     required this.wizardAnswers,
   });
+
+  // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
+  String _routeForCategory(ActionCategory category) {
+    return switch (category) {
+      ActionCategory.protection => '/budget',
+      ActionCategory.pillar3a => '/simulator/3a',
+      ActionCategory.lpp => '/lpp-deep/rachat',
+      ActionCategory.avs => '/retirement',
+      ActionCategory.tax => '/fiscal',
+      ActionCategory.insurance => '/assurances/lamal',
+      ActionCategory.investment => '/tools',
+      ActionCategory.other => '/tools',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +59,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          PdfService.generateFinancialReportPdf(report);
+        },
+        backgroundColor: MintColors.primary,
+        child: const Icon(Icons.picture_as_pdf, color: Colors.white),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,12 +75,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Top 3 Priorites
+            // Top 3 Priorités
             SafeModeGate(
               hasDebt: hasDebt,
-              lockedTitle: 'Priorite au desendettement',
+              lockedTitle: 'Priorité au désendettement',
               lockedMessage:
-                  'Tes actions prioritaires sont remplacees par un plan de desendettement. '
+                  'Tes actions prioritaires sont remplacées par un plan de désendettement. '
                   'Stabilise ta situation avant d\'explorer les recommandations.',
               child: _buildTopPriorities(context, report.priorityActions),
             ),
@@ -84,6 +105,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
               child:
                   CircleScoreCard(score: report.healthScore.circle1Protection),
             ),
+            // Source juridique: Protection
+            _buildSourceReference('LP art. 93, Directives CSIAS'),
             const SizedBox(height: 16),
 
             Padding(
@@ -91,6 +114,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
               child:
                   CircleScoreCard(score: report.healthScore.circle2Prevoyance),
             ),
+            // Source juridique: Prévoyance
+            _buildSourceReference('LPP art. 14, OPP3, LAVS'),
             const SizedBox(height: 16),
 
             Padding(
@@ -98,6 +123,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
               child:
                   CircleScoreCard(score: report.healthScore.circle3Croissance),
             ),
+            // Source juridique: Croissance
+            _buildSourceReference('LIFD art. 33'),
             const SizedBox(height: 16),
 
             Padding(
@@ -105,6 +132,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
               child: CircleScoreCard(
                   score: report.healthScore.circle4Optimisation),
             ),
+            // Source juridique: Optimisation
+            _buildSourceReference('CC art. 470, LIFD'),
 
             const SizedBox(height: 24),
 
@@ -125,10 +154,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SafeModeGate(
                   hasDebt: hasDebt,
-                  lockedTitle: 'Priorite au desendettement',
+                  lockedTitle: 'Priorité au désendettement',
                   lockedMessage:
-                      'Le comparateur 3a est desactive tant que tu as des dettes actives. '
-                      'Rembourser tes dettes est prioritaire avant toute epargne 3a.',
+                      'Le comparateur 3a est désactivée tant que tu as des dettes actives. '
+                      'Rembourser tes dettes est prioritaire avant toute épargne 3a.',
                   child: Pillar3aComparatorWidget(
                     monthlyIncome: report.profile.monthlyNetIncome,
                     yearsUntilRetirement: report.profile.yearsToRetirement,
@@ -151,14 +180,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Strategie rachat LPP
+            // Stratégie rachat LPP
             if (report.lppBuybackStrategy != null)
               SafeModeGate(
                 hasDebt: hasDebt,
                 lockedTitle: 'Rachat LPP bloque',
                 lockedMessage:
-                    'Le rachat LPP est desactive en mode protection. '
-                    'Rembourser tes dettes avant de bloquer de la liquidite dans la prevoyance.',
+                    'Le rachat LPP est désactivée en mode protection. '
+                    'Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.',
                 child: _buildLppBuybackSection(report.lppBuybackStrategy!),
               ),
 
@@ -175,6 +204,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 canton: report.profile.canton,
               ),
             ),
+
+            const SizedBox(height: 32),
+
+            // ── SoA Compliance Section ──
+            _buildSoaComplianceSection(report),
+
+            const SizedBox(height: 24),
+
+            // ── Disclaimer Footer ──
+            _buildDisclaimerFooter(),
 
             const SizedBox(height: 40),
           ],
@@ -285,19 +324,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  String _getActionRoute(String title) {
-    final lower = title.toLowerCase();
-    if (lower.contains('3a') || lower.contains('pilier')) return '/education/theme/3a';
-    if (lower.contains('lpp') || lower.contains('caisse')) return '/education/theme/lpp';
-    if (lower.contains('dette') || lower.contains('crédit')) return '/budget';
-    if (lower.contains('urgence') || lower.contains('épargne')) return '/education/theme/emergency';
-    if (lower.contains('impôt') || lower.contains('fiscal')) return '/tools';
-    if (lower.contains('avs')) return '/education/theme/avs';
-    if (lower.contains('budget')) return '/budget';
-    if (lower.contains('assurance') || lower.contains('lamal')) return '/education/theme/lamal';
-    if (lower.contains('hypothèque') || lower.contains('immobilier')) return '/tools';
-    return '/tools';
-  }
+  // _getActionRoute removed — use _routeForCategory(action.category) instead
 
   Widget _buildActionCard(BuildContext context, ActionItem action) {
     Color priorityColor;
@@ -389,7 +416,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => context.push(_getActionRoute(action.title)),
+              onPressed: () => context.push(_routeForCategory(action.category)),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: const Text('Commencer'),
               style: FilledButton.styleFrom(
@@ -712,6 +739,265 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 0.35, // TODO: Utiliser le vrai taux marginal du profil
               ),
               accentColor: Colors.green.shade700,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  SOURCES JURIDIQUES — Reference after each circle section
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildSourceReference(String source) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            Icons.gavel,
+            size: 12,
+            color: MintColors.textMuted.withValues(alpha: 0.6),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Source : $source',
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+                color: MintColors.textMuted,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  SOA COMPLIANCE SECTION — Transparence reglementaire
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildSoaComplianceSection(FinancialReport report) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.verified_outlined,
+                    size: 20, color: MintColors.info),
+                const SizedBox(width: 8),
+                Text(
+                  'Transparence et conformité',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Nature du service
+            _buildSoaRow(
+              'Nature du service',
+              report.personalizedRoadmap.phases.isNotEmpty
+                  ? 'Éducation financière — ${report.personalizedRoadmap.phases.length} phases identifiées'
+                  : 'Éducation financière personnalisée',
+            ),
+            const SizedBox(height: 12),
+
+            // Hypothèses de travail
+            _buildSoaSubSection(
+              'Hypothèses de travail',
+              Icons.settings_suggest_outlined,
+              [
+                'Revenus déclarés stables sur la période',
+                'Taux de conversion LPP obligatoire : 6.8%',
+                'Plafond 3a salarié : 7\'258 CHF/an',
+                'Rente AVS maximale : 30\'240 CHF/an',
+                if (report.simulationAssumptions != null)
+                  ...report.simulationAssumptions!.entries
+                      .map((e) => '${e.key} : ${e.value}'),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Conflits d'intérêts
+            _buildSoaSubSection(
+              'Conflits d\'intérêts',
+              Icons.handshake_outlined,
+              [
+                'Aucun conflit d\'intérêt identifié pour ce rapport.',
+                'MINT ne perçoit aucune commission sur les produits mentionnés.',
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Limitations
+            _buildSoaSubSection(
+              'Limitations',
+              Icons.info_outline,
+              [
+                'Basé sur les informations déclaratives uniquement',
+                'Estimation fiscale approximative (taux moyens cantonaux)',
+                'Ne prend pas en compte les revenus de fortune mobilière',
+                'Les projections ne tiennent pas compte de l\'inflation',
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSoaRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 140,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSoaSubSection(
+    String title,
+    IconData icon,
+    List<String> items,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: MintColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ...items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '\u2022 ',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: MintColors.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  DISCLAIMER FOOTER — Mention legale obligatoire
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildDisclaimerFooter() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: MintColors.lightBorder,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.shield_outlined,
+                    size: 14, color: MintColors.textMuted),
+                const SizedBox(width: 6),
+                Text(
+                  'Mention legale',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Outil éducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. '
+              'Les montants sont des estimations basées sur les données déclarées.',
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                color: MintColors.textMuted,
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+              ),
             ),
           ],
         ),
