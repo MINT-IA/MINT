@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +45,7 @@ class CoachAgirScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final coachProvider = context.watch<CoachProfileProvider>();
     final profile = coachProvider.profile ?? CoachProfile.buildDemo();
     final now = DateTime.now();
@@ -56,7 +58,7 @@ class CoachAgirScreen extends StatelessWidget {
     );
 
     // Build timeline events from profile + milestones
-    final timelineEvents = _buildTimelineEvents(profile);
+    final timelineEvents = _buildTimelineEvents(profile, s);
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -71,7 +73,7 @@ class CoachAgirScreen extends StatelessWidget {
 
                 // ── Section: Ce mois ─────────────────────────
                 _buildSectionHeader(
-                  title: 'Ce mois',
+                  title: s?.agirThisMonth ?? 'Ce mois',
                   subtitle: currentMonthLabel,
                   icon: Icons.calendar_today,
                   color: MintColors.coachAccent,
@@ -102,8 +104,8 @@ class CoachAgirScreen extends StatelessWidget {
 
                 // ── Section: Timeline ────────────────────────
                 _buildSectionHeader(
-                  title: 'Timeline',
-                  subtitle: 'Tes prochaines echeances',
+                  title: s?.agirTimeline ?? 'Timeline',
+                  subtitle: s?.agirTimelineSub ?? 'Tes prochaines échéances',
                   icon: Icons.timeline,
                   color: MintColors.info,
                 ),
@@ -122,15 +124,15 @@ class CoachAgirScreen extends StatelessWidget {
 
                 // ── Section: Historique ──────────────────────
                 _buildSectionHeader(
-                  title: 'Historique',
-                  subtitle: 'Tes check-ins passes',
+                  title: s?.agirHistory ?? 'Historique',
+                  subtitle: s?.agirHistorySub ?? 'Tes check-ins passés',
                   icon: Icons.history,
                   color: MintColors.success,
                 ),
                 const SizedBox(height: 16),
 
                 if (profile.checkIns.isEmpty)
-                  _buildEmptyHistory()
+                  _buildEmptyHistory(s)
                 else
                   ...profile.checkIns
                       .toList()
@@ -145,7 +147,7 @@ class CoachAgirScreen extends StatelessWidget {
                 const SizedBox(height: 32),
 
                 // Disclaimer
-                _buildDisclaimer(),
+                _buildDisclaimer(s),
               ]),
             ),
           ),
@@ -156,6 +158,7 @@ class CoachAgirScreen extends StatelessWidget {
 
   // ── AppBar ─────────────────────────────────────────────────
   Widget _buildAppBar(BuildContext context) {
+    final s = S.of(context);
     return SliverAppBar(
       pinned: true,
       automaticallyImplyLeading: false,
@@ -163,7 +166,7 @@ class CoachAgirScreen extends StatelessWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       title: Text(
-        'AGIR',
+        s?.agirTitle ?? 'AGIR',
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -225,6 +228,7 @@ class CoachAgirScreen extends StatelessWidget {
     required bool isDone,
     required String monthLabel,
   }) {
+    final s = S.of(context);
     if (isDone) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -245,7 +249,7 @@ class CoachAgirScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Check-in $monthLabel effectue',
+                s?.agirCheckinDone(monthLabel) ?? 'Check-in $monthLabel effectué',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -263,7 +267,7 @@ class CoachAgirScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Fait',
+                s?.agirDone ?? 'Fait',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -286,7 +290,7 @@ class CoachAgirScreen extends StatelessWidget {
         },
         icon: const Icon(Icons.edit_calendar, size: 20),
         label: Text(
-          'Faire mon check-in $monthLabel',
+          s?.agirCheckinCta(monthLabel) ?? 'Faire mon check-in $monthLabel',
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -305,7 +309,7 @@ class CoachAgirScreen extends StatelessWidget {
   }
 
   // ── Empty history ──────────────────────────────────────────
-  Widget _buildEmptyHistory() {
+  Widget _buildEmptyHistory(S? s) {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
@@ -322,7 +326,7 @@ class CoachAgirScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Pas encore de check-in',
+            s?.agirNoCheckin ?? 'Pas encore de check-in',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -331,7 +335,7 @@ class CoachAgirScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Fais ton premier check-in pour commencer a suivre ta progression.',
+            s?.agirNoCheckinSub ?? 'Fais ton premier check-in pour commencer à suivre ta progression.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -345,58 +349,62 @@ class CoachAgirScreen extends StatelessWidget {
   }
 
   // ── Build timeline events ──────────────────────────────────
-  List<_TimelineEvent> _buildTimelineEvents(CoachProfile profile) {
+  List<_TimelineEvent> _buildTimelineEvents(CoachProfile profile, S? s) {
     final now = DateTime.now();
     final events = <_TimelineEvent>[];
 
     // 1. 3a deadline — Dec of current year
     events.add(_TimelineEvent(
       date: DateTime(now.year, 12, 31),
-      title: 'Dernier jour versement 3a',
-      subtitle: 'Verifie que ton plafond est atteint avant fin decembre.',
+      title: s?.agirTimeline3a ?? 'Dernier jour versement 3a',
+      subtitle: s?.agirTimeline3aSub ?? 'Vérifie que ton plafond est atteint avant fin décembre.',
       icon: Icons.savings,
       color: const Color(0xFF4F46E5),
-      cta: 'Verifier mon 3a',
+      cta: s?.agirTimeline3aCta ?? 'Vérifier mon 3a',
     ));
 
     // 2. Tax filing — March of next year
     final taxYear = now.month <= 3 ? now.year : now.year + 1;
     events.add(_TimelineEvent(
       date: DateTime(taxYear, 3, 31),
-      title: 'Declaration impots ${profile.canton}',
-      subtitle: 'Pense a rassembler tes attestations 3a et LPP.',
+      title: s?.agirTimelineTax(profile.canton) ?? 'Déclaration impôts ${profile.canton}',
+      subtitle: s?.agirTimelineTaxSub ?? 'Pense à rassembler tes attestations 3a et LPP.',
       icon: Icons.description,
       color: MintColors.warning,
-      cta: 'Preparer mes documents',
+      cta: s?.agirTimelineTaxCta ?? 'Préparer mes documents',
     ));
 
     // 3. LAMal franchise — November of current year
     final lamalYear = now.month <= 11 ? now.year : now.year + 1;
     events.add(_TimelineEvent(
       date: DateTime(lamalYear, 11, 30),
-      title: 'Franchise LAMal (changer?)',
-      subtitle: 'Evalue si ta franchise actuelle est toujours adaptee.',
+      title: s?.agirTimelineLamal ?? 'Franchise LAMal (changer ?)',
+      subtitle: s?.agirTimelineLamalSub ?? 'Évalue si ta franchise actuelle est toujours adaptée.',
       icon: Icons.health_and_safety,
       color: MintColors.error,
-      cta: 'Simuler les franchises',
+      cta: s?.agirTimelineLamalCta ?? 'Simuler les franchises',
     ));
 
     // 4. Milestones from ForecasterService
-    final projection = ForecasterService.project(profile: profile);
-    for (final milestone in projection.milestones.take(3)) {
-      events.add(_TimelineEvent(
-        date: milestone.date,
-        title: milestone.label,
-        icon: Icons.flag,
-        color: MintColors.trajectoryBase,
-      ));
+    try {
+      final projection = ForecasterService.project(profile: profile);
+      for (final milestone in projection.milestones.take(3)) {
+        events.add(_TimelineEvent(
+          date: milestone.date,
+          title: milestone.label,
+          icon: Icons.flag,
+          color: MintColors.trajectoryBase,
+        ));
+      }
+    } catch (_) {
+      // Graceful degradation — skip milestones if projection fails
     }
 
     // 5. Retirement
     events.add(_TimelineEvent(
       date: profile.goalA.targetDate,
       title: 'Retraite ${profile.firstName ?? ''} (65 ans)',
-      subtitle: 'Ton objectif principal.',
+      subtitle: s?.agirTimelineRetireSub ?? 'Ton objectif principal.',
       icon: Icons.beach_access,
       color: MintColors.trajectoryOptimiste,
     ));
@@ -411,7 +419,7 @@ class CoachAgirScreen extends StatelessWidget {
   }
 
   // ── Disclaimer ─────────────────────────────────────────────
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S? s) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -430,9 +438,9 @@ class CoachAgirScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Outil educatif — ne constitue pas un conseil financier personnalise. '
-              'Les echeances et projections sont indicatives. '
-              'Consulte un·e specialiste pour un accompagnement adapte. LSFin.',
+              s?.agirDisclaimer ?? 'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
+              'Les échéances et projections sont indicatives. '
+              'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -461,6 +469,7 @@ class _MonthlyContributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final icon = iconForCategory(contribution.category);
     final color = colorForCategory(contribution.category);
 
@@ -555,7 +564,7 @@ class _MonthlyContributionRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              contribution.isAutomatic ? 'Auto' : 'Manuel',
+              contribution.isAutomatic ? (s?.agirAuto ?? 'Auto') : (s?.agirManuel ?? 'Manuel'),
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -894,7 +903,7 @@ class _HistoryRow extends StatelessWidget {
     if (id.contains('3a')) return '3a';
     if (id.contains('lpp')) return 'LPP';
     if (id.contains('ib') || id.contains('invest')) return 'Invest.';
-    if (id.contains('epargne')) return 'Epargne';
+    if (id.contains('epargne')) return 'Épargne';
     return id;
   }
 }

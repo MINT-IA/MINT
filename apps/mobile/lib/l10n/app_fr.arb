@@ -1165,5 +1165,117 @@
   },
   "byokCopilotActivated": "Ton copilote financier est activ\u00e9",
   "byokCopilotBody": "Pose ta premi\u00e8re question sur la finance suisse \u2014 3e pilier, imp\u00f4ts, LPP, budget...",
-  "byokTryNow": "Essayer maintenant"
+  "byokTryNow": "Essayer maintenant",
+
+  "trajectoryTitle": "Ta trajectoire",
+  "trajectorySubtitle": "3 sc\u00e9narios \u00b7 {years} ans",
+  "@trajectorySubtitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "trajectoryOptimiste": "Optimiste",
+  "trajectoryBase": "Base",
+  "trajectoryPrudent": "Prudent",
+  "trajectoryTauxRemplacement": "Taux de remplacement estim\u00e9 : ",
+  "trajectoryEmpty": "Pas encore de projection disponible",
+  "trajectoryEmptySub": "Compl\u00e8te ton profil pour voir ta trajectoire",
+  "trajectoryDisclaimer": "Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.",
+  "trajectoryDragHint": "Glisse pour explorer",
+  "trajectoryGoalLabel": "Cible",
+
+  "agirTitle": "AGIR",
+  "agirThisMonth": "Ce mois",
+  "agirTimeline": "Timeline",
+  "agirTimelineSub": "Tes prochaines \u00e9ch\u00e9ances",
+  "agirHistory": "Historique",
+  "agirHistorySub": "Tes check-ins pass\u00e9s",
+  "agirCheckinDone": "Check-in {month} effectu\u00e9",
+  "@agirCheckinDone": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "agirDone": "Fait",
+  "agirCheckinCta": "Faire mon check-in {month}",
+  "@agirCheckinCta": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "agirNoCheckin": "Pas encore de check-in",
+  "agirNoCheckinSub": "Fais ton premier check-in pour commencer \u00e0 suivre ta progression.",
+  "agirTimeline3a": "Dernier jour versement 3a",
+  "agirTimeline3aSub": "V\u00e9rifie que ton plafond est atteint avant fin d\u00e9cembre.",
+  "agirTimeline3aCta": "V\u00e9rifier mon 3a",
+  "agirTimelineTax": "D\u00e9claration imp\u00f4ts {canton}",
+  "@agirTimelineTax": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "agirTimelineTaxSub": "Pense \u00e0 rassembler tes attestations 3a et LPP.",
+  "agirTimelineTaxCta": "Pr\u00e9parer mes documents",
+  "agirTimelineLamal": "Franchise LAMal (changer ?)",
+  "agirTimelineLamalSub": "\u00c9value si ta franchise actuelle est toujours adapt\u00e9e.",
+  "agirTimelineLamalCta": "Simuler les franchises",
+  "agirTimelineRetireSub": "Ton objectif principal.",
+  "agirAuto": "Auto",
+  "agirManuel": "Manuel",
+  "agirDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier personnalis\u00e9. Les \u00e9ch\u00e9ances et projections sont indicatives. Consulte un\u00b7e sp\u00e9cialiste pour un accompagnement adapt\u00e9. LSFin.",
+
+  "checkinTitle": "CHECK-IN {month}",
+  "@checkinTitle": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinHeader": "Check-in {month}",
+  "@checkinHeader": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinSubtitle": "Confirme tes versements du mois",
+  "checkinPlannedSection": "Versements planifi\u00e9s",
+  "checkinEventsSection": "\u00c9v\u00e9nements du mois",
+  "checkinExpenses": "D\u00e9penses exceptionnelles ?",
+  "checkinExpensesHint": "Ex: 2000 (r\u00e9paration voiture)",
+  "checkinRevenues": "Revenus exceptionnels ?",
+  "checkinRevenuesHint": "Ex: 5000 (bonus annuel)",
+  "checkinNoteSection": "Note du mois (optionnel)",
+  "checkinNoteHint": "Ex: Mois compliqu\u00e9, d\u00e9pense impr\u00e9vue pour la voiture...",
+  "checkinSubmit": "Valider le check-in",
+  "checkinInvalidAmount": "Montant invalide",
+  "checkinSuccessTitle": "Bravo ! Check-in {month} compl\u00e9t\u00e9",
+  "@checkinSuccessTitle": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinSeeTrajectory": "Voir ma trajectoire mise \u00e0 jour",
+  "checkinImpactLabel": "Impact sur ta trajectoire",
+  "checkinImpactCapital": "Capital projet\u00e9 +{amount} ce mois",
+  "@checkinImpactCapital": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinImpactTotal": "Total versements : {amount}",
+  "@checkinImpactTotal": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinStreakLabel": "S\u00e9rie en cours",
+  "checkinStreakCount": "{count} mois cons\u00e9cutifs on-track !",
+  "@checkinStreakCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "checkinCoachTip": "Tip du coach",
+  "checkinAuto": "Auto",
+  "checkinManuel": "Manuel",
+  "checkinDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier personnalis\u00e9. Les projections sont bas\u00e9es sur des hypoth\u00e8ses et peuvent varier. Consulte un\u00b7e sp\u00e9cialiste pour un accompagnement adapt\u00e9. LSFin."
 }

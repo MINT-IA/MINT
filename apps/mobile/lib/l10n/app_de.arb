@@ -1165,5 +1165,117 @@
   },
   "byokCopilotActivated": "Dein Finanz-Copilot ist aktiviert",
   "byokCopilotBody": "Stelle deine erste Frage zur Schweizer Finanz \u2014 3. S\u00e4ule, Steuern, Pensionskasse, Budget...",
-  "byokTryNow": "Jetzt ausprobieren"
+  "byokTryNow": "Jetzt ausprobieren",
+
+  "trajectoryTitle": "Deine Entwicklung",
+  "trajectorySubtitle": "3 Szenarien \u00b7 {years} Jahre",
+  "@trajectorySubtitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "trajectoryOptimiste": "Optimistisch",
+  "trajectoryBase": "Basis",
+  "trajectoryPrudent": "Konservativ",
+  "trajectoryTauxRemplacement": "Gesch\u00e4tzter Ersatzquote: ",
+  "trajectoryEmpty": "Noch keine Projektion verf\u00fcgbar",
+  "trajectoryEmptySub": "Vervollst\u00e4ndige dein Profil, um deine Entwicklung zu sehen",
+  "trajectoryDisclaimer": "Bildungssch\u00e4tzungen \u2014 keine Finanzberatung.",
+  "trajectoryDragHint": "Wischen zum Erkunden",
+  "trajectoryGoalLabel": "Ziel",
+
+  "agirTitle": "HANDELN",
+  "agirThisMonth": "Diesen Monat",
+  "agirTimeline": "Zeitplan",
+  "agirTimelineSub": "Deine n\u00e4chsten Termine",
+  "agirHistory": "Verlauf",
+  "agirHistorySub": "Deine bisherigen Check-ins",
+  "agirCheckinDone": "Check-in {month} erledigt",
+  "@agirCheckinDone": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "agirDone": "Erledigt",
+  "agirCheckinCta": "Meinen Check-in {month} machen",
+  "@agirCheckinCta": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "agirNoCheckin": "Noch keine Check-ins",
+  "agirNoCheckinSub": "Mache deinen ersten Check-in, um deinen Fortschritt zu verfolgen.",
+  "agirTimeline3a": "Letzter Tag f\u00fcr 3a-Einzahlung",
+  "agirTimeline3aSub": "\u00dcberpr\u00fcfe, ob dein Plafond vor Ende Dezember erreicht ist.",
+  "agirTimeline3aCta": "Mein 3a pr\u00fcfen",
+  "agirTimelineTax": "Steuererkl\u00e4rung {canton}",
+  "@agirTimelineTax": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "agirTimelineTaxSub": "Denke daran, deine 3a- und BVG-Bescheinigungen zu sammeln.",
+  "agirTimelineTaxCta": "Meine Dokumente vorbereiten",
+  "agirTimelineLamal": "KVG-Franchise (\u00e4ndern?)",
+  "agirTimelineLamalSub": "Pr\u00fcfe, ob deine aktuelle Franchise noch passt.",
+  "agirTimelineLamalCta": "Franchisen simulieren",
+  "agirTimelineRetireSub": "Dein Hauptziel.",
+  "agirAuto": "Auto",
+  "agirManuel": "Manuell",
+  "agirDisclaimer": "Bildungstool \u2014 keine personalisierte Finanzberatung. Termine und Prognosen sind indikativ. Konsultiere einen Spezialisten f\u00fcr eine angepasste Begleitung. FIDLEG.",
+
+  "checkinTitle": "CHECK-IN {month}",
+  "@checkinTitle": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinHeader": "Check-in {month}",
+  "@checkinHeader": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinSubtitle": "Best\u00e4tige deine monatlichen Einzahlungen",
+  "checkinPlannedSection": "Geplante Einzahlungen",
+  "checkinEventsSection": "Monatliche Ereignisse",
+  "checkinExpenses": "Ausserordentliche Ausgaben?",
+  "checkinExpensesHint": "Z.B.: 2000 (Autoreparatur)",
+  "checkinRevenues": "Ausserordentliche Einnahmen?",
+  "checkinRevenuesHint": "Z.B.: 5000 (Jahresbonus)",
+  "checkinNoteSection": "Monatsnotiz (optional)",
+  "checkinNoteHint": "Z.B.: Schwieriger Monat, unerwartete Autokosten...",
+  "checkinSubmit": "Check-in best\u00e4tigen",
+  "checkinInvalidAmount": "Ung\u00fcltiger Betrag",
+  "checkinSuccessTitle": "Bravo! Check-in {month} abgeschlossen",
+  "@checkinSuccessTitle": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinSeeTrajectory": "Meine aktualisierte Entwicklung ansehen",
+  "checkinImpactLabel": "Auswirkung auf deine Entwicklung",
+  "checkinImpactCapital": "Prognostiziertes Kapital +{amount} diesen Monat",
+  "@checkinImpactCapital": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinImpactTotal": "Gesamteinzahlungen: {amount}",
+  "@checkinImpactTotal": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinStreakLabel": "Aktuelle Serie",
+  "checkinStreakCount": "{count} aufeinanderfolgende Monate on-track!",
+  "@checkinStreakCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "checkinCoachTip": "Coach-Tipp",
+  "checkinAuto": "Auto",
+  "checkinManuel": "Manuell",
+  "checkinDisclaimer": "Bildungstool \u2014 keine personalisierte Finanzberatung. Prognosen basieren auf Annahmen und k\u00f6nnen variieren. Konsultiere einen Spezialisten f\u00fcr eine angepasste Begleitung. FIDLEG."
 }

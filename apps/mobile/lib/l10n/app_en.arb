@@ -1165,5 +1165,117 @@
   },
   "byokCopilotActivated": "Your financial copilot is activated",
   "byokCopilotBody": "Ask your first question about Swiss finance \u2014 3rd pillar, taxes, pension fund, budget...",
-  "byokTryNow": "Try now"
+  "byokTryNow": "Try now",
+
+  "trajectoryTitle": "Your trajectory",
+  "trajectorySubtitle": "3 scenarios \u00b7 {years} years",
+  "@trajectorySubtitle": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "trajectoryOptimiste": "Optimistic",
+  "trajectoryBase": "Base",
+  "trajectoryPrudent": "Conservative",
+  "trajectoryTauxRemplacement": "Estimated replacement rate: ",
+  "trajectoryEmpty": "No projection available yet",
+  "trajectoryEmptySub": "Complete your profile to see your trajectory",
+  "trajectoryDisclaimer": "Educational estimates \u2014 not financial advice.",
+  "trajectoryDragHint": "Drag to explore",
+  "trajectoryGoalLabel": "Target",
+
+  "agirTitle": "ACT",
+  "agirThisMonth": "This month",
+  "agirTimeline": "Timeline",
+  "agirTimelineSub": "Your upcoming deadlines",
+  "agirHistory": "History",
+  "agirHistorySub": "Your past check-ins",
+  "agirCheckinDone": "Check-in {month} completed",
+  "@agirCheckinDone": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "agirDone": "Done",
+  "agirCheckinCta": "Do my check-in {month}",
+  "@agirCheckinCta": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "agirNoCheckin": "No check-ins yet",
+  "agirNoCheckinSub": "Do your first check-in to start tracking your progress.",
+  "agirTimeline3a": "Last day for 3a contribution",
+  "agirTimeline3aSub": "Make sure your ceiling is reached before end of December.",
+  "agirTimeline3aCta": "Check my 3a",
+  "agirTimelineTax": "Tax declaration {canton}",
+  "@agirTimelineTax": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "agirTimelineTaxSub": "Remember to gather your 3a and LPP certificates.",
+  "agirTimelineTaxCta": "Prepare my documents",
+  "agirTimelineLamal": "LAMal deductible (change?)",
+  "agirTimelineLamalSub": "Check if your current deductible is still appropriate.",
+  "agirTimelineLamalCta": "Simulate deductibles",
+  "agirTimelineRetireSub": "Your main goal.",
+  "agirAuto": "Auto",
+  "agirManuel": "Manual",
+  "agirDisclaimer": "Educational tool \u2014 not personalized financial advice. Deadlines and projections are indicative. Consult a specialist for tailored guidance. FinSA.",
+
+  "checkinTitle": "CHECK-IN {month}",
+  "@checkinTitle": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinHeader": "Check-in {month}",
+  "@checkinHeader": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinSubtitle": "Confirm your monthly contributions",
+  "checkinPlannedSection": "Planned contributions",
+  "checkinEventsSection": "Monthly events",
+  "checkinExpenses": "Exceptional expenses?",
+  "checkinExpensesHint": "E.g.: 2000 (car repair)",
+  "checkinRevenues": "Exceptional income?",
+  "checkinRevenuesHint": "E.g.: 5000 (annual bonus)",
+  "checkinNoteSection": "Monthly note (optional)",
+  "checkinNoteHint": "E.g.: Tough month, unexpected car expense...",
+  "checkinSubmit": "Submit check-in",
+  "checkinInvalidAmount": "Invalid amount",
+  "checkinSuccessTitle": "Well done! Check-in {month} completed",
+  "@checkinSuccessTitle": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "checkinSeeTrajectory": "See my updated trajectory",
+  "checkinImpactLabel": "Impact on your trajectory",
+  "checkinImpactCapital": "Projected capital +{amount} this month",
+  "@checkinImpactCapital": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinImpactTotal": "Total contributions: {amount}",
+  "@checkinImpactTotal": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinStreakLabel": "Current streak",
+  "checkinStreakCount": "{count} consecutive months on-track!",
+  "@checkinStreakCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "checkinCoachTip": "Coach tip",
+  "checkinAuto": "Auto",
+  "checkinManuel": "Manual",
+  "checkinDisclaimer": "Educational tool \u2014 not personalized financial advice. Projections are based on assumptions and may vary. Consult a specialist for tailored guidance. FinSA."
 }

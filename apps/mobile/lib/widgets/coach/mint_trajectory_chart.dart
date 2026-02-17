@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -55,8 +57,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   late AnimationController _controller;
   late Animation<double> _drawAnimation;
 
-  /// Index du point le plus proche apres un tap
+  /// Index du point le plus proche apres un tap ou un drag
   int? _selectedPointIndex;
+
+  /// True while the user is dragging/scrubbing across the chart
+  bool _isDragging = false;
 
   @override
   void initState() {
@@ -89,15 +94,19 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final hasPoints = widget.result.base.points.isNotEmpty;
 
     return Semantics(
-      label: 'Graphique de trajectoire financiere. '
-          'Scenario base : ${_formatChf(widget.result.base.capitalFinal)}. '
-          'Taux de remplacement estime : ${widget.result.tauxRemplacementBase.round()} pour cent.',
+      label: 'Graphique de trajectoire financière. '
+          'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}. '
+          'Taux de remplacement estimé : ${widget.result.tauxRemplacementBase.round()} pour cent.',
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: hasPoints ? _handleTap : widget.onTap,
         onTapDown: hasPoints ? _handleTapDown : null,
+        onPanStart: hasPoints ? _handlePanStart : null,
+        onPanUpdate: hasPoints ? _handlePanUpdate : null,
+        onPanEnd: hasPoints ? _handlePanEnd : null,
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Container(
@@ -124,6 +133,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                     _buildChart(constraints.maxWidth - 48),
                     const SizedBox(height: 16),
                     _buildLegend(),
+                    if (_selectedPointIndex == null) _buildScrubHint(),
                     const SizedBox(height: 12),
                     _buildTauxRemplacement(),
                   ] else
@@ -140,26 +150,70 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   }
 
   // ────────────────────────────────────────────────────────────
-  //  TAP HANDLING
+  //  GESTURE HANDLING (tap + drag/scrub)
   // ────────────────────────────────────────────────────────────
 
-  void _handleTapDown(TapDownDetails details) {
+  /// Converts an x-position (in local widget coordinates) to the nearest
+  /// point index on the base scenario line. Returns null if out of bounds.
+  int? _pointIndexFromX(double dx) {
     final points = widget.result.base.points;
-    if (points.isEmpty) return;
+    if (points.isEmpty) return null;
 
+    final chartLeft = 48.0; // approx left margin
+    final chartRight = (context.size?.width ?? 300) - 48 - 16;
+    final chartWidth = chartRight - chartLeft;
+
+    if (chartWidth <= 0) return null;
+
+    final relativeX =
+        ((dx - chartLeft) / chartWidth).clamp(0.0, 1.0);
+    final pointIndex = (relativeX * (points.length - 1)).round();
+    return pointIndex.clamp(0, points.length - 1);
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    final index = _pointIndexFromX(details.localPosition.dx);
+    if (index == null) return;
     setState(() {
-      // Approximate closest point index based on x position relative to chart area
-      final chartLeft = 48.0; // approx left margin
-      final chartRight = (context.size?.width ?? 300) - 48 - 16;
-      final chartWidth = chartRight - chartLeft;
-
-      if (chartWidth <= 0) return;
-
-      final relativeX =
-          ((details.localPosition.dx - chartLeft) / chartWidth).clamp(0.0, 1.0);
-      final pointIndex = (relativeX * (points.length - 1)).round();
-      _selectedPointIndex = pointIndex.clamp(0, points.length - 1);
+      _selectedPointIndex = index;
     });
+  }
+
+  void _handleTap() {
+    if (_isDragging) return;
+    // If a point is already selected, dismiss the tooltip; otherwise forward onTap
+    if (_selectedPointIndex != null) {
+      setState(() {
+        _selectedPointIndex = null;
+      });
+    } else {
+      widget.onTap?.call();
+    }
+  }
+
+  void _handlePanStart(DragStartDetails details) {
+    _isDragging = true;
+    final index = _pointIndexFromX(details.localPosition.dx);
+    if (index == null) return;
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedPointIndex = index;
+    });
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details) {
+    final index = _pointIndexFromX(details.localPosition.dx);
+    if (index == null) return;
+    if (index != _selectedPointIndex) {
+      HapticFeedback.selectionClick();
+      setState(() {
+        _selectedPointIndex = index;
+      });
+    }
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    _isDragging = false;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -167,6 +221,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
+    final s = S.of(context);
+    final yearsToTarget = _yearsToTarget();
     return Row(
       children: [
         Container(
@@ -188,7 +244,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Ta trajectoire',
+                s?.trajectoryTitle ?? 'Ta trajectoire',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -196,7 +252,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                 ),
               ),
               Text(
-                '3 scenarios  ·  ${_yearsToTarget()} ans',
+                s?.trajectorySubtitle(yearsToTarget.toString()) ?? '3 scénarios · $yearsToTarget ans',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -250,6 +306,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   progress: _drawAnimation.value,
                   goalALabel: widget.goalALabel,
                   selectedIndex: _selectedPointIndex,
+                  prudentLabel: S.of(context)?.trajectoryPrudent ?? 'Prudent',
+                  baseLabel: S.of(context)?.trajectoryBase ?? 'Base',
+                  optimisteLabel: S.of(context)?.trajectoryOptimiste ?? 'Optimiste',
+                  goalLabel: S.of(context)?.trajectoryGoalLabel ?? 'Cible',
                 ),
                 size: Size(availableWidth, chartHeight),
               ),
@@ -288,7 +348,14 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
     final dateLabel = _formatDate(basePoint.date);
 
-    return Positioned(
+    final s = S.of(context);
+    final optimisteLabel = s?.trajectoryOptimiste ?? 'Optimiste';
+    final baseLabel = s?.trajectoryBase ?? 'Base';
+    final prudentLabel = s?.trajectoryPrudent ?? 'Prudent';
+
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
       left: tooltipLeft,
       top: 0,
       child: Container(
@@ -320,18 +387,18 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             const SizedBox(height: 4),
             if (optimistePoint != null)
               _buildTooltipLine(
-                'Optimiste',
+                optimisteLabel,
                 _formatChf(optimistePoint.capitalCumule),
                 MintColors.trajectoryOptimiste,
               ),
             _buildTooltipLine(
-              'Base',
+              baseLabel,
               _formatChf(basePoint.capitalCumule),
               MintColors.trajectoryBase,
             ),
             if (prudentPoint != null)
               _buildTooltipLine(
-                'Prudent',
+                prudentLabel,
                 _formatChf(prudentPoint.capitalCumule),
                 MintColors.trajectoryPrudent,
               ),
@@ -381,23 +448,24 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildLegend() {
+    final s = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-          'Optimiste',
+          s?.trajectoryOptimiste ?? 'Optimiste',
           MintColors.trajectoryOptimiste,
           dashed: true,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          'Base',
+          s?.trajectoryBase ?? 'Base',
           MintColors.trajectoryBase,
           dashed: false,
         ),
         const SizedBox(width: 16),
         _buildLegendItem(
-          'Prudent',
+          s?.trajectoryPrudent ?? 'Prudent',
           MintColors.trajectoryPrudent,
           dashed: true,
         ),
@@ -430,10 +498,31 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   }
 
   // ────────────────────────────────────────────────────────────
+  //  SCRUB HINT
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildScrubHint() {
+    final s = S.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Text(
+        s?.trajectoryDragHint ?? 'Glisse pour explorer',
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          color: MintColors.textMuted.withValues(alpha: 0.6),
+          fontStyle: FontStyle.italic,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
   //  TAUX DE REMPLACEMENT
   // ────────────────────────────────────────────────────────────
 
   Widget _buildTauxRemplacement() {
+    final s = S.of(context);
     final taux = widget.result.tauxRemplacementBase;
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
@@ -465,7 +554,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                         color: MintColors.textPrimary,
                       ),
                       children: [
-                        const TextSpan(text: 'Taux de remplacement estime : '),
+                        TextSpan(text: s?.trajectoryTauxRemplacement ?? 'Taux de remplacement estimé : '),
                         TextSpan(
                           text: '${taux.round()}%',
                           style: GoogleFonts.montserrat(
@@ -491,6 +580,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyState() {
+    final s = S.of(context);
     return Container(
       height: 200,
       alignment: Alignment.center,
@@ -504,7 +594,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 12),
           Text(
-            'Pas encore de projection disponible',
+            s?.trajectoryEmpty ?? 'Pas encore de projection disponible',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,
@@ -512,7 +602,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 4),
           Text(
-            'Complete ton profil pour voir ta trajectoire',
+            s?.trajectoryEmptySub ?? 'Complète ton profil pour voir ta trajectoire',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted.withValues(alpha: 0.7),
@@ -528,8 +618,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   // ────────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
+    final s = S.of(context);
     return Text(
-      'Estimations educatives \u2014 ne constitue pas un conseil financier.',
+      s?.trajectoryDisclaimer ?? 'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,
@@ -590,12 +681,22 @@ class _TrajectoryPainter extends CustomPainter {
   final String? goalALabel;
   final int? selectedIndex;
 
+  // i18n labels passed from the widget (CustomPainter has no BuildContext)
+  final String prudentLabel;
+  final String baseLabel;
+  final String optimisteLabel;
+  final String goalLabel;
+
   _TrajectoryPainter({
     required this.prudentPoints,
     required this.basePoints,
     required this.optimistePoints,
     required this.milestones,
     required this.progress,
+    required this.prudentLabel,
+    required this.baseLabel,
+    required this.optimisteLabel,
+    required this.goalLabel,
     this.goalALabel,
     this.selectedIndex,
   });
@@ -1026,7 +1127,7 @@ class _TrajectoryPainter extends CustomPainter {
     }
 
     // Goal label
-    final label = goalALabel ?? 'Cible';
+    final label = goalALabel ?? goalLabel;
     final tp = TextPainter(
       text: TextSpan(
         text: label,
@@ -1087,9 +1188,9 @@ class _TrajectoryPainter extends CustomPainter {
     double maxY,
   ) {
     final scenarios = [
-      (optimistePoints, MintColors.trajectoryOptimiste, 'Optimiste'),
-      (basePoints, MintColors.trajectoryBase, 'Base'),
-      (prudentPoints, MintColors.trajectoryPrudent, 'Prudent'),
+      (optimistePoints, MintColors.trajectoryOptimiste, optimisteLabel),
+      (basePoints, MintColors.trajectoryBase, baseLabel),
+      (prudentPoints, MintColors.trajectoryPrudent, prudentLabel),
     ];
 
     for (final (points, color, _) in scenarios) {
@@ -1198,7 +1299,11 @@ class _TrajectoryPainter extends CustomPainter {
         oldDelegate.selectedIndex != selectedIndex ||
         oldDelegate.basePoints != basePoints ||
         oldDelegate.prudentPoints != prudentPoints ||
-        oldDelegate.optimistePoints != optimistePoints;
+        oldDelegate.optimistePoints != optimistePoints ||
+        oldDelegate.prudentLabel != prudentLabel ||
+        oldDelegate.baseLabel != baseLabel ||
+        oldDelegate.optimisteLabel != optimisteLabel ||
+        oldDelegate.goalLabel != goalLabel;
   }
 }
 

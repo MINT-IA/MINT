@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -193,6 +194,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
   // ── AppBar ─────────────────────────────────────────────────
   Widget _buildAppBar() {
+    final s = S.of(context);
     return SliverAppBar(
       pinned: true,
       backgroundColor: MintColors.background,
@@ -203,7 +205,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
-        'CHECK-IN $_currentMonthLabel'.toUpperCase(),
+        (s?.checkinTitle(_currentMonthLabel) ?? 'CHECK-IN $_currentMonthLabel').toUpperCase(),
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -219,6 +221,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   // ════════════════════════════════════════════════════════════
 
   List<Widget> _buildFormContent() {
+    final s = S.of(context);
     return [
       const SizedBox(height: 8),
       // Header
@@ -232,25 +235,25 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section: Planned contributions
-            _buildSectionTitle('Versements planifies'),
+            _buildSectionTitle(s?.checkinPlannedSection ?? 'Versements planifiés'),
             const SizedBox(height: 12),
             ..._buildContributionRows(),
             const SizedBox(height: 28),
 
             // Section: Exceptional items
-            _buildSectionTitle('Evenements du mois'),
+            _buildSectionTitle(s?.checkinEventsSection ?? 'Événements du mois'),
             const SizedBox(height: 12),
             _buildExceptionalField(
-              label: 'Depenses exceptionnelles ?',
-              hint: 'Ex: 2000 (reparation voiture)',
+              label: s?.checkinExpenses ?? 'Dépenses exceptionnelles ?',
+              hint: s?.checkinExpensesHint ?? 'Ex: 2000 (réparation voiture)',
               controller: _depensesController,
               icon: Icons.remove_circle_outline,
               color: MintColors.error,
             ),
             const SizedBox(height: 12),
             _buildExceptionalField(
-              label: 'Revenus exceptionnels ?',
-              hint: 'Ex: 5000 (bonus annuel)',
+              label: s?.checkinRevenues ?? 'Revenus exceptionnels ?',
+              hint: s?.checkinRevenuesHint ?? 'Ex: 5000 (bonus annuel)',
               controller: _revenusController,
               icon: Icons.add_circle_outline,
               color: MintColors.success,
@@ -258,7 +261,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
             const SizedBox(height: 28),
 
             // Section: Note
-            _buildSectionTitle('Note du mois (optionnel)'),
+            _buildSectionTitle(s?.checkinNoteSection ?? 'Note du mois (optionnel)'),
             const SizedBox(height: 12),
             _buildNoteField(),
             const SizedBox(height: 32),
@@ -276,6 +279,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   Widget _buildFormHeader() {
+    final s = S.of(context);
     return Row(
       children: [
         Container(
@@ -296,7 +300,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Check-in $_currentMonthLabel',
+                s?.checkinHeader(_currentMonthLabel) ?? 'Check-in $_currentMonthLabel',
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -305,7 +309,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
               ),
               const SizedBox(height: 4),
               Text(
-                'Confirme tes versements du mois',
+                s?.checkinSubtitle ?? 'Confirme tes versements du mois',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -425,6 +429,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
   // ── Note field ─────────────────────────────────────────────
   Widget _buildNoteField() {
+    final s = S.of(context);
     return TextFormField(
       controller: _noteController,
       maxLines: 3,
@@ -433,7 +438,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         color: MintColors.textPrimary,
       ),
       decoration: InputDecoration(
-        hintText: 'Ex: Mois complique, depense imprevue pour la voiture...',
+        hintText: s?.checkinNoteHint ?? 'Ex: Mois compliqué, dépense imprévue pour la voiture...',
         hintStyle: GoogleFonts.inter(
           fontSize: 14,
           color: MintColors.textMuted,
@@ -459,6 +464,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
   // ── Submit button ──────────────────────────────────────────
   Widget _buildSubmitButton() {
+    final s = S.of(context);
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -473,7 +479,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           elevation: 0,
         ),
         child: Text(
-          'Valider le check-in',
+          s?.checkinSubmit ?? 'Valider le check-in',
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -488,6 +494,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   // ════════════════════════════════════════════════════════════
 
   List<Widget> _buildSuccessContent() {
+    final s = S.of(context);
     return [
       const SizedBox(height: 40),
       // Animated checkmark
@@ -520,7 +527,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       // Success title
       Center(
         child: Text(
-          'Bravo ! Check-in $_currentMonthLabel complete',
+          s?.checkinSuccessTitle(_currentMonthLabel) ?? 'Bravo ! Check-in $_currentMonthLabel complété',
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
             fontSize: 22,
@@ -558,7 +565,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
             elevation: 0,
           ),
           child: Text(
-            'Voir ma trajectoire mise a jour',
+            s?.checkinSeeTrajectory ?? 'Voir ma trajectoire mise à jour',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -574,6 +581,9 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   Widget _buildImpactCard() {
+    final s = S.of(context);
+    final impactFormatted = ForecasterService.formatChf(_impactCapital);
+    final totalFormatted = ForecasterService.formatChf(_totalVersements);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -603,7 +613,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Impact sur ta trajectoire',
+                  s?.checkinImpactLabel ?? 'Impact sur ta trajectoire',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -612,7 +622,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Capital projete +${ForecasterService.formatChf(_impactCapital)} ce mois',
+                  s?.checkinImpactCapital(impactFormatted) ?? 'Capital projeté +$impactFormatted ce mois',
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -621,7 +631,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Total versements : ${ForecasterService.formatChf(_totalVersements)}',
+                  s?.checkinImpactTotal(totalFormatted) ?? 'Total versements : $totalFormatted',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -636,6 +646,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   Widget _buildStreakCard() {
+    final s = S.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -665,7 +676,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Serie en cours',
+                  s?.checkinStreakLabel ?? 'Série en cours',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -674,7 +685,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$_streak mois consecutifs on-track !',
+                  s?.checkinStreakCount(_streak.toString()) ?? '$_streak mois consécutifs on-track !',
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -690,6 +701,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   Widget _buildCoachTipCard() {
+    final s = S.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -720,7 +732,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tip du coach',
+                  s?.checkinCoachTip ?? 'Tip du coach',
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -746,6 +758,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
   // ── Disclaimer ─────────────────────────────────────────────
   Widget _buildDisclaimer() {
+    final s = S.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -764,9 +777,9 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Outil educatif — ne constitue pas un conseil financier personnalise. '
-              'Les projections sont basees sur des hypotheses et peuvent varier. '
-              'Consulte un·e specialiste pour un accompagnement adapte. LSFin.',
+              s?.checkinDisclaimer ?? 'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
+              'Les projections sont basées sur des hypothèses et peuvent varier. '
+              'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -795,6 +808,7 @@ class _ContributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final icon = iconForCategory(contribution.category);
     final color = colorForCategory(contribution.category);
 
@@ -851,7 +865,7 @@ class _ContributionRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    contribution.isAutomatic ? 'Auto' : 'Manuel',
+                    contribution.isAutomatic ? (s?.checkinAuto ?? 'Auto') : (s?.checkinManuel ?? 'Manuel'),
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -909,7 +923,7 @@ class _ContributionRow extends StatelessWidget {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) return null; // optional
-                if (double.tryParse(value) == null) return 'Montant invalide';
+                if (double.tryParse(value) == null) return s?.checkinInvalidAmount ?? 'Montant invalide';
                 return null;
               },
             ),
