@@ -54,13 +54,9 @@ class WizardConditionsService {
     // Si le but principal est "Achat immobilier", on s'assure de poser q_real_estate_project
     // (C'est une question de Section 4, donc toujours posée si on arrive là, sauf si...)
 
-    // 6. Logique AVS
-    if (questionId == 'q_avs_contribution_years') {
-      return answers['q_avs_gaps'] != 'no';
-    }
-    if (questionId == 'q_spouse_avs_contribution_years') {
-      return answers['q_civil_status'] == 'married' &&
-          answers['q_avs_gaps'] != 'no';
+    // 6. Logique AVS — conjoint uniquement si marié
+    if (questionId == 'q_spouse_first_employment_year') {
+      return answers['q_civil_status'] == 'married';
     }
 
     // 7. Logique Dettes → Détails uniquement si dettes déclarées
@@ -84,14 +80,7 @@ class WizardConditionsService {
       if (answers['q_housing_status'] == 'family') return false;
     }
 
-    // 11. Logique Âge → AVS non pertinent si < 21 ans
-    if (questionId == 'q_avs_gaps' || questionId == 'q_avs_contribution_years') {
-      final birthYear = answers['q_birth_year'];
-      if (birthYear != null) {
-        final age = DateTime.now().year - (birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0);
-        if (age < 21) return false;
-      }
-    }
+    // 11. (Removed — q_first_employment_year is valid for all ages)
 
     // 12. Logique Âge → Rachat LPP pas avant 25 ans (épargne LPP commence à 25)
     if (questionId == 'q_lpp_buyback_available') {

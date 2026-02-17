@@ -147,6 +147,9 @@ class FinancialReportService {
       contributionYears: _parseInt(answers['q_avs_contribution_years']),
       spouseContributionYears:
           _parseInt(answers['q_spouse_avs_contribution_years']),
+      firstEmploymentYear: _parseInt(answers['q_first_employment_year']),
+      spouseFirstEmploymentYear:
+          _parseInt(answers['q_spouse_first_employment_year']),
     );
   }
 
@@ -220,10 +223,19 @@ class FinancialReportService {
     final currentLppCapital =
         _parseDouble(answers['q_current_lpp_capital']) ?? 0;
     final lppBuybacks = _parseDouble(answers['q_lpp_buyback_available']) ?? 0;
-    final estimatedLppGrowth = profile.monthlyNetIncome *
-        0.15 *
-        12 *
-        profile.yearsToRetirement; // 15% cotisation
+    // Year-by-year LPP growth using real age-band bonification rates (LPP art. 16)
+    double estimatedLppGrowth = 0;
+    final annualIncome = profile.monthlyNetIncome * 12;
+    // Use LPP constants for coordinated salary (LPP art. 8)
+    final coordinatedSalary = (annualIncome - lppDeductionCoordination)
+        .clamp(lppSalaireCoordMin.toDouble(), double.infinity);
+    for (int year = 0; year < profile.yearsToRetirement; year++) {
+      final ageThisYear = profile.age + year;
+      if (ageThisYear >= 25 && ageThisYear <= 65) {
+        final rate = getLppBonificationRate(ageThisYear);
+        estimatedLppGrowth += coordinatedSalary * rate;
+      }
+    }
     final lppCapital = currentLppCapital + estimatedLppGrowth + lppBuybacks;
 
     // Capital 3a (projection simplifiée à 3% rendement)
@@ -408,6 +420,22 @@ class FinancialReportService {
     Pillar3aAnalysis? pillar3aAnalysis,
   }) {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
+    if (recommendation.contains('premier compte 3a') || recommendation.contains('premier 3a')) {
+      return ActionItem(
+        title: 'Ouvre ton premier 3a',
+        description: 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
+        priority: ActionPriority.high,
+        potentialGainChf: 1500,
+        category: ActionCategory.pillar3a,
+        steps: const [
+          '1. Compare les offres (VIAC, Finpension, banque)',
+          '2. Ouvre ton compte en 10 minutes',
+          '3. Configure un versement automatique',
+          '4. Choisis une stratégie adaptée à ton horizon',
+        ],
+      );
+    }
+
     if (recommendation.contains('2e compte 3a')) {
       // Gain réel : économie fiscale au retrait via échelonnement + rendement vs banque
       final gainVsBank = pillar3aAnalysis?.potentialGainVsBank;

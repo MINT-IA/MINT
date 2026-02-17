@@ -194,52 +194,71 @@ class CircleScoringService {
     totalWeight += 2.0;
     totalScore += lppStatus.scoreValue * 2.0;
 
-    // 4. AVS - Lacunes
-    final hasAvsGaps = answers['q_avs_gaps'];
-    final avsYears = _parseInt(answers['q_avs_contribution_years']);
+    // 4. AVS - Lacunes (nouvelle logique : q_first_employment_year + fallback legacy)
+    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
+    final firstEmploymentYear = _parseInt(answers['q_first_employment_year']);
     final civilStatus = answers['q_civil_status'];
-    final spouseAvsYears =
-        _parseInt(answers['q_spouse_avs_contribution_years']);
+
+    // Auto-calcul des années de cotisation depuis l'année du premier emploi
+    int? calculatedContributionYears;
+    if (firstEmploymentYear != null) {
+      final startYear = [firstEmploymentYear, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      calculatedContributionYears = (DateTime.now().year - startYear).clamp(0, 44);
+    }
+
+    // Fallback vers les réponses legacy
+    final hasAvsGaps = answers['q_avs_gaps'];
+    final legacyAvsYears = _parseInt(answers['q_avs_contribution_years']);
+    final avsYears = calculatedContributionYears ?? legacyAvsYears;
 
     ItemStatus avsStatus;
     String avsDetail;
 
-    if (hasAvsGaps == 'no') {
-      avsStatus = ItemStatus.perfect;
-      avsDetail = 'Aucune lacune';
-    } else if (hasAvsGaps == 'yes' || hasAvsGaps == 'maybe') {
-      if (avsYears != null) {
-        final gap = 44 - avsYears;
-        if (gap <= 0) {
-          avsStatus = ItemStatus.perfect;
-          avsDetail = 'Cotisation complète ($avsYears ans)';
-        } else if (gap <= 2) {
-          avsStatus = ItemStatus.good;
-          avsDetail = 'Lacune mineure ($gap ans)';
-        } else {
-          avsStatus = ItemStatus.warning;
-          avsDetail =
-              'Lacune de $gap ans (Rente -${(gap / 44 * 100).toStringAsFixed(1)}%)';
-        }
+    if (avsYears != null) {
+      final gap = 44 - avsYears;
+      if (gap <= 0) {
+        avsStatus = ItemStatus.perfect;
+        avsDetail = 'Cotisation complète ($avsYears ans)';
+      } else if (gap <= 2) {
+        avsStatus = ItemStatus.good;
+        avsDetail = 'Lacune mineure ($gap ans)';
       } else {
         avsStatus = ItemStatus.warning;
-        avsDetail =
-            hasAvsGaps == 'yes' ? 'Lacunes confirmées' : 'Lacunes possibles';
+        avsDetail = 'Lacune de $gap ans (Rente -${(gap / 44 * 100).toStringAsFixed(1)}%)';
+      }
+    } else if (hasAvsGaps == 'no') {
+      avsStatus = ItemStatus.perfect;
+      avsDetail = 'Aucune lacune déclarée';
+    } else if (hasAvsGaps == 'yes' || hasAvsGaps == 'maybe') {
+      avsStatus = ItemStatus.warning;
+      avsDetail = hasAvsGaps == 'yes' ? 'Lacunes confirmées' : 'Lacunes possibles';
+    } else {
+      avsStatus = ItemStatus.unknown;
+      avsDetail = 'À vérifier';
+    }
+
+    // Conjoint — même logique (q_spouse_first_employment_year + fallback legacy)
+    if (civilStatus == 'married') {
+      final spouseFirstEmploymentYear = _parseInt(answers['q_spouse_first_employment_year']);
+      final legacySpouseAvsYears = _parseInt(answers['q_spouse_avs_contribution_years']);
+
+      int? spouseAvsYears;
+      if (spouseFirstEmploymentYear != null) {
+        final spouseStart = [spouseFirstEmploymentYear, birthYear + 21].reduce((a, b) => a > b ? a : b);
+        spouseAvsYears = (DateTime.now().year - spouseStart).clamp(0, 44);
+      } else {
+        spouseAvsYears = legacySpouseAvsYears;
       }
 
-      // Check spouse if married
-      if (civilStatus == 'married' && spouseAvsYears != null) {
+      if (spouseAvsYears != null) {
         final spouseGap = 44 - spouseAvsYears;
         if (spouseGap > 0) {
-          avsDetail += ' | Conjoint: -$spouseGap ans';
+          avsDetail += ' | Conjoint·e : -$spouseGap ans';
           if (avsStatus == ItemStatus.perfect || avsStatus == ItemStatus.good) {
             avsStatus = ItemStatus.warning;
           }
         }
       }
-    } else {
-      avsStatus = ItemStatus.unknown;
-      avsDetail = 'À vérifier';
     }
 
     items.add(ScoreItem(
@@ -359,7 +378,10 @@ class CircleScoringService {
     final reco = <String>[];
 
     final nb3a = _parseInt(answers['q_3a_accounts_count']) ?? 0;
-    if (nb3a < 2) {
+    if (nb3a == 0) {
+      reco.add(
+          'Ouvre ton premier compte 3a pour profiter de la déduction fiscale');
+    } else if (nb3a == 1) {
       reco.add(
           '🚀 Ouvre un 2e compte 3a chez VIAC pour optimiser le retrait futur');
     }

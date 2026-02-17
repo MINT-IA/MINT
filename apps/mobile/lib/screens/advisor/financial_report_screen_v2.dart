@@ -6,16 +6,21 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/widgets/report/circle_score_card.dart';
+import 'package:mint_mobile/widgets/report/thematic_card.dart';
+import 'package:mint_mobile/widgets/report/debt_alert_banner.dart';
+import 'package:mint_mobile/widgets/report/budget_waterfall.dart';
+import 'package:mint_mobile/widgets/report/retirement_projection_card.dart';
 import 'package:mint_mobile/widgets/comparators/pillar3a_comparator_widget.dart';
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:provider/provider.dart';
+// ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
+/// Refonte : cartes thématiques (Budget, Protection, Retraite, Impôts)
+/// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
 
@@ -42,7 +47,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
-    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+    final hasDebt = wizardAnswers['q_has_consumer_debt'] == 'yes';
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -70,74 +75,62 @@ class FinancialReportScreenV2 extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header personnalisé
+            // Header personnalisé (greeting + status summary)
             _buildHeader(report.profile, report.healthScore),
 
             const SizedBox(height: 24),
 
-            // Top 3 Priorités
+            // ── Debt alert banner (conditional) ──
+            if (hasDebt)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DebtAlertBanner(
+                  totalBalance: (wizardAnswers['q_debt_total_balance'] as num?)?.toDouble(),
+                  monthlyPayment: (wizardAnswers['q_debt_payments_period_chf'] as num?)?.toDouble(),
+                  onTap: () => context.push('/budget'),
+                ),
+              ),
+
+            // ── Budget thematic card ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildBudgetSection(context, wizardAnswers),
+            ),
+
+            // ── Protection thematic card ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildProtectionSection(context, wizardAnswers, report.healthScore),
+            ),
+
+            // ── Retirement thematic card ──
+            if (report.retirementProjection != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildRetirementThematicSection(context, report, wizardAnswers),
+              ),
+
+            // ── Tax thematic card ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildTaxThematicSection(context, report),
+            ),
+
+            const SizedBox(height: 24),
+
+            // ── Top 3 Priorities ──
             SafeModeGate(
               hasDebt: hasDebt,
-              lockedTitle: 'Priorité au désendettement',
+              lockedTitle: 'Priorit\u00e9 au d\u00e9sendettement',
               lockedMessage:
-                  'Tes actions prioritaires sont remplacées par un plan de désendettement. '
+                  'Tes actions prioritaires sont remplac\u00e9es par un plan de d\u00e9sendettement. '
                   'Stabilise ta situation avant d\'explorer les recommandations.',
               child: _buildTopPriorities(context, report.priorityActions),
             ),
 
             const SizedBox(height: 24),
 
-            // Scores par Cercle
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Diagnostic par Cercle',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child:
-                  CircleScoreCard(score: report.healthScore.circle1Protection),
-            ),
-            // Source juridique: Protection
-            _buildSourceReference('LP art. 93, Directives CSIAS'),
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child:
-                  CircleScoreCard(score: report.healthScore.circle2Prevoyance),
-            ),
-            // Source juridique: Prévoyance
-            _buildSourceReference('LPP art. 14, OPP3, LAVS'),
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child:
-                  CircleScoreCard(score: report.healthScore.circle3Croissance),
-            ),
-            // Source juridique: Croissance
-            _buildSourceReference('LIFD art. 33'),
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: CircleScoreCard(
-                  score: report.healthScore.circle4Optimisation),
-            ),
-            // Source juridique: Optimisation
-            _buildSourceReference('CC art. 470, LIFD'),
-
-            const SizedBox(height: 24),
-
-            // Comparateur 3a (si applicable)
+            // ── Comparateur 3a (si applicable) ──
             if (report.pillar3aAnalysis != null) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -154,10 +147,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SafeModeGate(
                   hasDebt: hasDebt,
-                  lockedTitle: 'Priorité au désendettement',
+                  lockedTitle: 'Priorit\u00e9 au d\u00e9sendettement',
                   lockedMessage:
-                      'Le comparateur 3a est désactivée tant que tu as des dettes actives. '
-                      'Rembourser tes dettes est prioritaire avant toute épargne 3a.',
+                      'Le comparateur 3a est d\u00e9sactiv\u00e9e tant que tu as des dettes actives. '
+                      'Rembourser tes dettes est prioritaire avant toute \u00e9pargne 3a.',
                   child: Pillar3aComparatorWidget(
                     monthlyIncome: report.profile.monthlyNetIncome,
                     yearsUntilRetirement: report.profile.yearsToRetirement,
@@ -168,32 +161,20 @@ class FinancialReportScreenV2 extends StatelessWidget {
               const SizedBox(height: 24),
             ],
 
-            // Simulation fiscale
-            _buildTaxSection(report.taxSimulation),
-
-            const SizedBox(height: 24),
-
-            // Projection retraite
-            if (report.retirementProjection != null)
-              _buildRetirementSection(
-                  report.retirementProjection!, report.profile.isMarried),
-
-            const SizedBox(height: 24),
-
-            // Stratégie rachat LPP
+            // ── Strat\u00e9gie rachat LPP ──
             if (report.lppBuybackStrategy != null)
               SafeModeGate(
                 hasDebt: hasDebt,
-                lockedTitle: 'Rachat LPP bloque',
+                lockedTitle: 'Rachat LPP bloqu\u00e9',
                 lockedMessage:
-                    'Le rachat LPP est désactivée en mode protection. '
-                    'Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.',
+                    'Le rachat LPP est d\u00e9sactiv\u00e9 en mode protection. '
+                    'Rembourser tes dettes avant de bloquer de la liquidit\u00e9 dans la pr\u00e9voyance.',
                 child: _buildLppBuybackSection(report.lppBuybackStrategy!),
               ),
 
             const SizedBox(height: 24),
 
-            // Life event suggestions based on profile
+            // ── Life event suggestions based on profile ──
             LifeEventSuggestionsSection(
               suggestions: buildLifeEventSuggestions(
                 age: report.profile.age,
@@ -222,6 +203,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
+  // ════════════════════════════════════════════════════════════════
+  //  HEADER — Greeting + contextual status (replaces numeric score)
+  // ════════════════════════════════════════════════════════════════
+
   Widget _buildHeader(UserProfile profile, FinancialHealthScore healthScore) {
     return Container(
       width: double.infinity,
@@ -230,7 +215,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [MintColors.primary, MintColors.primary.withOpacity(0.7)],
+          colors: [MintColors.primary, MintColors.primary.withValues(alpha: 0.7)],
         ),
       ),
       child: SafeArea(
@@ -248,59 +233,270 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${profile.age} ans • ${profile.canton} • ${profile.civilStatus}',
+              '${profile.age} ans \u2022 ${profile.canton} \u2022 ${profile.civilStatus}',
               style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Score de Santé Financière',
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${healthScore.overallScore.toInt()}/100',
-                        style: GoogleFonts.montserrat(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        healthScore.overallLevel.label,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        healthScore.overallLevel.emoji,
-                        style: const TextStyle(fontSize: 40),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            const SizedBox(height: 20),
+            // Contextual status phrase (replaces XX/100 score)
+            _buildStatusSummary(healthScore),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildStatusSummary(FinancialHealthScore healthScore) {
+    final level = healthScore.overallScore;
+    String message;
+    String emoji;
+    if (level >= 70) {
+      message = 'Ta base est solide, continue ainsi !';
+      emoji = '\ud83d\udfe2'; // green circle
+    } else if (level >= 40) {
+      message = 'Quelques ajustements pour \u00eatre serein';
+      emoji = '\ud83d\udfe1'; // yellow circle
+    } else {
+      message = 'Priorit\u00e9 : stabilise ta situation';
+      emoji = '\ud83d\udd34'; // red circle
+    }
+    return Text(
+      '$emoji $message',
+      style: GoogleFonts.inter(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  THEMATIC CARD: BUDGET
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers) {
+    final income = (answers['q_net_income_period_chf'] as num?)?.toDouble() ?? 0;
+    final housing = (answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
+    final debt = (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+    final available = income - housing - debt;
+    final ratio = income > 0 ? available / income : 0.0;
+
+    final status = ratio > 0.3
+        ? CardStatus.serein
+        : ratio > 0.1
+            ? CardStatus.aRenforcer
+            : CardStatus.alerte;
+
+    return ThematicCard(
+      emoji: '\ud83d\udcb0', // money bag
+      title: 'Ton Budget',
+      status: status,
+      keyNumber: 'CHF ${available.toStringAsFixed(0)}',
+      keyNumberLabel: 'Disponible par mois',
+      actionLabel: 'Configurer mes enveloppes',
+      onActionTap: () => context.push('/budget'),
+      children: [
+        BudgetWaterfall(income: income, housing: housing, debt: debt),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  THEMATIC CARD: PROTECTION
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildProtectionSection(BuildContext context, Map<String, dynamic> answers, FinancialHealthScore healthScore) {
+    final hasEmergencyFund = answers['q_emergency_fund'] as String?;
+    final fundStatus = hasEmergencyFund == 'yes_6months'
+        ? CardStatus.serein
+        : hasEmergencyFund == 'yes_3months'
+            ? CardStatus.aRenforcer
+            : CardStatus.alerte;
+
+    final fundMonths = hasEmergencyFund == 'yes_6months'
+        ? '6+'
+        : hasEmergencyFund == 'yes_3months'
+            ? '3-6'
+            : '< 3';
+
+    return ThematicCard(
+      emoji: '\ud83d\udee1\ufe0f', // shield
+      title: 'Ta Protection',
+      status: fundStatus,
+      keyNumber: '$fundMonths mois',
+      keyNumberLabel: 'Fonds d\'urgence (cible : 6 mois)',
+      source: 'Source : LP art. 93 \u2014 Minimum vital',
+      actionLabel: fundStatus != CardStatus.serein ? 'Constituer mon fonds d\'urgence' : null,
+      onActionTap: () => context.push('/budget'),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  THEMATIC CARD: RETIREMENT
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildRetirementThematicSection(BuildContext context, FinancialReport report, Map<String, dynamic> answers) {
+    final projection = report.retirementProjection;
+    if (projection == null) return const SizedBox.shrink();
+
+    final replacementRate = projection.replacementRate;
+    final status = replacementRate >= 60
+        ? CardStatus.serein
+        : replacementRate >= 40
+            ? CardStatus.aRenforcer
+            : CardStatus.alerte;
+
+    // Calculate contribution years from first employment year
+    final birthYear = (answers['q_birth_year'] as num?)?.toInt();
+    final firstEmploymentYear = (answers['q_first_employment_year'] as num?)?.toInt();
+    int? contributionYears;
+    if (firstEmploymentYear != null && birthYear != null) {
+      final startYear = [firstEmploymentYear, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      contributionYears = (DateTime.now().year - startYear).clamp(0, 44);
+    }
+
+    // 3a sub-section
+    final has3a = answers['q_has_3a'] == 'yes';
+    final nb3a = int.tryParse(answers['q_3a_accounts_count']?.toString() ?? '0') ?? 0;
+
+    final String threeAText;
+    if (!has3a || nb3a == 0) {
+      threeAText = 'Pas encore de 3a \u2014 jusqu\'\u00e0 CHF 7\'258/an de d\u00e9duction fiscale possible';
+    } else if (nb3a == 1) {
+      threeAText = '1 compte 3a \u2014 ouvre un 2e pour optimiser le retrait';
+    } else {
+      threeAText = '$nb3a comptes 3a \u2014 bonne diversification';
+    }
+
+    // LPP sub-section
+    final lppBuyback = report.lppBuybackStrategy;
+    String? lppText;
+    if (lppBuyback != null) {
+      lppText = 'Rachat LPP disponible : CHF ${lppBuyback.totalBuybackAvailable.toStringAsFixed(0)} \u2014 \u00e9conomie fiscale estim\u00e9e : CHF ${lppBuyback.totalTaxSavings.toStringAsFixed(0)}';
+    }
+
+    return ThematicCard(
+      emoji: '\ud83c\udfe6', // bank
+      title: 'Ta Retraite',
+      status: status,
+      keyNumber: 'CHF ${projection.totalMonthlyIncome.toStringAsFixed(0)}/mois',
+      keyNumberLabel: 'Revenu estim\u00e9 \u00e0 65 ans',
+      source: 'Sources : LPP art. 14, OPP3, LAVS',
+      children: [
+        RetirementProjectionCard(
+          projection: projection,
+          contributionYears: contributionYears,
+        ),
+        const SizedBox(height: 12),
+        _buildInfoChip(
+          has3a && nb3a >= 2 ? Icons.check_circle : Icons.info_outline,
+          threeAText,
+          has3a && nb3a >= 2 ? MintColors.success : MintColors.warning,
+        ),
+        if (lppText != null) ...[
+          const SizedBox(height: 8),
+          _buildInfoChip(Icons.savings, lppText, MintColors.info),
+        ],
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  THEMATIC CARD: TAX
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildTaxThematicSection(BuildContext context, FinancialReport report) {
+    final tax = report.taxSimulation;
+
+    final status = tax.effectiveRate < 0.15
+        ? CardStatus.serein
+        : tax.effectiveRate < 0.25
+            ? CardStatus.aRenforcer
+            : CardStatus.alerte;
+
+    return ThematicCard(
+      emoji: '\ud83d\udcca', // bar chart
+      title: 'Tes Imp\u00f4ts',
+      status: status,
+      keyNumber: 'CHF ${tax.totalTax.toStringAsFixed(0)}/an',
+      keyNumberLabel: 'Imp\u00f4ts estim\u00e9s (taux effectif : ${(tax.effectiveRate * 100).toStringAsFixed(1)}%)',
+      actionLabel: 'Comparer 26 cantons',
+      onActionTap: () => context.push('/fiscal'),
+      source: 'Source : LIFD art. 33',
+      children: [
+        _taxRow('Revenu imposable', 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
+        if (tax.totalDeductions > 0) ...[
+          const SizedBox(height: 4),
+          _taxRow('D\u00e9ductions', '\u2013 CHF ${tax.totalDeductions.toStringAsFixed(0)}'),
+        ],
+        const Divider(height: 16),
+        _taxRow('Imp\u00f4ts estim\u00e9s', 'CHF ${tax.totalTax.toStringAsFixed(0)}', isBold: true),
+        if (tax.taxSavingsFromBuyback != null && tax.taxSavingsFromBuyback! > 0) ...[
+          const SizedBox(height: 8),
+          _buildInfoChip(
+            Icons.lightbulb_outline,
+            '\u00c9conomie possible avec rachat LPP : CHF ${tax.taxSavingsFromBuyback!.toStringAsFixed(0)}/an',
+            MintColors.success,
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  HELPER WIDGETS
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildInfoChip(IconData icon, String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _taxRow(String label, String value, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+            color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+            color: MintColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  TOP PRIORITIES (kept from original)
+  // ════════════════════════════════════════════════════════════════
 
   Widget _buildTopPriorities(BuildContext context, List<ActionItem> actions) {
     if (actions.isEmpty) return const SizedBox.shrink();
@@ -311,7 +507,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '🎯 Tes 3 Actions Prioritaires',
+            '\ud83c\udfaf Tes 3 Actions Prioritaires',
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -352,7 +548,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         border: Border.all(color: priorityColor, width: 2),
         boxShadow: [
           BoxShadow(
-            color: priorityColor.withOpacity(0.1),
+            color: priorityColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -402,7 +598,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('• ', style: TextStyle(color: priorityColor)),
+                    Text('\u2022 ', style: TextStyle(color: priorityColor)),
                     Expanded(
                       child: Text(
                         step,
@@ -432,226 +628,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildTaxSection(TaxSimulation tax) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '💸 Simulation Fiscale',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildTaxRow('Revenu imposable',
-                'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
-            if (tax.deductions.isNotEmpty) ...[
-              const Divider(height: 24),
-              const Text('Déductions',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              ...tax.deductions.entries.map((e) => _buildTaxRow(
-                    e.key,
-                    '-CHF ${e.value.toStringAsFixed(0)}',
-                    isDeduction: true,
-                  )),
-            ],
-            const Divider(height: 24),
-            _buildTaxRow(
-                'Impôts estimés', 'CHF ${tax.totalTax.toStringAsFixed(0)}',
-                isBold: true),
-            _buildTaxRow('Taux effectif',
-                '${(tax.effectiveRate * 100).toStringAsFixed(1)}%'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTaxRow(String label, String value,
-      {bool isDeduction = false, bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color:
-                  isDeduction ? MintColors.textMuted : MintColors.textPrimary,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color:
-                  isDeduction ? Colors.green.shade700 : MintColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRetirementSection(
-      RetirementProjection projection, bool isMarried) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade50, Colors.purple.shade50],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.blue.shade200),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '🎯 Projection Retraite (65 ans)',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Capital estimé',
-              style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
-            ),
-            Text(
-              'CHF ${projection.totalCapital.toStringAsFixed(0)}',
-              style: GoogleFonts.montserrat(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue.shade900,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildRetirementRow(
-                isMarried
-                    ? 'Rente AVS mensuelle (Couple)'
-                    : 'Rente AVS mensuelle',
-                'CHF ${projection.monthlyAvsRent.toStringAsFixed(0)}'),
-            _buildRetirementRow('Rente LPP mensuelle',
-                'CHF ${projection.monthlyLppRent.toStringAsFixed(0)}'),
-            const Divider(height: 24),
-            _buildRetirementRow(
-              'TOTAL mensuel',
-              'CHF ${projection.totalMonthlyIncome.toStringAsFixed(0)}',
-              isBold: true,
-            ),
-            if (projection.avsReductionFactor < 1.0 ||
-                projection.spouseAvsReductionFactor < 1.0)
-              _buildAvsGapWarning(projection),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvsGapWarning(RetirementProjection projection) {
-    // Get contribution years from wizards answers if available, otherwise estimate from reduction factor
-    final years = (projection.avsReductionFactor * 44).round();
-    final gap = 44 - years;
-
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.orange.shade200),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.warning_amber_rounded,
-                  color: Colors.orange.shade800, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Attention : Lacunes AVS détectées ($gap ans)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange.shade900,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Il te manque $gap années de cotisation sur les 44 requises. Ta rente sera réduite de ${(projection.avsReductionFactor * 100).toStringAsFixed(1)}% par rapport au maximum.',
-                      style: TextStyle(
-                          fontSize: 11, color: Colors.orange.shade800),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        EducationalExplanationWidget(
-          title: 'Comprendre mes lacunes AVS',
-          shortExplanation:
-              'Découvre pourquoi chaque année compte et comment éviter une perte de rente à vie.',
-          sections: FinancialExplanations.avsGapExplanation(
-            years,
-            projection.spouseAvsReductionFactor < 1.0,
-            (projection.spouseAvsReductionFactor * 44).round(),
-          ),
-          accentColor: Colors.orange.shade700,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRetirementRow(String label, String value,
-      {bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // ════════════════════════════════════════════════════════════════
+  //  LPP BUYBACK SECTION (kept from original)
+  // ════════════════════════════════════════════════════════════════
 
   Widget _buildLppBuybackSection(LppBuybackStrategy strategy) {
     return Padding(
@@ -669,7 +648,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '💰 Stratégie Rachat LPP',
+              '\ud83d\udcb0 Strat\u00e9gie Rachat LPP',
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -677,7 +656,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Économie fiscale totale : CHF ${strategy.totalTaxSavings.toStringAsFixed(0)}',
+              '\u00c9conomie fiscale totale : CHF ${strategy.totalTaxSavings.toStringAsFixed(0)}',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.green.shade700,
@@ -699,7 +678,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Année ${buyback.year}',
+                            'Ann\u00e9e ${buyback.year}',
                             style: const TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold),
                           ),
@@ -717,7 +696,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'Économie: CHF ${buyback.estimatedTaxSavings.toStringAsFixed(0)}',
+                          '\u00c9conomie: CHF ${buyback.estimatedTaxSavings.toStringAsFixed(0)}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -729,11 +708,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ),
                 )),
 
-            // Widget d'explication pédagogique
+            // Widget d'explication p\u00e9dagogique
             EducationalExplanationWidget(
-              title: 'Comment ça marche ?',
+              title: 'Comment \u00e7a marche ?',
               shortExplanation:
-                  'Comprends pourquoi échelonner tes rachats LPP te fait économiser des milliers de francs supplémentaires.',
+                  'Comprends pourquoi \u00e9chelonner tes rachats LPP te fait \u00e9conomiser des milliers de francs suppl\u00e9mentaires.',
               sections: FinancialExplanations.lppBuybackExplanation(
                 strategy.totalBuybackAvailable,
                 0.35, // TODO: Utiliser le vrai taux marginal du profil
@@ -742,36 +721,6 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  SOURCES JURIDIQUES — Reference after each circle section
-  // ════════════════════════════════════════════════════════════════
-
-  Widget _buildSourceReference(String source) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      child: Row(
-        children: [
-          Icon(
-            Icons.gavel,
-            size: 12,
-            color: MintColors.textMuted.withValues(alpha: 0.6),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'Source : $source',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontStyle: FontStyle.italic,
-                color: MintColors.textMuted,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -799,7 +748,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
-                  'Transparence et conformité',
+                  'Transparence et conformit\u00e9',
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -814,19 +763,19 @@ class FinancialReportScreenV2 extends StatelessWidget {
             _buildSoaRow(
               'Nature du service',
               report.personalizedRoadmap.phases.isNotEmpty
-                  ? 'Éducation financière — ${report.personalizedRoadmap.phases.length} phases identifiées'
-                  : 'Éducation financière personnalisée',
+                  ? '\u00c9ducation financi\u00e8re \u2014 ${report.personalizedRoadmap.phases.length} phases identifi\u00e9es'
+                  : '\u00c9ducation financi\u00e8re personnalis\u00e9e',
             ),
             const SizedBox(height: 12),
 
-            // Hypothèses de travail
+            // Hypoth\u00e8ses de travail
             _buildSoaSubSection(
-              'Hypothèses de travail',
+              'Hypoth\u00e8ses de travail',
               Icons.settings_suggest_outlined,
               [
-                'Revenus déclarés stables sur la période',
+                'Revenus d\u00e9clar\u00e9s stables sur la p\u00e9riode',
                 'Taux de conversion LPP obligatoire : 6.8%',
-                'Plafond 3a salarié : 7\'258 CHF/an',
+                'Plafond 3a salari\u00e9 : 7\'258 CHF/an',
                 'Rente AVS maximale : 30\'240 CHF/an',
                 if (report.simulationAssumptions != null)
                   ...report.simulationAssumptions!.entries
@@ -835,13 +784,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Conflits d'intérêts
+            // Conflits d'int\u00e9r\u00eats
             _buildSoaSubSection(
-              'Conflits d\'intérêts',
+              'Conflits d\'int\u00e9r\u00eats',
               Icons.handshake_outlined,
               [
-                'Aucun conflit d\'intérêt identifié pour ce rapport.',
-                'MINT ne perçoit aucune commission sur les produits mentionnés.',
+                'Aucun conflit d\'int\u00e9r\u00eat identifi\u00e9 pour ce rapport.',
+                'MINT ne per\u00e7oit aucune commission sur les produits mentionn\u00e9s.',
               ],
             ),
             const SizedBox(height: 12),
@@ -851,9 +800,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
               'Limitations',
               Icons.info_outline,
               [
-                'Basé sur les informations déclaratives uniquement',
+                'Bas\u00e9 sur les informations d\u00e9claratives uniquement',
                 'Estimation fiscale approximative (taux moyens cantonaux)',
-                'Ne prend pas en compte les revenus de fortune mobilière',
+                'Ne prend pas en compte les revenus de fortune mobili\u00e8re',
                 'Les projections ne tiennent pas compte de l\'inflation',
               ],
             ),
@@ -990,8 +939,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Outil éducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. '
-              'Les montants sont des estimations basées sur les données déclarées.',
+              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin. '
+              'Les montants sont des estimations bas\u00e9es sur les donn\u00e9es d\u00e9clar\u00e9es.',
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,

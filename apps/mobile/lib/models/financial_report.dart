@@ -59,6 +59,8 @@ class UserProfile {
 
   final int? contributionYears;
   final int? spouseContributionYears;
+  final int? firstEmploymentYear;
+  final int? spouseFirstEmploymentYear;
 
   const UserProfile({
     this.firstName,
@@ -70,6 +72,8 @@ class UserProfile {
     required this.monthlyNetIncome,
     this.contributionYears,
     this.spouseContributionYears,
+    this.firstEmploymentYear,
+    this.spouseFirstEmploymentYear,
   });
 
   int get age => DateTime.now().year - birthYear;
@@ -80,14 +84,30 @@ class UserProfile {
   double get annualIncome => monthlyNetIncome * 12;
 
   /// Facteur de réduction AVS (1/44 par année manquante)
+  /// Priorité : calcul automatique depuis firstEmploymentYear, sinon fallback legacy
   double get avsReductionFactor {
+    if (firstEmploymentYear != null) {
+      final startYear = [firstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final currentYear = DateTime.now().year;
+      final years = (currentYear - startYear).clamp(0, 44);
+      return (years / 44).clamp(0.0, 1.0);
+    }
+    // Fallback vers le champ legacy
     final years = contributionYears ?? 44;
     return (years / 44).clamp(0.0, 1.0);
   }
 
   /// Facteur de réduction AVS pour le conjoint
+  /// Priorité : calcul automatique depuis spouseFirstEmploymentYear, sinon fallback legacy
   double get spouseAvsReductionFactor {
     if (!isMarried) return 0.0;
+    if (spouseFirstEmploymentYear != null) {
+      final startYear = [spouseFirstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final currentYear = DateTime.now().year;
+      final years = (currentYear - startYear).clamp(0, 44);
+      return (years / 44).clamp(0.0, 1.0);
+    }
+    // Fallback vers le champ legacy
     final years = spouseContributionYears ?? 44;
     return (years / 44).clamp(0.0, 1.0);
   }

@@ -321,47 +321,26 @@ class WizardQuestionsV2 {
         ),
 
         WizardQuestion(
-          id: 'q_avs_gaps',
-          title: 'As-tu toujours cotisé à l\'AVS depuis tes 20 ans ?',
+          id: 'q_first_employment_year',
+          title: 'Depuis quand travailles-tu en Suisse ?',
           subtitle:
-              'Études, séjour à l\'étranger, année sabbatique = année sans cotisation\n'
-              'Chaque année manquante = -2.3% de rente AVS à vie',
-          type: QuestionType.choice,
-          options: [
-            QuestionOption(
-                label: 'Oui, sans interruption',
-                value: 'no',
-                icon: 'check_circle'),
-            QuestionOption(
-                label: 'Non, j\'ai eu des périodes sans',
-                value: 'yes',
-                icon: 'warning'),
-            QuestionOption(
-                label: 'Je ne suis pas sûr(e)',
-                value: 'unknown',
-                icon: 'help'),
-          ],
+              'L\'année où tu as commencé ton premier emploi.\n'
+              'Chaque année sans cotisation = -2.3% de rente AVS à vie.',
+          type: QuestionType.number,
+          minValue: 1960,
+          maxValue: 2026,
           tags: ['prevoyance', 'avs'],
         ),
 
         WizardQuestion(
-          id: 'q_avs_contribution_years',
-          title: 'Combien d\'années as-tu cotisé à l\'AVS ?',
-          subtitle: 'Cotisation obligatoire dès 20 ans (ou dès le 1er emploi si avant).\nCarrière complète : 44 ans (hommes) / 43 ans (femmes, transition AVS21).',
+          id: 'q_spouse_first_employment_year',
+          title: 'Et ton/ta conjoint·e, depuis quand travaille-t-il/elle ?',
+          subtitle: 'Pour estimer la rente AVS de couple.',
           type: QuestionType.number,
-          minValue: 0,
-          maxValue: 44,
+          minValue: 1960,
+          maxValue: 2026,
           tags: ['prevoyance', 'avs'],
-        ),
-
-        WizardQuestion(
-          id: 'q_spouse_avs_contribution_years',
-          title: 'Et pour ton conjoint ? (années cotisées)',
-          subtitle: 'Pour calculer précisément la rente de couple.',
-          type: QuestionType.number,
-          minValue: 0,
-          maxValue: 44,
-          tags: ['prevoyance', 'avs'],
+          condition: (answers) => answers['q_civil_status'] == 'married',
         ),
 
         // ═══════════════════════════════════════════════════════════
