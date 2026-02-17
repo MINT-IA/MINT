@@ -8,7 +8,10 @@ MINT never stores API keys; they are used per-request only.
 import logging
 import os
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.core.auth import require_current_user
+from app.models.user import User
 
 from app.schemas.rag import (
     RAGIngestRequest,
@@ -66,7 +69,7 @@ def _get_orchestrator():
 
 
 @router.post("/query", response_model=RAGQueryResponse)
-async def rag_query(request: RAGQueryRequest):
+async def rag_query(request: RAGQueryRequest, _user: User = Depends(require_current_user)):
     """
     Main RAG query endpoint.
 
@@ -111,7 +114,7 @@ async def rag_query(request: RAGQueryRequest):
 
 
 @router.post("/ingest", response_model=RAGIngestResponse)
-async def rag_ingest(request: RAGIngestRequest):
+async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_current_user)):
     """
     Trigger knowledge base ingestion (admin endpoint).
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ReportPersistenceService {
@@ -8,7 +9,6 @@ class ReportPersistenceService {
   /// Sauvegarde les réponses du wizard (incremental off)
   static Future<void> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    // On serialize tout le map en JSON string
     final jsonString = json.encode(answers);
     await prefs.setString(_wizardKey, jsonString);
   }
@@ -22,8 +22,9 @@ class ReportPersistenceService {
 
     try {
       return Map<String, dynamic>.from(json.decode(jsonString));
-    } catch (e) {
-      print('Erreur lecture cache wizard: $e');
+    } catch (e, stack) {
+      dev.log('Failed to decode wizard answers',
+          error: e, stackTrace: stack, name: 'Persistence');
       return {};
     }
   }
@@ -54,7 +55,9 @@ class ReportPersistenceService {
     if (jsonString == null) return [];
     try {
       return List<Map<String, dynamic>>.from(json.decode(jsonString));
-    } catch (e) {
+    } catch (e, stack) {
+      dev.log('Failed to decode letters history',
+          error: e, stackTrace: stack, name: 'Persistence');
       return [];
     }
   }
@@ -83,7 +86,9 @@ class ReportPersistenceService {
           (e) => Map<String, dynamic>.from(e as Map),
         ),
       );
-    } catch (e) {
+    } catch (e, stack) {
+      dev.log('Failed to decode contributions',
+          error: e, stackTrace: stack, name: 'Persistence');
       return [];
     }
   }
@@ -118,7 +123,9 @@ class ReportPersistenceService {
           (e) => Map<String, dynamic>.from(e as Map),
         ),
       );
-    } catch (e) {
+    } catch (e, stack) {
+      dev.log('Failed to decode check-ins',
+          error: e, stackTrace: stack, name: 'Persistence');
       return [];
     }
   }

@@ -10,7 +10,10 @@ All endpoints are stateless (no persistent data storage). Pure computation.
 In production, these would interact with the real database layer.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.core.auth import require_current_user
+from app.models.user import User
 
 from app.schemas.privacy import (
     DataExportRequest,
@@ -43,7 +46,7 @@ DISCLAIMER = (
 # ---------------------------------------------------------------------------
 
 @router.post("/export", response_model=DataExportResponse)
-def export_user_data(request: DataExportRequest) -> DataExportResponse:
+def export_user_data(request: DataExportRequest, _user: User = Depends(require_current_user)) -> DataExportResponse:
     """Exporte toutes les donnees personnelles d'un utilisateur.
 
     Conforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).
@@ -107,7 +110,7 @@ def export_user_data(request: DataExportRequest) -> DataExportResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/delete", response_model=DataDeletionResponse)
-def delete_user_data(request: DataDeletionRequest) -> DataDeletionResponse:
+def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require_current_user)) -> DataDeletionResponse:
     """Supprime les donnees personnelles d'un utilisateur.
 
     Conforme a nLPD art. 6 al. 4 et art. 32.
@@ -160,7 +163,7 @@ def delete_user_data(request: DataDeletionRequest) -> DataDeletionResponse:
 # ---------------------------------------------------------------------------
 
 @router.get("/consent-status", response_model=ConsentStatusResponse)
-def get_consent_status(profile_id: str) -> ConsentStatusResponse:
+def get_consent_status(profile_id: str, _user: User = Depends(require_current_user)) -> ConsentStatusResponse:
     """Retourne le statut actuel de tous les consentements.
 
     Conforme a nLPD art. 6 (principes de traitement) et art. 7 (Privacy by Design).
@@ -207,7 +210,7 @@ def get_consent_status(profile_id: str) -> ConsentStatusResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/consent-update", response_model=ConsentUpdateResponse)
-def update_consent(request: ConsentUpdateRequest) -> ConsentUpdateResponse:
+def update_consent(request: ConsentUpdateRequest, _user: User = Depends(require_current_user)) -> ConsentUpdateResponse:
     """Met a jour un consentement pour une categorie de traitement.
 
     Le retrait du consentement est un droit fondamental (nLPD art. 6 al. 7).

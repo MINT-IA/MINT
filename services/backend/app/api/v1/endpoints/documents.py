@@ -16,7 +16,10 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+
+from app.core.auth import require_current_user
+from app.models.user import User
 
 from app.schemas.document import (
     BankStatementUploadResponse,
@@ -172,6 +175,7 @@ async def upload_document(
         False,
         description="Whether to index extracted data in the RAG vector store",
     ),
+    _user: User = Depends(require_current_user),
 ):
     """
     Upload a PDF document for extraction.
@@ -285,7 +289,7 @@ async def upload_document(
         rag_indexed = _index_in_rag(doc_id, extracted_dict, doc_type)
 
     return DocumentUploadResponse(
-        document_id=doc_id,
+        id=doc_id,
         document_type=doc_type,
         extracted_fields=extracted_dict,
         confidence=extracted.confidence,
@@ -298,7 +302,7 @@ async def upload_document(
 
 
 @router.get("/", response_model=DocumentListResponse)
-async def list_documents():
+async def list_documents(_user: User = Depends(require_current_user)):
     """
     List all uploaded documents.
 
@@ -319,7 +323,7 @@ async def list_documents():
 
 
 @router.get("/{doc_id}", response_model=DocumentDetailResponse)
-async def get_document(doc_id: str):
+async def get_document(doc_id: str, _user: User = Depends(require_current_user)):
     """
     Get a specific document by ID.
 
@@ -343,7 +347,7 @@ async def get_document(doc_id: str):
 
 
 @router.delete("/{doc_id}", response_model=DocumentDeleteResponse)
-async def delete_document(doc_id: str):
+async def delete_document(doc_id: str, _user: User = Depends(require_current_user)):
     """
     Delete a document by ID.
 
@@ -365,6 +369,7 @@ async def delete_document(doc_id: str):
 @router.post("/upload-statement", response_model=BankStatementUploadResponse)
 async def upload_bank_statement(
     file: UploadFile = File(...),
+    _user: User = Depends(require_current_user),
 ):
     """
     Upload a CSV or PDF bank statement for parsing and categorization.
@@ -474,6 +479,7 @@ async def upload_bank_statement(
 @router.post("/upload-statement/preview", response_model=BudgetImportPreview)
 async def preview_budget_import(
     file: UploadFile = File(...),
+    _user: User = Depends(require_current_user),
 ):
     """
     Preview what a bank statement import would look like in the budget module.
