@@ -282,25 +282,25 @@ void main() {
       expect(find.text('EXPLORER'), findsOneWidget);
     });
 
-    testWidgets('shows goals section', (tester) async {
+    testWidgets('shows comprendre pillar', (tester) async {
       await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('MES OBJECTIFS'), findsOneWidget);
+      expect(find.text('Je veux comprendre'), findsOneWidget);
     });
 
-    testWidgets('shows goal cards', (tester) async {
+    testWidgets('shows calculer pillar with goal cards', (tester) async {
+      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Je veux calculer'), findsOneWidget);
+    });
+
+    testWidgets('shows calculer goal cards', (tester) async {
       await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining('Budget'), findsWidgets);
-    });
-
-    testWidgets('shows simulators section', (tester) async {
-      await tester.pumpWidget(buildWithExploreProviders(const ExploreTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('SIMULATEURS'), findsOneWidget);
     });
   });
 
