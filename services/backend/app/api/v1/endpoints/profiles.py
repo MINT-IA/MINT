@@ -11,7 +11,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 from app.schemas.profile import Profile, ProfileCreate, ProfileUpdate
 from app.core.database import get_db
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, require_current_user
 from app.models.user import User
 from app.models.profile_model import ProfileModel
 
@@ -89,17 +89,16 @@ def get_profile(
 ) -> Profile:
     """
     Get a profile by ID.
-    If authenticated, verify user owns profile (unless profile is anonymous).
+    If profile belongs to a user, verify ownership.
     """
     db_profile = db.query(ProfileModel).filter(ProfileModel.id == str(profile_id)).first()
 
     if not db_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    # If profile belongs to a user and current user is authenticated
-    if db_profile.user_id and current_user:
-        # Verify ownership
-        if db_profile.user_id != current_user.id:
+    # Ownership check: if profile has a user_id, require matching auth
+    if db_profile.user_id:
+        if not current_user or db_profile.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to access this profile")
 
     # Convert from JSON data to Profile model
@@ -144,17 +143,16 @@ def update_profile(
 ) -> Profile:
     """
     Update an existing profile.
-    If authenticated, verify user owns profile (unless profile is anonymous).
+    If profile belongs to a user, verify ownership.
     """
     db_profile = db.query(ProfileModel).filter(ProfileModel.id == str(profile_id)).first()
 
     if not db_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    # If profile belongs to a user and current user is authenticated
-    if db_profile.user_id and current_user:
-        # Verify ownership
-        if db_profile.user_id != current_user.id:
+    # Ownership check: if profile has a user_id, require matching auth
+    if db_profile.user_id:
+        if not current_user or db_profile.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to update this profile")
 
     # Update data

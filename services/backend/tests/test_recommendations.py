@@ -44,7 +44,16 @@ def test_preview_recommendations(client):
 
 def test_preview_recommendations_with_focus(client):
     """Test previewing recommendations with a focus kind filter."""
-    profile_id = str(uuid.uuid4())
+    # Create a profile first (endpoint requires it to exist in DB)
+    profile_payload = {
+        "householdType": "single",
+        "goal": "invest",
+        "birthYear": 1995,
+        "savingsMonthly": 500,
+    }
+    profile_resp = client.post("/api/v1/profiles", json=profile_payload)
+    profile_id = profile_resp.json()["id"]
+
     request_payload = {"profileId": profile_id, "focusKind": "compound_interest"}
     response = client.post(
         "/api/v1/recommendations/preview", json=request_payload

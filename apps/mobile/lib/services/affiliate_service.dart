@@ -41,7 +41,11 @@ class AffiliateService {
     Map<String, dynamic>? metadata,
   }) async {
     // TODO: Envoyer à un service analytics (Firebase, Amplitude, etc.)
-    print('[AFFILIATE] Click: $provider by user $userId');
+    assert(() {
+      // ignore: avoid_print
+      print('[AFFILIATE] Click: $provider');
+      return true;
+    }());
 
     // Exemple d'implémentation future :
     // await AnalyticsService.logEvent(
@@ -62,7 +66,11 @@ class AffiliateService {
     required double commission,
   }) async {
     // TODO: Enregistrer dans la base de données
-    print('[AFFILIATE] Conversion: $provider - User $userId - CHF $commission');
+    assert(() {
+      // ignore: avoid_print
+      print('[AFFILIATE] Conversion: $provider');
+      return true;
+    }());
 
     // Exemple d'implémentation future :
     // await DatabaseService.recordConversion(

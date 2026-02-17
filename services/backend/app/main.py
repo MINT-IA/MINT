@@ -29,13 +29,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Setup CORS
+# Setup CORS — production must set CORS_ORIGINS env var
+_cors_origins_raw = os.getenv("CORS_ORIGINS", "")
+_cors_origins = (
+    [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
+    if _cors_origins_raw
+    else ["*"]  # Allow all in local dev only
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For MVP/Local dev. In production, restrict this.
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 

@@ -58,6 +58,7 @@ def populated_store():
 
     _document_store["doc-aaa"] = {
         "id": "doc-aaa",
+        "user_id": "test-user-id",
         "document_type": "lpp_certificate",
         "upload_date": now,
         "confidence": 0.85,
@@ -68,6 +69,7 @@ def populated_store():
     }
     _document_store["doc-bbb"] = {
         "id": "doc-bbb",
+        "user_id": "test-user-id",
         "document_type": "salary_slip",
         "upload_date": now,
         "confidence": 0.60,
@@ -78,6 +80,7 @@ def populated_store():
     }
     _document_store["doc-ccc"] = {
         "id": "doc-ccc",
+        "user_id": "test-user-id",
         "document_type": "unknown",
         "upload_date": now,
         "confidence": 0.0,

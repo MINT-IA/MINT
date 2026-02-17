@@ -7,11 +7,13 @@ import uuid
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import UUID4
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session as DBSession
 from app.schemas.session import Session as SessionSchema, SessionCreate, SessionReport
+from app.core.auth import require_current_user
 from app.core.database import get_db
 from app.models.profile_model import ProfileModel
 from app.models.session_model import SessionModel
+from app.models.user import User
 from app.services.rules_engine import generate_session_report, recommend_goal_template
 
 router = APIRouter()
@@ -20,16 +22,20 @@ router = APIRouter()
 @router.post("", response_model=SessionSchema)
 def create_session(
     session_create: SessionCreate,
-    db: Session = Depends(get_db),
+    db: DBSession = Depends(get_db),
+    current_user: User = Depends(require_current_user),
 ) -> SessionSchema:
     """Create a new guide session."""
-    # Check if profile exists
+    # Check if profile exists and belongs to current user
     db_profile = db.query(ProfileModel).filter(
         ProfileModel.id == str(session_create.profileId)
     ).first()
 
     if not db_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
+
+    if db_profile.user_id and db_profile.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this profile")
 
     # Get profile data from JSON
     profile_data = db_profile.data
@@ -110,7 +116,8 @@ def create_session(
 @router.get("/{session_id}/report", response_model=SessionReport)
 def get_session_report(
     session_id: UUID4,
-    db: Session = Depends(get_db),
+    db: DBSession = Depends(get_db),
+    current_user: User = Depends(require_current_user),
 ) -> SessionReport:
     """Generate and get the report for a session."""
     # Get session from database
@@ -122,13 +129,16 @@ def get_session_report(
     # Get session data
     session_data = db_session.data
 
-    # Get profile
+    # Get profile and verify ownership
     db_profile = db.query(ProfileModel).filter(
         ProfileModel.id == session_data["profileId"]
     ).first()
 
     if not db_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
+
+    if db_profile.user_id and db_profile.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
 
     # Reconstruct profile for rules engine
     from app.schemas.profile import Profile, HouseholdType, Goal

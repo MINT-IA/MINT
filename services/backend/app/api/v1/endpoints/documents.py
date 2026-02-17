@@ -274,6 +274,7 @@ async def upload_document(
     now = datetime.now(timezone.utc).isoformat()
     _document_store[doc_id] = {
         "id": doc_id,
+        "user_id": _user.id,
         "document_type": doc_type,
         "upload_date": now,
         "confidence": extracted.confidence,
@@ -304,7 +305,7 @@ async def upload_document(
 @router.get("/", response_model=DocumentListResponse)
 async def list_documents(_user: User = Depends(require_current_user)):
     """
-    List all uploaded documents.
+    List all uploaded documents for the current user.
 
     Returns document summaries (no extracted fields for performance).
     """
@@ -318,6 +319,7 @@ async def list_documents(_user: User = Depends(require_current_user)):
             fields_found=doc["fields_found"],
         )
         for doc in store.values()
+        if doc.get("user_id") == _user.id
     ]
     return DocumentListResponse(documents=summaries)
 
@@ -328,12 +330,15 @@ async def get_document(doc_id: str, _user: User = Depends(require_current_user))
     Get a specific document by ID.
 
     Returns full extracted fields and metadata.
+    Only the document owner can access it.
     """
     store = _get_document_store()
     if doc_id not in store:
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found")
 
     doc = store[doc_id]
+    if doc.get("user_id") != _user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this document")
     return DocumentDetailResponse(
         id=doc["id"],
         document_type=doc["document_type"],
@@ -352,10 +357,15 @@ async def delete_document(doc_id: str, _user: User = Depends(require_current_use
     Delete a document by ID.
 
     Removes all stored data for privacy. This is irreversible.
+    Only the document owner can delete it.
     """
     store = _get_document_store()
     if doc_id not in store:
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found")
+
+    doc = store[doc_id]
+    if doc.get("user_id") != _user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this document")
 
     del store[doc_id]
     return DocumentDeleteResponse(deleted=True, id=doc_id)

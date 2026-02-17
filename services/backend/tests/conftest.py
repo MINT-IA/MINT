@@ -2,13 +2,27 @@
 Test configuration and fixtures.
 """
 
+from unittest.mock import MagicMock
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from app.main import app
+from app.core.auth import get_current_user, require_current_user
 from app.core.database import Base, get_db
+
+
+def _fake_user():
+    """Return a mock user for auth dependency override in tests."""
+    from datetime import datetime
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    user.display_name = "Test User"
+    user.created_at = datetime(2025, 1, 1)
+    return user
 
 # Create in-memory SQLite database for tests with StaticPool
 # StaticPool ensures all connections use the same in-memory database
@@ -61,9 +75,11 @@ def clean_database():
 
 @pytest.fixture
 def client():
-    """Test client with test database."""
-    # Override the database dependency
+    """Test client with test database and auth override."""
+    # Override the database and auth dependencies
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[require_current_user] = _fake_user
+    app.dependency_overrides[get_current_user] = _fake_user
 
     with TestClient(app) as test_client:
         yield test_client

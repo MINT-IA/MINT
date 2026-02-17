@@ -22,8 +22,10 @@ Endpoints:
 import os
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
+from app.core.auth import require_current_user
+from app.models.user import User
 from app.schemas.open_banking import (
     OpenBankingStatusResponse,
     ConsentRequest,
@@ -69,8 +71,6 @@ DISCLAIMER = (
     "Consultez un ou une specialiste pour toute decision financiere."
 )
 
-# Placeholder user_id for MVP (no auth yet)
-_DEFAULT_USER_ID = "user-mvp-001"
 
 
 # ---------------------------------------------------------------------------
@@ -135,7 +135,7 @@ def get_status() -> OpenBankingStatusResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/consent", response_model=ConsentResponse)
-def create_consent(request: ConsentRequest) -> ConsentResponse:
+def create_consent(request: ConsentRequest, current_user: User = Depends(require_current_user)) -> ConsentResponse:
     """Create a new banking consent (nLPD-compliant).
 
     Requires explicit opt-in. Scopes must be explicitly chosen.
@@ -145,7 +145,7 @@ def create_consent(request: ConsentRequest) -> ConsentResponse:
 
     try:
         consent = _consent_manager.create_consent(
-            user_id=_DEFAULT_USER_ID,
+            user_id=current_user.id,
             bank_id=request.bankId,
             bank_name=request.bankName,
             scopes=request.scopes,
@@ -165,7 +165,7 @@ def create_consent(request: ConsentRequest) -> ConsentResponse:
 
 
 @router.delete("/consent/{consent_id}")
-def revoke_consent(consent_id: str):
+def revoke_consent(consent_id: str, current_user: User = Depends(require_current_user)):
     """Revoke a banking consent.
 
     The consent is immediately invalidated. All associated data access stops.
@@ -185,11 +185,11 @@ def revoke_consent(consent_id: str):
 
 
 @router.get("/consents", response_model=List[ConsentResponse])
-def list_consents() -> List[ConsentResponse]:
+def list_consents(current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
     """List active consents for the current person."""
     _check_open_banking_enabled()
 
-    consents = _consent_manager.get_active_consents(_DEFAULT_USER_ID)
+    consents = _consent_manager.get_active_consents(current_user.id)
 
     return [
         ConsentResponse(
@@ -210,14 +210,14 @@ def list_consents() -> List[ConsentResponse]:
 # ---------------------------------------------------------------------------
 
 @router.get("/accounts", response_model=AggregatedViewResponse)
-def list_accounts() -> AggregatedViewResponse:
+def list_accounts(current_user: User = Depends(require_current_user)) -> AggregatedViewResponse:
     """List all connected accounts (aggregated view).
 
     Requires at least one active consent with 'accounts' scope.
     """
     _check_open_banking_enabled()
 
-    view = _aggregator.get_aggregated_view(_DEFAULT_USER_ID)
+    view = _aggregator.get_aggregated_view(current_user.id)
 
     return AggregatedViewResponse(
         totalBalance=view.total_balance,
@@ -260,6 +260,7 @@ def list_transactions(
     date_from: str = Query("2025-01-01", description="Date de debut (YYYY-MM-DD)"),
     date_to: str = Query("2025-12-31", description="Date de fin (YYYY-MM-DD)"),
     category: Optional[str] = Query(None, description="Filtrer par categorie"),
+    current_user: User = Depends(require_current_user),
 ) -> List[TransactionResponse]:
     """List transactions for an account with optional filters.
 
@@ -297,7 +298,7 @@ def list_transactions(
     "/accounts/{account_id}/balance",
     response_model=BalanceResponse,
 )
-def get_balance(account_id: str) -> BalanceResponse:
+def get_balance(account_id: str, current_user: User = Depends(require_current_user)) -> BalanceResponse:
     """Get current balance for an account.
 
     Requires an active consent with 'balances' scope.
@@ -327,11 +328,12 @@ def get_balance(account_id: str) -> BalanceResponse:
 def get_monthly_summary(
     month: int = Query(1, ge=1, le=12, description="Mois (1-12)"),
     year: int = Query(2025, description="Annee"),
+    current_user: User = Depends(require_current_user),
 ) -> MonthlySummaryResponse:
     """Get aggregated monthly summary across all connected accounts."""
     _check_open_banking_enabled()
 
-    summary = _aggregator.get_monthly_summary(_DEFAULT_USER_ID, month, year)
+    summary = _aggregator.get_monthly_summary(current_user.id, month, year)
 
     return MonthlySummaryResponse(
         month=summary.month,
@@ -358,7 +360,7 @@ def get_monthly_summary(
 # ---------------------------------------------------------------------------
 
 @router.post("/categorize", response_model=CategorizeResponse)
-def categorize_transactions(request: CategorizeRequest) -> CategorizeResponse:
+def categorize_transactions(request: CategorizeRequest, current_user: User = Depends(require_current_user)) -> CategorizeResponse:
     """Re-categorize transactions for an account.
 
     Uses Swiss-specific merchant patterns (Migros, Coop, CFF, etc.).

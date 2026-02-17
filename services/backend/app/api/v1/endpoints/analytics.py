@@ -7,8 +7,10 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, distinct
+from app.core.auth import require_current_user
 from app.core.database import get_db
 from app.models.analytics_event import AnalyticsEvent
+from app.models.user import User
 from app.schemas.analytics import (
     AnalyticsEventBatch,
     AnalyticsEventBatchResponse,
@@ -69,6 +71,7 @@ def get_analytics_summary(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     db: Session = Depends(get_db),
+    _user: User = Depends(require_current_user),
 ) -> AnalyticsSummaryResponse:
     """
     Get analytics summary with key metrics.
@@ -149,6 +152,7 @@ def get_funnel_analysis(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     db: Session = Depends(get_db),
+    _user: User = Depends(require_current_user),
 ) -> FunnelQueryResponse:
     """
     Get funnel conversion analysis.

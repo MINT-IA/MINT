@@ -2,7 +2,19 @@
 Tests for authentication endpoints.
 """
 
+import pytest
 from fastapi.testclient import TestClient
+
+from app.core.auth import get_current_user, require_current_user
+from app.main import app
+
+
+@pytest.fixture
+def auth_client(client: TestClient):
+    """Client without auth override — for testing real JWT flow."""
+    app.dependency_overrides.pop(require_current_user, None)
+    app.dependency_overrides.pop(get_current_user, None)
+    yield client
 
 
 def test_register_new_user(client: TestClient):
@@ -119,10 +131,10 @@ def test_login_nonexistent_user(client: TestClient):
     assert response.status_code == 401
 
 
-def test_get_me_with_valid_token(client: TestClient):
+def test_get_me_with_valid_token(auth_client: TestClient):
     """Test 5: Access /auth/me with valid token returns 200 and user info."""
     # Register user
-    register_response = client.post(
+    register_response = auth_client.post(
         "/api/v1/auth/register",
         json={
             "email": "getme@example.com",
@@ -133,7 +145,7 @@ def test_get_me_with_valid_token(client: TestClient):
     token = register_response.json()["access_token"]
 
     # Access /auth/me
-    response = client.get(
+    response = auth_client.get(
         "/api/v1/auth/me",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -145,16 +157,16 @@ def test_get_me_with_valid_token(client: TestClient):
     assert "created_at" in data
 
 
-def test_get_me_without_token(client: TestClient):
+def test_get_me_without_token(auth_client: TestClient):
     """Test 6: Access /auth/me without token returns 401/403."""
-    response = client.get("/api/v1/auth/me")
+    response = auth_client.get("/api/v1/auth/me")
     # Should return 401 or 403 (depends on HTTPBearer auto_error setting)
     assert response.status_code in [401, 403]
 
 
-def test_get_me_with_invalid_token(client: TestClient):
+def test_get_me_with_invalid_token(auth_client: TestClient):
     """Test: Access /auth/me with invalid token returns 401."""
-    response = client.get(
+    response = auth_client.get(
         "/api/v1/auth/me",
         headers={"Authorization": "Bearer invalid-token-xyz"},
     )
@@ -189,10 +201,10 @@ def test_create_profile_with_auth(client: TestClient):
     assert profile["canton"] == "VD"
 
 
-def test_access_other_user_profile(client: TestClient):
+def test_access_other_user_profile(auth_client: TestClient):
     """Test 8: Access other user's profile returns 403."""
     # Register first user and create profile
-    user1_response = client.post(
+    user1_response = auth_client.post(
         "/api/v1/auth/register",
         json={
             "email": "user1@example.com",
@@ -201,7 +213,7 @@ def test_access_other_user_profile(client: TestClient):
     )
     user1_token = user1_response.json()["access_token"]
 
-    profile_response = client.post(
+    profile_response = auth_client.post(
         "/api/v1/profiles",
         headers={"Authorization": f"Bearer {user1_token}"},
         json={
@@ -212,7 +224,7 @@ def test_access_other_user_profile(client: TestClient):
     profile_id = profile_response.json()["id"]
 
     # Register second user
-    user2_response = client.post(
+    user2_response = auth_client.post(
         "/api/v1/auth/register",
         json={
             "email": "user2@example.com",
@@ -222,7 +234,7 @@ def test_access_other_user_profile(client: TestClient):
     user2_token = user2_response.json()["access_token"]
 
     # Try to access user1's profile with user2's token
-    response = client.get(
+    response = auth_client.get(
         f"/api/v1/profiles/{profile_id}",
         headers={"Authorization": f"Bearer {user2_token}"},
     )
@@ -230,10 +242,10 @@ def test_access_other_user_profile(client: TestClient):
     assert "authorized" in response.json()["detail"].lower()
 
 
-def test_update_other_user_profile(client: TestClient):
+def test_update_other_user_profile(auth_client: TestClient):
     """Test: Update other user's profile returns 403."""
     # Register first user and create profile
-    user1_response = client.post(
+    user1_response = auth_client.post(
         "/api/v1/auth/register",
         json={
             "email": "update1@example.com",
@@ -242,7 +254,7 @@ def test_update_other_user_profile(client: TestClient):
     )
     user1_token = user1_response.json()["access_token"]
 
-    profile_response = client.post(
+    profile_response = auth_client.post(
         "/api/v1/profiles",
         headers={"Authorization": f"Bearer {user1_token}"},
         json={
@@ -253,7 +265,7 @@ def test_update_other_user_profile(client: TestClient):
     profile_id = profile_response.json()["id"]
 
     # Register second user
-    user2_response = client.post(
+    user2_response = auth_client.post(
         "/api/v1/auth/register",
         json={
             "email": "update2@example.com",
@@ -263,7 +275,7 @@ def test_update_other_user_profile(client: TestClient):
     user2_token = user2_response.json()["access_token"]
 
     # Try to update user1's profile with user2's token
-    response = client.patch(
+    response = auth_client.patch(
         f"/api/v1/profiles/{profile_id}",
         headers={"Authorization": f"Bearer {user2_token}"},
         json={"birthYear": 1995},

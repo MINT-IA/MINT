@@ -1,11 +1,34 @@
 import pytest
 import json
 import os
+from datetime import datetime
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
+from app.core.auth import get_current_user, require_current_user
 from app.main import app
 from app.schemas.profile import HouseholdType, Goal
 
-client = TestClient(app)
+
+def _fake_user():
+    """Return a mock user for auth dependency override in tests."""
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    user.display_name = "Test User"
+    user.created_at = datetime(2025, 1, 1)
+    return user
+
+
+@pytest.fixture
+def persona_client():
+    """Test client with auth overrides for persona integration tests."""
+    app.dependency_overrides[require_current_user] = _fake_user
+    app.dependency_overrides[get_current_user] = _fake_user
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.pop(require_current_user, None)
+    app.dependency_overrides.pop(get_current_user, None)
+
 
 def load_personas():
     persona_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../apps/mobile/assets/config/personas.json"))
@@ -47,15 +70,15 @@ def map_persona_to_profile(answers):
     }
 
 @pytest.mark.parametrize("persona", load_personas())
-def test_persona_recommendations(persona):
+def test_persona_recommendations(persona, persona_client):
     # 1. Create Profile
     profile_data = map_persona_to_profile(persona["answers"])
-    response = client.post("/api/v1/profiles", json=profile_data)
+    response = persona_client.post("/api/v1/profiles", json=profile_data)
     assert response.status_code == 200
     profile_id = response.json()["id"]
 
     # 2. Get Recommendations
-    rec_response = client.post("/api/v1/recommendations/preview", json={
+    rec_response = persona_client.post("/api/v1/recommendations/preview", json={
         "profileId": profile_id
     })
     assert rec_response.status_code == 200
@@ -66,7 +89,7 @@ def test_persona_recommendations(persona):
         # Should have 3a recommendation
         kinds = [r["kind"] for r in recommendations]
         assert "pillar3a" in kinds
-    
+
     if persona["id"] == "stressed_student":
         # Should have debt or budget recommendation
         kinds = [r["kind"] for r in recommendations]

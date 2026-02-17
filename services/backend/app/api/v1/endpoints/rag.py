@@ -119,7 +119,15 @@ async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_cu
     Trigger knowledge base ingestion (admin endpoint).
 
     Ingests markdown files from the specified directory into the vector store.
+    Only admin users (email ending with @mint.ch) can use this endpoint.
     """
+    # Admin gate: only @mint.ch emails can ingest
+    if not _user.email or not _user.email.endswith("@mint.ch"):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required for knowledge base ingestion",
+        )
+
     try:
         from app.services.rag.ingester import MarkdownIngester
     except ImportError:
@@ -130,7 +138,19 @@ async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_cu
 
     vector_store = _get_vector_store()
 
-    if not os.path.isdir(request.directory):
+    # Validate directory: must be within the project tree (prevent traversal)
+    backend_dir = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    )
+    resolved = os.path.realpath(request.directory)
+    project_root = os.path.realpath(os.path.join(backend_dir, ".."))
+    if not resolved.startswith(project_root):
+        raise HTTPException(
+            status_code=400,
+            detail="Directory must be within the MINT project tree",
+        )
+
+    if not os.path.isdir(resolved):
         raise HTTPException(
             status_code=400,
             detail=f"Directory not found: {request.directory}",
@@ -138,7 +158,7 @@ async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_cu
 
     ingester = MarkdownIngester(vector_store=vector_store)
     count = ingester.ingest_directory(
-        directory=request.directory,
+        directory=resolved,
         language=request.language,
     )
 

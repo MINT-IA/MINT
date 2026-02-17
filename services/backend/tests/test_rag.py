@@ -25,11 +25,23 @@ requires_chromadb = pytest.mark.skipif(
 # Fixtures
 # --------------------------------------------------------------------------
 
+def _fake_user():
+    """Return a mock user object for auth override."""
+    from unittest.mock import MagicMock
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    return user
+
+
 @pytest.fixture
 def client():
-    """Test client for FastAPI app."""
+    """Test client for FastAPI app with auth override."""
+    from app.core.auth import require_current_user
+    app.dependency_overrides[require_current_user] = _fake_user
     with TestClient(app) as c:
         yield c
+    app.dependency_overrides.pop(require_current_user, None)
 
 
 @pytest.fixture

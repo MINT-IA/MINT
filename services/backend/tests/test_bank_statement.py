@@ -6,10 +6,24 @@ recurring detection, budget preview, and FastAPI endpoints.
 """
 
 
+from datetime import datetime
+from unittest.mock import MagicMock
+
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.auth import require_current_user
 from app.main import app
+
+
+def _fake_user():
+    """Return a mock user for auth dependency override in tests."""
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    user.display_name = "Test User"
+    user.created_at = datetime(2025, 1, 1)
+    return user
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -110,14 +124,17 @@ RECURRING_CSV = (
 
 @pytest.fixture
 def client():
-    """Test client for FastAPI app."""
+    """Test client for FastAPI app with auth override."""
     from app.api.v1.endpoints.documents import _document_store
     _document_store.clear()
+
+    app.dependency_overrides[require_current_user] = _fake_user
 
     with TestClient(app) as c:
         yield c
 
     _document_store.clear()
+    app.dependency_overrides.pop(require_current_user, None)
 
 
 @pytest.fixture
