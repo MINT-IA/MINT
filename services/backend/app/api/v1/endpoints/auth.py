@@ -3,14 +3,14 @@ Authentication endpoints - register, login, and user info.
 """
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
 from app.models.user import User
-from app.schemas.auth import UserRegister, UserLogin, TokenResponse, UserResponse
+from app.schemas.auth import UserRegister, UserLogin, TokenResponse, UserResponse, RefreshTokenRequest
 from app.services.auth_service import (
     hash_password,
     verify_password,
@@ -56,8 +56,8 @@ def register_user(
         email=user_data.email,
         hashed_password=hash_password(user_data.password),
         display_name=user_data.display_name,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
 
     db.add(new_user)
@@ -123,6 +123,7 @@ def login_user(
 @limiter.limit("30/minute")
 def refresh_access_token(
     request: Request,
+    body: RefreshTokenRequest,
     db: Session = Depends(get_db),
 ):
     """
@@ -131,20 +132,7 @@ def refresh_access_token(
     Expects JSON body: { "refresh_token": "..." }
     Returns a new access token + new refresh token (rotation).
     """
-    body = {}
-    try:
-        import json
-        body = json.loads(request._body.decode()) if hasattr(request, '_body') else {}
-    except Exception:
-        pass
-
-    # Also try form/query
-    refresh_token_value = body.get("refresh_token")
-    if not refresh_token_value:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="refresh_token is required",
-        )
+    refresh_token_value = body.refresh_token
 
     payload = decode_refresh_token(refresh_token_value)
     if payload is None:

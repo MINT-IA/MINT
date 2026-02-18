@@ -286,8 +286,9 @@ class RealReturnCalculator {
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(1, 45);
     final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
-    // Rendement net de frais
-    final rendementNet = clampedRendement - clampedFrais;
+    // Rendement net de frais et d'inflation (identique au backend)
+    final clampedInflation = inflation.clamp(0.0, 0.05);
+    final rendementNet = max(0.0, clampedRendement - clampedFrais - clampedInflation);
 
     // Capital final 3a (rendement compose)
     double capital3a = 0;

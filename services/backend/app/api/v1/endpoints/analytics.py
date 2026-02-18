@@ -2,7 +2,7 @@
 Analytics endpoints for event tracking and analytics queries.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -50,7 +50,7 @@ def post_analytics_events(
             session_id=event_data.session_id,
             user_id=event_data.user_id,
             screen_name=event_data.screen_name,
-            timestamp=event_data.timestamp if event_data.timestamp else datetime.utcnow(),
+            timestamp=event_data.timestamp if event_data.timestamp else datetime.now(timezone.utc),
             app_version=event_data.app_version,
             platform=event_data.platform,
         )
@@ -92,9 +92,9 @@ def get_analytics_summary(
     if start_date:
         date_range_start = start_date
     else:
-        date_range_start = datetime.utcnow() - timedelta(days=days)
+        date_range_start = datetime.now(timezone.utc) - timedelta(days=days)
 
-    date_range_end = end_date if end_date else datetime.utcnow()
+    date_range_end = end_date if end_date else datetime.now(timezone.utc)
 
     # Base query with date filter
     base_query = db.query(AnalyticsEvent).filter(
@@ -179,17 +179,17 @@ def get_funnel_analysis(
     if not step_names:
         return FunnelQueryResponse(
             steps=[],
-            date_range_start=datetime.utcnow(),
-            date_range_end=datetime.utcnow(),
+            date_range_start=datetime.now(timezone.utc),
+            date_range_end=datetime.now(timezone.utc),
         )
 
     # Determine date range
     if start_date:
         date_range_start = start_date
     else:
-        date_range_start = datetime.utcnow() - timedelta(days=days)
+        date_range_start = datetime.now(timezone.utc) - timedelta(days=days)
 
-    date_range_end = end_date if end_date else datetime.utcnow()
+    date_range_end = end_date if end_date else datetime.now(timezone.utc)
 
     # Calculate counts for each step
     funnel_steps: List[FunnelStepResponse] = []

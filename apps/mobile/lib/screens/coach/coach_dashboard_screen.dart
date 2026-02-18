@@ -642,7 +642,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           icon: Icons.shield_outlined,
           iconColor: MintColors.scoreAttention,
           fact: l10n?.coachFactAvs ?? 'En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.',
-          route: '/simulator/avs',
+          route: '/retirement',
           linkLabel: l10n?.coachFactAvsLink ?? 'Vérifier mes années AVS',
         ),
         const SizedBox(height: 12),
@@ -1110,7 +1110,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     required String route,
   }) {
     return GestureDetector(
-      onTap: () => GoRouter.of(context).go(route),
+      onTap: () => context.push(route),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(

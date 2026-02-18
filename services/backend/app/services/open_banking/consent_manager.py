@@ -13,7 +13,7 @@ Sprint S14 — Open Banking infrastructure.
 
 from dataclasses import dataclass
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 
 
@@ -106,7 +106,7 @@ class ConsentManager:
                 f"Scopes invalides : {invalid}. Scopes acceptes : {VALID_SCOPES}"
             )
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         consent = BankingConsent(
             consent_id=str(uuid.uuid4()),
             user_id=user_id,
@@ -144,7 +144,7 @@ class ConsentManager:
         if not consent:
             return False
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         consent.revoked = True
         consent.revoked_at = now.isoformat() + "Z"
 
@@ -169,7 +169,7 @@ class ConsentManager:
         Returns:
             List of active BankingConsent objects.
         """
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat() + "Z"
         return [
             c
             for c in self._consents.values()
@@ -194,7 +194,7 @@ class ConsentManager:
         if consent.revoked:
             return False
 
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat() + "Z"
         if consent.expires_at <= now:
             return False
 

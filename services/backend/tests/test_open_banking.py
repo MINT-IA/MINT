@@ -18,7 +18,7 @@ Run: cd services/backend && OPEN_BANKING_ENABLED=true python3 -m pytest tests/te
 import os
 import re
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.services.open_banking.blink_connector import BLinkConnector, BankAccount
 from app.services.open_banking.transaction_categorizer import (
@@ -378,7 +378,7 @@ class TestConsentManager:
             scopes=["accounts"],
         )
         # Manually set expiry to the past
-        consent.expires_at = (datetime.utcnow() - timedelta(days=1)).isoformat() + "Z"
+        consent.expires_at = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat() + "Z"
         assert not consent_manager.is_consent_valid(consent.consent_id)
 
     def test_list_active_consents_excludes_revoked(self, consent_manager):

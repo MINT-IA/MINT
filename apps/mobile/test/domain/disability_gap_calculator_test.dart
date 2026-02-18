@@ -250,7 +250,7 @@ void main() {
         () => computeDisabilityGap(
           revenuMensuelNet: 8000,
           statutProfessionnel: EmploymentStatusType.employee,
-          canton: 'TI',
+          canton: 'XX',
           anneesAnciennete: 5,
           hasIjmCollective: true,
           degreInvalidite: 100,

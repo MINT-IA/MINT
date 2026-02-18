@@ -225,6 +225,38 @@ PILIER_3A_TAUX_REVENU_SANS_LPP: float = 0.20
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# Impot sur retrait de capital (2e/3e pilier) — Taux de base par canton
+# Sources: Administrations fiscales cantonales, TaxWare
+# ══════════════════════════════════════════════════════════════════════════════
+
+TAUX_IMPOT_RETRAIT_CAPITAL: Dict[str, float] = {
+    "ZH": 0.065, "BE": 0.075, "LU": 0.055, "UR": 0.050,
+    "SZ": 0.040, "OW": 0.045, "NW": 0.040, "GL": 0.055,
+    "ZG": 0.035, "FR": 0.070, "SO": 0.065, "BS": 0.075,
+    "BL": 0.065, "SH": 0.060, "AR": 0.055, "AI": 0.045,
+    "SG": 0.060, "GR": 0.055, "AG": 0.060, "TG": 0.055,
+    "TI": 0.065, "VD": 0.080, "VS": 0.060, "NE": 0.070,
+    "GE": 0.075, "JU": 0.065,
+}
+"""Taux de base de l'impot sur le retrait de capital par canton (LIFD + cantonal + communal)."""
+
+RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = [
+    (0, 100_000, 1.00),
+    (100_000, 200_000, 1.15),
+    (200_000, 500_000, 1.30),
+    (500_000, 1_000_000, 1.50),
+    (1_000_000, float("inf"), 1.70),
+]
+"""Tranches progressives pour l'impot sur retrait de capital (multiplicateur)."""
+
+AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
+"""Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""
+
+AVS_RENTE_MAX_ANNUELLE: float = 30_240.0
+"""Rente AVS maximale individuelle annuelle (= 12 x 2'520)."""
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # Cotisations totales salarie (resume)
 # ══════════════════════════════════════════════════════════════════════════════
 

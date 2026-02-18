@@ -2,7 +2,7 @@
 Authentication service - handles password hashing and JWT token generation.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 import jwt
 from passlib.context import CryptContext
@@ -50,13 +50,13 @@ def create_access_token(user_id: str, email: str) -> str:
     Returns:
         JWT token string (valid for JWT_EXPIRY_HOURS)
     """
-    expire = datetime.utcnow() + timedelta(hours=settings.JWT_EXPIRY_HOURS)
+    expire = datetime.now(timezone.utc) + timedelta(hours=settings.JWT_EXPIRY_HOURS)
     payload = {
         "user_id": user_id,
         "email": email,
         "type": "access",
         "exp": expire,
-        "iat": datetime.utcnow(),
+        "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
@@ -71,12 +71,12 @@ def create_refresh_token(user_id: str) -> str:
     Returns:
         JWT refresh token string (valid for 30 days)
     """
-    expire = datetime.utcnow() + timedelta(days=30)
+    expire = datetime.now(timezone.utc) + timedelta(days=30)
     payload = {
         "user_id": user_id,
         "type": "refresh",
         "exp": expire,
-        "iat": datetime.utcnow(),
+        "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
@@ -89,7 +89,8 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
         token: JWT token string
 
     Returns:
-        Decoded token payload if valid, None otherwise
+        Decoded token payload if valid access token, None otherwise.
+        Returns None if the token is a refresh token (type != "access").
     """
     try:
         payload = jwt.decode(
@@ -97,6 +98,9 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
             settings.JWT_SECRET_KEY,
             algorithms=[settings.JWT_ALGORITHM]
         )
+        # Reject non-access tokens (e.g. refresh tokens used as access tokens)
+        if payload.get("type") != "access":
+            return None
         return payload
     except jwt.ExpiredSignatureError:
         return None

@@ -19,6 +19,8 @@ Sprint S16 — Gap G1: 3a Deep.
 from dataclasses import dataclass, field
 from typing import List
 
+from app.constants.social_insurance import TAUX_IMPOT_RETRAIT_CAPITAL, RETRAIT_CAPITAL_TRANCHES
+
 
 DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
@@ -27,52 +29,7 @@ DISCLAIMER = (
     "moment du retrait. Consultez un ou une specialiste en fiscalite."
 )
 
-# ---------------------------------------------------------------------------
-# Cantonal capital withdrawal tax rates (simplified, educational estimates)
-# Same as used in lpp_deep/epl_service.py for consistency
-# ---------------------------------------------------------------------------
-
-TAUX_IMPOT_RETRAIT_CAPITAL = {
-    "ZH": 0.065,
-    "BE": 0.070,
-    "VD": 0.080,
-    "GE": 0.075,
-    "LU": 0.050,
-    "AG": 0.060,
-    "SG": 0.065,
-    "BS": 0.075,
-    "TI": 0.070,
-    "VS": 0.060,
-    "FR": 0.075,
-    "NE": 0.080,
-    "JU": 0.080,
-    "SO": 0.065,
-    "BL": 0.065,
-    "GR": 0.060,
-    "TG": 0.055,
-    "SZ": 0.040,
-    "ZG": 0.035,
-    "NW": 0.040,
-    "OW": 0.045,
-    "UR": 0.050,
-    "SH": 0.060,
-    "AR": 0.055,
-    "AI": 0.045,
-    "GL": 0.055,
-}
-
 _DEFAULT_TAUX_RETRAIT = 0.065
-
-# Progressive surcharge on large capital withdrawals (simplified model)
-# In many cantons, the effective rate increases with the amount withdrawn.
-# This table models the progressivity as a multiplier on the base rate.
-_PROGRESSIVITY_BRACKETS = [
-    (0,       100_000,  1.0),    # 0-100k: base rate
-    (100_000, 200_000,  1.15),   # 100k-200k: +15%
-    (200_000, 500_000,  1.30),   # 200k-500k: +30%
-    (500_000, 1_000_000, 1.50),  # 500k-1M: +50%
-    (1_000_000, float("inf"), 1.70),  # >1M: +70%
-]
 
 
 @dataclass
@@ -285,7 +242,7 @@ class MultiAccountService:
         total_tax = 0.0
         remaining = montant
 
-        for low, high, multiplier in _PROGRESSIVITY_BRACKETS:
+        for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
             if remaining <= 0:
                 break
             bracket_amount = min(remaining, high - low)

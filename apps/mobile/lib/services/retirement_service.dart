@@ -34,13 +34,13 @@ class RetirementService {
   /// Anticipation penalty per year (6.8%/yr).
   static const double avsAnticipationPenaltyPerYear = 0.068;
 
-  /// Deferral bonus by number of years (1-5).
+  /// Deferral bonus by number of years (1-5). LAVS art. 39.
   static const Map<int, double> avsDeferralBonus = {
-    1: 0.052,
-    2: 0.108,
-    3: 0.171,
-    4: 0.240,
-    5: 0.315,
+    1: 0.052,   // +5.2%
+    2: 0.106,   // +10.6%
+    3: 0.164,   // +16.4%
+    4: 0.227,   // +22.7%
+    5: 0.315,   // +31.5%
   };
 
   /// Maximum contribution years for full AVS pension.

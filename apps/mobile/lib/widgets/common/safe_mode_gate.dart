@@ -66,8 +66,9 @@ class SafeModeGate extends StatelessWidget {
                     // For now, simple pedagogic link style
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
+                          duration: Duration(seconds: 5),
                           content: Text(
-                              "Règle d'or : On ne construit pas de richesse sur des fondations instables (Dettes).")),
+                              "Règle d'or : On ne construit pas de richesse sur des fondations instables. Utilise l'onglet Coach > Dettes pour un plan de remboursement personnalisé.")),
                     );
                   },
                   child: Text(

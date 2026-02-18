@@ -2,7 +2,7 @@
 Tests for analytics endpoints - event tracking and analytics queries.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 
@@ -96,7 +96,7 @@ def test_post_events_with_user_id(client):
 
 def test_post_events_with_custom_timestamp(client):
     """Test posting events with custom timestamps."""
-    custom_time = datetime.utcnow() - timedelta(hours=2)
+    custom_time = datetime.now(timezone.utc) - timedelta(hours=2)
     event_data = {
         "events": [
             {
@@ -262,7 +262,7 @@ def test_get_analytics_summary_custom_days(client):
 def test_get_analytics_summary_date_range_filter(client):
     """Test analytics summary with custom date range."""
     # Post events with different timestamps
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     old_event_time = now - timedelta(days=10)
     recent_event_time = now - timedelta(days=2)
 
@@ -377,7 +377,7 @@ def test_get_funnel_analysis_no_matching_events(client):
 
 def test_get_funnel_analysis_date_range(client):
     """Test funnel analysis with date range filtering."""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     old_event_time = now - timedelta(days=10)
     session_old = str(uuid4())
     session_new = str(uuid4())

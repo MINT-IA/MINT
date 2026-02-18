@@ -17,6 +17,8 @@ Sprint S21 — Retraite complete.
 from dataclasses import dataclass, field
 from typing import List
 
+from app.constants.social_insurance import TAUX_IMPOT_RETRAIT_CAPITAL, RETRAIT_CAPITAL_TRANCHES
+
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Le taux de conversion reel peut differer "
@@ -28,28 +30,7 @@ DISCLAIMER = (
 # LPP minimum conversion rate (mandatory portion)
 LPP_CONVERSION_RATE = 0.068  # 6.8%
 
-# Capital withdrawal tax rates by canton (simplified educational estimates)
-# Same base rates as lpp_deep/epl_service.py + pillar_3a_deep for consistency
-TAUX_IMPOT_RETRAIT_CAPITAL = {
-    "ZH": 0.065, "BE": 0.075, "LU": 0.055, "UR": 0.050,
-    "SZ": 0.040, "OW": 0.045, "NW": 0.040, "GL": 0.055,
-    "ZG": 0.035, "FR": 0.070, "SO": 0.065, "BS": 0.075,
-    "BL": 0.065, "SH": 0.060, "AR": 0.055, "AI": 0.045,
-    "SG": 0.060, "GR": 0.055, "AG": 0.060, "TG": 0.055,
-    "TI": 0.065, "VD": 0.080, "VS": 0.060, "NE": 0.070,
-    "GE": 0.075, "JU": 0.065,
-}
-
 _DEFAULT_TAUX_RETRAIT = 0.065
-
-# Progressive brackets for capital withdrawal tax
-PROGRESSIVITY_BRACKETS = [
-    (0,       100_000,  1.0),
-    (100_000, 200_000,  1.15),
-    (200_000, 500_000,  1.30),
-    (500_000, 1_000_000, 1.50),
-]
-LAST_MULTIPLIER = 1.70
 
 
 @dataclass
@@ -155,8 +136,8 @@ class LppConversionService:
     def _calculate_progressive_tax(self, montant: float, base_rate: float) -> float:
         """Calculate capital withdrawal tax using progressive brackets.
 
-        Uses the same bracket structure as lpp_deep/epl_service.py and
-        pillar_3a_deep/multi_account_service.py for consistency.
+        Uses centralized RETRAIT_CAPITAL_TRANCHES from constants for consistency
+        with lpp_deep/epl_service.py and pillar_3a_deep/multi_account_service.py.
 
         Args:
             montant: Amount being withdrawn (CHF).
@@ -169,13 +150,11 @@ class LppConversionService:
             return 0.0
         total_tax = 0.0
         remaining = montant
-        for low, high, multiplier in PROGRESSIVITY_BRACKETS:
+        for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
             tranche = high - low
             taxable = min(remaining, tranche)
             if taxable <= 0:
                 break
             total_tax += taxable * base_rate * multiplier
             remaining -= taxable
-        if remaining > 0:
-            total_tax += remaining * base_rate * LAST_MULTIPLIER
         return round(total_tax, 2)

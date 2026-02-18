@@ -15,6 +15,8 @@ Sprint S15 — Chantier 4: LPP approfondi.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.constants.social_insurance import TAUX_IMPOT_RETRAIT_CAPITAL, RETRAIT_CAPITAL_TRANCHES
+
 
 DISCLAIMER = (
     "MINT est un outil educatif. Ce service ne constitue pas un conseil "
@@ -23,46 +25,7 @@ DISCLAIMER = (
     "avant toute demande de retrait."
 )
 
-# Simplified cantonal capital withdrawal tax rates (educational estimates)
-TAUX_IMPOT_RETRAIT_CAPITAL = {
-    "ZH": 0.065,
-    "BE": 0.070,
-    "VD": 0.080,
-    "GE": 0.075,
-    "LU": 0.050,
-    "AG": 0.060,
-    "SG": 0.065,
-    "BS": 0.075,
-    "TI": 0.070,
-    "VS": 0.060,
-    "FR": 0.075,
-    "NE": 0.080,
-    "JU": 0.080,
-    "SO": 0.065,
-    "BL": 0.065,
-    "GR": 0.060,
-    "TG": 0.055,
-    "SZ": 0.040,
-    "ZG": 0.035,
-    "NW": 0.040,
-    "OW": 0.045,
-    "UR": 0.050,
-    "SH": 0.060,
-    "AR": 0.055,
-    "AI": 0.045,
-    "GL": 0.055,
-}
-
 _DEFAULT_TAUX_RETRAIT = 0.065
-
-# Progressive brackets for capital withdrawal tax (aligned with pillar_3a_deep + Flutter)
-_PROGRESSIVITY_BRACKETS = [
-    (0,       100_000,  1.0),
-    (100_000, 200_000,  1.15),
-    (200_000, 500_000,  1.30),
-    (500_000, 1_000_000, 1.50),
-]
-_LAST_MULTIPLIER = 1.70
 
 
 def _calculate_progressive_tax(montant: float, base_rate: float) -> float:
@@ -71,15 +34,13 @@ def _calculate_progressive_tax(montant: float, base_rate: float) -> float:
         return 0.0
     total_tax = 0.0
     remaining = montant
-    for low, high, multiplier in _PROGRESSIVITY_BRACKETS:
+    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
         tranche_size = high - low
         taxable = min(remaining, tranche_size)
         if taxable <= 0:
             break
         total_tax += taxable * base_rate * multiplier
         remaining -= taxable
-    if remaining > 0:
-        total_tax += remaining * base_rate * _LAST_MULTIPLIER
     return round(total_tax, 2)
 
 

@@ -4,7 +4,7 @@ Migrated to use database with backward compatibility for anonymous profiles.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import UUID4
@@ -29,7 +29,7 @@ def create_profile(
     If authenticated, link profile to user. Otherwise, create anonymous profile.
     """
     profile_id = uuid.uuid4()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Build profile data
     profile_data = profile_create.model_dump()
@@ -163,7 +163,7 @@ def update_profile(
         data[key] = value
 
     db_profile.data = data
-    db_profile.updated_at = datetime.utcnow()
+    db_profile.updated_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(db_profile)

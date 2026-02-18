@@ -4,7 +4,7 @@ Generates recommendations based on user profile and session answers.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from app.constants.social_insurance import (
@@ -688,7 +688,7 @@ def _create_3a_optimizer_recommendation(profile: Profile) -> Recommendation:
         profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85,
         household_type,
     )
-    years = max(5, 65 - (datetime.utcnow().year - (profile.birthYear or 1990)))
+    years = max(5, 65 - (datetime.now(timezone.utc).year - (profile.birthYear or 1990)))
     calc = calculate_pillar3a_tax_benefit(annual_contribution, marginal_rate, years)
     return Recommendation(
         id=uuid.uuid4(),
@@ -983,5 +983,5 @@ def generate_session_report(
             "Mint est un mentor, pas un gestionnaire de fortune.",
             "Données traitées en Suisse (Blink/Mint).",
         ],
-        generatedAt=datetime.utcnow(),
+        generatedAt=datetime.now(timezone.utc),
     )

@@ -21,100 +21,90 @@ enum EmploymentStatusType {
   student,
 }
 
+/// Employer coverage scales (CO art. 324a).
+/// 3 scales used across 26 cantons:
+///   - Échelle bernoise (22 cantons)
+///   - Échelle zurichoise (1 canton: ZH)
+///   - Échelle bâloise (2 cantons: BS, BL)
+const Map<int, int> _echelleBernoise = {
+  0: 3,   // 1st year
+  1: 4,   // 2nd year
+  2: 8,   // 3-4 years
+  4: 8,
+  5: 13,  // 5-9 years
+  9: 13,
+  10: 17, // 10-14 years
+  14: 17,
+  15: 21, // 15-19 years
+  19: 21,
+  20: 26, // 20+ years
+  24: 26,
+  25: 26,
+};
+
+const Map<int, int> _echelleZurichoise = {
+  0: 3,   // 1st year
+  1: 8,   // 2nd year
+  2: 8,   // 3-4 years
+  4: 8,
+  5: 13,  // 5-9 years
+  9: 13,
+  10: 17, // 10-14 years
+  14: 17,
+  15: 21, // 15-19 years
+  19: 21,
+  20: 26, // 20+ years
+  24: 26,
+  25: 26,
+};
+
+const Map<int, int> _echelleBaloise = {
+  0: 3,   // 1st year
+  1: 9,   // 2nd year
+  2: 9,   // 3-5 years
+  5: 9,
+  6: 13,  // 6-10 years
+  10: 13,
+  11: 17, // 11-15 years
+  15: 17,
+  16: 21, // 16-20 years
+  20: 21,
+  21: 26, // 21+ years
+};
+
 /// Employer coverage duration by canton and years of service.
 /// Source: CO art. 324a + cantonal scales (bernoise, zurichoise, bâloise).
+/// All 26 cantons mapped to their respective scale.
 const Map<String, Map<int, int>> _employerCoverageWeeks = {
-  // Échelle bernoise (BE, VD, GE, LU)
-  'BE': {
-    0: 3, // 1st year
-    1: 4, // 2nd year
-    2: 8, // 3-4 years
-    4: 8,
-    5: 13, // 5-9 years
-    9: 13,
-    10: 17, // 10-14 years
-    14: 17,
-    15: 21, // 15-19 years
-    19: 21,
-    20: 26, // 20-24 years
-    24: 26,
-    25: 26, // 25+ years
-  },
-  'VD': {
-    0: 3,
-    1: 4,
-    2: 8,
-    4: 8,
-    5: 13,
-    9: 13,
-    10: 17,
-    14: 17,
-    15: 21,
-    19: 21,
-    20: 26,
-    24: 26,
-    25: 26,
-  },
-  'GE': {
-    0: 3,
-    1: 4,
-    2: 8,
-    4: 8,
-    5: 13,
-    9: 13,
-    10: 17,
-    14: 17,
-    15: 21,
-    19: 21,
-    20: 26,
-    24: 26,
-    25: 26,
-  },
-  'LU': {
-    0: 3,
-    1: 4,
-    2: 8,
-    4: 8,
-    5: 13,
-    9: 13,
-    10: 17,
-    14: 17,
-    15: 21,
-    19: 21,
-    20: 26,
-    24: 26,
-    25: 26,
-  },
-  // Échelle zurichoise (ZH)
-  'ZH': {
-    0: 3, // 1st year
-    1: 8, // 2nd year
-    2: 8, // 3-4 years
-    4: 8,
-    5: 13, // 5-9 years
-    9: 13,
-    10: 17, // 10-14 years
-    14: 17,
-    15: 21, // 15-19 years
-    19: 21,
-    20: 26, // 20-24 years
-    24: 26,
-    25: 26, // 25+ years
-  },
-  // Échelle bâloise (BS)
-  'BS': {
-    0: 3, // 1st year
-    1: 9, // 2nd year
-    2: 9, // 3-5 years
-    5: 9,
-    6: 13, // 6-10 years
-    10: 13,
-    11: 17, // 11-15 years
-    15: 17,
-    16: 21, // 16-20 years
-    20: 21,
-    21: 26, // 21+ years
-  },
+  // Échelle bernoise (22 cantons)
+  'BE': _echelleBernoise,
+  'VD': _echelleBernoise,
+  'GE': _echelleBernoise,
+  'LU': _echelleBernoise,
+  'FR': _echelleBernoise,
+  'NE': _echelleBernoise,
+  'JU': _echelleBernoise,
+  'VS': _echelleBernoise,
+  'TI': _echelleBernoise,
+  'SO': _echelleBernoise,
+  'AG': _echelleBernoise,
+  'SG': _echelleBernoise,
+  'TG': _echelleBernoise,
+  'SH': _echelleBernoise,
+  'AR': _echelleBernoise,
+  'AI': _echelleBernoise,
+  'GL': _echelleBernoise,
+  'OW': _echelleBernoise,
+  'NW': _echelleBernoise,
+  'UR': _echelleBernoise,
+  'SZ': _echelleBernoise,
+  'ZG': _echelleBernoise,
+  'GR': _echelleBernoise,
+  // Échelle zurichoise (1 canton)
+  'ZH': _echelleZurichoise,
+  // Échelle bâloise (2 cantons)
+  'BS': _echelleBaloise,
+  'BL': _echelleBaloise,
 };
 
 /// AI rente mensuelle maximale by disability degree (2025/2026 values).
@@ -127,8 +117,12 @@ final Map<int, double> _aiRenteByDegree = {
   100: aiRenteEntiere, // full rente
 };
 
-/// Supported cantons for the simulator.
-const List<String> supportedDisabilityCantons = ['ZH', 'BE', 'VD', 'GE', 'LU', 'BS'];
+/// Supported cantons for the simulator (all 26 Swiss cantons).
+const List<String> supportedDisabilityCantons = [
+  'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
+  'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
+  'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+];
 
 class DisabilityGapResult {
   /// Current net monthly income.

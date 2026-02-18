@@ -13,7 +13,7 @@ Lecture seule. Aucune operation d'ecriture ou de transfert.
 
 from dataclasses import dataclass
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ _MOCK_ACCOUNTS: List[BankAccount] = [
         currency="CHF",
         balance=8450.00,
         holder_name="Utilisateur MINT",
-        last_sync=datetime.utcnow().isoformat() + "Z",
+        last_sync=datetime.now(timezone.utc).isoformat() + "Z",
     ),
     BankAccount(
         account_id="acc-pf-002",
@@ -89,7 +89,7 @@ _MOCK_ACCOUNTS: List[BankAccount] = [
         currency="CHF",
         balance=23100.00,
         holder_name="Utilisateur MINT",
-        last_sync=datetime.utcnow().isoformat() + "Z",
+        last_sync=datetime.now(timezone.utc).isoformat() + "Z",
     ),
     BankAccount(
         account_id="acc-raif-003",
@@ -100,7 +100,7 @@ _MOCK_ACCOUNTS: List[BankAccount] = [
         currency="CHF",
         balance=45000.00,
         holder_name="Utilisateur MINT",
-        last_sync=datetime.utcnow().isoformat() + "Z",
+        last_sync=datetime.now(timezone.utc).isoformat() + "Z",
     ),
 ]
 
@@ -204,7 +204,7 @@ class BLinkConnector:
                         currency=acct.currency,
                         balance=acct.balance,
                         holder_name=acct.holder_name,
-                        last_sync=datetime.utcnow().isoformat() + "Z",
+                        last_sync=datetime.now(timezone.utc).isoformat() + "Z",
                     )
                 )
             return accounts
@@ -268,7 +268,7 @@ class BLinkConnector:
                         balance=acct.balance,
                         currency=acct.currency,
                         balance_type="closingAvailable",
-                        last_updated=datetime.utcnow().isoformat() + "Z",
+                        last_updated=datetime.now(timezone.utc).isoformat() + "Z",
                     )
             return None
 

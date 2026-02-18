@@ -4,7 +4,7 @@ MVP: In-memory storage (no persistence).
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 from fastapi import APIRouter
 from pydantic import UUID4
@@ -62,7 +62,7 @@ def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
 def create_scenario(scenario_create: ScenarioCreate) -> Scenario:
     """Create a new scenario with computed outputs."""
     scenario_id = uuid.uuid4()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     outputs = _compute_scenario_outputs(scenario_create.kind, scenario_create.inputs)
 

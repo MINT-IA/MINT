@@ -4,7 +4,7 @@ Migrated to use database.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import UUID4
 from sqlalchemy.orm import Session as DBSession
@@ -80,7 +80,7 @@ def create_session(
     session_data = {
         "id": str(session_id),
         "profileId": str(session_create.profileId),
-        "createdAt": datetime.utcnow().isoformat(),
+        "createdAt": datetime.now(timezone.utc).isoformat(),
         "answers": session_create.answers,
         "selectedFocusKinds": session_create.selectedFocusKinds,
         "recommendedGoalTemplateId": recommended_goal_id,
@@ -92,7 +92,7 @@ def create_session(
         id=str(session_id),
         profile_id=str(session_create.profileId),
         data=session_data,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
     db.add(db_session)
@@ -103,7 +103,7 @@ def create_session(
     session = SessionSchema(
         id=session_id,
         profileId=session_create.profileId,
-        createdAt=datetime.utcnow(),
+        createdAt=datetime.now(timezone.utc),
         answers=session_create.answers,
         selectedFocusKinds=session_create.selectedFocusKinds,
         recommendedGoalTemplateId=recommended_goal_id,

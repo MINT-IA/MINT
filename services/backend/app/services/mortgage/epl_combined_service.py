@@ -22,41 +22,32 @@ Sprint S17 — Mortgage & Real Estate.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.constants.social_insurance import (
+    TAUX_IMPOT_RETRAIT_CAPITAL,
+    RETRAIT_CAPITAL_TRANCHES,
+)
 from app.services.lpp_deep.epl_service import (
     EPLService,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
     _DEFAULT_TAUX_RETRAIT,
 )
-
-# Progressive brackets for capital withdrawal tax (same as pillar_3a_deep)
-_PROGRESSIVITY_BRACKETS = [
-    (0,       100_000,  1.0),
-    (100_000, 200_000,  1.15),
-    (200_000, 500_000,  1.30),
-    (500_000, 1_000_000, 1.50),
-]
-_LAST_MULTIPLIER = 1.70
 
 
 def _calculate_progressive_tax(montant: float, base_rate: float) -> float:
     """Calculate capital withdrawal tax using progressive brackets.
 
-    Matches the model in pillar_3a_deep/multi_account_service.py and
-    the Flutter mortgage_service.dart _calculerImpotRetrait.
+    Uses centralized RETRAIT_CAPITAL_TRANCHES from social_insurance.py.
     """
     if montant <= 0:
         return 0.0
     total_tax = 0.0
     remaining = montant
-    for low, high, multiplier in _PROGRESSIVITY_BRACKETS:
+    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
         tranche_size = high - low
         taxable = min(remaining, tranche_size)
         if taxable <= 0:
             break
         total_tax += taxable * base_rate * multiplier
         remaining -= taxable
-    if remaining > 0:
-        total_tax += remaining * base_rate * _LAST_MULTIPLIER
     return round(total_tax, 2)
 
 

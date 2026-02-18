@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.session import Session
 from app.database import get_db
 from sqlalchemy.orm import Session as DBSession
@@ -77,7 +77,7 @@ async def create_wizard_session(
         # 5. Créer la session
         session = Session(
             user_id=1,  # TODO: Get from auth
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             answers=data.answers,
             precision_index=precision_index,
             safe_mode=safe_mode,
@@ -128,7 +128,7 @@ async def get_timeline(
     )
 
     # Séparer en upcoming et overdue
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     upcoming = [
         item for item in timeline_items if item.date > now and not item.completed
     ]
@@ -447,7 +447,7 @@ def _get_event_timeline_items(
 ) -> List[Dict[str, Any]]:
     """Génère les timeline items pour un événement"""
     items = []
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     if event_type == "new_job":
         items.append(

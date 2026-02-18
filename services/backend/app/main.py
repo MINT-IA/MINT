@@ -25,9 +25,13 @@ async def lifespan(app: FastAPI):
     yield
 
 
+_is_production = os.getenv("ENVIRONMENT", "development") == "production"
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    openapi_url=None if _is_production else f"{settings.API_V1_STR}/openapi.json",
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None if _is_production else "/redoc",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -41,12 +45,14 @@ _cors_origins_raw = os.getenv("CORS_ORIGINS", "")
 _cors_origins = (
     [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
     if _cors_origins_raw
-    else ["*"]  # Allow all in local dev only
+    else ["http://localhost:3000", "http://localhost:8080"]  # Dev only — explicit origins
 )
+# Only enable credentials when origins are explicitly listed (not wildcard)
+_allow_credentials = "*" not in _cors_origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_credentials=True,
+    allow_credentials=_allow_credentials,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )

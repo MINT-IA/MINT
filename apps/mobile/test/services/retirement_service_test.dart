@@ -57,8 +57,8 @@ void main() {
       );
 
       expect(r['scenario'], 'ajournement');
-      expect((r['facteurAjustement'] as double), closeTo(1.108, 0.001));
-      expect((r['penaliteOuBonusPct'] as double), closeTo(10.8, 0.1));
+      expect((r['facteurAjustement'] as double), closeTo(1.106, 0.001));
+      expect((r['penaliteOuBonusPct'] as double), closeTo(10.6, 0.1));
     });
 
     test('ajournement maximum 70 ans — bonus 5 ans (+31.5%)', () {
