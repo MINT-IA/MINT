@@ -4,8 +4,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.database import Base, engine
+from app.core.rate_limit import limiter
 from app.api.v1.router import api_router
 
 logger = logging.getLogger(__name__)
@@ -28,6 +31,10 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Rate limiting — 429 on excess requests
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Setup CORS — production must set CORS_ORIGINS env var
 _cors_origins_raw = os.getenv("CORS_ORIGINS", "")

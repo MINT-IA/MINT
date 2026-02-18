@@ -59,7 +59,7 @@ class AuthProvider extends ChangeNotifier {
         displayName: displayName,
       );
 
-      // Backend returns flat: { access_token, token_type, user_id, email }
+      // Backend returns flat: { access_token, refresh_token, token_type, user_id, email }
       final token = response['access_token'] as String;
       final userId = response['user_id']?.toString() ?? '';
       final userEmail = response['email'] as String;
@@ -69,6 +69,7 @@ class AuthProvider extends ChangeNotifier {
         userId,
         userEmail,
         displayName: response['display_name'] as String?,
+        refreshToken: response['refresh_token'] as String?,
       );
 
       _userId = userId;
@@ -96,7 +97,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await ApiService.login(email, password);
 
-      // Backend returns flat: { access_token, token_type, user_id, email }
+      // Backend returns flat: { access_token, refresh_token, token_type, user_id, email }
       final token = response['access_token'] as String;
       final userId = response['user_id']?.toString() ?? '';
       final userEmail = response['email'] as String;
@@ -106,6 +107,7 @@ class AuthProvider extends ChangeNotifier {
         userId,
         userEmail,
         displayName: response['display_name'] as String?,
+        refreshToken: response['refresh_token'] as String?,
       );
 
       _userId = userId;

@@ -8,9 +8,10 @@ MINT never stores API keys; they are used per-request only.
 import logging
 import os
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
 from app.models.user import User
 
 from app.schemas.rag import (
@@ -69,7 +70,8 @@ def _get_orchestrator():
 
 
 @router.post("/query", response_model=RAGQueryResponse)
-async def rag_query(request: RAGQueryRequest, _user: User = Depends(require_current_user)):
+@limiter.limit("20/minute")
+async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depends(require_current_user)):
     """
     Main RAG query endpoint.
 
@@ -82,17 +84,17 @@ async def rag_query(request: RAGQueryRequest, _user: User = Depends(require_curr
 
     # Build profile context dict if provided
     profile_ctx = None
-    if request.profile_context:
-        profile_ctx = request.profile_context.model_dump(exclude_none=True)
+    if body.profile_context:
+        profile_ctx = body.profile_context.model_dump(exclude_none=True)
 
     try:
         result = await orchestrator.query(
-            question=request.question,
-            api_key=request.api_key,
-            provider=request.provider.value,
-            model=request.model,
+            question=body.question,
+            api_key=body.api_key,
+            provider=body.provider.value,
+            model=body.model,
             profile_context=profile_ctx,
-            language=request.language.value,
+            language=body.language.value,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -114,7 +116,8 @@ async def rag_query(request: RAGQueryRequest, _user: User = Depends(require_curr
 
 
 @router.post("/ingest", response_model=RAGIngestResponse)
-async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_current_user)):
+@limiter.limit("2/minute")
+async def rag_ingest(request: Request, body: RAGIngestRequest, _user: User = Depends(require_current_user)):
     """
     Trigger knowledge base ingestion (admin endpoint).
 
@@ -142,7 +145,7 @@ async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_cu
     backend_dir = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     )
-    resolved = os.path.realpath(request.directory)
+    resolved = os.path.realpath(body.directory)
     project_root = os.path.realpath(os.path.join(backend_dir, ".."))
     if not resolved.startswith(project_root):
         raise HTTPException(
@@ -153,13 +156,13 @@ async def rag_ingest(request: RAGIngestRequest, _user: User = Depends(require_cu
     if not os.path.isdir(resolved):
         raise HTTPException(
             status_code=400,
-            detail=f"Directory not found: {request.directory}",
+            detail=f"Directory not found: {body.directory}",
         )
 
     ingester = MarkdownIngester(vector_store=vector_store)
     count = ingester.ingest_directory(
         directory=resolved,
-        language=request.language,
+        language=body.language,
     )
 
     return RAGIngestResponse(

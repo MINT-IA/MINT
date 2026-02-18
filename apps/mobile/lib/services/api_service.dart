@@ -5,7 +5,12 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8888/api/v1';
+  /// Base URL — override at build time with:
+  ///   flutter run --dart-define=API_BASE_URL=https://api.mint.ch/api/v1
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8888/api/v1',
+  );
 
   // Helper method to get auth headers with JWT token
   static Future<Map<String, String>> _authHeaders() async {
@@ -17,12 +22,49 @@ class ApiService {
     return headers;
   }
 
-  // Méthodes génériques HTTP (now with JWT injection)
+  /// Attempt to refresh tokens using the stored refresh token.
+  /// Returns true if refresh succeeded, false otherwise.
+  static Future<bool> _tryRefreshToken() async {
+    final refreshToken = await AuthService.getRefreshToken();
+    if (refreshToken == null) return false;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/refresh'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refresh_token': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        await AuthService.saveToken(
+          data['access_token'],
+          data['user_id'],
+          data['email'],
+          refreshToken: data['refresh_token'],
+        );
+        return true;
+      }
+    } catch (_) {
+      // Refresh failed — user will need to re-login
+    }
+    return false;
+  }
+
+  // Méthodes génériques HTTP (now with JWT injection + auto-refresh)
   static Future<Map<String, dynamic>> get(String endpoint) async {
-    final response = await http.get(
+    var response = await http.get(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeaders(),
     );
+
+    // Auto-refresh on 401
+    if (response.statusCode == 401 && await _tryRefreshToken()) {
+      response = await http.get(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _authHeaders(),
+      );
+    }
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -32,11 +74,19 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
-    final response = await http.post(
+    var response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeaders(),
       body: jsonEncode(data),
     );
+
+    if (response.statusCode == 401 && await _tryRefreshToken()) {
+      response = await http.post(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _authHeaders(),
+        body: jsonEncode(data),
+      );
+    }
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
@@ -46,11 +96,19 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
-    final response = await http.put(
+    var response = await http.put(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeaders(),
       body: jsonEncode(data),
     );
+
+    if (response.statusCode == 401 && await _tryRefreshToken()) {
+      response = await http.put(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _authHeaders(),
+        body: jsonEncode(data),
+      );
+    }
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -60,10 +118,17 @@ class ApiService {
   }
 
   static Future<void> delete(String endpoint) async {
-    final response = await http.delete(
+    var response = await http.delete(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeaders(),
     );
+
+    if (response.statusCode == 401 && await _tryRefreshToken()) {
+      response = await http.delete(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _authHeaders(),
+      );
+    }
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('DELETE $endpoint failed: ${response.body}');

@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// Uses flutter_secure_storage (Keychain on iOS, Keystore on Android).
 class AuthService {
   static const _tokenKey = 'jwt_token';
+  static const _refreshTokenKey = 'refresh_token';
   static const _userIdKey = 'user_id';
   static const _userEmailKey = 'user_email';
   static const _displayNameKey = 'display_name';
@@ -12,12 +13,13 @@ class AuthService {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
-  /// Store auth token after login/register
+  /// Store auth tokens after login/register
   static Future<void> saveToken(
     String token,
     String userId,
     String email, {
     String? displayName,
+    String? refreshToken,
   }) async {
     await _storage.write(key: _tokenKey, value: token);
     await _storage.write(key: _userIdKey, value: userId);
@@ -25,11 +27,19 @@ class AuthService {
     if (displayName != null) {
       await _storage.write(key: _displayNameKey, value: displayName);
     }
+    if (refreshToken != null) {
+      await _storage.write(key: _refreshTokenKey, value: refreshToken);
+    }
   }
 
-  /// Get stored token (null if not logged in)
+  /// Get stored access token (null if not logged in)
   static Future<String?> getToken() async {
     return _storage.read(key: _tokenKey);
+  }
+
+  /// Get stored refresh token
+  static Future<String?> getRefreshToken() async {
+    return _storage.read(key: _refreshTokenKey);
   }
 
   /// Get stored user ID
@@ -53,9 +63,10 @@ class AuthService {
     return token != null && token.isNotEmpty;
   }
 
-  /// Clear token (logout)
+  /// Clear all tokens (logout)
   static Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
+    await _storage.delete(key: _refreshTokenKey);
     await _storage.delete(key: _userIdKey);
     await _storage.delete(key: _userEmailKey);
     await _storage.delete(key: _displayNameKey);

@@ -2,7 +2,11 @@
 Test configuration and fixtures.
 """
 
+import os
 from unittest.mock import MagicMock
+
+# Disable rate limiting in tests
+os.environ["TESTING"] = "1"
 
 import pytest
 from fastapi.testclient import TestClient

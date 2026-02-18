@@ -16,9 +16,10 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 
 from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
 from app.models.user import User
 
 from app.schemas.document import (
@@ -169,7 +170,9 @@ def _index_in_rag(doc_id: str, extracted_fields: dict, document_type: str) -> bo
 
 
 @router.post("/upload", response_model=DocumentUploadResponse)
+@limiter.limit("10/minute")
 async def upload_document(
+    request: Request,
     file: UploadFile = File(...),
     index_in_rag: bool = Query(
         False,

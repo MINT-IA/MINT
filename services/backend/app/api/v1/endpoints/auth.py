@@ -4,19 +4,28 @@ Authentication endpoints - register, login, and user info.
 
 from uuid import uuid4
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.auth import UserRegister, UserLogin, TokenResponse, UserResponse
-from app.services.auth_service import hash_password, verify_password, create_access_token
+from app.services.auth_service import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+    decode_refresh_token,
+)
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 def register_user(
+    request: Request,
     user_data: UserRegister,
     db: Session = Depends(get_db),
 ) -> TokenResponse:
@@ -55,11 +64,13 @@ def register_user(
     db.commit()
     db.refresh(new_user)
 
-    # Generate token
+    # Generate tokens
     token = create_access_token(new_user.id, new_user.email)
+    refresh = create_refresh_token(new_user.id)
 
     return TokenResponse(
         access_token=token,
+        refresh_token=refresh,
         token_type="bearer",
         user_id=new_user.id,
         email=new_user.email,
@@ -67,7 +78,9 @@ def register_user(
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("10/minute")
 def login_user(
+    request: Request,
     login_data: UserLogin,
     db: Session = Depends(get_db),
 ) -> TokenResponse:
@@ -93,11 +106,67 @@ def login_user(
             detail="Email ou mot de passe incorrect"
         )
 
-    # Generate token
+    # Generate tokens
     token = create_access_token(user.id, user.email)
+    refresh = create_refresh_token(user.id)
 
     return TokenResponse(
         access_token=token,
+        refresh_token=refresh,
+        token_type="bearer",
+        user_id=user.id,
+        email=user.email,
+    )
+
+
+@router.post("/refresh", response_model=TokenResponse)
+@limiter.limit("30/minute")
+def refresh_access_token(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """
+    Refresh an access token using a refresh token.
+
+    Expects JSON body: { "refresh_token": "..." }
+    Returns a new access token + new refresh token (rotation).
+    """
+    body = {}
+    try:
+        import json
+        body = json.loads(request._body.decode()) if hasattr(request, '_body') else {}
+    except Exception:
+        pass
+
+    # Also try form/query
+    refresh_token_value = body.get("refresh_token")
+    if not refresh_token_value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="refresh_token is required",
+        )
+
+    payload = decode_refresh_token(refresh_token_value)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token invalide ou expiré",
+        )
+
+    user = db.query(User).filter(User.id == payload["user_id"]).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Utilisateur non trouvé",
+        )
+
+    # Rotate: issue new access + refresh tokens
+    new_access = create_access_token(user.id, user.email)
+    new_refresh = create_refresh_token(user.id)
+
+    return TokenResponse(
+        access_token=new_access,
+        refresh_token=new_refresh,
         token_type="bearer",
         user_id=user.id,
         email=user.email,

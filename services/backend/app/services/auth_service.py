@@ -41,29 +41,49 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(user_id: str, email: str) -> str:
     """
-    Create a JWT access token for a user.
+    Create a short-lived JWT access token for a user.
 
     Args:
         user_id: User's unique identifier
         email: User's email address
 
     Returns:
-        JWT token string
+        JWT token string (valid for JWT_EXPIRY_HOURS)
     """
     expire = datetime.utcnow() + timedelta(hours=settings.JWT_EXPIRY_HOURS)
     payload = {
         "user_id": user_id,
         "email": email,
+        "type": "access",
         "exp": expire,
         "iat": datetime.utcnow(),
     }
-    token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
-    return token
+    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
+
+def create_refresh_token(user_id: str) -> str:
+    """
+    Create a long-lived refresh token for token rotation.
+
+    Args:
+        user_id: User's unique identifier
+
+    Returns:
+        JWT refresh token string (valid for 30 days)
+    """
+    expire = datetime.utcnow() + timedelta(days=30)
+    payload = {
+        "user_id": user_id,
+        "type": "refresh",
+        "exp": expire,
+        "iat": datetime.utcnow(),
+    }
+    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_token(token: str) -> Optional[Dict[str, Any]]:
     """
-    Decode and verify a JWT token.
+    Decode and verify a JWT access token.
 
     Args:
         token: JWT token string
@@ -77,6 +97,31 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
             settings.JWT_SECRET_KEY,
             algorithms=[settings.JWT_ALGORITHM]
         )
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+def decode_refresh_token(token: str) -> Optional[Dict[str, Any]]:
+    """
+    Decode and verify a refresh token.
+
+    Args:
+        token: JWT refresh token string
+
+    Returns:
+        Decoded payload if valid refresh token, None otherwise
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM]
+        )
+        if payload.get("type") != "refresh":
+            return None
         return payload
     except jwt.ExpiredSignatureError:
         return None

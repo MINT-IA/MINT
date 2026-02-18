@@ -896,6 +896,12 @@ class DocumentService {
 
   static const String _baseUrl = ApiService.baseUrl;
 
+  /// Maximum file size for PDF uploads (20 MB).
+  static const int maxPdfSizeBytes = 20 * 1024 * 1024;
+
+  /// Maximum file size for bank statement uploads (10 MB).
+  static const int maxStatementSizeBytes = 10 * 1024 * 1024;
+
   /// Upload a PDF document for analysis.
   ///
   /// [type] specifies the kind of document being uploaded. Defaults to
@@ -905,6 +911,16 @@ class DocumentService {
     File file, {
     VaultDocumentType type = VaultDocumentType.lppCertificate,
   }) async {
+    // Client-side file size validation
+    final fileSize = await file.length();
+    if (fileSize > maxPdfSizeBytes) {
+      final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
+      throw DocumentServiceException(
+        code: 'file_too_large',
+        message: 'Le fichier ($sizeMb Mo) depasse la limite de 20 Mo.',
+      );
+    }
+
     final token = await AuthService.getToken();
     final uri = Uri.parse('$_baseUrl/documents/upload');
 
@@ -935,6 +951,16 @@ class DocumentService {
   ///
   /// Returns a [BankStatementResult] with extracted transactions and summaries.
   Future<BankStatementResult> uploadBankStatement(File file) async {
+    // Client-side file size validation
+    final fileSize = await file.length();
+    if (fileSize > maxStatementSizeBytes) {
+      final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
+      throw DocumentServiceException(
+        code: 'file_too_large',
+        message: 'Le fichier ($sizeMb Mo) depasse la limite de 10 Mo.',
+      );
+    }
+
     final token = await AuthService.getToken();
     final uri = Uri.parse('$_baseUrl/documents/upload-statement');
 
