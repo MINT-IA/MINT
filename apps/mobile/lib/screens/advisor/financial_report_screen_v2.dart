@@ -346,13 +346,32 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ? CardStatus.aRenforcer
             : CardStatus.alerte;
 
-    // Calculate contribution years from first employment year
+    // Calculate contribution years from new AVS gap questions or legacy fallback
     final birthYear = (answers['q_birth_year'] as num?)?.toInt();
-    final firstEmploymentYear = (answers['q_first_employment_year'] as num?)?.toInt();
     int? contributionYears;
-    if (firstEmploymentYear != null && birthYear != null) {
-      final startYear = [firstEmploymentYear, birthYear + 21].reduce((a, b) => a > b ? a : b);
-      contributionYears = (DateTime.now().year - startYear).clamp(0, 44);
+    if (birthYear != null) {
+      final theoretical = (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
+      final avsStatus = answers['q_avs_lacunes_status'];
+      if (avsStatus == 'no_gaps') {
+        contributionYears = theoretical;
+      } else if (avsStatus == 'arrived_late') {
+        final arrivalYear = (answers['q_avs_arrival_year'] as num?)?.toInt();
+        if (arrivalYear != null) {
+          final gaps = (arrivalYear - (birthYear + 21)).clamp(0, 44);
+          contributionYears = (theoretical - gaps).clamp(0, 44);
+        }
+      } else if (avsStatus == 'lived_abroad') {
+        final yearsAbroad = (answers['q_avs_years_abroad'] as num?)?.toInt() ?? 0;
+        contributionYears = (theoretical - yearsAbroad).clamp(0, 44);
+      }
+      // Fallback legacy: q_first_employment_year
+      if (contributionYears == null) {
+        final firstEmploymentYear = (answers['q_first_employment_year'] as num?)?.toInt();
+        if (firstEmploymentYear != null) {
+          final startYear = [firstEmploymentYear, birthYear + 21].reduce((a, b) => a > b ? a : b);
+          contributionYears = (DateTime.now().year - startYear).clamp(0, 44);
+        }
+      }
     }
 
     // 3a sub-section
@@ -386,6 +405,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         RetirementProjectionCard(
           projection: projection,
           contributionYears: contributionYears,
+          avsLacunesStatus: answers['q_avs_lacunes_status'] as String?,
         ),
         const SizedBox(height: 12),
         _buildInfoChip(

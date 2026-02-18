@@ -57,6 +57,11 @@ class UserProfile {
   final String employmentStatus;
   final double monthlyNetIncome;
 
+  // Nouvelle logique AVS : lacunes calculées depuis le triage
+  final int? avsGapYears;
+  final int? spouseAvsGapYears;
+
+  // Legacy fields (rétrocompatibilité)
   final int? contributionYears;
   final int? spouseContributionYears;
   final int? firstEmploymentYear;
@@ -70,6 +75,8 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
+    this.avsGapYears,
+    this.spouseAvsGapYears,
     this.contributionYears,
     this.spouseContributionYears,
     this.firstEmploymentYear,
@@ -83,31 +90,39 @@ class UserProfile {
   bool get isSalaried => employmentStatus == 'employee';
   double get annualIncome => monthlyNetIncome * 12;
 
+  /// Années théoriques de cotisation AVS (depuis 21 ans, max 44)
+  int get theoreticalAvsYears =>
+      (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
+
   /// Facteur de réduction AVS (1/44 par année manquante)
-  /// Priorité : calcul automatique depuis firstEmploymentYear, sinon fallback legacy
+  /// Priorité : avsGapYears (nouvelles questions) > firstEmploymentYear > contributionYears
   double get avsReductionFactor {
-    if (firstEmploymentYear != null) {
-      final startYear = [firstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
-      final currentYear = DateTime.now().year;
-      final years = (currentYear - startYear).clamp(0, 44);
+    if (avsGapYears != null) {
+      final years = (theoreticalAvsYears - avsGapYears!).clamp(0, 44);
       return (years / 44).clamp(0.0, 1.0);
     }
-    // Fallback vers le champ legacy
+    if (firstEmploymentYear != null) {
+      final startYear = [firstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final years = (DateTime.now().year - startYear).clamp(0, 44);
+      return (years / 44).clamp(0.0, 1.0);
+    }
     final years = contributionYears ?? 44;
     return (years / 44).clamp(0.0, 1.0);
   }
 
   /// Facteur de réduction AVS pour le conjoint
-  /// Priorité : calcul automatique depuis spouseFirstEmploymentYear, sinon fallback legacy
+  /// Priorité : spouseAvsGapYears > spouseFirstEmploymentYear > spouseContributionYears
   double get spouseAvsReductionFactor {
     if (!isMarried) return 0.0;
-    if (spouseFirstEmploymentYear != null) {
-      final startYear = [spouseFirstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
-      final currentYear = DateTime.now().year;
-      final years = (currentYear - startYear).clamp(0, 44);
+    if (spouseAvsGapYears != null) {
+      final years = (theoreticalAvsYears - spouseAvsGapYears!).clamp(0, 44);
       return (years / 44).clamp(0.0, 1.0);
     }
-    // Fallback vers le champ legacy
+    if (spouseFirstEmploymentYear != null) {
+      final startYear = [spouseFirstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final years = (DateTime.now().year - startYear).clamp(0, 44);
+      return (years / 44).clamp(0.0, 1.0);
+    }
     final years = spouseContributionYears ?? 44;
     return (years / 44).clamp(0.0, 1.0);
   }

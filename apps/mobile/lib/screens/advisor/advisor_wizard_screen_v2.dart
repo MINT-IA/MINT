@@ -124,8 +124,19 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   final List<String> _questionHistory = [];
 
   void _handleAnswer(dynamic answer) {
+    final currentQuestion = _questions[_currentQuestionIndex];
+
+    // For multiChoice questions: save the selection without advancing.
+    // The user must tap "Valider" (which calls _advanceFromCurrent).
+    if (currentQuestion.type == QuestionType.multiChoice && answer is List) {
+      setState(() {
+        _answers[currentQuestion.id] = answer;
+        ReportPersistenceService.saveAnswers(_answers);
+      });
+      return;
+    }
+
     setState(() {
-      final currentQuestion = _questions[_currentQuestionIndex];
       _answers[currentQuestion.id] = answer;
 
       ReportPersistenceService.saveAnswers(_answers);
@@ -137,33 +148,49 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       // Auto-inference LPP : salarié avec revenu > 22'680 CHF/an = LPP obligatoire
       _autoInferLpp();
 
-      final nextQuestion =
-          WizardConditionsService.getNextQuestion(currentQuestion.id, _answers);
-
-      if (nextQuestion != null) {
-        final nextIndex = _questions.indexWhere((q) => q.id == nextQuestion.id);
-
-        if (nextIndex != -1) {
-          final currentSectionBeforeUpdate =
-              _getSectionForIndex(_currentQuestionIndex);
-          final nextSectionName = _getSectionForIndex(nextIndex);
-
-          if (currentSectionBeforeUpdate != nextSectionName) {
-            // Transition Section
-            _showSectionTransition(nextSectionName, () {
-              setState(() {
-                _currentQuestionIndex = nextIndex;
-              });
-            });
-          } else {
-            // Même section
-            _currentQuestionIndex = nextIndex;
-          }
-        }
-      } else {
-        _showReport();
-      }
+      _navigateToNextQuestion(currentQuestion);
     });
+  }
+
+  /// Advance from the current multiChoice question after user confirms.
+  void _advanceFromCurrent() {
+    setState(() {
+      final currentQuestion = _questions[_currentQuestionIndex];
+      if (!_questionHistory.contains(currentQuestion.id)) {
+        _questionHistory.add(currentQuestion.id);
+      }
+      _autoInferLpp();
+      _navigateToNextQuestion(currentQuestion);
+    });
+  }
+
+  void _navigateToNextQuestion(WizardQuestion currentQuestion) {
+    final nextQuestion =
+        WizardConditionsService.getNextQuestion(currentQuestion.id, _answers);
+
+    if (nextQuestion != null) {
+      final nextIndex = _questions.indexWhere((q) => q.id == nextQuestion.id);
+
+      if (nextIndex != -1) {
+        final currentSectionBeforeUpdate =
+            _getSectionForIndex(_currentQuestionIndex);
+        final nextSectionName = _getSectionForIndex(nextIndex);
+
+        if (currentSectionBeforeUpdate != nextSectionName) {
+          // Transition Section
+          _showSectionTransition(nextSectionName, () {
+            setState(() {
+              _currentQuestionIndex = nextIndex;
+            });
+          });
+        } else {
+          // Même section
+          _currentQuestionIndex = nextIndex;
+        }
+      }
+    } else {
+      _showReport();
+    }
   }
 
   /// Auto-remplir q_has_pension_fund si salarié avec revenu > seuil LPP
@@ -498,6 +525,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                       currentAnswer: _answers[currentQuestion.id],
                       answers: _answers,
                       defaultExpanded: _currentQuestionIndex < 3,
+                      onMultiChoiceConfirm: _advanceFromCurrent,
                     ),
                     const SizedBox(height: 24),
                     const SizedBox(height: 24),

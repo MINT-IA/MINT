@@ -54,9 +54,25 @@ class WizardConditionsService {
     // Si le but principal est "Achat immobilier", on s'assure de poser q_real_estate_project
     // (C'est une question de Section 4, donc toujours posée si on arrive là, sauf si...)
 
-    // 6. Logique AVS — conjoint uniquement si marié
-    if (questionId == 'q_spouse_first_employment_year') {
+    // 6. Logique AVS — questions conditionnelles selon le statut de lacunes
+    if (questionId == 'q_avs_arrival_year') {
+      return answers['q_avs_lacunes_status'] == 'arrived_late';
+    }
+    if (questionId == 'q_avs_years_abroad') {
+      return answers['q_avs_lacunes_status'] == 'lived_abroad';
+    }
+
+    // 6b. Logique AVS conjoint — uniquement si marié + conditions correspondantes
+    if (questionId == 'q_spouse_avs_lacunes_status') {
       return answers['q_civil_status'] == 'married';
+    }
+    if (questionId == 'q_spouse_avs_arrival_year') {
+      return answers['q_civil_status'] == 'married' &&
+          answers['q_spouse_avs_lacunes_status'] == 'arrived_late';
+    }
+    if (questionId == 'q_spouse_avs_years_abroad') {
+      return answers['q_civil_status'] == 'married' &&
+          answers['q_spouse_avs_lacunes_status'] == 'lived_abroad';
     }
 
     // 7. Logique Dettes → Détails uniquement si dettes déclarées
@@ -80,9 +96,7 @@ class WizardConditionsService {
       if (answers['q_housing_status'] == 'family') return false;
     }
 
-    // 11. (Removed — q_first_employment_year is valid for all ages)
-
-    // 12. Logique Âge → Rachat LPP pas avant 25 ans (épargne LPP commence à 25)
+    // 11. Logique Âge → Rachat LPP pas avant 25 ans (épargne LPP commence à 25)
     if (questionId == 'q_lpp_buyback_available') {
       final birthYear = answers['q_birth_year'];
       if (birthYear != null) {

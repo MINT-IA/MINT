@@ -13,6 +13,7 @@ class WizardQuestionWidget extends StatefulWidget {
   final Map<String, dynamic>
       answers; // Nouveau: contexte des réponses précédentes
   final bool defaultExpanded;
+  final VoidCallback? onMultiChoiceConfirm;
 
   const WizardQuestionWidget({
     super.key,
@@ -21,6 +22,7 @@ class WizardQuestionWidget extends StatefulWidget {
     this.currentAnswer,
     this.answers = const {},
     this.defaultExpanded = true,
+    this.onMultiChoiceConfirm,
   });
 
   @override
@@ -342,81 +344,107 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
         (widget.currentAnswer as List?)?.cast<String>() ?? [];
 
     return Column(
-      children: widget.question.options!.map((option) {
-        final isSelected = selectedValues.contains(option.value);
+      children: [
+        ...widget.question.options!.map((option) {
+          final isSelected = selectedValues.contains(option.value);
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                HapticFeedbackService.selection();
-                final newSelection = List<String>.from(selectedValues);
-                if (isSelected) {
-                  newSelection.remove(option.value);
-                } else {
-                  newSelection.add(option.value);
-                }
-                widget.onAnswer(newSelection);
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? MintColors.primary.withOpacity(0.1)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color:
-                        isSelected ? MintColors.primary : Colors.grey.shade300,
-                    width: isSelected ? 2 : 1,
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedbackService.selection();
+                  final newSelection = List<String>.from(selectedValues);
+                  if (isSelected) {
+                    newSelection.remove(option.value);
+                  } else {
+                    newSelection.add(option.value);
+                  }
+                  widget.onAnswer(newSelection);
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? MintColors.primary.withOpacity(0.1)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color:
+                          isSelected ? MintColors.primary : Colors.grey.shade300,
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      // Checkbox
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: isSelected ? MintColors.primary : Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: isSelected
+                                ? MintColors.primary
+                                : Colors.grey.shade400,
+                            width: 2,
+                          ),
+                        ),
+                        child: isSelected
+                            ? const Icon(Icons.check,
+                                color: Colors.white, size: 16)
+                            : null,
+                      ),
+                      const SizedBox(width: 16),
+                      // Label
+                      Expanded(
+                        child: Text(
+                          option.label,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.normal,
+                            color: isSelected
+                                ? MintColors.primary
+                                : MintColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    // Checkbox
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: isSelected ? MintColors.primary : Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: isSelected
-                              ? MintColors.primary
-                              : Colors.grey.shade400,
-                          width: 2,
-                        ),
-                      ),
-                      child: isSelected
-                          ? const Icon(Icons.check,
-                              color: Colors.white, size: 16)
-                          : null,
-                    ),
-                    const SizedBox(width: 16),
-                    // Label
-                    Expanded(
-                      child: Text(
-                        option.label,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: isSelected
-                              ? MintColors.primary
-                              : MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
+              ),
+            ),
+          );
+        }),
+        // Confirm button — visible once at least one option is selected
+        if (selectedValues.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: widget.onMultiChoiceConfirm,
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                'Valider (${selectedValues.length})',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ),
-        );
-      }).toList(),
+        ],
+      ],
     );
   }
 

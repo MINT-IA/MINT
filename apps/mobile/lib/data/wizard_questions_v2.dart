@@ -354,12 +354,43 @@ class WizardQuestionsV2 {
           tags: ['prevoyance', '3a'],
         ),
 
+        // AVS — Détection intelligente des lacunes de cotisation
+        // L'échelle complète = 44 ans (LAVS art. 29ter) dès 21 ans.
+        // On déduit les années théoriques depuis q_birth_year, puis on demande les lacunes.
         WizardQuestion(
-          id: 'q_first_employment_year',
-          title: 'Depuis quand travailles-tu en Suisse ?',
+          id: 'q_avs_lacunes_status',
+          title: 'As-tu des lacunes de cotisation AVS ?',
           subtitle:
-              'L\'année où tu as commencé ton premier emploi.\n'
-              'Chaque année sans cotisation = -2.3% de rente AVS à vie.',
+              'Échelle complète = 44 ans de cotisation (dès 21 ans, LAVS art. 29ter).\n'
+              'Chaque année manquante = −2.3% de rente à vie.',
+          type: QuestionType.choice,
+          options: [
+            QuestionOption(
+                label: 'Non, j\'ai toujours cotisé en Suisse',
+                value: 'no_gaps',
+                icon: 'verified'),
+            QuestionOption(
+                label: 'Arrivé·e en Suisse après 20 ans',
+                value: 'arrived_late',
+                icon: 'flight_land'),
+            QuestionOption(
+                label: 'Période(s) à l\'étranger',
+                value: 'lived_abroad',
+                icon: 'public'),
+            QuestionOption(
+                label: 'Je ne sais pas',
+                value: 'unknown',
+                icon: 'help'),
+          ],
+          tags: ['prevoyance', 'avs'],
+        ),
+
+        WizardQuestion(
+          id: 'q_avs_arrival_year',
+          title: 'En quelle année es-tu arrivé·e en Suisse ?',
+          subtitle:
+              'Les années avant ton arrivée sont des lacunes AVS.\n'
+              'Tu peux racheter les 5 dernières années manquantes (LAVS art. 16).',
           type: QuestionType.number,
           minValue: 1960,
           maxValue: 2026,
@@ -367,12 +398,63 @@ class WizardQuestionsV2 {
         ),
 
         WizardQuestion(
-          id: 'q_spouse_first_employment_year',
-          title: 'Et ton/ta conjoint·e, depuis quand travaille-t-il/elle ?',
-          subtitle: 'Pour estimer la rente AVS de couple.',
+          id: 'q_avs_years_abroad',
+          title: 'Combien d\'années as-tu passé hors de Suisse (après 20 ans) ?',
+          subtitle:
+              'Études, travail à l\'étranger, voyage... chaque année sans cotisation CH compte.\n'
+              'Tes cotisations de jeunesse (18-20 ans) peuvent combler jusqu\'à 3 ans (RAVS art. 52b).',
+          type: QuestionType.number,
+          minValue: 0,
+          maxValue: 40,
+          tags: ['prevoyance', 'avs'],
+        ),
+
+        // Conjoint — même logique AVS
+        WizardQuestion(
+          id: 'q_spouse_avs_lacunes_status',
+          title: 'Et ton/ta conjoint·e, a-t-il/elle des lacunes AVS ?',
+          subtitle: 'Impact direct sur la rente AVS de couple (plafond 150%, LAVS art. 35).',
+          type: QuestionType.choice,
+          options: [
+            QuestionOption(
+                label: 'Non, toujours cotisé en Suisse',
+                value: 'no_gaps',
+                icon: 'verified'),
+            QuestionOption(
+                label: 'Arrivé·e après 20 ans',
+                value: 'arrived_late',
+                icon: 'flight_land'),
+            QuestionOption(
+                label: 'Période(s) à l\'étranger',
+                value: 'lived_abroad',
+                icon: 'public'),
+            QuestionOption(
+                label: 'Je ne sais pas',
+                value: 'unknown',
+                icon: 'help'),
+          ],
+          tags: ['prevoyance', 'avs'],
+          condition: (answers) => answers['q_civil_status'] == 'married',
+        ),
+
+        WizardQuestion(
+          id: 'q_spouse_avs_arrival_year',
+          title: 'En quelle année ton/ta conjoint·e est-il/elle arrivé·e en Suisse ?',
+          subtitle: 'Pour estimer ses lacunes de cotisation AVS.',
           type: QuestionType.number,
           minValue: 1960,
           maxValue: 2026,
+          tags: ['prevoyance', 'avs'],
+          condition: (answers) => answers['q_civil_status'] == 'married',
+        ),
+
+        WizardQuestion(
+          id: 'q_spouse_avs_years_abroad',
+          title: 'Combien d\'années ton/ta conjoint·e a-t-il/elle passé hors de Suisse ?',
+          subtitle: 'Après 20 ans — chaque année = lacune de cotisation.',
+          type: QuestionType.number,
+          minValue: 0,
+          maxValue: 40,
           tags: ['prevoyance', 'avs'],
           condition: (answers) => answers['q_civil_status'] == 'married',
         ),

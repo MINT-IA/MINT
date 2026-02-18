@@ -135,15 +135,20 @@ class FinancialReportService {
   }
 
   UserProfile _buildUserProfile(Map<String, dynamic> answers) {
+    final birthYear = _parseInt(answers['q_birth_year']) ?? DateTime.now().year - 40;
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
-      birthYear: _parseInt(answers['q_birth_year']) ?? DateTime.now().year - 40,
+      birthYear: birthYear,
       canton: answers['q_canton'] as String? ?? 'VD',
       civilStatus: answers['q_civil_status'] as String? ?? 'single',
       childrenCount: _parseInt(answers['q_children']) ?? 0,
       employmentStatus: answers['q_employment_status'] as String? ?? 'employee',
       monthlyNetIncome:
           _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
+      // Nouvelle logique AVS (triage lacunes)
+      avsGapYears: _calculateAvsGaps(answers, birthYear),
+      spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
+      // Legacy fallback
       contributionYears: _parseInt(answers['q_avs_contribution_years']),
       spouseContributionYears:
           _parseInt(answers['q_spouse_avs_contribution_years']),
@@ -151,6 +156,45 @@ class FinancialReportService {
       spouseFirstEmploymentYear:
           _parseInt(answers['q_spouse_first_employment_year']),
     );
+  }
+
+  /// Calcule les lacunes AVS depuis les nouvelles questions de triage.
+  int? _calculateAvsGaps(Map<String, dynamic> answers, int birthYear) {
+    final status = answers['q_avs_lacunes_status'];
+    if (status == null) return null;
+    switch (status) {
+      case 'no_gaps':
+        return 0;
+      case 'arrived_late':
+        final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
+        if (arrivalYear == null) return null;
+        return (arrivalYear - (birthYear + 21)).clamp(0, 44);
+      case 'lived_abroad':
+        return _parseInt(answers['q_avs_years_abroad']) ?? 0;
+      case 'unknown':
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) {
+    final status = answers['q_spouse_avs_lacunes_status'];
+    if (status == null) return null;
+    switch (status) {
+      case 'no_gaps':
+        return 0;
+      case 'arrived_late':
+        final arrivalYear = _parseInt(answers['q_spouse_avs_arrival_year']);
+        if (arrivalYear == null) return null;
+        return (arrivalYear - (birthYear + 21)).clamp(0, 44);
+      case 'lived_abroad':
+        return _parseInt(answers['q_spouse_avs_years_abroad']) ?? 0;
+      case 'unknown':
+        return null;
+      default:
+        return null;
+    }
   }
 
   TaxSimulation _buildTaxSimulation(

@@ -6,11 +6,13 @@ import 'package:mint_mobile/models/financial_report.dart';
 class RetirementProjectionCard extends StatelessWidget {
   final RetirementProjection projection;
   final int? contributionYears;
+  final String? avsLacunesStatus; // 'no_gaps', 'arrived_late', 'lived_abroad', 'unknown'
 
   const RetirementProjectionCard({
     super.key,
     required this.projection,
     this.contributionYears,
+    this.avsLacunesStatus,
   });
 
   @override
@@ -64,32 +66,93 @@ class RetirementProjectionCard extends StatelessWidget {
             minHeight: 6,
           ),
         ),
-        // AVS gap warning (if applicable)
+        // AVS gap warning with actionable advice
         if (gap > 0) ...[
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.warning.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline, size: 16, color: MintColors.warning),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '$years ann\u00e9es cotis\u00e9es sur 44 requises \u2014 lacune de $gap ans (rente r\u00e9duite de ${(gap / 44 * 100).toStringAsFixed(1)}%)',
-                    style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+          _buildAvsGapWarning(years, gap),
+        ],
+        // "Unknown" status: user doesn't know about gaps → recommend IK extract
+        if (gap <= 0 && avsLacunesStatus == 'unknown') ...[
+          const SizedBox(height: 16),
+          _buildAvsUnknownTip(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildAvsGapWarning(int years, int gap) {
+    final reductionPct = (gap / 44 * 100).toStringAsFixed(1);
+    final monthlyLoss = (2520 * gap / 44).toStringAsFixed(0);
+
+    final tips = <String>[
+      '$years ans cotisés sur 44 requis \u2014 rente réduite de $reductionPct% (\u2212CHF $monthlyLoss/mois)',
+    ];
+    if (gap <= 5) {
+      tips.add('Rachat possible pour les années récentes auprès de ta caisse AVS cantonale (LAVS art. 16)');
+    }
+    tips.add('Tes cotisations de jeunesse (18-20 ans) comblent automatiquement jusqu\'\u00e0 3 ans de lacune (RAVS art. 52b)');
+    tips.add('Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour confirmer');
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: tips.map((tip) => Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                tip == tips.first ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
+                size: 14,
+                color: tip == tips.first ? MintColors.warning : MintColors.info,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  tip,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textPrimary,
+                    height: 1.4,
+                    fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        )).toList(),
+      ),
+    );
+  }
+
+  Widget _buildAvsUnknownTip() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.lightbulb_outline, size: 14, color: MintColors.info),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour v\u00e9rifier tes lacunes AVS. '
+              'Chaque ann\u00e9e manquante = \u22122.3% de rente \u00e0 vie.',
+              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
             ),
           ),
         ],
-      ],
+      ),
     );
   }
 
