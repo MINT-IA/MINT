@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Max upload size: 20 MB (LPP certificates, salary slips, bank statements)
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+
 # In-memory document store (Phase 1 — will migrate to DB in Phase 2)
 _document_store: dict[str, dict] = {}
 
@@ -214,6 +217,12 @@ async def upload_document(
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    if len(file_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Fichier trop volumineux ({len(file_bytes) // (1024*1024)} Mo). Maximum: {MAX_UPLOAD_BYTES // (1024*1024)} Mo.",
+        )
 
     # Import docling components
     try:
@@ -412,6 +421,12 @@ async def upload_bank_statement(
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
 
+    if len(file_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Fichier trop volumineux ({len(file_bytes) // (1024*1024)} Mo). Maximum: {MAX_UPLOAD_BYTES // (1024*1024)} Mo.",
+        )
+
     # Import bank statement components
     try:
         from app.services.docling.extractors.bank_statement import (
@@ -516,6 +531,12 @@ async def preview_budget_import(
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    if len(file_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Fichier trop volumineux ({len(file_bytes) // (1024*1024)} Mo). Maximum: {MAX_UPLOAD_BYTES // (1024*1024)} Mo.",
+        )
 
     try:
         from app.services.docling.extractors.bank_statement import (

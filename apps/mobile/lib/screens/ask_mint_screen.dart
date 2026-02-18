@@ -128,7 +128,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
               s?.askMintConfigureBody ??
                   'Pour poser des questions sur la finance suisse, '
                       'connecte ta propre cl\u00e9 API (Claude, OpenAI ou Mistral). '
-                      'Ta cl\u00e9 reste sur ton appareil.',
+                      'Ta cl\u00e9 est chiffr\u00e9e localement et jamais stock\u00e9e sur nos serveurs.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 15,
@@ -156,7 +156,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 const SizedBox(width: 6),
                 Text(
                   s?.byokPrivacyShort ??
-                      'Ta cl\u00e9 API reste sur ton appareil',
+                      'Cl\u00e9 chiffr\u00e9e localement, jamais stock\u00e9e sur nos serveurs',
                   style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.textMuted,

@@ -28,19 +28,9 @@ class WizardService {
     Profile? profile,
     Map<String, dynamic> answers,
   ) {
-    // 1. Vérifier la condition programmatique (priorité absolue)
     if (question.condition != null && !question.condition!(answers)) {
       return false;
     }
-
-    // 2. Logique Smart Defaults (Suisse)
-    // Si salarié, on assume LPP = Oui (on pourrait cacher la question, mais pour MVP on la montre pour confirmer)
-    // if (question.id == 'q_has_pension_fund' && answers['q_employment_status'] == 'employee') return false;
-
-    // 3. Filtrages dynamiques basés sur les dépendances
-    // Si pas de dettes, pas de détails sur les dettes
-    // Note: C'est mieux géré par les 'condition' dans WizardQuestion, mais voici des fallbacks:
-
     return true;
   }
 
@@ -57,17 +47,13 @@ class WizardService {
     final bool hasDebtStress = answers['q_late_payments_6m'] == 'yes' ||
         answers['q_creditcard_minimum_or_overdraft'] == 'often' ||
         answers['q_has_consumer_credit'] == 'yes' ||
-        answers['q_has_consumer_debt'] == 'yes'; // V2
+        answers['q_has_consumer_debt'] == 'yes';
 
     final debtRatio = _calculateDebtRatio(answers);
 
-    // V1: q_emergency_fund_exists, V2: q_emergency_fund (yes_6months, yes_3months)
-    String? efV2 = answers['q_emergency_fund'];
-    bool efV2Ok = efV2 == 'yes_6months' || efV2 == 'yes_3months';
-
-    final hasEmergencyFund = answers['q_emergency_fund_exists'] == 'yes' ||
-        answers['hasEmergencyFund'] == true ||
-        efV2Ok;
+    final String? emergencyFund = answers['q_emergency_fund'];
+    final bool hasEmergencyFund =
+        emergencyFund == 'yes_6months' || emergencyFund == 'yes_3months';
 
     return hasDebtStress || debtRatio > 0.3 || !hasEmergencyFund;
   }
@@ -115,7 +101,6 @@ class WizardService {
   /// Calcule le revenu net mensuel normalisé
   static double getMonthlyIncome(Map<String, dynamic> answers) {
     if (answers.containsKey('q_net_income_monthly')) {
-      // Legacy ou fallback
       return (answers['q_net_income_monthly'] as num?)?.toDouble() ?? 0.0;
     }
 

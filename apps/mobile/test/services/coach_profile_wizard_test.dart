@@ -206,14 +206,14 @@ void main() {
       );
     });
 
-    test('dette est ~8% du salaire brut annuel', () {
+    test('dette est ~5% du salaire brut annuel', () {
       final profile = CoachProfile.fromWizardAnswers(
         _baseAnswers(netIncome: 6000, hasDebt: 'yes'),
       );
-      // salaireBrutMensuel ~ 6000 / 0.87 ≈ 6897
-      // dette = 6897 * 12 * 0.08 ≈ 6621
-      expect(profile.dettes.creditConsommation, greaterThan(5000));
-      expect(profile.dettes.creditConsommation, lessThan(10000));
+      // salaireBrutMensuel ~ 6000 / (1 - 0.13) ≈ 6897
+      // dette = 6897 * 12 * 0.05 ≈ 4138
+      expect(profile.dettes.creditConsommation, greaterThan(3000));
+      expect(profile.dettes.creditConsommation, lessThan(6000));
     });
 
     test('pas de dette quand hasDebt=no', () {
@@ -316,7 +316,7 @@ void main() {
       expect(profile.prevoyance.nombre3a, 3);
       expect(profile.prevoyance.avoirLppTotal, greaterThan(0));
       expect(profile.patrimoine.epargneLiquide, greaterThan(0));
-      expect(profile.patrimoine.investissements, 10000);
+      expect(profile.patrimoine.investissements, 16000.0);
       expect(profile.dettes.hasDette, false);
       expect(profile.goalA.type, GoalAType.retraite);
       expect(profile.plannedContributions, isNotEmpty);

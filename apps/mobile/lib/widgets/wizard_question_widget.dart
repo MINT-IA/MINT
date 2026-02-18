@@ -31,6 +31,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   bool _showExplanation = false;
   bool _showSimulation = false;
   late bool _showEducationalInsert = widget.defaultExpanded;
+  String? _inputError;
 
   @override
   Widget build(BuildContext context) {
@@ -208,8 +209,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   }
 
   bool get _hasSimulation {
-    return widget.question.id == 'q_has_3a' ||
-        widget.question.id == 'q_peak_lpp_buyback';
+    return widget.question.id == 'q_has_3a';
   }
 
   Widget _buildSimulation() {
@@ -218,13 +218,6 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
         initialMonthlyContribution: 600,
         initialYears: 30,
         isEmployee: true, // TODO: Get from answers
-      );
-    }
-
-    if (widget.question.id == 'q_peak_lpp_buyback') {
-      return const InteractiveLppBuybackSimulation(
-        initialBuybackAmount: 15000,
-        initialMarginalTaxRate: 30,
       );
     }
 
@@ -427,6 +420,36 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
     );
   }
 
+  /// Validate and submit numeric or text input.
+  void _submitInput(String val, bool isNumber) {
+    if (isNumber) {
+      final parsed = num.tryParse(val);
+      if (parsed == null) {
+        setState(() => _inputError = 'Entre un nombre valide');
+        return;
+      }
+      // Enforce minValue / maxValue from question model
+      if (widget.question.minValue != null && parsed < widget.question.minValue!) {
+        setState(() => _inputError = 'Minimum : ${widget.question.minValue}');
+        return;
+      }
+      if (widget.question.maxValue != null && parsed > widget.question.maxValue!) {
+        setState(() => _inputError = 'Maximum : ${widget.question.maxValue}');
+        return;
+      }
+      setState(() => _inputError = null);
+      // Preserve int type when value has no decimal part
+      widget.onAnswer(parsed == parsed.toInt() ? parsed.toInt() : parsed.toDouble());
+    } else {
+      if (val.isNotEmpty) {
+        setState(() => _inputError = null);
+        widget.onAnswer(val);
+      } else {
+        setState(() => _inputError = 'Ce champ est requis');
+      }
+    }
+  }
+
   Widget _buildTextInput() {
     final controller = TextEditingController(
       text: widget.currentAnswer?.toString() ?? '',
@@ -438,37 +461,27 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
       children: [
         TextField(
           controller: controller,
-          keyboardType:
-              isNumberInput ? TextInputType.number : TextInputType.text,
+          keyboardType: isNumberInput
+              ? const TextInputType.numberWithOptions(decimal: true)
+              : TextInputType.text,
           autofocus: true,
           decoration: InputDecoration(
             hintText: widget.question.hint,
             filled: true,
             fillColor: MintColors.surface,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            errorText: _inputError,
           ),
-          onSubmitted: (val) {
-            if (isNumberInput) {
-              final parsed = int.tryParse(val);
-              if (parsed != null) widget.onAnswer(parsed);
-            } else {
-              if (val.isNotEmpty) widget.onAnswer(val);
-            }
+          onChanged: (_) {
+            if (_inputError != null) setState(() => _inputError = null);
           },
+          onSubmitted: (val) => _submitInput(val, isNumberInput),
         ),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: () {
-              if (isNumberInput) {
-                final parsed = int.tryParse(controller.text);
-                if (parsed != null) widget.onAnswer(parsed);
-              } else {
-                if (controller.text.isNotEmpty)
-                  widget.onAnswer(controller.text);
-              }
-            },
+            onPressed: () => _submitInput(controller.text, isNumberInput),
             child: const Text('Suivant'),
           ),
         ),

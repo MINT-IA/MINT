@@ -180,9 +180,9 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           const SizedBox(height: 12),
           Text(
             s?.byokPrivacyBody ??
-                'Ta cl\u00e9 API reste sur ton appareil, stock\u00e9e de mani\u00e8re chiffr\u00e9e. '
-                    'Aucune donn\u00e9e ne transite par les serveurs MINT. '
-                    'Les requ\u00eates vont directement de ton appareil au fournisseur IA.',
+                'Ta cl\u00e9 API est stock\u00e9e de mani\u00e8re chiffr\u00e9e sur ton appareil. '
+                    'Elle est transmise de fa\u00e7on s\u00e9curis\u00e9e (HTTPS) \u00e0 notre serveur pour communiquer '
+                    'avec le fournisseur IA, puis imm\u00e9diatement supprim\u00e9e \u2014 jamais stock\u00e9e c\u00f4t\u00e9 serveur.',
             style: const TextStyle(
               fontSize: 14,
               color: MintColors.textSecondary,

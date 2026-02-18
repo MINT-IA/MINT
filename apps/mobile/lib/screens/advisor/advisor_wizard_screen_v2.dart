@@ -453,14 +453,39 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                                 color: MintColors.info, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                'En tant que salarié(e) avec un revenu > 22\'680 CHF/an, '
-                                'tu es automatiquement affilié(e) à la LPP (art. 7).',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: MintColors.textPrimary,
-                                  height: 1.4,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '⚡ Estimation — Ton revenu dépasse le seuil LPP '
+                                    'de 22\'680 CHF/an (art. 7). En tant que salarié·e, '
+                                    'tu es en principe affilié·e. '
+                                    'Tu peux corriger ci-dessous si nécessaire.',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: MintColors.textPrimary,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _answers.remove('q_has_pension_fund');
+                                        _lppAutoInferred = false;
+                                      });
+                                    },
+                                    child: Text(
+                                      'Corriger',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: MintColors.info,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

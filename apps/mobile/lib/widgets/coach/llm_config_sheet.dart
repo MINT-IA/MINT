@@ -431,7 +431,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Ta cle API reste sur ton appareil. MINT ne la stocke jamais sur nos serveurs.',
+              'Ta cl\u00e9 API est chiffr\u00e9e localement. Elle transite via HTTPS pour communiquer avec le fournisseur IA, jamais stock\u00e9e c\u00f4t\u00e9 serveur.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w400,

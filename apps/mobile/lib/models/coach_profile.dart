@@ -914,14 +914,19 @@ class CoachProfile {
     final payFrequency = answers['q_pay_frequency'] as String? ?? 'monthly';
     final netIncome = _parseDouble(answers['q_net_income_period_chf']) ?? 5000;
 
-    // Convert to monthly brut (net → brut ≈ /0.87 for social charges)
+    // Convert to monthly net income based on pay frequency
     double monthlyNetIncome;
     if (payFrequency == 'yearly' || payFrequency == 'annuel') {
       monthlyNetIncome = netIncome / 12;
     } else {
       monthlyNetIncome = netIncome;
     }
-    final salaireBrutMensuel = monthlyNetIncome / 0.87;
+    // Net → Brut estimation: Swiss social charges ≈ 13%
+    // (AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1% ≈ 12.5%, arrondi 13%)
+    // Source: OFAS barème cotisations 2025. Ceci est une estimation;
+    // le taux réel dépend du plan LPP et du canton.
+    const double socialChargesRate = 0.13;
+    final salaireBrutMensuel = monthlyNetIncome / (1 - socialChargesRate);
 
     // Employment status mapping
     final employmentRaw = answers['q_employment_status'] as String?;
@@ -994,15 +999,25 @@ class CoachProfile {
       epargneLiquide = _parseDouble(emergencyFundRaw) ?? (savingsMonthly * 3);
     }
 
+    // Estimation investissements: si l'utilisateur déclare avoir des
+    // investissements sans préciser le montant, on estime ~2 mois de revenu
+    // net comme ordre de grandeur conservateur.
+    final estimatedInvestments = hasInvestments
+        ? (monthlyNetIncome * 2).clamp(0.0, 50000.0)
+        : 0.0;
+
     final patrimoine = PatrimoineProfile(
       epargneLiquide: epargneLiquide,
-      investissements: hasInvestments ? 10000 : 0,
+      investissements: estimatedInvestments,
     );
 
     // ── Dettes ──────────────────────────────────────────────
     final hasDebt = _parseBool(answers['q_has_consumer_debt']);
+    // Estimation dette consommation: 5% du revenu brut annuel.
+    // Source: OFS Enquête budget ménages 2022 — médiane endettement
+    // consommation CH ≈ 4-6% du revenu brut. On retient 5% (conservateur).
     final dettes = hasDebt
-        ? DetteProfile(creditConsommation: salaireBrutMensuel * 12 * 0.08)
+        ? DetteProfile(creditConsommation: salaireBrutMensuel * 12 * 0.05)
         : const DetteProfile();
 
     // ── Goal A ──────────────────────────────────────────────
