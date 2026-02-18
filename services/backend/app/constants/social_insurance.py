@@ -249,6 +249,9 @@ RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = [
 ]
 """Tranches progressives pour l'impot sur retrait de capital (multiplicateur)."""
 
+MARRIED_CAPITAL_TAX_DISCOUNT: float = 0.85
+"""Reduction d'impot pour les couples maries (splitting cantonal ~15%)."""
+
 AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""
 

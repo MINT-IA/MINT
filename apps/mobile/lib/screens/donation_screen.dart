@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -58,16 +59,7 @@ class _DonationScreenState extends State<DonationScreen> {
   // Checklist state
   List<bool> _checklistState = [];
 
-  static const _cantons = ['VD', 'GE', 'ZH', 'BE', 'LU', 'BS', 'SZ'];
-  static const _cantonNames = {
-    'VD': 'Vaud (VD)',
-    'GE': 'Geneve (GE)',
-    'ZH': 'Zurich (ZH)',
-    'BE': 'Berne (BE)',
-    'LU': 'Lucerne (LU)',
-    'BS': 'Bale-Ville (BS)',
-    'SZ': 'Schwyz (SZ)',
-  };
+  static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
   static const _typesDonationLabels = {
@@ -1164,7 +1156,7 @@ class _DonationScreenState extends State<DonationScreen> {
               items: _cantons.map((c) {
                 return DropdownMenuItem(
                   value: c,
-                  child: Text(_cantonNames[c] ?? c),
+                  child: Text('$c \u2014 ${cantonFullNames[c] ?? c}'),
                 );
               }).toList(),
               onChanged: (v) {

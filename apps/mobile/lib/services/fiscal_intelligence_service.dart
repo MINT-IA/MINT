@@ -64,25 +64,35 @@ class FiscalIntelligenceService {
     return null;
   }
 
-  // Mapping simplifié des voisins (Top Cantons pour commencer)
+  /// Cantons limitrophes (geographie suisse, 26/26).
   static List<String> _getNeighbors(String cantonCode) {
     const map = {
-      'ZH': ['ZG', 'SZ', 'AG', 'SH', 'TG'],
-      'VD': ['VS', 'GE', 'FR', 'NE'], // Berceau de la fiscalité romande
-      'GE': ['VD'],
+      'AG': ['ZH', 'BL', 'SO', 'LU', 'ZG', 'BE'],
+      'AI': ['AR', 'SG'],
+      'AR': ['AI', 'SG'],
+      'BE': ['SO', 'FR', 'NE', 'JU', 'VS', 'LU', 'OW', 'NW', 'AG'],
+      'BL': ['BS', 'SO', 'JU', 'AG'],
       'BS': ['BL', 'SO', 'AG'],
-      'BE': ['SO', 'FR', 'NE', 'JU'],
       'FR': ['VD', 'BE', 'NE'],
-      'NE': ['VD', 'FR', 'BE', 'JU'],
+      'GE': ['VD'],
+      'GL': ['SZ', 'GR', 'SG', 'UR'],
+      'GR': ['TI', 'GL', 'SG', 'UR'],
       'JU': ['NE', 'BE', 'SO', 'BL'],
-      'VS': ['VD', 'BE', 'UR'], // UR pour le fun (souvent moins cher)
-      'TI': ['UR', 'GR'],
-      'GR': ['TI', 'GL', 'SG'],
-      'SG': ['TG', 'AR', 'AI'],
-      'LU': ['ZG', 'SZ', 'OW', 'NW', 'AG'],
+      'LU': ['ZG', 'SZ', 'OW', 'NW', 'AG', 'BE'],
+      'NE': ['VD', 'FR', 'BE', 'JU'],
+      'NW': ['LU', 'OW', 'UR', 'BE'],
+      'OW': ['LU', 'NW', 'BE', 'UR'],
+      'SG': ['TG', 'AR', 'AI', 'GR', 'GL', 'SZ', 'ZH'],
+      'SH': ['ZH', 'TG'],
+      'SO': ['BE', 'AG', 'BL', 'BS', 'JU'],
+      'SZ': ['ZH', 'ZG', 'UR', 'GL', 'SG', 'LU'],
+      'TG': ['ZH', 'SH', 'SG'],
+      'TI': ['UR', 'GR', 'VS'],
+      'UR': ['SZ', 'GL', 'GR', 'TI', 'BE', 'OW', 'NW', 'VS'],
+      'VD': ['VS', 'GE', 'FR', 'NE'],
+      'VS': ['VD', 'BE', 'UR', 'TI'],
       'ZG': ['ZH', 'LU', 'SZ', 'AG'],
-      'SZ': ['ZH', 'ZG', 'UR', 'GL', 'SG'],
-      'AG': ['ZH', 'BL', 'SO', 'LU', 'ZG'],
+      'ZH': ['ZG', 'SZ', 'AG', 'SH', 'TG', 'SG'],
     };
     return map[cantonCode] ?? [];
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -60,15 +61,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // Checklist state
   List<bool> _checklistState = [];
 
-  static const _cantons = ['VD', 'GE', 'ZH', 'BE', 'LU', 'BS'];
-  static const _cantonNames = {
-    'VD': 'Vaud (VD)',
-    'GE': 'Geneve (GE)',
-    'ZH': 'Zurich (ZH)',
-    'BE': 'Berne (BE)',
-    'LU': 'Lucerne (LU)',
-    'BS': 'Bale-Ville (BS)',
-  };
+  static List<String> get _cantons => sortedCantonCodes;
 
   @override
   void dispose() {
@@ -440,7 +433,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               items: _cantons.map((c) {
                 return DropdownMenuItem(
                   value: c,
-                  child: Text(_cantonNames[c] ?? c),
+                  child: Text('$c \u2014 ${cantonFullNames[c] ?? c}'),
                 );
               }).toList(),
               onChanged: (v) {

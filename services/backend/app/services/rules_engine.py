@@ -11,7 +11,10 @@ from app.constants.social_insurance import (
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_MIN_MENSUELLE,
     LPP_TAUX_CONVERSION_MIN,
+    MARRIED_CAPITAL_TAX_DISCOUNT,
     PILIER_3A_PLAFOND_AVEC_LPP,
+    RETRAIT_CAPITAL_TRANCHES,
+    TAUX_IMPOT_RETRAIT_CAPITAL,
 )
 
 from app.schemas.common import Impact, Period
@@ -39,9 +42,16 @@ MAX_RATE_OVERDRAFT = 12.0
 # --- Disability Gap Constants (CO art. 324a, LAI art. 28, LPP art. 23) ---
 # Employer salary continuation scales by canton (weeks per year of service).
 # Source: Jurisprudence TF — échelles bernoise, zurichoise, bâloise.
+# All 26 cantons mapped to jurisprudence scales.
+# Source: ATF + cantonal case law — Bern (majority), Zurich, Basel.
 CANTON_SALARY_SCALE_MAP = {
-    "ZH": "zurich", "BE": "bern", "VD": "bern",
-    "GE": "bern", "LU": "bern", "BS": "basel",
+    "AG": "bern",  "AI": "bern",  "AR": "bern",  "BE": "bern",
+    "BL": "basel", "BS": "basel", "FR": "bern",  "GE": "bern",
+    "GL": "bern",  "GR": "bern",  "JU": "bern",  "LU": "bern",
+    "NE": "bern",  "NW": "bern",  "OW": "bern",  "SG": "bern",
+    "SH": "bern",  "SO": "bern",  "SZ": "bern",  "TG": "bern",
+    "TI": "bern",  "UR": "bern",  "VD": "bern",  "VS": "bern",
+    "ZG": "bern",  "ZH": "zurich",
 }
 
 # AI rente mensuelle maximale by disability degree (2025/2026 values, OAVS).
@@ -330,10 +340,15 @@ IFD_BRACKETS_MARRIED = [
 # Estimated cantonal+communal marginal add-on by canton.
 # These approximate the additional cantonal/communal marginal rate on top of IFD.
 # Source: swiss-brain estimates based on chef-lieu rates, 2024.
+# All 26 cantons — estimated cantonal+communal marginal add-on (chef-lieu, 2024).
 CANTON_MARGINAL_MULTIPLIERS = {
-    "ZH": 0.30, "BE": 0.36, "LU": 0.25, "BS": 0.33,
-    "VD": 0.38, "GE": 0.41, "ZG": 0.22, "FR": 0.37,
-    "VS": 0.34, "NE": 0.39, "JU": 0.40, "SZ": 0.24,
+    "AG": 0.31, "AI": 0.26, "AR": 0.28, "BE": 0.36,
+    "BL": 0.32, "BS": 0.33, "FR": 0.37, "GE": 0.41,
+    "GL": 0.28, "GR": 0.29, "JU": 0.40, "LU": 0.25,
+    "NE": 0.39, "NW": 0.24, "OW": 0.24, "SG": 0.30,
+    "SH": 0.30, "SO": 0.32, "SZ": 0.24, "TG": 0.29,
+    "TI": 0.33, "UR": 0.26, "VD": 0.38, "VS": 0.34,
+    "ZG": 0.22, "ZH": 0.30,
 }
 
 _DEFAULT_CANTON_MULTIPLIER = 0.32  # Moyenne CH
@@ -396,26 +411,24 @@ def calculate_tax_potential(
     return f"~{low}-{high} CHF"
 
 
-# --- Capital Withdrawal Tax Rates (MVP - 6 cantons) ---
-# Source: Barèmes fiscaux cantonaux 2024, retrait en capital prévoyance (LPP/LIFD art. 38).
-# Taux effectifs simplifiés (fédéral + cantonal + communal), chef-lieu.
-# Format: {(canton, statut): (taux_< 500k, taux_>= 500k)}
-CAPITAL_WITHDRAWAL_TAX_RATES = {
-    ("ZH", "single"):  (0.055, 0.080),
-    ("ZH", "married"): (0.045, 0.065),
-    ("BE", "single"):  (0.065, 0.095),
-    ("BE", "married"): (0.055, 0.080),
-    ("VD", "single"):  (0.080, 0.115),
-    ("VD", "married"): (0.070, 0.100),
-    ("GE", "single"):  (0.075, 0.105),
-    ("GE", "married"): (0.065, 0.095),
-    ("LU", "single"):  (0.040, 0.060),
-    ("LU", "married"): (0.035, 0.050),
-    ("BS", "single"):  (0.070, 0.100),
-    ("BS", "married"): (0.060, 0.085),
-}
+def _calculate_progressive_capital_tax(montant: float, base_rate: float) -> float:
+    """Calculate progressive capital withdrawal tax (26 cantons).
 
-_CAPITAL_TAX_THRESHOLD = 500_000.0
+    Source: LIFD art. 38, cantonal tax laws.
+    Mirrors Flutter `_calculateProgressiveTax()` in rente_vs_capital_calculator.dart.
+    """
+    if montant <= 0:
+        return 0.0
+    total_tax = 0.0
+    remaining = montant
+    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
+        tranche_size = high - low
+        taxable = min(remaining, tranche_size)
+        if taxable <= 0:
+            break
+        total_tax += taxable * base_rate * multiplier
+        remaining -= taxable
+    return round(total_tax, 2)
 
 
 def _simulate_capital_drawdown(
@@ -459,13 +472,14 @@ def compute_rente_vs_capital(
     """Compare rente viagère LPP vs retrait en capital sur 3 scénarios.
 
     Source: LPP art. 14 al. 2 (taux conversion 6.8%), LIFD art. 38 (imposition capital).
+    Supports all 26 Swiss cantons with progressive tax brackets.
 
     Args:
         avoir_obligatoire: LPP mandatory assets (CHF).
         avoir_surobligatoire: LPP supra-mandatory assets (CHF).
         taux_conversion_surob: Supra-mandatory conversion rate as decimal (e.g. 0.05).
         age_retraite: Retirement age (55-70).
-        canton: Canton code (ZH, BE, VD, GE, LU, BS).
+        canton: Canton code (all 26 Swiss cantons).
         statut_civil: "single" or "married".
 
     Returns:
@@ -477,13 +491,12 @@ def compute_rente_vs_capital(
 
     capital_total = avoir_obligatoire + avoir_surobligatoire
 
-    key = (canton, statut_civil)
-    if key not in CAPITAL_WITHDRAWAL_TAX_RATES:
-        raise ValueError(f"Canton/statut non supporté: {canton}/{statut_civil}")
+    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton)
+    if base_rate is None:
+        raise ValueError(f"Canton non supporté: {canton}")
 
-    taux_bas, taux_haut = CAPITAL_WITHDRAWAL_TAX_RATES[key]
-    taux_effectif = taux_bas if capital_total < _CAPITAL_TAX_THRESHOLD else taux_haut
-    impot_retrait = capital_total * taux_effectif
+    effective_rate = base_rate * MARRIED_CAPITAL_TAX_DISCOUNT if statut_civil == "married" else base_rate
+    impot_retrait = _calculate_progressive_capital_tax(capital_total, effective_rate)
     capital_net = capital_total - impot_retrait
 
     nb_mois_85 = (85 - age_retraite) * 12
