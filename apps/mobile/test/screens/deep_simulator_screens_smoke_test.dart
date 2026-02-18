@@ -499,7 +499,8 @@ void main() {
 
       expect(find.text('Canton'), findsOneWidget);
       expect(find.text('Statut civil'), findsOneWidget);
-      expect(find.byType(SegmentedButton<String>), findsOneWidget);
+      expect(find.text('Seul\u00B7e'), findsOneWidget);
+      expect(find.text('Mari\u00E9\u00B7e'), findsOneWidget);
     });
 
     testWidgets('auto-calculates and shows result cards', (tester) async {

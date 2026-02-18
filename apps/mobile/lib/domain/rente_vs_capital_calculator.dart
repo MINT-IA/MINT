@@ -1,29 +1,35 @@
 // Pure Dart calculator for LPP Rente vs Capital comparison.
 //
-// Faithfully ports the Python logic from services/backend/app/services/rules_engine.py
-// (compute_rente_vs_capital + _simulate_capital_drawdown).
+// Faithfully ports the Python logic from
+// services/backend/app/services/retirement/lpp_conversion_service.py
 //
 // Sources:
 // - LPP art. 14 al. 2 (taux de conversion minimum 6.8%)
 // - LIFD art. 38 (imposition du capital de prevoyance)
 
-/// Capital withdrawal tax rates by canton and civil status.
-/// Format: {canton: {status: [rate_below_500k, rate_at_or_above_500k]}}
-/// Source: Baremes fiscaux cantonaux 2024, retrait en capital prevoyance.
-const Map<String, Map<String, List<double>>> capitalWithdrawalTaxRates = {
-  'ZH': {'single': [0.055, 0.080], 'married': [0.045, 0.065]},
-  'BE': {'single': [0.065, 0.095], 'married': [0.055, 0.080]},
-  'VD': {'single': [0.080, 0.115], 'married': [0.070, 0.100]},
-  'GE': {'single': [0.075, 0.105], 'married': [0.065, 0.095]},
-  'LU': {'single': [0.040, 0.060], 'married': [0.035, 0.050]},
-  'BS': {'single': [0.070, 0.100], 'married': [0.060, 0.085]},
-};
+import 'package:mint_mobile/constants/social_insurance.dart';
 
-const double _capitalTaxThreshold = 500000.0;
 const double _lppConversionRate = 0.068;
 
-/// Supported cantons for the simulator.
-const List<String> supportedCantons = ['ZH', 'BE', 'VD', 'GE', 'LU', 'BS'];
+/// All 26 supported Swiss cantons.
+List<String> get supportedCantons => sortedCantonCodes;
+
+/// Calculate progressive capital withdrawal tax.
+///
+/// Mirrors backend `_calculate_progressive_tax()` in social_insurance.py.
+double _calculateProgressiveTax(double montant, double baseRate) {
+  if (montant <= 0) return 0.0;
+  double totalTax = 0.0;
+  double remaining = montant;
+  for (final bracket in retraitCapitalTranches) {
+    final trancheSize = bracket[1] - bracket[0];
+    final taxable = remaining < trancheSize ? remaining : trancheSize;
+    if (taxable <= 0) break;
+    totalTax += taxable * baseRate * bracket[2];
+    remaining -= taxable;
+  }
+  return double.parse(totalTax.toStringAsFixed(2));
+}
 
 /// Internal result of a drawdown simulation.
 class _DrawdownResult {
@@ -106,7 +112,8 @@ _DrawdownResult _simulateCapitalDrawdown({
 
 /// Compare rente viagere LPP vs retrait en capital on 3 scenarios.
 ///
-/// Throws [ArgumentError] if canton/status combination is not supported.
+/// Supports all 26 Swiss cantons with progressive tax brackets.
+/// Throws [ArgumentError] if canton is not supported.
 RenteVsCapitalResult computeRenteVsCapital({
   required double avoirObligatoire,
   required double avoirSurobligatoire,
@@ -122,17 +129,20 @@ RenteVsCapitalResult computeRenteVsCapital({
 
   final capitalTotal = avoirObligatoire + avoirSurobligatoire;
 
-  final cantonRates = capitalWithdrawalTaxRates[canton];
-  if (cantonRates == null || !cantonRates.containsKey(statutCivil)) {
-    throw ArgumentError('Canton/statut non supporte: $canton/$statutCivil');
+  // Look up base cantonal rate (26 cantons)
+  final baseRate = tauxImpotRetraitCapital[canton];
+  if (baseRate == null) {
+    throw ArgumentError('Canton non supporte: $canton');
   }
 
-  final rates = cantonRates[statutCivil]!;
-  final tauxBas = rates[0];
-  final tauxHaut = rates[1];
-  final tauxEffectif =
-      capitalTotal < _capitalTaxThreshold ? tauxBas : tauxHaut;
-  final impotRetrait = capitalTotal * tauxEffectif;
+  // Apply married discount (splitting cantonal ~15%)
+  final effectiveBaseRate = statutCivil == 'married'
+      ? baseRate * marriedCapitalTaxDiscount
+      : baseRate;
+
+  // Progressive tax calculation (mirrors backend)
+  final impotRetrait = _calculateProgressiveTax(capitalTotal, effectiveBaseRate);
+  final tauxEffectif = capitalTotal > 0 ? impotRetrait / capitalTotal : 0.0;
   final capitalNet = capitalTotal - impotRetrait;
 
   final nbMois85 = (85 - ageRetraite) * 12;

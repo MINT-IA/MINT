@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/rente_vs_capital_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -76,7 +77,9 @@ class _SimulatorRenteCapitalScreenState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildHeader(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            if (_result != null) _buildChiffreChoc(),
+            const SizedBox(height: 20),
             _buildInputsSection(),
             const SizedBox(height: 24),
             if (_result != null) ...[
@@ -90,6 +93,8 @@ class _SimulatorRenteCapitalScreenState
             _buildEducationSection(),
             const SizedBox(height: 24),
             _buildDisclaimer(),
+            const SizedBox(height: 8),
+            _buildSources(),
             const SizedBox(height: 40),
           ],
         ),
@@ -138,6 +143,38 @@ class _SimulatorRenteCapitalScreenState
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Chiffre Choc ---
+  Widget _buildChiffreChoc() {
+    final r = _result!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [MintColors.primary, MintColors.primary.withOpacity(0.85)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.bolt, color: Colors.white, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Rente : ${_chf.format(r.renteMensuelle)}/mois a vie  \u2022  '
+              'Capital : ${_chf.format(r.capitalNet)} net',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -205,14 +242,9 @@ class _SimulatorRenteCapitalScreenState
             },
           ),
           const SizedBox(height: 20),
-          // Canton dropdown + status
-          Row(
-            children: [
-              Expanded(child: _buildCantonDropdown()),
-              const SizedBox(width: 16),
-              Expanded(child: _buildStatusSelector()),
-            ],
-          ),
+          _buildCantonDropdown(),
+          const SizedBox(height: 16),
+          _buildStatusSelector(),
         ],
       ),
     );
@@ -277,12 +309,25 @@ class _SimulatorRenteCapitalScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Canton',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textPrimary,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Canton',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            Text(
+              'Taux : ${((tauxImpotRetraitCapital[_canton] ?? 0) * 100).toStringAsFixed(1)}%',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textMuted,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Container(
@@ -300,8 +345,11 @@ class _SimulatorRenteCapitalScreenState
                 fontSize: 14,
                 color: MintColors.textPrimary,
               ),
-              items: supportedCantons.map((c) {
-                return DropdownMenuItem(value: c, child: Text(c));
+              items: sortedCantonCodes.map((code) {
+                return DropdownMenuItem(
+                  value: code,
+                  child: Text('$code \u2014 ${cantonFullNames[code]}'),
+                );
               }).toList(),
               onChanged: (v) {
                 if (v != null) {
@@ -328,24 +376,55 @@ class _SimulatorRenteCapitalScreenState
           ),
         ),
         const SizedBox(height: 8),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(value: 'single', label: Text('Seul')),
-            ButtonSegment(value: 'married', label: Text('Marie')),
-          ],
-          selected: {_statutCivil},
-          onSelectionChanged: (v) {
-            _statutCivil = v.first;
-            _calculate();
-          },
-          style: ButtonStyle(
-            textStyle: WidgetStatePropertyAll(
-              GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-            visualDensity: VisualDensity.compact,
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: MintColors.appleSurface,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              _buildPillOption('single', 'Seul\u00B7e'),
+              _buildPillOption('married', 'Mari\u00E9\u00B7e'),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPillOption(String value, String label) {
+    final isSelected = _statutCivil == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (_statutCivil != value) {
+            _statutCivil = value;
+            _calculate();
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected
+                ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4, offset: const Offset(0, 2))]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? MintColors.textPrimary : MintColors.textMuted,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -359,8 +438,8 @@ class _SimulatorRenteCapitalScreenState
             color: MintColors.success,
             icon: Icons.autorenew,
             title: 'Rente viagere',
-            mainValue: _chf.format(r.renteAnnuelle),
-            subtitle: '${_chf.format(r.renteMensuelle)} / mois',
+            mainValue: '${_chf.format(r.renteAnnuelle)}/an',
+            subtitle: '${_chf.format(r.renteMensuelle)} / mois, a vie',
           ),
         ),
         const SizedBox(width: 12),
@@ -385,14 +464,25 @@ class _SimulatorRenteCapitalScreenState
     required String mainValue,
     required String subtitle,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.15)),
-      ),
-      child: Column(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.15)),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(width: 4, color: color),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -418,7 +508,7 @@ class _SimulatorRenteCapitalScreenState
             child: Text(
               mainValue,
               style: GoogleFonts.outfit(
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -432,7 +522,11 @@ class _SimulatorRenteCapitalScreenState
               color: MintColors.textMuted,
             ),
           ),
-        ],
+              ],
+            ),
+          ),
+          ],
+        ),
       ),
     );
   }
@@ -459,11 +553,9 @@ class _SimulatorRenteCapitalScreenState
     double maxY = maxVal + dataRange * 0.05;
     double minY;
     if (effectiveMin > 0) {
-      // All scenarios stay positive: zoom in to the relevant range
       minY = effectiveMin - dataRange * 0.08;
       if (minY < 0) minY = 0;
     } else {
-      // Some scenarios deplete: small negative buffer for visual clarity
       minY = -dataRange * 0.03;
     }
     if (maxY <= 0) maxY = r.capitalNet * 1.2;
@@ -845,6 +937,15 @@ class _SimulatorRenteCapitalScreenState
               'sont faibles ou la longevite elevee. Les facteurs importants : etat de sante, '
               'projets, patrimoine existant, et fiscalite cantonale.',
         ),
+        const SizedBox(height: 8),
+        _buildExpandableTile(
+          'Comment est impose le retrait en capital ?',
+          'Le retrait en capital LPP est impose separement a un taux reduit '
+              '(LIFD art. 38). Le taux est progressif : plus le montant est eleve, '
+              'plus le taux effectif augmente. Les couples maries beneficient '
+              'generalement d\'un taux reduit grace au splitting. Le taux varie '
+              'fortement selon le canton \u2014 de ~3.5% (Zoug) a ~8% (Vaud).',
+        ),
       ],
     );
   }
@@ -901,10 +1002,11 @@ class _SimulatorRenteCapitalScreenState
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations a titre indicatif. '
-              'Ils ne constituent pas un conseil financier personnalise. '
-              'Consulte ta caisse de pension et un·e spécialiste qualifié·e '
-              'avant toute decision.',
+              'Ces resultats ne constituent pas un conseil en prevoyance au sens de la LSFin. '
+              'Cet outil educatif presente des estimations a titre indicatif. '
+              'Les taux d\'imposition sont des approximations cantonales. '
+              'Consulte ta caisse de pension et un\u00B7e sp\u00E9cialiste qualifi\u00E9\u00B7e '
+              'avant toute d\u00E9cision.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,
@@ -913,6 +1015,22 @@ class _SimulatorRenteCapitalScreenState
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // --- Sources ---
+  Widget _buildSources() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        'Sources : LPP art. 14 (taux de conversion 6.8%), '
+        'LIFD art. 38 (imposition des prestations en capital)',
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          color: MintColors.textMuted,
+          height: 1.4,
+        ),
       ),
     );
   }
