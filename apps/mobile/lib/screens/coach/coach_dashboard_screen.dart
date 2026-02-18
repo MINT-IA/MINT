@@ -12,6 +12,10 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/benchmark_service.dart';
+import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
+import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -143,7 +147,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 const SizedBox(height: 24),
                 _buildScoreSection(),
                 const SizedBox(height: 24),
+                _buildChiffreChocSection(),
+                const SizedBox(height: 24),
                 _buildTrajectorySection(),
+                const SizedBox(height: 24),
+                _buildBenchmarkSection(),
                 const SizedBox(height: 24),
                 _buildQuickActions(),
                 const SizedBox(height: 24),
@@ -872,11 +880,34 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   //  2. COACH ALERT CARD
   // ════════════════════════════════════════════════════════════════
 
+  /// Build a dynamic coaching card based on the user's biggest gap.
+  ///
+  /// Instead of a generic message per fitness level, this surfaces
+  /// the most impactful coaching tip with a specific CHF amount
+  /// and a direct CTA to the relevant simulator.
   Widget _buildCoachAlertCard() {
-    final l10n = S.of(context);
     final level = _score!.level;
 
-    // Border color and icon based on fitness level
+    // Generate coaching tips from the profile
+    final coachingProfile = CoachingProfile(
+      age: _profile!.age,
+      canton: _profile!.canton,
+      revenuAnnuel: _profile!.revenuBrutAnnuel,
+      has3a: _profile!.prevoyance.nombre3a > 0,
+      montant3a: _profile!.total3aMensuel * 12,
+      hasLpp: (_profile!.prevoyance.avoirLppTotal ?? 0) > 0,
+      avoirLpp: _profile!.prevoyance.avoirLppTotal ?? 0,
+      lacuneLpp: _profile!.prevoyance.rachatMaximum ?? 0,
+      epargneDispo: _profile!.patrimoine.epargneLiquide,
+      detteTotale: _profile!.dettes.totalDettes,
+      chargesFixesMensuelles:
+          _profile!.depenses.loyer + _profile!.depenses.assuranceMaladie,
+    );
+
+    final tips = CoachingService.generateTips(profile: coachingProfile);
+    final topTip = tips.isNotEmpty ? tips.first : null;
+
+    // Border color based on fitness level
     final Color borderColor;
     final IconData iconData;
     switch (level) {
@@ -892,6 +923,20 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       case FitnessLevel.critique:
         borderColor = MintColors.scoreCritique;
         iconData = Icons.error_outline;
+    }
+
+    // Use the top coaching tip if available; fallback to generic message
+    final String message;
+    final String? ctaLabel;
+    final String? ctaRoute;
+    if (topTip != null) {
+      message = topTip.message;
+      ctaLabel = topTip.action;
+      ctaRoute = _tipRoute(topTip);
+    } else {
+      message = _score!.coachMessage;
+      ctaLabel = null;
+      ctaRoute = null;
     }
 
     return Container(
@@ -916,17 +961,52 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(iconData, color: borderColor, size: 24),
+              Icon(topTip?.icon ?? iconData, color: borderColor, size: 24),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  _score!.coachMessage,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: MintColors.textPrimary,
-                    height: 1.4,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (topTip != null) ...[
+                      Text(
+                        topTip.title,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      message,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: MintColors.textPrimary,
+                        height: 1.5,
+                      ),
+                    ),
+                    if (topTip?.estimatedImpactChf != null) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: borderColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'Impact estimé : ~CHF ${topTip!.estimatedImpactChf!.toStringAsFixed(0)}',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: borderColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -935,16 +1015,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () => context.push('/report'),
+              onPressed: () =>
+                  context.push(ctaRoute ?? '/report'),
               style: TextButton.styleFrom(
                 foregroundColor: MintColors.coachAccent,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l10n?.coachExplore ?? 'Explorer',
+                    ctaLabel ?? 'Explorer',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -959,6 +1041,23 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         ],
       ),
     );
+  }
+
+  String _tipRoute(CoachingTip tip) {
+    switch (tip.category) {
+      case 'fiscalite':
+        return '/simulator/3a';
+      case 'prevoyance':
+        if (tip.id.contains('lpp')) return '/lpp-deep/rachat';
+        if (tip.id.contains('3a')) return '/simulator/3a';
+        return '/retirement';
+      case 'budget':
+        return '/check/debt';
+      case 'retraite':
+        return '/retirement';
+      default:
+        return '/report';
+    }
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1012,6 +1111,145 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   }
 
   // ════════════════════════════════════════════════════════════════
+  //  3b. CHIFFRES CHOC SECTION — Personalized shock figures
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildChiffreChocSection() {
+    final revenuBrutAnnuel = _profile!.revenuBrutAnnuel;
+    final cards = <Widget>[];
+
+    // 1. 3a tax savings gap — if not maxing out the pillar 3a
+    final cotisation3aAnnuelle = _profile!.total3aMensuel * 12;
+    const plafond3a = 7258.0; // OPP3 art. 7
+    if (cotisation3aAnnuelle < plafond3a &&
+        _profile!.prevoyance.canContribute3a) {
+      final tauxMarginal =
+          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
+      final economiePotentielle =
+          (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
+      final anneesRestantes = _profile!.anneesAvantRetraite;
+      final economieTotale = economiePotentielle * anneesRestantes;
+
+      if (economieTotale > 500) {
+        cards.add(ChiffreChocCard(
+          value: economieTotale,
+          message:
+              'Économies d\'impôts potentielles d\'ici ta retraite en '
+              'maximisant ton 3a chaque année.',
+          source: 'OPP3 art. 7 · LIFD',
+          ctaLabel: 'Simuler mon 3a',
+          ctaRoute: '/simulator/3a',
+          icon: Icons.savings,
+          color: const Color(0xFF4F46E5),
+        ));
+      }
+    }
+
+    // 2. LPP buyback tax deduction potential
+    final lacuneLpp = _profile!.prevoyance.lacuneRachatRestante;
+    if (lacuneLpp > 5000) {
+      final tauxMarginal =
+          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
+      final economieRachat = lacuneLpp * tauxMarginal;
+
+      cards.add(ChiffreChocCard(
+        value: economieRachat,
+        message:
+            'Déduction fiscale potentielle en rachetant '
+            'ta lacune LPP de CHF ${_formatChf(lacuneLpp)}.',
+        source: 'LPP art. 79b',
+        ctaLabel: 'Explorer le rachat',
+        ctaRoute: '/lpp-deep/rachat',
+        icon: Icons.account_balance,
+        color: MintColors.coachAccent,
+      ));
+    }
+
+    // 3. AVS gap cost — each missing year = -2.3% of max rente
+    final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
+    if (lacunesAVS > 0) {
+      // 30'240 CHF/an = rente AVS max (LAVS art. 34)
+      final perteTotaleAnnuelle = lacunesAVS * 0.023 * 30240;
+      // Over ~20 years of retirement
+      final perteTotaleRetraite = perteTotaleAnnuelle * 20;
+
+      cards.add(ChiffreChocCard(
+        value: perteTotaleRetraite,
+        message:
+            'Rente AVS perdue sur 20 ans de retraite avec '
+            '$lacunesAVS année${lacunesAVS > 1 ? 's' : ''} '
+            'de cotisation manquante${lacunesAVS > 1 ? 's' : ''}.',
+        source: 'LAVS art. 29',
+        ctaLabel: 'Vérifier mes lacunes',
+        ctaRoute: '/retirement',
+        icon: Icons.shield_outlined,
+        color: MintColors.scoreAttention,
+      ));
+    }
+
+    if (cards.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tes chiffres-chocs',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Des montants personnalisés pour éclairer tes décisions',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 14),
+        ...cards.expand((card) => [card, const SizedBox(height: 12)]),
+      ],
+    );
+  }
+
+  /// Simplified marginal tax rate estimation by canton bracket.
+  /// Source: AFC taux marginaux d'imposition 2025
+  /// Combined rates (fédéral + cantonal + communal).
+  double _estimateMarginalTaxRate(double revenuBrutAnnuel, String canton) {
+    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
+    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
+
+    double baseRate;
+    if (revenuBrutAnnuel > 200000) {
+      baseRate = 0.38;
+    } else if (revenuBrutAnnuel > 120000) {
+      baseRate = 0.32;
+    } else if (revenuBrutAnnuel > 80000) {
+      baseRate = 0.28;
+    } else {
+      baseRate = 0.22;
+    }
+
+    if (highTaxCantons.contains(canton)) return baseRate * 1.1;
+    if (lowTaxCantons.contains(canton)) return baseRate * 0.75;
+    return baseRate;
+  }
+
+  String _formatChf(double amount) {
+    final formatted = amount.toStringAsFixed(0);
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = formatted.length - 1; i >= 0; i--) {
+      buffer.write(formatted[i]);
+      count++;
+      if (count % 3 == 0 && i > 0) buffer.write("'");
+    }
+    return buffer.toString().split('').reversed.join();
+  }
+
+  // ════════════════════════════════════════════════════════════════
   //  4. TRAJECTORY SECTION
   // ════════════════════════════════════════════════════════════════
 
@@ -1050,6 +1288,82 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               // (will be wired in a future sprint)
             },
           ),
+        ),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  4b. BENCHMARK SECTION — Anonymous Swiss comparison
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildBenchmarkSection() {
+    final age = _profile!.age;
+    final netMensuel = _profile!.salaireBrutMensuel * 0.87;
+    final epargneMensuelle = _profile!.totalContributionsMensuelles;
+
+    // Savings rate benchmark
+    final savingsBenchmark = BenchmarkService.compareSavings(
+      age: age,
+      monthlyNetIncome: netMensuel,
+      monthlySavings: epargneMensuelle,
+    );
+
+    // 3a participation benchmark
+    final has3a = _profile!.prevoyance.nombre3a > 0;
+    final annualContribution3a = _profile!.total3aMensuel * 12;
+    final benchmark3a = BenchmarkService.compare3a(
+      age: age,
+      has3a: has3a,
+      annualContribution: annualContribution3a,
+    );
+
+    // Emergency fund benchmark
+    final chargesMensuelles = _profile!.depenses.totalMensuel;
+    final epargneLiquide = _profile!.patrimoine.epargneLiquide;
+    final emergencyMonths =
+        chargesMensuelles > 0 ? epargneLiquide / chargesMensuelles : 0.0;
+    final emergencyBenchmark = BenchmarkService.compareEmergencyFund(
+      age: age,
+      emergencyFundMonths: emergencyMonths,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Toi vs la Suisse',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Comparaison anonyme avec les statistiques OFS',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 14),
+        BenchmarkCard(
+          benchmark: savingsBenchmark,
+          label: 'Taux d\'épargne',
+          icon: Icons.savings_outlined,
+        ),
+        const SizedBox(height: 12),
+        BenchmarkCard(
+          benchmark: benchmark3a,
+          label: 'Prévoyance 3a',
+          icon: Icons.shield_outlined,
+        ),
+        const SizedBox(height: 12),
+        BenchmarkCard(
+          benchmark: emergencyBenchmark,
+          label: 'Fonds d\'urgence',
+          icon: Icons.health_and_safety_outlined,
         ),
       ],
     );

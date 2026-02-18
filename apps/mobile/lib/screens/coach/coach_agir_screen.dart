@@ -8,6 +8,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
+import 'package:mint_mobile/services/streak_service.dart';
+import 'package:mint_mobile/widgets/coach/streak_badge.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH AGIR SCREEN — Sprint C7 / MINT Coach
@@ -86,6 +88,9 @@ class CoachAgirScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 8),
+
+                // ── Streak badge ──────────────────────────────
+                _buildStreakSection(profile),
 
                 // ── Section: Ce mois ─────────────────────────
                 _buildSectionHeader(
@@ -173,6 +178,22 @@ class CoachAgirScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ── Streak section ────────────────────────────────────────
+  Widget _buildStreakSection(CoachProfile profile) {
+    final streak = StreakService.compute(profile);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StreakBadgeWidget(streak: streak),
+        if (streak.earnedBadges.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          EarnedBadgesRow(streak: streak),
+        ],
+        const SizedBox(height: 24),
+      ],
     );
   }
 
