@@ -547,6 +547,22 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           data: _onboardingContextData(),
         );
         context.push('/advisor/wizard');
+      } else if (action == 'plan30') {
+        _analytics.trackCTAClick(
+          'advisor_completion_open_plan_30_days',
+          screenName: '/advisor',
+          data: _withOnboardingContext({
+            'stress_choice': _stressChoice,
+            'main_goal': _mainGoal ?? 'retirement',
+          }),
+        );
+        context.go(
+          '/advisor/plan-30-days',
+          extra: {
+            'stress_choice': _stressChoice,
+            'main_goal': _mainGoal ?? 'retirement',
+          },
+        );
       } else {
         _analytics.trackCTAClick(
           'advisor_completion_open_dashboard',
@@ -651,17 +667,27 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () => Navigator.of(ctx).pop('dashboard'),
+                    onPressed: () => Navigator.of(ctx).pop('plan30'),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
-                      l10n?.advisorMiniActivateDashboard ??
-                          'Activer mon dashboard',
+                      'Voir mon plan 30 jours',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w700,
                       ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop('dashboard'),
+                    child: Text(
+                      l10n?.advisorMiniActivateDashboard ??
+                          'Activer mon dashboard',
                     ),
                   ),
                 ),

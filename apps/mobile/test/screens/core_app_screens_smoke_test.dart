@@ -14,6 +14,7 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
+import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -55,10 +56,13 @@ void main() {
         }),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
-        ChangeNotifierProvider<DocumentProvider>(create: (_) => DocumentProvider()),
+        ChangeNotifierProvider<DocumentProvider>(
+            create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
-        ChangeNotifierProvider<SubscriptionProvider>(create: (_) => SubscriptionProvider()),
-        ChangeNotifierProvider<CoachProfileProvider>(create: (_) => CoachProfileProvider()),
+        ChangeNotifierProvider<SubscriptionProvider>(
+            create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -378,6 +382,33 @@ void main() {
 
       expect(find.textContaining('localement'), findsWidgets);
       expect(find.byIcon(Icons.lock_outline), findsWidgets);
+    });
+  });
+
+  // ===========================================================================
+  // 8. ONBOARDING 30 DAYS PLAN SCREEN
+  // ===========================================================================
+
+  group('Onboarding30DayPlanScreen', () {
+    testWidgets('renders without crashing', (tester) async {
+      await tester.pumpWidget(buildTestableScreen(
+        const Onboarding30DayPlanScreen(),
+      ));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      expect(find.byType(Onboarding30DayPlanScreen), findsOneWidget);
+      expect(find.textContaining('PLAN 30 JOURS'), findsOneWidget);
+    });
+
+    testWidgets('shows timeline action cards', (tester) async {
+      await tester.pumpWidget(buildTestableScreen(
+        const Onboarding30DayPlanScreen(stressChoice: 'budget'),
+      ));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      expect(find.textContaining('Jour 1-7'), findsOneWidget);
+      expect(find.textContaining('Jour 8-15'), findsOneWidget);
+      expect(find.textContaining('Jour 16-30'), findsOneWidget);
     });
   });
 
