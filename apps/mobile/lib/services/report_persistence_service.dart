@@ -53,6 +53,8 @@ class ReportPersistenceService {
       'mini_onboarding_metrics_control_v1';
   static const String _onboardingMetricsChallengeKey =
       'mini_onboarding_metrics_challenge_v1';
+  static const String _onboardingCohortMetricsKey =
+      'mini_onboarding_cohort_metrics_v1';
 
   /// Marque le mini-onboarding comme complété (3 questions essentielles)
   static Future<void> setMiniOnboardingCompleted(bool isCompleted) async {
@@ -170,6 +172,83 @@ class ReportPersistenceService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_onboardingMetricsControlKey);
     await prefs.remove(_onboardingMetricsChallengeKey);
+    await prefs.remove(_onboardingCohortMetricsKey);
+  }
+
+  /// Charge les metriques cohortes onboarding.
+  ///
+  /// Structure:
+  /// {
+  ///   "control": {
+  ///     "stress_budget|emp_employee|inc_mid": {"started": 3, "completed": 2}
+  ///   },
+  ///   "challenge": {...}
+  /// }
+  static Future<Map<String, dynamic>> loadMiniOnboardingCohortMetrics() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_onboardingCohortMetricsKey);
+    if (jsonString == null) return {};
+    try {
+      return Map<String, dynamic>.from(json.decode(jsonString));
+    } catch (e, stack) {
+      dev.log('Failed to decode onboarding cohort metrics',
+          error: e, stackTrace: stack, name: 'Persistence');
+      return {};
+    }
+  }
+
+  /// Incremente un metric de cohorte onboarding (started/completed/etc).
+  static Future<void> incrementMiniOnboardingCohortMetric(
+    String variant,
+    String profileBucket,
+    String metricKey, {
+    int by = 1,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final root = Map<String, dynamic>.from(
+      await loadMiniOnboardingCohortMetrics(),
+    );
+
+    final variantMap = Map<String, dynamic>.from(
+      (root[variant] as Map?) ?? const {},
+    );
+    final bucketMap = Map<String, dynamic>.from(
+      (variantMap[profileBucket] as Map?) ?? const {},
+    );
+    final current = (bucketMap[metricKey] as num?)?.toInt() ?? 0;
+    bucketMap[metricKey] = current + by;
+    variantMap[profileBucket] = bucketMap;
+    root[variant] = variantMap;
+
+    await prefs.setString(_onboardingCohortMetricsKey, json.encode(root));
+  }
+
+  /// Export CSV des cohortes A/B avec completion par profil.
+  static Future<String> exportMiniOnboardingCohortCsv() async {
+    final root = await loadMiniOnboardingCohortMetrics();
+    final buffer = StringBuffer();
+    buffer.writeln(
+      'variant,profile_bucket,started,completed,completion_rate_pct',
+    );
+
+    for (final variantEntry in root.entries) {
+      final variant = variantEntry.key;
+      final variantMap = variantEntry.value;
+      if (variantMap is! Map) continue;
+      for (final bucketEntry in variantMap.entries) {
+        final bucket = bucketEntry.key;
+        final bucketMap = bucketEntry.value;
+        if (bucketMap is! Map) continue;
+        final started = (bucketMap['started'] as num?)?.toInt() ?? 0;
+        final completed = (bucketMap['completed'] as num?)?.toInt() ?? 0;
+        final rate = started <= 0 ? 0.0 : (completed / started) * 100;
+        buffer.writeln(
+          '$variant,$bucket,$started,$completed,${rate.toStringAsFixed(1)}',
+        );
+      }
+    }
+
+    return buffer.toString();
   }
 
   static const String _lettersKey = 'generated_letters_history';

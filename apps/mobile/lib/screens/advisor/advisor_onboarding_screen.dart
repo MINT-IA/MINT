@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -86,6 +87,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   bool _usedBirthYearManual = false;
   bool _usedIncomeManual = false;
   bool _step2AhaTracked = false;
+  bool _cohortStartedTracked = false;
   Map<String, int> _variantMetrics = const {};
 
   void _incMetric(String key, {int by = 1}) {
@@ -156,6 +158,22 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       ..._onboardingContextData(),
       if (data != null) ...data,
     };
+  }
+
+  String _incomeBucket(double? incomeMonthly) {
+    if (incomeMonthly == null || incomeMonthly <= 0) return 'inc_unknown';
+    if (incomeMonthly <= 5000) return 'inc_low';
+    if (incomeMonthly <= 9000) return 'inc_mid';
+    return 'inc_high';
+  }
+
+  String _profileCohortBucket() {
+    final income = double.tryParse(
+      _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
+    );
+    final stress = _stressChoice ?? 'unknown';
+    final employment = _employmentStatus ?? 'unknown';
+    return 'stress_$stress|emp_$employment|${_incomeBucket(income)}';
   }
 
   @override
@@ -297,6 +315,17 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     }
     if (from == 1 && to == 2 && _step2AhaTracked) {
       _incMetric('step2_to_step3_after_aha');
+    }
+    if (from == 2 && to == 3 && !_cohortStartedTracked) {
+      _cohortStartedTracked = true;
+      final bucket = _profileCohortBucket();
+      unawaited(
+        ReportPersistenceService.incrementMiniOnboardingCohortMetric(
+          _miniOnboardingVariant,
+          bucket,
+          'started',
+        ),
+      );
     }
     _analytics.trackEvent(
       'onboarding_step_duration',
@@ -535,6 +564,15 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         }),
       );
       _incMetric('completed');
+      if (_cohortStartedTracked) {
+        unawaited(
+          ReportPersistenceService.incrementMiniOnboardingCohortMetric(
+            _miniOnboardingVariant,
+            _profileCohortBucket(),
+            'completed',
+          ),
+        );
+      }
       _isOnboardingCompleted = true;
       context.read<CoachProfileProvider>().updateFromMiniOnboarding(merged);
       final preview = _computePreviewProjection();
@@ -829,6 +867,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         await ReportPersistenceService.loadMiniOnboardingMetrics('control');
     final challenge =
         await ReportPersistenceService.loadMiniOnboardingMetrics('challenge');
+    final cohorts =
+        await ReportPersistenceService.loadMiniOnboardingCohortMetrics();
+    final cohortCsv =
+        await ReportPersistenceService.exportMiniOnboardingCohortCsv();
+    final cohortJson = jsonEncode(cohorts);
     if (!mounted) return;
     showModalBottomSheet<void>(
       context: context,
@@ -841,56 +884,207 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n?.advisorMiniMetricsTitle ?? 'Onboarding Metrics',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l10n?.advisorMiniMetricsSubtitle ??
-                      'Pilotage local des variantes control/challenge',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _buildMetricsVariantCard(
-                  title: l10n?.advisorMiniMetricsControl ?? 'Control',
-                  metrics: control,
-                ),
-                const SizedBox(height: 10),
-                _buildMetricsVariantCard(
-                  title: l10n?.advisorMiniMetricsChallenge ?? 'Challenge',
-                  metrics: challenge,
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () async {
-                      await ReportPersistenceService
-                          .clearMiniOnboardingMetrics();
-                      if (ctx.mounted) Navigator.of(ctx).pop();
-                    },
-                    child: Text(
-                      l10n?.advisorMiniMetricsReset ?? 'Reset metrics',
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n?.advisorMiniMetricsTitle ?? 'Onboarding Metrics',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n?.advisorMiniMetricsSubtitle ??
+                        'Pilotage local des variantes control/challenge',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _buildMetricsVariantCard(
+                    title: l10n?.advisorMiniMetricsControl ?? 'Control',
+                    metrics: control,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildMetricsVariantCard(
+                    title: l10n?.advisorMiniMetricsChallenge ?? 'Challenge',
+                    metrics: challenge,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildCohortSummaryCard(cohorts),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            await Clipboard.setData(
+                              ClipboardData(text: cohortCsv),
+                            );
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('CSV cohortes copié'),
+                              ),
+                            );
+                          },
+                          icon:
+                              const Icon(Icons.table_chart_outlined, size: 16),
+                          label: const Text('Copier CSV'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            await Clipboard.setData(
+                              ClipboardData(text: cohortJson),
+                            );
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('JSON cohortes copié'),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.code_outlined, size: 16),
+                          label: const Text('Copier JSON'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () async {
+                        await ReportPersistenceService
+                            .clearMiniOnboardingMetrics();
+                        if (ctx.mounted) Navigator.of(ctx).pop();
+                      },
+                      child: Text(
+                        l10n?.advisorMiniMetricsReset ?? 'Reset metrics',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  double _computeOnboardingQualityScore(Map<String, int> metrics) {
+    final started = metrics['started'] ?? 0;
+    final completed = metrics['completed'] ?? 0;
+    final exitsShown = metrics['exit_prompt_shown'] ?? 0;
+    final exitsStay = metrics['exit_prompt_stay'] ?? 0;
+    final ahaShown = metrics['step2_aha_shown'] ?? 0;
+    final ahaToStep3 = metrics['step2_to_step3_after_aha'] ?? 0;
+    final quickBirth = metrics['quick_pick_birth_year'] ?? 0;
+    final quickIncome = metrics['quick_pick_income'] ?? 0;
+    final durationSum = (metrics['duration_step_1_sum'] ?? 0) +
+        (metrics['duration_step_2_sum'] ?? 0) +
+        (metrics['duration_step_3_sum'] ?? 0) +
+        (metrics['duration_step_4_sum'] ?? 0);
+    final durationCount = (metrics['duration_step_1_count'] ?? 0) +
+        (metrics['duration_step_2_count'] ?? 0) +
+        (metrics['duration_step_3_count'] ?? 0) +
+        (metrics['duration_step_4_count'] ?? 0);
+
+    final completion = started > 0 ? completed / started : 0.0; // 0..1
+    final stayRate = exitsShown > 0 ? exitsStay / exitsShown : 0.0;
+    final ahaRate = ahaShown > 0 ? ahaToStep3 / ahaShown : 0.0;
+    final quickRate = started > 0 ? (quickBirth + quickIncome) / started : 0.0;
+    final avgStep = durationCount > 0 ? (durationSum / durationCount) : 999.0;
+    final speedScore = avgStep <= 20
+        ? 1.0
+        : avgStep <= 35
+            ? 0.7
+            : avgStep <= 55
+                ? 0.4
+                : 0.2;
+
+    final score = (completion * 45) +
+        (stayRate * 20) +
+        (ahaRate * 15) +
+        (quickRate.clamp(0, 1) * 10) +
+        (speedScore * 10);
+    return score.clamp(0, 100).toDouble();
+  }
+
+  Widget _buildCohortSummaryCard(Map<String, dynamic> cohorts) {
+    final control =
+        Map<String, dynamic>.from((cohorts['control'] as Map?) ?? const {});
+    final challenge =
+        Map<String, dynamic>.from((cohorts['challenge'] as Map?) ?? const {});
+
+    int started(Map<String, dynamic> variant) {
+      var total = 0;
+      for (final value in variant.values) {
+        if (value is Map) {
+          total += (value['started'] as num?)?.toInt() ?? 0;
+        }
+      }
+      return total;
+    }
+
+    int completed(Map<String, dynamic> variant) {
+      var total = 0;
+      for (final value in variant.values) {
+        if (value is Map) {
+          total += (value['completed'] as num?)?.toInt() ?? 0;
+        }
+      }
+      return total;
+    }
+
+    String rate(int done, int total) {
+      if (total <= 0) return '0%';
+      return '${((done / total) * 100).toStringAsFixed(1)}%';
+    }
+
+    final controlStarted = started(control);
+    final controlCompleted = completed(control);
+    final challengeStarted = started(challenge);
+    final challengeCompleted = completed(challenge);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Cohortes (A/B + profil)',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _metricRow(
+              'Control completion', rate(controlCompleted, controlStarted)),
+          _metricRow('Challenge completion',
+              rate(challengeCompleted, challengeStarted)),
+          _metricRow('Control started', '$controlStarted'),
+          _metricRow('Challenge started', '$challengeStarted'),
+        ],
+      ),
     );
   }
 
@@ -918,6 +1112,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final avgStep = durationCount <= 0
         ? '-'
         : '${(durationSum / durationCount).toStringAsFixed(1)}s';
+    final qualityScore = _computeOnboardingQualityScore(metrics);
 
     String pct(int num, int den) {
       if (den <= 0) return '0%';
@@ -967,6 +1162,39 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           _metricRow(
             l10n?.advisorMiniMetricsAvgStepTime ?? 'Avg step time',
             avgStep,
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: MintColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.speed_rounded,
+                    size: 16, color: MintColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Qualite onboarding',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${qualityScore.toStringAsFixed(1)}/100',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

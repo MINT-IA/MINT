@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -70,6 +71,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   ProjectionResult? _baselineProjection; // projection sans contributions
   List<CoachingTip> _coachingTips = [];
   List<Map<String, dynamic>>? _scoreHistory;
+  Map<String, dynamic> _onboarding30PlanState = const {};
+  bool _onboarding30PlanLoaded = false;
 
   // "Et si..." state
   bool _etSiExpanded = false;
@@ -94,6 +97,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       parent: _pulseController,
       curve: Curves.easeInOut,
     );
+    unawaited(_loadOnboarding30PlanState());
   }
 
   @override
@@ -105,6 +109,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    unawaited(_loadOnboarding30PlanState());
     final coachProvider = context.watch<CoachProfileProvider>();
 
     // BUG FIX: Ne plus utiliser CoachProfile.buildDemo() comme fallback.
@@ -152,6 +157,126 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     }
   }
 
+  Future<void> _loadOnboarding30PlanState() async {
+    final state = await ReportPersistenceService.loadOnboarding30PlanState();
+    if (!mounted) return;
+    setState(() {
+      _onboarding30PlanState = state;
+      _onboarding30PlanLoaded = true;
+    });
+  }
+
+  bool _hasOnboarding30PlanToResume() {
+    if (!_onboarding30PlanLoaded) return false;
+    final startedAt = _onboarding30PlanState['started_at'];
+    final completed = _onboarding30PlanState['completed'] == true;
+    return startedAt != null && !completed;
+  }
+
+  int _onboarding30OpenedCount() {
+    final opened = _onboarding30PlanState['opened_routes'];
+    if (opened is List) return opened.length;
+    return 0;
+  }
+
+  String _onboarding30ResumeRoute() {
+    final lastRoute = _onboarding30PlanState['last_route'];
+    if (lastRoute is String && lastRoute.isNotEmpty) return lastRoute;
+    return '/advisor/plan-30-days';
+  }
+
+  Widget _buildResumePlan30Card() {
+    if (!_hasOnboarding30PlanToResume()) return const SizedBox.shrink();
+    final openedCount = _onboarding30OpenedCount();
+    final progress = (openedCount / 3).clamp(0.0, 1.0);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.event_repeat_rounded,
+                  size: 18,
+                  color: MintColors.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Reprendre mon plan 30 jours',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: MintColors.lightBorder,
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(MintColors.primary),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '$openedCount/3 etapes ouvertes',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () async {
+                final route = _onboarding30ResumeRoute();
+                await context.push(route);
+                if (!mounted) return;
+                await _loadOnboarding30PlanState();
+              },
+              icon: const Icon(Icons.play_arrow_rounded, size: 18),
+              label: const Text('Continuer'),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final coachProvider = context.watch<CoachProfileProvider>();
@@ -193,6 +318,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               delegate: SliverChildListDelegate([
                 _buildCoachAlertCard(),
                 const SizedBox(height: 24),
+                _buildResumePlan30Card(),
+                if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
                 _buildScoreSection(),
                 _buildScoreHistorySection(),
                 const SizedBox(height: 24),
@@ -324,6 +451,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 // Precision badge
                 _buildPrecisionBadge(completeness, dataPoints),
                 const SizedBox(height: 20),
+                _buildResumePlan30Card(),
+                if (_hasOnboarding30PlanToResume()) const SizedBox(height: 20),
                 // Chiffre choc (main value proposition)
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
@@ -642,6 +771,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               delegate: SliverChildListDelegate([
                 _buildEmptyScoreCard(),
                 const SizedBox(height: 24),
+                _buildResumePlan30Card(),
+                if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
                 _buildTeaserTrajectory(),
                 const SizedBox(height: 24),
                 _buildQuickWinCards(),
@@ -1953,7 +2084,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
       // 30'240 CHF/an = rente AVS max (LAVS art. 34)
-      final reductionParAnnee = 1.0 / avsDureeCotisationComplete;
+      const reductionParAnnee = 1.0 / avsDureeCotisationComplete;
       final perteTotaleAnnuelle = lacunesAVS * reductionParAnnee * 30240;
       // Over ~20 years of retirement
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
@@ -2875,7 +3006,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  const Text(
                     'Active l\'IA pour des r\u00e9ponses personnalis\u00e9es',
                     style: TextStyle(
                       fontSize: 13,

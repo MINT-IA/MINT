@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
@@ -19,6 +22,10 @@ import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 // ────────────────────────────────────────────────────────────
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   CoachProfileProvider buildCoachProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
@@ -163,6 +170,28 @@ void main() {
         find.byIcon(Icons.tune, skipOffstage: false),
         findsWidgets,
       );
+    });
+  });
+
+  group('CoachDashboardScreen - Plan 30 jours resume', () {
+    testWidgets('shows resume card when plan 30 is started and incomplete',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'onboarding_30_day_plan_v1': jsonEncode({
+          'started_at': '2026-02-19T10:00:00.000Z',
+          'completed': false,
+          'opened_routes': ['/check/debt'],
+          'last_route': '/check/debt',
+        }),
+      });
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(
+          find.textContaining('Reprendre mon plan 30 jours'), findsOneWidget);
+      expect(find.textContaining('1/3 etapes ouvertes'), findsOneWidget);
+      expect(find.textContaining('Continuer'), findsWidgets);
     });
   });
 }

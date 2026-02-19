@@ -239,6 +239,48 @@ void main() {
           await ReportPersistenceService.loadMiniOnboardingMetrics('control');
       expect(metrics['started'], 0);
     });
+
+    test('cohort metrics can be incremented and exported to CSV', () async {
+      await ReportPersistenceService.incrementMiniOnboardingCohortMetric(
+        'control',
+        'stress_budget|emp_employee|inc_mid',
+        'started',
+      );
+      await ReportPersistenceService.incrementMiniOnboardingCohortMetric(
+        'control',
+        'stress_budget|emp_employee|inc_mid',
+        'completed',
+      );
+      await ReportPersistenceService.incrementMiniOnboardingCohortMetric(
+        'challenge',
+        'stress_tax|emp_independent|inc_high',
+        'started',
+        by: 2,
+      );
+
+      final cohorts =
+          await ReportPersistenceService.loadMiniOnboardingCohortMetrics();
+      expect(cohorts['control'], isNotNull);
+      expect(
+        cohorts['control']['stress_budget|emp_employee|inc_mid']['started'],
+        1,
+      );
+      expect(
+        cohorts['control']['stress_budget|emp_employee|inc_mid']['completed'],
+        1,
+      );
+      expect(
+        cohorts['challenge']['stress_tax|emp_independent|inc_high']['started'],
+        2,
+      );
+
+      final csv =
+          await ReportPersistenceService.exportMiniOnboardingCohortCsv();
+      expect(csv, contains('variant,profile_bucket,started,completed'));
+      expect(csv, contains('control,stress_budget|emp_employee|inc_mid,1,1'));
+      expect(
+          csv, contains('challenge,stress_tax|emp_independent|inc_high,2,0'));
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════
