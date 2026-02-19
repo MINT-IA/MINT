@@ -299,4 +299,12 @@ class AnalyticsService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey(_consentKey);
   }
+
+  /// Clears local analytics queue.
+  /// Keeps consent + session id to preserve privacy preference continuity.
+  Future<void> clearLocalQueue() async {
+    _eventQueue.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_eventsQueueKey);
+  }
 }

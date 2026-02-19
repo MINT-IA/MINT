@@ -1529,5 +1529,15 @@
   "soaImportant": "IMPORTANT:",
   "soaDisclaimer1": "This is a decision-making aid, not a guarantee.",
   "soaDisclaimer2": "Amounts are based on the information you provided.",
-  "soaDisclaimer3": "'Available' = Income - Housing - Debts."
+  "soaDisclaimer3": "'Available' = Income - Housing - Debts.",
+  "commonCancel": "Cancel",
+  "profileDangerZoneTitle": "Danger zone",
+  "profileDangerZoneSubtitle": "Reset your local financial history without deleting your account.",
+  "profileResetDialogTitle": "Reset my situation?",
+  "profileResetDialogBody": "This action deletes your diagnostic, check-ins, score history, and local budget.",
+  "profileResetDialogConfirmLabel": "Type RESET to confirm:",
+  "profileResetDialogInvalid": "Invalid keyword.",
+  "profileResetDialogAction": "Reset",
+  "profileResetSuccess": "Local financial history has been reset.",
+  "profileResetScopeNote": "Keeps login and BYOK key. Backend documents are not deleted."
 }

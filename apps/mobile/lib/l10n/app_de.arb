@@ -1529,5 +1529,15 @@
   "soaImportant": "WICHTIG:",
   "soaDisclaimer1": "Dies ist eine Entscheidungshilfe, keine Garantie.",
   "soaDisclaimer2": "Die Beträge basieren auf den angegebenen Informationen.",
-  "soaDisclaimer3": "'Verfügbar' = Einkommen - Wohnen - Schulden."
+  "soaDisclaimer3": "'Verfügbar' = Einkommen - Wohnen - Schulden.",
+  "commonCancel": "Abbrechen",
+  "profileDangerZoneTitle": "Gefahrenbereich",
+  "profileDangerZoneSubtitle": "Setze deine lokale Finanzhistorie zurück, ohne dein Konto zu löschen.",
+  "profileResetDialogTitle": "Situation zurücksetzen?",
+  "profileResetDialogBody": "Diese Aktion löscht deinen Diagnose-Status, Check-ins, Score-Verlauf und lokales Budget.",
+  "profileResetDialogConfirmLabel": "Gib RESET zur Bestätigung ein:",
+  "profileResetDialogInvalid": "Ungültiges Schlüsselwort.",
+  "profileResetDialogAction": "Zurücksetzen",
+  "profileResetSuccess": "Lokale Finanzhistorie wurde zurückgesetzt.",
+  "profileResetScopeNote": "Login und BYOK-Schlüssel bleiben erhalten. Backend-Dokumente werden nicht gelöscht."
 }

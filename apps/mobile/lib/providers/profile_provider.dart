@@ -27,6 +27,15 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clears the in-memory profile state.
+  /// Used after a local financial state reset.
+  void clear() {
+    _profile = null;
+    _recommendations = [];
+    _isLoading = false;
+    notifyListeners();
+  }
+
   void updateProfile({
     int? birthYear,
     String? canton,

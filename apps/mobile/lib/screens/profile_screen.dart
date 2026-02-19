@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -34,60 +35,82 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _buildPrecisionCard(context, precision),
                   const SizedBox(height: 32),
-                  Text(S.of(context)?.profileFactFindTitle ?? 'Détails FactFind', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                      S.of(context)?.profileFactFindTitle ?? 'Détails FactFind',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionIdentity ?? 'Identité & Foyer',
+                    title: S.of(context)?.profileSectionIdentity ??
+                        'Identité & Foyer',
                     status: S.of(context)?.profileStatusComplete ?? 'Complet',
                     isComplete: true,
                     icon: Icons.person_outline,
                     onTap: () => context.push('/advisor/wizard'),
                   ),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionIncome ?? 'Revenus & Épargne',
-                    status: S.of(context)?.profileStatusPartial ?? 'Partial (Net)',
+                    title: S.of(context)?.profileSectionIncome ??
+                        'Revenus & Épargne',
+                    status:
+                        S.of(context)?.profileStatusPartial ?? 'Partial (Net)',
                     isComplete: false,
                     icon: Icons.account_balance_wallet_outlined,
                     onTap: () => context.push('/advisor/wizard'),
                   ),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionPension ?? 'Prévoyance (LPP)',
+                    title: S.of(context)?.profileSectionPension ??
+                        'Prévoyance (LPP)',
                     status: S.of(context)?.profileStatusMissing ?? 'Manquant',
                     isComplete: false,
                     icon: Icons.security_outlined,
-                    reward: S.of(context)?.profileReward15 ?? '+15% de précision',
+                    reward:
+                        S.of(context)?.profileReward15 ?? '+15% de précision',
                     onTap: () => context.push('/advisor/wizard'),
                   ),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileSectionProperty ?? 'Immobilier & Dettes',
+                    title: S.of(context)?.profileSectionProperty ??
+                        'Immobilier & Dettes',
                     status: S.of(context)?.profileStatusMissing ?? 'Manquant',
                     isComplete: false,
                     icon: Icons.home_outlined,
-                    reward: S.of(context)?.profileReward10 ?? '+10% de précision',
+                    reward:
+                        S.of(context)?.profileReward10 ?? '+10% de précision',
                     onTap: () => context.push('/advisor/wizard'),
                   ),
                   const SizedBox(height: 32),
-                  Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
-                    title: S.of(context)?.profileConsentControl ?? 'Contrôle des Partages',
-                    status: S.of(context)?.profileConsentManage ?? 'Gérer mes accès bLink',
+                    title: S.of(context)?.profileConsentControl ??
+                        'Contrôle des Partages',
+                    status: S.of(context)?.profileConsentManage ??
+                        'Gérer mes accès bLink',
                     isComplete: true,
                     icon: Icons.lock_outline,
                     onTap: () => context.push('/profile/consent'),
                   ),
                   const SizedBox(height: 32),
-                  Text(S.of(context)?.profileAiTitle ?? 'Intelligence Artificielle', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                      S.of(context)?.profileAiTitle ??
+                          'Intelligence Artificielle',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildAiSection(context),
                   const SizedBox(height: 32),
-                  Text(S.of(context)?.profileDocuments ?? 'Mes documents', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(S.of(context)?.profileDocuments ?? 'Mes documents',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildDocumentsSection(context),
                   const SizedBox(height: 32),
                   // Auth section (if logged in)
                   if (authProvider.isLoggedIn) ...[
-                    Text(S.of(context)?.profileAccountTitle ?? 'Compte', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(S.of(context)?.profileAccountTitle ?? 'Compte',
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     _buildAuthSection(context, authProvider),
                     const SizedBox(height: 32),
@@ -106,7 +129,9 @@ class ProfileScreen extends StatelessWidget {
     final s = S.of(context);
     return SliverAppBar(
       backgroundColor: MintColors.background,
-      title: Text(s?.profileTitle ?? 'MON PROFIL MENTOR', style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+      title: Text(s?.profileTitle ?? 'MON PROFIL MENTOR',
+          style: GoogleFonts.montserrat(
+              fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
     );
   }
 
@@ -117,15 +142,26 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: MintColors.primary,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: MintColors.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+              color: MintColors.primary.withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10))
+        ],
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(s?.profilePrecisionIndex ?? 'Precision Index', style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
-              Text('${(precision * 100).toInt()}%', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(s?.profilePrecisionIndex ?? 'Precision Index',
+                  style: const TextStyle(
+                      color: Colors.white70, fontWeight: FontWeight.bold)),
+              Text('${(precision * 100).toInt()}%',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
@@ -138,9 +174,11 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            s?.profilePrecisionMessage ?? 'Plus ton profil est complet, plus ton rapport "Statement of Advice" est puissant.',
+            s?.profilePrecisionMessage ??
+                'Plus ton profil est complet, plus ton rapport "Statement of Advice" est puissant.',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+            style:
+                const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
           ),
         ],
       ),
@@ -169,24 +207,40 @@ class ProfileScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: isComplete ? MintColors.success : MintColors.textMuted),
+              Icon(icon,
+                  color:
+                      isComplete ? MintColors.success : MintColors.textMuted),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(status, style: TextStyle(fontSize: 12, color: isComplete ? MintColors.success : MintColors.textMuted)),
+                    Text(title,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(status,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: isComplete
+                                ? MintColors.success
+                                : MintColors.textMuted)),
                   ],
                 ),
               ),
               if (reward != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: MintColors.appleSurface, borderRadius: BorderRadius.circular(8)),
-                  child: Text(reward, style: const TextStyle(color: MintColors.primary, fontSize: 10, fontWeight: FontWeight.bold)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                      color: MintColors.appleSurface,
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Text(reward,
+                      style: const TextStyle(
+                          color: MintColors.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
                 ),
-              const Icon(Icons.chevron_right, size: 18, color: MintColors.textMuted),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: MintColors.textMuted),
             ],
           ),
         ),
@@ -245,13 +299,17 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      authProvider.displayName ?? authProvider.email ?? (S.of(context)?.profileUser ?? 'Utilisateur'),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      authProvider.displayName ??
+                          authProvider.email ??
+                          (S.of(context)?.profileUser ?? 'Utilisateur'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     if (authProvider.displayName != null)
                       Text(
                         authProvider.email ?? '',
-                        style: const TextStyle(fontSize: 12, color: MintColors.textMuted),
+                        style: const TextStyle(
+                            fontSize: 12, color: MintColors.textMuted),
                       ),
                   ],
                 ),
@@ -281,46 +339,125 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildDangerZone(BuildContext context) {
+    final s = S.of(context);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Divider(),
         const SizedBox(height: 16),
+        Text(
+          s?.profileDangerZoneTitle ?? 'Zone sensible',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          s?.profileDangerZoneSubtitle ??
+              'Réinitialise ton historique financier local sans supprimer ton compte.',
+          style: const TextStyle(fontSize: 12, color: MintColors.textMuted),
+        ),
+        const SizedBox(height: 12),
         TextButton(
           onPressed: () async {
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Supprimer mes donnees ?'),
-                content: const Text(
-                  'Tes reponses et preferences seront effacees. '
-                  'Cette action est irreversible.',
+            final confirmed = await _showStrongResetDialog(context);
+            if (confirmed != true || !context.mounted) return;
+
+            await ReportPersistenceService.clear();
+            if (!context.mounted) return;
+
+            context.read<CoachProfileProvider>().clear();
+            context.read<ProfileProvider>().clear();
+            context.read<DocumentProvider>().clearLocalState();
+            await context.read<BudgetProvider>().clear();
+            await AnalyticsService().clearLocalQueue();
+
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  s?.profileResetSuccess ??
+                      'Historique financier local réinitialisé.',
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: const Text('Annuler'),
+              ),
+            );
+            context.go('/');
+          },
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          child: Text(
+            s?.profileDeleteData ?? 'Supprimer mes données locales',
+          ),
+        ),
+        Text(
+          s?.profileResetScopeNote ??
+              'Conserve la connexion et la clé BYOK. Les documents backend ne sont pas supprimés.',
+          style: const TextStyle(fontSize: 11, color: MintColors.textMuted),
+        ),
+      ],
+    );
+  }
+
+  Future<bool?> _showStrongResetDialog(BuildContext context) async {
+    final s = S.of(context);
+    final controller = TextEditingController();
+    bool valid = false;
+    const expected = 'RESET';
+
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return AlertDialog(
+              title: Text(
+                s?.profileResetDialogTitle ?? 'Réinitialiser ma situation ?',
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s?.profileResetDialogBody ??
+                        'Cette action supprime ton diagnostic, tes check-ins, ton score et ton budget local.',
                   ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Supprimer'),
+                  const SizedBox(height: 12),
+                  Text(
+                    s?.profileResetDialogConfirmLabel ??
+                        'Tape RESET pour confirmer :',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: controller,
+                    onChanged: (value) {
+                      setState(() {
+                        valid = value.trim().toUpperCase() == expected;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: expected,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                      errorText: controller.text.isEmpty || valid
+                          ? null
+                          : s?.profileResetDialogInvalid ?? 'Mot-clé invalide.',
+                    ),
                   ),
                 ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(s?.commonCancel ?? 'Annuler'),
+                ),
+                TextButton(
+                  onPressed: valid ? () => Navigator.pop(ctx, true) : null,
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: Text(s?.profileResetDialogAction ?? 'Réinitialiser'),
+                ),
+              ],
             );
-            if (confirmed == true && context.mounted) {
-              await ReportPersistenceService.clear();
-              if (context.mounted) {
-                context.read<CoachProfileProvider>().clear();
-                await context.read<BudgetProvider>().clear();
-                if (context.mounted) context.go('/');
-              }
-            }
           },
-          style: TextButton.styleFrom(foregroundColor: Colors.red),
-          child: Text(S.of(context)?.profileDeleteData ?? 'Supprimer mes données locales'),
-        ),
-      ],
+        );
+      },
     );
   }
 }

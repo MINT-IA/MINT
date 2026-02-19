@@ -1529,5 +1529,15 @@
   "soaImportant": "IMPORTANT:",
   "soaDisclaimer1": "Ceci est une aide à la décision, pas une garantie.",
   "soaDisclaimer2": "Les montants sont basés sur les informations déclarées.",
-  "soaDisclaimer3": "'Disponible' = Revenus - Logement - Dettes."
+  "soaDisclaimer3": "'Disponible' = Revenus - Logement - Dettes.",
+  "commonCancel": "Annuler",
+  "profileDangerZoneTitle": "Zone sensible",
+  "profileDangerZoneSubtitle": "Réinitialise ton historique financier local sans supprimer ton compte.",
+  "profileResetDialogTitle": "Réinitialiser ma situation ?",
+  "profileResetDialogBody": "Cette action supprime ton diagnostic, tes check-ins, ton score et ton budget local.",
+  "profileResetDialogConfirmLabel": "Tape RESET pour confirmer :",
+  "profileResetDialogInvalid": "Mot-clé invalide.",
+  "profileResetDialogAction": "Réinitialiser",
+  "profileResetSuccess": "Historique financier local réinitialisé.",
+  "profileResetScopeNote": "Conserve la connexion et la clé BYOK. Les documents backend ne sont pas supprimés."
 }

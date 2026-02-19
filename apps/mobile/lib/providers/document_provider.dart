@@ -171,4 +171,14 @@ class DocumentProvider extends ChangeNotifier {
     _lastUploadResult = null;
     notifyListeners();
   }
+
+  /// Clears local in-memory state only (does not delete backend documents).
+  void clearLocalState() {
+    _documents = [];
+    _isUploading = false;
+    _isLoading = false;
+    _lastUploadResult = null;
+    _error = null;
+    notifyListeners();
+  }
 }

@@ -275,5 +275,23 @@ void main() {
         returnsNormally,
       );
     });
+
+    test('clearLocalQueue removes persisted queue but keeps consent/session',
+        () async {
+      await analytics.setConsent(true);
+      analytics.trackEvent('queued_event', category: 'test');
+
+      final before = await SharedPreferences.getInstance();
+      expect(before.getString('analytics_events_queue'), isNotNull);
+      final sessionBefore = analytics.sessionId;
+      final consentBefore = analytics.isEnabled;
+
+      await analytics.clearLocalQueue();
+
+      final after = await SharedPreferences.getInstance();
+      expect(after.getString('analytics_events_queue'), isNull);
+      expect(analytics.sessionId, equals(sessionBefore));
+      expect(analytics.isEnabled, equals(consentBefore));
+    });
   });
 }
