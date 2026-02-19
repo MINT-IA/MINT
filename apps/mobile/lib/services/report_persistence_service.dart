@@ -341,6 +341,7 @@ class ReportPersistenceService {
   // ═══════════════════════════════════════════════════════════
 
   static const String _exploredSimulatorsKey = 'explored_simulators_v1';
+  static const String _onboarding30PlanKey = 'onboarding_30_day_plan_v1';
 
   /// Marque un simulateur comme exploré (pour le suivi de progression)
   static Future<void> markSimulatorExplored(String id) async {
@@ -357,6 +358,96 @@ class ReportPersistenceService {
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(_exploredSimulatorsKey) ?? [];
     return list.toSet();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  ONBOARDING 30 DAYS PLAN PERSISTENCE
+  // ═══════════════════════════════════════════════════════════
+
+  /// Loads the persisted onboarding 30-day plan state.
+  /// Returned map keys:
+  /// - started_at (ISO string)
+  /// - completed (bool)
+  /// - completed_at (ISO string)
+  /// - stress_choice (string)
+  /// - main_goal (string)
+  /// - last_route (string)
+  /// - opened_routes (List<String>)
+  static Future<Map<String, dynamic>> loadOnboarding30PlanState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_onboarding30PlanKey);
+    if (jsonString == null) return {};
+    try {
+      final decoded = Map<String, dynamic>.from(json.decode(jsonString));
+      final opened = decoded['opened_routes'];
+      if (opened is List) {
+        decoded['opened_routes'] = opened.map((e) => e.toString()).toList();
+      } else {
+        decoded['opened_routes'] = <String>[];
+      }
+      decoded['completed'] = decoded['completed'] == true;
+      return decoded;
+    } catch (e, stack) {
+      dev.log('Failed to decode onboarding 30-day plan state',
+          error: e, stackTrace: stack, name: 'Persistence');
+      return {};
+    }
+  }
+
+  static Future<void> _saveOnboarding30PlanState(
+    Map<String, dynamic> state,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_onboarding30PlanKey, json.encode(state));
+  }
+
+  /// Marks the onboarding 30-day plan as started (idempotent).
+  static Future<void> markOnboarding30PlanStarted({
+    String? stressChoice,
+    String? mainGoal,
+  }) async {
+    final state = await loadOnboarding30PlanState();
+    state.putIfAbsent('started_at', () => DateTime.now().toIso8601String());
+    state['completed'] = state['completed'] == true;
+    state.putIfAbsent('opened_routes', () => <String>[]);
+    if (stressChoice != null && stressChoice.isNotEmpty) {
+      state['stress_choice'] = stressChoice;
+    }
+    if (mainGoal != null && mainGoal.isNotEmpty) {
+      state['main_goal'] = mainGoal;
+    }
+    await _saveOnboarding30PlanState(state);
+  }
+
+  /// Stores the last opened route and appends it to opened_routes if missing.
+  static Future<void> markOnboarding30PlanRouteOpened(String route) async {
+    final state = await loadOnboarding30PlanState();
+    final opened =
+        List<String>.from((state['opened_routes'] as List?) ?? const []);
+    if (!opened.contains(route)) {
+      opened.add(route);
+    }
+    state['opened_routes'] = opened;
+    state['last_route'] = route;
+    await _saveOnboarding30PlanState(state);
+  }
+
+  /// Sets completion flag for onboarding 30-day plan.
+  static Future<void> setOnboarding30PlanCompleted(bool completed) async {
+    final state = await loadOnboarding30PlanState();
+    state['completed'] = completed;
+    if (completed) {
+      state['completed_at'] = DateTime.now().toIso8601String();
+    } else {
+      state.remove('completed_at');
+    }
+    await _saveOnboarding30PlanState(state);
+  }
+
+  /// Clears onboarding 30-day plan local state.
+  static Future<void> clearOnboarding30PlanState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_onboarding30PlanKey);
   }
 
   /// Efface tout (Logout / Reset)
@@ -394,5 +485,6 @@ class ReportPersistenceService {
     await prefs.remove(_onboardingMetricsControlKey);
     await prefs.remove(_onboardingMetricsChallengeKey);
     await prefs.remove(_contributionsKey);
+    await prefs.remove(_onboarding30PlanKey);
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class Onboarding30DayPlanScreen extends StatefulWidget {
@@ -35,19 +36,58 @@ class _PlanAction {
 
 class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
   final AnalyticsService _analytics = AnalyticsService();
+  Set<String> _openedRoutes = <String>{};
+  String? _lastRoute;
+  bool _isCompleted = false;
+  bool _isHydrating = true;
 
   @override
   void initState() {
     super.initState();
+    _initPlanState();
+  }
+
+  Future<void> _initPlanState() async {
     _analytics.trackScreenView('/advisor/plan-30-days');
+    final existing = await ReportPersistenceService.loadOnboarding30PlanState();
+    final hadStarted = existing['started_at'] != null;
+    await ReportPersistenceService.markOnboarding30PlanStarted(
+      stressChoice: widget.stressChoice,
+      mainGoal: widget.mainGoal,
+    );
+    final refreshed =
+        await ReportPersistenceService.loadOnboarding30PlanState();
+    if (!mounted) return;
+    setState(() {
+      _openedRoutes = Set<String>.from(
+        (refreshed['opened_routes'] as List?) ?? const [],
+      );
+      _lastRoute = refreshed['last_route'] as String?;
+      _isCompleted = refreshed['completed'] == true;
+      _isHydrating = false;
+    });
+
     _analytics.trackEvent(
       'onboarding_plan30_viewed',
       category: 'engagement',
       data: {
         'stress_choice': widget.stressChoice,
         'main_goal': widget.mainGoal,
+        'opened_steps': _openedRoutes.length,
+        'completed': _isCompleted,
       },
     );
+
+    if (!hadStarted) {
+      _analytics.trackEvent(
+        'onboarding_plan30_started',
+        category: 'conversion',
+        data: {
+          'stress_choice': widget.stressChoice,
+          'main_goal': widget.mainGoal,
+        },
+      );
+    }
   }
 
   List<_PlanAction> _buildPlanActions() {
@@ -120,9 +160,66 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
     }
   }
 
+  Future<void> _openPlanAction(
+      _PlanAction action, List<_PlanAction> actions) async {
+    final wasOpened = _openedRoutes.contains(action.route);
+    final before = _openedRoutes.length;
+    await ReportPersistenceService.markOnboarding30PlanRouteOpened(
+        action.route);
+    if (!mounted) return;
+
+    setState(() {
+      _openedRoutes = {..._openedRoutes, action.route};
+      _lastRoute = action.route;
+    });
+
+    _analytics.trackCTAClick(
+      'onboarding_plan30_step_open',
+      screenName: '/advisor/plan-30-days',
+      data: {
+        'route': action.route,
+        'title': action.title,
+        'already_opened': wasOpened,
+        'progress_before': before,
+        'progress_after': _openedRoutes.length,
+      },
+    );
+
+    if (!_isCompleted && _openedRoutes.length >= actions.length) {
+      _isCompleted = true;
+      await ReportPersistenceService.setOnboarding30PlanCompleted(true);
+      _analytics.trackEvent(
+        'onboarding_plan30_completed',
+        category: 'conversion',
+        data: {
+          'stress_choice': widget.stressChoice,
+          'main_goal': widget.mainGoal,
+          'steps_count': actions.length,
+        },
+      );
+    }
+
+    if (!mounted) return;
+    await context.push(action.route);
+  }
+
   @override
   Widget build(BuildContext context) {
     final actions = _buildPlanActions();
+    final completionRatio = actions.isEmpty
+        ? 0.0
+        : (_openedRoutes.length / actions.length).clamp(0.0, 1.0);
+    final nextAction = actions.firstWhere(
+      (a) => !_openedRoutes.contains(a.route),
+      orElse: () => actions.last,
+    );
+
+    if (_isHydrating) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
@@ -167,31 +264,96 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
                     height: 1.4,
                   ),
                 ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: completionRatio,
+                    minHeight: 8,
+                    backgroundColor: Colors.white,
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(MintColors.primary),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${_openedRoutes.length}/${actions.length} etapes ouvertes',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
+          if (!_isCompleted) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: MintColors.lightBorder),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.play_circle_outline_rounded,
+                      color: MintColors.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _lastRoute != null
+                          ? 'Reprendre ta derniere action'
+                          : 'Prochaine action recommandee: ${nextAction.title}',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final route = _lastRoute ?? nextAction.route;
+                      final action = actions.firstWhere(
+                        (a) => a.route == route,
+                        orElse: () => nextAction,
+                      );
+                      await _openPlanAction(action, actions);
+                    },
+                    child: const Text('Reprendre'),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           for (final action in actions) ...[
             _PlanActionCard(
               action: action,
-              onTap: () {
-                _analytics.trackCTAClick(
-                  'onboarding_plan30_step_open',
-                  screenName: '/advisor/plan-30-days',
-                  data: {'route': action.route, 'title': action.title},
-                );
-                context.push(action.route);
-              },
+              isDone: _openedRoutes.contains(action.route),
+              onTap: () => _openPlanAction(action, actions),
             ),
             const SizedBox(height: 10),
           ],
           const SizedBox(height: 8),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
+              if (!_isCompleted && _openedRoutes.length >= actions.length) {
+                _isCompleted = true;
+                await ReportPersistenceService.setOnboarding30PlanCompleted(
+                    true);
+              }
               _analytics.trackCTAClick(
                 'onboarding_plan30_open_dashboard',
                 screenName: '/advisor/plan-30-days',
+                data: {
+                  'completion_ratio': completionRatio,
+                  'completed': _isCompleted,
+                },
               );
+              if (!context.mounted) return;
               context.go('/home');
             },
             style: FilledButton.styleFrom(
@@ -220,10 +382,12 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
 class _PlanActionCard extends StatelessWidget {
   const _PlanActionCard({
     required this.action,
+    required this.isDone,
     required this.onTap,
   });
 
   final _PlanAction action;
+  final bool isDone;
   final VoidCallback onTap;
 
   @override
@@ -275,11 +439,15 @@ class _PlanActionCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 14,
-              color: MintColors.textMuted,
-            ),
+            if (isDone)
+              const Icon(Icons.check_circle_rounded,
+                  size: 18, color: MintColors.success)
+            else
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: MintColors.textMuted,
+              ),
           ],
         ),
       ),

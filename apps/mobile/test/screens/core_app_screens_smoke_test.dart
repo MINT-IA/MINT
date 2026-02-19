@@ -406,7 +406,7 @@ void main() {
       ));
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.textContaining('Jour 1-7'), findsOneWidget);
+      expect(find.textContaining('Jour 1-7'), findsWidgets);
       expect(find.textContaining('Jour 8-15'), findsOneWidget);
       expect(find.textContaining('Jour 16-30'), findsOneWidget);
     });

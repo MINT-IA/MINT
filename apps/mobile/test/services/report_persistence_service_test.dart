@@ -242,6 +242,57 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════════════════
+  // Onboarding 30-Day Plan Persistence
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('Onboarding 30-day plan persistence', () {
+    test('starts empty then marks started with context', () async {
+      final before = await ReportPersistenceService.loadOnboarding30PlanState();
+      expect(before, isEmpty);
+
+      await ReportPersistenceService.markOnboarding30PlanStarted(
+        stressChoice: 'budget',
+        mainGoal: 'retirement',
+      );
+
+      final state = await ReportPersistenceService.loadOnboarding30PlanState();
+      expect(state['started_at'], isNotNull);
+      expect(state['stress_choice'], 'budget');
+      expect(state['main_goal'], 'retirement');
+      expect(state['completed'], false);
+      expect(state['opened_routes'], isA<List>());
+    });
+
+    test('marks routes opened and keeps uniqueness + last route', () async {
+      await ReportPersistenceService.markOnboarding30PlanStarted();
+      await ReportPersistenceService.markOnboarding30PlanRouteOpened('/budget');
+      await ReportPersistenceService.markOnboarding30PlanRouteOpened('/budget');
+      await ReportPersistenceService.markOnboarding30PlanRouteOpened(
+          '/coach/agir');
+
+      final state = await ReportPersistenceService.loadOnboarding30PlanState();
+      final opened = List<String>.from(state['opened_routes'] as List);
+      expect(opened.length, 2);
+      expect(opened, contains('/budget'));
+      expect(opened, contains('/coach/agir'));
+      expect(state['last_route'], '/coach/agir');
+    });
+
+    test('completion flag is persisted and can be unset', () async {
+      await ReportPersistenceService.markOnboarding30PlanStarted();
+      await ReportPersistenceService.setOnboarding30PlanCompleted(true);
+      var state = await ReportPersistenceService.loadOnboarding30PlanState();
+      expect(state['completed'], true);
+      expect(state['completed_at'], isNotNull);
+
+      await ReportPersistenceService.setOnboarding30PlanCompleted(false);
+      state = await ReportPersistenceService.loadOnboarding30PlanState();
+      expect(state['completed'], false);
+      expect(state.containsKey('completed_at'), false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
   // Letters History
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -339,6 +390,8 @@ void main() {
       await ReportPersistenceService.setMiniOnboardingCompleted(true);
       await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
       await ReportPersistenceService.setMiniOnboardingExposureTracked(true);
+      await ReportPersistenceService.markOnboarding30PlanStarted();
+      await ReportPersistenceService.markOnboarding30PlanRouteOpened('/budget');
 
       await ReportPersistenceService.clearDiagnostic();
 
@@ -352,6 +405,9 @@ void main() {
       final variant =
           await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
       expect(['control', 'challenge'], contains(variant));
+      final planState =
+          await ReportPersistenceService.loadOnboarding30PlanState();
+      expect(planState, isEmpty);
     });
   });
 
