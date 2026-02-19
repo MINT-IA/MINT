@@ -219,7 +219,9 @@ class AnalyticsService {
     } catch (e) {
       // Graceful fallback: log locally but don't throw
       // Events remain in queue for next flush attempt
-      debugPrint('Analytics flush failed (graceful): $e');
+      if (kDebugMode) {
+        debugPrint('Analytics flush failed (graceful): $e');
+      }
 
       // Prevent queue from growing indefinitely
       if (_eventQueue.length > _maxQueueSize) {
@@ -238,7 +240,9 @@ class AnalyticsService {
       await prefs.setString(_eventsQueueKey, queueJson);
     } catch (e) {
       // Ignore persistence errors
-      debugPrint('Failed to persist analytics queue: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to persist analytics queue: $e');
+      }
     }
   }
 

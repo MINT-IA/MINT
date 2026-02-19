@@ -25,6 +25,8 @@ from app.services.pillar_3a_deep.real_return_service import (
     RealReturnService,
     DISCLAIMER as RETURN_DISCLAIMER,
     PLAFOND_3A_SALARIE,
+    fv_annuity_due,
+    solve_rate_bisection,
 )
 from app.services.pillar_3a_deep.provider_comparator_service import (
     ProviderComparatorService,
@@ -259,25 +261,43 @@ class TestRealReturn:
         total_3a = result.capital_final_3a + result.total_economies_fiscales
         assert total_3a > result.capital_final_epargne
 
-    def test_inflation_reduces_net_return(self, return_service):
-        """Higher inflation should reduce the net return."""
-        result_low = return_service.calculate_real_return(
+    def test_capital_3a_equals_fv_annuity_due(self, return_service):
+        """capital_3a should equal fv_annuity_due(versement, rGross, n)."""
+        result = return_service.calculate_real_return(
             versement_annuel=7000,
             taux_marginal=0.30,
             rendement_brut=0.04,
             frais_gestion=0.005,
             duree_annees=30,
-            inflation=0.005,
         )
-        result_high = return_service.calculate_real_return(
+        r_gross = 0.04 - 0.005  # 0.035
+        expected = fv_annuity_due(7000, r_gross, 30)
+        assert abs(result.capital_final_3a - expected) < 0.01
+
+    def test_rendement_nominal_equals_rgross(self, return_service):
+        """rendement_net_annuel should equal rGross = brut - frais."""
+        result = return_service.calculate_real_return(
             versement_annuel=7000,
             taux_marginal=0.30,
             rendement_brut=0.04,
             frais_gestion=0.005,
             duree_annees=30,
-            inflation=0.03,
         )
-        assert result_low.capital_final_3a > result_high.capital_final_3a
+        assert abs(result.rendement_net_annuel - 0.035) < 1e-5
+
+    def test_roundtrip_fv_annuity_due(self, return_service):
+        """fv_annuity_due(pmtNet, rNet, n) should ≈ capital_3a."""
+        result = return_service.calculate_real_return(
+            versement_annuel=7258,
+            taux_marginal=0.30,
+            rendement_brut=0.045,
+            frais_gestion=0.005,
+            duree_annees=30,
+        )
+        pmt_net = 7258 * (1 - 0.30)
+        r_net = result.rendement_reel_annualise
+        fv_check = fv_annuity_due(pmt_net, r_net, 30)
+        assert abs(fv_check - result.capital_final_3a) < 1.0
 
     def test_zero_return_still_has_tax_advantage(self, return_service):
         """Even with 0% gross return, tax savings provide a real return."""

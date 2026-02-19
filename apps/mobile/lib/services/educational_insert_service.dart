@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/widgets/educational/educational_widgets.dart';
 
@@ -60,7 +61,7 @@ class EducationalInsertService {
       case 'q_financial_stress_check':
         return StressCheckInsertWidget(
           onLearnMore: onLearnMore,
-          onAction: (route) => debugPrint('Navigate to $route'),
+          onAction: (route) { if (kDebugMode) debugPrint('Navigate to $route'); },
         );
 
       case 'q_has_pension_fund':

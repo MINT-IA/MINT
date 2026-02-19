@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
@@ -8,6 +10,8 @@ import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
 import 'package:mint_mobile/domain/disability_gap_calculator.dart';
 import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
 import 'package:mint_mobile/screens/coverage_check_screen.dart';
+import 'package:mint_mobile/screens/retirement_projection_screen.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 void main() {
   Widget buildTestable(Widget child) {
@@ -678,6 +682,198 @@ void main() {
       expect(find.textContaining('Hypotheque en cours'), findsOneWidget);
       expect(find.textContaining('Personnes a charge'), findsOneWidget);
       expect(find.textContaining('Locataire'), findsOneWidget);
+    });
+  });
+
+  // ===========================================================================
+  // 6. RETIREMENT PROJECTION SCREEN
+  // ===========================================================================
+
+  group('RetirementProjectionScreen', () {
+    late CoachProfileProvider profileProvider;
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      profileProvider = CoachProfileProvider();
+      profileProvider.updateFromAnswers({
+        'q_birth_year': 1990,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000.0,
+        'q_employment_status': 'employee',
+        'q_civil_status': 'celibataire',
+        'q_children': 0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_has_pension_fund': 'yes',
+        'q_has_3a': 'yes',
+        'q_3a_annual_contribution': 7056.0,
+        'q_emergency_fund': 'yes_3months',
+        'q_goal_type': 'retraite',
+        'q_goal_date': '2055-12-31',
+      });
+    });
+
+    Widget buildWithProfile(Widget child) {
+      return ChangeNotifierProvider.value(
+        value: profileProvider,
+        child: MaterialApp(home: child),
+      );
+    }
+
+    testWidgets('renders without crashing', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      expect(find.byType(RetirementProjectionScreen), findsOneWidget);
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
+
+    testWidgets('displays AppBar title in French', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('Projection retraite'),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('shows hero number with taux de remplacement', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      // Advance animation (hero uses AnimationController with 1200ms duration)
+      await tester.pump(const Duration(milliseconds: 1500));
+
+      expect(
+        find.textContaining('Taux de remplacement'),
+        findsWidgets,
+      );
+      expect(
+        find.textContaining('CHF'),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('shows parameters section', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('Parametres de simulation'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows income decomposition section', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('Decomposition des revenus'),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('shows early retirement section', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      // Scroll to early retirement section
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -400),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('anticipee'),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('shows budget gap section', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      // Scroll to budget gap section
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -1200),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('Budget'),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('shows educational cards', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump();
+
+      // Scroll to educational section
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -2000),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('savais-tu'),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('shows disclaimer and sources', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const RetirementProjectionScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 1500));
+
+      // Scroll down incrementally to reach the disclaimer at the bottom
+      for (int i = 0; i < 6; i++) {
+        await tester.drag(
+          find.byType(CustomScrollView),
+          const Offset(0, -800),
+        );
+        await tester.pump();
+      }
+
+      expect(
+        find.textContaining('Ne constitue pas un conseil'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('renders loading state without profile', (tester) async {
+      final emptyProvider = CoachProfileProvider();
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: emptyProvider,
+          child: const MaterialApp(
+            home: RetirementProjectionScreen(),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // Should show loading indicator when profile is null
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
 }

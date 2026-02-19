@@ -65,10 +65,14 @@ class DocumentProvider extends ChangeNotifier {
       await _loadDocumentsSilently();
     } on DocumentServiceException catch (e) {
       _error = e.message;
-      debugPrint('DocumentProvider: Upload error: ${e.message}');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Upload error: ${e.message}');
+      }
     } catch (e) {
       _error = 'Une erreur est survenue lors de l\'upload.';
-      debugPrint('DocumentProvider: Unexpected upload error: $e');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Unexpected upload error: $e');
+      }
     } finally {
       _isUploading = false;
       notifyListeners();
@@ -89,10 +93,14 @@ class DocumentProvider extends ChangeNotifier {
       _documents = await _service.listDocuments();
     } on DocumentServiceException catch (e) {
       _error = e.message;
-      debugPrint('DocumentProvider: Load error: ${e.message}');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Load error: ${e.message}');
+      }
     } catch (e) {
       _error = 'Impossible de charger les documents.';
-      debugPrint('DocumentProvider: Unexpected load error: $e');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Unexpected load error: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -104,7 +112,9 @@ class DocumentProvider extends ChangeNotifier {
     try {
       _documents = await _service.listDocuments();
     } catch (e) {
-      debugPrint('DocumentProvider: Silent load error: $e');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Silent load error: $e');
+      }
     }
   }
 
@@ -131,12 +141,16 @@ class DocumentProvider extends ChangeNotifier {
       return false;
     } on DocumentServiceException catch (e) {
       _error = e.message;
-      debugPrint('DocumentProvider: Delete error: ${e.message}');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Delete error: ${e.message}');
+      }
       notifyListeners();
       return false;
     } catch (e) {
       _error = 'Impossible de supprimer le document.';
-      debugPrint('DocumentProvider: Unexpected delete error: $e');
+      if (kDebugMode) {
+        debugPrint('DocumentProvider: Unexpected delete error: $e');
+      }
       notifyListeners();
       return false;
     }

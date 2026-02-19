@@ -1,9 +1,20 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 from enum import Enum
 
 
 class HealthResponse(BaseModel):
     status: str
+
+
+class DetailedHealthResponse(BaseModel):
+    status: str
+    version: str
+    environment: str
+    database: str
+    timestamp: datetime
 
 
 class OkResponse(BaseModel):

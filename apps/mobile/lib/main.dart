@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
@@ -15,9 +16,9 @@ void main() {
   // Chargement des données critiques en arrière-plan (non-bloquant)
   Future.wait([
     Pillar3aCalculator.loadLimits()
-        .catchError((e) => debugPrint('⚠️ Err 3a: $e')),
-    TaxScalesLoader.load().catchError((e) => debugPrint('⚠️ Err Tax: $e')),
-    CommuneData.load().catchError((e) => debugPrint('⚠️ Err Communes: $e')),
+        .catchError((e) { if (kDebugMode) debugPrint('Err 3a: $e'); }),
+    TaxScalesLoader.load().catchError((e) { if (kDebugMode) debugPrint('Err Tax: $e'); }),
+    CommuneData.load().catchError((e) { if (kDebugMode) debugPrint('Err Communes: $e'); }),
   ]);
 
   // Lancement immédiat de l'app (UX first!)

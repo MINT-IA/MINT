@@ -4,14 +4,37 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.database import Base, engine
+from app.core.logging_config import setup_logging, LoggingMiddleware
 from app.core.rate_limit import limiter
 from app.api.v1.router import api_router
 
+# Initialize structured logging before anything else
+setup_logging(settings.LOG_LEVEL)
+
 logger = logging.getLogger(__name__)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Middleware that adds security headers to every response."""
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        if settings.ENVIRONMENT != "development":
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
+        return response
 
 
 @asynccontextmanager
@@ -25,7 +48,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-_is_production = os.getenv("ENVIRONMENT", "development") == "production"
+_is_production = settings.ENVIRONMENT == "production"
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -39,6 +62,23 @@ app = FastAPI(
 # Rate limiting — 429 on excess requests
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+# Global exception handler — catch unhandled exceptions
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Erreur interne du serveur"},
+    )
+
+
+# Security headers middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Request logging middleware
+app.add_middleware(LoggingMiddleware)
 
 # Setup CORS — production must set CORS_ORIGINS env var
 _cors_origins_raw = os.getenv("CORS_ORIGINS", "")

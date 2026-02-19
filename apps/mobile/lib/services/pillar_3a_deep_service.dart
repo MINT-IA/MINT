@@ -267,84 +267,71 @@ class RealReturnResult {
 class RealReturnCalculator {
   /// Calcule le rendement reel du 3a en tenant compte de l'economie fiscale.
   ///
-  /// Concept : tu verses 7'258 CHF/an, mais tu ne paies "de ta poche" que
-  /// versement × (1 − tauxMarginal). Le capital 3a grandit au rendement brut.
-  /// Le "rendement reel" est le taux qu'il faudrait pour que ton investissement
-  /// net (hors economie fiscale) produise le meme capital final.
+  /// Concept : tu verses pmtGross CHF/an dans le 3a, mais grace a la deduction
+  /// fiscale, ton cout reel est pmtNet = pmtGross × (1 − tauxMarginal).
+  /// Le capital 3a grandit a rGross = rendementBrut − fraisGestion.
   ///
-  /// [versementAnnuel]   — versement annuel 3a (CHF)
-  /// [tauxMarginal]      — taux marginal d'imposition (0.10 - 0.45)
-  /// [rendementBrut]     — rendement brut annuel du 3a (ex: 0.045)
-  /// [fraisGestion]      — frais de gestion annuels (ex: 0.0039)
-  /// [dureeAnnees]       — duree de placement (annees)
-  /// [inflation]         — taux d'inflation annuel (ex: 0.01)
+  /// Le "rendement reel" (rNet) est le taux qu'il faudrait obtenir sur un
+  /// placement de pmtNet pour atteindre le meme capital final :
+  ///   fvAnnuityDue(pmtNet, rNet, n) = fvAnnuityDue(pmtGross, rGross, n)
+  ///
+  /// Base legale : OPP3, LIFD art. 33 al. 1 let. e.
   static RealReturnResult calculate({
     required double versementAnnuel,
     required double tauxMarginal,
     required double rendementBrut,
     required double fraisGestion,
     required int dureeAnnees,
-    double inflation = 0.01,
   }) {
     final clampedTaux = tauxMarginal.clamp(0.10, 0.45);
     final clampedRendement = rendementBrut.clamp(0.0, 0.10);
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(1, 45);
     final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
-    final clampedInflation = inflation.clamp(0.0, 0.05);
-    final rendementNet = max(0.0, clampedRendement - clampedFrais - clampedInflation);
 
-    // Capital final 3a (rendement compose sur versement complet)
-    double capital3a = 0;
-    double totalEconomieFiscale = 0;
-    for (int i = 0; i < clampedDuree; i++) {
-      capital3a = (capital3a + clampedVersement) * (1 + rendementNet);
-      totalEconomieFiscale += clampedVersement * clampedTaux;
-    }
+    // rGross = taux effectif du placement 3a (brut - frais, pas d'inflation)
+    final rGross = max(0.0, clampedRendement - clampedFrais);
+
+    // Capital final 3a = fvAnnuityDue(pmtGross, rGross, n)
+    final capital3a = fvAnnuityDue(clampedVersement, rGross, clampedDuree);
+
+    // Economie fiscale totale (cumul simple, non capitalisee)
+    final totalEconomieFiscale = clampedVersement * clampedTaux * clampedDuree;
 
     // Capital final epargne classique (1.5% brut, pas de deduction fiscale)
     const tauxEpargne = 0.015;
-    double capitalEpargne = 0;
-    for (int i = 0; i < clampedDuree; i++) {
-      capitalEpargne = (capitalEpargne + clampedVersement) * (1 + tauxEpargne);
-    }
+    final capitalEpargne = fvAnnuityDue(clampedVersement, tauxEpargne, clampedDuree);
 
     final totalVersements = clampedVersement * clampedDuree;
-    final gainVsEpargne =
-        (capital3a + totalEconomieFiscale) - capitalEpargne;
+    final gainVsEpargne = (capital3a + totalEconomieFiscale) - capitalEpargne;
 
-    // Rendement nominal annualise (sans avantage fiscal)
-    final rendNominal = totalVersements > 0 && clampedDuree > 0
-        ? (pow(capital3a / totalVersements, 1.0 / clampedDuree) - 1) * 100
-        : 0.0;
+    // Rendement nominal = rGross (taux du placement sans boost fiscal)
+    final rendNominal = rGross * 100;
 
-    // ── Rendement reel : TRI sur investissement net (IRR) ──────────────
-    // Out-of-pocket = versement × (1 − taux_marginal) chaque annee
-    // Capital obtenu = capital3a
-    // On cherche r tel que : sum(versement_net × (1+r)^(n-i), i=0..n-1) = capital3a
-    // Resolu par methode de Newton (bisection fallback)
+    // ── Rendement reel : taux equivalent sur investissement net ─────────
+    // pmtNet = versement × (1 − tauxMarginal)
+    // On cherche rNet tel que : fvAnnuityDue(pmtNet, rNet, n) = capital3a
     final versementNet = clampedVersement * (1 - clampedTaux);
-    final rendReelPct = _solveIRR(versementNet, capital3a, clampedDuree) * 100;
+    final rNet = solveRateBisection(versementNet, capital3a, clampedDuree);
+    final rendReelPct = rNet * 100;
 
-    // Rendement epargne classique annualise
-    final rendEpargne = totalVersements > 0 && clampedDuree > 0
-        ? (pow(capitalEpargne / totalVersements, 1.0 / clampedDuree) - 1) * 100
-        : 0.0;
+    // Rendement epargne = taux brut du compte epargne
+    final rendEpargne = tauxEpargne * 100;
 
     return RealReturnResult(
       capitalFinal3a: capital3a,
       capitalFinalEpargne: capitalEpargne,
       totalVersements: totalVersements,
-      rendementNominal: rendNominal.toDouble(),
-      rendementReel: rendReelPct.toDouble(),
-      rendementEpargne: rendEpargne.toDouble(),
+      rendementNominal: rendNominal,
+      rendementReel: rendReelPct,
+      rendementEpargne: rendEpargne,
       economieFiscaleTotale: totalEconomieFiscale,
       gainVsEpargne: gainVsEpargne,
       chiffreChoc: ChiffreChoc(
         montant: gainVsEpargne,
         texte:
             'Rendement reel : ${rendReelPct.toStringAsFixed(1)}% vs '
-            '${rendEpargne.toStringAsFixed(1)}% sans avantage fiscal',
+            '${rendNominal.toStringAsFixed(1)}% sans avantage fiscal',
         isPositive: gainVsEpargne > 0,
       ),
       disclaimer:
@@ -357,38 +344,55 @@ class RealReturnCalculator {
     );
   }
 
-  /// Resout le TRI (IRR) par bisection.
-  /// Trouve r tel que : sum(pmt × (1+r)^(n-i), i=0..n-1) = targetFV
-  /// Equivalent a FV d'une annuite : pmt × ((1+r)^n - 1) / r × (1+r) si r > 0
-  static double _solveIRR(double pmt, double targetFV, int n) {
-    if (pmt <= 0 || targetFV <= 0 || n <= 0) return 0.0;
+  /// Future Value d'une annuite de debut de periode (annuity-due).
+  ///
+  /// Paiements aux instants 0, 1, ..., n-1. Capitalisation a la fin de l'annee n.
+  /// FV_ord = pmt × ((1+r)^n − 1) / r
+  /// FV_due = FV_ord × (1+r)
+  ///
+  /// Limite r → 0 : FV_due ≈ pmt × n × (1+r)
+  static double fvAnnuityDue(double pmt, double r, int n) {
+    if (n <= 0) return 0.0;
+    if (r.abs() < 1e-10) return pmt * n * (1 + r);
+    final fvOrd = pmt * (pow(1 + r, n) - 1) / r;
+    return fvOrd * (1 + r);
+  }
+
+  /// Resout rNet par bisection robuste.
+  ///
+  /// Trouve r tel que fvAnnuityDue(pmt, r, n) = targetFV.
+  /// Bornes initiales : -0.9999 a 1.0, extensibles jusqu'a 10.0.
+  /// Tolerance : 1e-6, max 200 iterations.
+  static double solveRateBisection(double pmt, double targetFV, int n, {
+    double tol = 1e-10,
+    int maxIter = 200,
+  }) {
+    if (n <= 0) return 0.0;
+    if (pmt <= 0 || targetFV <= 0) return 0.0;
     if (n == 1) {
-      // FV = pmt * (1+r), so r = FV/pmt - 1
-      return (targetFV / pmt - 1).clamp(0.0, 1.0);
+      // FV = pmt × (1+r) → r = targetFV / pmt − 1
+      return targetFV / pmt - 1;
     }
 
-    double lo = -0.05;
-    double hi = 0.50;
+    double lo = -0.9999;
+    double hi = 1.0;
 
-    // Bisection : 60 iterations -> precision ~1e-18
-    for (int iter = 0; iter < 60; iter++) {
+    // Expand upper bound if needed (high marginal rates can require large rNet)
+    while (fvAnnuityDue(pmt, hi, n) < targetFV && hi < 10.0) {
+      hi *= 2;
+    }
+
+    for (int iter = 0; iter < maxIter; iter++) {
       final mid = (lo + hi) / 2;
-      final fv = _futureValueAnnuity(pmt, mid, n);
+      if ((hi - lo) / 2 < tol) break;
+      final fv = fvAnnuityDue(pmt, mid, n);
       if (fv < targetFV) {
         lo = mid;
       } else {
         hi = mid;
       }
     }
-    return ((lo + hi) / 2).clamp(-0.05, 0.50);
-  }
-
-  /// Future Value d'une annuite de debut de periode (annuity-due).
-  /// FV = pmt × ((1+r)^n - 1) / r × (1+r)
-  static double _futureValueAnnuity(double pmt, double r, int n) {
-    if (r.abs() < 1e-10) return pmt * n; // Cas limite r ≈ 0
-    final factor = pow(1 + r, n) - 1;
-    return pmt * (factor / r) * (1 + r);
+    return (lo + hi) / 2;
   }
 }
 

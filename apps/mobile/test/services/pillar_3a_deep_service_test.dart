@@ -195,6 +195,107 @@ void main() {
   //  B. RENDEMENT REEL
   // ════════════════════════════════════════════════════════════
 
+  // ── fvAnnuityDue (primitif mathematique) ──────────────────────
+
+  group('fvAnnuityDue', () {
+    test('n=0 retourne 0', () {
+      expect(RealReturnCalculator.fvAnnuityDue(7258, 0.03, 0), 0.0);
+    });
+
+    test('n=1 retourne pmt × (1+r)', () {
+      final fv = RealReturnCalculator.fvAnnuityDue(7258, 0.03, 1);
+      expect(fv, closeTo(7258 * 1.03, 0.01));
+    });
+
+    test('r=0 retourne pmt × n (limite exacte)', () {
+      final fv = RealReturnCalculator.fvAnnuityDue(7258, 0.0, 16);
+      expect(fv, closeTo(7258 * 16, 0.01));
+    });
+
+    test('r quasi-nul utilise la limite pmt × n × (1+r)', () {
+      final fv = RealReturnCalculator.fvAnnuityDue(7258, 1e-12, 16);
+      expect(fv, closeTo(7258 * 16, 0.01));
+    });
+
+    test('cas general : 7258 CHF, 3%, 16 ans', () {
+      // fvOrd = 7258 × ((1.03^16 - 1) / 0.03) = 7258 × 20.15688
+      // fvDue = fvOrd × 1.03
+      final fv = RealReturnCalculator.fvAnnuityDue(7258, 0.03, 16);
+      // 1.03^16 ≈ 1.604706 → factor ≈ 20.15687 → fvOrd ≈ 146298.9 → fvDue ≈ 150687.9
+      expect(fv, closeTo(150688, 1));
+    });
+
+    test('rendement negatif fonctionne', () {
+      final fv = RealReturnCalculator.fvAnnuityDue(1000, -0.02, 10);
+      // Capital shrinks each year but payments continue
+      expect(fv, greaterThan(0));
+      expect(fv, lessThan(1000 * 10)); // less than zero-return case
+    });
+  });
+
+  // ── solveRateBisection (solveur numerique) ──────────────────
+
+  group('solveRateBisection', () {
+    test('marginalTaxRate=0 (pmtNet=pmtGross) → rNet ≈ rGross', () {
+      const pmt = 7258.0;
+      const r = 0.03;
+      const n = 16;
+      final fvGross = RealReturnCalculator.fvAnnuityDue(pmt, r, n);
+      // pmtNet = pmtGross when marginalTaxRate = 0
+      final rNet = RealReturnCalculator.solveRateBisection(pmt, fvGross, n);
+      expect(rNet, closeTo(r, 1e-5));
+    });
+
+    test('n=1 cas analytique : r = targetFV/pmt - 1', () {
+      const pmt = 6532.2;
+      final targetFV = 7258 * 1.03; // = 7475.74
+      final rNet = RealReturnCalculator.solveRateBisection(pmt, targetFV, 1);
+      expect(rNet, closeTo(targetFV / pmt - 1, 1e-10));
+    });
+
+    test('n=0 retourne 0', () {
+      final rNet = RealReturnCalculator.solveRateBisection(6532.2, 150688, 0);
+      expect(rNet, 0.0);
+    });
+
+    test('non-regression : 7258 CHF, taux 10%, rGross 3%, n=16', () {
+      const pmtGross = 7258.0;
+      const marginalTaxRate = 0.10;
+      const rGross = 0.03;
+      const n = 16;
+
+      final fvGross = RealReturnCalculator.fvAnnuityDue(pmtGross, rGross, n);
+      final pmtNet = pmtGross * (1 - marginalTaxRate); // 6532.2
+      final rNet = RealReturnCalculator.solveRateBisection(pmtNet, fvGross, n);
+
+      // Verify roundtrip: fvAnnuityDue(pmtNet, rNet, n) ≈ fvGross
+      final fvCheck = RealReturnCalculator.fvAnnuityDue(pmtNet, rNet, n);
+      expect(fvCheck, closeTo(fvGross, 1e-3));
+
+      // rNet must be > rGross (tax advantage boosts effective return)
+      expect(rNet, greaterThan(rGross));
+    });
+
+    test('taux marginal eleve (45%) → rNet sensiblement > rGross', () {
+      const pmtGross = 7258.0;
+      const rGross = 0.04;
+      const n = 30;
+
+      final fvGross = RealReturnCalculator.fvAnnuityDue(pmtGross, rGross, n);
+      final pmtNet = pmtGross * (1 - 0.45); // 3991.9
+      final rNet = RealReturnCalculator.solveRateBisection(pmtNet, fvGross, n);
+
+      // rNet should be much higher when tax advantage is large
+      expect(rNet, greaterThan(rGross + 0.02));
+
+      // Verify roundtrip
+      final fvCheck = RealReturnCalculator.fvAnnuityDue(pmtNet, rNet, n);
+      expect(fvCheck, closeTo(fvGross, 1e-3));
+    });
+  });
+
+  // ── RealReturnCalculator.calculate() ────────────────────────
+
   group('RealReturnCalculator', () {
     test('capital final 3a > total des versements (rendement positif)', () {
       final result = RealReturnCalculator.calculate(
@@ -205,6 +306,42 @@ void main() {
         dureeAnnees: 20,
       );
       expect(result.capitalFinal3a, greaterThan(result.totalVersements));
+    });
+
+    test('capital3a = fvAnnuityDue(versement, rGross, n)', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 7258,
+        tauxMarginal: 0.30,
+        rendementBrut: 0.04,
+        fraisGestion: 0.004,
+        dureeAnnees: 20,
+      );
+      // rGross = 0.04 - 0.004 = 0.036
+      final expected = RealReturnCalculator.fvAnnuityDue(7258, 0.036, 20);
+      expect(result.capitalFinal3a, closeTo(expected, 0.01));
+    });
+
+    test('rendementNominal = (rendementBrut - fraisGestion) × 100', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 7258,
+        tauxMarginal: 0.30,
+        rendementBrut: 0.045,
+        fraisGestion: 0.005,
+        dureeAnnees: 20,
+      );
+      // rGross = 0.045 - 0.005 = 0.04 → rendementNominal = 4.0%
+      expect(result.rendementNominal, closeTo(4.0, 0.01));
+    });
+
+    test('rendement reel > rendement nominal (avantage fiscal)', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 7258,
+        tauxMarginal: 0.35,
+        rendementBrut: 0.04,
+        fraisGestion: 0.004,
+        dureeAnnees: 25,
+      );
+      expect(result.rendementReel, greaterThan(result.rendementNominal));
     });
 
     test('economie fiscale totale = versement * taux marginal * duree', () {
@@ -221,6 +358,32 @@ void main() {
       );
     });
 
+    test('capital epargne classique = fvAnnuityDue(versement, 0.015, n)', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 10000,
+        tauxMarginal: 0.30,
+        rendementBrut: 0.04,
+        fraisGestion: 0.004,
+        dureeAnnees: 1,
+      );
+      // n=1 → fvAnnuityDue = pmt × (1+r) = 10000 × 1.015
+      expect(
+        result.capitalFinalEpargne,
+        closeTo(10000 * 1.015, 0.01),
+      );
+    });
+
+    test('rendementEpargne = 1.5 (taux brut du compte epargne)', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 7258,
+        tauxMarginal: 0.30,
+        rendementBrut: 0.04,
+        fraisGestion: 0.004,
+        dureeAnnees: 10,
+      );
+      expect(result.rendementEpargne, closeTo(1.5, 0.01));
+    });
+
     test('gain vs epargne positif (3a + fiscal > epargne classique)', () {
       final result = RealReturnCalculator.calculate(
         versementAnnuel: 7258,
@@ -230,32 +393,6 @@ void main() {
         dureeAnnees: 20,
       );
       expect(result.gainVsEpargne, greaterThan(0));
-    });
-
-    test('rendement reel > rendement nominal (inclut avantage fiscal)', () {
-      final result = RealReturnCalculator.calculate(
-        versementAnnuel: 7258,
-        tauxMarginal: 0.35,
-        rendementBrut: 0.04,
-        fraisGestion: 0.004,
-        dureeAnnees: 25,
-      );
-      expect(result.rendementReel, greaterThan(result.rendementNominal));
-    });
-
-    test('capital epargne classique utilise taux 1.5%', () {
-      // Pour 1 annee : capital = versement * (1 + 0.015)
-      final result = RealReturnCalculator.calculate(
-        versementAnnuel: 10000,
-        tauxMarginal: 0.30,
-        rendementBrut: 0.04,
-        fraisGestion: 0.004,
-        dureeAnnees: 1,
-      );
-      expect(
-        result.capitalFinalEpargne,
-        closeTo(10000 * 1.015, 0.01),
-      );
     });
 
     test('total versements = versement annuel * duree', () {
@@ -300,8 +437,22 @@ void main() {
         fraisGestion: 0.004,
         dureeAnnees: 10,
       );
-      // Total versements = 36288 * 10
       expect(result.totalVersements, closeTo(36288 * 10, 0.01));
+    });
+
+    test('roundtrip: fvAnnuityDue(pmtNet, rNet, n) ≈ capital3a', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 7258,
+        tauxMarginal: 0.30,
+        rendementBrut: 0.045,
+        fraisGestion: 0.005,
+        dureeAnnees: 30,
+      );
+      // Verify the fundamental identity holds
+      final pmtNet = 7258 * (1 - 0.30);
+      final rNet = result.rendementReel / 100;
+      final fvCheck = RealReturnCalculator.fvAnnuityDue(pmtNet, rNet, 30);
+      expect(fvCheck, closeTo(result.capitalFinal3a, 1e-3));
     });
   });
 

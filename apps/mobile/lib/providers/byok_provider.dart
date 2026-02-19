@@ -67,7 +67,9 @@ class ByokProvider extends ChangeNotifier {
       _apiKey = await _storage.read(key: _apiKeyKey);
       _isConfigured = _provider != null && _apiKey != null && _apiKey!.isNotEmpty;
     } catch (e) {
-      debugPrint('ByokProvider: Error loading saved key: $e');
+      if (kDebugMode) {
+        debugPrint('ByokProvider: Error loading saved key: $e');
+      }
       _isConfigured = false;
     } finally {
       _isLoading = false;
@@ -89,7 +91,9 @@ class ByokProvider extends ChangeNotifier {
       _apiKey = apiKey;
       _isConfigured = true;
     } catch (e) {
-      debugPrint('ByokProvider: Error saving key: $e');
+      if (kDebugMode) {
+        debugPrint('ByokProvider: Error saving key: $e');
+      }
       _testError = 'Erreur lors de la sauvegarde.';
     } finally {
       _isLoading = false;
@@ -111,7 +115,9 @@ class ByokProvider extends ChangeNotifier {
       _testSuccess = false;
       _testError = null;
     } catch (e) {
-      debugPrint('ByokProvider: Error clearing key: $e');
+      if (kDebugMode) {
+        debugPrint('ByokProvider: Error clearing key: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

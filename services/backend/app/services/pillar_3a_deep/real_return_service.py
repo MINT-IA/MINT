@@ -70,36 +70,59 @@ class RealReturnResult:
     disclaimer: str = DISCLAIMER
 
 
-def _future_value_annuity(pmt: float, r: float, n: int) -> float:
+def fv_annuity_due(pmt: float, r: float, n: int) -> float:
     """Future value of an annuity-due (payments at start of period).
 
-    FV = pmt × ((1+r)^n − 1) / r × (1+r)
+    Payments at instants 0, 1, ..., n-1. Capitalization at end of year n.
+    FV_ord = pmt × ((1+r)^n − 1) / r
+    FV_due = FV_ord × (1+r)
+
+    Limit r → 0: FV_due ≈ pmt × n × (1+r)
     """
+    if n <= 0:
+        return 0.0
     if abs(r) < 1e-10:
-        return pmt * n
-    factor = (1 + r) ** n - 1
-    return pmt * (factor / r) * (1 + r)
+        return pmt * n * (1 + r)
+    fv_ord = pmt * ((1 + r) ** n - 1) / r
+    return fv_ord * (1 + r)
 
 
-def _solve_irr(pmt: float, target_fv: float, n: int) -> float:
-    """Solve IRR via bisection.
+def solve_rate_bisection(
+    pmt: float,
+    target_fv: float,
+    n: int,
+    tol: float = 1e-10,
+    max_iter: int = 200,
+) -> float:
+    """Solve for r via robust bisection.
 
-    Find r such that annuity-due FV(pmt, r, n) = target_fv.
+    Find r such that fv_annuity_due(pmt, r, n) = target_fv.
+    Bounds: -0.9999 to 1.0, expandable to 10.0.
     """
-    if pmt <= 0 or target_fv <= 0 or n <= 0:
+    if n <= 0:
+        return 0.0
+    if pmt <= 0 or target_fv <= 0:
         return 0.0
     if n == 1:
-        return max(0.0, min(1.0, target_fv / pmt - 1))
+        # FV = pmt × (1+r) → r = target_fv / pmt − 1
+        return target_fv / pmt - 1
 
-    lo, hi = -0.05, 0.50
-    for _ in range(60):
+    lo, hi = -0.9999, 1.0
+
+    # Expand upper bound if needed
+    while fv_annuity_due(pmt, hi, n) < target_fv and hi < 10.0:
+        hi *= 2
+
+    for _ in range(max_iter):
         mid = (lo + hi) / 2
-        fv = _future_value_annuity(pmt, mid, n)
+        if (hi - lo) / 2 < tol:
+            break
+        fv = fv_annuity_due(pmt, mid, n)
         if fv < target_fv:
             lo = mid
         else:
             hi = mid
-    return max(-0.05, min(0.50, (lo + hi) / 2))
+    return (lo + hi) / 2
 
 
 class RealReturnService:
@@ -124,9 +147,14 @@ class RealReturnService:
         rendement_brut: float,
         frais_gestion: float,
         duree_annees: int,
-        inflation: float = 0.01,
+        inflation: float = 0.0,
     ) -> RealReturnResult:
         """Calculate the real return of a 3a investment.
+
+        Concept: You invest pmtGross per year in 3a at rGross = rendement_brut - frais_gestion.
+        Your actual cost is pmtNet = pmtGross × (1 − taux_marginal).
+        rNet is the rate you'd need on pmtNet to reach the same capital:
+            fv_annuity_due(pmtNet, rNet, n) = fv_annuity_due(pmtGross, rGross, n)
 
         Args:
             versement_annuel: Annual 3a contribution (CHF).
@@ -134,7 +162,7 @@ class RealReturnService:
             rendement_brut: Gross annual return (0-1), e.g. 0.04 for 4%.
             frais_gestion: Annual management fees (0-1), e.g. 0.005 for 0.5%.
             duree_annees: Investment duration in years.
-            inflation: Annual inflation rate (0-1), default 1%.
+            inflation: Unused (kept for API compatibility). Not subtracted.
 
         Returns:
             RealReturnResult with full analysis and comparison.
@@ -145,52 +173,41 @@ class RealReturnService:
         rendement_brut = max(-0.10, min(0.15, rendement_brut))
         frais_gestion = max(0.0, min(0.05, frais_gestion))
         duree_annees = max(1, min(50, duree_annees))
-        inflation = max(0.0, min(0.10, inflation))
 
-        # 1. Net annual return (after fees and inflation)
-        rendement_net = rendement_brut - frais_gestion - inflation
+        # rGross = effective investment rate (no inflation subtraction)
+        r_gross = max(0.0, rendement_brut - frais_gestion)
 
-        # 2. Compound 3a capital (annual contributions growing at net rate)
-        capital_3a = 0.0
-        for _ in range(duree_annees):
-            capital_3a = (capital_3a + versement_annuel) * (1 + rendement_net)
-        capital_3a = round(capital_3a, 2)
+        # Capital final 3a = fv_annuity_due(pmtGross, rGross, n)
+        capital_3a = round(fv_annuity_due(versement_annuel, r_gross, duree_annees), 2)
 
-        # 3. Total contributions
+        # Total contributions
         total_verse = round(versement_annuel * duree_annees, 2)
 
-        # 4. Annual tax savings = versement * taux_marginal
-        economie_fiscale_annuelle = round(versement_annuel * taux_marginal, 2)
-        total_economies = round(economie_fiscale_annuelle * duree_annees, 2)
+        # Tax savings (cumulative, not compounded)
+        total_economies = round(versement_annuel * taux_marginal * duree_annees, 2)
 
-        # 5. Real return: IRR on out-of-pocket investment
-        # You pay versement × (1 − taux_marginal) each year, but the full
-        # versement grows inside the 3a. The "real return" is the rate you'd
-        # need on your net investment to reach the same capital_3a.
-        # Solved via bisection.
+        # Real return: equivalent rate on net-of-tax investment
+        # pmtNet = versement × (1 − taux_marginal)
+        # Solve: fv_annuity_due(pmtNet, rNet, n) = capital_3a
         versement_net = versement_annuel * (1 - taux_marginal)
-        rendement_reel = _solve_irr(versement_net, capital_3a, duree_annees)
-        rendement_reel = round(rendement_reel, 5)
+        rendement_reel = solve_rate_bisection(versement_net, capital_3a, duree_annees)
 
-        # 6. Comparison: same amount on savings account (no tax deduction)
+        # Comparison: savings account at 1.5%
         taux_epargne = TAUX_EPARGNE_DEFAUT
-        capital_epargne = 0.0
-        for _ in range(duree_annees):
-            capital_epargne = (capital_epargne + versement_annuel) * (1 + taux_epargne - inflation)
-        capital_epargne = round(capital_epargne, 2)
+        capital_epargne = round(fv_annuity_due(versement_annuel, taux_epargne, duree_annees), 2)
 
-        # 7. Advantage
+        # Advantage
         avantage = round((capital_3a + total_economies) - capital_epargne, 2)
 
-        # 8. Chiffre choc
+        # Chiffre choc: compare rNet vs rGross (sans avantage fiscal)
         reel_pct = round(rendement_reel * 100, 1)
-        epargne_pct = round((taux_epargne - inflation) * 100, 1)
+        nominal_pct = round(r_gross * 100, 1)
         chiffre_choc = (
             f"Rendement reel de ton 3a : {reel_pct}% par an "
-            f"(vs {epargne_pct}% sans avantage fiscal)"
+            f"(vs {nominal_pct}% sans avantage fiscal)"
         )
 
-        # 9. Sources
+        # Sources
         sources = [
             "LIFD art. 33 al. 1 let. e (deduction fiscale 3a)",
             "OPP3 art. 1 (3e pilier lie — plafond annuel)",
@@ -201,12 +218,12 @@ class RealReturnService:
             versement_annuel=versement_annuel,
             total_verse=total_verse,
             capital_final_3a=capital_3a,
-            rendement_net_annuel=round(rendement_net, 5),
+            rendement_net_annuel=round(r_gross, 5),
             total_economies_fiscales=total_economies,
             rendement_reel_annualise=rendement_reel,
             rendement_brut=rendement_brut,
             frais_gestion=frais_gestion,
-            inflation=inflation,
+            inflation=0.0,
             capital_final_epargne=capital_epargne,
             rendement_epargne=taux_epargne,
             avantage_3a_vs_epargne=avantage,

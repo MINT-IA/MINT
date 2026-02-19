@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
+import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 
 // Providers
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -129,6 +130,118 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CoachCheckinScreen), findsOneWidget);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  COACH CHAT SCREEN SMOKE TESTS
+  // ═══════════════════════════════════════════════════════════════
+
+  group('CoachChatScreen', () {
+    testWidgets('renders without crashing', (tester) async {
+      await tester.pumpWidget(
+        buildTestable(const CoachChatScreen()),
+      );
+      // Use pump(Duration) instead of pumpAndSettle() to handle animations
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byType(CoachChatScreen), findsOneWidget);
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
+
+    testWidgets('renders with full profile', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byType(CoachChatScreen), findsOneWidget);
+    });
+
+    testWidgets('shows greeting message', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // The initial greeting contains "coach financier MINT"
+      expect(
+        find.textContaining('coach financier MINT'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows input bar with hint text', (tester) async {
+      await tester.pumpWidget(
+        buildTestable(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Input bar should have hint text
+      expect(
+        find.textContaining('Pose ta question'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows send button', (tester) async {
+      await tester.pumpWidget(
+        buildTestable(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byIcon(Icons.send), findsOneWidget);
+    });
+
+    testWidgets('shows Coach MINT app bar title', (tester) async {
+      await tester.pumpWidget(
+        buildTestable(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(
+        find.text('Coach MINT'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Conversation educative'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows disclaimer banner', (tester) async {
+      await tester.pumpWidget(
+        buildTestable(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(
+        find.textContaining('ne constituent pas un conseil financier'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows BYOK CTA when key not configured', (tester) async {
+      await tester.pumpWidget(
+        buildTestable(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // BYOK CTA should appear since no key is configured
+      expect(
+        find.textContaining('Configure ton coach IA'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows suggested action chips in greeting', (tester) async {
+      await tester.pumpWidget(
+        buildWithProfile(const CoachChatScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // The initial greeting has suggested actions
+      expect(find.byType(ActionChip), findsWidgets);
     });
   });
 }

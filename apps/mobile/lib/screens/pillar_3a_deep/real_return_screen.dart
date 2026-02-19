@@ -123,7 +123,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'vs ${result.rendementEpargne.toStringAsFixed(1)}% sans avantage fiscal',
+            'vs ${result.rendementNominal.toStringAsFixed(1)}% sans avantage fiscal',
             style: TextStyle(
               fontSize: 13,
               color: Colors.green.shade600,

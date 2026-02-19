@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Mint API"
     API_V1_STR: str = "/api/v1"
 
+    # Environment
+    ENVIRONMENT: str = "development"
+
     # Database settings
     DATABASE_URL: str = "sqlite:///./mint.db"
 
@@ -17,6 +20,12 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "mint-dev-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_HOURS: int = 24
+
+    # Logging
+    LOG_LEVEL: str = "INFO"
+
+    # Redis (for rate limiting; empty string = in-memory fallback)
+    REDIS_URL: str = ""
 
 
 settings = Settings()

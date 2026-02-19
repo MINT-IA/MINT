@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 /// Service de tracking des conversions d'affiliation
@@ -41,11 +42,9 @@ class AffiliateService {
     Map<String, dynamic>? metadata,
   }) async {
     // TODO: Envoyer à un service analytics (Firebase, Amplitude, etc.)
-    assert(() {
-      // ignore: avoid_print
-      print('[AFFILIATE] Click: $provider');
-      return true;
-    }());
+    if (kDebugMode) {
+      debugPrint('[AFFILIATE] Click: $provider');
+    }
 
     // Exemple d'implémentation future :
     // await AnalyticsService.logEvent(
@@ -66,11 +65,9 @@ class AffiliateService {
     required double commission,
   }) async {
     // TODO: Enregistrer dans la base de données
-    assert(() {
-      // ignore: avoid_print
-      print('[AFFILIATE] Conversion: $provider');
-      return true;
-    }());
+    if (kDebugMode) {
+      debugPrint('[AFFILIATE] Conversion: $provider');
+    }
 
     // Exemple d'implémentation future :
     // await DatabaseService.recordConversion(

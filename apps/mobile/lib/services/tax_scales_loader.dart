@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/models/tax_scale.dart';
 
@@ -79,9 +80,13 @@ class TaxScalesLoader {
 
       _convertCumulativeThresholds();
       _isLoaded = true;
-      print('✅ Tax scales loaded for ${_cache.length} cantons.');
+      if (kDebugMode) {
+        debugPrint('Tax scales loaded for ${_cache.length} cantons.');
+      }
     } catch (e) {
-      print('❌ Failed to load tax scales: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to load tax scales: $e');
+      }
       // Fallback or empty cache
     }
   }
@@ -90,7 +95,9 @@ class TaxScalesLoader {
   /// Canton can be a code ('VD') or a full name ('Vaud').
   static List<TaxScale> getBrackets(String canton, String tariff) {
     if (!_isLoaded) {
-      print('⚠️ Tax scales not loaded. Call load() first.');
+      if (kDebugMode) {
+        debugPrint('Tax scales not loaded. Call load() first.');
+      }
       return [];
     }
 

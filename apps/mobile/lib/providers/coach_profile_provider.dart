@@ -97,7 +97,9 @@ class CoachProfileProvider extends ChangeNotifier {
       _profile = null;
       _isPartialProfile = false;
     } catch (e) {
-      debugPrint('Erreur chargement CoachProfile: $e');
+      if (kDebugMode) {
+        debugPrint('Erreur chargement CoachProfile: $e');
+      }
       _profile = null;
       _isPartialProfile = false;
     }

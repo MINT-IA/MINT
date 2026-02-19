@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/factory/letter_generator_service.dart';
@@ -161,9 +162,13 @@ class LetterGeneratorSheet extends StatelessWidget {
             letter.title.contains('Rachat') ? 'LPP_BUYBACK' : 'TAX_CERTIFICATE',
       });
       await ReportPersistenceService.saveLettersHistory(currentHistory);
-      debugPrint('Audit Trail: Letter logged.');
+      if (kDebugMode) {
+        debugPrint('Audit Trail: Letter logged.');
+      }
     } catch (e) {
-      debugPrint('Audit Trail Error: $e');
+      if (kDebugMode) {
+        debugPrint('Audit Trail Error: $e');
+      }
     }
   }
 }

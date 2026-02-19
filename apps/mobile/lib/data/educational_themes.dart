@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -201,7 +202,9 @@ class EducationData {
   static EducationalTheme? getById(String id) {
     final matches = themes.where((t) => t.id == id);
     if (matches.isEmpty) {
-      debugPrint('⚠️ EducationData.getById: unknown themeId "$id"');
+      if (kDebugMode) {
+        debugPrint('EducationData.getById: unknown themeId "$id"');
+      }
       return null;
     }
     return matches.first;
