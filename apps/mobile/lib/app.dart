@@ -64,6 +64,7 @@ import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/fiscal_comparator_screen.dart';
 // Retraite complete (Sprint S21)
 import 'package:mint_mobile/screens/retirement_screen.dart';
+import 'package:mint_mobile/screens/retirement_projection_screen.dart';
 // Famille & Concubinage (Sprint S22)
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
@@ -416,6 +417,11 @@ final _router = GoRouter(
       path: '/retirement',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RetirementScreen(),
+    ),
+    GoRoute(
+      path: '/retirement/projection',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RetirementProjectionScreen(),
     ),
     // Famille & Concubinage (Sprint S22)
     GoRoute(

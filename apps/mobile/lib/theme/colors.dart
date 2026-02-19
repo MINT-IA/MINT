@@ -57,4 +57,10 @@ class MintColors {
   static const Color deepOrange = Color(0xFFEA580C);
   static const Color teal = Color(0xFF0D9488);
   static const Color amber = Color(0xFFF59E0B);
+
+  // Retirement projection income sources
+  static const Color retirementAvs = info;
+  static const Color retirementLpp = success;
+  static const Color retirement3a = purple;
+  static const Color retirementLibre = teal;
 }

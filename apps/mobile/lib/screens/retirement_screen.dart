@@ -461,7 +461,7 @@ class _RetirementScreenState extends State<RetirementScreen>
                     ),
                   ),
                   IconButton(
-                    onPressed: _anneesLacunes < 10
+                    onPressed: _anneesLacunes < 44
                         ? () {
                             setState(() {
                               _anneesLacunes++;
@@ -1289,6 +1289,64 @@ class _RetirementScreenState extends State<RetirementScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
       children: [
+        // ── Projection CTA ─────────────────────────────
+        GestureDetector(
+          onTap: () => context.push('/retirement/projection'),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  MintColors.info.withValues(alpha: 0.08),
+                  MintColors.purple.withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: MintColors.info.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.show_chart, color: MintColors.info, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Voir ma projection complete',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Revenus du menage, retraite anticipee, budget, indexation',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: MintColors.textMuted),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+
         // ── Intro ──────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(16),
