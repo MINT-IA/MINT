@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/rente_vs_capital_calculator.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
@@ -36,6 +37,10 @@ class _SimulatorRenteCapitalScreenState
   int _ageRetraite = 65;
   String _canton = 'ZH';
   String _statutCivil = 'single';
+  bool _useCustomRetrait = false;
+  double _retraitMensuel = 1500;
+  String _modeRetrait = 'compare'; // compare, rente, capital, mixte
+  double _partRente = 0.5; // 0.0 to 1.0, for mixte mode
 
   RenteVsCapitalResult? _result;
 
@@ -48,6 +53,7 @@ class _SimulatorRenteCapitalScreenState
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('rente_capital');
     _calculate();
   }
 
@@ -60,6 +66,7 @@ class _SimulatorRenteCapitalScreenState
         ageRetraite: _ageRetraite,
         canton: _canton,
         statutCivil: _statutCivil,
+        retraitMensuelOverride: _useCustomRetrait ? _retraitMensuel : null,
       );
     });
   }
@@ -83,6 +90,9 @@ class _SimulatorRenteCapitalScreenState
             _buildInputsSection(),
             const SizedBox(height: 24),
             if (_result != null) ...[
+              _buildModeSelector(),
+              _buildMixteSlider(),
+              const SizedBox(height: 16),
               _buildResultCards(),
               const SizedBox(height: 24),
               _buildChart(),
@@ -245,6 +255,8 @@ class _SimulatorRenteCapitalScreenState
           _buildCantonDropdown(),
           const SizedBox(height: 16),
           _buildStatusSelector(),
+          const SizedBox(height: 20),
+          _buildCustomRetraitToggle(),
         ],
       ),
     );
@@ -428,29 +440,309 @@ class _SimulatorRenteCapitalScreenState
     );
   }
 
+  Widget _buildCustomRetraitToggle() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Text(
+                'Retrait mensuel personnalise',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ),
+            Switch(
+              value: _useCustomRetrait,
+              activeColor: MintColors.primary,
+              onChanged: (v) {
+                _useCustomRetrait = v;
+                if (v && _result != null) {
+                  _retraitMensuel = _result!.renteMensuelle;
+                }
+                _calculate();
+              },
+            ),
+          ],
+        ),
+        if (!_useCustomRetrait)
+          Text(
+            'Par defaut : retrait = rente (${_result != null ? _chf.format(_result!.renteMensuelle) : "-"}/mois). '
+            'Active pour simuler un retrait different.',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              height: 1.4,
+            ),
+          ),
+        if (_useCustomRetrait) ...[
+          const SizedBox(height: 8),
+          _buildSlider(
+            label: 'Retrait mensuel',
+            value: _retraitMensuel,
+            min: 500,
+            max: 15000,
+            divisions: 145,
+            format: (v) => _chf.format(v),
+            onChanged: (v) {
+              _retraitMensuel = v;
+              _calculate();
+            },
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Rente equivalente : ${_result != null ? _chf.format(_result!.renteMensuelle) : "-"}/mois',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // --- Mode Selector ---
+  Widget _buildModeSelector() {
+    const modes = ['compare', 'rente', 'capital', 'mixte'];
+    const labels = ['Comparer', 'Rente', 'Capital', 'Mixte'];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+      child: Row(
+        children: List.generate(4, (i) {
+          final selected = _modeRetrait == modes[i];
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _modeRetrait = modes[i]),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: selected ? MintColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.horizontal(
+                    left: i == 0 ? const Radius.circular(20) : Radius.zero,
+                    right: i == 3 ? const Radius.circular(20) : Radius.zero,
+                  ),
+                  border: Border.all(
+                      color: MintColors.primary.withValues(alpha: 0.3)),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  labels[i],
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    color: selected ? Colors.white : MintColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  // --- Mixte Slider ---
+  Widget _buildMixteSlider() {
+    if (_modeRetrait != 'mixte') return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Part en rente : ${(_partRente * 100).round()}%',
+              style: GoogleFonts.inter(
+                  fontSize: 14, fontWeight: FontWeight.w500)),
+          Slider(
+            value: _partRente,
+            min: 0,
+            max: 1,
+            divisions: 20,
+            activeColor: MintColors.primary,
+            label: '${(_partRente * 100).round()}%',
+            onChanged: (v) => setState(() {
+              _partRente = v;
+              _calculate();
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Mixte Calculation ---
+  Map<String, dynamic>? _computeMixteResult() {
+    if (_result == null) return null;
+
+    final rentePartObl = _avoirObligatoire * _partRente;
+    final capitalPartObl = _avoirObligatoire * (1 - _partRente);
+    final rentePartSurob = _avoirSurobligatoire * _partRente;
+    final capitalPartSurob = _avoirSurobligatoire * (1 - _partRente);
+
+    // Rente mensuelle from rente portion
+    final renteObl = rentePartObl * 0.068 / 12; // 6.8% LPP conversion rate
+    final renteSurob = rentePartSurob * (_tauxConversionSurob / 100) / 12;
+    final renteMensuelle = renteObl + renteSurob;
+
+    // Capital net from capital portion (use existing result ratios)
+    final capitalBrut = capitalPartObl + capitalPartSurob;
+    final tauxImposition = _result!.capitalNet > 0
+        ? 1 -
+            (_result!.capitalNet /
+                (_avoirObligatoire + _avoirSurobligatoire))
+        : 0.05;
+    final capitalNet = capitalBrut * (1 - tauxImposition);
+    final impotCapital = capitalBrut - capitalNet;
+
+    // SWR 4% on net capital for monthly equivalent
+    final revenuCapitalMensuel = capitalNet * 0.04 / 12;
+    final revenuTotalMensuel = renteMensuelle + revenuCapitalMensuel;
+
+    return {
+      'renteMensuelle': renteMensuelle,
+      'capitalBrut': capitalBrut,
+      'capitalNet': capitalNet,
+      'impot': impotCapital,
+      'revenuTotal': revenuTotalMensuel,
+      'partRente': _partRente,
+    };
+  }
+
+  // --- Mixte Result Card ---
+  Widget _buildMixteCard() {
+    final mixte = _computeMixteResult();
+    if (mixte == null) return const SizedBox.shrink();
+
+    final renteMens = mixte['renteMensuelle'] as double;
+    final capitalNet = mixte['capitalNet'] as double;
+    final impot = mixte['impot'] as double;
+    final revenuTotal = mixte['revenuTotal'] as double;
+    final pctRente = (mixte['partRente'] as double) * 100;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.purple.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.purple.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.pie_chart, color: MintColors.purple, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Mode mixte (${pctRente.round()}% rente)',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.purple,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildMixteRow('Rente mensuelle', _chf.format(renteMens),
+              MintColors.success),
+          const SizedBox(height: 10),
+          _buildMixteRow(
+              'Capital net', _chf.format(capitalNet), MintColors.info),
+          const SizedBox(height: 10),
+          _buildMixteRow(
+              'Impot estime', _chf.format(impot), MintColors.warning),
+          const Divider(height: 24),
+          _buildMixteRow(
+            'Revenu total equivalent',
+            '${_chf.format(revenuTotal)}/mois',
+            MintColors.purple,
+            isBold: true,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Capital : rendement hypothetique de 4%/an (SWR). '
+            'Le revenu reel depend des marches.',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMixteRow(String label, String value, Color color,
+      {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: MintColors.textSecondary,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
   // --- Result Cards ---
   Widget _buildResultCards() {
+    if (_modeRetrait == 'mixte') return _buildMixteCard();
+
     final r = _result!;
+    final dimRente = _modeRetrait == 'capital';
+    final dimCapital = _modeRetrait == 'rente';
+
     return Row(
       children: [
         Expanded(
-          child: _buildResultCard(
-            color: MintColors.success,
-            icon: Icons.autorenew,
-            title: 'Rente viagere',
-            mainValue: '${_chf.format(r.renteAnnuelle)}/an',
-            subtitle: '${_chf.format(r.renteMensuelle)} / mois, a vie',
+          child: AnimatedOpacity(
+            opacity: dimRente ? 0.35 : 1.0,
+            duration: const Duration(milliseconds: 250),
+            child: _buildResultCard(
+              color: MintColors.success,
+              icon: Icons.autorenew,
+              title: 'Rente viagere',
+              mainValue: '${_chf.format(r.renteAnnuelle)}/an',
+              subtitle: '${_chf.format(r.renteMensuelle)} / mois, a vie',
+            ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildResultCard(
-            color: MintColors.info,
-            icon: Icons.account_balance_wallet,
-            title: 'Capital net',
-            mainValue: _chf.format(r.capitalNet),
-            subtitle:
-                'Impot: ${_chf.format(r.impotRetrait)} (${(r.tauxEffectif * 100).toStringAsFixed(1)}%)',
+          child: AnimatedOpacity(
+            opacity: dimCapital ? 0.35 : 1.0,
+            duration: const Duration(milliseconds: 250),
+            child: _buildResultCard(
+              color: MintColors.info,
+              icon: Icons.account_balance_wallet,
+              title: 'Capital net',
+              mainValue: _chf.format(r.capitalNet),
+              subtitle:
+                  'Impot: ${_chf.format(r.impotRetrait)} (${(r.tauxEffectif * 100).toStringAsFixed(1)}%)',
+            ),
           ),
         ),
       ],

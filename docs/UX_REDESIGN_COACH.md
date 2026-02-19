@@ -1,8 +1,8 @@
 # UX REDESIGN — MINT Coach: Du Catalogue au Coach Financier
 
-**Date** : 13 fevrier 2026
+**Date** : 19 fevrier 2026 (mise a jour)
 **Auteur** : Equipe UX Creative MINT
-**Statut** : Spec V1 — Pour validation fondateur
+**Statut** : Spec V2 — Plan consolide Phase 1-4
 
 ---
 
@@ -962,43 +962,186 @@ MintPaywallSheet    — Bottom sheet pour upgrade Coach
 
 ---
 
-## METRIQUES DE SUCCES
+## PLAN CONSOLIDE PHASE 1-4
 
-| Metrique | Free | Coach |
-|----------|------|-------|
-| Retention J7 | 30% | 60% |
-| Retention J30 | 15% | 45% |
-| Check-in mensuel (Coach) | N/A | 70% |
-| NPS | 40+ | 65+ |
-| Conversion Free → Coach | — | 8-12% |
-| LTV Coach (12 mois) | 0 | 52.80 CHF |
+### PHASE 1 — Foundations (MVP data + onboarding + baseline)
 
-### North Star Metric (evoluee)
+**Objectif** : passer de "questionnaire" a "diagnostic actionnable en 3 minutes".
 
-**Ancien** : "Action Conversion 14j" (combien implementent 1 action)
-**Nouveau** : "Monthly Active Coached Users" — combien font le check-in mensuel
+**Scope produit**
+- Onboarding V3 en 4 etapes: minimum vital, stress check, objectif principal, baseline visuelle.
+- Profil persistant etendu (single/couple, statut emploi, prevoyance, dettes, devises).
+- Snapshot "Etat actuel si rien ne change" + 3 priorites automatiques.
+- Dashboard minimal: score global, 1 graphe baseline, 3 actions.
+
+**Scope technique**
+- Contrats de donnees alignes `SOT.md`.
+- Reutilisation du forecaster deterministe pour calcul baseline (pas de calcul LLM).
+- Instrumentation analytics initiale (events onboarding, baseline, first action).
+
+**Definition of Done**
+- `flutter analyze` sans nouvelles erreurs.
+- Tests de calcul critiques onboarding/baseline.
+- Wording conforme `LEGAL_RELEASE_CHECK.md`.
+
+### PHASE 2 — Coach Loop (Dashboard + Agir + check-in mensuel)
+
+**Objectif** : installer la boucle de progression mensuelle.
+
+**Scope produit**
+- Dashboard "Now vs With MINT actions".
+- Tab Agir priorise par impact CHF, effort, urgence.
+- Check-in mensuel 2 minutes avec impact immediat sur projection.
+- Alertes proactives (derive budget, 3a manquant, rachat non execute).
+
+**Scope technique**
+- Timeline unifiee actions/rappels/evenements.
+- Moteur de priorisation (impact net retraite + reduction risque).
+- Tests e2e de boucle: check-in -> recalcul -> dashboard.
+
+**Definition of Done**
+- 1 test smoke par ecran coeur (`Dashboard`, `Agir`, `Profil`).
+- 1 suite d'assertions numeriques sur les widgets de synthese.
+- 0 regression sur simulateurs existants.
+
+### PHASE 3 — Simulation Lab (sliders, couples, rente vs capital)
+
+**Objectif** : rendre la simulation continue, lisible, et decisionnelle.
+
+**Scope produit**
+- Sliders temps reel: epargne, rachat LPP, retraite anticipee, rendement, inflation.
+- Toggle rente vs capital + mode mixte.
+- Vue couple: trou AVS, plafond couple, timeline survivant.
+- Tableau detaille par source (AVS/LPP/3a/libre) avec decomposition.
+
+**Scope technique**
+- Orchestrateur de scenarios prudent/base/optimiste.
+- Shared calculation engine pour ecrans + export.
+- Suite de tests limites: revenus 0, montants tres eleves, ages bornes, statuts incoherents.
+
+**Definition of Done**
+- Precision stable des projections sur cas de reference.
+- Performance mobile acceptable (pas de stutter visible sur ecrans graphe).
+- Explications pedagogiques contextuelles reliees aux donnees simulees.
+
+### PHASE 4 — BYOK + Docs/RAG + Industrialisation
+
+**Objectif** : ajouter un coach conversationnel fiable et gouverne.
+
+**Scope produit**
+- BYOK in-app (gestion cle, validation, mode degrade).
+- Coach LLM contextuel relie au profil et aux simulations.
+- Reponses structurees: synthese, options, risques, disclaimer.
+- Export rapport decisionnel PDF.
+
+**Scope technique**
+- LLM strictement non-calculateur: chiffres issus des services deterministes.
+- Pipeline docs/RAG traceable: source, version, date de validite, citations.
+- Post-guardrails compliance (mots interdits, promesses, certitudes).
+- Observabilite: taux d'erreurs BYOK, latence, qualite reponses.
+
+**Definition of Done**
+- Journalisation des sources utilisees par reponse.
+- Tests de garde-fous legal/compliance.
+- Fallback robuste si BYOK indisponible.
 
 ---
 
-## PLANNING D'IMPLEMENTATION
+## INTEGRATION BYOK + DOCS (CADRE OPERATIONNEL)
 
-```
-Sprint   Duree   Livrable
-─────────────────────────────────────────────────
-C1       2 sem   Profil persistant etendu + ConjointProfile
-C2       2 sem   Financial Fitness Score (calcul + widget MintScoreGauge)
-C3       3 sem   Forecaster Service (moteur de projection 3 scenarios)
-C4       2 sem   Trajectory Chart (CustomPainter interactif)
-C5       2 sem   Dashboard redesign (Tab 1 : score + trajectoire + coach alert)
-C6       2 sem   Check-in mensuel (ecran + storage + score update)
-C7       2 sem   Tab Agir (timeline enrichie + calendrier actions)
-C8       2 sem   Coach LLM (BYOK + orchestrateur + guardrails)
-C9       1 sem   Paywall + subscription (RevenueCat / in-app purchase)
-C10      1 sem   Navigation refonte (4 tabs + routes)
-C11      1 sem   Tests + polish + beta
-─────────────────────────────────────────────────
-TOTAL    ~20 sem  MINT Coach v1
-```
+### Principes non-negociables
+- Le moteur de calcul MINT reste la source numerique unique.
+- Le LLM explique, reformule, priorise; il ne compute jamais seul.
+- Chaque affirmation metier cite la source doc/juridique quand applicable.
+
+### Sources et gouvernance documentaire
+- Contrats de donnees et schemas: `SOT.md`.
+- Exigences qualite: `DefinitionOfDone.md`.
+- Guardrails wording: `LEGAL_RELEASE_CHECK.md`.
+- Vision produit/UX: `visions/vision_product.md`, `visions/vision_features.md`, `visions/vision_user_journeys.md`.
+- Couverture evenements: `docs/ROADMAP_EVENEMENTS_VIE.md`.
+
+### Flux reponse coach (resume)
+1. Recuperer contexte utilisateur (profil + etat financier + scenario actif).
+2. Calcul deterministe (services MINT).
+3. Selection d'extraits doc/sources (RAG controle).
+4. Generation LLM BYOK.
+5. Verification post-generation (coherence chiffres, langage, disclaimer).
+
+---
+
+## PERSONAS PRIORITAIRES (3)
+
+### Persona A — Couple CH/US pre-retraite (49/45)
+- Enjeu: arbitrage rachat LPP vs marche, trou AVS conjoint, rente vs capital.
+- UX attendue: comparateur de strategies avec point d'equilibre et risque survivant.
+- KPI persona: % couples qui activent une action de prevoyance sous 7 jours.
+
+### Persona B — Jeune actif sur-endette (20 ans, ZH)
+- Enjeu: cashflow negatif, consommation financee, risque dette toxique.
+- UX attendue: visualisation choc "trajectoire actuelle" vs "trajectoire corrigee".
+- KPI persona: baisse du ratio charges fixes/revenu en 30 jours.
+
+### Persona C — Jeune diplome mal equipe (25 ans, contrat 3a assurance rigide)
+- Enjeu: manque de litteratie financiere, mauvais produit longue duree.
+- UX attendue: education guidee + simulateur cout d'opportunite clair.
+- KPI persona: comprehension des options et activation d'une action documentee.
+
+---
+
+## KPI FRAMEWORK (PRODUIT + IMPACT)
+
+### Acquisition et activation
+- Time-to-first-aha < 3 minutes.
+- Completion onboarding > 70%.
+- First action rate (J+1) > 35%.
+
+### Engagement coach
+- Monthly Active Coached Users (north star).
+- Check-in mensuel complete > 60%.
+- Retour mensuel M+1 > 50% (segment coach).
+
+### Impact financier utilisateur
+- % utilisateurs avec projection retraite amelioree a 90 jours.
+- Reduction mediane du deficit retraite projete.
+- Augmentation mediane de l'effort d'epargne utile (pas brute).
+
+### Fiabilite et confiance
+- 0 erreur critique de calcul en production.
+- Taux de divergence API/UI < 1%.
+- Taux de reponses LLM avec sources + disclaimer > 98%.
+
+---
+
+## PILOTAGE OPERATIONNEL V3 (RACI LEGER + JALONS)
+
+### RACI simplifie (roles)
+- `Product Lead`: priorisation, scope, arbitrages go/no-go.
+- `Mobile Lead`: UX mobile, widgets, perf rendering, instrumentation front.
+- `Backend Lead`: calculs deterministes, contrats API, tests metier.
+- `Swiss/Compliance Lead`: validation legal wording + coherence finance suisse.
+
+### Plan d'execution par phase
+
+| Phase | Owner principal | Dependances critiques | Date cible (proposee) | Gate go/no-go | KPI cible par phase |
+|------|------------------|-----------------------|------------------------|---------------|---------------------|
+| Phase 1 Foundations | Product + Mobile | Contrats `SOT.md`, baseline forecaster stable, wording legal | 30 avril 2026 | Onboarding < 6 min, baseline affichee, tests critiques pass | Principal: completion onboarding > 70%. Risque: taux d'abandon avant baseline < 20%. |
+| Phase 2 Coach Loop | Mobile + Backend | Priorisation actions, check-in persistant, events analytics | 30 juin 2026 | Boucle check-in -> recalcul -> dashboard fiable en prod | Principal: check-in mensuel complete > 60%. Risque: echec recalcul post check-in < 1%. |
+| Phase 3 Simulation Lab | Backend + Mobile | Moteur scenario shared, perfs chart, jeux de tests limites | 31 aout 2026 | Sliders live sans stutter + precision projections stable | Principal: first simulation interaction rate > 55%. Risque: latence p95 recalcul sliders < 250 ms. |
+| Phase 4 BYOK + Docs/RAG | Backend + Compliance | RAG versionne, guardrails post-gen, fallback BYOK | 31 octobre 2026 | Reponses sourcees + disclaimer + 0 calcul hors moteur | Principal: adoption coach BYOK (users eligibles) > 25%. Risque: reponses sans source/disclaimer < 2%. |
+
+### Definition de done par jalon (pilotage)
+- `M1 (15 mars 2026)`: schema profil v3 fige, events analytics v1 instrumentes.
+- `M2 (15 mai 2026)`: dashboard now-vs-future en beta interne, alertes de base actives.
+- `M3 (15 juillet 2026)`: check-in mensuel + priorisation ROI disponibles en beta testeurs.
+- `M4 (15 septembre 2026)`: simulation lab couple/single avec tests extremes verts.
+- `M5 (15 novembre 2026)`: coach BYOK/doc traceable actif avec guardrails compliance.
+
+### Regles de gouvernance sprint
+- Aucun sprint ferme si test numerique critique en echec.
+- Aucun wording user-facing merge sans validation `LEGAL_RELEASE_CHECK.md`.
+- Toute evolution contrat API implique revue de parite API/UI dans le meme sprint.
+- Les hypotheses de projection (rendement, inflation, taux conversion) sont versionnees et datees.
 
 ---
 
@@ -1006,24 +1149,22 @@ TOTAL    ~20 sem  MINT Coach v1
 
 | Risque | Mitigation |
 |--------|------------|
-| Forecast trop imprecis → perte de confiance | Toujours 3 scenarios + disclaimers + badge precision |
-| Utilisateur ne fait pas le check-in | Notification push douce + streak non-culpabilisant |
-| LLM hallucine sur un calcul | LLM interdit de calculer. Rules_engine seul. Post-filter. |
-| FATCA/US person mal gere | Flag explicite dans le profil, restrictions visibles |
-| 4.90 CHF trop bas pour etre rentable | Monitorer CAC vs LTV. Ajuster si besoin (BYOK = 0 cout LLM) |
-| Complexite dev trop haute pour 1 personne | Dream team multi-agents. Sprints de 2 semaines. MVP first. |
+| Forecast percu comme "boite noire" | Afficher hypotheses, sensibilites et decomposition par pilier |
+| Effet anxiogene sur profils fragiles | UX graduelle + priorites limitees + ton non culpabilisant |
+| Hallucination LLM / texte non conforme | Calcul deterministe, RAG trace, post-guardrails stricts |
+| Cas FATCA/US mal traites | Flag explicite, parcours dedie, options restreintes visibles |
+| Dette toxique ignoree au profit d'optimisation | Safe Mode prioritaire: dette avant optimisation fiscale |
+| Dette technique et regressions UX | Tests numeriques + smoke multi-ecrans + audit trimestriel |
 
 ---
 
-## CONCLUSION
+## CONCLUSION EXECUTIVE
 
-MINT Coach transforme l'app d'un **catalogue de simulateurs** en un **coach financier personnel** — exactement comme TrainerRoad a transforme le velo d'interieur d'un "outil d'entrainement" en un "coach d'entrainement adaptatif".
+La refonte doit etre pilotee par une logique simple:
+1. Montrer la realite actuelle sans filtre.
+2. Donner 3 actions a plus fort impact.
+3. Prouver visuellement l'effet de chaque action.
+4. Installer une boucle mensuelle durable.
 
-La cle : **chaque mois, l'utilisateur revient, confirme ses actions, voit sa progression, et ajuste sa trajectoire.**
-
-Le catalogue existant (30+ simulateurs, 18 evenements de vie, 26 cantons) devient le **moteur** sous le capot — mais l'experience utilisateur est desormais centree sur **la trajectoire et le coaching**.
-
-Le LLM est la cerise sur le gateau : il rend le moteur **conversationnel**. Mais meme sans LLM, le dashboard + forecast + check-in est deja un produit transformateur.
-
-**Prix** : 4.90 CHF/mois pour un outil qui genere 15'000+ CHF/an de valeur.
-C'est un no-brainer.
+Le plan Phase 1-4 permet de livrer vite une valeur tangible, puis d'industrialiser
+le coach BYOK/docs sans compromettre la fiabilite des calculs ni la compliance.

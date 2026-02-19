@@ -280,7 +280,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('franchise elevee reduit votre prime'),
+        find.textContaining('franchise elevee reduit ta prime'),
         findsOneWidget,
       );
     });

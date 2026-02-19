@@ -9,11 +9,17 @@ import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 
-// Dependencies for PortfolioScreen
+// Dependencies for PortfolioScreen and AdvisorOnboardingScreen
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   // ===========================================================================
   // 1. ADVISOR START SCREEN
   // ===========================================================================
@@ -41,7 +47,7 @@ void main() {
 
       // Main heading
       expect(
-        find.textContaining('Votre Session'),
+        find.textContaining('Ta Session'),
         findsOneWidget,
       );
       expect(
@@ -96,91 +102,62 @@ void main() {
   // ===========================================================================
 
   group('AdvisorOnboardingScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
+    Widget buildOnboarding() {
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
           home: AdvisorOnboardingScreen(),
         ),
       );
+    }
+
+    testWidgets('renders without crashing', (tester) async {
+      await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
       expect(find.byType(AdvisorOnboardingScreen), findsOneWidget);
       expect(find.byType(Scaffold), findsOneWidget);
     });
 
-    testWidgets('displays welcome header in French', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorOnboardingScreen(),
-        ),
-      );
+    testWidgets('displays step 1 header in French', (tester) async {
+      await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      expect(find.text('Bienvenue sur MINT'), findsOneWidget);
-      expect(find.text('Ton coach financier suisse'), findsOneWidget);
+      expect(find.textContaining('priorite'), findsOneWidget);
+      expect(find.textContaining('MINT'), findsOneWidget);
     });
 
-    testWidgets('shows 3 circle steps', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorOnboardingScreen(),
-        ),
-      );
+    testWidgets('shows stress check cards', (tester) async {
+      await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Section title
-      expect(find.text('Ton parcours en 3 cercles'), findsOneWidget);
-
-      // First circle is visible without scrolling
-      expect(find.textContaining('Protection'), findsOneWidget);
-
-      // Scroll down to reveal remaining circles in the ListView
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
-      await tester.pump();
-
-      expect(find.textContaining('Prévoyance Fiscale'), findsOneWidget);
-      expect(find.textContaining('Croissance'), findsOneWidget);
+      // Step 1 stress check cards
+      expect(find.textContaining('budget'), findsOneWidget);
+      expect(find.textContaining('dettes'), findsOneWidget);
+      expect(find.textContaining('impots'), findsOneWidget);
+      expect(find.textContaining('retraite'), findsOneWidget);
     });
 
-    testWidgets('has CTA and secondary link', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorOnboardingScreen(),
-        ),
-      );
+    testWidgets('has step indicator and secondary link', (tester) async {
+      await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Main CTA
-      expect(find.text('Commencer mon diagnostic'), findsOneWidget);
-      expect(find.byType(FilledButton), findsOneWidget);
+      // Step indicator (1/3)
+      expect(find.text('1/3'), findsOneWidget);
 
-      // Secondary link
+      // Secondary link to full diagnostic
       expect(
-        find.textContaining('déjà commencé'),
+        find.textContaining('Diagnostic complet'),
         findsOneWidget,
       );
     });
 
-    testWidgets('shows duration and benefits', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorOnboardingScreen(),
-        ),
-      );
+    testWidgets('shows step indicator dots', (tester) async {
+      await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      expect(
-        find.textContaining('10-15 minutes'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('Score de santé financière'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('Recommandations concrètes'),
-        findsOneWidget,
-      );
+      // PageView is present for the 3 steps
+      expect(find.byType(PageView), findsOneWidget);
     });
   });
 
@@ -244,7 +221,7 @@ void main() {
       await tester.pump();
 
       // Result section (auto-calculated in initState)
-      expect(find.text('Votre Mensualité'), findsOneWidget);
+      expect(find.text('Ta Mensualité'), findsOneWidget);
       expect(find.textContaining('intérêts'), findsWidgets);
     });
 

@@ -121,6 +121,7 @@ RenteVsCapitalResult computeRenteVsCapital({
   required int ageRetraite,
   required String canton,
   required String statutCivil,
+  double? retraitMensuelOverride,
 }) {
   final renteAnnuelle =
       avoirObligatoire * _lppConversionRate +
@@ -145,6 +146,9 @@ RenteVsCapitalResult computeRenteVsCapital({
   final tauxEffectif = capitalTotal > 0 ? impotRetrait / capitalTotal : 0.0;
   final capitalNet = capitalTotal - impotRetrait;
 
+  // Use custom withdrawal if provided, otherwise match rente
+  final retraitMensuel = retraitMensuelOverride ?? renteMensuelle;
+
   final nbMois85 = (85 - ageRetraite) * 12;
   final nbMoisMax = (150 - ageRetraite) * 12;
   final nbMoisChart = (100 - ageRetraite) * 12;
@@ -163,21 +167,21 @@ RenteVsCapitalResult computeRenteVsCapital({
 
     final res85 = _simulateCapitalDrawdown(
       capitalNet: capitalNet,
-      retraitMensuel: renteMensuelle,
+      retraitMensuel: retraitMensuel,
       rendementAnnuel: rendement,
       nbMois: nbMois85,
     );
 
     final resMax = _simulateCapitalDrawdown(
       capitalNet: capitalNet,
-      retraitMensuel: renteMensuelle,
+      retraitMensuel: retraitMensuel,
       rendementAnnuel: rendement,
       nbMois: nbMoisMax,
     );
 
     final resChart = _simulateCapitalDrawdown(
       capitalNet: capitalNet,
-      retraitMensuel: renteMensuelle,
+      retraitMensuel: retraitMensuel,
       rendementAnnuel: rendement,
       nbMois: nbMoisChart,
     );

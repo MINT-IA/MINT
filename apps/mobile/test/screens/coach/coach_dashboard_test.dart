@@ -1,13 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 
+// ────────────────────────────────────────────────────────────
+//  COACH DASHBOARD SCREEN TESTS — Phase 5 / Quality hardening
+//
+//  CoachDashboardScreen has _pulseController..repeat(reverse: true)
+//  — an infinite animation. We MUST use pump(Duration) instead
+//  of pumpAndSettle() to avoid timeout.
+//
+//  For below-fold tests, we use a tall test surface (6000px)
+//  so SliverList builds all children without scrolling.
+// ────────────────────────────────────────────────────────────
+
 void main() {
+  CoachProfileProvider buildCoachProvider() {
+    final provider = CoachProfileProvider();
+    provider.updateFromAnswers({
+      'q_firstname': 'Julien',
+      'q_birth_year': 1977,
+      'q_canton': 'VS',
+      'q_net_income_period_chf': 9080,
+      'q_civil_status': 'marie',
+      'q_goal': 'retraite',
+    });
+    return provider;
+  }
+
   Widget buildTestWidget() {
-    return const MaterialApp(
-      home: CoachDashboardScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => ByokProvider()),
+      ],
+      child: const MaterialApp(
+        home: CoachDashboardScreen(),
+      ),
     );
   }
 
@@ -20,86 +53,116 @@ void main() {
 
     testWidgets('shows greeting with name', (tester) async {
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining('Bonjour'), findsWidgets);
     });
 
     testWidgets('shows coach alert card', (tester) async {
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.byType(CoachDashboardScreen), findsOneWidget);
     });
 
     testWidgets('contains MintScoreGauge', (tester) async {
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.byType(MintScoreGauge), findsOneWidget);
     });
 
-    testWidgets('contains MintTrajectoryChart after scroll', (tester) async {
+    testWidgets('contains MintTrajectoryChart in tall viewport',
+        (tester) async {
+      // Use a very tall surface so SliverList builds all children
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-      // Trajectory chart is below score gauge, scroll to reveal it
-      await tester.drag(
-        find.byType(CustomScrollView),
-        const Offset(0, -400),
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        find.byType(MintTrajectoryChart, skipOffstage: false),
+        findsOneWidget,
       );
-      await tester.pumpAndSettle();
-      expect(find.byType(MintTrajectoryChart, skipOffstage: false), findsOneWidget);
     });
 
-    testWidgets('shows quick actions after scroll', (tester) async {
+    testWidgets('shows quick actions in tall viewport', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-      // Quick actions are below chart, scroll further
-      await tester.drag(
-        find.byType(CustomScrollView),
-        const Offset(0, -1000),
-      );
-      await tester.pumpAndSettle();
-      // Text has newline: 'Check-in\nmensuel'
+      await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining('mensuel'), findsWidgets);
     });
 
     testWidgets('shows fitness score section header', (tester) async {
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining('Fitness'), findsWidgets);
     });
 
-    testWidgets('shows trajectory section after scrolling', (tester) async {
+    testWidgets('shows trajectory section in tall viewport', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-      // Scroll to reveal trajectory section
-      await tester.drag(
-        find.byType(CustomScrollView),
-        const Offset(0, -400),
-      );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining('trajectoire'), findsWidgets);
     });
 
     testWidgets('scrolls without crash', (tester) async {
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       await tester.drag(
         find.byType(CustomScrollView),
         const Offset(0, -500),
       );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.byType(CoachDashboardScreen), findsOneWidget);
     });
 
-    testWidgets('shows disclaimer after scrolling to bottom', (tester) async {
+    testWidgets('shows disclaimer in tall viewport', (tester) async {
+      tester.view.physicalSize = const Size(1080, 12000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-      // Scroll far down to find disclaimer
-      await tester.drag(
-        find.byType(CustomScrollView),
-        const Offset(0, -2000),
-      );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining('Estimation'), findsWidgets);
+    });
+  });
+
+  group('CoachDashboardScreen - Et si...', () {
+    testWidgets('shows Et si panel in tall viewport', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        find.textContaining('Et si', skipOffstage: false),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('Et si panel shows tune icon', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        find.byIcon(Icons.tune, skipOffstage: false),
+        findsWidgets,
+      );
     });
   });
 }

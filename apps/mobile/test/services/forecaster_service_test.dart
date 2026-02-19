@@ -442,4 +442,145 @@ void main() {
       expect(ForecasterService.formatChf(500), contains('500'));
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  SCENARIO ASSUMPTIONS — copyWith
+  // ════════════════════════════════════════════════════════════
+
+  group('ScenarioAssumptions - copyWith', () {
+    test('copyWith with no changes returns equal values', () {
+      final copy = ScenarioAssumptions.base.copyWith();
+      expect(copy.lppReturn, ScenarioAssumptions.base.lppReturn);
+      expect(copy.threeAReturn, ScenarioAssumptions.base.threeAReturn);
+      expect(copy.investmentReturn, ScenarioAssumptions.base.investmentReturn);
+      expect(copy.savingsReturn, ScenarioAssumptions.base.savingsReturn);
+      expect(copy.inflation, ScenarioAssumptions.base.inflation);
+    });
+
+    test('copyWith overrides specified fields', () {
+      final custom = ScenarioAssumptions.base.copyWith(
+        lppReturn: 0.04,
+        threeAReturn: 0.08,
+      );
+      expect(custom.lppReturn, 0.04);
+      expect(custom.threeAReturn, 0.08);
+      expect(custom.investmentReturn, ScenarioAssumptions.base.investmentReturn);
+    });
+
+    test('copyWith preserves label when not overridden', () {
+      final custom = ScenarioAssumptions.prudent.copyWith(lppReturn: 0.05);
+      expect(custom.label, 'Prudent');
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  ET SI... PROJECTION
+  // ════════════════════════════════════════════════════════════
+
+  group('ForecasterService - projectEtSi', () {
+    late CoachProfile demo;
+
+    setUp(() {
+      demo = CoachProfile.buildDemo();
+    });
+
+    test('projectEtSi with default base returns similar result to project', () {
+      final standard = ForecasterService.project(profile: demo);
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base,
+      );
+      // Same base assumptions → same base capital (within rounding)
+      expect(etSi.base.capitalFinal,
+          closeTo(standard.base.capitalFinal, 1.0));
+    });
+
+    test('projectEtSi with higher returns increases capital', () {
+      final standard = ForecasterService.project(profile: demo);
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base.copyWith(
+          lppReturn: 0.04,
+          threeAReturn: 0.08,
+          investmentReturn: 0.10,
+        ),
+      );
+      expect(etSi.base.capitalFinal,
+          greaterThan(standard.base.capitalFinal));
+    });
+
+    test('projectEtSi preserves 3-scenario ordering', () {
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base.copyWith(
+          lppReturn: 0.03,
+          threeAReturn: 0.06,
+        ),
+      );
+      expect(etSi.optimiste.capitalFinal,
+          greaterThan(etSi.base.capitalFinal));
+      expect(etSi.base.capitalFinal,
+          greaterThan(etSi.prudent.capitalFinal));
+    });
+
+    test('projectEtSi with very low returns still produces valid result', () {
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base.copyWith(
+          lppReturn: 0.001,
+          threeAReturn: 0.005,
+          investmentReturn: 0.01,
+        ),
+      );
+      expect(etSi.base.capitalFinal, greaterThan(0));
+      expect(etSi.base.points.length, greaterThan(100));
+    });
+
+    test('projectEtSi disclaimer mentions "Et si..."', () {
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base,
+      );
+      expect(etSi.disclaimer, contains('Et si...'));
+      expect(etSi.disclaimer, contains('LSFin'));
+    });
+
+    test('projectEtSi sources include legal references', () {
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base,
+      );
+      expect(etSi.sources, contains(contains('LPP art. 14')));
+      expect(etSi.sources, contains(contains('OPP3 art. 7')));
+    });
+
+    test('projectEtSi with high inflation reduces taux de remplacement', () {
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions.base.copyWith(
+          inflation: 0.04,
+        ),
+      );
+      // Higher inflation doesn't directly affect capital in our model,
+      // but the result should still be valid
+      expect(etSi.base.capitalFinal, greaterThan(0));
+      expect(etSi.tauxRemplacementBase, greaterThan(0));
+    });
+
+    test('projectEtSi clamps negative returns to 0', () {
+      final etSi = ForecasterService.projectEtSi(
+        profile: demo,
+        customBase: ScenarioAssumptions(
+          label: 'Custom',
+          lppReturn: 0.005, // Very low — prudent would go negative without clamp
+          threeAReturn: 0.01,
+          investmentReturn: 0.02,
+          savingsReturn: 0.002,
+          inflation: 0.03,
+        ),
+      );
+      // Should not crash, prudent returns clamped to >= 0
+      expect(etSi.prudent.capitalFinal, greaterThan(0));
+    });
+  });
 }

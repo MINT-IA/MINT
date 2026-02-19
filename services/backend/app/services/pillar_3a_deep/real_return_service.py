@@ -70,6 +70,38 @@ class RealReturnResult:
     disclaimer: str = DISCLAIMER
 
 
+def _future_value_annuity(pmt: float, r: float, n: int) -> float:
+    """Future value of an annuity-due (payments at start of period).
+
+    FV = pmt × ((1+r)^n − 1) / r × (1+r)
+    """
+    if abs(r) < 1e-10:
+        return pmt * n
+    factor = (1 + r) ** n - 1
+    return pmt * (factor / r) * (1 + r)
+
+
+def _solve_irr(pmt: float, target_fv: float, n: int) -> float:
+    """Solve IRR via bisection.
+
+    Find r such that annuity-due FV(pmt, r, n) = target_fv.
+    """
+    if pmt <= 0 or target_fv <= 0 or n <= 0:
+        return 0.0
+    if n == 1:
+        return max(0.0, min(1.0, target_fv / pmt - 1))
+
+    lo, hi = -0.05, 0.50
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        fv = _future_value_annuity(pmt, mid, n)
+        if fv < target_fv:
+            lo = mid
+        else:
+            hi = mid
+    return max(-0.05, min(0.50, (lo + hi) / 2))
+
+
 class RealReturnService:
     """Calculate the real return of a Pillar 3a investment.
 
@@ -131,17 +163,14 @@ class RealReturnService:
         economie_fiscale_annuelle = round(versement_annuel * taux_marginal, 2)
         total_economies = round(economie_fiscale_annuelle * duree_annees, 2)
 
-        # 5. Real return: (capital_final + total_economies) / total_verse - 1
-        # Then annualized
-        total_value = capital_3a + total_economies
-        if total_verse > 0 and duree_annees > 0:
-            # Total return ratio
-            total_return = total_value / total_verse
-            # Annualized return
-            rendement_reel = (total_return ** (1 / duree_annees)) - 1
-            rendement_reel = round(rendement_reel, 5)
-        else:
-            rendement_reel = 0.0
+        # 5. Real return: IRR on out-of-pocket investment
+        # You pay versement × (1 − taux_marginal) each year, but the full
+        # versement grows inside the 3a. The "real return" is the rate you'd
+        # need on your net investment to reach the same capital_3a.
+        # Solved via bisection.
+        versement_net = versement_annuel * (1 - taux_marginal)
+        rendement_reel = _solve_irr(versement_net, capital_3a, duree_annees)
+        rendement_reel = round(rendement_reel, 5)
 
         # 6. Comparison: same amount on savings account (no tax deduction)
         taux_epargne = TAUX_EPARGNE_DEFAUT

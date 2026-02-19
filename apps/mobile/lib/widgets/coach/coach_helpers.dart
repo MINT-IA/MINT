@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Noms des mois en francais (utilise par Check-in + Agir)
@@ -62,5 +63,31 @@ Color colorForCategory(String category) {
       return MintColors.warning;
     default:
       return MintColors.info;
+  }
+}
+
+/// Route cible pour un coaching tip (utilise par Dashboard + Agir).
+String tipRoute(CoachingTip tip) {
+  switch (tip.category) {
+    case 'fiscalite':
+      return '/simulator/3a';
+    case 'prevoyance':
+      if (tip.id.contains('lpp')) return '/lpp-deep/rachat';
+      if (tip.id.contains('3a')) return '/simulator/3a';
+      return '/retirement';
+    case 'budget':
+      if (tip.id.contains('debt')) return '/check/debt';
+      if (tip.id.contains('emergency')) return '/budget';
+      return '/budget';
+    case 'retraite':
+      if (tip.id.contains('rente') || tip.id.contains('capital')) {
+        return '/simulator/rente-capital';
+      }
+      if (tip.id.contains('projection')) {
+        return '/retirement/projection';
+      }
+      return '/retirement';
+    default:
+      return '/report';
   }
 }

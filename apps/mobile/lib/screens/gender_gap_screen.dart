@@ -192,7 +192,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'La deduction de coordination (CHF\u00A025\'725) n\'est pas '
+              'La deduction de coordination (CHF\u00A026\'460) n\'est pas '
               'proratisee pour le temps partiel, ce qui penalise '
               'davantage les personnes travaillant a temps reduit. '
               'Deplacez le curseur pour voir l\'impact.',
@@ -567,7 +567,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           const SizedBox(height: 12),
           Text(
             'La deduction de coordination est un montant fixe de '
-            'CHF\u00A025\'725 soustrait de ton salaire brut pour '
+            'CHF\u00A026\'460 soustrait de ton salaire brut pour '
             'calculer le salaire coordonne (base LPP). Ce montant '
             'est le meme que tu travailles a 100% ou a 50%.',
             style: GoogleFonts.inter(

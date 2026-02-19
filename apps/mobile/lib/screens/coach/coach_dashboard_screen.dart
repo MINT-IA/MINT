@@ -13,9 +13,13 @@ import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
+import 'package:mint_mobile/services/streak_service.dart';
+import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
+import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -60,6 +64,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   CoachProfile? _profile;
   FinancialFitnessScore? _score;
   ProjectionResult? _projection;
+  ProjectionResult? _baselineProjection; // projection sans contributions
+  List<CoachingTip> _coachingTips = [];
+  List<Map<String, dynamic>>? _scoreHistory;
+
+  // "Et si..." state
+  bool _etSiExpanded = false;
+  double _etSiLppReturn = 0.02;      // base default
+  double _etSiThreeAReturn = 0.045;  // base default
+  double _etSiInvestReturn = 0.06;   // base default
+  double _etSiInflation = 0.015;     // base default
+  ProjectionResult? _etSiProjection;
 
   // Animation controller for the empty state pulsing glow
   late AnimationController _pulseController;
@@ -96,16 +111,41 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       final newProfile = coachProvider.profile!;
       if (_profile != newProfile) {
         _profile = newProfile;
-        _score = FinancialFitnessService.calculate(profile: _profile!);
+        _etSiProjection = null; // Reset "Et si..." on profile change
+        _score = FinancialFitnessService.calculate(
+          profile: _profile!,
+          previousScore: coachProvider.previousScore,
+        );
         _projection = ForecasterService.project(
           profile: _profile!,
           targetDate: _profile!.goalA.targetDate,
         );
+
+        // Projection baseline (sans contributions) pour "Now vs With MINT"
+        if (_profile!.plannedContributions.isNotEmpty) {
+          final profileSans = _profile!.copyWithContributions(const []);
+          _baselineProjection = ForecasterService.project(
+            profile: profileSans,
+            targetDate: _profile!.goalA.targetDate,
+          );
+        } else {
+          _baselineProjection = null;
+        }
+
+        // Coaching tips caches (evite le recalcul a chaque rebuild)
+        _coachingTips = CoachingService.generateTips(
+          profile: _profile!.toCoachingProfile(),
+        );
       }
+      // Charger l'historique des scores depuis le provider
+      _scoreHistory = coachProvider.scoreHistory;
     } else {
       _profile = null;
       _score = null;
       _projection = null;
+      _baselineProjection = null;
+      _coachingTips = [];
+      _scoreHistory = null;
     }
   }
 
@@ -121,9 +161,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       );
     }
 
-    // ── ETAT B : Utilisateur curieux (pas de profil) ──
+    // ── ETAT C : Utilisateur curieux (pas de profil) ──
     if (!coachProvider.hasProfile) {
       return _buildEmptyDashboard();
+    }
+
+    // ── ETAT B : Profil partiel (mini-onboarding) ──
+    if (coachProvider.isPartialProfile) {
+      return _buildPartialDashboard();
     }
 
     // ── ETAT A : Dashboard complet (profil existe) ──
@@ -146,14 +191,20 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 _buildCoachAlertCard(),
                 const SizedBox(height: 24),
                 _buildScoreSection(),
+                _buildScoreHistorySection(),
                 const SizedBox(height: 24),
+                _buildNowVsWithCard(),
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
                 _buildTrajectorySection(),
+                const SizedBox(height: 12),
+                _buildEtSiPanel(),
                 const SizedBox(height: 24),
                 _buildBenchmarkSection(),
                 const SizedBox(height: 24),
                 _buildQuickActions(),
+                const SizedBox(height: 24),
+                _buildStreakMilestoneSection(),
                 const SizedBox(height: 24),
                 _buildAskMintCard(),
                 const SizedBox(height: 32),
@@ -168,7 +219,332 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  ETAT B : EMPTY DASHBOARD (utilisateur curieux)
+  //  ETAT B : PARTIAL DASHBOARD (mini-onboarding complete)
+  // ════════════════════════════════════════════════════════════════
+  //
+  // Affiche un chiffre choc personnalise + score estimatif
+  // avec un badge precision + CTA "Enrichir" vers le wizard.
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildPartialDashboard() {
+    final provider = context.watch<CoachProfileProvider>();
+    final completeness = provider.profileCompleteness;
+    final dataPoints = provider.dataPointsCount;
+
+    return Scaffold(
+      backgroundColor: MintColors.background,
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Precision badge
+                _buildPrecisionBadge(completeness, dataPoints),
+                const SizedBox(height: 20),
+                // Chiffre choc (main value proposition)
+                _buildChiffreChocSection(),
+                const SizedBox(height: 24),
+                // Estimated score with "enrichir" prompt
+                _buildPartialScoreCard(),
+                const SizedBox(height: 24),
+                // Teaser trajectory (blurred, but less aggressive)
+                _buildTeaserTrajectory(),
+                const SizedBox(height: 24),
+                // Quick win cards
+                _buildQuickWinCards(),
+                const SizedBox(height: 24),
+                // Enrichir CTA
+                _buildEnrichirBanner(),
+                const SizedBox(height: 24),
+                // Ask MINT
+                _buildAskMintCard(),
+                const SizedBox(height: 32),
+                _buildDisclaimer(),
+                const SizedBox(height: 40),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  B.1 PRECISION BADGE
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildPrecisionBadge(double completeness, int dataPoints) {
+    final percentage = (completeness * 100).round();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: MintColors.scoreAttention.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.tune,
+              color: MintColors.scoreAttention,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Precision : $percentage%',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Base sur $dataPoints donnees — enrichis ton profil pour plus de precision',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Mini progress ring
+          SizedBox(
+            width: 36,
+            height: 36,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: completeness,
+                  strokeWidth: 3,
+                  backgroundColor: MintColors.lightBorder,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                      MintColors.scoreAttention),
+                ),
+                Text(
+                  '$percentage',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  B.2 PARTIAL SCORE CARD — score estimatif avec badge
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildPartialScoreCard() {
+    if (_score == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ton Fitness Financier (estimatif)',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: MintColors.card,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              MintScoreGauge(
+                score: _score!.global,
+                budgetScore: _score!.budget.score,
+                prevoyanceScore: _score!.prevoyance.score,
+                patrimoineScore: _score!.patrimoine.score,
+                trend: _score!.trend.name,
+                previousScore: null,
+                onTap: () {},
+              ),
+              const SizedBox(height: 16),
+              // Estimation disclaimer
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: MintColors.scoreAttention.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline,
+                        color: MintColors.scoreAttention, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Score estimatif base sur 4 donnees. '
+                        'Complete le diagnostic pour un score precis.',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textSecondary,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push('/advisor/wizard'),
+                  icon: const Icon(Icons.auto_awesome, size: 18),
+                  label: Text(
+                    'Enrichir mon profil',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: MintColors.primary,
+                    side: const BorderSide(color: MintColors.primary, width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  B.3 ENRICHIR BANNER
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildEnrichirBanner() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            MintColors.primary,
+            MintColors.primary.withValues(alpha: 0.88),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: MintColors.primary.withValues(alpha: 0.20),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.rocket_launch_outlined,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Passe de 15% a 60% de precision',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Le diagnostic complet prend 10 minutes '
+            'et deverrouille ta trajectoire personnalisee.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: Colors.white.withValues(alpha: 0.85),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => context.push('/advisor/wizard'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: MintColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                'Completer mon diagnostic',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  ETAT C : EMPTY DASHBOARD (utilisateur curieux)
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildEmptyDashboard() {
@@ -209,11 +585,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final l10n = S.of(context);
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 120,
+      expandedHeight: 90,
+      toolbarHeight: 48,
       automaticallyImplyLeading: false,
       backgroundColor: MintColors.primary,
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 24, bottom: 16, right: 24),
+        titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
         title: Text(
           l10n?.coachWelcome ?? 'Bienvenue sur MINT',
           style: GoogleFonts.montserrat(
@@ -847,11 +1224,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final firstName = _profile!.firstName ?? 'Coach';
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 120,
+      expandedHeight: 90,
+      toolbarHeight: 48,
       automaticallyImplyLeading: false,
       backgroundColor: MintColors.primary,
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 24, bottom: 16, right: 24),
+        titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
         title: Text(
           l10n?.coachHello(firstName) ?? 'Bonjour $firstName',
           style: GoogleFonts.montserrat(
@@ -888,23 +1266,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   Widget _buildCoachAlertCard() {
     final level = _score!.level;
 
-    // Generate coaching tips from the profile
-    final coachingProfile = CoachingProfile(
-      age: _profile!.age,
-      canton: _profile!.canton,
-      revenuAnnuel: _profile!.revenuBrutAnnuel,
-      has3a: _profile!.prevoyance.nombre3a > 0,
-      montant3a: _profile!.total3aMensuel * 12,
-      hasLpp: (_profile!.prevoyance.avoirLppTotal ?? 0) > 0,
-      avoirLpp: _profile!.prevoyance.avoirLppTotal ?? 0,
-      lacuneLpp: _profile!.prevoyance.rachatMaximum ?? 0,
-      epargneDispo: _profile!.patrimoine.epargneLiquide,
-      detteTotale: _profile!.dettes.totalDettes,
-      chargesFixesMensuelles:
-          _profile!.depenses.loyer + _profile!.depenses.assuranceMaladie,
-    );
-
-    final tips = CoachingService.generateTips(profile: coachingProfile);
+    // Utiliser les tips caches depuis didChangeDependencies
+    final tips = _coachingTips;
     final topTip = tips.isNotEmpty ? tips.first : null;
 
     // Border color based on fitness level
@@ -932,7 +1295,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     if (topTip != null) {
       message = topTip.message;
       ctaLabel = topTip.action;
-      ctaRoute = _tipRoute(topTip);
+      ctaRoute = tipRoute(topTip);
     } else {
       message = _score!.coachMessage;
       ctaLabel = null;
@@ -1012,52 +1375,223 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             ],
           ),
           const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () =>
-                  context.push(ctaRoute ?? '/report'),
-              style: TextButton.styleFrom(
-                foregroundColor: MintColors.coachAccent,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    ctaLabel ?? 'Explorer',
+          Row(
+            children: [
+              // Autres recommandations badge
+              if (tips.length > 1)
+                GestureDetector(
+                  onTap: () => context.push('/coach/agir'),
+                  child: Text(
+                    '${tips.length - 1} autre${tips.length > 2 ? 's' : ''} recommandation${tips.length > 2 ? 's' : ''}',
                     style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.arrow_forward, size: 16),
-                ],
+                ),
+              const Spacer(),
+              TextButton(
+                onPressed: () =>
+                    context.push(ctaRoute ?? '/report'),
+                style: TextButton.styleFrom(
+                  foregroundColor: MintColors.coachAccent,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      ctaLabel ?? 'Explorer',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward, size: 16),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  String _tipRoute(CoachingTip tip) {
-    switch (tip.category) {
-      case 'fiscalite':
-        return '/simulator/3a';
-      case 'prevoyance':
-        if (tip.id.contains('lpp')) return '/lpp-deep/rachat';
-        if (tip.id.contains('3a')) return '/simulator/3a';
-        return '/retirement';
-      case 'budget':
-        return '/check/debt';
-      case 'retraite':
-        return '/retirement';
-      default:
-        return '/report';
+  // ════════════════════════════════════════════════════════════════
+  //  2B. NOW VS WITH MINT ACTIONS
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildNowVsWithCard() {
+    if (_baselineProjection == null || _projection == null) {
+      return const SizedBox.shrink();
     }
+
+    final capitalSans = _baselineProjection!.base.capitalFinal;
+    final capitalAvec = _projection!.base.capitalFinal;
+    final deltaCapital = capitalAvec - capitalSans;
+
+    final tauxSans = _baselineProjection!.tauxRemplacementBase;
+    final tauxAvec = _projection!.tauxRemplacementBase;
+    final deltaTaux = tauxAvec - tauxSans;
+
+    if (deltaCapital <= 0) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: MintColors.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: MintColors.success.withValues(alpha: 0.25),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: MintColors.success.withValues(alpha: 0.06),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: MintColors.success.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.trending_up,
+                    color: MintColors.success,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ton impact MINT',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        'Avec tes actions vs sans rien faire',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Capital row
+            _buildNowVsRow(
+              label: 'Capital retraite',
+              valueSans: capitalSans,
+              valueAvec: capitalAvec,
+              delta: deltaCapital,
+              isCurrency: true,
+            ),
+            const SizedBox(height: 14),
+            // Taux de remplacement row
+            _buildNowVsRow(
+              label: 'Taux de remplacement',
+              valueSans: tauxSans,
+              valueAvec: tauxAvec,
+              delta: deltaTaux,
+              isCurrency: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNowVsRow({
+    required String label,
+    required double valueSans,
+    required double valueAvec,
+    required double delta,
+    required bool isCurrency,
+  }) {
+    String fmt(double v) => isCurrency
+        ? ForecasterService.formatChf(v)
+        : '${v.toStringAsFixed(1)}%';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            // Sans
+            Text(
+              fmt(valueSans),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: MintColors.textMuted,
+                decoration: TextDecoration.lineThrough,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward, size: 14, color: MintColors.success),
+            const SizedBox(width: 8),
+            // Avec
+            Text(
+              fmt(valueAvec),
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const Spacer(),
+            // Delta badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '+${fmt(delta)}',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.success,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1100,14 +1634,154 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             previousScore: _score!.deltaVsPreviousMonth != null
                 ? _score!.global - _score!.deltaVsPreviousMonth!
                 : null,
-            onTap: () {
-              // Navigate to detailed score view
-              // (will be wired in a future sprint)
-            },
+            onTap: () => context.push('/report'),
           ),
         ),
       ],
     );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  3a. SCORE HISTORY MINI-CHART — Evolution mensuelle du score
+  // ════════════════════════════════════════════════════════════════
+
+  /// Mois abreges en francais pour l'axe X du mini-chart.
+  static const _monthLabelsFr = [
+    'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin',
+    'Juil', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  Widget _buildScoreHistorySection() {
+    if (_scoreHistory == null || _scoreHistory!.length < 2) {
+      return const SizedBox.shrink();
+    }
+
+    final history = _scoreHistory!;
+
+    // Determiner la tendance (amelioration ou degradation)
+    final firstScore = (history.first['score'] as num?)?.toInt() ?? 0;
+    final lastScore = (history.last['score'] as num?)?.toInt() ?? 0;
+    final isImproving = lastScore >= firstScore;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: MintColors.card,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Evolution de ton score',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+                // Badge tendance
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isImproving
+                        ? MintColors.success.withValues(alpha: 0.12)
+                        : MintColors.scoreAttention.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isImproving
+                            ? Icons.trending_up
+                            : Icons.trending_down,
+                        size: 14,
+                        color: isImproving
+                            ? MintColors.success
+                            : MintColors.scoreAttention,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${lastScore - firstScore > 0 ? '+' : ''}${lastScore - firstScore} pts',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isImproving
+                              ? MintColors.success
+                              : MintColors.scoreAttention,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Mini-chart
+            SizedBox(
+              height: 80,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _ScoreHistoryPainter(
+                  history: history,
+                  isImproving: isImproving,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Labels X-axis (premier et dernier mois)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _formatMonthLabel(history.first['month'] as String? ?? ''),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                Text(
+                  _formatMonthLabel(history.last['month'] as String? ?? ''),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Formate "2026-02" en "Fev 2026".
+  String _formatMonthLabel(String monthKey) {
+    if (monthKey.length < 7) return monthKey;
+    try {
+      final parts = monthKey.split('-');
+      final year = parts[0];
+      final monthIndex = int.parse(parts[1]);
+      if (monthIndex < 1 || monthIndex > 12) return monthKey;
+      return '${_monthLabelsFr[monthIndex - 1]} $year';
+    } catch (_) {
+      return monthKey;
+    }
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1165,11 +1839,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       ));
     }
 
-    // 3. AVS gap cost — each missing year = -2.3% of max rente
+    // 3. AVS gap cost — each missing year = -1/44 of max rente (LAVS art. 29ter)
     final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
       // 30'240 CHF/an = rente AVS max (LAVS art. 34)
-      final perteTotaleAnnuelle = lacunesAVS * 0.023 * 30240;
+      final reductionParAnnee = 1.0 / avsDureeCotisationComplete;
+      final perteTotaleAnnuelle = lacunesAVS * reductionParAnnee * 30240;
       // Over ~20 years of retirement
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
 
@@ -1281,15 +1956,352 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           ),
           padding: const EdgeInsets.all(20),
           child: MintTrajectoryChart(
-            result: _projection!,
+            result: _etSiProjection ?? _projection!,
             goalALabel: _profile!.goalA.label,
-            onTap: () {
-              // Navigate to detailed projection view
-              // (will be wired in a future sprint)
-            },
+            onTap: () => context.push('/retirement/projection'),
           ),
         ),
       ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  4a. "ET SI..." INTERACTIVE SLIDER PANEL
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildEtSiPanel() {
+    // Gate: if no subscription access, show teaser
+    if (!SubscriptionService.hasAccess(CoachFeature.scenariosEtSi)) {
+      return _buildEtSiTeaser();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          // Header — expandable
+          InkWell(
+            onTap: () => setState(() {
+              _etSiExpanded = !_etSiExpanded;
+              if (!_etSiExpanded) {
+                // Reset to defaults
+                _etSiLppReturn = ScenarioAssumptions.base.lppReturn;
+                _etSiThreeAReturn = ScenarioAssumptions.base.threeAReturn;
+                _etSiInvestReturn = ScenarioAssumptions.base.investmentReturn;
+                _etSiInflation = ScenarioAssumptions.base.inflation;
+                _etSiProjection = null;
+              }
+            }),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: MintColors.info.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.tune,
+                      color: MintColors.info,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Et si... ?',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    _etSiExpanded ? 'Replier' : 'Ajuster les hypotheses',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    _etSiExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: MintColors.textMuted,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Expanded content — sliders
+          if (_etSiExpanded) ...[
+            const Divider(height: 1, color: MintColors.lightBorder),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ajuste les hypotheses de rendement du scenario Base.',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _etSiSlider(
+                    label: 'Rendement LPP',
+                    value: _etSiLppReturn * 100,
+                    min: 0,
+                    max: 5,
+                    suffix: '%',
+                    decimals: 1,
+                    onChanged: (v) => _updateEtSi(() => _etSiLppReturn = v / 100),
+                  ),
+                  const SizedBox(height: 12),
+                  _etSiSlider(
+                    label: 'Rendement 3a',
+                    value: _etSiThreeAReturn * 100,
+                    min: 0,
+                    max: 10,
+                    suffix: '%',
+                    decimals: 1,
+                    onChanged: (v) => _updateEtSi(() => _etSiThreeAReturn = v / 100),
+                  ),
+                  const SizedBox(height: 12),
+                  _etSiSlider(
+                    label: 'Rendement investissements',
+                    value: _etSiInvestReturn * 100,
+                    min: 0,
+                    max: 15,
+                    suffix: '%',
+                    decimals: 1,
+                    onChanged: (v) => _updateEtSi(() => _etSiInvestReturn = v / 100),
+                  ),
+                  const SizedBox(height: 12),
+                  _etSiSlider(
+                    label: 'Inflation',
+                    value: _etSiInflation * 100,
+                    min: 0,
+                    max: 4,
+                    suffix: '%',
+                    decimals: 1,
+                    onChanged: (v) => _updateEtSi(() => _etSiInflation = v / 100),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Impact summary
+                  if (_etSiProjection != null) _buildEtSiImpact(),
+
+                  // Reset button
+                  const SizedBox(height: 8),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => _updateEtSi(() {
+                        _etSiLppReturn = ScenarioAssumptions.base.lppReturn;
+                        _etSiThreeAReturn = ScenarioAssumptions.base.threeAReturn;
+                        _etSiInvestReturn = ScenarioAssumptions.base.investmentReturn;
+                        _etSiInflation = ScenarioAssumptions.base.inflation;
+                      }),
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: Text(
+                        'Reinitialiser',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                  ),
+
+                  // Disclaimer
+                  const SizedBox(height: 8),
+                  Text(
+                    'Simulation educative. Les rendements sont des hypotheses '
+                    'et ne presagent pas des performances futures (LSFin).',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      color: MintColors.textMuted,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _etSiSlider({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required String suffix,
+    int decimals = 1,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+              ),
+            ),
+            Text(
+              '${value.toStringAsFixed(decimals)}$suffix',
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 3,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+          ),
+          child: Slider(
+            value: value.clamp(min, max),
+            min: min,
+            max: max,
+            divisions: ((max - min) * 10).round(), // 0.1% steps
+            activeColor: MintColors.info,
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _updateEtSi(VoidCallback update) {
+    setState(() {
+      update();
+      _etSiProjection = ForecasterService.projectEtSi(
+        profile: _profile!,
+        customBase: ScenarioAssumptions(
+          label: 'Et si...',
+          lppReturn: _etSiLppReturn,
+          threeAReturn: _etSiThreeAReturn,
+          investmentReturn: _etSiInvestReturn,
+          savingsReturn: ScenarioAssumptions.base.savingsReturn,
+          inflation: _etSiInflation,
+        ),
+      );
+    });
+  }
+
+  Widget _buildEtSiImpact() {
+    final baseCapital = _projection!.base.capitalFinal;
+    final etSiCapital = _etSiProjection!.base.capitalFinal;
+    final delta = etSiCapital - baseCapital;
+    final isPositive = delta >= 0;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: (isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique)
+            .withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isPositive ? Icons.trending_up : Icons.trending_down,
+            color: isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Impact sur ton capital a la retraite',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${isPositive ? "+" : "\u2212"}\u00A0${ForecasterService.formatChf(delta.abs())}',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEtSiTeaser() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.tune, color: MintColors.info, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Et si... ?',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Ajuste tes hypotheses de rendement pour explorer differents scenarios.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.lock_outline, color: MintColors.textMuted, size: 18),
+        ],
+      ),
     );
   }
 
@@ -1457,6 +2469,130 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           ],
         ),
       ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  5a. STREAK + MILESTONES SECTION
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildStreakMilestoneSection() {
+    if (_profile == null) return const SizedBox.shrink();
+
+    final streakResult = StreakService.compute(_profile!);
+    final milestones = StreakService.computeMilestones(_profile!);
+    final reachedCount = milestones.where((m) => m.isReached).length;
+
+    // Nothing to show if no streak and no milestones reached
+    if (streakResult.currentStreak == 0 && reachedCount == 0) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tes jalons',
+          style: GoogleFonts.montserrat(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Left: fire icon + streak count
+              if (streakResult.currentStreak > 0) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3E0),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.local_fire_department,
+                        color: Color(0xFFFF6D00),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 6),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${streakResult.currentStreak}',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFFFF6D00),
+                              height: 1.0,
+                            ),
+                          ),
+                          Text(
+                            'mois',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFFFF6D00),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+              // Right: milestone icons in a row
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: milestones.map((milestone) {
+                    return Tooltip(
+                      message: milestone.label,
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: milestone.isReached
+                            ? MintColors.primary.withValues(alpha: 0.12)
+                            : MintColors.lightBorder,
+                        child: Icon(
+                          milestone.icon,
+                          size: 16,
+                          color: milestone.isReached
+                              ? MintColors.primary
+                              : MintColors.textMuted.withValues(alpha: 0.4),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1842,4 +2978,134 @@ class _PlaceholderTrajectoryPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _PlaceholderTrajectoryPainter oldDelegate) =>
       false;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SCORE HISTORY MINI-CHART PAINTER
+// ════════════════════════════════════════════════════════════════
+//
+// Dessine une courbe lissee reliant les scores mensuels (max 24).
+// Gradient sous la courbe (vert si amelioration, orange sinon).
+// Points aux donnees, point final mis en evidence.
+// ════════════════════════════════════════════════════════════════
+
+class _ScoreHistoryPainter extends CustomPainter {
+  final List<Map<String, dynamic>> history;
+  final bool isImproving;
+
+  _ScoreHistoryPainter({
+    required this.history,
+    required this.isImproving,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (history.length < 2) return;
+
+    final w = size.width;
+    final h = size.height;
+    const padding = 8.0;
+    final chartW = w - padding * 2;
+    final chartH = h - padding * 2;
+
+    // Convertir les scores en points
+    final scores = history
+        .map((e) => (e['score'] as num?)?.toDouble() ?? 0.0)
+        .toList();
+    final count = scores.length;
+
+    // Y-axis: 0 a 100 (scores de fitness)
+    const minY = 0.0;
+    const maxY = 100.0;
+
+    List<Offset> points = [];
+    for (int i = 0; i < count; i++) {
+      final x = padding + (i / (count - 1)) * chartW;
+      final normalizedY = (scores[i] - minY) / (maxY - minY);
+      final y = padding + chartH - (normalizedY * chartH);
+      points.add(Offset(x, y));
+    }
+
+    // ── Couleur principale ──
+    final lineColor = isImproving
+        ? MintColors.success
+        : MintColors.scoreAttention;
+
+    // ── Dessiner le gradient sous la courbe ──
+    final gradientPath = _buildSmoothPath(points);
+    final fillPath = Path.from(gradientPath)
+      ..lineTo(points.last.dx, padding + chartH)
+      ..lineTo(points.first.dx, padding + chartH)
+      ..close();
+
+    final gradientPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          lineColor.withValues(alpha: 0.25),
+          lineColor.withValues(alpha: 0.02),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+
+    canvas.drawPath(fillPath, gradientPaint);
+
+    // ── Dessiner la ligne ──
+    final linePaint = Paint()
+      ..color = lineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    canvas.drawPath(gradientPath, linePaint);
+
+    // ── Points aux donnees ──
+    final dotPaint = Paint()
+      ..color = lineColor
+      ..style = PaintingStyle.fill;
+
+    final dotBorderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    for (int i = 0; i < points.length; i++) {
+      final isLast = i == points.length - 1;
+      final dotRadius = isLast ? 5.0 : 3.0;
+      final borderRadius = isLast ? 7.0 : 0.0;
+
+      if (isLast) {
+        // Bordure blanche pour le dernier point
+        canvas.drawCircle(points[i], borderRadius, dotBorderPaint);
+      }
+      canvas.drawCircle(points[i], dotRadius, dotPaint);
+    }
+  }
+
+  /// Construit un path lisse (courbe cubique) a travers les points.
+  Path _buildSmoothPath(List<Offset> points) {
+    final path = Path()..moveTo(points.first.dx, points.first.dy);
+
+    for (int i = 0; i < points.length - 1; i++) {
+      final current = points[i];
+      final next = points[i + 1];
+      final controlX = (current.dx + next.dx) / 2;
+      path.cubicTo(
+        controlX,
+        current.dy,
+        controlX,
+        next.dy,
+        next.dx,
+        next.dy,
+      );
+    }
+
+    return path;
+  }
+
+  @override
+  bool shouldRepaint(covariant _ScoreHistoryPainter oldDelegate) {
+    return oldDelegate.history != history ||
+        oldDelegate.isImproving != isImproving;
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH LLM SERVICE — Sprint C8 / MINT Coach
@@ -16,12 +17,12 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 //  - Guardrails : filtrage des termes bannis + disclaimer obligatoire
 //  - Context-aware : profil CoachProfile injecte dans le system prompt
 //
-// Pour l'instant : mock implementation (reponses pre-faites).
-// Le vrai appel HTTP est structure mais commente (TODO).
+// Hybride : mock enrichi (sans cle) / RAG backend (avec BYOK).
+// Les deux chemins retournent sources + disclaimers.
 // ────────────────────────────────────────────────────────────
 
 /// Fournisseur LLM supporte
-enum LlmProvider { openai, anthropic }
+enum LlmProvider { openai, anthropic, mistral }
 
 /// Configuration de la connexion LLM (BYOK)
 class LlmConfig {
@@ -55,10 +56,12 @@ class LlmConfig {
         return ['gpt-4', 'gpt-4-turbo', 'gpt-4o', 'gpt-3.5-turbo'];
       case LlmProvider.anthropic:
         return [
-          'claude-3-sonnet-20240229',
+          'claude-sonnet-4-5-20250929',
           'claude-3-haiku-20240307',
           'claude-3-opus-20240229',
         ];
+      case LlmProvider.mistral:
+        return ['mistral-large-latest', 'mistral-medium-latest'];
     }
   }
 
@@ -83,12 +86,16 @@ class ChatMessage {
   final String content;
   final DateTime timestamp;
   final List<String>? suggestedActions;
+  final List<RagSource> sources;
+  final List<String> disclaimers;
 
   const ChatMessage({
     required this.role,
     required this.content,
     required this.timestamp,
     this.suggestedActions,
+    this.sources = const [],
+    this.disclaimers = const [],
   });
 
   bool get isUser => role == 'user';
@@ -101,12 +108,16 @@ class CoachResponse {
   final String message;
   final List<String>? suggestedActions;
   final String disclaimer;
+  final List<RagSource> sources;
+  final List<String> disclaimers;
   final bool wasFiltered;
 
   const CoachResponse({
     required this.message,
     this.suggestedActions,
     required this.disclaimer,
+    this.sources = const [],
+    this.disclaimers = const [],
     this.wasFiltered = false,
   });
 }
@@ -133,33 +144,256 @@ class CoachLlmService {
   ///
   /// Le service prepend le system prompt avec le contexte utilisateur,
   /// applique les guardrails, et retourne une CoachResponse.
+  ///
+  /// Si BYOK est configure (config.hasApiKey), route via le backend RAG
+  /// pour obtenir des reponses groundees avec sources verifiables.
+  /// Sinon, utilise les reponses mock enrichies de references legales.
   static Future<CoachResponse> chat({
     required String userMessage,
     required CoachProfile profile,
     required List<ChatMessage> history,
     required LlmConfig config,
   }) async {
-    // Construire le system prompt avec le contexte
-    // ignore: unused_local_variable
-    final systemPrompt = buildSystemPrompt(profile);
+    // ── Mode RAG (BYOK configure) ──────────────────────────
+    if (config.hasApiKey) {
+      return _chatViaRag(
+        userMessage: userMessage,
+        profile: profile,
+        config: config,
+        history: history,
+      );
+    }
 
-    // TODO: Quand BYOK est configure, appeler le vrai LLM via
-    // _callOpenAI(systemPrompt: systemPrompt, ...) ou _callAnthropic(...)
-    // Pour l'instant, utiliser les reponses mock
+    // ── Mode mock (pas de cle API) ─────────────────────────
     final rawResponse = _getMockResponse(
       userMessage: userMessage,
       profile: profile,
     );
 
-    // Appliquer les guardrails
     final filtered = _applyGuardrails(rawResponse);
 
     return CoachResponse(
       message: filtered.message,
       suggestedActions: filtered.suggestedActions,
       disclaimer: _disclaimer,
+      sources: filtered.sources,
+      disclaimers: const [],
       wasFiltered: filtered.wasFiltered,
     );
+  }
+
+  /// Appel reel via le backend RAG (BYOK)
+  static Future<CoachResponse> _chatViaRag({
+    required String userMessage,
+    required CoachProfile profile,
+    required LlmConfig config,
+    required List<ChatMessage> history,
+  }) async {
+    final ragService = RagService();
+    final String provider;
+    switch (config.provider) {
+      case LlmProvider.anthropic:
+        provider = 'claude';
+        break;
+      case LlmProvider.mistral:
+        provider = 'mistral';
+        break;
+      case LlmProvider.openai:
+        provider = 'openai';
+        break;
+    }
+    final profileContext = _buildProfileContext(profile);
+
+    // Injecter le contexte conversationnel dans la question
+    final augmentedQuestion = _buildConversationContext(history, userMessage);
+
+    final ragResponse = await ragService.query(
+      question: augmentedQuestion,
+      apiKey: config.apiKey,
+      provider: provider,
+      model: config.model,
+      profileContext: profileContext,
+    );
+
+    // Appliquer les guardrails locaux en plus du filtrage backend
+    final filtered = _applyGuardrailsOnText(ragResponse.answer);
+
+    return CoachResponse(
+      message: filtered.message,
+      suggestedActions: _inferSuggestedActions(userMessage),
+      disclaimer: _disclaimer,
+      sources: ragResponse.sources,
+      disclaimers: ragResponse.disclaimers,
+      wasFiltered: filtered.wasFiltered,
+    );
+  }
+
+  /// Construit le contexte conversationnel pour le RAG (multi-turn client-side).
+  ///
+  /// Le backend /rag/query est single-turn par design (stateless, privacy).
+  /// On resume les derniers echanges dans la question elle-meme.
+  static String _buildConversationContext(
+      List<ChatMessage> history, String currentMessage) {
+    // Filtrer les messages systeme et ne garder que user/assistant
+    final relevant =
+        history.where((m) => m.isUser || m.isAssistant).toList();
+
+    // Si pas d'historique significatif, retourner le message tel quel
+    if (relevant.length <= 1) return currentMessage;
+
+    // Prendre les 4 derniers echanges (8 messages max)
+    final tail =
+        relevant.length > 8 ? relevant.sublist(relevant.length - 8) : relevant;
+
+    final buf = StringBuffer('Contexte de la conversation :\n');
+    for (final msg in tail) {
+      buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: ${msg.content}');
+    }
+    buf.writeln('\nNouvelle question :\n$currentMessage');
+    return buf.toString();
+  }
+
+  /// Convertit le profil coach en contexte riche pour le backend RAG.
+  ///
+  /// Le champ `financial_summary` est injecte dans le system prompt
+  /// du backend (guardrails.py) pour personnaliser les reponses LLM.
+  static Map<String, dynamic> _buildProfileContext(CoachProfile profile) {
+    final parts = <String>[];
+    parts.add('Age : ${profile.age} ans');
+    parts.add('Canton : ${profile.canton}');
+    parts.add('Statut : ${profile.etatCivil.name}');
+
+    // Revenus
+    if (profile.salaireBrutMensuel > 0) {
+      parts.add(
+          'Salaire brut : ${profile.salaireBrutMensuel.toStringAsFixed(0)} CHF/mois');
+    }
+
+    // Prevoyance
+    final prev = profile.prevoyance;
+    if (prev.totalEpargne3a > 0) {
+      parts.add(
+          'Avoir 3a : ${prev.totalEpargne3a.toStringAsFixed(0)} CHF');
+    }
+    if (prev.nombre3a > 0) {
+      parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
+    }
+    if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
+      parts.add(
+          'Avoir LPP : ${prev.avoirLppTotal!.toStringAsFixed(0)} CHF');
+    }
+    if (prev.lacuneRachatRestante > 0) {
+      parts.add(
+          'Lacune rachat LPP : ${prev.lacuneRachatRestante.toStringAsFixed(0)} CHF');
+    }
+
+    // Patrimoine + dettes
+    final pat = profile.patrimoine;
+    if (pat.totalPatrimoine > 0) {
+      parts.add(
+          'Patrimoine : ${pat.totalPatrimoine.toStringAsFixed(0)} CHF');
+    }
+    if (profile.dettes.totalDettes > 0) {
+      parts.add(
+          'Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+    }
+
+    // Depenses
+    final dep = profile.depenses;
+    if (dep.loyer > 0) {
+      parts.add('Loyer : ${dep.loyer.toStringAsFixed(0)} CHF/mois');
+    }
+    if (dep.assuranceMaladie > 0) {
+      parts.add(
+          'Assurance maladie : ${dep.assuranceMaladie.toStringAsFixed(0)} CHF/mois');
+    }
+
+    // Versements planifies
+    if (profile.plannedContributions.isNotEmpty) {
+      final contribs = profile.plannedContributions
+          .map((c) =>
+              '${c.label} (${c.amount.toStringAsFixed(0)} CHF/mois)')
+          .join(', ');
+      parts.add('Versements : $contribs');
+    }
+
+    // Check-ins recents
+    if (profile.checkIns.isNotEmpty) {
+      final recent = profile.checkIns.length > 3
+          ? profile.checkIns.sublist(profile.checkIns.length - 3)
+          : profile.checkIns;
+      final summary = recent.map((ci) {
+        final month = '${ci.month.month}/${ci.month.year}';
+        return '$month: ${ci.totalVersements.toStringAsFixed(0)} CHF';
+      }).join(', ');
+      parts.add('Derniers check-ins : $summary');
+    }
+
+    // Score fitness (wrapped in try-catch)
+    try {
+      final score = FinancialFitnessService.calculate(profile: profile);
+      parts.add('Score fitness : ${score.global}/100 '
+          '(Budget ${score.budget.score}, '
+          'Prevoyance ${score.prevoyance.score}, '
+          'Patrimoine ${score.patrimoine.score})');
+    } catch (_) {}
+
+    // Projection retraite (wrapped in try-catch)
+    try {
+      final proj = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      parts.add(
+          'Capital projete retraite : ${proj.base.capitalFinal.toStringAsFixed(0)} CHF');
+      parts.add(
+          'Taux de remplacement : ${(proj.tauxRemplacementBase * 100).toStringAsFixed(1)}%');
+    } catch (_) {}
+
+    // Conjoint
+    if (profile.isCouple && profile.conjoint != null) {
+      final c = profile.conjoint!;
+      parts.add(
+          'Conjoint·e : ${c.firstName ?? "conjoint·e"}, ${c.age ?? 0} ans');
+      if (c.isFatcaResident) parts.add('Conjoint·e FATCA');
+    }
+
+    // Objectif
+    parts.add('Objectif : ${profile.goalA.label}');
+
+    // Instructions de structure pour le LLM (injectees via le system prompt backend)
+    parts.add('');
+    parts.add('STRUCTURE DE TA REPONSE :');
+    parts.add('- Commence par une synthese en 1-2 phrases.');
+    parts.add('- Si pertinent, liste les options avec leur impact en CHF.');
+    parts.add('- Mentionne les risques et points d\'attention.');
+    parts.add('- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
+
+    return {
+      'canton': profile.canton,
+      'age': profile.age,
+      'civil_status': profile.etatCivil.name,
+      if (profile.firstName != null) 'first_name': profile.firstName,
+      'financial_summary': parts.join('\n'),
+    };
+  }
+
+  /// Infere les actions suggerees a partir du message utilisateur
+  static List<String> _inferSuggestedActions(String userMessage) {
+    final lower = userMessage.toLowerCase();
+    if (lower.contains('3a')) {
+      return ['Simuler un versement 3a', 'Voir mes comptes 3a'];
+    }
+    if (lower.contains('lpp') || lower.contains('rachat')) {
+      return ['Simuler un rachat LPP', 'Comprendre le rachat LPP'];
+    }
+    if (lower.contains('retraite')) {
+      return ['Voir ma trajectoire', 'Explorer les scenarios'];
+    }
+    if (lower.contains('impot') || lower.contains('fiscal')) {
+      return ['Deductions fiscales possibles', 'Simuler l\'impact fiscal'];
+    }
+    return ['Mon score Fitness', 'Ma trajectoire retraite'];
   }
 
   /// Construit le system prompt avec le contexte utilisateur
@@ -195,9 +429,21 @@ class CoachLlmService {
         '- Tu dis toujours "consulte un·e specialiste" pour les decisions importantes.');
     buffer.writeln('- Tu parles en francais, tu tutoies.');
     buffer.writeln(
+        '- Tu cites TOUJOURS tes sources legales (LPP art. X, OPP3 art. Y, LIFD art. Z, etc.).');
+    buffer.writeln(
         '- Tu NE dis JAMAIS : "garanti", "certain", "assure", "sans risque", "optimal", "meilleur", "parfait".');
     buffer.writeln(
         '- Tu ajoutes toujours un disclaimer si tu parles de projections.');
+    buffer.writeln();
+    buffer.writeln('STRUCTURE DE TA REPONSE :');
+    buffer.writeln(
+        '- Commence par une synthese en 1-2 phrases.');
+    buffer.writeln(
+        '- Si pertinent, liste les options avec leur impact en CHF.');
+    buffer.writeln(
+        '- Mentionne les risques et points d\'attention.');
+    buffer.writeln(
+        '- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
     buffer.writeln();
     buffer.writeln('CONTEXTE UTILISATEUR :');
     buffer.writeln(
@@ -245,10 +491,14 @@ class CoachLlmService {
     if (lower.contains('3a')) {
       return _MockResult(
         message:
-            'Ton plafond 3a est de 7\'258 CHF/an. Tu as encore de la marge pour optimiser. Pense a verser avant fin decembre !',
+            'Ton plafond 3a est de 7\'258 CHF/an (OPP3 art. 7). Tu as encore de la marge pour optimiser. Pense a verser avant fin decembre !',
         suggestedActions: [
           'Simuler un versement 3a',
           'Voir mes comptes 3a',
+        ],
+        sources: const [
+          RagSource(
+              title: 'Pilier 3a', file: 'opp3', section: 'OPP3 art. 7'),
         ],
       );
     }
@@ -256,10 +506,16 @@ class CoachLlmService {
     if (lower.contains('lpp') || lower.contains('rachat')) {
       return _MockResult(
         message:
-            'Avec ta lacune LPP actuelle, un rachat pourrait te faire economiser sur tes impots. Simule l\'impact avec le simulateur rachat LPP.',
+            'Avec ta lacune LPP actuelle, un rachat pourrait te faire economiser sur tes impots (LPP art. 79b). Simule l\'impact avec le simulateur rachat LPP.',
         suggestedActions: [
           'Simuler un rachat LPP',
           'Comprendre le rachat LPP',
+        ],
+        sources: const [
+          RagSource(
+              title: 'Prevoyance professionnelle',
+              file: 'lpp',
+              section: 'LPP art. 79b'),
         ],
       );
     }
@@ -267,10 +523,16 @@ class CoachLlmService {
     if (lower.contains('retraite')) {
       return _MockResult(
         message:
-            'D\'apres ta trajectoire actuelle, ton taux de remplacement estime est de $tauxRemplacement%. La cible generalement recommandee est entre 60% et 80%.',
+            'D\'apres ta trajectoire actuelle, ton taux de remplacement estime est de $tauxRemplacement%. La cible generalement recommandee est entre 60% et 80% (LAVS art. 21).',
         suggestedActions: [
           'Voir ma trajectoire',
           'Explorer les scenarios',
+        ],
+        sources: const [
+          RagSource(
+              title: 'Prevoyance vieillesse',
+              file: 'lavs_lpp',
+              section: 'LAVS art. 21 / LPP art. 13'),
         ],
       );
     }
@@ -278,10 +540,16 @@ class CoachLlmService {
     if (lower.contains('impot') || lower.contains('fiscal')) {
       return _MockResult(
         message:
-            'La declaration d\'impots dans le canton ${profile.canton} — n\'oublie pas de deduire tes versements 3a et tes rachats LPP !',
+            'La declaration d\'impots dans le canton ${profile.canton} — n\'oublie pas de deduire tes versements 3a et tes rachats LPP (LIFD art. 33) !',
         suggestedActions: [
           'Deductions fiscales possibles',
           'Simuler l\'impact fiscal',
+        ],
+        sources: const [
+          RagSource(
+              title: 'Fiscalite',
+              file: 'lifd',
+              section: 'LIFD art. 33 / LHID'),
         ],
       );
     }
@@ -293,6 +561,12 @@ class CoachLlmService {
         suggestedActions: [
           'En savoir plus sur FATCA',
           'Trouver un·e specialiste',
+        ],
+        sources: const [
+          RagSource(
+              title: 'FATCA',
+              file: 'fatca',
+              section: 'Foreign Account Tax Compliance Act'),
         ],
       );
     }
@@ -309,15 +583,24 @@ class CoachLlmService {
     );
   }
 
-  /// Applique les guardrails de filtrage
+  /// Applique les guardrails de filtrage sur un _MockResult
   static _FilterResult _applyGuardrails(_MockResult raw) {
-    var message = raw.message;
+    final filtered = _applyGuardrailsOnText(raw.message);
+    return _FilterResult(
+      message: filtered.message,
+      suggestedActions: raw.suggestedActions,
+      sources: raw.sources,
+      wasFiltered: filtered.wasFiltered,
+    );
+  }
+
+  /// Applique les guardrails sur un texte brut (utilise pour mock et RAG)
+  static _FilterResult _applyGuardrailsOnText(String text) {
+    var message = text;
     var wasFiltered = false;
 
-    // Verifier les termes bannis
     for (final term in _bannedTerms) {
       if (message.toLowerCase().contains(term.toLowerCase())) {
-        // Remplacer le terme banni par une alternative
         message = message.replaceAll(
           RegExp(term, caseSensitive: false),
           '[terme retire]',
@@ -328,7 +611,6 @@ class CoachLlmService {
 
     return _FilterResult(
       message: message,
-      suggestedActions: raw.suggestedActions,
       wasFiltered: wasFiltered,
     );
   }
@@ -349,75 +631,18 @@ class CoachLlmService {
         'Mon 3a',
       ];
 
-  // TODO: Implementer le vrai appel HTTP quand BYOK est configure
-  //
-  // static Future<String> _callOpenAI({
-  //   required String systemPrompt,
-  //   required List<ChatMessage> messages,
-  //   required LlmConfig config,
-  // }) async {
-  //   final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
-  //   final body = {
-  //     'model': config.model,
-  //     'messages': [
-  //       {'role': 'system', 'content': systemPrompt},
-  //       ...messages.map((m) => {'role': m.role, 'content': m.content}),
-  //     ],
-  //     'temperature': 0.7,
-  //     'max_tokens': 500,
-  //   };
-  //   final response = await http.post(
-  //     uri,
-  //     headers: {
-  //       'Authorization': 'Bearer ${config.apiKey}',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: jsonEncode(body),
-  //   );
-  //   if (response.statusCode != 200) {
-  //     throw Exception('OpenAI API error: ${response.statusCode}');
-  //   }
-  //   final data = jsonDecode(response.body);
-  //   return data['choices'][0]['message']['content'] as String;
-  // }
-  //
-  // static Future<String> _callAnthropic({
-  //   required String systemPrompt,
-  //   required List<ChatMessage> messages,
-  //   required LlmConfig config,
-  // }) async {
-  //   final uri = Uri.parse('https://api.anthropic.com/v1/messages');
-  //   final body = {
-  //     'model': config.model,
-  //     'system': systemPrompt,
-  //     'messages': messages.map((m) => {'role': m.role, 'content': m.content}).toList(),
-  //     'max_tokens': 500,
-  //   };
-  //   final response = await http.post(
-  //     uri,
-  //     headers: {
-  //       'x-api-key': config.apiKey,
-  //       'anthropic-version': '2023-06-01',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: jsonEncode(body),
-  //   );
-  //   if (response.statusCode != 200) {
-  //     throw Exception('Anthropic API error: ${response.statusCode}');
-  //   }
-  //   final data = jsonDecode(response.body);
-  //   return data['content'][0]['text'] as String;
-  // }
 }
 
 /// Resultat interne du mock (avant guardrails)
 class _MockResult {
   final String message;
   final List<String>? suggestedActions;
+  final List<RagSource> sources;
 
   const _MockResult({
     required this.message,
     this.suggestedActions,
+    this.sources = const [],
   });
 }
 
@@ -425,11 +650,13 @@ class _MockResult {
 class _FilterResult {
   final String message;
   final List<String>? suggestedActions;
+  final List<RagSource> sources;
   final bool wasFiltered;
 
   const _FilterResult({
     required this.message,
     this.suggestedActions,
+    this.sources = const [],
     this.wasFiltered = false,
   });
 }

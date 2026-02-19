@@ -106,32 +106,13 @@ class WealthTaxService {
   // ════════════════════════════════════════════════════════════
 
   static const Map<String, double> churchTaxRates = {
-    'ZH': 0.11,  // ~10-12% Staatssteuer (Winterthur 13-17%, ZH StG § 208)
-    'BE': 0.20,  // ~20.7% cath. / 18.4% réf. (StG art. 248)
-    'LU': 0.10,  // ~10%
-    'UR': 0.10,  // ~10%
-    'SZ': 0.08,  // ~8% (low-tax canton)
-    'OW': 0.10,  // ~10%
-    'NW': 0.08,  // ~8% (low-tax canton)
-    'GL': 0.12,  // ~12%
-    'ZG': 0.06,  // ~6% (very low-tax canton)
-    'FR': 0.15,  // ~15% (coefficients paroissiaux élevés)
-    'SO': 0.12,  // ~12%
-    'BS': 0.15,  // ~15% (Steuerfuss élevé, ~2'000 CHF/famille)
-    'BL': 0.12,  // ~12%
-    'SH': 0.12,  // ~12%
-    'AR': 0.10,  // ~10%
-    'AI': 0.12,  // ~12%
-    'SG': 0.25,  // ~20-28% (source officielle SG 2024, taux très élevé)
-    'GR': 0.15,  // ~15% (3.5% cantonal + 8-17% local)
-    'AG': 0.10,  // ~10%
-    'TG': 0.10,  // ~10%
-    'TI': 0.00,  // Volontaire (séparation Eglise/Etat)
-    'VD': 0.00,  // Pas d'impôt ecclésiastique (Etat finance)
-    'VS': 0.03,  // ~2-3% — très bas (3 communes seulement, RSM = CHF 332)
-    'NE': 0.00,  // Séparation Eglise/Etat
-    'GE': 0.00,  // Séparation Eglise/Etat
-    'JU': 0.10,  // ~10%
+    'ZH': 0.10, 'BE': 0.15, 'LU': 0.10, 'UR': 0.12,
+    'SZ': 0.10, 'OW': 0.10, 'NW': 0.10, 'GL': 0.14,
+    'ZG': 0.08, 'FR': 0.12, 'SO': 0.12, 'BS': 0.08,
+    'BL': 0.10, 'SH': 0.12, 'AR': 0.10, 'AI': 0.15,
+    'SG': 0.12, 'GR': 0.14, 'AG': 0.10, 'TG': 0.12,
+    'TI': 0.00, 'VD': 0.00, 'VS': 0.10, 'NE': 0.00,
+    'GE': 0.00, 'JU': 0.10,
   };
 
   /// Cantons where church tax is not mandatory (separated church/state).

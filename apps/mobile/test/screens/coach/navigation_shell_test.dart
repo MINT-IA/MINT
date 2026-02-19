@@ -9,16 +9,37 @@ import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
+
+// ────────────────────────────────────────────────────────────
+//  NAVIGATION SHELL TESTS — Phase 5 / Quality hardening
+//
+//  MainNavigationShell embeds CoachDashboardScreen as tab 0,
+//  which has _pulseController..repeat(reverse: true) (infinite
+//  animation). We MUST use pump(Duration) not pumpAndSettle().
+// ────────────────────────────────────────────────────────────
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  /// Wraps the shell with all required providers and localization.
+  CoachProfileProvider _buildCoachProvider() {
+    final provider = CoachProfileProvider();
+    provider.updateFromAnswers({
+      'q_firstname': 'Julien',
+      'q_birth_year': 1977,
+      'q_canton': 'VS',
+      'q_net_income_period_chf': 9080,
+      'q_civil_status': 'marie',
+      'q_goal': 'retraite',
+    });
+    return provider;
+  }
+
   Widget buildTestableShell() {
     return MultiProvider(
       providers: [
@@ -41,6 +62,7 @@ void main() {
             create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(
             create: (_) => BudgetProvider()),
+        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -59,7 +81,7 @@ void main() {
   group('MainNavigationShell (Sprint C10 — 4 tabs)', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestableShell());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 2));
 
       expect(find.byType(MainNavigationShell), findsOneWidget);
       expect(find.byType(Scaffold), findsWidgets);
@@ -67,9 +89,8 @@ void main() {
 
     testWidgets('renders 4 tab items in bottom navigation', (tester) async {
       await tester.pumpWidget(buildTestableShell());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 2));
 
-      // Exactly 4 tab labels must be present
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Agir'), findsOneWidget);
       expect(find.text('Apprendre'), findsOneWidget);
@@ -78,16 +99,14 @@ void main() {
 
     testWidgets('each tab label is correct', (tester) async {
       await tester.pumpWidget(buildTestableShell());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 2));
 
-      // Verify all 4 expected labels and none of the old ones
       final expectedLabels = ['Dashboard', 'Agir', 'Apprendre', 'Profil'];
       for (final label in expectedLabels) {
         expect(find.text(label), findsOneWidget,
             reason: 'Tab label "$label" should appear exactly once');
       }
 
-      // Old tab labels should NOT appear as tab labels
       expect(find.text('MAINTENANT'), findsNothing,
           reason: 'Old tab label MAINTENANT should be removed');
       expect(find.text('SUIVRE'), findsNothing,
@@ -96,33 +115,30 @@ void main() {
 
     testWidgets('tapping each tab switches content', (tester) async {
       await tester.pumpWidget(buildTestableShell());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 2));
 
-      // Tab 0 (Dashboard) is active by default — check for dashboard content
+      // Tab 0 (Dashboard) is active by default
       expect(find.textContaining('Bonjour'), findsWidgets,
           reason: 'Dashboard shows greeting');
 
       // Tap Tab 1 (Agir)
       await tester.tap(find.text('Agir'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 2));
 
-      // Agir tab should show its content (AGIR header or timeline)
       expect(find.text('AGIR'), findsOneWidget,
           reason: 'Agir tab content should be visible');
 
       // Tap Tab 2 (Apprendre)
       await tester.tap(find.text('Apprendre'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 2));
 
-      // Apprendre tab should show explorer content
       expect(find.text('EXPLORER'), findsOneWidget,
           reason: 'Apprendre tab shows EXPLORER header');
 
       // Tap Tab 3 (Profil)
       await tester.tap(find.text('Profil'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 2));
 
-      // Profil tab should show profile content
       expect(find.byType(Scaffold), findsWidgets,
           reason: 'Profil tab renders a Scaffold');
     });

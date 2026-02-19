@@ -267,6 +267,11 @@ class RealReturnResult {
 class RealReturnCalculator {
   /// Calcule le rendement reel du 3a en tenant compte de l'economie fiscale.
   ///
+  /// Concept : tu verses 7'258 CHF/an, mais tu ne paies "de ta poche" que
+  /// versement × (1 − tauxMarginal). Le capital 3a grandit au rendement brut.
+  /// Le "rendement reel" est le taux qu'il faudrait pour que ton investissement
+  /// net (hors economie fiscale) produise le meme capital final.
+  ///
   /// [versementAnnuel]   — versement annuel 3a (CHF)
   /// [tauxMarginal]      — taux marginal d'imposition (0.10 - 0.45)
   /// [rendementBrut]     — rendement brut annuel du 3a (ex: 0.045)
@@ -286,11 +291,10 @@ class RealReturnCalculator {
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(1, 45);
     final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
-    // Rendement net de frais et d'inflation (identique au backend)
     final clampedInflation = inflation.clamp(0.0, 0.05);
     final rendementNet = max(0.0, clampedRendement - clampedFrais - clampedInflation);
 
-    // Capital final 3a (rendement compose)
+    // Capital final 3a (rendement compose sur versement complet)
     double capital3a = 0;
     double totalEconomieFiscale = 0;
     for (int i = 0; i < clampedDuree; i++) {
@@ -309,16 +313,19 @@ class RealReturnCalculator {
     final gainVsEpargne =
         (capital3a + totalEconomieFiscale) - capitalEpargne;
 
-    // Rendement nominal annualise
+    // Rendement nominal annualise (sans avantage fiscal)
     final rendNominal = totalVersements > 0 && clampedDuree > 0
         ? (pow(capital3a / totalVersements, 1.0 / clampedDuree) - 1) * 100
         : 0.0;
-    // Rendement reel (avec economie fiscale)
-    final capitalAvecFiscal = capital3a + totalEconomieFiscale;
-    final rendReelPct = totalVersements > 0 && clampedDuree > 0
-        ? (pow(capitalAvecFiscal / totalVersements, 1.0 / clampedDuree) - 1) *
-            100
-        : 0.0;
+
+    // ── Rendement reel : TRI sur investissement net (IRR) ──────────────
+    // Out-of-pocket = versement × (1 − taux_marginal) chaque annee
+    // Capital obtenu = capital3a
+    // On cherche r tel que : sum(versement_net × (1+r)^(n-i), i=0..n-1) = capital3a
+    // Resolu par methode de Newton (bisection fallback)
+    final versementNet = clampedVersement * (1 - clampedTaux);
+    final rendReelPct = _solveIRR(versementNet, capital3a, clampedDuree) * 100;
+
     // Rendement epargne classique annualise
     final rendEpargne = totalVersements > 0 && clampedDuree > 0
         ? (pow(capitalEpargne / totalVersements, 1.0 / clampedDuree) - 1) * 100
@@ -348,6 +355,40 @@ class RealReturnCalculator {
           'Base legale : OPP3, LIFD art. 33 al. 1 let. e. '
           'Consultez un ou une specialiste avant toute decision.',
     );
+  }
+
+  /// Resout le TRI (IRR) par bisection.
+  /// Trouve r tel que : sum(pmt × (1+r)^(n-i), i=0..n-1) = targetFV
+  /// Equivalent a FV d'une annuite : pmt × ((1+r)^n - 1) / r × (1+r) si r > 0
+  static double _solveIRR(double pmt, double targetFV, int n) {
+    if (pmt <= 0 || targetFV <= 0 || n <= 0) return 0.0;
+    if (n == 1) {
+      // FV = pmt * (1+r), so r = FV/pmt - 1
+      return (targetFV / pmt - 1).clamp(0.0, 1.0);
+    }
+
+    double lo = -0.05;
+    double hi = 0.50;
+
+    // Bisection : 60 iterations -> precision ~1e-18
+    for (int iter = 0; iter < 60; iter++) {
+      final mid = (lo + hi) / 2;
+      final fv = _futureValueAnnuity(pmt, mid, n);
+      if (fv < targetFV) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    return ((lo + hi) / 2).clamp(-0.05, 0.50);
+  }
+
+  /// Future Value d'une annuite de debut de periode (annuity-due).
+  /// FV = pmt × ((1+r)^n - 1) / r × (1+r)
+  static double _futureValueAnnuity(double pmt, double r, int n) {
+    if (r.abs() < 1e-10) return pmt * n; // Cas limite r ≈ 0
+    final factor = pow(1 + r, n) - 1;
+    return pmt * (factor / r) * (1 + r);
   }
 }
 

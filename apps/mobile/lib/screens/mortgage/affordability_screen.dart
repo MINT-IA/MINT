@@ -446,17 +446,19 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
+            Flexible(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
               ),
             ),
             Text(
               format,
-              style: const TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: MintColors.textPrimary,
@@ -464,13 +466,23 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             ),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
+        const SizedBox(height: 4),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: MintColors.primary,
+            inactiveTrackColor: MintColors.border,
+            thumbColor: MintColors.primary,
+            overlayColor: MintColors.primary.withValues(alpha: 0.1),
+            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+          ),
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: onChanged,
+          ),
         ),
       ],
     );
@@ -499,8 +511,6 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           const SizedBox(height: 16),
           _buildInfoRow('Prix d\'achat vise',
               'CHF ${formatChf(_prixAchat)}'),
-          _buildInfoRow('Hypotheque (80%)',
-              'CHF ${formatChf(_prixAchat * 0.80)}'),
           _buildInfoRow('Fonds propres requis (20%)',
               'CHF ${formatChf(result.fondsPropresRequis)}'),
           const Divider(height: 20),
@@ -518,6 +528,14 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                   ? MintColors.success
                   : MintColors.error),
           const Divider(height: 20),
+          () {
+            final hypothequeReelle = max(0.0, _prixAchat - result.fondsPropresTotal);
+            final ltvPct = _prixAchat > 0 ? (hypothequeReelle / _prixAchat * 100).toStringAsFixed(0) : '0';
+            return _buildInfoRow(
+              'Hypotheque ($ltvPct%)',
+              'CHF ${formatChf(hypothequeReelle)}',
+            );
+          }(),
           _buildInfoRow('Charges mensuelles theoriques',
               'CHF ${formatChf(result.chargesTheoriquesMensuelles)}'),
           _buildInfoRow(
@@ -530,7 +548,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Calcul theorique : hypotheque x (5% interet impute + 1% amortissement + 1% frais) = 7% du montant hypothecaire. Max 33% du revenu brut.',
+            'Calcul theorique : hypotheque x (5% interet impute + 1% amortissement) + prix x 1% frais accessoires. Max 33% du revenu brut.',
             style: TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,

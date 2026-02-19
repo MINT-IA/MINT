@@ -378,7 +378,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Le SARON hausse simule +0.5%/an les 3 premieres annees. '
+                    'Le SARON hausse simule +0.25%/an les 3 premieres annees. '
                     'En realite, l\'evolution depend de la politique monetaire de la BNS.',
                     style: TextStyle(
                       fontSize: 11,

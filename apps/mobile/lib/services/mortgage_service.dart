@@ -80,7 +80,7 @@ class AffordabilityCalculator {
     // Charges max = revenu x 1/3
     // => prix <= (revenu x 1/3 + FP x 6%) / 7%
     // Aussi : prix <= FP / 20% (contrainte fonds propres)
-    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * 0.10) : lpp);
+    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * 0.10) : 0.0);
     final prixMaxRevenu = revenu > 0
         ? (revenu / 3.0 + fondsPropresTotal * 0.06) / 0.07
         : 0.0;
@@ -214,7 +214,7 @@ class SaronVsFixedCalculator {
   /// Trois scenarios :
   ///   - Fixe : taux constant sur la duree
   ///   - SARON stable : taux SARON constant (optimiste)
-  ///   - SARON hausse : taux SARON + 0.5%/an les 3 premieres annees, puis stable
+  ///   - SARON hausse : taux SARON + 0.25%/an les 3 premieres annees, puis stable
   static SaronVsFixedResult compare({
     required double montantHypothecaire,
     required int dureeAns,
@@ -653,43 +653,8 @@ class EplCombinedResult {
 }
 
 class EplCombinedCalculator {
-  /// Taux d'impot sur le retrait en capital par canton.
-  /// Identiques au backend et a pillar_3a_deep_service.
-  static const Map<String, double> _tauxRetraitCapital = {
-    'ZH': 0.065,
-    'BE': 0.070,
-    'VD': 0.080,
-    'GE': 0.075,
-    'LU': 0.050,
-    'AG': 0.060,
-    'SG': 0.065,
-    'BS': 0.075,
-    'TI': 0.070,
-    'VS': 0.060,
-    'FR': 0.075,
-    'NE': 0.080,
-    'JU': 0.080,
-    'SO': 0.065,
-    'BL': 0.065,
-    'GR': 0.060,
-    'TG': 0.055,
-    'SZ': 0.040,
-    'ZG': 0.035,
-    'NW': 0.040,
-    'OW': 0.045,
-    'UR': 0.050,
-    'SH': 0.060,
-    'AR': 0.055,
-    'AI': 0.045,
-    'GL': 0.055,
-  };
-
   /// Liste des cantons ordonnes alphabetiquement.
-  static List<String> get cantons {
-    final list = _tauxRetraitCapital.keys.toList();
-    list.sort();
-    return list;
-  }
+  static List<String> get cantons => sortedCantonCodes;
 
   /// Calcule le plan de financement EPL multi-sources.
   ///
@@ -710,7 +675,7 @@ class EplCombinedCalculator {
     final lpp = avoirLpp.clamp(0.0, 2000000.0);
     final prix = prixCible.clamp(0.0, 10000000.0);
 
-    final tauxBase = _tauxRetraitCapital[canton.toUpperCase()] ?? 0.065;
+    final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
     final fondsPropresRequis = prix * 0.20;
     final lppMax = prix * 0.10; // Max 10% du prix en LPP
 

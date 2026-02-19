@@ -41,7 +41,7 @@ void main() {
       );
 
       expect(result['canton'], 'GE');
-      expect(result['cantonNom'], 'Geneve');
+      expect(result['cantonNom'], 'Genève');
     });
 
     test('chargeTotale equals impotFederal + impotCantonalCommunal', () {
@@ -218,7 +218,7 @@ void main() {
       );
 
       final chiffreChoc = result['chiffreChoc'] as String;
-      expect(chiffreChoc, contains('economiserais'));
+      expect(chiffreChoc, contains('économiserais'));
       expect(chiffreChoc, contains('10 ans'));
     });
 
@@ -230,7 +230,7 @@ void main() {
       );
 
       final chiffreChoc = result['chiffreChoc'] as String;
-      expect(chiffreChoc, contains('couterait'));
+      expect(chiffreChoc, contains('coûterait'));
     });
 
     test('chiffreChoc mentions equivalence for same canton', () {
@@ -241,7 +241,7 @@ void main() {
       );
 
       final chiffreChoc = result['chiffreChoc'] as String;
-      expect(chiffreChoc, contains('equivalente'));
+      expect(chiffreChoc, contains('équivalente'));
     });
   });
 

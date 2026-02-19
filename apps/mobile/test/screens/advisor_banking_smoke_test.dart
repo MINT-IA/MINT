@@ -387,7 +387,8 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining('Bonjour'), findsOneWidget);
-      expect(find.text('Score de Santé Financière'), findsOneWidget);
+      // The header now shows a contextual status phrase (replaces numeric score)
+      expect(find.textContaining('base'), findsWidgets);
     });
 
     testWidgets('displays circle diagnosis section', (tester) async {
@@ -402,7 +403,8 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Diagnostic par Cercle'), findsOneWidget);
+      // Thematic cards replaced circles — check for a thematic card title
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
     });
   });
 
@@ -410,6 +412,8 @@ void main() {
   // 5. ADVISOR WIZARD SCREEN V2
   // ===========================================================================
   group('AdvisorWizardScreenV2', () {
+    // Note: WizardScorePreview has a repeating glow animation,
+    // so pumpAndSettle will always time out. Use pump() instead.
     testWidgets('renders without crashing', (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -420,7 +424,7 @@ void main() {
           home: AdvisorWizardScreenV2(),
         ),
       );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(AdvisorWizardScreenV2), findsOneWidget);
       expect(find.byType(Scaffold), findsOneWidget);
@@ -436,7 +440,7 @@ void main() {
           home: AdvisorWizardScreenV2(),
         ),
       );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       // Should show the first section name
       expect(find.text('Profil'), findsOneWidget);
@@ -454,7 +458,7 @@ void main() {
           home: AdvisorWizardScreenV2(),
         ),
       );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
     });
@@ -469,7 +473,7 @@ void main() {
           home: AdvisorWizardScreenV2(),
         ),
       );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
     });
@@ -541,7 +545,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Open Banking'), findsOneWidget);
-      expect(find.text('Connectez vos comptes bancaires'), findsOneWidget);
+      expect(find.text('Connecte tes comptes bancaires'), findsOneWidget);
     });
 
     testWidgets('shows connected accounts section title', (tester) async {
@@ -859,7 +863,7 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Vos droits (nLPD)'), findsOneWidget);
+      expect(find.text('Tes droits (nLPD)'), findsOneWidget);
     });
 
     testWidgets('has add consent button', (tester) async {

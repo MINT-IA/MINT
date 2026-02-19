@@ -143,7 +143,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           value: _durationMonths.toDouble(),
           min: 6,
           max: 60,
-          divisions: 9,
+          divisions: 54,
           format: (v) => '${v.toInt()} mois',
           onChanged: (v) {
             _durationMonths = v.toInt();

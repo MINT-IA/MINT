@@ -353,9 +353,9 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('Mon impot'), findsOneWidget);
+      expect(find.text('Mon impôt'), findsOneWidget);
       expect(find.text('26 cantons'), findsOneWidget);
-      expect(find.text('Demenager'), findsOneWidget);
+      expect(find.text('Déménager'), findsOneWidget);
     });
 
     testWidgets('displays revenue slider with French label', (tester) async {
@@ -369,8 +369,8 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('Etat civil'), findsOneWidget);
-      expect(find.text('Celibataire'), findsOneWidget);
+      expect(find.text('État civil'), findsOneWidget);
+      expect(find.text('Célibataire'), findsOneWidget);
     });
 
     testWidgets('displays canton dropdown', (tester) async {
@@ -397,8 +397,8 @@ void main() {
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -400));
       await tester.pumpAndSettle();
 
-      expect(find.text('DECOMPOSITION FISCALE'), findsOneWidget);
-      expect(find.text('Impot federal'), findsOneWidget);
+      expect(find.text('DÉCOMPOSITION FISCALE'), findsOneWidget);
+      expect(find.text('Impôt fédéral'), findsOneWidget);
     });
 
     testWidgets('displays effective rate after scrolling', (tester) async {
@@ -409,7 +409,7 @@ void main() {
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -300));
       await tester.pumpAndSettle();
 
-      expect(find.text('Taux effectif estime'), findsOneWidget);
+      expect(find.text('Taux effectif estimé'), findsOneWidget);
     });
 
     testWidgets('displays disclaimer after scrolling down', (tester) async {
@@ -423,7 +423,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('conseil fiscal'), findsWidgets);
-      expect(find.textContaining('specialiste'), findsWidgets);
+      expect(find.textContaining('spécialiste'), findsWidgets);
     });
 
     testWidgets('displays fortune and church tax inputs after scrolling',
@@ -436,7 +436,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Fortune nette'), findsOneWidget);
-      expect(find.textContaining('Eglise'), findsOneWidget);
+      expect(find.textContaining('Église'), findsOneWidget);
     });
 
     testWidgets('displays national ranking after scrolling', (tester) async {

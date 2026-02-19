@@ -47,6 +47,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   double _impactCapital = 0;
   int _streak = 0;
   String _coachTip = '';
+  int _scoreBefore = 0;
+  int _scoreAfter = 0;
 
   bool _profileInitialized = false;
 
@@ -143,10 +145,6 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
     // Calculate totals
     _totalVersements = versements.values.fold(0.0, (s, v) => s + v);
-    _impactCapital = ForecasterService.calculateMonthlyDelta(
-      profile: _profile,
-      versements: versements,
-    );
 
     // Create the check-in
     final checkIn = MonthlyCheckIn(
@@ -162,9 +160,36 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     final updatedCheckIns = [..._profile.checkIns, checkIn];
     _streak = _calculateStreak(updatedCheckIns);
 
-    // Get coach message from fitness score
-    final fitnessScore = FinancialFitnessService.calculate(profile: _profile);
-    _coachTip = fitnessScore.coachMessage;
+    // ── Score before / after ────────────────────────────────
+    final scoreBefore = FinancialFitnessService.calculate(
+      profile: _profile,
+      previousScore: coachProvider.previousScore,
+    );
+    _scoreBefore = scoreBefore.global;
+    _coachTip = scoreBefore.coachMessage;
+
+    // Build updated profile with new check-in + potentially updated contributions
+    final updatedProfile = _profile
+        .copyWithCheckIns(updatedCheckIns)
+        .copyWithContributions(
+          contributionsChanged ? updatedContributions : _profile.plannedContributions,
+        );
+    final scoreAfter = FinancialFitnessService.calculate(
+      profile: updatedProfile,
+      previousScore: _scoreBefore,
+    );
+    _scoreAfter = scoreAfter.global;
+
+    // Projection-based impact (more accurate than simple sum)
+    final projectionBefore = ForecasterService.project(
+      profile: _profile,
+      targetDate: _profile.goalA.targetDate,
+    );
+    final projectionAfter = ForecasterService.project(
+      profile: updatedProfile,
+      targetDate: updatedProfile.goalA.targetDate,
+    );
+    _impactCapital = projectionAfter.base.capitalFinal - projectionBefore.base.capitalFinal;
 
     // Persist check-in via provider
     coachProvider.addCheckIn(checkIn);
@@ -173,6 +198,9 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     if (contributionsChanged) {
       coachProvider.updateContributions(updatedContributions);
     }
+
+    // Persist score for trend tracking
+    coachProvider.saveCurrentScore(_scoreAfter);
 
     setState(() {
       _isSubmitted = true;
@@ -868,6 +896,10 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       ),
       const SizedBox(height: 32),
 
+      // Score delta card
+      if (_scoreAfter != _scoreBefore) _buildScoreDeltaCard(),
+      if (_scoreAfter != _scoreBefore) const SizedBox(height: 16),
+
       // Impact card
       _buildImpactCard(),
       const SizedBox(height: 16),
@@ -908,6 +940,75 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       // Disclaimer
       _buildDisclaimer(),
     ];
+  }
+
+  Widget _buildScoreDeltaCard() {
+    final delta = _scoreAfter - _scoreBefore;
+    final isPositive = delta > 0;
+    final color = isPositive ? MintColors.success : MintColors.warning;
+    final arrow = isPositive ? '↗' : '↘';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              isPositive ? Icons.trending_up : Icons.trending_down,
+              color: color,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ton score financier',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$_scoreBefore $arrow $_scoreAfter / 100',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isPositive
+                      ? '+$delta pts — tes actions portent leurs fruits !'
+                      : '${delta} pts — continue, chaque mois compte',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildImpactCard() {

@@ -63,6 +63,25 @@ class ScenarioAssumptions {
     savingsReturn: 0.015,
     inflation: 0.015,
   );
+
+  /// Create a modified copy (for "Et si..." sliders)
+  ScenarioAssumptions copyWith({
+    String? label,
+    double? lppReturn,
+    double? threeAReturn,
+    double? investmentReturn,
+    double? savingsReturn,
+    double? inflation,
+  }) {
+    return ScenarioAssumptions(
+      label: label ?? this.label,
+      lppReturn: lppReturn ?? this.lppReturn,
+      threeAReturn: threeAReturn ?? this.threeAReturn,
+      investmentReturn: investmentReturn ?? this.investmentReturn,
+      savingsReturn: savingsReturn ?? this.savingsReturn,
+      inflation: inflation ?? this.inflation,
+    );
+  }
 }
 
 /// Point de projection (un mois)
@@ -239,6 +258,95 @@ class ForecasterService {
       profile: profile,
       assumptions: assumptions,
       targetDate: targetDate ?? profile.goalA.targetDate,
+    );
+  }
+
+  /// Projette avec des hypotheses "Et si..." personnalisees.
+  ///
+  /// L'utilisateur ajuste les parametres du scenario Base via des sliders.
+  /// Les scenarios Prudent et Optimiste sont derives automatiquement
+  /// en conservant les ecarts (spreads) des presets originaux.
+  ///
+  /// Exemple : si l'utilisateur fixe lppReturn Base a 3%, et que le spread
+  /// original est 1% (base 2% - prudent 1%), alors :
+  ///   Prudent = 3% - 1% = 2%, Optimiste = 3% + 1% = 4%
+  static ProjectionResult projectEtSi({
+    required CoachProfile profile,
+    required ScenarioAssumptions customBase,
+    DateTime? targetDate,
+  }) {
+    final target = targetDate ?? profile.goalA.targetDate;
+
+    // Calculate spreads from original presets (base - prudent, optimiste - base)
+    final lppSpreadDown = ScenarioAssumptions.base.lppReturn - ScenarioAssumptions.prudent.lppReturn;
+    final lppSpreadUp = ScenarioAssumptions.optimiste.lppReturn - ScenarioAssumptions.base.lppReturn;
+    final threeASpreadDown = ScenarioAssumptions.base.threeAReturn - ScenarioAssumptions.prudent.threeAReturn;
+    final threeASpreadUp = ScenarioAssumptions.optimiste.threeAReturn - ScenarioAssumptions.base.threeAReturn;
+    final investSpreadDown = ScenarioAssumptions.base.investmentReturn - ScenarioAssumptions.prudent.investmentReturn;
+    final investSpreadUp = ScenarioAssumptions.optimiste.investmentReturn - ScenarioAssumptions.base.investmentReturn;
+    final savingsSpreadDown = ScenarioAssumptions.base.savingsReturn - ScenarioAssumptions.prudent.savingsReturn;
+    final savingsSpreadUp = ScenarioAssumptions.optimiste.savingsReturn - ScenarioAssumptions.base.savingsReturn;
+
+    final customPrudent = ScenarioAssumptions(
+      label: 'Prudent',
+      lppReturn: (customBase.lppReturn - lppSpreadDown).clamp(0.0, 0.15),
+      threeAReturn: (customBase.threeAReturn - threeASpreadDown).clamp(0.0, 0.20),
+      investmentReturn: (customBase.investmentReturn - investSpreadDown).clamp(0.0, 0.25),
+      savingsReturn: (customBase.savingsReturn - savingsSpreadDown).clamp(0.0, 0.10),
+      inflation: customBase.inflation,
+    );
+
+    final customOptimiste = ScenarioAssumptions(
+      label: 'Optimiste',
+      lppReturn: (customBase.lppReturn + lppSpreadUp).clamp(0.0, 0.15),
+      threeAReturn: (customBase.threeAReturn + threeASpreadUp).clamp(0.0, 0.20),
+      investmentReturn: (customBase.investmentReturn + investSpreadUp).clamp(0.0, 0.25),
+      savingsReturn: (customBase.savingsReturn + savingsSpreadUp).clamp(0.0, 0.10),
+      inflation: customBase.inflation,
+    );
+
+    final scenarioPrudent = _projectScenario(
+      profile: profile,
+      assumptions: customPrudent,
+      targetDate: target,
+    );
+    final scenarioBase = _projectScenario(
+      profile: profile,
+      assumptions: customBase,
+      targetDate: target,
+    );
+    final scenarioOptimiste = _projectScenario(
+      profile: profile,
+      assumptions: customOptimiste,
+      targetDate: target,
+    );
+
+    // Taux de remplacement base
+    final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
+    final revenuNetAnnuel = revenuNetMensuel * 12;
+    final tauxRemplacement = revenuNetAnnuel > 0
+        ? (scenarioBase.revenuAnnuelRetraite / revenuNetAnnuel * 100)
+        : 0.0;
+
+    final milestones = _detectMilestones(scenarioBase.points);
+
+    return ProjectionResult(
+      prudent: scenarioPrudent,
+      base: scenarioBase,
+      optimiste: scenarioOptimiste,
+      tauxRemplacementBase: tauxRemplacement,
+      milestones: milestones,
+      disclaimer:
+          'Simulation "Et si..." a titre educatif uniquement. '
+          'Hypotheses de rendement ajustees manuellement. '
+          'Ne constitue pas un conseil financier (LSFin). '
+          'Les rendements passes ne presagent pas des rendements futurs.',
+      sources: [
+        'LAVS art. 21-29 (rente AVS)',
+        'LPP art. 14 (taux de conversion)',
+        'OPP3 art. 7 (plafond 3a)',
+        'LPP art. 79b (rachat)',
+      ],
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
 ///
@@ -21,6 +22,7 @@ class _EplScreenState extends State<EplScreen> {
   double _montantSouhaite = 100000;
   bool _aRachete = false;
   int _anneesSDepuisRachat = 0;
+  String _canton = 'ZH';
 
   EplResult get _result {
     // Repartition simplifiee oblig / suroblig
@@ -35,6 +37,7 @@ class _EplScreenState extends State<EplScreen> {
       montantSouhaite: _montantSouhaite,
       aRachete: _aRachete,
       anneesSDepuisRachat: _anneesSDepuisRachat,
+      canton: _canton,
     );
   }
 
@@ -198,6 +201,41 @@ class _EplScreenState extends State<EplScreen> {
             divisions: 96,
             format: 'CHF ${formatChf(_montantSouhaite)}',
             onChanged: (v) => setState(() => _montantSouhaite = v),
+          ),
+          const SizedBox(height: 12),
+
+          // Canton (pour l'impot sur retrait)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Canton',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              DropdownButton<String>(
+                value: _canton,
+                underline: const SizedBox(),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+                items: sortedCantonCodes.map((code) {
+                  final name = cantonFullNames[code] ?? code;
+                  return DropdownMenuItem(
+                    value: code,
+                    child: Text('$code — $name'),
+                  );
+                }).toList(),
+                onChanged: (v) {
+                  if (v != null) setState(() => _canton = v);
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 

@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
-import 'package:mint_mobile/widgets/coach/llm_config_sheet.dart';
+import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/services/pdf_service.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
-//  COACH CHAT SCREEN — Sprint C8 / MINT Coach
+//  COACH CHAT SCREEN — Phase 4 / MINT Coach
 // ────────────────────────────────────────────────────────────
 //
 // Interface de conversation avec le coach LLM.
-// BYOK : l'utilisateur configure sa propre cle API.
+// BYOK : l'utilisateur configure sa cle API via ByokProvider.
 //
 // Design :
-//  - SliverAppBar "Coach MINT" + subtitle "Conversation educative"
+//  - AppBar "Coach MINT" + subtitle "Conversation educative"
+//  - CTA BYOK si cle non configuree
 //  - Bulles de chat (user a droite, coach a gauche)
+//  - Sources + disclaimers sous les reponses RAG
 //  - Barre de saisie en bas avec bouton envoyer
 //  - Actions suggerees en chips sous les reponses du coach
 //  - Disclaimer legal en haut du chat
-//  - Si pas de cle API : ecran de configuration
+//  - Export PDF de la conversation
 //
 // Tous les textes en francais (informel "tu").
 // Aucun terme banni.
@@ -39,9 +45,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final FocusNode _focusNode = FocusNode();
 
   late CoachProfile _profile;
-  LlmConfig _config = LlmConfig.defaultOpenAI;
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
+  bool _isByokConfigured = false;
 
   bool _profileInitialized = false;
 
@@ -55,6 +61,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Charger le statut BYOK
+    final byok = context.read<ByokProvider>();
+    final wasConfigured = _isByokConfigured;
+    _isByokConfigured = byok.isConfigured;
+    if (wasConfigured != _isByokConfigured && mounted) {
+      setState(() {});
+    }
+
     if (!_profileInitialized) {
       _profileInitialized = true;
       final coachProvider = context.read<CoachProfileProvider>();
@@ -88,6 +102,35 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     ));
   }
 
+  /// Construit le LlmConfig a partir du ByokProvider.
+  LlmConfig _buildConfig() {
+    final byok = context.read<ByokProvider>();
+    if (!byok.isConfigured) return LlmConfig.defaultOpenAI;
+
+    final LlmProvider provider;
+    final String model;
+    switch (byok.provider) {
+      case 'claude':
+        provider = LlmProvider.anthropic;
+        model = 'claude-sonnet-4-5-20250929';
+        break;
+      case 'mistral':
+        provider = LlmProvider.mistral;
+        model = 'mistral-large-latest';
+        break;
+      default:
+        provider = LlmProvider.openai;
+        model = 'gpt-4o';
+        break;
+    }
+
+    return LlmConfig(
+      apiKey: byok.apiKey ?? '',
+      provider: provider,
+      model: model,
+    );
+  }
+
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
@@ -103,11 +146,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _scrollToBottom();
 
     try {
+      final config = _buildConfig();
       final response = await CoachLlmService.chat(
         userMessage: text.trim(),
         profile: _profile,
         history: _messages,
-        config: _config,
+        config: config,
       );
 
       setState(() {
@@ -116,15 +160,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           content: response.message,
           timestamp: DateTime.now(),
           suggestedActions: response.suggestedActions,
+          sources: response.sources,
+          disclaimers: response.disclaimers,
         ));
         _isLoading = false;
       });
       _scrollToBottom();
+    } on RagApiException catch (e) {
+      final String errorMsg;
+      switch (e.code) {
+        case 'invalid_key':
+          errorMsg =
+              'Ta cle API semble invalide ou expiree. Verifie-la dans les parametres.';
+          break;
+        case 'rate_limit':
+          errorMsg =
+              'Limite de requetes atteinte. Reessaie dans quelques instants.';
+          break;
+        default:
+          errorMsg = 'Erreur technique. Reessaie plus tard.';
+      }
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'system',
+          content: errorMsg,
+          timestamp: DateTime.now(),
+        ));
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
-          content: 'Erreur de connexion. Verifie ta cle API.',
+          content:
+              'Erreur de connexion. Verifie ta connexion internet ou ta cle API.',
           timestamp: DateTime.now(),
         ));
         _isLoading = false;
@@ -144,20 +213,46 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     });
   }
 
-  void _openConfigSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => LlmConfigSheet(
-        config: _config,
-        onSave: (newConfig) {
-          setState(() {
-            _config = newConfig;
-          });
-          Navigator.of(context).pop();
-        },
-      ),
+  /// Exporte les points cles de la conversation en PDF.
+  Future<void> _exportConversation() async {
+    // Collecter les 5 derniers echanges Q&A
+    final highlights = <Map<String, String>>[];
+    for (int i = 0; i < _messages.length; i++) {
+      if (_messages[i].isUser && i + 1 < _messages.length && _messages[i + 1].isAssistant) {
+        highlights.add({
+          'question': _messages[i].content,
+          'answer': _messages[i + 1].content,
+        });
+      }
+    }
+    // Limiter a 5 highlights
+    final limited = highlights.length > 5
+        ? highlights.sublist(highlights.length - 5)
+        : highlights;
+
+    // Collecter les sources juridiques
+    final sources = <String>{};
+    for (final msg in _messages) {
+      for (final src in msg.sources) {
+        sources.add(
+            '${src.title}${src.section.isNotEmpty ? ' — ${src.section}' : ''}');
+      }
+    }
+
+    // Calculer le score fitness
+    int fitnessScore = 0;
+    try {
+      final score =
+          FinancialFitnessService.calculate(profile: _profile);
+      fitnessScore = score.global;
+    } catch (_) {}
+
+    await PdfService.generateDecisionReportPdf(
+      firstName: _profile.firstName ?? 'Utilisateur',
+      canton: _profile.canton,
+      fitnessScore: fitnessScore,
+      conversationHighlights: limited,
+      legalSources: sources.toList(),
     );
   }
 
@@ -169,6 +264,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         children: [
           _buildAppBar(context),
           _buildDisclaimer(),
+          if (!_isByokConfigured) _buildByokCta(),
           Expanded(
             child: _buildMessageList(),
           ),
@@ -219,14 +315,106 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   ],
                 ),
               ),
+              // Export PDF
+              if (_messages.any((m) => m.isUser))
+                IconButton(
+                  icon: const Icon(Icons.share, color: Colors.white),
+                  tooltip: 'Exporter la conversation',
+                  onPressed: _exportConversation,
+                ),
+              // BYOK settings
               IconButton(
-                icon: const Icon(Icons.settings, color: Colors.white),
+                icon: Icon(
+                  _isByokConfigured ? Icons.settings : Icons.key,
+                  color: Colors.white,
+                ),
                 tooltip: 'Configurer la cle API',
-                onPressed: _openConfigSheet,
+                onPressed: () => context.push('/profile/byok'),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildByokCta() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.coachAccent.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: MintColors.coachAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.smart_toy_outlined,
+                  color: MintColors.coachAccent,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Configure ton coach IA',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ajoute ta cle API pour des reponses personnalisees basees sur ton profil.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => context.push('/profile/byok'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: MintColors.coachAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Text(
+                'Configurer',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -342,6 +530,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               const SizedBox(width: 48),
             ],
           ),
+          // Sources
+          if (msg.sources.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 48),
+              child: _buildSourcesSection(msg.sources),
+            ),
+          ],
+          // Disclaimers (from RAG backend)
+          if (msg.disclaimers.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 48),
+              child: _buildDisclaimersSection(msg.disclaimers),
+            ),
+          ],
           // Suggested actions as chips
           if (msg.suggestedActions != null &&
               msg.suggestedActions!.isNotEmpty) ...[
@@ -448,6 +652,105 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildSourcesSection(List<RagSource> sources) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: MintColors.info.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Sources',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: MintColors.info.withOpacity(0.8),
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          for (final source in sources)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 3),
+              child: InkWell(
+                onTap: () => _navigateToSource(source),
+                child: Row(
+                  children: [
+                    Icon(Icons.description_outlined,
+                        size: 13, color: MintColors.info.withOpacity(0.7)),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: MintColors.info,
+                          decoration: TextDecoration.underline,
+                          decorationColor: MintColors.info.withOpacity(0.5),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisclaimersSection(List<String> disclaimers) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withOpacity(0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline,
+              size: 14, color: MintColors.warning.withOpacity(0.8)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              disclaimers.join('\n'),
+              style: TextStyle(
+                fontSize: 11,
+                color: MintColors.warning.withOpacity(0.9),
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToSource(RagSource source) {
+    final file = source.file.toLowerCase();
+    if (file.contains('3a') ||
+        file.contains('opp3') ||
+        file.contains('pilier')) {
+      context.push('/simulator/3a');
+    } else if (file.contains('lpp') || file.contains('pension')) {
+      context.push('/simulator/rente-capital');
+    } else if (file.contains('lifd') || file.contains('fiscal')) {
+      context.push('/fiscal');
+    } else if (file.contains('lavs') || file.contains('avs')) {
+      context.push('/retirement');
+    } else if (file.contains('budget')) {
+      context.push('/budget');
+    } else {
+      context.push('/education/hub');
+    }
   }
 
   Widget _buildInputBar() {

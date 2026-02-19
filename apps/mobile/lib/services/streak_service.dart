@@ -158,4 +158,101 @@ class StreakService {
       monthsToNextBadge: monthsToNext,
     );
   }
+
+  /// Compute capital & financial milestones from a coach profile.
+  ///
+  /// Returns a list of [MintMilestone] with `isReached` flags based
+  /// on the user's current patrimoine, 3a contributions, and emergency fund.
+  /// All thresholds are based on Swiss financial planning best practices.
+  static List<MintMilestone> computeMilestones(CoachProfile profile) {
+    // Total patrimoine = epargne liquide + investissements + immobilier
+    // + avoir LPP + epargne 3a
+    final patrimoine = profile.patrimoine.totalPatrimoine +
+        (profile.prevoyance.avoirLppTotal ?? 0) +
+        profile.prevoyance.totalEpargne3a;
+
+    // Annual 3a contribution from planned monthly contributions
+    final annual3a = profile.total3aMensuel * 12;
+
+    // Monthly expenses from depenses profile
+    final monthlyExpenses = profile.depenses.totalMensuel;
+
+    // Liquid savings (available for emergency fund)
+    final liquidSavings = profile.patrimoine.epargneLiquide;
+
+    return [
+      MintMilestone(
+        id: 'patrimoine_50k',
+        label: 'Premier jalon',
+        description: 'Patrimoine atteint 50\'000 CHF',
+        icon: Icons.emoji_events,
+        threshold: 50000,
+        isReached: patrimoine >= 50000,
+      ),
+      MintMilestone(
+        id: 'patrimoine_100k',
+        label: 'Cap des 100k',
+        description: 'Patrimoine atteint 100\'000 CHF',
+        icon: Icons.workspace_premium,
+        threshold: 100000,
+        isReached: patrimoine >= 100000,
+      ),
+      MintMilestone(
+        id: 'patrimoine_250k',
+        label: 'Quart de million',
+        description: 'Patrimoine atteint 250\'000 CHF',
+        icon: Icons.diamond,
+        threshold: 250000,
+        isReached: patrimoine >= 250000,
+      ),
+      MintMilestone(
+        id: 'patrimoine_500k',
+        label: 'Demi-million',
+        description: 'Patrimoine atteint 500\'000 CHF',
+        icon: Icons.stars,
+        threshold: 500000,
+        isReached: patrimoine >= 500000,
+      ),
+      MintMilestone(
+        id: '3a_max',
+        label: '3a au max',
+        description: 'Versement 3a au plafond (7\'258 CHF)',
+        icon: Icons.savings,
+        threshold: 7258,
+        isReached: annual3a >= 7258,
+      ),
+      MintMilestone(
+        id: 'emergency_fund',
+        label: 'Matelas 6 mois',
+        description: '6 mois de depenses en epargne liquide',
+        icon: Icons.shield,
+        threshold: monthlyExpenses * 6,
+        isReached:
+            monthlyExpenses > 0 && liquidSavings >= monthlyExpenses * 6,
+      ),
+    ];
+  }
+}
+
+/// Capital & financial milestone badge.
+///
+/// Unlike [MintBadge] (which tracks streak consistency),
+/// [MintMilestone] tracks financial progress thresholds
+/// (patrimoine, 3a contributions, emergency fund).
+class MintMilestone {
+  final String id;
+  final String label;
+  final String description;
+  final IconData icon;
+  final double threshold;
+  final bool isReached;
+
+  const MintMilestone({
+    required this.id,
+    required this.label,
+    required this.description,
+    required this.icon,
+    required this.threshold,
+    required this.isReached,
+  });
 }

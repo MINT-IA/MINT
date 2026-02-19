@@ -153,7 +153,12 @@ class FirstJobService {
 
     // Deductions
     final avs = brut * _avsAiApgRate;
-    final ac = annuel <= acPlafondSalaireAssure ? brut * acCotisationSalarie : brut * 0.005;
+    // AC: standard rate up to ceiling, solidarity 0.5% on excess (LACI art. 3)
+    final ac = annuel <= acPlafondSalaireAssure
+        ? brut * acCotisationSalarie
+        : (acPlafondSalaireAssure * acCotisationSalarie +
+              (annuel - acPlafondSalaireAssure) * 0.005) /
+            12;
     final aanp = brut * _aanpRate;
 
     // LPP

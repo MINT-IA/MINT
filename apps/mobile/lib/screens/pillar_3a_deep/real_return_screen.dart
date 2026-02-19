@@ -162,9 +162,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             value: _versementAnnuel,
             min: 1000,
             max: pilier3aPlafondAvecLpp,
-            divisions: 62,
+            divisions: 125,
             format: 'CHF ${formatChf(_versementAnnuel)}',
-            onChanged: (v) => setState(() => _versementAnnuel = v),
+            onChanged: (v) => setState(() => _versementAnnuel = (v / 50).round() * 50.0),
           ),
           const SizedBox(height: 12),
 
@@ -234,17 +234,19 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textPrimary,
+            Flexible(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
               ),
             ),
             Text(
               format,
-              style: const TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: MintColors.textPrimary,
@@ -252,13 +254,23 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             ),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: MintColors.primary,
-          onChanged: onChanged,
+        const SizedBox(height: 4),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: MintColors.primary,
+            inactiveTrackColor: MintColors.border,
+            thumbColor: MintColors.primary,
+            overlayColor: MintColors.primary.withValues(alpha: 0.1),
+            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+          ),
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: onChanged,
+          ),
         ),
       ],
     );

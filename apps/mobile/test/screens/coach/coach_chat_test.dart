@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 
 // ────────────────────────────────────────────────────────────
-//  COACH CHAT SCREEN TESTS — Sprint C8
+//  COACH CHAT SCREEN TESTS — Phase 4 / BYOK + RAG wiring
 // ────────────────────────────────────────────────────────────
 
 void main() {
   Widget buildTestWidget() {
-    return const MaterialApp(
-      home: CoachChatScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ByokProvider()),
+      ],
+      child: const MaterialApp(
+        home: CoachChatScreen(),
+      ),
     );
   }
 
@@ -66,10 +75,11 @@ void main() {
       expect(find.byIcon(Icons.send), findsOneWidget);
     });
 
-    testWidgets('shows settings button for BYOK config', (tester) async {
+    testWidgets('shows key icon when BYOK not configured', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byIcon(Icons.settings), findsOneWidget);
+      // Without BYOK configured, shows key icon instead of settings
+      expect(find.byIcon(Icons.key), findsOneWidget);
     });
 
     testWidgets('shows back button', (tester) async {
@@ -101,10 +111,9 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Parle-moi du 3a');
       await tester.pump();
 
-      // Tap send
+      // Tap send and settle (scroll animation + async response)
       await tester.tap(find.byIcon(Icons.send));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
 
       // User message should appear as a bubble
       expect(find.text('Parle-moi du 3a'), findsOneWidget);
@@ -137,6 +146,92 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.textContaining('LSFin'), findsOneWidget);
+    });
+
+    testWidgets('shows sources section after 3a response', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Send a 3a message
+      await tester.enterText(find.byType(TextField), 'Mon 3a');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.send));
+      await tester.pumpAndSettle();
+
+      // Sources section should appear with legal reference
+      expect(find.text('Sources'), findsOneWidget);
+      // OPP3 appears in both response text and source section
+      expect(find.textContaining('OPP3'), findsWidgets);
+    });
+
+    testWidgets('shows source icon in sources section', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Send a LPP message
+      await tester.enterText(find.byType(TextField), 'Ma LPP');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.send));
+      await tester.pumpAndSettle();
+
+      // Source section should have description icon
+      expect(find.byIcon(Icons.description_outlined), findsOneWidget);
+      // LPP art. 79b appears in both response text and source section
+      expect(find.textContaining('LPP art. 79b'), findsWidgets);
+    });
+  });
+
+  group('CoachChatScreen — BYOK CTA', () {
+    testWidgets('shows BYOK CTA when not configured', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // CTA card should be visible
+      expect(find.text('Configure ton coach IA'), findsOneWidget);
+      expect(find.text('Configurer'), findsOneWidget);
+    });
+
+    testWidgets('BYOK CTA has smart_toy icon', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byIcon(Icons.smart_toy_outlined), findsOneWidget);
+    });
+
+    testWidgets('BYOK CTA subtitle mentions API key', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+        find.textContaining('cle API'),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('CoachChatScreen — export', () {
+    testWidgets('export button not shown initially (no user messages)',
+        (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // No user messages yet, so share button should not be shown
+      expect(find.byIcon(Icons.share), findsNothing);
+    });
+
+    testWidgets('export button appears after sending a message',
+        (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Send a message
+      await tester.enterText(find.byType(TextField), 'Mon 3a');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.send));
+      await tester.pumpAndSettle();
+
+      // Now the share/export button should appear
+      expect(find.byIcon(Icons.share), findsOneWidget);
     });
   });
 }

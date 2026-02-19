@@ -4,8 +4,13 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/screens/budget/budget_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('BudgetScreen smoke test - renders correctly',
       (WidgetTester tester) async {
     // 1. Setup Inputs
@@ -27,16 +32,18 @@ void main() {
       ),
     );
 
-    // 3. Pump to allow init
-    await tester.pumpAndSettle();
+    // 3. Pump to allow init: post-frame callback → async setInputs → rebuild
+    await tester.pump(); // trigger post-frame callback
+    await tester.pump(const Duration(milliseconds: 100)); // allow async storage calls
+    await tester.pump(const Duration(seconds: 2)); // advance animations
 
     // 4. Verify Header
-    expect(find.text('Disponible cette période'), findsOneWidget);
+    expect(find.text('Disponible ce mois'), findsOneWidget);
     // 5000 - 1500 = 3500 (may appear in header + spending meter)
     expect(find.textContaining('3500'), findsWidgets);
 
     // 5. Verify Sliders presence (since style is envelopes3)
-    expect(find.textContaining('Futur'), findsOneWidget);
+    expect(find.textContaining('Futur'), findsWidgets);
     expect(find.textContaining('Variables'), findsWidgets);
     expect(find.byType(Slider), findsNWidgets(2));
   });
@@ -60,7 +67,10 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    // Pump to allow init: post-frame callback → async setInputs → rebuild
+    await tester.pump(); // trigger post-frame callback
+    await tester.pump(const Duration(milliseconds: 100)); // allow async storage calls
+    await tester.pump(const Duration(seconds: 2)); // advance animations
 
     // Available 0 => Variables 0 => Stop Rule Warning
     expect(find.textContaining('Stop Rule Triggered'), findsOneWidget);

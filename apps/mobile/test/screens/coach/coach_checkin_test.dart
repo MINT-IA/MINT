@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 
 void main() {
   Widget buildTestWidget() {
-    return const MaterialApp(
-      home: CoachCheckinScreen(),
+    return ChangeNotifierProvider(
+      create: (_) => CoachProfileProvider(),
+      child: const MaterialApp(
+        home: CoachCheckinScreen(),
+      ),
     );
   }
 

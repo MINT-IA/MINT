@@ -764,10 +764,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
           Text(
             _hasLpp
                 ? 'Avec LPP volontaire : plafond 3a standard de '
-                  'CHF\u00A07\'056/an.'
+                  'CHF\u00A07\'258/an.'
                 : 'Sans LPP : plafond 3a "grand" de 20% du revenu net, '
                   'max ${IndependantService.formatChf(result.plafond3a)}/an '
-                  '(plafond legal CHF\u00A035\'280).',
+                  '(plafond legal CHF\u00A036\'288).',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: const Color(0xFF4338CA),
@@ -912,7 +912,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         Text(
           'LPP art. 4 (pas d\'obligation pour indépendants) / '
           'LPP art. 44 (affiliation volontaire) / '
-          'OPP3 art. 7 (3a grand : 20% du revenu net, max 35\'280) / '
+          'OPP3 art. 7 (3a grand : 20% du revenu net, max 36\'288) / '
           'LAVS art. 8 (cotisations indépendants) / '
           'LAA art. 4 / LAMal',
           style: GoogleFonts.inter(

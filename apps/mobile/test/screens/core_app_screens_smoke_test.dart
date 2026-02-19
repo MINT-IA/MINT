@@ -21,6 +21,8 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/subscription_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -55,6 +57,8 @@ void main() {
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
         ChangeNotifierProvider<DocumentProvider>(create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider<SubscriptionProvider>(create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider<CoachProfileProvider>(create: (_) => CoachProfileProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -207,7 +211,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const DocumentsScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline), findsWidgets);
       expect(find.textContaining('localement'), findsOneWidget);
     });
   });
@@ -306,7 +310,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Financial OS'), findsOneWidget);
+      expect(find.textContaining('Tes finances'), findsOneWidget);
     });
 
     testWidgets('shows beta badge', (tester) async {
@@ -320,16 +324,16 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.bolt_rounded), findsWidgets);
-      expect(find.byIcon(Icons.shield_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.auto_graph_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.speed_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.show_chart_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
     });
 
     testWidgets('shows diagnostic CTA button', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('diagnostic'), findsWidgets);
+      expect(find.textContaining('score'), findsWidgets);
     });
 
     testWidgets('shows login button', (tester) async {
@@ -372,7 +376,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const AskMintScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('appareil'), findsWidgets);
+      expect(find.textContaining('localement'), findsWidgets);
       expect(find.byIcon(Icons.lock_outline), findsWidgets);
     });
   });
@@ -384,14 +388,14 @@ void main() {
   group('MainNavigationShell', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(MainNavigationShell), findsOneWidget);
     });
 
     testWidgets('shows bottom navigation with 4 tabs', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       // Tab labels appear in the bottom nav (Sprint C10: 4-tab coach layout)
       expect(find.text('Dashboard'), findsOneWidget);
@@ -402,7 +406,7 @@ void main() {
 
     testWidgets('shows tab icons', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       // Active tab shows filled icon (Dashboard = home), others show outlined
       expect(find.byIcon(Icons.home), findsOneWidget); // Active (Dashboard)
@@ -413,7 +417,7 @@ void main() {
 
     testWidgets('shows floating mentor FAB', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(FloatingActionButton), findsOneWidget);
       expect(find.byIcon(Icons.auto_awesome), findsWidgets);

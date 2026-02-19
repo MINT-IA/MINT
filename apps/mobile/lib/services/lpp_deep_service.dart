@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ============================================================================
 // LPP Deep Service — Sprint S15 (Chantier 4)
 //
@@ -400,24 +402,31 @@ class EplSimulator {
     required double montantSouhaite,
     required bool aRachete,
     int anneesSDepuisRachat = 0,
+    String canton = 'ZH',
   }) {
     final alerts = <String>[];
 
-    // --- Calcul du montant max retirable ---
+    // --- Calcul du montant max retirable (LPP art. 30c) ---
     double montantMax;
 
     if (age < 50) {
       // Avant 50 ans : la totalite de l'avoir peut etre retiree
       montantMax = avoirTotal;
     } else {
-      // Des 50 ans : le plus eleve entre :
-      // a) l'avoir a 50 ans (simplifie ici a 50% de l'avoir actuel)
+      // Des 50 ans : le plus eleve entre (LPP art. 30e) :
+      // a) l'avoir a 50 ans — sans info exacte, on estime via les
+      //    bonifications cumulees (moindre part de l'avoir actuel)
       // b) la moitie de l'avoir actuel
-      final avoirA50 = avoirTotal * 0.5; // Estimation simplifiee
-      montantMax = max(avoirA50, avoirTotal / 2);
+      // L'estimation a) utilise un ratio base sur les annees restantes:
+      // un assure ayant cotise de 25 a 50 ans (25 ans) vs 25 a age actuel.
+      final anneesDepuis25 = max(1, age - 25);
+      final annees25a50 = 25; // 25 ans de 25 a 50 ans
+      final ratioA50 = (annees25a50 / anneesDepuis25).clamp(0.3, 1.0);
+      final avoirEstimeA50 = avoirTotal * ratioA50;
+      montantMax = max(avoirEstimeA50, avoirTotal / 2);
     }
 
-    // Minimum 20'000 CHF
+    // Minimum 20'000 CHF (OPP2 art. 5)
     if (montantMax < 20000) {
       montantMax = 0;
       alerts.add(
@@ -426,7 +435,7 @@ class EplSimulator {
       );
     }
 
-    // Blocage 3 ans apres rachat
+    // Blocage 3 ans apres rachat (LPP art. 79b al. 3)
     if (aRachete && anneesSDepuisRachat < 3) {
       final anneesRestantes = 3 - anneesSDepuisRachat;
       montantMax = 0;
@@ -441,18 +450,8 @@ class EplSimulator {
     final applicable = min(montantSouhaite, montantMax).clamp(0.0, montantMax);
 
     // --- Estimation de l'impot sur le retrait EPL ---
-    // Taux reduit (environ 1/5 du bareme ordinaire, entre 3% et 10%)
-    double tauxImposition;
-    if (applicable < 50000) {
-      tauxImposition = 0.03;
-    } else if (applicable < 100000) {
-      tauxImposition = 0.05;
-    } else if (applicable < 250000) {
-      tauxImposition = 0.07;
-    } else {
-      tauxImposition = 0.09;
-    }
-    final impot = applicable * tauxImposition;
+    // Utilise les tranches progressives cantonales (LIFD art. 38)
+    final impot = _calculateProgressiveTax(applicable, canton);
 
     // --- Impact sur les prestations de risque ---
     // Estimation simplifiee : reduction proportionnelle
@@ -499,6 +498,29 @@ class EplSimulator {
           'OEPL. Consulte ta caisse de pension et un ou une '
           'spécialiste avant toute décision.',
     );
+  }
+
+  /// Calcule l'impot sur retrait de capital avec tranches progressives.
+  ///
+  /// Utilise les taux cantonaux de [tauxImpotRetraitCapital] et les
+  /// multiplicateurs progressifs de [retraitCapitalTranches].
+  /// Miroir exact de _calculate_progressive_tax() dans le backend.
+  static double _calculateProgressiveTax(double montant, String canton) {
+    if (montant <= 0) return 0.0;
+    final baseRate = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
+    double totalTax = 0.0;
+    double remaining = montant;
+    for (final tranche in retraitCapitalTranches) {
+      final low = tranche[0];
+      final high = tranche[1];
+      final multiplier = tranche[2];
+      final trancheSize = high - low;
+      final taxable = min(remaining, trancheSize);
+      if (taxable <= 0) break;
+      totalTax += taxable * baseRate * multiplier;
+      remaining -= taxable;
+    }
+    return totalTax;
   }
 }
 

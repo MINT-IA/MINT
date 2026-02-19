@@ -162,9 +162,29 @@ class DonationService {
     final impotDonation = montantDonation * tauxImposition;
 
     // ── Reserve hereditaire calculation ──
-    // We compute based on total fortune of donor
-    final fortune =
+    // Fortune base adjusted by matrimonial regime (CC art. 196ss)
+    final fortuneBrute =
         fortuneTotaleDonateur > 0 ? fortuneTotaleDonateur : montantDonation;
+
+    // Regime matrimonial affects the fortune entering succession:
+    // - participation_acquets: conjoint reçoit 50% des acquêts avant partage
+    //   → estimation simplifiée: ~75% de la fortune totale en masse successorale
+    // - communaute_biens: 50% de la propriété commune revient au conjoint
+    // - separation_biens: 100% de la fortune propre du donateur
+    final double regimeFactor;
+    switch (regimeMatrimonial) {
+      case 'communaute_biens':
+        regimeFactor = 0.50;
+        break;
+      case 'separation_biens':
+        regimeFactor = 1.00;
+        break;
+      case 'participation_acquets':
+      default:
+        regimeFactor = 0.75;
+        break;
+    }
+    final fortune = fortuneBrute * regimeFactor;
 
     double reserveHereditaireTotale = 0;
     double quotiteDisponible = 0;
@@ -182,11 +202,10 @@ class DonationService {
       quotiteDisponible = fortune - reserveHereditaireTotale;
     } else {
       // No children, with parents: conjoint gets 3/4, parents 1/4
-      // But parents have no reserve since 2023
+      // But parents have no reserve since 2023 (CC art. 471 rev.)
       final reserveConjoint = fortune *
           _partLegaleConjointSansEnfants['conjoint']! *
           reserves['conjoint']!;
-      // Parents: no reserve since 2023
       reserveHereditaireTotale = reserveConjoint;
       quotiteDisponible = fortune - reserveHereditaireTotale;
     }

@@ -75,7 +75,7 @@ class EducationContentData {
       ),
       funFact:
           'Si tu verses 7\'258 CHF/an des 25 ans avec un rendement moyen de '
-          '3%, tu accumuleras environ 430\'000 CHF a 65 ans. Sans rien faire '
+          '3%, tu accumuleras environ 550\'000 CHF a 65 ans. Sans rien faire '
           'de plus que ce virement annuel.',
       sources: [
         'OPP3 art. 7 (Plafond annuel 3a)',

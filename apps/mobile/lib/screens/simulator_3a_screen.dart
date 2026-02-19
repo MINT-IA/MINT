@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 class Simulator3aScreen extends StatefulWidget {
@@ -16,6 +18,8 @@ class Simulator3aScreen extends StatefulWidget {
 
 class _Simulator3aScreenState extends State<Simulator3aScreen> {
   double _annualContribution = pilier3aPlafondAvecLpp;
+  double _plafond3a = pilier3aPlafondAvecLpp;
+  bool _isIndepSansLpp = false;
   double _marginalTaxRate = 0.25;
   int _years = 30;
   double _annualReturn = 4.0;
@@ -27,6 +31,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('3a');
     _initializeFromProfile();
     _calculate();
   }
@@ -39,7 +44,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         final age = DateTime.now().year - profile.birthYear!;
         _years = (65 - age).clamp(5, 45);
       }
-      
+
+      // Independant sans LPP : plafond majore a 36'288 CHF (OPP3 art. 7)
+      if (profile.employmentStatus == EmploymentStatus.selfEmployed &&
+          profile.has2ndPillar != true) {
+        _isIndepSansLpp = true;
+        _plafond3a = pilier3aPlafondSansLpp;
+        _annualContribution = pilier3aPlafondSansLpp;
+      }
+
       // Rough estimate of marginal tax rate based on income if available
       if (profile.incomeNetMonthly != null) {
         final annualIncome = profile.incomeNetMonthly! * 12;
@@ -165,14 +178,16 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         _buildSectionHeader('Tes Paramètres'),
         const SizedBox(height: 24),
         _buildSlider(
-          label: 'Versement annuel',
+          label: _isIndepSansLpp
+              ? 'Versement annuel (indep. sans LPP)'
+              : 'Versement annuel',
           value: _annualContribution,
           min: 1000,
-          max: pilier3aPlafondAvecLpp,
-          divisions: 62,
+          max: _plafond3a,
+          divisions: ((_plafond3a - 1000) / 50).round(),
           format: (v) => _currencyFormat.format(v),
           onChanged: (v) {
-            _annualContribution = v;
+            _annualContribution = (v / 50).round() * 50.0;
             _calculate();
           },
         ),

@@ -8,6 +8,7 @@
 library;
 
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -792,6 +793,65 @@ class CoachProfile {
       housingCost: depenses.loyer,
       debtPayments: monthlyDebt,
       emergencyFundMonths: emergencyMonths,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  BRIDGE — CoachingService
+  // ════════════════════════════════════════════════════════════════
+
+  /// Convertit ce CoachProfile en CoachingProfile pour CoachingService.
+  ///
+  /// Remplace la construction inline dans le dashboard (qui avait des bugs:
+  /// rachatMaximum au lieu de lacuneRachatRestante, champs manquants).
+  CoachingProfile toCoachingProfile() {
+    final EmploymentStatus empStatus;
+    switch (employmentStatus) {
+      case 'independant':
+        empStatus = EmploymentStatus.independant;
+        break;
+      case 'chomage':
+      case 'sans_emploi':
+        empStatus = EmploymentStatus.sansEmploi;
+        break;
+      default:
+        empStatus = EmploymentStatus.salarie;
+    }
+
+    final EtatCivil civilStatus;
+    switch (etatCivil) {
+      case CoachCivilStatus.marie:
+        civilStatus = EtatCivil.marie;
+        break;
+      case CoachCivilStatus.divorce:
+        civilStatus = EtatCivil.divorce;
+        break;
+      case CoachCivilStatus.veuf:
+        civilStatus = EtatCivil.veuf;
+        break;
+      case CoachCivilStatus.concubinage:
+        civilStatus = EtatCivil.concubinage;
+        break;
+      default:
+        civilStatus = EtatCivil.celibataire;
+    }
+
+    return CoachingProfile(
+      age: age,
+      canton: canton,
+      revenuAnnuel: revenuBrutAnnuel,
+      has3a: prevoyance.nombre3a > 0,
+      montant3a: total3aMensuel * 12,
+      hasLpp: (prevoyance.avoirLppTotal ?? 0) > 0,
+      avoirLpp: prevoyance.avoirLppTotal ?? 0,
+      lacuneLpp: prevoyance.lacuneRachatRestante,
+      tauxActivite: 100,
+      chargesFixesMensuelles: depenses.totalMensuel,
+      epargneDispo: patrimoine.epargneLiquide,
+      detteTotale: dettes.totalDettes,
+      hasBudget: plannedContributions.isNotEmpty,
+      employmentStatus: empStatus,
+      etatCivil: civilStatus,
     );
   }
 

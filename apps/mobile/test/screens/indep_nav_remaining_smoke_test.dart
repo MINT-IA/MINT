@@ -103,7 +103,7 @@ void main() {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Independant'), findsOneWidget);
+      expect(find.text('Indépendant'), findsOneWidget);
       expect(
         find.textContaining('Analyse de couverture'),
         findsOneWidget,
@@ -131,7 +131,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.text('PARCOURS INDEPENDANT'),
+        find.text('PARCOURS INDÉPENDANT'),
         findsOneWidget,
       );
     });
@@ -141,7 +141,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.textContaining('independant'),
+        find.textContaining('indépendant'),
         findsWidgets,
       );
     });
@@ -174,7 +174,7 @@ void main() {
       // (revenu net annuel and Ton age). The taux marginal slider is offscreen.
       expect(find.byType(Slider), findsWidgets);
       expect(find.text('Revenu net annuel'), findsOneWidget);
-      expect(find.text('Ton age'), findsOneWidget);
+      expect(find.textContaining('Ton âge'), findsOneWidget);
     });
 
     testWidgets('shows intro info text about LPP', (tester) async {
@@ -220,7 +220,7 @@ void main() {
       await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('3e pilier independant'), findsOneWidget);
+      expect(find.text('3e pilier indépendant'), findsOneWidget);
     });
 
     testWidgets('has LPP toggle switch', (tester) async {
@@ -509,7 +509,7 @@ void main() {
 
       expect(find.text('Budget'), findsOneWidget);
       expect(
-        find.textContaining('pas encore configur'),
+        find.textContaining('se construit automatiquement'),
         findsOneWidget,
       );
     });
@@ -520,8 +520,10 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Configurer mon Budget'), findsOneWidget);
-      expect(find.byType(FilledButton), findsOneWidget);
+      expect(find.text('Faire mon diagnostic'), findsOneWidget);
+      // FilledButton.icon creates a widget that may not match find.byType(FilledButton)
+      // in all Flutter versions, so we check for the button text + icon instead
+      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
     });
 
     testWidgets('shows wallet icon in empty state', (tester) async {

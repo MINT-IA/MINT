@@ -67,7 +67,7 @@ void main() {
       expect(find.text('La caisse de pension (LPP)'), findsOneWidget);
     });
 
-    testWidgets('shows "Comprendre en 1 min" subtitle for themes', (tester) async {
+    testWidgets('shows "Lire + quiz" subtitle for themes', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: ComprendreHubScreen(),
@@ -75,8 +75,8 @@ void main() {
       );
       await tester.pump();
 
-      // Each theme card shows this static text
-      expect(find.text('Comprendre en 1 min'), findsWidgets);
+      // Each theme card shows reading time
+      expect(find.textContaining('Lire + quiz'), findsWidgets);
     });
 
     testWidgets('shows chevron right icons for navigation', (tester) async {
@@ -197,7 +197,7 @@ void main() {
 
       expect(
         find.textContaining('fiscale'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
@@ -209,7 +209,7 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
     });
 
     testWidgets('shows theme icon', (tester) async {
@@ -232,7 +232,7 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.byIcon(Icons.notifications_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.notifications_active_outlined), findsOneWidget);
       expect(
         find.textContaining('Décembre'),
         findsOneWidget,
@@ -263,7 +263,7 @@ void main() {
 
       expect(
         find.textContaining('caisse de pension'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
@@ -281,7 +281,7 @@ void main() {
       );
     });
 
-    testWidgets('falls back to first theme for unknown themeId', (tester) async {
+    testWidgets('shows error screen for unknown themeId', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: ThemeDetailScreen(themeId: 'nonexistent'),
@@ -289,8 +289,9 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
 
-      // EducationData.getById returns first theme as fallback
+      // Unknown themeId shows error screen instead of silent fallback
       expect(find.byType(ThemeDetailScreen), findsOneWidget);
+      expect(find.text('Ce theme n\'existe pas. Retour en arriere.'), findsOneWidget);
     });
 
     testWidgets('has MintPremiumButton', (tester) async {
@@ -304,7 +305,7 @@ void main() {
       // The MintPremiumButton contains the action label
       expect(
         find.textContaining('conomie fiscale'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
   });

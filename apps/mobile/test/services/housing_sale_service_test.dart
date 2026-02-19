@@ -289,7 +289,7 @@ void main() {
       );
 
       expect(result.produitNet, lessThan(0));
-      expect(result.alerts, anyElement(contains('produit net est negatif')));
+      expect(result.alerts, anyElement(contains('produit net est négatif')));
     });
   });
 
@@ -319,7 +319,7 @@ void main() {
         canton: 'ZH',
       );
 
-      expect(result.alerts, anyElement(contains('speculative')));
+      expect(result.alerts, anyElement(contains('spéculative')));
     });
 
     test('EPL utilise => alerte obligation de remboursement', () {
@@ -349,7 +349,7 @@ void main() {
       );
 
       expect(result.alerts,
-          anyElement(contains('residence principale')));
+          anyElement(contains('résidence principale')));
     });
 
     test('hypotheque > 80% prix vente => alerte', () {
@@ -381,7 +381,7 @@ void main() {
       );
 
       expect(result.checklist.length, greaterThanOrEqualTo(5));
-      expect(result.checklist, anyElement(contains('estimation immobiliere')));
+      expect(result.checklist, anyElement(contains('estimation immobilière')));
       expect(result.checklist, anyElement(contains('notaire')));
     });
 

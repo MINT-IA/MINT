@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
-//  COACH LLM SERVICE TESTS — Sprint C8
+//  COACH LLM SERVICE TESTS — Phase 4 / BYOK + RAG + context
 // ────────────────────────────────────────────────────────────
 
 void main() {
@@ -268,6 +269,126 @@ void main() {
       expect(prompt, contains('Taux de remplacement'));
       expect(prompt, contains('%'));
     });
+
+    test('system prompt contains source citation instruction', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('cites TOUJOURS tes sources legales'));
+    });
+
+    test('system prompt contains structured response instructions', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('STRUCTURE DE TA REPONSE'));
+      expect(prompt, contains('synthese en 1-2 phrases'));
+      expect(prompt, contains('risques et points d\'attention'));
+      expect(prompt, contains('sources legales'));
+    });
+
+    test('system prompt contains banned terms rule', () {
+      final prompt = CoachLlmService.buildSystemPrompt(profile);
+
+      expect(prompt, contains('garanti'));
+      expect(prompt, contains('sans risque'));
+      expect(prompt, contains('NE dis JAMAIS'));
+    });
+  });
+
+  group('CoachLlmService — source grounding', () {
+    test('3a response includes OPP3 source', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Parle-moi du 3a',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, isNotEmpty);
+      expect(response.sources.first.section, contains('OPP3'));
+    });
+
+    test('LPP response includes LPP art. 79b source', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Et ma LPP ?',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, isNotEmpty);
+      expect(response.sources.first.section, contains('LPP art. 79b'));
+    });
+
+    test('retraite response includes LAVS source', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Ma retraite ?',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, isNotEmpty);
+      expect(response.sources.first.section, contains('LAVS'));
+    });
+
+    test('fiscal response includes LIFD source', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Mes impots ?',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, isNotEmpty);
+      expect(response.sources.first.section, contains('LIFD'));
+    });
+
+    test('FATCA response includes FATCA source', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Et Lauren ?',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, isNotEmpty);
+      expect(response.sources.first.title, contains('FATCA'));
+    });
+
+    test('default response has empty sources', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Bonjour',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, isEmpty);
+    });
+
+    test('sources are RagSource instances', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: '3a',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.sources, everyElement(isA<RagSource>()));
+      expect(response.sources.first.title, isNotEmpty);
+      expect(response.sources.first.section, isNotEmpty);
+    });
+
+    test('disclaimers field exists and is list', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Bonjour',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.disclaimers, isA<List<String>>());
+    });
   });
 
   group('CoachLlmService — initial greeting', () {
@@ -328,8 +449,32 @@ void main() {
 
     test('modelsForProvider returns Anthropic models', () {
       final models = LlmConfig.modelsForProvider(LlmProvider.anthropic);
-      expect(models, contains('claude-3-sonnet-20240229'));
+      expect(models, contains('claude-sonnet-4-5-20250929'));
       expect(models, isNotEmpty);
+    });
+
+    test('modelsForProvider returns Mistral models', () {
+      final models = LlmConfig.modelsForProvider(LlmProvider.mistral);
+      expect(models, contains('mistral-large-latest'));
+      expect(models, isNotEmpty);
+    });
+
+    test('LlmProvider enum has three values', () {
+      expect(LlmProvider.values, hasLength(3));
+      expect(LlmProvider.values, contains(LlmProvider.openai));
+      expect(LlmProvider.values, contains(LlmProvider.anthropic));
+      expect(LlmProvider.values, contains(LlmProvider.mistral));
+    });
+
+    test('copyWith creates config with Mistral provider', () {
+      final config = LlmConfig(
+        apiKey: 'test-key',
+        provider: LlmProvider.mistral,
+        model: 'mistral-large-latest',
+      );
+      expect(config.provider, LlmProvider.mistral);
+      expect(config.hasApiKey, isTrue);
+      expect(config.model, 'mistral-large-latest');
     });
 
     test('copyWith creates new config with updated fields', () {
@@ -371,6 +516,172 @@ void main() {
         timestamp: DateTime.now(),
       );
       expect(msg.isSystem, isTrue);
+    });
+
+    test('ChatMessage has sources and disclaimers fields', () {
+      final msg = ChatMessage(
+        role: 'assistant',
+        content: 'test',
+        timestamp: DateTime.now(),
+        sources: const [
+          RagSource(title: 'Test', file: 'test', section: 'Art. 1'),
+        ],
+        disclaimers: const ['Outil educatif.'],
+      );
+      expect(msg.sources, hasLength(1));
+      expect(msg.disclaimers, hasLength(1));
+    });
+
+    test('ChatMessage sources default to empty', () {
+      final msg = ChatMessage(
+        role: 'user',
+        content: 'test',
+        timestamp: DateTime.now(),
+      );
+      expect(msg.sources, isEmpty);
+      expect(msg.disclaimers, isEmpty);
+    });
+  });
+
+  group('CoachLlmService — conversation context (mock path)', () {
+    test('mock response works with empty history', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Mon 3a',
+        profile: profile,
+        history: [],
+        config: config,
+      );
+
+      expect(response.message, contains('3a'));
+    });
+
+    test('mock response works with prior history', () async {
+      // Simulate a conversation with history
+      final history = [
+        ChatMessage(
+          role: 'assistant',
+          content: 'Bonjour Julien !',
+          timestamp: DateTime.now(),
+        ),
+        ChatMessage(
+          role: 'user',
+          content: 'Parle-moi du 3a',
+          timestamp: DateTime.now(),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ton plafond 3a est de 7258 CHF.',
+          timestamp: DateTime.now(),
+        ),
+      ];
+
+      // Mock path ignores history for response generation,
+      // but should not crash
+      final response = await CoachLlmService.chat(
+        userMessage: 'Et ma retraite ?',
+        profile: profile,
+        history: history,
+        config: config,
+      );
+
+      expect(response.message, contains('taux de remplacement'));
+    });
+
+    test('mock response works with large history (10+ messages)', () async {
+      final history = List.generate(
+        12,
+        (i) => ChatMessage(
+          role: i.isEven ? 'user' : 'assistant',
+          content: 'Message $i',
+          timestamp: DateTime.now(),
+        ),
+      );
+
+      final response = await CoachLlmService.chat(
+        userMessage: 'Bonjour',
+        profile: profile,
+        history: history,
+        config: config,
+      );
+
+      expect(response.message, isNotEmpty);
+    });
+
+    test('mock response works with system messages in history', () async {
+      final history = [
+        ChatMessage(
+          role: 'system',
+          content: 'Erreur technique.',
+          timestamp: DateTime.now(),
+        ),
+        ChatMessage(
+          role: 'user',
+          content: 'Mon LPP',
+          timestamp: DateTime.now(),
+        ),
+      ];
+
+      final response = await CoachLlmService.chat(
+        userMessage: 'impots',
+        profile: profile,
+        history: history,
+        config: config,
+      );
+
+      expect(response.message, contains('declaration'));
+    });
+  });
+
+  group('CoachLlmService — suggested actions inference', () {
+    test('3a message suggests 3a actions', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Mon 3a',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.suggestedActions, isNotNull);
+      expect(response.suggestedActions!.any((a) => a.contains('3a')), isTrue);
+    });
+
+    test('LPP message suggests LPP actions', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'rachat LPP',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.suggestedActions, isNotNull);
+      expect(
+          response.suggestedActions!.any((a) => a.contains('LPP')), isTrue);
+    });
+
+    test('retraite message suggests trajectory actions', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Ma retraite',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.suggestedActions, isNotNull);
+      expect(
+          response.suggestedActions!.any((a) => a.contains('trajectoire')),
+          isTrue);
+    });
+
+    test('default message suggests fitness and trajectory', () async {
+      final response = await CoachLlmService.chat(
+        userMessage: 'Bonjour !',
+        profile: profile,
+        history: emptyHistory,
+        config: config,
+      );
+
+      expect(response.suggestedActions, isNotNull);
+      expect(response.suggestedActions!.length, greaterThanOrEqualTo(2));
     });
   });
 }

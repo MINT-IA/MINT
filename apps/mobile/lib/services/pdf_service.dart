@@ -1013,4 +1013,222 @@ class PdfService {
       ),
     );
   }
+
+  /// Generates a PDF decision report from coach conversation highlights.
+  ///
+  /// Export educatif — inclut le contexte financier de l'utilisateur,
+  /// les echanges Q&A pertinents, les sources juridiques, et les disclaimers.
+  static Future<void> generateDecisionReportPdf({
+    required String firstName,
+    required String canton,
+    required int fitnessScore,
+    required List<Map<String, String>> conversationHighlights,
+    required List<String> legalSources,
+  }) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(40),
+        header: (pw.Context context) => pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text('MINT — MENTORAT FINANCIER',
+                style: pw.TextStyle(
+                    fontSize: 8,
+                    color: PdfColors.grey700,
+                    fontWeight: pw.FontWeight.bold)),
+            pw.Text(
+              'RAPPORT DÉCISIONNEL — CONFIDENTIEL',
+              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
+            ),
+          ],
+        ),
+        footer: (pw.Context context) => pw.Column(children: [
+          pw.Divider(thickness: 0.5, color: PdfColors.grey300),
+          pw.SizedBox(height: 5),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                  'Généré par MINT le ${DateTime.now().toLocal().toString().split('.')[0]}',
+                  style: const pw.TextStyle(
+                      fontSize: 7, color: PdfColors.grey500)),
+              pw.Text('Page ${context.pageNumber} sur ${context.pagesCount}',
+                  style: const pw.TextStyle(
+                      fontSize: 7, color: PdfColors.grey500)),
+            ],
+          ),
+        ]),
+        build: (pw.Context context) {
+          final List<pw.Widget> children = [];
+
+          children.add(pw.SizedBox(height: 20));
+
+          // Title
+          children.add(pw.Text(
+            'Rapport décisionnel',
+            style: pw.TextStyle(
+                fontSize: 24,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue900),
+          ));
+          children.add(pw.SizedBox(height: 8));
+          children.add(pw.Text(
+            'Coach MINT — Conversation éducative',
+            style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
+          ));
+          children.add(pw.SizedBox(height: 20));
+
+          // Profile snapshot
+          children.add(pw.Container(
+            padding: const pw.EdgeInsets.all(12),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.blue50,
+              borderRadius: pw.BorderRadius.circular(8),
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text('Profil',
+                        style: pw.TextStyle(
+                            fontSize: 10,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.blue900)),
+                    pw.SizedBox(height: 4),
+                    pw.Text('$firstName — Canton $canton',
+                        style: const pw.TextStyle(fontSize: 10)),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text('Score Fitness',
+                        style: pw.TextStyle(
+                            fontSize: 10,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.blue900)),
+                    pw.SizedBox(height: 4),
+                    pw.Text('$fitnessScore / 100',
+                        style: pw.TextStyle(
+                            fontSize: 14,
+                            fontWeight: pw.FontWeight.bold,
+                            color: fitnessScore >= 60
+                                ? PdfColors.green700
+                                : PdfColors.orange700)),
+                  ],
+                ),
+              ],
+            ),
+          ));
+          children.add(pw.SizedBox(height: 20));
+
+          // Conversation highlights
+          if (conversationHighlights.isNotEmpty) {
+            children.add(pw.Text(
+              'Points clés de la conversation',
+              style: pw.TextStyle(
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue900),
+            ));
+            children.add(pw.SizedBox(height: 10));
+
+            for (int i = 0; i < conversationHighlights.length; i++) {
+              final highlight = conversationHighlights[i];
+              children.add(pw.Container(
+                margin: const pw.EdgeInsets.only(bottom: 12),
+                padding: const pw.EdgeInsets.all(10),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
+                  borderRadius: pw.BorderRadius.circular(6),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Row(
+                      children: [
+                        pw.Text('Q${i + 1} : ',
+                            style: pw.TextStyle(
+                                fontSize: 10,
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColors.blue800)),
+                        pw.Expanded(
+                          child: pw.Text(highlight['question'] ?? '',
+                              style: pw.TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(highlight['answer'] ?? '',
+                        style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey800)),
+                  ],
+                ),
+              ));
+            }
+            children.add(pw.SizedBox(height: 10));
+          }
+
+          // Legal sources
+          if (legalSources.isNotEmpty) {
+            children.add(pw.Text(
+              'Sources juridiques',
+              style: pw.TextStyle(
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue900),
+            ));
+            children.add(pw.SizedBox(height: 8));
+            for (final source in legalSources) {
+              children.add(pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 4),
+                child: pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text('• ', style: const pw.TextStyle(fontSize: 9)),
+                    pw.Expanded(
+                      child: pw.Text(source,
+                          style: const pw.TextStyle(
+                              fontSize: 9, color: PdfColors.grey700)),
+                    ),
+                  ],
+                ),
+              ));
+            }
+            children.add(pw.SizedBox(height: 16));
+          }
+
+          // Disclaimer
+          children.add(pw.Divider(thickness: 0.5, color: PdfColors.grey300));
+          children.add(pw.SizedBox(height: 8));
+          children.add(pw.Container(
+            padding: const pw.EdgeInsets.all(10),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.amber50,
+              borderRadius: pw.BorderRadius.circular(6),
+              border: pw.Border.all(color: PdfColors.amber200, width: 0.5),
+            ),
+            child: pw.Text(
+              'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. '
+              'Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. '
+              'Consulte un·e spécialiste certifié·e pour toute décision financière importante.',
+              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
+            ),
+          ));
+
+          return children;
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
 }

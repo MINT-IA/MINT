@@ -7,6 +7,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/widgets/coach/streak_badge.dart';
@@ -42,8 +44,83 @@ class _TimelineEvent {
   });
 }
 
-class CoachAgirScreen extends StatelessWidget {
+class CoachAgirScreen extends StatefulWidget {
   const CoachAgirScreen({super.key});
+
+  @override
+  State<CoachAgirScreen> createState() => _CoachAgirScreenState();
+}
+
+class _CoachAgirScreenState extends State<CoachAgirScreen> {
+  Set<String> _exploredSimulators = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExploredSimulators();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Rafraichir les checkmarks au retour de navigation
+    _loadExploredSimulators();
+  }
+
+  Future<void> _loadExploredSimulators() async {
+    final explored = await ReportPersistenceService.loadExploredSimulators();
+    if (mounted) {
+      setState(() => _exploredSimulators = explored);
+    }
+  }
+
+  // ── Priority roadmap grouping ───────────────────────────
+  /// Groups coaching tips into 4 priority tiers for the roadmap display.
+  Map<String, List<CoachingTip>> _prioritizeByQuarter(List<CoachingTip> tips) {
+    final groups = <String, List<CoachingTip>>{
+      'immediate': [],    // Priorite immediate (red)
+      'trimestre': [],    // Ce trimestre (orange)
+      'annee': [],        // Cette annee (blue)
+      'long_terme': [],   // Long terme (green)
+    };
+
+    for (final tip in tips) {
+      if ((tip.category == 'budget' && tip.priority == CoachingPriority.haute) ||
+          tip.id.contains('debt')) {
+        groups['immediate']!.add(tip);
+      } else if (tip.category == 'fiscalite' || tip.id.contains('3a')) {
+        groups['trimestre']!.add(tip);
+      } else if (tip.category == 'prevoyance' || tip.id.contains('lpp')) {
+        groups['annee']!.add(tip);
+      } else {
+        groups['long_terme']!.add(tip);
+      }
+    }
+
+    return groups;
+  }
+
+  // ── Simulator ID mapping for completion tracking ────────
+  /// Maps a coaching tip to the simulator ID it targets.
+  String? _simulatorIdForTip(CoachingTip tip) {
+    switch (tip.category) {
+      case 'fiscalite':
+        return '3a';
+      case 'prevoyance':
+        if (tip.id.contains('lpp')) return 'lpp_deep';
+        if (tip.id.contains('3a')) return '3a';
+        return null;
+      case 'retraite':
+        if (tip.id.contains('rente') || tip.id.contains('capital')) {
+          return 'rente_capital';
+        }
+        return 'retirement_projection';
+      case 'budget':
+        return 'budget';
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +155,19 @@ class CoachAgirScreen extends StatelessWidget {
     // Build timeline events from profile + milestones
     final timelineEvents = _buildTimelineEvents(profile, s);
 
+    // Coaching tips tries par impact
+    final tips = CoachingService.generateTips(
+      profile: profile.toCoachingProfile(),
+    );
+
+    // Group tips by priority quarter
+    final priorityGroups = _prioritizeByQuarter(tips);
+
+    // Check if there are debt-related tips in immediate group (for dependency indicator)
+    final hasDebtInImmediate = priorityGroups['immediate']!.any(
+      (t) => t.id.contains('debt'),
+    );
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -91,6 +181,22 @@ class CoachAgirScreen extends StatelessWidget {
 
                 // ── Streak badge ──────────────────────────────
                 _buildStreakSection(profile),
+
+                // ── Section: Actions recommandees (priority roadmap) ──
+                if (tips.isNotEmpty) ...[
+                  _buildSectionHeader(
+                    title: 'Actions recommandees',
+                    subtitle: 'Triees par priorite',
+                    icon: Icons.bolt,
+                    color: MintColors.coachAccent,
+                  ),
+                  const SizedBox(height: 16),
+                  ..._buildPriorityRoadmap(
+                    priorityGroups,
+                    hasDebtInImmediate,
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
                 // ── Section: Ce mois ─────────────────────────
                 _buildSectionHeader(
@@ -179,6 +285,83 @@ class CoachAgirScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // ── Priority roadmap builder ──────────────────────────────
+  List<Widget> _buildPriorityRoadmap(
+    Map<String, List<CoachingTip>> groups,
+    bool hasDebtInImmediate,
+  ) {
+    const groupMeta = <String, ({String label, Color color})>{
+      'immediate': (label: 'Priorite immediate', color: Color(0xFFFF453A)),
+      'trimestre': (label: 'Ce trimestre', color: Color(0xFFFF9F0A)),
+      'annee': (label: 'Cette annee', color: Color(0xFF007AFF)),
+      'long_terme': (label: 'Long terme', color: Color(0xFF24B14D)),
+    };
+
+    final widgets = <Widget>[];
+
+    for (final key in ['immediate', 'trimestre', 'annee', 'long_terme']) {
+      final tips = groups[key]!;
+      if (tips.isEmpty) continue;
+
+      final meta = groupMeta[key]!;
+
+      // Group header: colored dot + label
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10, top: 6),
+          child: Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: meta.color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                meta.label,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: meta.color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      // Tip cards within this group
+      for (final tip in tips) {
+        // Check dependency indicator: prevoyance tip + debt in immediate
+        final showDependency = tip.category == 'prevoyance' &&
+            hasDebtInImmediate;
+
+        // Check if this tip's simulator has been explored
+        final simId = _simulatorIdForTip(tip);
+        final isExplored =
+            simId != null && _exploredSimulators.contains(simId);
+
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _CoachingTipCard(
+              tip: tip,
+              dependencyHint: showDependency
+                  ? 'Apres : remboursement dette'
+                  : null,
+              isExplored: isExplored,
+            ),
+          ),
+        );
+      }
+    }
+
+    return widgets;
   }
 
   // ── Streak section ────────────────────────────────────────
@@ -1080,6 +1263,224 @@ class _HistoryRow extends StatelessWidget {
     if (id.contains('ib') || id.contains('invest')) return 'Invest.';
     if (id.contains('epargne')) return 'Épargne';
     return id;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  COACHING TIP CARD — Actions recommandees triees par impact
+// ════════════════════════════════════════════════════════════════
+
+class _CoachingTipCard extends StatelessWidget {
+  final CoachingTip tip;
+  final String? dependencyHint;
+  final bool isExplored;
+
+  const _CoachingTipCard({
+    required this.tip,
+    this.dependencyHint,
+    this.isExplored = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final categoryColor = _colorForTipCategory(tip.category);
+
+    return GestureDetector(
+      onTap: () => context.push(tipRoute(tip)),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: MintColors.lightBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1D1D1F).withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Left: icon in colored circle
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: categoryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(tip.icon, color: categoryColor, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+
+                    // Center: title + message + source
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tip.title,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: MintColors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            tip.message,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: MintColors.textSecondary,
+                              height: 1.4,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: MintColors.surface,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              tip.source,
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: MintColors.textMuted,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Right: CHF impact badge (if available)
+                    if (tip.estimatedImpactChf != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: MintColors.success.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              ForecasterService.formatChf(tip.estimatedImpactChf!),
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: MintColors.success,
+                              ),
+                            ),
+                            Text(
+                              '/an',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: MintColors.success,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Arrow
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right,
+                      color: MintColors.textMuted,
+                      size: 20,
+                    ),
+                  ],
+                ),
+
+                // Dependency hint (e.g. "Apres : remboursement dette")
+                if (dependencyHint != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.subdirectory_arrow_right,
+                        color: MintColors.textMuted,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        dependencyHint!,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: MintColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // Green checkmark overlay (explored simulator)
+          if (isExplored)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: MintColors.success,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: MintColors.success.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 12,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Color _colorForTipCategory(String category) {
+    switch (category) {
+      case 'fiscalite':
+        return const Color(0xFF4F46E5); // Indigo
+      case 'prevoyance':
+        return const Color(0xFF0891B2); // Teal
+      case 'budget':
+        return MintColors.warning;
+      case 'retraite':
+        return MintColors.success;
+      default:
+        return MintColors.info;
+    }
   }
 }
 

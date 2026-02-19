@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/fullscreen_chart_wrapper.dart';
@@ -45,6 +46,7 @@ class _RetirementProjectionScreenState
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('retirement_projection');
     _heroController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,

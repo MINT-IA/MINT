@@ -120,7 +120,7 @@ class _ThemeCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            S.of(context)?.eduHubReadQuiz ?? "Lire + quiz \u2022 2 min",
+                            S.of(context)?.eduHubReadQuiz ?? "Lire + quiz \u2022 ${theme.estimatedMinutes} min",
                             style: TextStyle(
                               fontSize: 12,
                               color: MintColors.textMuted,

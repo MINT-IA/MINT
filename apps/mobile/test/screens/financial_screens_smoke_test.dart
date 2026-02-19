@@ -111,7 +111,7 @@ void main() {
       // Title in SliverAppBar
       expect(find.text('Dividende vs Salaire'), findsOneWidget);
       // Slider label
-      expect(find.textContaining('Benefice total'), findsOneWidget);
+      expect(find.textContaining('Bénéfice total'), findsOneWidget);
     });
 
     testWidgets('IjmScreen renders without error', (tester) async {
@@ -125,7 +125,7 @@ void main() {
       // Title in SliverAppBar
       expect(find.text('Assurance IJM'), findsOneWidget);
       // Carence toggle section
-      expect(find.textContaining('Delai de carence'), findsOneWidget);
+      expect(find.textContaining('Délai de carence'), findsOneWidget);
     });
   });
 
@@ -250,7 +250,7 @@ void main() {
       // Header title
       expect(find.textContaining('Check-up couverture'), findsOneWidget);
       // Profile section
-      expect(find.textContaining('Votre profil'), findsOneWidget);
+      expect(find.textContaining('Ton profil'), findsOneWidget);
       // Coverage section
       expect(find.textContaining('Ma couverture actuelle'), findsOneWidget);
     });

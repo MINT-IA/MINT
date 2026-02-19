@@ -53,7 +53,17 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = EducationData.getById(widget.themeId).localized(S.of(context));
+    final rawTheme = EducationData.getById(widget.themeId);
+    if (rawTheme == null) {
+      return Scaffold(
+        backgroundColor: MintColors.background,
+        appBar: AppBar(title: const Text('Theme inconnu')),
+        body: const Center(
+          child: Text('Ce theme n\'existe pas. Retour en arriere.'),
+        ),
+      );
+    }
+    final theme = rawTheme.localized(S.of(context));
     final content = EducationContentData.getContent(widget.themeId);
 
     return Scaffold(
@@ -85,7 +95,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     const Icon(Icons.schedule, color: Colors.white, size: 14),
                     const SizedBox(width: 4),
                     Text(
-                      '2 min',
+                      '${theme.estimatedMinutes} min',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -742,7 +752,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: MintPremiumButton(
         title: theme.actionLabel,
-        subtitle: 'Action recommandee \u2022 2 min',
+        subtitle: 'Action recommandee \u2022 ${theme.estimatedMinutes} min',
         onTap: () => context.push(theme.route),
       ),
     );

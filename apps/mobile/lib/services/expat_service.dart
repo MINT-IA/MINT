@@ -561,7 +561,7 @@ class ExpatService {
     final totalYears = yearsAbroad + yearsInCh;
     final missingYears = max(0, fullContributionYears - yearsInCh);
     final completeness = min(1.0, yearsInCh / fullContributionYears);
-    final reductionPercent = missingYears * reductionPerMissingYear * 100;
+    final reductionPercent = (missingYears * reductionPerMissingYear * 100).clamp(0.0, 100.0);
 
     // Max monthly AVS rente (2025/2026)
     const maxRenteMensuelle = avsRenteMaxMensuelle;

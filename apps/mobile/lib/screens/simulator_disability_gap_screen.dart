@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/domain/disability_gap_calculator.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
@@ -50,6 +51,20 @@ class _SimulatorDisabilityGapScreenState
 
   void _calculate() {
     setState(() {
+      // Estimate LPP disability benefit from income (LPP art. 23-24)
+      // Rente invalidite LPP ≈ projected capital × conversion rate
+      // Simplified: ~40% of coordinated salary for full disability
+      double estimatedLppDisability = 0.0;
+      if (_statut == EmploymentStatusType.employee) {
+        final annualGross = _revenuMensuel * 12 / 0.78; // rough net→gross
+        if (annualGross >= lppSeuilEntree) {
+          final coordinated = (annualGross - lppDeductionCoordination)
+              .clamp(lppSalaireCoordMin.toDouble(), 64260.0);
+          // ~40% of coordinated salary as disability rente (LPP art. 24)
+          estimatedLppDisability = coordinated * 0.40 / 12;
+        }
+      }
+
       _result = computeDisabilityGap(
         revenuMensuelNet: _revenuMensuel,
         statutProfessionnel: _statut,
@@ -57,7 +72,7 @@ class _SimulatorDisabilityGapScreenState
         anneesAnciennete: _anneesAnciennete,
         hasIjmCollective: _hasIjm,
         degreInvalidite: _degreInvalidite,
-        lppDisabilityBenefit: 0.0, // simplified for MVP
+        lppDisabilityBenefit: estimatedLppDisability,
       );
     });
   }

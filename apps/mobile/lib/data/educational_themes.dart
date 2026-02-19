@@ -11,6 +11,7 @@ class EducationalTheme {
   final String reminderText;
   final IconData icon;
   final Color color;
+  final int estimatedMinutes;
 
   const EducationalTheme({
     required this.id,
@@ -21,6 +22,7 @@ class EducationalTheme {
     required this.reminderText,
     required this.icon,
     required this.color,
+    this.estimatedMinutes = 3,
   });
 
   /// Returns a copy with localized strings (fallback = French const values)
@@ -37,6 +39,7 @@ class EducationalTheme {
       reminderText: t['reminderText']!(l10n) ?? reminderText,
       icon: icon,
       color: color,
+      estimatedMinutes: estimatedMinutes,
     );
   }
 
@@ -119,6 +122,7 @@ class EducationData {
       reminderText: "Demander mon certificat LPP à mon employeur",
       icon: Icons.work_outline,
       color: MintColors.info,
+      estimatedMinutes: 4,
     ),
      EducationalTheme(
       id: 'avs',
@@ -159,6 +163,7 @@ class EducationData {
       reminderText: "Avant renouvellement: comparer 3 mois à l'avance",
       icon: Icons.house_outlined,
       color: MintColors.indigo,
+      estimatedMinutes: 4,
     ),
     EducationalTheme(
       id: 'budget',
@@ -169,6 +174,7 @@ class EducationData {
       reminderText: "Revoir mon budget chaque mois",
       icon: Icons.account_balance_wallet_outlined,
       color: MintColors.teal,
+      estimatedMinutes: 2,
     ),
     EducationalTheme(
       id: 'lamal',
@@ -192,7 +198,12 @@ class EducationData {
     ),
   ];
 
-  static EducationalTheme getById(String id) {
-    return themes.firstWhere((t) => t.id == id, orElse: () => themes.first);
+  static EducationalTheme? getById(String id) {
+    final matches = themes.where((t) => t.id == id);
+    if (matches.isEmpty) {
+      debugPrint('⚠️ EducationData.getById: unknown themeId "$id"');
+      return null;
+    }
+    return matches.first;
   }
 }

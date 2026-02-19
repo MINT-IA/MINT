@@ -615,7 +615,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Votre profil'), findsOneWidget);
+      expect(find.text('Ton profil'), findsOneWidget);
       expect(find.text('Statut professionnel'), findsOneWidget);
     });
 
