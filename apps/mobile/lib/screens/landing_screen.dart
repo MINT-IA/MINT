@@ -125,16 +125,19 @@ class _LandingScreenState extends State<LandingScreen> {
                           Center(
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                _analytics.trackCTAClick(
-                                    'cta_explore', screenName: '/');
+                                _analytics.trackCTAClick('cta_explore',
+                                    screenName: '/');
                                 context.go('/home');
                               },
-                              icon: const Icon(Icons.explore_outlined, size: 18),
+                              icon:
+                                  const Icon(Icons.explore_outlined, size: 18),
                               label: const Text('Explorer librement'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: MintColors.textPrimary,
-                                side: const BorderSide(color: MintColors.border),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                side:
+                                    const BorderSide(color: MintColors.border),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(24),
                                 ),
@@ -172,8 +175,7 @@ class _LandingScreenState extends State<LandingScreen> {
         Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20),
@@ -191,13 +193,12 @@ class _LandingScreenState extends State<LandingScreen> {
             const SizedBox(width: 12),
             TextButton(
               onPressed: () {
-                _analytics.trackCTAClick(
-                    'cta_login_clicked', screenName: '/');
+                _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
                 context.go('/auth/login');
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 backgroundColor: Colors.white.withValues(alpha: 0.7),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -224,8 +225,8 @@ class _LandingScreenState extends State<LandingScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(36),
-        border: Border.all(
-            color: MintColors.lightBorder.withValues(alpha: 0.5)),
+        border:
+            Border.all(color: MintColors.lightBorder.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -268,8 +269,10 @@ class _LandingScreenState extends State<LandingScreen> {
       onTap: () async {
         _analytics.trackCTAClick('cta_score_clicked', screenName: '/');
         final isCompleted = await ReportPersistenceService.isCompleted();
+        final isMiniCompleted =
+            await ReportPersistenceService.isMiniOnboardingCompleted();
         if (context.mounted) {
-          if (isCompleted) {
+          if (isCompleted || isMiniCompleted) {
             context.go('/home');
           } else {
             context.go('/advisor');
@@ -326,8 +329,8 @@ class _LandingScreenState extends State<LandingScreen> {
           ),
         ],
       ),
-      child: const Icon(
-          Icons.token_rounded, color: MintColors.primary, size: 28),
+      child:
+          const Icon(Icons.token_rounded, color: MintColors.primary, size: 28),
     );
   }
 

@@ -51,6 +51,8 @@ class CoachAgirScreen extends StatefulWidget {
   State<CoachAgirScreen> createState() => _CoachAgirScreenState();
 }
 
+enum _AgirResetAction { resetHistory, resetDiagnostic }
+
 class _CoachAgirScreenState extends State<CoachAgirScreen> {
   Set<String> _exploredSimulators = {};
 
@@ -74,18 +76,98 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     }
   }
 
+  Widget _buildResetMenuButton() {
+    return PopupMenuButton<_AgirResetAction>(
+      tooltip: 'Réinitialiser',
+      icon: const Icon(Icons.tune, color: MintColors.textPrimary),
+      onSelected: (value) => _handleResetAction(value),
+      itemBuilder: (_) => const [
+        PopupMenuItem<_AgirResetAction>(
+          value: _AgirResetAction.resetHistory,
+          child: Text('Réinitialiser mon historique coach'),
+        ),
+        PopupMenuItem<_AgirResetAction>(
+          value: _AgirResetAction.resetDiagnostic,
+          child: Text('Recommencer mon diagnostic'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleResetAction(_AgirResetAction action) async {
+    if (action == _AgirResetAction.resetHistory) {
+      final confirmed = await _confirmResetDialog(
+        title: 'Réinitialiser ton historique coach ?',
+        message:
+            'Cela supprime tes check-ins, ton historique de score et la progression des simulateurs.',
+        cta: 'Réinitialiser',
+      );
+      if (confirmed != true || !mounted) return;
+
+      await ReportPersistenceService.clearCoachHistory();
+      if (!mounted) return;
+      await context.read<CoachProfileProvider>().loadFromWizard();
+      await _loadExploredSimulators();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Historique coach réinitialisé.')),
+      );
+      return;
+    }
+
+    final confirmed = await _confirmResetDialog(
+      title: 'Recommencer ton diagnostic ?',
+      message:
+          'Cela supprime ton diagnostic actuel et tes réponses mini-onboarding.',
+      cta: 'Recommencer',
+    );
+    if (confirmed != true || !mounted) return;
+
+    await ReportPersistenceService.clearDiagnostic();
+    await ReportPersistenceService.clearCoachHistory();
+    if (!mounted) return;
+    context.read<CoachProfileProvider>().clear();
+    context.go('/advisor');
+  }
+
+  Future<bool?> _confirmResetDialog({
+    required String title,
+    required String message,
+    required String cta,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(cta),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Priority roadmap grouping ───────────────────────────
   /// Groups coaching tips into 4 priority tiers for the roadmap display.
   Map<String, List<CoachingTip>> _prioritizeByQuarter(List<CoachingTip> tips) {
     final groups = <String, List<CoachingTip>>{
-      'immediate': [],    // Priorite immediate (red)
-      'trimestre': [],    // Ce trimestre (orange)
-      'annee': [],        // Cette annee (blue)
-      'long_terme': [],   // Long terme (green)
+      'immediate': [], // Priorite immediate (red)
+      'trimestre': [], // Ce trimestre (orange)
+      'annee': [], // Cette annee (blue)
+      'long_terme': [], // Long terme (green)
     };
 
     for (final tip in tips) {
-      if ((tip.category == 'budget' && tip.priority == CoachingPriority.haute) ||
+      if ((tip.category == 'budget' &&
+              tip.priority == CoachingPriority.haute) ||
           tip.id.contains('debt')) {
         groups['immediate']!.add(tip);
       } else if (tip.category == 'fiscalite' || tip.id.contains('3a')) {
@@ -128,8 +210,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final coachProvider = context.watch<CoachProfileProvider>();
     final profile = coachProvider.profile;
     final now = DateTime.now();
-    final currentMonthLabel =
-        '${kFrenchMonths[now.month - 1]} ${now.year}';
+    final currentMonthLabel = '${kFrenchMonths[now.month - 1]} ${now.year}';
 
     // If no profile, show empty state prompting wizard
     if (profile == null) {
@@ -244,12 +325,12 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
                 // Timeline items
                 ...timelineEvents.asMap().entries.map(
-                  (entry) => _TimelineItem(
-                    event: entry.value,
-                    isFirst: entry.key == 0,
-                    isLast: entry.key == timelineEvents.length - 1,
-                  ),
-                ),
+                      (entry) => _TimelineItem(
+                        event: entry.value,
+                        isFirst: entry.key == 0,
+                        isLast: entry.key == timelineEvents.length - 1,
+                      ),
+                    ),
 
                 const SizedBox(height: 36),
 
@@ -265,10 +346,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 if (profile.checkIns.isEmpty)
                   _buildEmptyHistory(s)
                 else
-                  ...profile.checkIns
-                      .toList()
-                      .reversed
-                      .map(
+                  ...profile.checkIns.toList().reversed.map(
                         (ci) => Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _HistoryRow(checkIn: ci),
@@ -338,22 +416,20 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       // Tip cards within this group
       for (final tip in tips) {
         // Check dependency indicator: prevoyance tip + debt in immediate
-        final showDependency = tip.category == 'prevoyance' &&
-            hasDebtInImmediate;
+        final showDependency =
+            tip.category == 'prevoyance' && hasDebtInImmediate;
 
         // Check if this tip's simulator has been explored
         final simId = _simulatorIdForTip(tip);
-        final isExplored =
-            simId != null && _exploredSimulators.contains(simId);
+        final isExplored = simId != null && _exploredSimulators.contains(simId);
 
         widgets.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: _CoachingTipCard(
               tip: tip,
-              dependencyHint: showDependency
-                  ? 'Apres : remboursement dette'
-                  : null,
+              dependencyHint:
+                  showDependency ? 'Apres : remboursement dette' : null,
               isExplored: isExplored,
             ),
           ),
@@ -389,6 +465,10 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       backgroundColor: MintColors.background,
       elevation: 0,
       scrolledUnderElevation: 0,
+      actions: [
+        _buildResetMenuButton(),
+        const SizedBox(width: 8),
+      ],
       title: Text(
         s?.agirTitle ?? 'AGIR',
         style: GoogleFonts.montserrat(
@@ -473,7 +553,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                s?.agirCheckinDone(monthLabel) ?? 'Check-in $monthLabel effectué',
+                s?.agirCheckinDone(monthLabel) ??
+                    'Check-in $monthLabel effectué',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -693,7 +774,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            s?.agirNoCheckinSub ?? 'Fais ton premier check-in pour commencer à suivre ta progression.',
+            s?.agirNoCheckinSub ??
+                'Fais ton premier check-in pour commencer à suivre ta progression.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -715,7 +797,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     events.add(_TimelineEvent(
       date: DateTime(now.year, 12, 31),
       title: s?.agirTimeline3a ?? 'Dernier jour versement 3a',
-      subtitle: s?.agirTimeline3aSub ?? 'Vérifie que ton plafond est atteint avant fin décembre.',
+      subtitle: s?.agirTimeline3aSub ??
+          'Vérifie que ton plafond est atteint avant fin décembre.',
       icon: Icons.savings,
       color: const Color(0xFF4F46E5),
       cta: s?.agirTimeline3aCta ?? 'Vérifier mon 3a',
@@ -725,8 +808,10 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final taxYear = now.month <= 3 ? now.year : now.year + 1;
     events.add(_TimelineEvent(
       date: DateTime(taxYear, 3, 31),
-      title: s?.agirTimelineTax(profile.canton) ?? 'Déclaration impôts ${profile.canton}',
-      subtitle: s?.agirTimelineTaxSub ?? 'Pense à rassembler tes attestations 3a et LPP.',
+      title: s?.agirTimelineTax(profile.canton) ??
+          'Déclaration impôts ${profile.canton}',
+      subtitle: s?.agirTimelineTaxSub ??
+          'Pense à rassembler tes attestations 3a et LPP.',
       icon: Icons.description,
       color: MintColors.warning,
       cta: s?.agirTimelineTaxCta ?? 'Préparer mes documents',
@@ -737,7 +822,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     events.add(_TimelineEvent(
       date: DateTime(lamalYear, 11, 30),
       title: s?.agirTimelineLamal ?? 'Franchise LAMal (changer ?)',
-      subtitle: s?.agirTimelineLamalSub ?? 'Évalue si ta franchise actuelle est toujours adaptée.',
+      subtitle: s?.agirTimelineLamalSub ??
+          'Évalue si ta franchise actuelle est toujours adaptée.',
       icon: Icons.health_and_safety,
       color: MintColors.error,
       cta: s?.agirTimelineLamalCta ?? 'Simuler les franchises',
@@ -796,9 +882,10 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              s?.agirDisclaimer ?? 'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
-              'Les échéances et projections sont indicatives. '
-              'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
+              s?.agirDisclaimer ??
+                  'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
+                      'Les échéances et projections sont indicatives. '
+                      'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -857,9 +944,7 @@ class _MonthlyContributionRow extends StatelessWidget {
                   : MintColors.surface,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDone
-                    ? MintColors.success
-                    : MintColors.border,
+                color: isDone ? MintColors.success : MintColors.border,
                 width: isDone ? 1.5 : 1,
               ),
             ),
@@ -891,9 +976,8 @@ class _MonthlyContributionRow extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isDone
-                    ? MintColors.textSecondary
-                    : MintColors.textPrimary,
+                color:
+                    isDone ? MintColors.textSecondary : MintColors.textPrimary,
                 decoration: isDone ? TextDecoration.lineThrough : null,
               ),
             ),
@@ -905,9 +989,7 @@ class _MonthlyContributionRow extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDone
-                  ? MintColors.textMuted
-                  : MintColors.textPrimary,
+              color: isDone ? MintColors.textMuted : MintColors.textPrimary,
             ),
           ),
           const SizedBox(width: 8),
@@ -922,7 +1004,9 @@ class _MonthlyContributionRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              contribution.isAutomatic ? (s?.agirAuto ?? 'Auto') : (s?.agirManuel ?? 'Manuel'),
+              contribution.isAutomatic
+                  ? (s?.agirAuto ?? 'Auto')
+                  : (s?.agirManuel ?? 'Manuel'),
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -1022,8 +1106,7 @@ class _TimelineItem extends StatelessWidget {
                   border: Border.all(color: MintColors.lightBorder),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+                      color: const Color(0xFF1D1D1F).withValues(alpha: 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -1115,8 +1198,7 @@ class _TimelineItem extends StatelessWidget {
                             horizontal: 14,
                             vertical: 8,
                           ),
-                          backgroundColor:
-                              event.color.withValues(alpha: 0.08),
+                          backgroundColor: event.color.withValues(alpha: 0.08),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -1145,8 +1227,7 @@ class _TimelineItem extends StatelessWidget {
 
   String _yearsUntil(DateTime target) {
     final now = DateTime.now();
-    final months =
-        (target.year - now.year) * 12 + (target.month - now.month);
+    final months = (target.year - now.year) * 12 + (target.month - now.month);
     if (months < 1) return 'Ce mois';
     if (months < 12) return 'dans $months mois';
     final years = months ~/ 12;
@@ -1384,7 +1465,8 @@ class _CoachingTipCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              ForecasterService.formatChf(tip.estimatedImpactChf!),
+                              ForecasterService.formatChf(
+                                  tip.estimatedImpactChf!),
                               style: GoogleFonts.inter(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -1483,4 +1565,3 @@ class _CoachingTipCard extends StatelessWidget {
     }
   }
 }
-

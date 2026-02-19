@@ -17,6 +17,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
@@ -59,6 +60,8 @@ class CoachDashboardScreen extends StatefulWidget {
   State<CoachDashboardScreen> createState() => _CoachDashboardScreenState();
 }
 
+enum _DashboardResetAction { resetHistory, resetDiagnostic }
+
 class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     with SingleTickerProviderStateMixin {
   CoachProfile? _profile;
@@ -70,10 +73,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
   // "Et si..." state
   bool _etSiExpanded = false;
-  double _etSiLppReturn = 0.02;      // base default
-  double _etSiThreeAReturn = 0.045;  // base default
-  double _etSiInvestReturn = 0.06;   // base default
-  double _etSiInflation = 0.015;     // base default
+  double _etSiLppReturn = 0.02; // base default
+  double _etSiThreeAReturn = 0.045; // base default
+  double _etSiInvestReturn = 0.06; // base default
+  double _etSiInflation = 0.015; // base default
   ProjectionResult? _etSiProjection;
 
   // Animation controller for the empty state pulsing glow
@@ -212,6 +215,84 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 const SizedBox(height: 40),
               ]),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResetMenuButton() {
+    return PopupMenuButton<_DashboardResetAction>(
+      tooltip: 'Réinitialiser',
+      icon: const Icon(Icons.tune, color: Colors.white),
+      onSelected: (value) => _handleResetAction(value),
+      itemBuilder: (_) => const [
+        PopupMenuItem<_DashboardResetAction>(
+          value: _DashboardResetAction.resetHistory,
+          child: Text('Réinitialiser mon historique coach'),
+        ),
+        PopupMenuItem<_DashboardResetAction>(
+          value: _DashboardResetAction.resetDiagnostic,
+          child: Text('Recommencer mon diagnostic'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleResetAction(_DashboardResetAction action) async {
+    if (action == _DashboardResetAction.resetHistory) {
+      final confirmed = await _confirmResetDialog(
+        title: 'Réinitialiser ton historique coach ?',
+        message:
+            'Cela supprime tes check-ins, ton historique de score et la progression des simulateurs.',
+        cta: 'Réinitialiser',
+      );
+      if (confirmed != true || !mounted) return;
+
+      await ReportPersistenceService.clearCoachHistory();
+      if (!mounted) return;
+      await context.read<CoachProfileProvider>().loadFromWizard();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Historique coach réinitialisé.')),
+      );
+      return;
+    }
+
+    final confirmed = await _confirmResetDialog(
+      title: 'Recommencer ton diagnostic ?',
+      message:
+          'Cela supprime ton diagnostic actuel et tes réponses mini-onboarding.',
+      cta: 'Recommencer',
+    );
+    if (confirmed != true || !mounted) return;
+
+    await ReportPersistenceService.clearDiagnostic();
+    await ReportPersistenceService.clearCoachHistory();
+    if (!mounted) return;
+    context.read<CoachProfileProvider>().clear();
+    context.go('/advisor');
+  }
+
+  Future<bool?> _confirmResetDialog({
+    required String title,
+    required String message,
+    required String cta,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(cta),
           ),
         ],
       ),
@@ -400,7 +481,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               const SizedBox(height: 16),
               // Estimation disclaimer
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: MintColors.scoreAttention.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
@@ -439,7 +521,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: MintColors.primary,
-                    side: const BorderSide(color: MintColors.primary, width: 1.5),
+                    side:
+                        const BorderSide(color: MintColors.primary, width: 1.5),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
@@ -589,6 +672,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       toolbarHeight: 48,
       automaticallyImplyLeading: false,
       backgroundColor: MintColors.primary,
+      actions: [
+        _buildResetMenuButton(),
+        const SizedBox(width: 8),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
         title: Text(
@@ -681,7 +768,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                             ),
                           ),
                           Text(
-                            l10n?.coachScoreComposite ?? 'Score composite · 3 piliers',
+                            l10n?.coachScoreComposite ??
+                                'Score composite · 3 piliers',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: MintColors.textSecondary,
@@ -737,7 +825,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: MintColors.textMuted.withValues(alpha: 0.5),
+                              color:
+                                  MintColors.textMuted.withValues(alpha: 0.5),
                             ),
                           ),
                         ],
@@ -777,7 +866,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
                 // ── CTA text ──
                 Text(
-                  l10n?.coachCompletePrompt ?? 'Complète ton diagnostic pour découvrir ton score',
+                  l10n?.coachCompletePrompt ??
+                      'Complète ton diagnostic pour découvrir ton score',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 14,
@@ -795,7 +885,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     onPressed: () => context.push('/advisor'),
                     icon: const Icon(Icons.play_arrow_rounded, size: 20),
                     label: Text(
-                      l10n?.coachDiscoverScore ?? 'Découvrir mon score \u2014 10 min',
+                      l10n?.coachDiscoverScore ??
+                          'Découvrir mon score \u2014 10 min',
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -825,7 +916,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: MintColors.textMuted.withValues(alpha: 0.5)),
+        Icon(icon,
+            size: 16, color: MintColors.textMuted.withValues(alpha: 0.5)),
         const SizedBox(width: 8),
         SizedBox(
           width: 80,
@@ -932,7 +1024,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                             center: Alignment.center,
                             radius: 0.8,
                             colors: [
-                              MintColors.coachAccent.withValues(alpha: glowOpacity),
+                              MintColors.coachAccent
+                                  .withValues(alpha: glowOpacity),
                               Colors.white.withValues(alpha: 0.85),
                             ],
                           ),
@@ -953,7 +1046,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: MintColors.coachAccent.withValues(alpha: 0.10),
+                              color: MintColors.coachAccent
+                                  .withValues(alpha: 0.10),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -964,7 +1058,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            l10n?.coachTrajectoryPrompt ?? 'Ta trajectoire financière t\'attend',
+                            l10n?.coachTrajectoryPrompt ??
+                                'Ta trajectoire financière t\'attend',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
@@ -1018,7 +1113,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         _buildQuickWinCard(
           icon: Icons.savings_outlined,
           iconColor: MintColors.scoreExcellent,
-          fact: l10n?.coachFact3a ?? 'Le 3e pilier peut te faire économiser jusqu\'à CHF 2\'500 d\'impôts par an, selon ton canton et ton revenu.',
+          fact: l10n?.coachFact3a ??
+              'Le 3e pilier peut te faire économiser jusqu\'à CHF 2\'500 d\'impôts par an, selon ton canton et ton revenu.',
           route: '/simulator/3a',
           linkLabel: l10n?.coachFact3aLink ?? 'Simuler mon économie 3a',
         ),
@@ -1026,7 +1122,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         _buildQuickWinCard(
           icon: Icons.shield_outlined,
           iconColor: MintColors.scoreAttention,
-          fact: l10n?.coachFactAvs ?? 'En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.',
+          fact: l10n?.coachFactAvs ??
+              'En Suisse, chaque année AVS manquante = −2.3% de rente à vie. Un rattrapage est possible dans certains cas.',
           route: '/retirement',
           linkLabel: l10n?.coachFactAvsLink ?? 'Vérifier mes années AVS',
         ),
@@ -1034,7 +1131,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         _buildQuickWinCard(
           icon: Icons.account_balance_outlined,
           iconColor: MintColors.coachAccent,
-          fact: l10n?.coachFactLpp ?? 'Le rachat LPP est l\'un des leviers fiscaux les plus puissants pour les salarié·es en Suisse. Il est intégralement déductible du revenu imposable.',
+          fact: l10n?.coachFactLpp ??
+              'Le rachat LPP est l\'un des leviers fiscaux les plus puissants pour les salarié·es en Suisse. Il est intégralement déductible du revenu imposable.',
           route: '/lpp-deep/rachat',
           linkLabel: l10n?.coachFactLppLink ?? 'Explorer le rachat LPP',
         ),
@@ -1098,7 +1196,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               onPressed: () => context.push(route),
               style: TextButton.styleFrom(
                 foregroundColor: MintColors.coachAccent,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1164,7 +1263,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            l10n?.coachMotivation ?? 'Rejoins les milliers d\'utilisateurs qui ont déjà fait leur diagnostic financier',
+            l10n?.coachMotivation ??
+                'Rejoins les milliers d\'utilisateurs qui ont déjà fait leur diagnostic financier',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 16,
@@ -1228,6 +1328,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       toolbarHeight: 48,
       automaticallyImplyLeading: false,
       backgroundColor: MintColors.primary,
+      actions: [
+        _buildResetMenuButton(),
+        const SizedBox(width: 8),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
         title: Text(
@@ -1392,8 +1496,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 ),
               const Spacer(),
               TextButton(
-                onPressed: () =>
-                    context.push(ctaRoute ?? '/report'),
+                onPressed: () => context.push(ctaRoute ?? '/report'),
                 style: TextButton.styleFrom(
                   foregroundColor: MintColors.coachAccent,
                   padding:
@@ -1560,7 +1663,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward, size: 14, color: MintColors.success),
+            const Icon(Icons.arrow_forward,
+                size: 14, color: MintColors.success),
             const SizedBox(width: 8),
             // Avec
             Text(
@@ -1647,8 +1751,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
   /// Mois abreges en francais pour l'axe X du mini-chart.
   static const _monthLabelsFr = [
-    'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin',
-    'Juil', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Fev',
+    'Mar',
+    'Avr',
+    'Mai',
+    'Juin',
+    'Juil',
+    'Aou',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   Widget _buildScoreHistorySection() {
@@ -1695,8 +1809,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 ),
                 // Badge tendance
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: isImproving
                         ? MintColors.success.withValues(alpha: 0.12)
@@ -1707,9 +1821,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isImproving
-                            ? Icons.trending_up
-                            : Icons.trending_down,
+                        isImproving ? Icons.trending_up : Icons.trending_down,
                         size: 14,
                         color: isImproving
                             ? MintColors.success
@@ -1807,8 +1919,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       if (economieTotale > 500) {
         cards.add(ChiffreChocCard(
           value: economieTotale,
-          message:
-              'Économies d\'impôts potentielles d\'ici ta retraite en '
+          message: 'Économies d\'impôts potentielles d\'ici ta retraite en '
               'maximisant ton 3a chaque année.',
           source: 'OPP3 art. 7 · LIFD',
           ctaLabel: 'Simuler mon 3a',
@@ -1828,8 +1939,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
       cards.add(ChiffreChocCard(
         value: economieRachat,
-        message:
-            'Déduction fiscale potentielle en rachetant '
+        message: 'Déduction fiscale potentielle en rachetant '
             'ta lacune LPP de CHF ${_formatChf(lacuneLpp)}.',
         source: 'LPP art. 79b',
         ctaLabel: 'Explorer le rachat',
@@ -1850,8 +1960,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
       cards.add(ChiffreChocCard(
         value: perteTotaleRetraite,
-        message:
-            'Rente AVS perdue sur 20 ans de retraite avec '
+        message: 'Rente AVS perdue sur 20 ans de retraite avec '
             '$lacunesAVS année${lacunesAVS > 1 ? 's' : ''} '
             'de cotisation manquante${lacunesAVS > 1 ? 's' : ''}.',
         source: 'LAVS art. 29',
@@ -2066,7 +2175,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     max: 5,
                     suffix: '%',
                     decimals: 1,
-                    onChanged: (v) => _updateEtSi(() => _etSiLppReturn = v / 100),
+                    onChanged: (v) =>
+                        _updateEtSi(() => _etSiLppReturn = v / 100),
                   ),
                   const SizedBox(height: 12),
                   _etSiSlider(
@@ -2076,7 +2186,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     max: 10,
                     suffix: '%',
                     decimals: 1,
-                    onChanged: (v) => _updateEtSi(() => _etSiThreeAReturn = v / 100),
+                    onChanged: (v) =>
+                        _updateEtSi(() => _etSiThreeAReturn = v / 100),
                   ),
                   const SizedBox(height: 12),
                   _etSiSlider(
@@ -2086,7 +2197,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     max: 15,
                     suffix: '%',
                     decimals: 1,
-                    onChanged: (v) => _updateEtSi(() => _etSiInvestReturn = v / 100),
+                    onChanged: (v) =>
+                        _updateEtSi(() => _etSiInvestReturn = v / 100),
                   ),
                   const SizedBox(height: 12),
                   _etSiSlider(
@@ -2096,7 +2208,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     max: 4,
                     suffix: '%',
                     decimals: 1,
-                    onChanged: (v) => _updateEtSi(() => _etSiInflation = v / 100),
+                    onChanged: (v) =>
+                        _updateEtSi(() => _etSiInflation = v / 100),
                   ),
                   const SizedBox(height: 16),
 
@@ -2109,8 +2222,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                     child: TextButton.icon(
                       onPressed: () => _updateEtSi(() {
                         _etSiLppReturn = ScenarioAssumptions.base.lppReturn;
-                        _etSiThreeAReturn = ScenarioAssumptions.base.threeAReturn;
-                        _etSiInvestReturn = ScenarioAssumptions.base.investmentReturn;
+                        _etSiThreeAReturn =
+                            ScenarioAssumptions.base.threeAReturn;
+                        _etSiInvestReturn =
+                            ScenarioAssumptions.base.investmentReturn;
                         _etSiInflation = ScenarioAssumptions.base.inflation;
                       }),
                       icon: const Icon(Icons.refresh, size: 16),
@@ -2217,15 +2332,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: (isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique)
-            .withValues(alpha: 0.08),
+        color:
+            (isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique)
+                .withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(
             isPositive ? Icons.trending_up : Icons.trending_down,
-            color: isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique,
+            color: isPositive
+                ? MintColors.scoreExcellent
+                : MintColors.scoreCritique,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -2246,7 +2364,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique,
+                    color: isPositive
+                        ? MintColors.scoreExcellent
+                        : MintColors.scoreCritique,
                   ),
                 ),
               ],
@@ -2800,7 +2920,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        l10n?.coachDisclaimer ?? 'Estimations éducatives \u2014 ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un\u00B7e spécialiste pour un plan personnalisé. LSFin.',
+        l10n?.coachDisclaimer ??
+            'Estimations éducatives \u2014 ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un\u00B7e spécialiste pour un plan personnalisé. LSFin.',
         style: GoogleFonts.inter(
           fontSize: 11,
           color: MintColors.textMuted,
@@ -3009,9 +3130,8 @@ class _ScoreHistoryPainter extends CustomPainter {
     final chartH = h - padding * 2;
 
     // Convertir les scores en points
-    final scores = history
-        .map((e) => (e['score'] as num?)?.toDouble() ?? 0.0)
-        .toList();
+    final scores =
+        history.map((e) => (e['score'] as num?)?.toDouble() ?? 0.0).toList();
     final count = scores.length;
 
     // Y-axis: 0 a 100 (scores de fitness)
@@ -3027,9 +3147,8 @@ class _ScoreHistoryPainter extends CustomPainter {
     }
 
     // ── Couleur principale ──
-    final lineColor = isImproving
-        ? MintColors.success
-        : MintColors.scoreAttention;
+    final lineColor =
+        isImproving ? MintColors.success : MintColors.scoreAttention;
 
     // ── Dessiner le gradient sous la courbe ──
     final gradientPath = _buildSmoothPath(points);

@@ -124,8 +124,7 @@ class ReportPersistenceService {
   static const String _checkInsKey = 'monthly_checkins_v1';
 
   /// Sauvegarde l'historique des check-ins (JSON list)
-  static Future<void> saveCheckIns(
-      List<Map<String, dynamic>> checkIns) async {
+  static Future<void> saveCheckIns(List<Map<String, dynamic>> checkIns) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_checkInsKey, json.encode(checkIns));
   }
@@ -249,15 +248,33 @@ class ReportPersistenceService {
   /// Efface tout (Logout / Reset)
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_wizardKey);
-    await prefs.remove(_completedKey);
-    await prefs.remove(_miniOnboardingKey);
+    await clearDiagnostic();
+    await clearCoachHistory();
     await prefs.remove(_lettersKey);
-    await prefs.remove(_contributionsKey);
+  }
+
+  /// Efface uniquement l'historique coach:
+  /// - check-ins mensuels
+  /// - score du mois + historique des scores
+  /// - progression "simulateurs explorés"
+  static Future<void> clearCoachHistory() async {
+    final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_checkInsKey);
     await prefs.remove(_lastScoreKey);
     await prefs.remove(_lastScoreMonthKey);
     await prefs.remove(_scoreHistoryKey);
     await prefs.remove(_exploredSimulatorsKey);
+  }
+
+  /// Efface le diagnostic/profil financier:
+  /// - réponses wizard/mini-onboarding
+  /// - flags de complétion
+  /// - contributions planifiées liées au profil
+  static Future<void> clearDiagnostic() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_wizardKey);
+    await prefs.remove(_completedKey);
+    await prefs.remove(_miniOnboardingKey);
+    await prefs.remove(_contributionsKey);
   }
 }

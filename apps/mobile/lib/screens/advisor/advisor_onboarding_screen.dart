@@ -105,7 +105,12 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
     );
 
-    if (birthYear == null || _canton == null || income == null) return;
+    if (birthYear == null ||
+        _validateBirthYear(_birthYearController.text) != null ||
+        _canton == null ||
+        income == null) {
+      return;
+    }
 
     // Resolve employment status (default: employee)
     final empStatus = _employmentStatus ?? 'employee';
@@ -134,7 +139,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     if (mounted) {
       context.read<CoachProfileProvider>().updateFromMiniOnboarding(merged);
       // Navigate to dashboard
-      context.go('/');
+      context.go('/home');
     }
   }
 
@@ -168,6 +173,17 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ),
       ),
     );
+  }
+
+  String? _validateBirthYear(String value) {
+    if (value.length != 4) return null;
+    final parsed = int.tryParse(value);
+    if (parsed == null) return 'Année invalide';
+    final currentYear = DateTime.now().year;
+    if (parsed < 1940 || parsed > currentYear - 16) {
+      return 'Entre 1940 et ${currentYear - 16}';
+    }
+    return null;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -304,6 +320,35 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             value: 'pension',
             color: const Color(0xFF0EA5E9),
           ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _stressChoice != null ? () => _goToStep(1) : null,
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.textPrimary,
+                disabledBackgroundColor:
+                    MintColors.textMuted.withValues(alpha: 0.15),
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Suivant',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 32),
           // Secondary options
           if (_hasSavedWizardProgress) ...[
@@ -354,10 +399,6 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     return GestureDetector(
       onTap: () {
         setState(() => _stressChoice = value);
-        // Small delay for visual feedback, then advance
-        Future.delayed(const Duration(milliseconds: 250), () {
-          if (mounted) _goToStep(1);
-        });
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -415,8 +456,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildStep2Essentials() {
-    final canGoNext =
-        _birthYearController.text.length == 4 && _canton != null;
+    final birthYearError = _validateBirthYear(_birthYearController.text);
+    final canGoNext = birthYearError == null &&
+        _birthYearController.text.length == 4 &&
+        _canton != null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -492,6 +535,17 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               color: MintColors.textPrimary,
             ),
           ),
+          if (birthYearError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              birthYearError,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: MintColors.error,
+              ),
+            ),
+          ],
 
           const SizedBox(height: 24),
 
@@ -588,9 +642,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
 
   Widget _buildStep3Income() {
     final hasIncome = _incomeController.text.isNotEmpty &&
-        (double.tryParse(
-                _incomeController.text.replaceAll("'", '').replaceAll(' ', '')) ??
-            0) >
+        (double.tryParse(_incomeController.text
+                    .replaceAll("'", '')
+                    .replaceAll(' ', '')) ??
+                0) >
             0;
     final canComplete = hasIncome && _employmentStatus != null;
 
@@ -710,6 +765,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             icon: Icons.pause_circle_outline,
           ),
 
+          const SizedBox(height: 16),
+          _buildQuickInsightCard(),
+
           const SizedBox(height: 36),
 
           // CTA
@@ -791,8 +849,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             Icon(
               icon,
               size: 22,
-              color:
-                  isSelected ? MintColors.primary : MintColors.textSecondary,
+              color: isSelected ? MintColors.primary : MintColors.textSecondary,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -801,16 +858,68 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected
-                      ? MintColors.primary
-                      : MintColors.textPrimary,
+                  color:
+                      isSelected ? MintColors.primary : MintColors.textPrimary,
                 ),
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: MintColors.primary, size: 22),
+              const Icon(Icons.check_circle,
+                  color: MintColors.primary, size: 22),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildQuickInsightCard() {
+    final income = double.tryParse(
+      _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
+    );
+    if (income == null || income <= 0 || _employmentStatus == null) {
+      return const SizedBox.shrink();
+    }
+
+    final isLowCapacity =
+        _employmentStatus == 'student' || _employmentStatus == 'unemployed';
+    final minRate = isLowCapacity ? 0.02 : 0.08;
+    final maxRate = isLowCapacity ? 0.08 : 0.15;
+    final low = (income * minRate).round();
+    final high = (income * maxRate).round();
+
+    final birthYear = int.tryParse(_birthYearController.text);
+    String horizon = '';
+    if (birthYear != null) {
+      final age = DateTime.now().year - birthYear;
+      final yearsLeft = (65 - age).clamp(0, 60);
+      horizon = 'Horizon retraite: ~$yearsLeft ans.';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.insights, size: 18, color: MintColors.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Estimation rapide: une épargne régulière entre CHF $low et CHF $high/mois peut déjà changer ta trajectoire. $horizon',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textSecondary,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
