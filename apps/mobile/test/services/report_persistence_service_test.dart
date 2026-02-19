@@ -45,7 +45,8 @@ void main() {
 
     test('overwrites previous answers on re-save', () async {
       await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
-      await ReportPersistenceService.saveAnswers({'q_canton': 'GE', 'q_birth_year': 1985});
+      await ReportPersistenceService.saveAnswers(
+          {'q_canton': 'GE', 'q_birth_year': 1985});
 
       final loaded = await ReportPersistenceService.loadAnswers();
       expect(loaded['q_canton'], 'GE');
@@ -163,6 +164,84 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════════════════
+  // Mini-Onboarding Experiment Persistence
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('Mini-onboarding experiment persistence', () {
+    test('getOrCreateMiniOnboardingVariant returns a valid variant', () async {
+      final variant =
+          await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
+      expect(['control', 'challenge'], contains(variant));
+    });
+
+    test('getOrCreateMiniOnboardingVariant persists the same variant',
+        () async {
+      final variant1 =
+          await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
+      final variant2 =
+          await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
+      expect(variant2, equals(variant1));
+    });
+
+    test('mini-onboarding exposure tracked defaults to false', () async {
+      expect(
+        await ReportPersistenceService.isMiniOnboardingExposureTracked(),
+        isFalse,
+      );
+    });
+
+    test('mini-onboarding exposure tracking flag can be set', () async {
+      await ReportPersistenceService.setMiniOnboardingExposureTracked(true);
+      expect(
+        await ReportPersistenceService.isMiniOnboardingExposureTracked(),
+        isTrue,
+      );
+    });
+
+    test('mini-onboarding metrics default values are loaded', () async {
+      final metrics =
+          await ReportPersistenceService.loadMiniOnboardingMetrics('control');
+      expect(metrics['started'], 0);
+      expect(metrics['completed'], 0);
+      expect(metrics['step_1'], 0);
+    });
+
+    test('mini-onboarding metrics can be incremented per variant', () async {
+      await ReportPersistenceService.incrementMiniOnboardingMetric(
+        'challenge',
+        'started',
+      );
+      await ReportPersistenceService.incrementMiniOnboardingMetric(
+        'challenge',
+        'started',
+      );
+      await ReportPersistenceService.incrementMiniOnboardingMetric(
+        'challenge',
+        'completed',
+      );
+      final metrics =
+          await ReportPersistenceService.loadMiniOnboardingMetrics('challenge');
+      expect(metrics['started'], 2);
+      expect(metrics['completed'], 1);
+
+      final control =
+          await ReportPersistenceService.loadMiniOnboardingMetrics('control');
+      expect(control['started'], 0);
+    });
+
+    test('mini-onboarding metrics clear resets counters', () async {
+      await ReportPersistenceService.incrementMiniOnboardingMetric(
+        'control',
+        'started',
+      );
+      await ReportPersistenceService.clearMiniOnboardingMetrics();
+      final metrics =
+          await ReportPersistenceService.loadMiniOnboardingMetrics('control');
+      expect(metrics['started'], 0);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
   // Letters History
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -253,6 +332,26 @@ void main() {
 
       expect(await ReportPersistenceService.loadAnswers(), isEmpty);
       expect(await ReportPersistenceService.isCompleted(), false);
+    });
+
+    test('clearDiagnostic resets mini-onboarding experiment keys', () async {
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+      await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
+      await ReportPersistenceService.setMiniOnboardingExposureTracked(true);
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+      expect(
+          await ReportPersistenceService.isMiniOnboardingCompleted(), isFalse);
+      expect(
+        await ReportPersistenceService.isMiniOnboardingExposureTracked(),
+        isFalse,
+      );
+      final variant =
+          await ReportPersistenceService.getOrCreateMiniOnboardingVariant();
+      expect(['control', 'challenge'], contains(variant));
     });
   });
 

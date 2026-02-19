@@ -205,12 +205,12 @@ class StaggeredWithdrawalSimulator {
     if (montant <= 0) return 0;
     // Brackets marginaux : [seuil_bas, seuil_haut, multiplicateur]
     const brackets = [
-      [0,       100000,  1.0],    // 0-100k : taux de base
-      [100000,  200000,  1.15],   // 100k-200k : +15%
-      [200000,  500000,  1.30],   // 200k-500k : +30%
-      [500000,  1000000, 1.50],   // 500k-1M : +50%
+      [0, 100000, 1.0], // 0-100k : taux de base
+      [100000, 200000, 1.15], // 100k-200k : +15%
+      [200000, 500000, 1.30], // 200k-500k : +30%
+      [500000, 1000000, 1.50], // 500k-1M : +50%
     ];
-    const lastMultiplier = 1.70;   // >1M : +70%
+    const lastMultiplier = 1.70; // >1M : +70%
 
     double impot = 0;
     double remaining = montant;
@@ -283,14 +283,14 @@ class RealReturnCalculator {
     required double fraisGestion,
     required int dureeAnnees,
   }) {
-    final clampedTaux = tauxMarginal.clamp(0.10, 0.45);
-    final clampedRendement = rendementBrut.clamp(0.0, 0.10);
+    final clampedTaux = tauxMarginal.clamp(0.0, 0.50);
+    final clampedRendement = rendementBrut.clamp(-0.99, 0.15);
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
-    final clampedDuree = dureeAnnees.clamp(1, 45);
+    final clampedDuree = dureeAnnees.clamp(0, 45);
     final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
 
     // rGross = taux effectif du placement 3a (brut - frais, pas d'inflation)
-    final rGross = max(0.0, clampedRendement - clampedFrais);
+    final rGross = max(-0.99, clampedRendement - clampedFrais);
 
     // Capital final 3a = fvAnnuityDue(pmtGross, rGross, n)
     final capital3a = fvAnnuityDue(clampedVersement, rGross, clampedDuree);
@@ -300,7 +300,8 @@ class RealReturnCalculator {
 
     // Capital final epargne classique (1.5% brut, pas de deduction fiscale)
     const tauxEpargne = 0.015;
-    final capitalEpargne = fvAnnuityDue(clampedVersement, tauxEpargne, clampedDuree);
+    final capitalEpargne =
+        fvAnnuityDue(clampedVersement, tauxEpargne, clampedDuree);
 
     final totalVersements = clampedVersement * clampedDuree;
     final gainVsEpargne = (capital3a + totalEconomieFiscale) - capitalEpargne;
@@ -316,7 +317,7 @@ class RealReturnCalculator {
     final rendReelPct = rNet * 100;
 
     // Rendement epargne = taux brut du compte epargne
-    final rendEpargne = tauxEpargne * 100;
+    const rendEpargne = tauxEpargne * 100;
 
     return RealReturnResult(
       capitalFinal3a: capital3a,
@@ -329,8 +330,7 @@ class RealReturnCalculator {
       gainVsEpargne: gainVsEpargne,
       chiffreChoc: ChiffreChoc(
         montant: gainVsEpargne,
-        texte:
-            'Rendement reel : ${rendReelPct.toStringAsFixed(1)}% vs '
+        texte: 'Rendement reel : ${rendReelPct.toStringAsFixed(1)}% vs '
             '${rendNominal.toStringAsFixed(1)}% sans avantage fiscal',
         isPositive: gainVsEpargne > 0,
       ),
@@ -363,8 +363,11 @@ class RealReturnCalculator {
   /// Trouve r tel que fvAnnuityDue(pmt, r, n) = targetFV.
   /// Bornes initiales : -0.9999 a 1.0, extensibles jusqu'a 10.0.
   /// Tolerance : 1e-6, max 200 iterations.
-  static double solveRateBisection(double pmt, double targetFV, int n, {
-    double tol = 1e-10,
+  static double solveRateBisection(
+    double pmt,
+    double targetFV,
+    int n, {
+    double tol = 1e-6,
     int maxIter = 200,
   }) {
     if (n <= 0) return 0.0;
@@ -376,20 +379,41 @@ class RealReturnCalculator {
 
     double lo = -0.9999;
     double hi = 1.0;
+    double fLo = fvAnnuityDue(pmt, lo, n) - targetFV;
+    double fHi = fvAnnuityDue(pmt, hi, n) - targetFV;
 
-    // Expand upper bound if needed (high marginal rates can require large rNet)
-    while (fvAnnuityDue(pmt, hi, n) < targetFV && hi < 10.0) {
-      hi *= 2;
+    if (fLo == 0) return lo;
+    if (fHi == 0) return hi;
+
+    if (fLo * fHi > 0) {
+      for (final hiCandidate in [2.0, 5.0, 10.0]) {
+        hi = hiCandidate;
+        fHi = fvAnnuityDue(pmt, hi, n) - targetFV;
+        if (fLo * fHi <= 0) {
+          break;
+        }
+      }
+      if (fLo * fHi > 0) {
+        throw StateError(
+          'Impossible d\'encadrer la racine de rNet dans [-0.9999, 10.0].',
+        );
+      }
     }
 
     for (int iter = 0; iter < maxIter; iter++) {
       final mid = (lo + hi) / 2;
-      if ((hi - lo) / 2 < tol) break;
-      final fv = fvAnnuityDue(pmt, mid, n);
-      if (fv < targetFV) {
-        lo = mid;
-      } else {
+      final fMid = fvAnnuityDue(pmt, mid, n) - targetFV;
+
+      if (fMid.abs() <= tol || (hi - lo).abs() <= 1e-12) {
+        return mid;
+      }
+
+      if (fLo * fMid <= 0) {
         hi = mid;
+        fHi = fMid;
+      } else {
+        lo = mid;
+        fLo = fMid;
       }
     }
     return (lo + hi) / 2;
@@ -472,7 +496,8 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.045,
       },
       fraisGestion: 0.0052,
-      description: 'App mobile, strategies passives indexees, gestion automatisee',
+      description:
+          'App mobile, strategies passives indexees, gestion automatisee',
     ),
     Provider3a(
       nom: 'Finpension',
@@ -583,8 +608,7 @@ class ProviderComparator {
           clampedDuree,
         );
         final perte = capitalFintech - capital;
-        warningMsg =
-            'A $clampedAge ans, une assurance 3a te coute environ '
+        warningMsg = 'A $clampedAge ans, une assurance 3a te coute environ '
             'CHF ${formatChf(perte)} de rendement perdu sur $clampedDuree ans '
             'par rapport a une fintech. Frais eleves et flexibilite reduite.';
       }
@@ -629,8 +653,7 @@ class ProviderComparator {
             'Difference sur $clampedDuree ans : CHF ${formatChf(difference)}',
         isPositive: true,
       ),
-      disclaimer:
-          'Rendements passes ne prejugent pas des rendements futurs. '
+      disclaimer: 'Rendements passes ne prejugent pas des rendements futurs. '
           'Les frais et rendements moyens sont bases sur des donnees '
           'historiques simplifiees a titre pedagogique. '
           'Le choix d\'un prestataire 3a depend de ta situation personnelle, '

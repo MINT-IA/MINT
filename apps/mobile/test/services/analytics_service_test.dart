@@ -96,11 +96,35 @@ void main() {
       );
     });
 
+    test('trackOnboardingStarted accepts contextual data', () async {
+      await analytics.setConsent(true);
+
+      expect(
+        () => analytics.trackOnboardingStarted(data: {
+          'experiment': 'mini_onboarding_v4',
+          'variant': 'control',
+        }),
+        returnsNormally,
+      );
+    });
+
     test('trackOnboardingCompleted includes time spent', () async {
       await analytics.setConsent(true);
 
       expect(
         () => analytics.trackOnboardingCompleted(timeSpentSeconds: 120),
+        returnsNormally,
+      );
+    });
+
+    test('trackOnboardingCompleted accepts contextual data', () async {
+      await analytics.setConsent(true);
+
+      expect(
+        () => analytics.trackOnboardingCompleted(
+          timeSpentSeconds: 120,
+          data: {'experiment': 'mini_onboarding_v4', 'variant': 'challenge'},
+        ),
         returnsNormally,
       );
     });
@@ -114,11 +138,37 @@ void main() {
       );
     });
 
+    test('trackCTAClick accepts contextual data', () async {
+      await analytics.setConsent(true);
+
+      expect(
+        () => analytics.trackCTAClick(
+          'cta_diagnostic',
+          screenName: '/',
+          data: {'experiment': 'mini_onboarding_v4', 'variant': 'challenge'},
+        ),
+        returnsNormally,
+      );
+    });
+
     test('trackTabSwitch includes from and to tabs', () async {
       await analytics.setConsent(true);
 
       expect(
         () => analytics.trackTabSwitch('now', 'explore'),
+        returnsNormally,
+      );
+    });
+
+    test('trackExperimentExposure works correctly', () async {
+      await analytics.setConsent(true);
+
+      expect(
+        () => analytics.trackExperimentExposure(
+          'mini_onboarding_v4',
+          'control',
+          screenName: '/advisor',
+        ),
         returnsNormally,
       );
     });
@@ -165,7 +215,8 @@ void main() {
       expect(hasAsked, isTrue);
     });
 
-    test('consent events are tracked even when analytics is disabled', () async {
+    test('consent events are tracked even when analytics is disabled',
+        () async {
       // Analytics disabled by default
       expect(analytics.isEnabled, isFalse);
 

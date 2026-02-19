@@ -142,8 +142,8 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step indicator (1/3)
-      expect(find.text('1/3'), findsOneWidget);
+      // Step indicator (1/4)
+      expect(find.text('1/4'), findsOneWidget);
 
       // Secondary link to full diagnostic
       expect(

@@ -164,7 +164,8 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             max: pilier3aPlafondAvecLpp,
             divisions: 125,
             format: 'CHF ${formatChf(_versementAnnuel)}',
-            onChanged: (v) => setState(() => _versementAnnuel = (v / 50).round() * 50.0),
+            onChanged: (v) =>
+                setState(() => _versementAnnuel = (v / 50).round() * 50.0),
           ),
           const SizedBox(height: 12),
 
@@ -172,9 +173,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           _buildSliderRow(
             label: 'Taux marginal',
             value: _tauxMarginal,
-            min: 0.10,
-            max: 0.45,
-            divisions: 35,
+            min: 0.00,
+            max: 0.50,
+            divisions: 50,
             format: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
             onChanged: (v) => setState(() => _tauxMarginal = v),
           ),
@@ -379,8 +380,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.trending_up,
-                    color: Colors.green.shade700, size: 20),
+                Icon(Icons.trending_up, color: Colors.green.shade700, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

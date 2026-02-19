@@ -68,6 +68,146 @@
   "onboardingTrustSecurity": "Security",
   "onboardingTrustSecurityDesc": "No direct access to your money.",
   "onboardingEnterSpace": "Enter my space",
+  "advisorMiniStep1Title": "What is your priority?",
+  "advisorMiniStep1Subtitle": "MINT adapts to what matters most to you right now",
+  "advisorMiniStressBudget": "Master my budget",
+  "advisorMiniStressDebt": "Reduce my debt",
+  "advisorMiniStressTax": "Optimize my taxes",
+  "advisorMiniStressRetirement": "Secure my retirement",
+  "advisorMiniResumeDiagnostic": "Resume my diagnostic ({progress}%)",
+  "@advisorMiniResumeDiagnostic": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniFullDiagnostic": "Full diagnostic (10 min)",
+  "advisorMiniStep2Title": "Essentials",
+  "advisorMiniStep2Subtitle": "Age and canton change everything in Switzerland",
+  "advisorMiniBirthYearLabel": "Year of birth",
+  "advisorMiniBirthYearInvalid": "Invalid year",
+  "advisorMiniBirthYearRange": "Between 1940 and {maxYear}",
+  "@advisorMiniBirthYearRange": {
+    "placeholders": {
+      "maxYear": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniCantonLabel": "Canton of residence",
+  "advisorMiniCantonHint": "Select",
+  "advisorMiniStep3Title": "Your income",
+  "advisorMiniStep3Subtitle": "To estimate your savings potential",
+  "advisorMiniIncomeLabel": "Monthly net income (CHF)",
+  "advisorMiniQuickPickLabel": "Quick pick",
+  "advisorMiniQuickPickIncomeLabel": "Common amounts",
+  "advisorMiniStep2AhaTitle": "Instant key insight",
+  "advisorMiniStep2AhaDirectionAbove": "above",
+  "advisorMiniStep2AhaDirectionBelow": "below",
+  "advisorMiniStep2AhaFactual": "Retirement horizon: ~{years} years. In {canton}, average marginal rate is ~{rate}% ({delta} pts {direction} CH average), i.e. ~CHF {annual}/year for CHF 100,000 taxable income.",
+  "@advisorMiniStep2AhaFactual": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "canton": { "type": "String" },
+      "rate": { "type": "String" },
+      "delta": { "type": "String" },
+      "direction": { "type": "String" },
+      "annual": { "type": "String" }
+    }
+  },
+  "advisorMiniStep2AhaEmotional": "You have about {years} years before 65. In canton {canton}, average marginal rate is ~{rate}% ({delta} pts {direction} CH average), which can mean roughly CHF {annual}/year on CHF 100,000 taxable income.",
+  "@advisorMiniStep2AhaEmotional": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "canton": { "type": "String" },
+      "rate": { "type": "String" },
+      "delta": { "type": "String" },
+      "direction": { "type": "String" },
+      "annual": { "type": "String" }
+    }
+  },
+  "advisorMiniStep2AhaDisclaimer": "Educational order-of-magnitude based on MINT reference cantonal data.",
+  "advisorMiniExitTitle": "Leave now?",
+  "advisorMiniExitBodyControl": "Your progress is saved. You can resume later.",
+  "advisorMiniExitBodyChallenge": "Just a few more seconds and you get your personalized trajectory.",
+  "advisorMiniExitStay": "Continue",
+  "advisorMiniExitLeave": "Leave",
+  "advisorMiniMetricsTitle": "Onboarding metrics",
+  "advisorMiniMetricsSubtitle": "Local tracking for control/challenge variants",
+  "advisorMiniMetricsControl": "Control",
+  "advisorMiniMetricsChallenge": "Challenge",
+  "advisorMiniMetricsStarts": "Starts",
+  "advisorMiniMetricsCompletionRate": "Completion rate",
+  "advisorMiniMetricsExitStayRate": "Exit prompt stay rate",
+  "advisorMiniMetricsAhaToStep3": "Step2 A-ha -> Step3",
+  "advisorMiniMetricsQuickPicks": "Quick picks",
+  "advisorMiniMetricsAvgStepTime": "Avg step time",
+  "advisorMiniMetricsReset": "Reset metrics",
+  "advisorMiniEtaLabel": "Estimated time left: {seconds}s",
+  "@advisorMiniEtaLabel": {
+    "placeholders": {
+      "seconds": { "type": "String" }
+    }
+  },
+  "advisorMiniEtaConfidenceHigh": "High confidence",
+  "advisorMiniEtaConfidenceLow": "Medium confidence",
+  "advisorMiniEmploymentLabel": "Employment status",
+  "advisorMiniEmploymentEmployee": "Employee",
+  "advisorMiniEmploymentSelfEmployed": "Self-employed",
+  "advisorMiniEmploymentStudent": "Student / Apprentice",
+  "advisorMiniEmploymentUnemployed": "Unemployed",
+  "advisorMiniSeeProjection": "See my projection",
+  "advisorMiniPreferFullDiagnostic": "I prefer the full diagnostic (10 min)",
+  "advisorMiniQuickInsight": "Quick estimate: consistent savings between CHF {low} and CHF {high}/month can already shift your trajectory. {horizon}",
+  "@advisorMiniQuickInsight": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      },
+      "horizon": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniHorizon": "Retirement horizon: ~{years} years.",
+  "@advisorMiniHorizon": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniStep4Title": "Your goal",
+  "advisorMiniStep4Subtitle": "MINT personalizes your plan based on your main priority",
+  "advisorMiniGoalRetirement": "Prepare for retirement",
+  "advisorMiniGoalRealEstate": "Buy a property",
+  "advisorMiniGoalDebtFree": "Reduce my debt",
+  "advisorMiniGoalIndependence": "Build my financial independence",
+  "advisorMiniActivateDashboard": "Activate my dashboard",
+  "advisorMiniAdjustLater": "You can adjust everything later from Dashboard and Act.",
+  "advisorMiniPreviewTitle": "Trajectory preview: {goal}",
+  "@advisorMiniPreviewTitle": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniPreviewSubtitle": "Indicative projection over ~{years} years",
+  "@advisorMiniPreviewSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniPreviewPrudent": "Prudent",
+  "advisorMiniPreviewBase": "Base",
+  "advisorMiniPreviewOptimistic": "Optimistic",
   "homeSafeModeActive": "PROTECTION MODE ACTIVE",
   "homeHide": "Hide",
   "homeSafeModeMessage": "We have detected warning signals. MINT advises you to stabilise your budget before investing.",

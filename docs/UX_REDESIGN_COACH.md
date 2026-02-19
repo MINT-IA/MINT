@@ -1145,6 +1145,54 @@ MintPaywallSheet    — Bottom sheet pour upgrade Coach
 
 ---
 
+## ETAT D'EXECUTION ONBOARDING (19 FEVRIER 2026)
+
+### Deja en place
+- Mini-onboarding en 4 etapes avec preview de trajectoire avant activation dashboard.
+- Profil partiel persistant (precision ~15%) et dashboard partiel exploitable immediatement.
+- Instrumentation onboarding (start, step, durations, completion, abandonment, CTA).
+- Architecture i18n active (FR/EN/DE/ES/IT/PT) sans hardcode bloqueur sur les nouveaux ecrans.
+- Reset granulaire disponible (diagnostic vs historique coach).
+
+### Ajout immediate (state of the art)
+- Assignation A/B persistente pour le mini-onboarding (`control` vs `challenge`).
+- Event d'exposition experimentale trace une seule fois par utilisateur.
+- Tous les events onboarding enrichis avec contexte `experiment + variant`.
+- Variante `challenge` qui modifie la priorisation visuelle des cartes Step 1
+  pour mesurer l'impact sur completion et first action.
+- Step 2/3 en mode friction reduite: quick picks annee de naissance + revenus
+  pour limiter la saisie clavier et accelerer le time-to-first-aha.
+- Instrumentation usage presets vs saisie manuelle pour lire le vrai levier UX.
+- Step 2 "A-ha card" live (age + canton) avec copy factuelle vs emotionnelle
+  selon variante pour tester l'effet sur progression vers Step 3/4.
+- Exit-rescue modal contextuelle (anti-abandon) + autosave progressif a chaque
+  transition d'etape pour reprise sans friction.
+- Panel d'observabilite onboarding in-app (icone insights) avec KPI locaux
+  par variante: completion, stay rate sortie, conversion A-ha Step2 -> Step3.
+- ETA predicitive en temps reel (restant en secondes) basee sur durees
+  historiques par etape et variante.
+- Interception du back systeme (hardware gesture) avec meme logique anti-abandon
+  que le bouton fermer.
+
+### KPI d'experimentation onboarding (v1)
+- `completion_rate_by_variant` : completion mini-onboarding par variante.
+- `drop_off_step_by_variant` : abandon par etape et variante.
+- `time_to_complete_by_variant` : mediane secondes jusqu'a completion.
+- `wizard_upgrade_rate_by_variant` : taux d'upsell vers diagnostic complet.
+- `first_action_j1_by_variant` : action J+1 apres mini-onboarding.
+- `step2_aha_to_step3_rate_by_variant` : taux de passage Step 2 -> Step 3
+  apres affichage du bloc A-ha.
+- `exit_prompt_stay_rate_by_variant` : part des utilisateurs qui choisissent
+  "Continuer" apres affichage du prompt de sortie.
+
+### Gate de decision (A/B)
+- Garder la variante gagnante si:
+  - +5 points de completion rate minimum, et
+  - pas de degradation du `first_action_j1` (> -1 point max).
+- Sinon rollback sur `control` et lancer iteration UX suivante.
+
+---
+
 ## RISQUES ET MITIGATIONS
 
 | Risque | Mitigation |

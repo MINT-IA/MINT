@@ -68,6 +68,146 @@
   "onboardingTrustSecurity": "Seguranca",
   "onboardingTrustSecurityDesc": "Sem acesso direto ao teu dinheiro.",
   "onboardingEnterSpace": "Entrar no meu espaco",
+  "advisorMiniStep1Title": "Qual e a tua prioridade?",
+  "advisorMiniStep1Subtitle": "A MINT adapta-se ao que mais importa para ti agora",
+  "advisorMiniStressBudget": "Controlar o meu orcamento",
+  "advisorMiniStressDebt": "Reduzir as minhas dividas",
+  "advisorMiniStressTax": "Otimizar os meus impostos",
+  "advisorMiniStressRetirement": "Proteger a minha reforma",
+  "advisorMiniResumeDiagnostic": "Retomar o meu diagnostico ({progress}%)",
+  "@advisorMiniResumeDiagnostic": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniFullDiagnostic": "Diagnostico completo (10 min)",
+  "advisorMiniStep2Title": "O essencial",
+  "advisorMiniStep2Subtitle": "Idade e cantao mudam tudo na Suica",
+  "advisorMiniBirthYearLabel": "Ano de nascimento",
+  "advisorMiniBirthYearInvalid": "Ano invalido",
+  "advisorMiniBirthYearRange": "Entre 1940 e {maxYear}",
+  "@advisorMiniBirthYearRange": {
+    "placeholders": {
+      "maxYear": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniCantonLabel": "Cantao de residencia",
+  "advisorMiniCantonHint": "Selecionar",
+  "advisorMiniStep3Title": "O teu rendimento",
+  "advisorMiniStep3Subtitle": "Para calcular o teu potencial de poupanca",
+  "advisorMiniIncomeLabel": "Rendimento liquido mensal (CHF)",
+  "advisorMiniQuickPickLabel": "Escolha rapida",
+  "advisorMiniQuickPickIncomeLabel": "Montantes frequentes",
+  "advisorMiniStep2AhaTitle": "Insight-chave imediato",
+  "advisorMiniStep2AhaDirectionAbove": "acima de",
+  "advisorMiniStep2AhaDirectionBelow": "abaixo de",
+  "advisorMiniStep2AhaFactual": "Horizonte de reforma: ~{years} anos. Em {canton}, a taxa marginal media e ~{rate}% ({delta} pts {direction} a media CH), ou seja ~CHF {annual}/ano para CHF 100'000 tributaveis.",
+  "@advisorMiniStep2AhaFactual": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "canton": { "type": "String" },
+      "rate": { "type": "String" },
+      "delta": { "type": "String" },
+      "direction": { "type": "String" },
+      "annual": { "type": "String" }
+    }
+  },
+  "advisorMiniStep2AhaEmotional": "Tens cerca de {years} anos ate aos 65. No cantao {canton}, a taxa marginal media e ~{rate}% ({delta} pts {direction} a media CH), o que pode representar ~CHF {annual}/ano sobre CHF 100'000 tributaveis.",
+  "@advisorMiniStep2AhaEmotional": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "canton": { "type": "String" },
+      "rate": { "type": "String" },
+      "delta": { "type": "String" },
+      "direction": { "type": "String" },
+      "annual": { "type": "String" }
+    }
+  },
+  "advisorMiniStep2AhaDisclaimer": "Ordem de grandeza educativa baseada em dados cantonais de referencia MINT.",
+  "advisorMiniExitTitle": "Sair agora?",
+  "advisorMiniExitBodyControl": "O teu progresso esta guardado. Podes retomar mais tarde.",
+  "advisorMiniExitBodyChallenge": "So mais alguns segundos e tens a tua trajetoria personalizada.",
+  "advisorMiniExitStay": "Continuar",
+  "advisorMiniExitLeave": "Sair",
+  "advisorMiniMetricsTitle": "Metricas onboarding",
+  "advisorMiniMetricsSubtitle": "Tracking local das variantes control/challenge",
+  "advisorMiniMetricsControl": "Control",
+  "advisorMiniMetricsChallenge": "Challenge",
+  "advisorMiniMetricsStarts": "Starts",
+  "advisorMiniMetricsCompletionRate": "Taxa de completion",
+  "advisorMiniMetricsExitStayRate": "Taxa de stay apos prompt de saida",
+  "advisorMiniMetricsAhaToStep3": "Step2 A-ha -> Step3",
+  "advisorMiniMetricsQuickPicks": "Quick picks",
+  "advisorMiniMetricsAvgStepTime": "Tempo medio por step",
+  "advisorMiniMetricsReset": "Reset metrics",
+  "advisorMiniEtaLabel": "Tempo restante estimado: {seconds}s",
+  "@advisorMiniEtaLabel": {
+    "placeholders": {
+      "seconds": { "type": "String" }
+    }
+  },
+  "advisorMiniEtaConfidenceHigh": "Confianca alta",
+  "advisorMiniEtaConfidenceLow": "Confianca media",
+  "advisorMiniEmploymentLabel": "Estatuto profissional",
+  "advisorMiniEmploymentEmployee": "Assalariado/a",
+  "advisorMiniEmploymentSelfEmployed": "Independente",
+  "advisorMiniEmploymentStudent": "Estudante / Aprendiz",
+  "advisorMiniEmploymentUnemployed": "Sem emprego",
+  "advisorMiniSeeProjection": "Ver a minha projecao",
+  "advisorMiniPreferFullDiagnostic": "Prefiro o diagnostico completo (10 min)",
+  "advisorMiniQuickInsight": "Estimativa rapida: uma poupanca regular entre CHF {low} e CHF {high}/mes ja pode mudar a tua trajetoria. {horizon}",
+  "@advisorMiniQuickInsight": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      },
+      "horizon": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniHorizon": "Horizonte de reforma: ~{years} anos.",
+  "@advisorMiniHorizon": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniStep4Title": "O teu objetivo",
+  "advisorMiniStep4Subtitle": "A MINT personaliza o teu plano segundo a tua prioridade principal",
+  "advisorMiniGoalRetirement": "Preparar a minha reforma",
+  "advisorMiniGoalRealEstate": "Comprar um imovel",
+  "advisorMiniGoalDebtFree": "Reduzir as minhas dividas",
+  "advisorMiniGoalIndependence": "Construir a minha independencia financeira",
+  "advisorMiniActivateDashboard": "Ativar o meu dashboard",
+  "advisorMiniAdjustLater": "Poderas ajustar tudo depois no Dashboard e Agir.",
+  "advisorMiniPreviewTitle": "Preview de trajetoria: {goal}",
+  "@advisorMiniPreviewTitle": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniPreviewSubtitle": "Projecao indicativa em ~{years} anos",
+  "@advisorMiniPreviewSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "advisorMiniPreviewPrudent": "Prudente",
+  "advisorMiniPreviewBase": "Base",
+  "advisorMiniPreviewOptimistic": "Otimista",
   "homeSafeModeActive": "MODO PROTECAO ATIVADO",
   "homeHide": "Ocultar",
   "homeSafeModeMessage": "Detetamos sinais de tensao. O MINT aconselha-te a estabilizar o teu orcamento antes de investir.",

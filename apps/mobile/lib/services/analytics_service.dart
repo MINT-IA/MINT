@@ -112,7 +112,9 @@ class AnalyticsService {
       return;
     }
 
-    if (!_isEnabled && name != 'analytics_consent_granted' && name != 'analytics_consent_revoked') {
+    if (!_isEnabled &&
+        name != 'analytics_consent_granted' &&
+        name != 'analytics_consent_revoked') {
       // Don't track if consent not given (except consent events)
       return;
     }
@@ -147,40 +149,80 @@ class AnalyticsService {
   }
 
   /// Track onboarding progress
-  void trackOnboardingStep(int step, String stepName, {int? totalSteps}) {
+  void trackOnboardingStep(
+    int step,
+    String stepName, {
+    int? totalSteps,
+    Map<String, dynamic>? data,
+  }) {
+    final payload = <String, dynamic>{
+      'step': step,
+      'step_name': stepName,
+      if (totalSteps != null) 'total_steps': totalSteps,
+      if (data != null) ...data,
+    };
     trackEvent(
       'onboarding_step_completed',
       category: 'engagement',
-      data: {
-        'step': step,
-        'step_name': stepName,
-        if (totalSteps != null) 'total_steps': totalSteps,
-      },
+      data: payload,
     );
   }
 
   /// Track onboarding start
-  void trackOnboardingStarted() {
-    trackEvent('onboarding_started', category: 'engagement');
+  void trackOnboardingStarted({Map<String, dynamic>? data}) {
+    trackEvent('onboarding_started', category: 'engagement', data: data);
   }
 
   /// Track onboarding completion with time spent
-  void trackOnboardingCompleted({int? timeSpentSeconds}) {
+  void trackOnboardingCompleted({
+    int? timeSpentSeconds,
+    Map<String, dynamic>? data,
+  }) {
+    final payload = <String, dynamic>{
+      if (timeSpentSeconds != null) 'time_spent_seconds': timeSpentSeconds,
+      if (data != null) ...data,
+    };
     trackEvent(
       'onboarding_completed',
       category: 'conversion',
-      data: {
-        if (timeSpentSeconds != null) 'time_spent_seconds': timeSpentSeconds,
-      },
+      data: payload.isEmpty ? null : payload,
+    );
+  }
+
+  /// Track experiment exposure event (A/B tests, UX variants)
+  void trackExperimentExposure(
+    String experimentName,
+    String variant, {
+    String? screenName,
+    Map<String, dynamic>? data,
+  }) {
+    final payload = <String, dynamic>{
+      'experiment': experimentName,
+      'variant': variant,
+      if (data != null) ...data,
+    };
+    trackEvent(
+      'experiment_exposed',
+      category: 'experiment',
+      data: payload,
+      screenName: screenName,
     );
   }
 
   /// Track CTA click
-  void trackCTAClick(String ctaName, {String? screenName}) {
+  void trackCTAClick(
+    String ctaName, {
+    String? screenName,
+    Map<String, dynamic>? data,
+  }) {
+    final payload = <String, dynamic>{
+      'cta_name': ctaName,
+      if (data != null) ...data,
+    };
     trackEvent(
       'cta_clicked',
       category: 'engagement',
-      data: {'cta_name': ctaName},
+      data: payload,
       screenName: screenName,
     );
   }

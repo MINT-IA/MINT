@@ -299,6 +299,57 @@ class TestRealReturn:
         fv_check = fv_annuity_due(pmt_net, r_net, 30)
         assert abs(fv_check - result.capital_final_3a) < 1.0
 
+    def test_marginal_tax_rate_zero_keeps_same_rate(self, return_service):
+        """With 0% tax rate, rNet should match rGross."""
+        result = return_service.calculate_real_return(
+            versement_annuel=7258,
+            taux_marginal=0.0,
+            rendement_brut=0.03,
+            frais_gestion=0.0,
+            duree_annees=16,
+        )
+        assert abs(result.rendement_reel_annualise - 0.03) < 1e-6
+
+    def test_non_regression_prompt_case_7258_10pct_3pct_49_to_65(self, return_service):
+        """Prompt case: 7'258, 10%, 3%, n=16 should roundtrip exactly."""
+        pmt_gross = 7258.0
+        marginal_tax_rate = 0.10
+        r_gross = 0.03
+        n = 16
+        pmt_net = pmt_gross * (1 - marginal_tax_rate)
+
+        fv_gross = fv_annuity_due(pmt_gross, r_gross, n)
+        r_net = solve_rate_bisection(pmt_net, fv_gross, n)
+        fv_check = fv_annuity_due(pmt_net, r_net, n)
+
+        assert abs(fv_check - fv_gross) < 1e-4
+        assert r_net > r_gross
+
+    def test_duration_zero_returns_zero_capital_and_zero_rate(self, return_service):
+        """n=0 should return zero FV and zero equivalent rate by design."""
+        result = return_service.calculate_real_return(
+            versement_annuel=7258,
+            taux_marginal=0.30,
+            rendement_brut=0.04,
+            frais_gestion=0.005,
+            duree_annees=0,
+        )
+        assert result.capital_final_3a == 0.0
+        assert result.total_verse == 0.0
+        assert result.rendement_reel_annualise == 0.0
+
+    def test_negative_gross_after_fees_supported(self, return_service):
+        """Negative gross net rate should be supported above -99%."""
+        result = return_service.calculate_real_return(
+            versement_annuel=7258,
+            taux_marginal=0.20,
+            rendement_brut=-0.02,
+            frais_gestion=0.0,
+            duree_annees=10,
+        )
+        assert result.rendement_net_annuel < 0
+        assert result.capital_final_3a > 0
+
     def test_zero_return_still_has_tax_advantage(self, return_service):
         """Even with 0% gross return, tax savings provide a real return."""
         result = return_service.calculate_real_return(

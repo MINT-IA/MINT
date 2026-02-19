@@ -18,7 +18,7 @@ Sprint S16 — Gap G1: 3a Deep.
 """
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Callable, List
 
 
 DISCLAIMER = (
@@ -91,7 +91,7 @@ def solve_rate_bisection(
     pmt: float,
     target_fv: float,
     n: int,
-    tol: float = 1e-10,
+    tol: float = 1e-6,
     max_iter: int = 200,
 ) -> float:
     """Solve for r via robust bisection.
@@ -107,21 +107,65 @@ def solve_rate_bisection(
         # FV = pmt × (1+r) → r = target_fv / pmt − 1
         return target_fv / pmt - 1
 
-    lo, hi = -0.9999, 1.0
+    def f(rate: float) -> float:
+        return fv_annuity_due(pmt, rate, n) - target_fv
 
-    # Expand upper bound if needed
-    while fv_annuity_due(pmt, hi, n) < target_fv and hi < 10.0:
-        hi *= 2
+    return solve_bisection(
+        f=f,
+        low=-0.9999,
+        high=1.0,
+        tol=tol,
+        max_iter=max_iter,
+    )
+
+
+def solve_bisection(
+    f: Callable[[float], float],
+    low: float,
+    high: float,
+    tol: float = 1e-6,
+    max_iter: int = 200,
+) -> float:
+    """Generic robust bisection solver for monotonic functions.
+
+    Tries to bracket the root by expanding high to [2.0, 5.0, 10.0]
+    if [low, high] does not initially bracket a sign change.
+    """
+    lo = low
+    hi = high
+    f_lo = f(lo)
+    f_hi = f(hi)
+
+    if f_lo == 0:
+        return lo
+    if f_hi == 0:
+        return hi
+
+    if f_lo * f_hi > 0:
+        for hi_candidate in (2.0, 5.0, 10.0):
+            hi = hi_candidate
+            f_hi = f(hi)
+            if f_lo * f_hi <= 0:
+                break
+        else:
+            raise ValueError(
+                "Impossible d'encadrer la racine dans [-0.9999, 10.0]."
+            )
 
     for _ in range(max_iter):
         mid = (lo + hi) / 2
-        if (hi - lo) / 2 < tol:
-            break
-        fv = fv_annuity_due(pmt, mid, n)
-        if fv < target_fv:
-            lo = mid
-        else:
+        f_mid = f(mid)
+
+        if abs(f_mid) <= tol or abs(hi - lo) <= 1e-12:
+            return mid
+
+        if f_lo * f_mid <= 0:
             hi = mid
+            f_hi = f_mid
+        else:
+            lo = mid
+            f_lo = f_mid
+
     return (lo + hi) / 2
 
 
@@ -170,12 +214,12 @@ class RealReturnService:
         # Validate inputs
         versement_annuel = max(0.0, min(float(PLAFOND_3A_INDEPENDANT), versement_annuel))
         taux_marginal = max(0.0, min(0.50, taux_marginal))
-        rendement_brut = max(-0.10, min(0.15, rendement_brut))
+        rendement_brut = max(-0.99, min(0.15, rendement_brut))
         frais_gestion = max(0.0, min(0.05, frais_gestion))
-        duree_annees = max(1, min(50, duree_annees))
+        duree_annees = max(0, min(50, duree_annees))
 
         # rGross = effective investment rate (no inflation subtraction)
-        r_gross = max(0.0, rendement_brut - frais_gestion)
+        r_gross = max(-0.99, rendement_brut - frais_gestion)
 
         # Capital final 3a = fv_annuity_due(pmtGross, rGross, n)
         capital_3a = round(fv_annuity_due(versement_annuel, r_gross, duree_annees), 2)
@@ -190,7 +234,9 @@ class RealReturnService:
         # pmtNet = versement × (1 − taux_marginal)
         # Solve: fv_annuity_due(pmtNet, rNet, n) = capital_3a
         versement_net = versement_annuel * (1 - taux_marginal)
-        rendement_reel = solve_rate_bisection(versement_net, capital_3a, duree_annees)
+        rendement_reel = solve_rate_bisection(
+            versement_net, capital_3a, duree_annees
+        )
 
         # Comparison: savings account at 1.5%
         taux_epargne = TAUX_EPARGNE_DEFAUT

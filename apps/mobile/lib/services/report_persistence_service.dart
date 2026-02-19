@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ReportPersistenceService {
@@ -45,6 +46,13 @@ class ReportPersistenceService {
   // ═══════════════════════════════════════════════════════════
 
   static const String _miniOnboardingKey = 'mini_onboarding_completed';
+  static const String _miniOnboardingVariantKey = 'mini_onboarding_variant_v1';
+  static const String _miniOnboardingExposureTrackedKey =
+      'mini_onboarding_exposure_tracked_v1';
+  static const String _onboardingMetricsControlKey =
+      'mini_onboarding_metrics_control_v1';
+  static const String _onboardingMetricsChallengeKey =
+      'mini_onboarding_metrics_challenge_v1';
 
   /// Marque le mini-onboarding comme complété (3 questions essentielles)
   static Future<void> setMiniOnboardingCompleted(bool isCompleted) async {
@@ -56,6 +64,112 @@ class ReportPersistenceService {
   static Future<bool> isMiniOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_miniOnboardingKey) ?? false;
+  }
+
+  /// Retourne une variante A/B persistente pour le mini-onboarding.
+  /// Valeurs possibles: 'control' ou 'challenge'.
+  static Future<String> getOrCreateMiniOnboardingVariant() async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = prefs.getString(_miniOnboardingVariantKey);
+    if (existing == 'control' || existing == 'challenge') {
+      return existing!;
+    }
+    final variant = Random().nextBool() ? 'control' : 'challenge';
+    await prefs.setString(_miniOnboardingVariantKey, variant);
+    return variant;
+  }
+
+  /// Indique si l'exposition a l'experience onboarding a deja ete trackee.
+  static Future<bool> isMiniOnboardingExposureTracked() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_miniOnboardingExposureTrackedKey) ?? false;
+  }
+
+  /// Marque l'exposition a l'experience onboarding comme trackee.
+  static Future<void> setMiniOnboardingExposureTracked(bool tracked) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_miniOnboardingExposureTrackedKey, tracked);
+  }
+
+  static String _metricsKeyForVariant(String variant) {
+    return variant == 'challenge'
+        ? _onboardingMetricsChallengeKey
+        : _onboardingMetricsControlKey;
+  }
+
+  static Map<String, int> _defaultOnboardingMetrics() {
+    return const {
+      'started': 0,
+      'completed': 0,
+      'abandoned': 0,
+      'step_1': 0,
+      'step_2': 0,
+      'step_3': 0,
+      'step_4': 0,
+      'exit_prompt_shown': 0,
+      'exit_prompt_stay': 0,
+      'exit_prompt_leave': 0,
+      'step2_aha_shown': 0,
+      'step2_to_step3_after_aha': 0,
+      'quick_pick_birth_year': 0,
+      'quick_pick_income': 0,
+      'duration_step_1_sum': 0,
+      'duration_step_1_count': 0,
+      'duration_step_2_sum': 0,
+      'duration_step_2_count': 0,
+      'duration_step_3_sum': 0,
+      'duration_step_3_count': 0,
+      'duration_step_4_sum': 0,
+      'duration_step_4_count': 0,
+    };
+  }
+
+  /// Charge les metriques onboarding d'une variante.
+  static Future<Map<String, int>> loadMiniOnboardingMetrics(
+    String variant,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _metricsKeyForVariant(variant);
+    final jsonString = prefs.getString(key);
+    if (jsonString == null) {
+      return _defaultOnboardingMetrics();
+    }
+    try {
+      final decoded = Map<String, dynamic>.from(json.decode(jsonString));
+      final defaults = _defaultOnboardingMetrics();
+      final merged = <String, int>{};
+      for (final entry in defaults.entries) {
+        final value = decoded[entry.key];
+        merged[entry.key] = value is num ? value.toInt() : entry.value;
+      }
+      return merged;
+    } catch (e, stack) {
+      dev.log('Failed to decode onboarding metrics',
+          error: e, stackTrace: stack, name: 'Persistence');
+      return _defaultOnboardingMetrics();
+    }
+  }
+
+  /// Incremente un compteur onboarding pour une variante.
+  static Future<void> incrementMiniOnboardingMetric(
+    String variant,
+    String metricKey, {
+    int by = 1,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _metricsKeyForVariant(variant);
+    final current = Map<String, int>.from(
+      await loadMiniOnboardingMetrics(variant),
+    );
+    current[metricKey] = (current[metricKey] ?? 0) + by;
+    await prefs.setString(key, json.encode(current));
+  }
+
+  /// Efface les metriques onboarding (control + challenge).
+  static Future<void> clearMiniOnboardingMetrics() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_onboardingMetricsControlKey);
+    await prefs.remove(_onboardingMetricsChallengeKey);
   }
 
   static const String _lettersKey = 'generated_letters_history';
@@ -275,6 +389,10 @@ class ReportPersistenceService {
     await prefs.remove(_wizardKey);
     await prefs.remove(_completedKey);
     await prefs.remove(_miniOnboardingKey);
+    await prefs.remove(_miniOnboardingVariantKey);
+    await prefs.remove(_miniOnboardingExposureTrackedKey);
+    await prefs.remove(_onboardingMetricsControlKey);
+    await prefs.remove(_onboardingMetricsChallengeKey);
     await prefs.remove(_contributionsKey);
   }
 }
