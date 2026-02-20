@@ -11,6 +11,7 @@ class AuthProvider extends ChangeNotifier {
   String? _displayName;
   bool _isLoading = false;
   String? _error;
+  bool _requiresEmailVerification = false;
 
   bool get isLoggedIn => _isLoggedIn;
   String? get userId => _userId;
@@ -18,6 +19,7 @@ class AuthProvider extends ChangeNotifier {
   String? get displayName => _displayName;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool get requiresEmailVerification => _requiresEmailVerification;
 
   /// Check stored auth on app startup
   Future<void> checkAuth() async {
@@ -50,6 +52,7 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _error = null;
+    _requiresEmailVerification = false;
     notifyListeners();
 
     try {
@@ -59,23 +62,28 @@ class AuthProvider extends ChangeNotifier {
         displayName: displayName,
       );
 
-      // Backend returns flat: { access_token, refresh_token, token_type, user_id, email }
-      final token = response['access_token'] as String;
+      final requiresVerification = response['requires_email_verification'] == true;
+      final token = response['access_token'] as String?;
       final userId = response['user_id']?.toString() ?? '';
-      final userEmail = response['email'] as String;
+      final userEmail = response['email']?.toString() ?? email;
 
-      await AuthService.saveToken(
-        token,
-        userId,
-        userEmail,
-        displayName: response['display_name'] as String?,
-        refreshToken: response['refresh_token'] as String?,
-      );
+      if (token != null && token.isNotEmpty) {
+        await AuthService.saveToken(
+          token,
+          userId,
+          userEmail,
+          displayName: response['display_name'] as String?,
+          refreshToken: response['refresh_token'] as String?,
+        );
+        _isLoggedIn = true;
+      } else {
+        _isLoggedIn = false;
+      }
 
-      _userId = userId;
+      _requiresEmailVerification = requiresVerification;
+      _userId = userId.isNotEmpty ? userId : null;
       _email = userEmail;
       _displayName = response['display_name'] as String?;
-      _isLoggedIn = true;
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -92,6 +100,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _error = null;
+    _requiresEmailVerification = false;
     notifyListeners();
 
     try {
@@ -114,6 +123,7 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
+      _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -137,6 +147,7 @@ class AuthProvider extends ChangeNotifier {
       _userId = null;
       _email = null;
       _displayName = null;
+      _requiresEmailVerification = false;
       _isLoading = false;
       notifyListeners();
       return true;
@@ -225,6 +236,7 @@ class AuthProvider extends ChangeNotifier {
     _userId = null;
     _email = null;
     _displayName = null;
+    _requiresEmailVerification = false;
     _error = null;
     notifyListeners();
   }

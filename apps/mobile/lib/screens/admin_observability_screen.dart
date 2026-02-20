@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -72,18 +73,27 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Future<void> _copyCsvExport() async {
+    final l10n = S.of(context);
     try {
       final csv = await (widget.csvLoader ?? _defaultCsvLoader)(days: _days);
       if (!mounted) return;
       await Clipboard.setData(ClipboardData(text: csv));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('CSV cohortes copié dans le presse-papiers')),
+        SnackBar(
+          content: Text(
+            l10n?.adminObsCsvCopied ?? 'CSV cohortes copié dans le presse-papiers',
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export impossible: $e')),
+        SnackBar(
+          content: Text(
+            '${l10n?.adminObsExportFailed ?? 'Export impossible'}: $e',
+          ),
+        ),
       );
     }
   }
@@ -110,12 +120,13 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         backgroundColor: MintColors.background,
         title: Text(
-          'Admin Observability',
+          l10n?.adminObsTitle ?? 'Admin Observability',
           style: GoogleFonts.inter(fontWeight: FontWeight.w700),
         ),
       ),
@@ -139,7 +150,9 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                       OutlinedButton.icon(
                         onPressed: _copyCsvExport,
                         icon: const Icon(Icons.download_outlined),
-                        label: const Text('Exporter CSV cohortes'),
+                        label: Text(
+                          l10n?.adminObsExportCsv ?? 'Exporter CSV cohortes',
+                        ),
                       ),
                     ],
                   ),
@@ -165,7 +178,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
         const SizedBox(height: 12),
         FilledButton(
           onPressed: _load,
-          child: const Text('Réessayer'),
+          child: Text(S.of(context)?.commonRetry ?? 'Réessayer'),
         ),
       ],
     );
@@ -176,7 +189,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
       children: [
         Expanded(
           child: Text(
-            'Fenêtre: $_days jours',
+            '${S.of(context)?.adminObsWindowLabel ?? 'Fenêtre'}: $_days ${S.of(context)?.commonDays ?? 'jours'}',
             style: GoogleFonts.inter(
               color: MintColors.textSecondary,
               fontWeight: FontWeight.w600,

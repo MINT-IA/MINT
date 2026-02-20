@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     AUTH_REQUIRE_EMAIL_VERIFICATION: bool = False
     AUTH_UNVERIFIED_PURGE_DAYS: int = 7
     AUTH_AUTO_PURGE_ON_STARTUP: bool = False
+    AUTH_ADMIN_EMAIL_ALLOWLIST: str = ""
 
     # Logging
     LOG_LEVEL: str = "INFO"
@@ -38,6 +39,8 @@ class Settings(BaseSettings):
 
     # Apple IAP / StoreKit
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
+    BILLING_ALLOW_CLIENT_APPLE_VERIFY: bool = False
+    APPLE_WEBHOOK_SHARED_SECRET: str = ""
 
     # Transactional email (SMTP)
     EMAIL_SEND_ENABLED: bool = False

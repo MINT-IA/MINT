@@ -20,7 +20,6 @@ from app.models.auth_security import (
 from app.models.billing import SubscriptionModel
 from app.models.billing import BillingWebhookEventModel
 from app.models.audit_event import AuditEventModel
-from app.models.analytics_event import AnalyticsEvent
 
 
 def _now() -> datetime:

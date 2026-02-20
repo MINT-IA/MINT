@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -25,10 +26,15 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 
   Future<void> _requestToken() async {
+    final l10n = S.of(context);
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Entre une adresse e-mail valide.')),
+        SnackBar(
+          content: Text(
+            l10n?.authEmailInvalidPrompt ?? 'Entre une adresse e-mail valide.',
+          ),
+        ),
       );
       return;
     }
@@ -42,15 +48,25 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Lien de vérification envoyé (si compte existant).')),
+      SnackBar(
+        content: Text(
+          l10n?.authVerifyRequestAccepted ??
+              'Lien de vérification envoyé (si compte existant).',
+        ),
+      ),
     );
   }
 
   Future<void> _confirm() async {
+    final l10n = S.of(context);
     final token = _tokenController.text.trim();
     if (token.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Token requis.')),
+        SnackBar(
+          content: Text(
+            l10n?.authTokenRequired ?? 'Token requis.',
+          ),
+        ),
       );
       return;
     }
@@ -58,7 +74,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     final ok = await auth.confirmEmailVerification(token);
     if (!mounted || !ok) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('E-mail vérifié. Tu peux te connecter.')),
+      SnackBar(
+        content: Text(
+          l10n?.authVerifySuccess ?? 'E-mail vérifié. Tu peux te connecter.',
+        ),
+      ),
     );
     context.go('/auth/login');
   }
@@ -66,13 +86,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final l10n = S.of(context);
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         backgroundColor: MintColors.background,
         elevation: 0,
         title: Text(
-          'Vérifier mon e-mail',
+          l10n?.authVerifyTitle ?? 'Vérifier mon e-mail',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -86,7 +107,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Demande un nouveau lien puis colle le token de vérification.',
+                l10n?.authVerifyInstructions ??
+                    'Demande un nouveau lien puis colle le token de vérification.',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -96,15 +118,17 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Adresse e-mail',
+                decoration: InputDecoration(
+                  labelText: l10n?.authEmail ?? 'Adresse e-mail',
                   prefixIcon: Icon(Icons.email_outlined),
                 ),
               ),
               const SizedBox(height: 12),
               FilledButton.tonal(
                 onPressed: auth.isLoading ? null : _requestToken,
-                child: const Text('Envoyer le lien de vérification'),
+                child: Text(
+                  l10n?.authVerifySendLink ?? 'Envoyer le lien de vérification',
+                ),
               ),
               if (_debugToken != null) ...[
                 const SizedBox(height: 12),
@@ -115,7 +139,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Token debug (tests): $_debugToken',
+                    '${l10n?.authDebugTokenLabel ?? 'Token debug (tests)'}: $_debugToken',
                     style: GoogleFonts.inter(
                       color: MintColors.info,
                       fontSize: 12,
@@ -126,8 +150,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _tokenController,
-                decoration: const InputDecoration(
-                  labelText: 'Token de vérification',
+                decoration: InputDecoration(
+                  labelText:
+                      l10n?.authVerifyTokenLabel ?? 'Token de vérification',
                   prefixIcon: Icon(Icons.key_outlined),
                 ),
               ),
@@ -142,7 +167,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
               FilledButton(
                 onPressed: auth.isLoading ? null : _confirm,
-                child: const Text('Valider la vérification'),
+                child: Text(
+                  l10n?.authVerifySubmit ?? 'Valider la vérification',
+                ),
               ),
             ],
           ),

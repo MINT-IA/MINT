@@ -44,7 +44,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (mounted && success) {
-      context.go('/home');
+      if (authProvider.requiresEmailVerification) {
+        context.go('/auth/verify-email');
+      } else {
+        context.go('/home');
+      }
     }
   }
 

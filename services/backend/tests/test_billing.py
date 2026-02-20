@@ -65,6 +65,22 @@ def test_billing_debug_activate_grants_coach_features(client: TestClient):
     assert "vault" in body["features"]
 
 
+def test_billing_debug_activate_disabled_in_production(client: TestClient):
+    auth_client = _auth_client(client)
+    token = _register_and_token(auth_client, "billing-debug-prod@example.com")
+    previous = settings.ENVIRONMENT
+    settings.ENVIRONMENT = "production"
+    try:
+        activate = auth_client.post(
+            "/api/v1/billing/debug/activate",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"tier": "coach", "status": "active", "is_trial": False, "period_days": 30},
+        )
+        assert activate.status_code == 404
+    finally:
+        settings.ENVIRONMENT = previous
+
+
 def test_stripe_checkout_requires_configuration(client: TestClient):
     auth_client = _auth_client(client)
     token = _register_and_token(auth_client, "billing-stripe@example.com")
@@ -105,11 +121,9 @@ def test_stripe_webhook_rejects_bad_signature(client: TestClient):
 def test_apple_verify_purchase_activates_entitlements(client: TestClient):
     auth_client = _auth_client(client)
     token = _register_and_token(auth_client, "billing-apple@example.com")
-    user_id = auth_client.get(
-        "/api/v1/auth/me",
-        headers={"Authorization": f"Bearer {token}"},
-    ).json()["id"]
 
+    previous = settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY
+    settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY = True
     response = auth_client.post(
         "/api/v1/billing/apple/verify",
         headers={"Authorization": f"Bearer {token}"},
@@ -118,14 +132,18 @@ def test_apple_verify_purchase_activates_entitlements(client: TestClient):
             "transaction_id": "1000001234567890",
             "original_transaction_id": "1000001234567890",
             "is_trial": True,
+            "signed_payload": "not-a-jws",
         },
     )
-    assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "verified"
-    assert body["tier"] == "coach"
-    assert body["source"] == "apple"
-    assert "dashboard" in body["features"]
+    try:
+        assert response.status_code == 200
+        body = response.json()
+        assert body["status"] == "verified"
+        assert body["tier"] == "coach"
+        assert body["source"] == "apple"
+        assert "dashboard" in body["features"]
+    finally:
+        settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY = previous
 
 
 def test_apple_webhook_activates_subscription_and_is_idempotent(client: TestClient):
@@ -222,13 +240,37 @@ def test_apple_verify_rejects_payload_mismatch(client: TestClient):
         algorithm="none",
     )
 
-    response = auth_client.post(
-        "/api/v1/billing/apple/verify",
-        headers={"Authorization": f"Bearer {token}"},
-        json={
-            "product_id": settings.APPLE_IAP_PRODUCT_COACH_MONTHLY,
-            "transaction_id": "right-tx",
-            "signed_payload": bad_payload,
-        },
-    )
-    assert response.status_code == 400
+    previous = settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY
+    settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY = True
+    try:
+        response = auth_client.post(
+            "/api/v1/billing/apple/verify",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "product_id": settings.APPLE_IAP_PRODUCT_COACH_MONTHLY,
+                "transaction_id": "right-tx",
+                "signed_payload": bad_payload,
+            },
+        )
+        assert response.status_code == 400
+    finally:
+        settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY = previous
+
+
+def test_apple_verify_requires_signed_payload(client: TestClient):
+    auth_client = _auth_client(client)
+    token = _register_and_token(auth_client, "billing-apple-nosig@example.com")
+    previous = settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY
+    settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY = True
+    try:
+        response = auth_client.post(
+            "/api/v1/billing/apple/verify",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "product_id": settings.APPLE_IAP_PRODUCT_COACH_MONTHLY,
+                "transaction_id": "tx-no-sig",
+            },
+        )
+        assert response.status_code == 400
+    finally:
+        settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY = previous

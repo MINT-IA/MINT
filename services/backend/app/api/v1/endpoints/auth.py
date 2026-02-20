@@ -20,9 +20,20 @@ from app.models.analytics_event import AnalyticsEvent
 from app.models.profile_model import ProfileModel
 from app.models.session_model import SessionModel
 from app.models.user import User
+from app.models.auth_security import (
+    LoginSecurityStateModel,
+    PasswordResetTokenModel,
+    EmailVerificationTokenModel,
+)
+from app.models.billing import (
+    SubscriptionModel,
+    EntitlementModel,
+    BillingTransactionModel,
+)
 from app.schemas.auth import (
     UserRegister,
     UserLogin,
+    RegisterResponse,
     TokenResponse,
     UserResponse,
     RefreshTokenRequest,
@@ -88,20 +99,36 @@ def _email_verification_required() -> bool:
 
 
 def _require_admin_user(user: User) -> None:
-    if not user.email or not user.email.endswith("@mint.ch"):
+    allowlist_raw = os.getenv("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    if allowlist_raw is None:
+        allowlist_raw = settings.AUTH_ADMIN_EMAIL_ALLOWLIST
+    allowlist_raw = allowlist_raw.strip()
+    allowlist = {
+        entry.strip().lower()
+        for entry in allowlist_raw.split(",")
+        if entry.strip()
+    }
+    email = (user.email or "").strip().lower()
+    is_allowlisted = bool(email and allowlist and email in allowlist)
+    if not is_allowlisted:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
         )
+    if not bool(user.email_verified):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access requires a verified email",
+        )
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 def register_user(
     request: Request,
     user_data: UserRegister,
     db: Session = Depends(get_db),
-) -> TokenResponse:
+) -> RegisterResponse:
     """
     Register a new user and return JWT token.
 
@@ -168,17 +195,28 @@ def register_user(
     db.commit()
     db.refresh(new_user)
 
+    if _email_verification_required():
+        return RegisterResponse(
+            status="verification_required",
+            user_id=new_user.id,
+            email=new_user.email,
+            email_verified=bool(new_user.email_verified),
+            requires_email_verification=True,
+        )
+
     # Generate tokens
     token = create_access_token(new_user.id, new_user.email)
     refresh = create_refresh_token(new_user.id)
 
-    return TokenResponse(
+    return RegisterResponse(
+        status="registered",
         access_token=token,
         refresh_token=refresh,
         token_type="bearer",
         user_id=new_user.id,
         email=new_user.email,
         email_verified=bool(new_user.email_verified),
+        requires_email_verification=False,
     )
 
 
@@ -807,6 +845,35 @@ def delete_account(
         .filter(AnalyticsEvent.user_id == user_id)
         .update({AnalyticsEvent.user_id: None}, synchronize_session=False)
     )
+
+    # Purge auth-security artifacts
+    db.query(LoginSecurityStateModel).filter(
+        LoginSecurityStateModel.email == current_user.email
+    ).delete(synchronize_session=False)
+    db.query(PasswordResetTokenModel).filter(
+        PasswordResetTokenModel.user_id == user_id
+    ).delete(synchronize_session=False)
+    db.query(EmailVerificationTokenModel).filter(
+        EmailVerificationTokenModel.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    # Purge billing artifacts linked to the account
+    sub_ids = [
+        sub_id
+        for (sub_id,) in db.query(SubscriptionModel.id)
+        .filter(SubscriptionModel.user_id == user_id)
+        .all()
+    ]
+    db.query(EntitlementModel).filter(
+        EntitlementModel.user_id == user_id
+    ).delete(synchronize_session=False)
+    if sub_ids:
+        db.query(BillingTransactionModel).filter(
+            BillingTransactionModel.subscription_id.in_(sub_ids)
+        ).delete(synchronize_session=False)
+        db.query(SubscriptionModel).filter(
+            SubscriptionModel.id.in_(sub_ids)
+        ).delete(synchronize_session=False)
     log_audit_event(
         db,
         event_type="auth.account_delete",

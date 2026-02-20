@@ -3,7 +3,7 @@ Authentication schemas for user registration, login, and tokens.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 
@@ -166,6 +166,18 @@ class TokenResponse(BaseModel):
     user_id: str
     email: str
     email_verified: bool = False
+
+
+class RegisterResponse(BaseModel):
+    """Schema for registration response (supports verify-before-login mode)."""
+    status: Literal["registered", "verification_required"] = "registered"
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    token_type: Optional[str] = None
+    user_id: str
+    email: str
+    email_verified: bool = False
+    requires_email_verification: bool = False
 
 
 class UserResponse(BaseModel):

@@ -509,6 +509,8 @@ def test_login_blocked_when_email_unverified_if_flag_enabled(auth_client: TestCl
             json={"email": "needverify@example.com", "password": "verifyflag123"},
         )
         assert register.status_code == 201
+        assert register.json().get("requires_email_verification") is True
+        assert not register.json().get("access_token")
 
         blocked = auth_client.post(
             "/api/v1/auth/login",
@@ -541,8 +543,8 @@ def test_login_blocked_when_email_unverified_if_flag_enabled(auth_client: TestCl
             os.environ["AUTH_REQUIRE_EMAIL_VERIFICATION"] = previous
 
 
-def test_admin_observability_requires_mint_email(auth_client: TestClient):
-    """Admin observability endpoint should be restricted to @mint.ch users."""
+def test_admin_observability_requires_admin_role(auth_client: TestClient):
+    """Admin observability endpoint should be restricted to explicit admin role."""
     user_register = auth_client.post(
         "/api/v1/auth/register",
         json={"email": "not-admin@example.com", "password": "pass12345"},
@@ -555,28 +557,62 @@ def test_admin_observability_requires_mint_email(auth_client: TestClient):
     )
     assert forbidden.status_code == 403
 
-    admin_register = auth_client.post(
-        "/api/v1/auth/register",
-        json={"email": "admin@mint.ch", "password": "pass12345"},
-    )
-    admin_token = admin_register.json()["access_token"]
+    admin_email = "admin@mint.ch"
+    previous_allowlist = os.environ.get("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = admin_email
+    try:
+        admin_register = auth_client.post(
+            "/api/v1/auth/register",
+            json={"email": admin_email, "password": "pass12345"},
+        )
+        admin_token = admin_register.json()["access_token"]
+        verify_req = auth_client.post(
+            "/api/v1/auth/email-verification/request",
+            json={"email": admin_email},
+        )
+        verify_token = verify_req.json().get("debug_token")
+        assert verify_token
+        verify_confirm = auth_client.post(
+            "/api/v1/auth/email-verification/confirm",
+            json={"token": verify_token},
+        )
+        assert verify_confirm.status_code == 200
 
-    ok = auth_client.get(
-        "/api/v1/auth/admin/observability",
-        headers={"Authorization": f"Bearer {admin_token}"},
-    )
-    assert ok.status_code == 200
-    body = ok.json()
-    assert body["users_total"] >= 2
-    assert "subscriptions_total" in body
+        ok = auth_client.get(
+            "/api/v1/auth/admin/observability",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert ok.status_code == 200
+        body = ok.json()
+        assert body["users_total"] >= 2
+        assert "subscriptions_total" in body
+    finally:
+        if previous_allowlist is None:
+            os.environ.pop("AUTH_ADMIN_EMAIL_ALLOWLIST", None)
+        else:
+            os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = previous_allowlist
 
 
 def test_admin_purge_unverified_dry_run_then_execute(auth_client: TestClient):
     """Admin can purge unverified users while keeping verified users."""
+    admin_email = "ops@mint.ch"
+    previous_allowlist = os.environ.get("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = admin_email
     admin_token = auth_client.post(
         "/api/v1/auth/register",
-        json={"email": "ops@mint.ch", "password": "pass12345"},
+        json={"email": admin_email, "password": "pass12345"},
     ).json()["access_token"]
+    verify_req = auth_client.post(
+        "/api/v1/auth/email-verification/request",
+        json={"email": admin_email},
+    )
+    verify_token = verify_req.json().get("debug_token")
+    assert verify_token
+    verify_confirm = auth_client.post(
+        "/api/v1/auth/email-verification/confirm",
+        json={"token": verify_token},
+    )
+    assert verify_confirm.status_code == 200
 
     victim_email = "purge-target@example.com"
     auth_client.post(
@@ -601,34 +637,40 @@ def test_admin_purge_unverified_dry_run_then_execute(auth_client: TestClient):
     )
     assert verify_confirm.status_code == 200
 
-    dry_run = auth_client.post(
-        "/api/v1/auth/admin/purge-unverified",
-        headers={"Authorization": f"Bearer {admin_token}"},
-        json={"older_than_days": 0, "dry_run": True},
-    )
-    assert dry_run.status_code == 200
-    assert dry_run.json()["candidates"] >= 1
-    assert dry_run.json()["deleted_users"] == 0
+    try:
+        dry_run = auth_client.post(
+            "/api/v1/auth/admin/purge-unverified",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"older_than_days": 0, "dry_run": True},
+        )
+        assert dry_run.status_code == 200
+        assert dry_run.json()["candidates"] >= 1
+        assert dry_run.json()["deleted_users"] == 0
 
-    execute = auth_client.post(
-        "/api/v1/auth/admin/purge-unverified",
-        headers={"Authorization": f"Bearer {admin_token}"},
-        json={"older_than_days": 0, "dry_run": False},
-    )
-    assert execute.status_code == 200
-    assert execute.json()["deleted_users"] >= 1
+        execute = auth_client.post(
+            "/api/v1/auth/admin/purge-unverified",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"older_than_days": 0, "dry_run": False},
+        )
+        assert execute.status_code == 200
+        assert execute.json()["deleted_users"] >= 1
 
-    victim_login = auth_client.post(
-        "/api/v1/auth/login",
-        json={"email": victim_email, "password": "pass12345"},
-    )
-    assert victim_login.status_code == 401
+        victim_login = auth_client.post(
+            "/api/v1/auth/login",
+            json={"email": victim_email, "password": "pass12345"},
+        )
+        assert victim_login.status_code == 401
 
-    survivor_login = auth_client.post(
-        "/api/v1/auth/login",
-        json={"email": survivor_email, "password": "pass12345"},
-    )
-    assert survivor_login.status_code == 200
+        survivor_login = auth_client.post(
+            "/api/v1/auth/login",
+            json={"email": survivor_email, "password": "pass12345"},
+        )
+        assert survivor_login.status_code == 200
+    finally:
+        if previous_allowlist is None:
+            os.environ.pop("AUTH_ADMIN_EMAIL_ALLOWLIST", None)
+        else:
+            os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = previous_allowlist
 
 
 def test_admin_export_cohorts_csv_requires_admin(auth_client: TestClient):
@@ -645,10 +687,23 @@ def test_admin_export_cohorts_csv_requires_admin(auth_client: TestClient):
 
 
 def test_admin_export_cohorts_csv_returns_csv(auth_client: TestClient):
+    admin_email = "csv-admin@mint.ch"
+    previous_allowlist = os.environ.get("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = admin_email
     admin_token = auth_client.post(
         "/api/v1/auth/register",
-        json={"email": "csv-admin@mint.ch", "password": "pass12345"},
+        json={"email": admin_email, "password": "pass12345"},
     ).json()["access_token"]
+    verify_req = auth_client.post(
+        "/api/v1/auth/email-verification/request",
+        json={"email": admin_email},
+    )
+    verify_token = verify_req.json().get("debug_token")
+    assert verify_token
+    auth_client.post(
+        "/api/v1/auth/email-verification/confirm",
+        json={"token": verify_token},
+    )
 
     # Generate a bit of auth activity to ensure non-empty metrics.
     auth_client.post(
@@ -664,16 +719,22 @@ def test_admin_export_cohorts_csv_returns_csv(auth_client: TestClient):
         json={"email": "csv-target@example.com"},
     )
 
-    response = auth_client.get(
-        "/api/v1/auth/admin/cohorts/export.csv?days=7",
-        headers={"Authorization": f"Bearer {admin_token}"},
-    )
-    assert response.status_code == 200
-    assert response.headers["content-type"].startswith("text/csv")
-    assert "attachment; filename=" in response.headers.get("content-disposition", "")
-    csv_body = response.text
-    assert "date,users_registered,users_verified,login_success,login_failed" in csv_body
-    assert "password_reset_requests" in csv_body
+    try:
+        response = auth_client.get(
+            "/api/v1/auth/admin/cohorts/export.csv?days=7",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/csv")
+        assert "attachment; filename=" in response.headers.get("content-disposition", "")
+        csv_body = response.text
+        assert "date,users_registered,users_verified,login_success,login_failed" in csv_body
+        assert "password_reset_requests" in csv_body
+    finally:
+        if previous_allowlist is None:
+            os.environ.pop("AUTH_ADMIN_EMAIL_ALLOWLIST", None)
+        else:
+            os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = previous_allowlist
 
 
 def test_admin_onboarding_quality_requires_admin(auth_client: TestClient):
@@ -690,10 +751,23 @@ def test_admin_onboarding_quality_requires_admin(auth_client: TestClient):
 
 
 def test_admin_onboarding_quality_returns_metrics(auth_client: TestClient):
+    admin_email = "quality-admin@mint.ch"
+    previous_allowlist = os.environ.get("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = admin_email
     admin_token = auth_client.post(
         "/api/v1/auth/register",
-        json={"email": "quality-admin@mint.ch", "password": "pass12345"},
+        json={"email": admin_email, "password": "pass12345"},
     ).json()["access_token"]
+    verify_req = auth_client.post(
+        "/api/v1/auth/email-verification/request",
+        json={"email": admin_email},
+    )
+    verify_token = verify_req.json().get("debug_token")
+    assert verify_token
+    auth_client.post(
+        "/api/v1/auth/email-verification/confirm",
+        json={"token": verify_token},
+    )
 
     events = [
         {
@@ -729,23 +803,42 @@ def test_admin_onboarding_quality_returns_metrics(auth_client: TestClient):
     ingest = auth_client.post("/api/v1/analytics/events", json={"events": events})
     assert ingest.status_code == 201
 
-    response = auth_client.get(
-        "/api/v1/auth/admin/onboarding-quality?days=30",
-        headers={"Authorization": f"Bearer {admin_token}"},
-    )
-    assert response.status_code == 200
-    body = response.json()
-    assert body["sessions_started"] >= 1
-    assert body["sessions_completed"] >= 1
-    assert body["completion_rate_pct"] >= 0
-    assert body["quality_score"] >= 0
+    try:
+        response = auth_client.get(
+            "/api/v1/auth/admin/onboarding-quality?days=30",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["sessions_started"] >= 1
+        assert body["sessions_completed"] >= 1
+        assert body["completion_rate_pct"] >= 0
+        assert body["quality_score"] >= 0
+    finally:
+        if previous_allowlist is None:
+            os.environ.pop("AUTH_ADMIN_EMAIL_ALLOWLIST", None)
+        else:
+            os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = previous_allowlist
 
 
 def test_admin_onboarding_quality_cohorts_returns_breakdown(auth_client: TestClient):
+    admin_email = "quality-cohort-admin@mint.ch"
+    previous_allowlist = os.environ.get("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = admin_email
     admin_token = auth_client.post(
         "/api/v1/auth/register",
-        json={"email": "quality-cohort-admin@mint.ch", "password": "pass12345"},
+        json={"email": admin_email, "password": "pass12345"},
     ).json()["access_token"]
+    verify_req = auth_client.post(
+        "/api/v1/auth/email-verification/request",
+        json={"email": admin_email},
+    )
+    verify_token = verify_req.json().get("debug_token")
+    assert verify_token
+    auth_client.post(
+        "/api/v1/auth/email-verification/confirm",
+        json={"token": verify_token},
+    )
 
     events = [
         {
@@ -780,14 +873,20 @@ def test_admin_onboarding_quality_cohorts_returns_breakdown(auth_client: TestCli
     ingest = auth_client.post("/api/v1/analytics/events", json={"events": events})
     assert ingest.status_code == 201
 
-    response = auth_client.get(
-        "/api/v1/auth/admin/onboarding-quality/cohorts?days=30",
-        headers={"Authorization": f"Bearer {admin_token}"},
-    )
-    assert response.status_code == 200
-    body = response.json()
-    assert body["total_sessions_started"] >= 2
-    assert len(body["cohorts"]) >= 2
-    keys = {row["cohort_key"] for row in body["cohorts"]}
-    assert "variant:control|platform:ios" in keys
-    assert "variant:challenge|platform:android" in keys
+    try:
+        response = auth_client.get(
+            "/api/v1/auth/admin/onboarding-quality/cohorts?days=30",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["total_sessions_started"] >= 2
+        assert len(body["cohorts"]) >= 2
+        keys = {row["cohort_key"] for row in body["cohorts"]}
+        assert "variant:control|platform:ios" in keys
+        assert "variant:challenge|platform:android" in keys
+    finally:
+        if previous_allowlist is None:
+            os.environ.pop("AUTH_ADMIN_EMAIL_ALLOWLIST", None)
+        else:
+            os.environ["AUTH_ADMIN_EMAIL_ALLOWLIST"] = previous_allowlist

@@ -9,6 +9,7 @@ from typing import Optional
 
 from app.core.auth import require_current_user
 from app.core.database import get_db
+from app.core.config import settings
 from app.models.user import User
 from app.schemas.billing import (
     BillingEntitlementsResponse,
@@ -109,6 +110,12 @@ def debug_activate_subscription(
     """
     Internal/dev helper to activate subscription without store checkout.
     """
+    if settings.ENVIRONMENT in {"production", "staging"}:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not found",
+        )
+
     sub = get_or_create_subscription(db, current_user)
     sub.tier = body.tier
     sub.status = body.status
@@ -135,6 +142,21 @@ def verify_apple_purchase(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> AppleVerifyPurchaseResponse:
+    if (
+        settings.ENVIRONMENT in {"production", "staging"}
+        and not settings.BILLING_ALLOW_CLIENT_APPLE_VERIFY
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Direct Apple verification is disabled in this environment",
+        )
+
+    if not body.signed_payload:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="signed_payload is required",
+        )
+
     features = activate_apple_purchase(
         db,
         current_user,
@@ -176,6 +198,14 @@ def apple_webhook(
     body: AppleWebhookRequest,
     db: Session = Depends(get_db),
 ) -> AppleWebhookAck:
+    if settings.APPLE_WEBHOOK_SHARED_SECRET:
+        provided = request.headers.get("x-apple-webhook-secret", "")
+        if provided != settings.APPLE_WEBHOOK_SHARED_SECRET:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Apple webhook secret",
+            )
+
     process_apple_notification(db, body.model_dump())
     data = body.data if isinstance(body.data, dict) else {}
     log_audit_event(

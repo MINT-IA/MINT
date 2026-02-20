@@ -9,6 +9,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
+from app.core.config import settings
 from app.services.auth_service import decode_token
 
 security = HTTPBearer(auto_error=False)
@@ -75,5 +76,10 @@ def require_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication requise"
+        )
+    if settings.AUTH_REQUIRE_EMAIL_VERIFICATION and not bool(user.email_verified):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="E-mail non vérifié. Vérifie ton e-mail avant de continuer.",
         )
     return user
