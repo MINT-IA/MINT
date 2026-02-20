@@ -73,6 +73,16 @@ class NotificationService {
       settings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
+
+    // Check for cold-start notification tap.
+    // When the app was killed and the user taps a notification,
+    // getNotificationAppLaunchDetails() captures the payload so
+    // GoRouter can navigate to the correct route on first frame.
+    final launchDetails = await _plugin!.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp == true) {
+      pendingRoute = launchDetails!.notificationResponse?.payload;
+    }
+
     _isInitialized = true;
   }
 
@@ -120,6 +130,11 @@ class NotificationService {
     required CoachProfile profile,
   }) async {
     if (kIsWeb || _plugin == null) return;
+
+    // Request permission if not already granted (deferred, not at startup).
+    // This is the right place because scheduleCoachingReminders is only
+    // called after a check-in, not during app init.
+    await requestPermission();
 
     await cancelAll();
 
@@ -348,13 +363,13 @@ class NotificationService {
   }) async {
     if (_plugin == null) return;
 
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: _channelDescription,
       importance: Importance.high,
       priority: Priority.defaultPriority,
-      styleInformation: BigTextStyleInformation(''),
+      styleInformation: BigTextStyleInformation(body),
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -363,7 +378,7 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );

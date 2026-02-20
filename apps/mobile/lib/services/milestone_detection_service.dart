@@ -14,7 +14,7 @@ import 'package:mint_mobile/theme/colors.dart';
 //
 // Milestones detectes :
 //   - patrimoine_50k, patrimoine_100k, patrimoine_250k, patrimoine_500k
-//   - 3a_max_reached (7'258 CHF verse cette annee)
+//   - 3a_max_reached (7'258 CHF salarie / 36'288 CHF independant)
 //   - emergency_fund_3m, emergency_fund_6m (mois couverts)
 //   - streak_3, streak_6, streak_12 (mois consecutifs check-in)
 //   - score_bon (score >= 60), score_excellent (score >= 80)
@@ -67,6 +67,9 @@ class MilestoneDetectionService {
 
   /// Plafond 3a salarie (OPP3 art. 7, 2025/2026).
   static const _plafond3aSalarie = 7258.0;
+
+  /// Plafond 3a independant sans LPP (20% revenu net, max OPP3 art. 7).
+  static const _plafond3aIndependant = 36288.0;
 
   /// Detecte les nouveaux milestones (pas encore celebres).
   ///
@@ -168,6 +171,11 @@ class MilestoneDetectionService {
   ) {
     if (achieved.contains('3a_max_reached')) return;
 
+    // Choisir le plafond selon le statut d'emploi
+    final plafond = profile.employmentStatus == 'independant'
+        ? _plafond3aIndependant
+        : _plafond3aSalarie;
+
     // Check current year 3a contributions from check-ins
     final currentYear = DateTime.now().year;
     double annual3aFromCheckIns = 0;
@@ -192,12 +200,13 @@ class MilestoneDetectionService {
     final annual3a =
         annual3aFromCheckIns > 0 ? annual3aFromCheckIns : annual3aPlanned;
 
-    if (annual3a >= _plafond3aSalarie) {
+    if (annual3a >= plafond) {
+      final plafondFormatted = plafond.toStringAsFixed(0);
       out.add(MilestoneEvent(
         id: '3a_max_reached',
         title: '3a au plafond',
         description:
-            'Tu as atteint le plafond de CHF 7\'258 pour ton 3e pilier. C\'est la meilleure facon de combiner prevoyance et economie fiscale (OPP3 art. 7).',
+            'Tu as atteint le plafond de CHF $plafondFormatted pour ton 3e pilier. C\'est la meilleure facon de combiner prevoyance et economie fiscale (OPP3 art. 7).',
         icon: Icons.savings,
         color: MintColors.indigo,
       ));

@@ -285,6 +285,30 @@ class CoachProfileProvider extends ChangeNotifier {
     if (realEstateProject != null) {
       answers['q_real_estate_project'] = realEstateProject;
     }
+
+    // BUG 1 FIX: Persister updatedAt pour que le banner 11 mois fonctionne
+    // Sans ca, fromWizardAnswers() reconstruit updatedAt = DateTime.now()
+    // a chaque restart et daysSinceUpdate >= 330 ne sera jamais vrai.
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+
+    // Persister aussi createdAt si c'est le premier refresh (preserve l'original)
+    if (answers['_coach_created_at'] == null && p.createdAt != p.updatedAt) {
+      answers['_coach_created_at'] = p.createdAt.toIso8601String();
+    }
+
+    // BUG 2 FIX: Persister LPP et 3a (pas de cle wizard standard pour ces valeurs)
+    if (avoirLppTotal != null) {
+      answers['_coach_avoir_lpp'] = avoirLppTotal;
+    }
+    if (totalEpargne3a != null) {
+      answers['_coach_total_3a'] = totalEpargne3a;
+    }
+
+    // BUG 3 FIX: Persister familyChange (etait accepte mais jamais utilise)
+    if (familyChange != null && familyChange != 'Aucun') {
+      answers['_coach_family_change'] = familyChange;
+    }
+
     await ReportPersistenceService.saveAnswers(answers);
 
     notifyListeners();

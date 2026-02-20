@@ -237,10 +237,10 @@ class CoachingService {
 
     // Enrich only the top 3 tips (economy of tokens)
     final toEnrich = tips.take(3).toList();
+    final ragService = RagService();
 
     for (final tip in toEnrich) {
       try {
-        final ragService = RagService();
         final prompt = _buildEnrichmentPrompt(tip, profile, firstName);
 
         final response = await ragService.query(
@@ -636,7 +636,7 @@ Reecris le message en 3-4 phrases max. Personnalise en croisant la situation fam
           'À $tauxPct% d\'activité, ta prévoyance professionnelle est '
           'réduite d\'environ $reductionPct%. La déduction de coordination '
           'de CHF 26\'460 pénalise davantage les temps partiels. '
-          'Envisagez un rachat LPP ou un versement 3a supplémentaire '
+          'Envisage un rachat LPP ou un versement 3a supplémentaire '
           'pour compenser.',
       action: 'Simuler ma prévoyance',
       estimatedImpactChf: gap > 0 ? gap : null,
@@ -814,7 +814,7 @@ Reecris le message en 3-4 phrases max. Personnalise en croisant la situation fam
           message:
               'À 50 ans, la retraite se rapproche. Vérifie ton avoir '
               'LPP, planifie tes derniers rachats, et commence à '
-              'réfléchir au choix rente vs capital. Anticipez aussi '
+              'réfléchir au choix rente vs capital. Anticipe aussi '
               'l\'impact fiscal du retrait.',
           action: 'Planifier ma retraite',
           source: 'LPP / LAVS art. 21',

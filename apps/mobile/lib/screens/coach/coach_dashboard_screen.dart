@@ -90,6 +90,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   // T7: Coach narrative (LLM or static fallback)
   CoachNarrative? _narrative;
 
+  // Generation counters to prevent stale async results from overwriting newer ones
+  int _narrativeGeneration = 0;
+  int _chiffreChocGeneration = 0;
+
   // "Et si..." state
   bool _etSiExpanded = false;
   double _etSiLppReturn = 0.02; // base default
@@ -113,7 +117,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       parent: _pulseController,
       curve: Curves.easeInOut,
     );
-    unawaited(_loadOnboarding30PlanState());
+    // Note: _loadOnboarding30PlanState() is called in didChangeDependencies()
+    // which runs automatically after initState(). No need to call it here.
   }
 
   @override
@@ -161,11 +166,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           profile: _profile!.toCoachingProfile(),
         );
 
+        // Capture provider synchronously before async calls (BUG 3 fix)
+        final byokProvider = context.read<ByokProvider>();
+
         // T3: Load emotional narratives for chiffre choc cards (BYOK LLM)
-        unawaited(_loadChiffreChocNarratives());
+        unawaited(_loadChiffreChocNarratives(byokProvider));
 
         // T7: Load coach narrative (BYOK or static fallback)
-        unawaited(_loadCoachNarrative());
+        unawaited(_loadCoachNarrative(byokProvider));
       }
 
       // Filtrer les tips dont le simulateur a ete explore (inter-tab sync)
@@ -236,14 +244,21 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   /// Generate emotional narratives for chiffre choc cards via BYOK LLM.
   /// Returns a map of category -> narrative message.
   /// Falls back to empty map (use static message) if no BYOK or LLM fails.
-  Future<void> _loadChiffreChocNarratives() async {
-    final byok = context.read<ByokProvider>();
+  Future<void> _loadChiffreChocNarratives(ByokProvider byok) async {
+    final gen = ++_chiffreChocGeneration;
     if (!byok.isConfigured || _profile == null) return;
 
     // Check 24h cache
     final prefs = await SharedPreferences.getInstance();
+    if (gen != _chiffreChocGeneration) return; // stale — abort
+    final profileScope = [
+      _profile!.birthYear,
+      _profile!.canton,
+      _profile!.firstName ?? '',
+      _profile!.createdAt.toIso8601String(),
+    ].join('_');
     final cacheKey =
-        'chiffre_choc_narratives_${DateTime.now().toIso8601String().substring(0, 10)}';
+        'chiffre_choc_narratives_${profileScope}_${DateTime.now().toIso8601String().substring(0, 10)}';
     final cached = prefs.getString(cacheKey);
     if (cached != null) {
       try {
@@ -252,7 +267,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             (k, v) => MapEntry(k.toString(), v.toString()),
           ),
         );
-        if (map.isNotEmpty && mounted) {
+        if (map.isNotEmpty && mounted && gen == _chiffreChocGeneration) {
           setState(() => _chiffreChocNarratives = map);
         }
         return;
@@ -307,10 +322,12 @@ Si une categorie ne s'applique pas, omets-la.
       // Filter banned terms from each narrative
       final filtered = result.map((k, v) => MapEntry(k, _filterBannedTerms(v)));
 
+      if (gen != _chiffreChocGeneration) return; // stale — abort
+
       // Cache for 24h
       await prefs.setString(cacheKey, jsonEncode(filtered));
 
-      if (mounted) {
+      if (mounted && gen == _chiffreChocGeneration) {
         setState(() => _chiffreChocNarratives = Map<String, String>.from(filtered));
       }
     } catch (_) {
@@ -395,10 +412,10 @@ Si une categorie ne s'applique pas, omets-la.
 
   /// Load full coach narrative via BYOK LLM or static fallback.
   /// Populates _narrative which is used across the dashboard.
-  Future<void> _loadCoachNarrative() async {
+  Future<void> _loadCoachNarrative(ByokProvider byok) async {
+    final gen = ++_narrativeGeneration;
     if (_profile == null) return;
 
-    final byok = context.read<ByokProvider>();
     LlmConfig? byokConfig;
     if (byok.isConfigured) {
       final LlmProvider llmProvider;
@@ -424,7 +441,7 @@ Si une categorie ne s'applique pas, omets-la.
       byokConfig: byokConfig,
     );
 
-    if (mounted) {
+    if (mounted && gen == _narrativeGeneration) {
       setState(() => _narrative = narrative);
     }
   }
@@ -2859,9 +2876,8 @@ Si une categorie ne s'applique pas, omets-la.
   /// Displays LLM-generated scenario narrations (Prudent / Base / Optimiste).
   /// Returns SizedBox.shrink() if no narrative or no scenarios available.
   Widget _buildScenarioNarrations() {
-    if (_narrative == null ||
-        _narrative!.scenarioNarrations == null ||
-        _narrative!.scenarioNarrations!.isEmpty) {
+    final narrations = _narrative?.scenarioNarrations;
+    if (narrations == null || narrations.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -2917,7 +2933,7 @@ Si une categorie ne s'applique pas, omets-la.
           ),
         ),
         for (int i = 0;
-            i < min(_narrative!.scenarioNarrations!.length, 3);
+            i < min(narrations.length, 3);
             i++)
           Container(
             margin: const EdgeInsets.only(bottom: 8),
@@ -2947,7 +2963,7 @@ Si une categorie ne s'applique pas, omets-la.
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _narrative!.scenarioNarrations![i],
+                  narrations[i],
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,

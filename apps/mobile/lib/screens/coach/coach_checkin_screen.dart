@@ -237,12 +237,16 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     );
     for (final milestone in milestones) {
       if (!mounted) break;
-      await showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => MilestoneCelebrationSheet(milestone: milestone),
-      );
+      try {
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => MilestoneCelebrationSheet(milestone: milestone),
+        );
+      } catch (_) {
+        break; // Widget disposed, arreter les celebrations
+      }
     }
   }
 
@@ -254,8 +258,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     DateTime expected = DateTime(DateTime.now().year, DateTime.now().month);
     for (final ci in sorted) {
       final ciMonth = DateTime(ci.month.year, ci.month.month);
-      if (ciMonth == expected ||
-          ciMonth == DateTime(expected.year, expected.month - 1)) {
+      if (ciMonth == expected) {
         count++;
         expected = DateTime(ciMonth.year, ciMonth.month - 1);
       } else {

@@ -703,6 +703,64 @@ class CoachProfile {
       etatCivil == CoachCivilStatus.marie ||
       etatCivil == CoachCivilStatus.concubinage;
 
+  /// Copie le profil avec des champs optionnels mis a jour.
+  /// Utilise par le annual refresh pour persister updatedAt, prevoyance, etc.
+  CoachProfile copyWith({
+    String? firstName,
+    int? birthYear,
+    String? canton,
+    String? commune,
+    CoachCivilStatus? etatCivil,
+    int? nombreEnfants,
+    ConjointProfile? conjoint,
+    double? salaireBrutMensuel,
+    int? nombreDeMois,
+    double? bonusPourcentage,
+    String? employmentStatus,
+    DepensesProfile? depenses,
+    PrevoyanceProfile? prevoyance,
+    PatrimoineProfile? patrimoine,
+    DetteProfile? dettes,
+    GoalA? goalA,
+    List<GoalB>? goalsB,
+    List<PlannedMonthlyContribution>? plannedContributions,
+    List<MonthlyCheckIn>? checkIns,
+    String? housingStatus,
+    String? riskTolerance,
+    String? realEstateProject,
+    List<String>? providers3a,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return CoachProfile(
+      firstName: firstName ?? this.firstName,
+      birthYear: birthYear ?? this.birthYear,
+      canton: canton ?? this.canton,
+      commune: commune ?? this.commune,
+      etatCivil: etatCivil ?? this.etatCivil,
+      nombreEnfants: nombreEnfants ?? this.nombreEnfants,
+      conjoint: conjoint ?? this.conjoint,
+      salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
+      nombreDeMois: nombreDeMois ?? this.nombreDeMois,
+      bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
+      employmentStatus: employmentStatus ?? this.employmentStatus,
+      depenses: depenses ?? this.depenses,
+      prevoyance: prevoyance ?? this.prevoyance,
+      patrimoine: patrimoine ?? this.patrimoine,
+      dettes: dettes ?? this.dettes,
+      goalA: goalA ?? this.goalA,
+      goalsB: goalsB ?? this.goalsB,
+      plannedContributions: plannedContributions ?? this.plannedContributions,
+      checkIns: checkIns ?? this.checkIns,
+      housingStatus: housingStatus ?? this.housingStatus,
+      riskTolerance: riskTolerance ?? this.riskTolerance,
+      realEstateProject: realEstateProject ?? this.realEstateProject,
+      providers3a: providers3a ?? this.providers3a,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   /// Copie le profil avec une nouvelle liste de contributions
   CoachProfile copyWithContributions(List<PlannedMonthlyContribution> contributions) {
     return CoachProfile(
@@ -1022,14 +1080,16 @@ class CoachProfile {
     final avsYears = _parseInt(answers['q_avs_contribution_years']);
 
     // Estimate LPP total based on age and salary (rough Swiss average)
-    final estimatedLpp = hasPensionFund
-        ? _estimateLppAvoir(age, salaireBrutMensuel)
-        : 0.0;
+    // Si une valeur reelle a ete saisie via annual refresh, on la prefere
+    final coachAvoirLpp = _parseDouble(answers['_coach_avoir_lpp']);
+    final estimatedLpp = coachAvoirLpp
+        ?? (hasPensionFund ? _estimateLppAvoir(age, salaireBrutMensuel) : 0.0);
 
     // Estimate 3a total from contribution and age
-    final estimated3aTotal = has3a
-        ? _estimate3aTotal(contribution3a, age)
-        : 0.0;
+    // Si une valeur reelle a ete saisie via annual refresh, on la prefere
+    final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
+    final estimated3aTotal = coachTotal3a
+        ?? (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
@@ -1180,6 +1240,15 @@ class CoachProfile {
       }
     }
 
+    // ── Timestamps persistes par annual refresh ─────────────
+    final savedUpdatedAt = answers['_coach_updated_at'] as String?;
+    final savedCreatedAt = answers['_coach_created_at'] as String?;
+
+    // ── Family change persiste par annual refresh ─────────
+    // Stocke pour usage futur (coaching proactif, life events)
+    // La cle _coach_family_change est lue ici pour completude;
+    // elle pourra alimenter des nudges dans le CoachingService.
+
     return CoachProfile(
       firstName: firstName,
       birthYear: birthYear,
@@ -1200,6 +1269,12 @@ class CoachProfile {
       providers3a: (answers['q_3a_providers'] is List)
           ? (answers['q_3a_providers'] as List).cast<String>()
           : <String>[],
+      updatedAt: savedUpdatedAt != null
+          ? DateTime.tryParse(savedUpdatedAt)
+          : null,
+      createdAt: savedCreatedAt != null
+          ? DateTime.tryParse(savedCreatedAt)
+          : null,
     );
   }
 

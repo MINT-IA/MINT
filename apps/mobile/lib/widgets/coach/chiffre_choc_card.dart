@@ -113,6 +113,8 @@ class ChiffreChocCard extends StatelessWidget {
           if (narrativeMessage != null && narrativeMessage!.isNotEmpty) ...[
             Text(
               narrativeMessage!,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 height: 1.5,

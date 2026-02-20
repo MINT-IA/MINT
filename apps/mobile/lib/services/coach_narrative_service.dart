@@ -145,6 +145,7 @@ class CoachNarrativeService {
     'assure',
     'sans risque',
     'optimal',
+    'optimale',
     'meilleur',
     'parfait',
   ];
@@ -197,7 +198,10 @@ class CoachNarrativeService {
       );
     }
 
-    // 6. Sauvegarder en cache
+    // 6. Appliquer les guardrails sur TOUS les modes (LLM et statique)
+    narrative = _applyGuardrails(narrative);
+
+    // 7. Sauvegarder en cache
     await _saveToCache(narrative, profile);
 
     return narrative;
@@ -342,10 +346,8 @@ class CoachNarrativeService {
     );
 
     // Parser la reponse JSON du LLM
-    final narrative = _parseLlmResponse(ragResponse.answer);
-
-    // Appliquer les guardrails
-    return _applyGuardrails(narrative);
+    // Note: les guardrails sont appliques dans generate() apres generation
+    return _parseLlmResponse(ragResponse.answer);
   }
 
   /// Construit le system prompt avec le contexte complet de l'utilisateur.
@@ -559,26 +561,31 @@ class CoachNarrativeService {
   }
 
   /// Filtre les termes bannis d'un texte.
+  ///
+  /// Utilise des word boundaries (\b) pour eviter les faux positifs
+  /// sur les mots composes (ex: "incertain" ne doit pas matcher "certain").
   static String _filterBannedTerms(String text) {
     var filtered = text;
     for (final term in _bannedTerms) {
-      if (filtered.toLowerCase().contains(term.toLowerCase())) {
-        filtered = filtered.replaceAll(
-          RegExp(term, caseSensitive: false),
-          '[terme retire]',
-        );
-      }
+      final pattern = '\\b${RegExp.escape(term)}\\b';
+      filtered = filtered.replaceAll(
+        RegExp(pattern, caseSensitive: false),
+        '[terme retire]',
+      );
     }
     return filtered;
   }
 
   /// Verifie si un texte contient des termes bannis.
   ///
+  /// Utilise des word boundaries (\b) pour eviter les faux positifs
+  /// sur les mots composes (ex: "incertain" ne matche pas "certain").
+  ///
   /// Visible pour les tests.
   static bool containsBannedTerms(String text) {
-    final lower = text.toLowerCase();
     for (final term in _bannedTerms) {
-      if (lower.contains(term.toLowerCase())) return true;
+      final pattern = '\\b${RegExp.escape(term)}\\b';
+      if (RegExp(pattern, caseSensitive: false).hasMatch(text)) return true;
     }
     return false;
   }
@@ -587,12 +594,16 @@ class CoachNarrativeService {
   //  CACHE
   // ════════════════════════════════════════════════════════════════
 
-  /// Cle de cache : "coach_narrative_{yyyy-MM-dd}"
-  static String _cacheKey() {
+  /// Cle de cache : "coach_narrative_{name}_{yyyy-MM-dd}"
+  ///
+  /// Inclut le prenom du profil pour eviter les collisions
+  /// multi-profils sur le meme device.
+  static String _cacheKey(CoachProfile profile) {
+    final name = profile.firstName ?? 'default';
     final now = DateTime.now();
     final dateStr =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    return '${_cacheKeyPrefix}_$dateStr';
+    return '${_cacheKeyPrefix}_${name}_$dateStr';
   }
 
   /// Cle secondaire pour invalider si nouveau check-in.
@@ -602,7 +613,7 @@ class CoachNarrativeService {
   static Future<CoachNarrative?> _loadFromCache(CoachProfile profile) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final key = _cacheKey();
+      final key = _cacheKey(profile);
       final jsonStr = prefs.getString(key);
       if (jsonStr == null) return null;
 
@@ -632,7 +643,7 @@ class CoachNarrativeService {
   ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final key = _cacheKey();
+      final key = _cacheKey(profile);
       final jsonStr = jsonEncode(narrative.toJson());
       await prefs.setString(key, jsonStr);
       await prefs.setInt(_cacheCheckInCountKey, profile.checkIns.length);
@@ -642,11 +653,25 @@ class CoachNarrativeService {
   }
 
   /// Invalide le cache (utile apres resume de l'app depuis un long background).
-  static Future<void> invalidateCache() async {
+  ///
+  /// Si [profile] est fourni, invalide uniquement le cache de ce profil.
+  /// Sinon, supprime tous les caches narratifs (toutes les cles commencant
+  /// par le prefix).
+  static Future<void> invalidateCache({CoachProfile? profile}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final key = _cacheKey();
-      await prefs.remove(key);
+      if (profile != null) {
+        final key = _cacheKey(profile);
+        await prefs.remove(key);
+      } else {
+        // Sans profil, supprimer toutes les cles commencant par le prefix
+        final allKeys = prefs.getKeys();
+        for (final key in allKeys) {
+          if (key.startsWith(_cacheKeyPrefix)) {
+            await prefs.remove(key);
+          }
+        }
+      }
       await prefs.remove(_cacheCheckInCountKey);
     } catch (_) {
       // Silently fail
