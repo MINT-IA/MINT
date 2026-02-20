@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Ecran de capacite d'achat immobilier.
 ///
@@ -18,6 +19,12 @@ class AffordabilityScreen extends StatefulWidget {
 }
 
 class _AffordabilityScreenState extends State<AffordabilityScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ReportPersistenceService.markSimulatorExplored('mortgage');
+  }
+
   double _revenuBrut = 120000;
   double _prixAchat = 800000;
   double _epargneDispo = 100000;

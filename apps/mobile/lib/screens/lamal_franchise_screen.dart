@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LAMAL FRANCHISE OPTIMISER SCREEN — Sprint S13 / Chantier 7
@@ -32,6 +33,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('lamal');
     _compute();
   }
 

@@ -200,6 +200,38 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : () => context.go('/auth/forgot-password'),
+                    child: Text(
+                      'Mot de passe oublié ?',
+                      style: GoogleFonts.inter(
+                        color: MintColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: authProvider.isLoading
+                        ? null
+                        : () => context.go('/auth/verify-email'),
+                    child: Text(
+                      'Vérifier mon e-mail',
+                      style: GoogleFonts.inter(
+                        color: MintColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 32),
                 // Register link
                 Row(

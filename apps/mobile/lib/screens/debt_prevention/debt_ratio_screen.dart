@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -20,6 +21,12 @@ class DebtRatioScreen extends StatefulWidget {
 }
 
 class _DebtRatioScreenState extends State<DebtRatioScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ReportPersistenceService.markSimulatorExplored('debt');
+  }
+
   double _revenusMensuels = 6000;
   double _chargesDetteMensuelles = 500;
   double _loyer = 1500;

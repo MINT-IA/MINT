@@ -88,6 +88,28 @@ class ApiService {
     }
   }
 
+  static Future<String> getText(String endpoint) async {
+    var response = await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: await _authHeaders(),
+    );
+
+    if (response.statusCode == 401 && await _tryRefreshToken()) {
+      response = await http.get(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _authHeaders(),
+      );
+    }
+
+    if (response.statusCode == 200) {
+      return response.body;
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'GET $endpoint failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
     var response = await http.post(
@@ -234,6 +256,107 @@ class ApiService {
     );
   }
 
+  static Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/password-reset/request'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(
+      _extractErrorDetail(
+        response.body,
+        fallback: 'Password reset request failed',
+      ),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> confirmPasswordReset(
+    String token,
+    String newPassword,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/password-reset/confirm'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token, 'new_password': newPassword}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(
+      _extractErrorDetail(
+        response.body,
+        fallback: 'Password reset confirmation failed',
+      ),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> requestEmailVerification(
+    String email,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/email-verification/request'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(
+      _extractErrorDetail(
+        response.body,
+        fallback: 'Email verification request failed',
+      ),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> confirmEmailVerification(
+    String token,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/email-verification/confirm'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(
+      _extractErrorDetail(
+        response.body,
+        fallback: 'Email verification failed',
+      ),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> getAdminObservability() async {
+    return get('/auth/admin/observability');
+  }
+
+  static Future<Map<String, dynamic>> getAdminOnboardingQuality({
+    int days = 30,
+  }) async {
+    return get('/auth/admin/onboarding-quality?days=$days');
+  }
+
+  static Future<Map<String, dynamic>> getAdminOnboardingQualityCohorts({
+    int days = 30,
+  }) async {
+    return get('/auth/admin/onboarding-quality/cohorts?days=$days');
+  }
+
+  static Future<String> exportAdminCohortsCsv({
+    int days = 30,
+  }) async {
+    return getText('/auth/admin/cohorts/export.csv?days=$days');
+  }
+
   static Future<Map<String, dynamic>> claimLocalData({
     required int localDataVersion,
     required String deviceId,
@@ -259,6 +382,41 @@ class ApiService {
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Local data sync failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> verifyApplePurchase({
+    required String productId,
+    required String transactionId,
+    String? originalTransactionId,
+    String? purchasedAtIso,
+    String? expiresAtIso,
+    bool isTrial = false,
+    String? signedPayload,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/billing/apple/verify'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        'product_id': productId,
+        'transaction_id': transactionId,
+        if (originalTransactionId != null)
+          'original_transaction_id': originalTransactionId,
+        if (purchasedAtIso != null) 'purchased_at': purchasedAtIso,
+        if (expiresAtIso != null) 'expires_at': expiresAtIso,
+        'is_trial': isTrial,
+        if (signedPayload != null) 'signed_payload': signedPayload,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(
+      _extractErrorDetail(
+        response.body,
+        fallback: 'Apple purchase verification failed',
+      ),
       statusCode: response.statusCode,
     );
   }

@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 ///
 /// Floating Action Button qui ouvre le modal Mentor
 class MentorFAB extends StatelessWidget {
-  const MentorFAB({super.key});
+  const MentorFAB({super.key, this.currentTabIndex = 0});
+
+  final int currentTabIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +24,85 @@ class MentorFAB extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const MentorModal(),
+      builder: (context) => MentorModal(currentTabIndex: currentTabIndex),
     );
   }
 }
 
-/// Modal Mentor avec actions rapides
+/// Modal Mentor avec actions rapides, contextualisees par tab
 class MentorModal extends StatelessWidget {
-  const MentorModal({super.key});
+  const MentorModal({super.key, this.currentTabIndex = 0});
+
+  final int currentTabIndex;
+
+  List<_MentorAction> _actionsForTab() {
+    const session = _MentorAction(
+      icon: Icons.play_circle_outline,
+      title: 'Lancer une session complète',
+      subtitle: 'Diagnostic personnalisé en 5 min',
+      color: MintColors.primary,
+      route: '/advisor',
+    );
+    const rapport = _MentorAction(
+      icon: Icons.assessment_outlined,
+      title: 'Voir mon rapport actuel',
+      subtitle: 'État de ta situation financière',
+      color: MintColors.success,
+      route: '/report',
+    );
+    const simuler = _MentorAction(
+      icon: Icons.calculate_outlined,
+      title: 'Simuler un scénario',
+      subtitle: '3a, LPP, leasing, crédit...',
+      color: Colors.orange,
+      route: '/tools',
+    );
+    const apprendre = _MentorAction(
+      icon: Icons.school_outlined,
+      title: 'Apprendre un concept',
+      subtitle: 'Pilier 3a, LPP, fiscalité...',
+      color: Colors.purple,
+      route: '/education/hub',
+    );
+    const askMint = _MentorAction(
+      icon: Icons.auto_awesome,
+      title: 'Ask MINT',
+      subtitle: 'Pose tes questions finance suisse',
+      color: MintColors.accent,
+      route: '/ask-mint',
+    );
+    const enrichir = _MentorAction(
+      icon: Icons.person_add_outlined,
+      title: 'Enrichir mon profil',
+      subtitle: 'Plus de precision = meilleurs conseils',
+      color: MintColors.primary,
+      route: '/advisor/wizard',
+    );
+    const documents = _MentorAction(
+      icon: Icons.folder_outlined,
+      title: 'Mes documents',
+      subtitle: 'Coffre-fort numérique',
+      color: MintColors.success,
+      route: '/documents',
+    );
+
+    switch (currentTabIndex) {
+      case 0: // Dashboard
+        return [session, rapport, simuler, apprendre, askMint];
+      case 1: // Agir
+        return [session, simuler, rapport, apprendre, askMint];
+      case 2: // Apprendre
+        return [simuler, apprendre, askMint, session, rapport];
+      case 3: // Profil
+        return [enrichir, documents, askMint, session, simuler];
+      default:
+        return [session, rapport, simuler, apprendre, askMint];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final actions = _actionsForTab();
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
@@ -100,72 +170,26 @@ class MentorModal extends StatelessWidget {
             ),
           ),
 
-          // Actions
+          // Actions (ordered by tab context)
           Expanded(
-            child: ListView(
+            child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              children: [
-                _buildActionTile(
+              itemCount: actions.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final a = actions[index];
+                return _buildActionTile(
                   context,
-                  icon: Icons.play_circle_outline,
-                  title: 'Lancer une session complète',
-                  subtitle: 'Diagnostic personnalisé en 5 min',
-                  color: MintColors.primary,
+                  icon: a.icon,
+                  title: a.title,
+                  subtitle: a.subtitle,
+                  color: a.color,
                   onTap: () {
                     Navigator.pop(context);
-                    context.push('/advisor');
+                    context.push(a.route);
                   },
-                ),
-                const SizedBox(height: 12),
-                _buildActionTile(
-                  context,
-                  icon: Icons.assessment_outlined,
-                  title: 'Voir mon rapport actuel',
-                  subtitle: 'État de ta situation financière',
-                  color: MintColors.success,
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/report');
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildActionTile(
-                  context,
-                  icon: Icons.calculate_outlined,
-                  title: 'Simuler un scénario',
-                  subtitle: '3a, LPP, leasing, crédit...',
-                  color: Colors.orange,
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/tools');
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildActionTile(
-                  context,
-                  icon: Icons.school_outlined,
-                  title: 'Apprendre un concept',
-                  subtitle: 'Pilier 3a, LPP, fiscalité...',
-                  color: Colors.purple,
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/education/hub');
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildActionTile(
-                  context,
-                  icon: Icons.auto_awesome,
-                  title: 'Ask MINT',
-                  subtitle: 'Pose tes questions finance suisse',
-                  color: MintColors.accent,
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/ask-mint');
-                  },
-                ),
-                const SizedBox(height: 24),
-              ],
+                );
+              },
             ),
           ),
         ],
@@ -230,4 +254,20 @@ class MentorModal extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MentorAction {
+  const _MentorAction({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.route,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final String route;
 }

@@ -9,14 +9,13 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/data/cantonal_data.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_constants.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_stress.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_essentials.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_income.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -53,23 +52,24 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   static const String _onboardingExperimentName = 'mini_onboarding_v4';
   int _currentStep = 0;
 
-  // Answers
-  String? _stressChoice;
-  String? _canton;
-  String? _employmentStatus;
-  String? _householdType;
-  String? _mainGoal;
+  // Answer state is now in OnboardingProvider — these accessors read from it.
+  OnboardingProvider get _provider => context.read<OnboardingProvider>();
+  Set<String> get _stressChoices => _provider.stressChoices;
+  String? get _canton => _provider.canton;
+  String? get _employmentStatus => _provider.employmentStatus;
+  String? get _householdType => _provider.householdType;
+  String? get _mainGoal => _provider.mainGoal;
 
-  // Controllers
+  // Controllers (widget-owned, synced from provider on init)
   final _birthYearController = TextEditingController();
   final _incomeController = TextEditingController();
   final _taxProvisionController = TextEditingController();
   final _lamalController = TextEditingController();
   final _otherFixedController = TextEditingController();
 
-  // Saved wizard progress
-  bool _hasSavedWizardProgress = false;
-  int _savedWizardProgress = 0;
+  // Saved wizard progress (read from provider)
+  bool get _hasSavedWizardProgress => _provider.hasSavedWizardProgress;
+  int get _savedWizardProgress => _provider.savedWizardProgress;
 
   late final DateTime _onboardingStartedAt;
   final Map<int, DateTime> _stepEnteredAt = {};
@@ -164,7 +164,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final income = double.tryParse(
       _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
     );
-    final stress = _stressChoice ?? 'unknown';
+    final stress = _stressChoices.isNotEmpty ? _stressChoices.join(',') : 'unknown';
     final employment = _employmentStatus ?? 'unknown';
     final household = _householdType ?? 'unknown';
     return 'stress_$stress|emp_$employment|house_$household|${_incomeBucket(income)}';
@@ -197,21 +197,44 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     super.dispose();
   }
 
+  /// Syncs text controllers from provider's already-hydrated state.
+  void _syncControllersFromProvider() {
+    final p = _provider;
+    if (p.draftBirthYear != null && p.draftBirthYear!.isNotEmpty) {
+      _birthYearController.text = p.draftBirthYear!;
+    } else if (p.birthYear != null) {
+      _birthYearController.text = p.birthYear.toString();
+    }
+    if (p.draftIncome != null && p.draftIncome!.isNotEmpty) {
+      _incomeController.text = p.draftIncome!;
+    } else if (p.incomeMonthly != null) {
+      _incomeController.text = p.incomeMonthly!.toInt().toString();
+    }
+    if (p.draftTaxProvision != null && p.draftTaxProvision!.isNotEmpty) {
+      _taxProvisionController.text = p.draftTaxProvision!;
+    } else if (p.taxProvisionMonthly != null) {
+      _taxProvisionController.text = p.taxProvisionMonthly!.toInt().toString();
+    }
+    if (p.draftLamal != null && p.draftLamal!.isNotEmpty) {
+      _lamalController.text = p.draftLamal!;
+    } else if (p.lamalPremiumMonthly != null) {
+      _lamalController.text = p.lamalPremiumMonthly!.toInt().toString();
+    }
+    if (p.draftOtherFixed != null && p.draftOtherFixed!.isNotEmpty) {
+      _otherFixedController.text = p.draftOtherFixed!;
+    } else if (p.otherFixedCostsMonthly != null) {
+      _otherFixedController.text = p.otherFixedCostsMonthly!.toInt().toString();
+    }
+  }
+
   Future<void> _checkSavedProgress() async {
-    final savedAnswers = await ReportPersistenceService.loadAnswers();
-    if (savedAnswers.isNotEmpty && mounted) {
-      _hydrateFromSavedAnswers(savedAnswers);
-      setState(() {
-        _hasSavedWizardProgress = true;
-        _savedWizardProgress =
-            ((savedAnswers.length / OnboardingConstants.wizardTotalQuestions) *
-                    100)
-                .round()
-                .clamp(0, 99);
-      });
+    // Provider is already hydrated via init() in MultiProvider.
+    // Just sync text controllers and jump to resume step.
+    if (_hasSavedWizardProgress && mounted) {
+      _syncControllersFromProvider();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        final targetStep = _computeResumeStep();
+        final targetStep = _provider.computeResumeStep();
         if (_pageController.hasClients) {
           _pageController.jumpToPage(targetStep);
         }
@@ -221,105 +244,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     }
   }
 
-  void _hydrateFromSavedAnswers(Map<String, dynamic> answers) {
-    final stress = answers['q_financial_stress_check'] as String?;
-    final birthYear = answers['q_birth_year'];
-    final canton = answers['q_canton'] as String?;
-    final income = answers['q_net_income_period_chf'];
-    final birthYearDraft = answers['mini_draft_birth_year'];
-    final incomeDraft = answers['mini_draft_income'];
-    final taxProvision = answers['q_tax_provision_monthly_chf'];
-    final lamal = answers['q_lamal_premium_monthly_chf'];
-    final otherFixed = answers['q_other_fixed_costs_monthly_chf'];
-    final taxProvisionDraft = answers['mini_draft_tax_provision'];
-    final lamalDraft = answers['mini_draft_lamal'];
-    final otherFixedDraft = answers['mini_draft_other_fixed'];
-    final employment = answers['q_employment_status'] as String?;
-    final household = answers['q_household_type'] as String?;
-    final civilStatus = answers['q_civil_status'] as String?;
-    final childrenRaw = answers['q_children'];
-    final goal = answers['q_main_goal'] as String?;
-
-    _stressChoice = stress ?? _stressChoice;
-    _canton = canton ?? _canton;
-    _employmentStatus = employment ?? _employmentStatus;
-    _householdType = household ?? _householdType;
-    _mainGoal = goal ?? _mainGoal;
-    if (_householdType == null && civilStatus != null) {
-      if (civilStatus == 'married' || civilStatus == 'concubinage') {
-        final children = childrenRaw is num
-            ? childrenRaw.toInt()
-            : int.tryParse(childrenRaw?.toString() ?? '');
-        _householdType = (children ?? 0) > 0 ? 'family' : 'couple';
-      } else {
-        _householdType = 'single';
-      }
-    }
-
-    if (birthYear != null || birthYearDraft != null) {
-      final source = birthYear ?? birthYearDraft;
-      final parsedBirthYear =
-          source is num ? source.toInt().toString() : source.toString();
-      _birthYearController.text = parsedBirthYear;
-    }
-
-    if (income != null || incomeDraft != null) {
-      final source = income ?? incomeDraft;
-      final parsedIncome =
-          source is num ? source.toInt().toString() : source.toString();
-      _incomeController.text = parsedIncome;
-    }
-    if (taxProvision != null || taxProvisionDraft != null) {
-      final source = taxProvision ?? taxProvisionDraft;
-      final parsed =
-          source is num ? source.toInt().toString() : source.toString();
-      _taxProvisionController.text = parsed;
-    }
-    if (lamal != null || lamalDraft != null) {
-      final source = lamal ?? lamalDraft;
-      final parsed =
-          source is num ? source.toInt().toString() : source.toString();
-      _lamalController.text = parsed;
-    }
-    if (otherFixed != null || otherFixedDraft != null) {
-      final source = otherFixed ?? otherFixedDraft;
-      final parsed =
-          source is num ? source.toInt().toString() : source.toString();
-      _otherFixedController.text = parsed;
-    }
-  }
-
-  int _computeResumeStep() {
-    final step1Done = _stressChoice != null;
-    final step2Done = _birthYearController.text.length == 4 && _canton != null;
-    final parsedIncome = double.tryParse(
-      _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
-    );
-    final step3Done = (parsedIncome ?? 0) > 0 &&
-        _employmentStatus != null &&
-        _householdType != null;
-    final step4Done = _mainGoal != null;
-
-    if (!step1Done) return 0;
-    if (!step2Done) return 1;
-    if (!step3Done) return 2;
-    if (!step4Done) return 3;
-    return 3;
-  }
-
-  String _suggestGoalFromStress() {
-    switch (_stressChoice) {
-      case 'budget':
-      case 'debt':
-        return 'debt_free';
-      case 'tax':
-        return 'real_estate';
-      case 'pension':
-        return 'retirement';
-      default:
-        return 'retirement';
-    }
-  }
+  String _suggestGoalFromStress() => _provider.suggestGoalFromStress();
 
   void _goToStep(int step) {
     if (step == _currentStep) return;
@@ -403,81 +328,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
-  Map<String, dynamic> _currentMiniAnswersSnapshot() {
-    final parsedBirthYear = int.tryParse(_birthYearController.text);
-    final parsedIncome = double.tryParse(
-      _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
-    );
-    final taxProvision = _parseChfController(_taxProvisionController);
-    final lamal = _parseChfController(_lamalController);
-    final otherFixed = _parseChfController(_otherFixedController);
-    final snapshot = <String, dynamic>{};
-    if (_stressChoice != null) {
-      snapshot['q_financial_stress_check'] = _stressChoice;
-    }
-    final currentYear = DateTime.now().year;
-    final isBirthYearValid = parsedBirthYear != null &&
-        parsedBirthYear >= 1940 &&
-        parsedBirthYear <= currentYear - 16;
-    if (isBirthYearValid) {
-      snapshot['q_birth_year'] = parsedBirthYear;
-    }
-    if (_canton != null) {
-      snapshot['q_canton'] = _canton;
-    }
-    if (parsedIncome != null && parsedIncome > 0) {
-      snapshot['q_net_income_period_chf'] = parsedIncome;
-    }
-    if (_employmentStatus != null) {
-      snapshot['q_employment_status'] = _employmentStatus;
-    }
-    final household = _householdType ?? 'single';
-    snapshot['q_household_type'] = household;
-    snapshot['q_civil_status'] = _civilStatusForHousehold(household);
-    snapshot['q_children'] = _childrenCountFromHousehold(household);
-    if (taxProvision != null && taxProvision > 0) {
-      snapshot['q_tax_provision_monthly_chf'] = taxProvision;
-    }
-    if (lamal != null && lamal > 0) {
-      snapshot['q_lamal_premium_monthly_chf'] = lamal;
-    }
-    if (otherFixed != null && otherFixed > 0) {
-      snapshot['q_other_fixed_costs_monthly_chf'] = otherFixed;
-    }
-    if (_mainGoal != null) {
-      snapshot['q_main_goal'] = _mainGoal;
-    }
-    if (_birthYearController.text.trim().isNotEmpty) {
-      snapshot['mini_draft_birth_year'] = _birthYearController.text.trim();
-    }
-    if (_incomeController.text.trim().isNotEmpty) {
-      snapshot['mini_draft_income'] = _incomeController.text.trim();
-    }
-    if (_taxProvisionController.text.trim().isNotEmpty) {
-      snapshot['mini_draft_tax_provision'] =
-          _taxProvisionController.text.trim();
-    }
-    if (_lamalController.text.trim().isNotEmpty) {
-      snapshot['mini_draft_lamal'] = _lamalController.text.trim();
-    }
-    if (_otherFixedController.text.trim().isNotEmpty) {
-      snapshot['mini_draft_other_fixed'] = _otherFixedController.text.trim();
-    }
-    if (_employmentStatus == 'employee' &&
-        parsedIncome != null &&
-        parsedIncome * 12 > OnboardingConstants.lppAccessThreshold) {
-      snapshot['q_has_pension_fund'] = 'yes';
-    }
-    return snapshot;
-  }
-
-  void _scheduleAutoSave([String reason = 'field_change']) {
-    if (_isOnboardingCompleted) return;
-    _autoSaveDebounce?.cancel();
-    _autoSaveDebounce = Timer(OnboardingConstants.autoSaveDebounce, () {
-      unawaited(_saveMiniProgressSnapshot(reason: reason));
-    });
-  }
+  Map<String, dynamic> _currentMiniAnswersSnapshot() =>
+      _provider.buildAnswersSnapshot();
 
   Future<void> _handleClosePressed() async {
     if (_isOnboardingCompleted) {
@@ -578,57 +430,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   Future<void> _completeMiniOnboarding() async {
-    // Parse inputs
-    final birthYear = int.tryParse(_birthYearController.text);
-    final income = double.tryParse(
-      _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
-    );
-    final taxProvision = _parseChfController(_taxProvisionController);
-    final lamal = _parseChfController(_lamalController);
-    final otherFixed = _parseChfController(_otherFixedController);
-
-    if (_stressChoice == null ||
-        birthYear == null ||
-        _validateBirthYear(_birthYearController.text) != null ||
-        _canton == null ||
-        income == null ||
-        _mainGoal == null) {
-      return;
-    }
-
-    // Resolve employment status (default: employee)
-    final empStatus = _employmentStatus ?? 'employee';
-    final household = _householdType ?? 'single';
-
-    // Build answers map (compatible with wizard question IDs)
-    final answers = <String, dynamic>{
-      'q_financial_stress_check': _stressChoice,
-      'q_birth_year': birthYear,
-      'q_canton': _canton,
-      'q_net_income_period_chf': income,
-      'q_employment_status': empStatus,
-      'q_household_type': household,
-      'q_civil_status': _civilStatusForHousehold(household),
-      'q_children': _childrenCountFromHousehold(household),
-      'q_main_goal': _mainGoal ?? 'retirement',
-      if (taxProvision != null && taxProvision > 0)
-        'q_tax_provision_monthly_chf': taxProvision,
-      if (lamal != null && lamal > 0) 'q_lamal_premium_monthly_chf': lamal,
-      if (otherFixed != null && otherFixed > 0)
-        'q_other_fixed_costs_monthly_chf': otherFixed,
-    };
-
-    // Auto-infer LPP for employees above threshold (LPP art. 7)
-    if (empStatus == 'employee' &&
-        income * 12 > OnboardingConstants.lppAccessThreshold) {
-      answers['q_has_pension_fund'] = 'yes';
-    }
-
-    // Merge with existing wizard answers (don't overwrite prior progress)
-    final existing = await ReportPersistenceService.loadAnswers();
-    final merged = {...existing, ...answers};
-    await ReportPersistenceService.saveAnswers(merged);
-    await ReportPersistenceService.setMiniOnboardingCompleted(true);
+    // Delegate persistence + validation to provider
+    final merged = await _provider.completeMiniOnboarding();
+    if (merged == null) return;
 
     // Create partial profile
     if (mounted) {
@@ -693,14 +497,15 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           'advisor_completion_open_plan_30_days',
           screenName: '/advisor',
           data: _withOnboardingContext({
-            'stress_choice': _stressChoice,
+            'stress_choice': _stressChoices.toList(),
             'main_goal': _mainGoal ?? 'retirement',
           }),
         );
         context.go(
           '/advisor/plan-30-days',
           extra: {
-            'stress_choice': _stressChoice,
+            'stress_choice': _stressChoices.isNotEmpty ? _stressChoices.first : null,
+            'stress_choices': _stressChoices.toList(),
             'main_goal': _mainGoal ?? 'retirement',
           },
         );
@@ -1487,11 +1292,6 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       children: [
         Expanded(
           child: OnboardingStepStress(
-            selected: _stressChoice,
-            onSelected: (value) {
-              setState(() => _stressChoice = value);
-              _scheduleAutoSave('stress_selected');
-            },
             onContinue: () => _goToStep(1),
           ),
         ),
@@ -1544,20 +1344,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         Expanded(
           child: OnboardingStepEssentials(
             birthYearController: _birthYearController,
-            canton: _canton,
-            birthYearError: birthYearError,
-            onBirthYearChanged: (_) {
-              _usedBirthYearManual = true;
+            onContinue: () {
               _maybeTrackStep2Aha();
-              setState(() {});
-              _scheduleAutoSave('birth_year_changed');
+              _goToStep(2);
             },
-            onCantonChanged: (value) {
-              setState(() => _canton = value);
-              _maybeTrackStep2Aha();
-              _scheduleAutoSave('canton_changed');
-            },
-            onContinue: () => _goToStep(2),
           ),
         ),
         if (_computeStep2AhaData() case final aha?)
@@ -1600,27 +1390,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             taxController: _taxProvisionController,
             lamalController: _lamalController,
             otherFixedController: _otherFixedController,
-            employmentStatus: _employmentStatus,
-            householdType: _householdType,
-            incomeQuickPicks: _incomeQuickPicks(),
-            onIncomeChanged: (_) {
-              _usedIncomeManual = true;
-              setState(() {});
-              _scheduleAutoSave('income_changed');
-            },
             onIncomeQuickPick: (amount) => _applyIncomeQuickPick(amount),
-            onEmploymentChanged: (value) {
-              setState(() => _employmentStatus = value);
-              _scheduleAutoSave('employment_changed');
-            },
-            onHouseholdChanged: (value) {
-              setState(() => _householdType = value);
-              _scheduleAutoSave('household_changed');
-            },
             onContinue: () {
               if (_mainGoal == null) {
-                setState(() => _mainGoal = _suggestGoalFromStress());
-                _scheduleAutoSave('goal_auto_suggested');
+                _provider.setMainGoal(_suggestGoalFromStress());
               }
               _goToStep(3);
             },
@@ -1693,26 +1466,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     return double.tryParse(raw);
   }
 
-  String _civilStatusForHousehold(String householdType) {
-    switch (householdType) {
-      case 'couple':
-      case 'family':
-        return 'married';
-      default:
-        return 'single';
-    }
-  }
-
-  int _childrenCountFromHousehold(String householdType) {
-    return householdType == 'family' ? 1 : 0;
-  }
-
-  List<int> _incomeQuickPicks() => OnboardingConstants.incomeQuickPicks;
-
   void _applyIncomeQuickPick(int amount) {
     _usedIncomePreset = true;
     _incMetric('quick_pick_income');
     _incomeController.text = '$amount';
+    _provider.setIncomeDraft('$amount');
     _analytics.trackEvent(
       'onboarding_quick_pick_used',
       category: 'engagement',
@@ -1722,39 +1480,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       }),
     );
     setState(() {});
-    _scheduleAutoSave('income_quick_pick');
   }
 
 
-  Map<String, dynamic>? _computeStep2AhaData() {
-    final birthYear = int.tryParse(_birthYearController.text);
-    if (birthYear == null ||
-        _validateBirthYear(_birthYearController.text) != null) {
-      return null;
-    }
-    if (_canton == null) return null;
-
-    final nowYear = DateTime.now().year;
-    final age = nowYear - birthYear;
-    final yearsToRetirement = (65 - age).clamp(0, 60);
-    final cantonProfile = CantonalDataService.getByCode(_canton);
-    final avgRate = cantonProfile.averageMarginalRate;
-    final swissAvg = CantonalDataService.getByCode(null).averageMarginalRate;
-    final deltaRate = avgRate - swissAvg;
-    final estimatedTaxOn100k = (avgRate * 100000).round();
-    final annualDeltaOn100k = (deltaRate * 100000).round();
-
-    return {
-      'age': age,
-      'years_to_retirement': yearsToRetirement,
-      'canton_code': _canton,
-      'canton_name': cantonProfile.name,
-      'avg_rate_percent': (avgRate * 100),
-      'tax_on_100k': estimatedTaxOn100k,
-      'delta_vs_ch_percent': (deltaRate * 100),
-      'annual_delta_on_100k': annualDeltaOn100k,
-    };
-  }
+  Map<String, dynamic>? _computeStep2AhaData() =>
+      _provider.computeStep2AhaData();
 
   void _maybeTrackStep2Aha() {
     if (_step2AhaTracked) return;
@@ -2032,8 +1762,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final isSelected = _mainGoal == value;
     return GestureDetector(
       onTap: () {
-        setState(() => _mainGoal = value);
-        _scheduleAutoSave('goal_selected');
+        _provider.setMainGoal(value);
+        setState(() {});
         _analytics.trackEvent(
           'onboarding_goal_selected',
           category: 'engagement',
@@ -2097,63 +1827,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     }
   }
 
-  Map<String, dynamic>? _computePreviewProjection() {
-    try {
-      final birthYear = int.tryParse(_birthYearController.text);
-      final income = double.tryParse(
-        _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
-      );
-      final empStatus = _employmentStatus ?? 'employee';
-      if (birthYear == null ||
-          income == null ||
-          income <= 0 ||
-          _canton == null) {
-        return null;
-      }
-
-      // Keep preview assumptions aligned with mini-onboarding completion:
-      // employee + annual income above LPP threshold => pension fund "yes".
-      final hasPensionFund = empStatus == 'employee' &&
-          income * 12 > OnboardingConstants.lppAccessThreshold;
-      final monthlySavings =
-          (income * OnboardingConstants.defaultSavingsRate).clamp(
-        OnboardingConstants.minMonthlySavingsFloor,
-        OnboardingConstants.maxMonthlySavingsCap,
-      );
-
-      final answers = <String, dynamic>{
-        'q_birth_year': birthYear,
-        'q_canton': _canton,
-        'q_pay_frequency': 'monthly',
-        'q_net_income_period_chf': income,
-        'q_employment_status': empStatus,
-        'q_has_pension_fund': hasPensionFund ? 'yes' : 'no',
-        'q_savings_monthly': monthlySavings,
-        'q_savings_allocation': const ['epargne_libre'],
-        'q_main_goal': _mainGoal ?? 'retirement',
-      };
-      final profile = CoachProfile.fromWizardAnswers(answers);
-      final projection = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      final age = DateTime.now().year - birthYear;
-      final yearsLeft = (65 - age).clamp(0, 60);
-
-      return {
-        'targetLabel': profile.goalA.label,
-        'prudent': projection.prudent.capitalFinal,
-        'base': projection.base.capitalFinal,
-        'optimiste': projection.optimiste.capitalFinal,
-        'yearsLeft': yearsLeft,
-      };
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('[MiniOnboarding] Preview projection error: $e');
-      }
-      return null;
-    }
-  }
+  Map<String, dynamic>? _computePreviewProjection() =>
+      _provider.computePreviewProjection();
 
   Widget _buildProjectionPreviewCard(Map<String, dynamic> preview) {
     final l10n = S.of(context);

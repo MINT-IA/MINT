@@ -445,6 +445,9 @@ class ReportPersistenceService {
   // ═══════════════════════════════════════════════════════════
 
   static const String _exploredSimulatorsKey = 'explored_simulators_v1';
+  static const String _exploredLifeEventsKey = 'explored_life_events_v1';
+  static const String _dismissedTipsKey = 'dismissed_tips_v1';
+  static const String _snoozedTipsKey = 'snoozed_tips_v1';
   static const String _onboarding30PlanKey = 'onboarding_30_day_plan_v1';
 
   /// Marque un simulateur comme exploré (pour le suivi de progression)
@@ -566,6 +569,7 @@ class ReportPersistenceService {
   /// - check-ins mensuels
   /// - score du mois + historique des scores
   /// - progression "simulateurs explorés"
+  /// - activite utilisateur (life events, tips dismissed/snoozed)
   static Future<void> clearCoachHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_checkInsKey);
@@ -573,6 +577,9 @@ class ReportPersistenceService {
     await prefs.remove(_lastScoreMonthKey);
     await prefs.remove(_scoreHistoryKey);
     await prefs.remove(_exploredSimulatorsKey);
+    await prefs.remove(_exploredLifeEventsKey);
+    await prefs.remove(_dismissedTipsKey);
+    await prefs.remove(_snoozedTipsKey);
   }
 
   /// Efface le diagnostic/profil financier:

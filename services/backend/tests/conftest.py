@@ -60,6 +60,10 @@ def setup_test_database():
         ProfileModel,
         SessionModel,
         AnalyticsEvent,
+        AuditEventModel,
+        LoginSecurityStateModel,
+        PasswordResetTokenModel,
+        EmailVerificationTokenModel,
         SubscriptionModel,
         EntitlementModel,
         BillingTransactionModel,
@@ -79,14 +83,22 @@ def clean_database():
         SessionModel,
         ProfileModel,
         User,
+        LoginSecurityStateModel,
+        PasswordResetTokenModel,
+        EmailVerificationTokenModel,
         SubscriptionModel,
         EntitlementModel,
         BillingTransactionModel,
         BillingWebhookEventModel,
+        AuditEventModel,
     )
     db = TestingSessionLocal()
     try:
         db.query(BillingWebhookEventModel).delete()
+        db.query(EmailVerificationTokenModel).delete()
+        db.query(PasswordResetTokenModel).delete()
+        db.query(LoginSecurityStateModel).delete()
+        db.query(AuditEventModel).delete()
         db.query(BillingTransactionModel).delete()
         db.query(EntitlementModel).delete()
         db.query(SubscriptionModel).delete()

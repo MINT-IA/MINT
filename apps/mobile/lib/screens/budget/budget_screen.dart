@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/budget/spending_meter.dart';
 import 'package:mint_mobile/widgets/budget/envelope_slider.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -30,6 +31,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('budget');
     _staggerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),

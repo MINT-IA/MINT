@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/data/cantonal_data.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepEssentials extends StatelessWidget {
   final TextEditingController birthYearController;
-  final String? canton;
-  final String? birthYearError;
-  final ValueChanged<String> onBirthYearChanged;
-  final ValueChanged<String?> onCantonChanged;
   final VoidCallback onContinue;
 
   const OnboardingStepEssentials({
     super.key,
     required this.birthYearController,
-    required this.canton,
-    required this.birthYearError,
-    required this.onBirthYearChanged,
-    required this.onCantonChanged,
     required this.onContinue,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
+    final provider = context.watch<OnboardingProvider>();
+    final canton = provider.canton;
+
+    // Compute birth year error from provider state
+    final birthYearError = _computeBirthYearError(provider, l10n);
+
     final sortedCantons = CantonalDataService.cantons.entries.toList()
       ..sort((a, b) => a.value.name.compareTo(b.value.name));
     final canContinue = birthYearError == null &&
@@ -50,7 +50,7 @@ class OnboardingStepEssentials extends StatelessWidget {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(4),
             ],
-            onChanged: onBirthYearChanged,
+            onChanged: (value) => provider.setBirthYearDraft(value),
             decoration: InputDecoration(
               labelText:
                   l10n?.advisorMiniBirthYearLabel ?? 'Annee de naissance',
@@ -60,7 +60,7 @@ class OnboardingStepEssentials extends StatelessWidget {
           if (birthYearError != null) ...[
             const SizedBox(height: 6),
             Text(
-              birthYearError!,
+              birthYearError,
               style: const TextStyle(color: Colors.red),
             ),
           ],
@@ -79,7 +79,7 @@ class OnboardingStepEssentials extends StatelessWidget {
                   ),
                 )
                 .toList(),
-            onChanged: onCantonChanged,
+            onChanged: (value) => provider.setCanton(value),
           ),
           const SizedBox(height: 24),
           OnboardingContinueButton(
@@ -91,5 +91,20 @@ class OnboardingStepEssentials extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String? _computeBirthYearError(OnboardingProvider provider, S? l10n) {
+    final text = birthYearController.text;
+    if (text.length != 4) return null;
+    final year = int.tryParse(text);
+    if (year == null) {
+      return l10n?.advisorMiniBirthYearInvalid ?? 'Année invalide';
+    }
+    final maxYear = DateTime.now().year - 16;
+    if (year < 1940 || year > maxYear) {
+      return l10n?.advisorMiniBirthYearRange('$maxYear') ??
+          'Entre 1940 et $maxYear';
+    }
+    return null;
   }
 }

@@ -7,6 +7,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 // Screens under test
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
+import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
+import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 
 // Dependencies
@@ -117,6 +119,20 @@ void main() {
       expect(find.textContaining('Pas encore de compte'), findsOneWidget);
     });
 
+    testWidgets('shows forgot password link', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
+      await tester.pump();
+
+      expect(find.text('Mot de passe oublié ?'), findsOneWidget);
+    });
+
+    testWidgets('shows verify email link', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
+      await tester.pump();
+
+      expect(find.text('Vérifier mon e-mail'), findsOneWidget);
+    });
+
     testWidgets('shows Retour button', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
@@ -140,7 +156,50 @@ void main() {
   });
 
   // ===========================================================================
-  // 2. REGISTER SCREEN
+  // 2. FORGOT PASSWORD SCREEN
+  // ===========================================================================
+
+  group('ForgotPasswordScreen', () {
+    testWidgets('renders without crashing', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const ForgotPasswordScreen()));
+      await tester.pump();
+
+      expect(find.byType(ForgotPasswordScreen), findsOneWidget);
+      expect(find.textContaining('Réinitialiser'), findsOneWidget);
+    });
+
+    testWidgets('shows email, token and password fields', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const ForgotPasswordScreen()));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.key_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline), findsNWidgets(2));
+      expect(find.textContaining('Envoyer le lien'), findsOneWidget);
+    });
+  });
+
+  group('VerifyEmailScreen', () {
+    testWidgets('renders without crashing', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const VerifyEmailScreen()));
+      await tester.pump();
+
+      expect(find.byType(VerifyEmailScreen), findsOneWidget);
+      expect(find.textContaining('Vérifier mon e-mail'), findsOneWidget);
+    });
+
+    testWidgets('shows email and token fields', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const VerifyEmailScreen()));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.key_outlined), findsOneWidget);
+      expect(find.textContaining('Envoyer le lien'), findsOneWidget);
+    });
+  });
+
+  // ===========================================================================
+  // 3. REGISTER SCREEN
   // ===========================================================================
 
   group('RegisterScreen', () {
@@ -222,7 +281,7 @@ void main() {
           find.byType(SingleChildScrollView), const Offset(0, -260));
       await tester.pump();
 
-      expect(find.textContaining('mode local'), findsOneWidget);
+      expect(find.text('Continuer en mode local'), findsOneWidget);
       expect(find.byType(OutlinedButton), findsWidgets);
     });
 
@@ -264,7 +323,7 @@ void main() {
   });
 
   // ===========================================================================
-  // 3. BYOK SETTINGS SCREEN
+  // 4. BYOK SETTINGS SCREEN
   // ===========================================================================
 
   group('ByokSettingsScreen', () {

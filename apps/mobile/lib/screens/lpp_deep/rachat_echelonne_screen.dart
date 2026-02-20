@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -88,6 +89,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('lpp_deep');
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),

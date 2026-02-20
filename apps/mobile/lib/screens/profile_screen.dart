@@ -142,6 +142,10 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildPrecisionCard(BuildContext context, double precision) {
     final s = S.of(context);
+    final coachProfile = context.watch<CoachProfileProvider>();
+    final hasFullWizard = coachProfile.hasFullProfile;
+    final hasMini = coachProfile.isPartialProfile;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -178,14 +182,80 @@ class ProfileScreen extends StatelessWidget {
             minHeight: 8,
           ),
           const SizedBox(height: 16),
-          Text(
-            s?.profilePrecisionMessage ??
-                'Plus ton profil est complet, plus ton rapport "Statement of Advice" est puissant.',
-            textAlign: TextAlign.center,
-            style:
-                const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+          // Drill-down: show what's complete and what's missing
+          _buildPrecisionRow(
+            icon: Icons.person_outline,
+            label: s?.profileSectionIdentity ?? 'Identite & Foyer',
+            isComplete: hasMini || hasFullWizard,
+          ),
+          _buildPrecisionRow(
+            icon: Icons.account_balance_wallet_outlined,
+            label: s?.profileSectionIncome ?? 'Revenus & Epargne',
+            isComplete: hasMini || hasFullWizard,
+          ),
+          _buildPrecisionRow(
+            icon: Icons.security_outlined,
+            label: s?.profileSectionPension ?? 'Prevoyance (LPP)',
+            isComplete: hasFullWizard,
+            reward: hasFullWizard ? null : '+15%',
+            onTap: hasFullWizard ? null : () => context.push('/advisor/wizard'),
+          ),
+          _buildPrecisionRow(
+            icon: Icons.home_outlined,
+            label: s?.profileSectionProperty ?? 'Immobilier & Dettes',
+            isComplete: hasFullWizard,
+            reward: hasFullWizard ? null : '+10%',
+            onTap: hasFullWizard ? null : () => context.push('/advisor/wizard'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPrecisionRow({
+    required IconData icon,
+    required String label,
+    required bool isComplete,
+    String? reward,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(icon, size: 16,
+                color: isComplete ? Colors.white : Colors.white38),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(
+                    color: isComplete ? Colors.white : Colors.white54,
+                    fontSize: 13,
+                    decoration: isComplete ? TextDecoration.none : null,
+                  )),
+            ),
+            if (isComplete)
+              const Icon(Icons.check_circle, size: 16, color: Colors.white)
+            else if (reward != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(reward,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold)),
+              )
+            else
+              const Icon(Icons.radio_button_unchecked,
+                  size: 16, color: Colors.white38),
+          ],
+        ),
       ),
     );
   }
@@ -335,6 +405,15 @@ class ProfileScreen extends StatelessWidget {
             label: Text(S.of(context)?.authLogout ?? 'Se déconnecter'),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.error,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => context.push('/profile/admin-observability'),
+            icon: const Icon(Icons.analytics_outlined, size: 18),
+            label: const Text('Admin observability'),
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),

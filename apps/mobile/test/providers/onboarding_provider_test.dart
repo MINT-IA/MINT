@@ -35,7 +35,7 @@ void main() {
 
   test('build snapshot includes household + civil status + drafts', () {
     final provider = OnboardingProvider()
-      ..stressChoice = 'tax'
+      ..stressChoices = {'tax'}
       ..birthYear = 1991
       ..canton = 'GE'
       ..incomeMonthly = 8000
@@ -54,7 +54,7 @@ void main() {
 
   test('complete mini onboarding persists completion flag', () async {
     final provider = OnboardingProvider()
-      ..stressChoice = 'budget'
+      ..stressChoices = {'budget'}
       ..birthYear = 1990
       ..canton = 'VD'
       ..incomeMonthly = 7000

@@ -44,6 +44,30 @@ async def lifespan(app: FastAPI):
     from app import models as _models  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
+    # Optional auth hygiene: purge stale unverified accounts on startup.
+    if settings.AUTH_AUTO_PURGE_ON_STARTUP:
+        try:
+            from sqlalchemy.orm import Session
+            from app.services.auth_admin_service import purge_unverified_users
+
+            db = Session(bind=engine)
+            try:
+                result = purge_unverified_users(
+                    db,
+                    older_than_days=settings.AUTH_UNVERIFIED_PURGE_DAYS,
+                    dry_run=False,
+                )
+                logger.info(
+                    "Startup unverified purge: deleted=%s candidates=%s days=%s",
+                    result.get("deleted_users"),
+                    result.get("candidates"),
+                    result.get("older_than_days"),
+                )
+            finally:
+                db.close()
+        except Exception as exc:
+            logger.warning("Startup unverified purge failed (non-fatal): %s", exc)
+
     # Auto-ingest education inserts into RAG vector store if empty
     _auto_ingest_rag()
     yield

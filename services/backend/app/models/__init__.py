@@ -6,6 +6,12 @@ from app.models.user import User
 from app.models.profile_model import ProfileModel
 from app.models.session_model import SessionModel
 from app.models.analytics_event import AnalyticsEvent
+from app.models.audit_event import AuditEventModel
+from app.models.auth_security import (
+    LoginSecurityStateModel,
+    PasswordResetTokenModel,
+    EmailVerificationTokenModel,
+)
 from app.models.billing import (
     SubscriptionModel,
     EntitlementModel,
@@ -18,6 +24,10 @@ __all__ = [
     "ProfileModel",
     "SessionModel",
     "AnalyticsEvent",
+    "AuditEventModel",
+    "LoginSecurityStateModel",
+    "PasswordResetTokenModel",
+    "EmailVerificationTokenModel",
     "SubscriptionModel",
     "EntitlementModel",
     "BillingTransactionModel",

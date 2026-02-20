@@ -148,6 +148,76 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> requestPasswordReset(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final response = await ApiService.requestPasswordReset(email);
+      _isLoading = false;
+      notifyListeners();
+      final debugToken = response['debug_token'];
+      return debugToken is String ? debugToken : null;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> confirmPasswordReset(String token, String newPassword) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await ApiService.confirmPasswordReset(token, newPassword);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<String?> requestEmailVerification(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final response = await ApiService.requestEmailVerification(email);
+      _isLoading = false;
+      notifyListeners();
+      final debugToken = response['debug_token'];
+      return debugToken is String ? debugToken : null;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> confirmEmailVerification(String token) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await ApiService.confirmEmailVerification(token);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Logout
   Future<void> logout() async {
     await AuthService.logout();
@@ -188,6 +258,12 @@ class AuthProvider extends ChangeNotifier {
 
     if (lower.contains('invalid') || lower.contains('invalide')) {
       return 'Les informations saisies sont invalides.';
+    }
+    if (lower.contains('expir')) {
+      return 'Ce lien de réinitialisation a expiré. Demande un nouveau lien.';
+    }
+    if (lower.contains('non vérifié') || lower.contains('not verified')) {
+      return 'Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.';
     }
 
     return 'Action impossible pour le moment. Réessaie dans quelques instants.';

@@ -106,6 +106,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: MintColors.primary.withValues(alpha: 0.18),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Pourquoi créer un compte ?',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const _RegisterBenefitRow(
+                        text: 'Sauvegarde cloud chiffrée (en plus du mode local)',
+                      ),
+                      const _RegisterBenefitRow(
+                        text: 'Synchronisation sur plusieurs appareils',
+                      ),
+                      const _RegisterBenefitRow(
+                        text: 'Récupération de l’accès en cas de changement de téléphone',
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 48),
                 // Email field
                 TextFormField(
@@ -346,6 +380,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _RegisterBenefitRow extends StatelessWidget {
+  final String text;
+
+  const _RegisterBenefitRow({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(
+              Icons.check_circle_outline,
+              size: 16,
+              color: MintColors.primary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepStress extends StatelessWidget {
-  final String? selected;
-  final ValueChanged<String> onSelected;
   final VoidCallback onContinue;
 
   const OnboardingStepStress({
     super.key,
-    required this.selected,
-    required this.onSelected,
     required this.onContinue,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
+    final provider = context.watch<OnboardingProvider>();
+    final selected = provider.stressChoices;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -33,37 +34,37 @@ class OnboardingStepStress extends StatelessWidget {
           MintSelectableCard(
             icon: Icons.savings_outlined,
             label: l10n?.advisorMiniStressBudget ?? 'Maitriser mon budget',
-            isSelected: selected == 'budget',
+            isSelected: selected.contains('budget'),
             selectedColor: const Color(0xFF10B981),
-            onTap: () => onSelected('budget'),
+            onTap: () => provider.toggleStressChoice('budget'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
             icon: Icons.money_off_outlined,
             label: l10n?.advisorMiniStressDebt ?? 'Reduire mes dettes',
-            isSelected: selected == 'debt',
+            isSelected: selected.contains('debt'),
             selectedColor: const Color(0xFFEF4444),
-            onTap: () => onSelected('debt'),
+            onTap: () => provider.toggleStressChoice('debt'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
             icon: Icons.account_balance_outlined,
             label: l10n?.advisorMiniStressTax ?? 'Optimiser mes impots',
-            isSelected: selected == 'tax',
+            isSelected: selected.contains('tax'),
             selectedColor: const Color(0xFF6366F1),
-            onTap: () => onSelected('tax'),
+            onTap: () => provider.toggleStressChoice('tax'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
             icon: Icons.beach_access_outlined,
             label: l10n?.advisorMiniStressRetirement ?? 'Securiser ma retraite',
-            isSelected: selected == 'pension',
+            isSelected: selected.contains('pension'),
             selectedColor: const Color(0xFF0EA5E9),
-            onTap: () => onSelected('pension'),
+            onTap: () => provider.toggleStressChoice('pension'),
           ),
           const SizedBox(height: 20),
           OnboardingContinueButton(
-            enabled: selected != null,
+            enabled: selected.isNotEmpty,
             label: l10n?.onboardingContinue ?? 'Suivant',
             onPressed: onContinue,
             backgroundColor: MintColors.textPrimary,

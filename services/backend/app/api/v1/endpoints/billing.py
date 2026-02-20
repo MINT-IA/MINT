@@ -18,6 +18,10 @@ from app.schemas.billing import (
     StripePortalResponse,
     BillingDebugActivateRequest,
     BillingDebugActivateResponse,
+    AppleVerifyPurchaseRequest,
+    AppleVerifyPurchaseResponse,
+    AppleWebhookRequest,
+    AppleWebhookAck,
 )
 from app.services.billing_service import (
     get_entitlement_snapshot,
@@ -27,9 +31,19 @@ from app.services.billing_service import (
     create_stripe_billing_portal_session,
     get_or_create_subscription,
     recompute_entitlements,
+    activate_apple_purchase,
+    process_apple_notification,
 )
+from app.services.audit_service import log_audit_event
 
 router = APIRouter()
+
+
+def _request_ip(request: Request) -> Optional[str]:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else None
 
 
 @router.get("/entitlements", response_model=BillingEntitlementsResponse)
@@ -111,4 +125,76 @@ def debug_activate_subscription(
         status=sub.status,
         features=features,
         created_subscription_id=sub.id,
+    )
+
+
+@router.post("/apple/verify", response_model=AppleVerifyPurchaseResponse)
+def verify_apple_purchase(
+    request: Request,
+    body: AppleVerifyPurchaseRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> AppleVerifyPurchaseResponse:
+    features = activate_apple_purchase(
+        db,
+        current_user,
+        product_id=body.product_id,
+        transaction_id=body.transaction_id,
+        original_transaction_id=body.original_transaction_id,
+        purchased_at=body.purchased_at,
+        expires_at=body.expires_at,
+        is_trial=body.is_trial,
+        raw_payload=body.signed_payload,
+    )
+    log_audit_event(
+        db,
+        event_type="billing.apple_verify",
+        status="success",
+        source="api",
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        details={
+            "product_id": body.product_id,
+            "transaction_id": body.transaction_id,
+            "is_trial": body.is_trial,
+        },
+    )
+    db.commit()
+    return AppleVerifyPurchaseResponse(
+        status="verified",
+        tier="coach",
+        source="apple",
+        features=features,
+    )
+
+
+@router.post("/webhooks/apple", response_model=AppleWebhookAck)
+def apple_webhook(
+    request: Request,
+    body: AppleWebhookRequest,
+    db: Session = Depends(get_db),
+) -> AppleWebhookAck:
+    process_apple_notification(db, body.model_dump())
+    data = body.data if isinstance(body.data, dict) else {}
+    log_audit_event(
+        db,
+        event_type="billing.apple_webhook",
+        status="success",
+        source="webhook",
+        user_id=data.get("user_id"),
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        details={
+            "notification_type": body.notificationType,
+            "notification_uuid": body.notificationUUID,
+            "product_id": data.get("product_id"),
+            "transaction_id": data.get("transaction_id"),
+        },
+    )
+    db.commit()
+    return AppleWebhookAck(
+        received=True,
+        notification_type=body.notificationType,
     )

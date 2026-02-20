@@ -3,8 +3,7 @@ Billing schemas.
 """
 
 from datetime import datetime
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 
@@ -57,3 +56,32 @@ class StripeEventEnvelope(BaseModel):
     id: str
     type: str
     data: dict[str, Any]
+
+
+class AppleVerifyPurchaseRequest(BaseModel):
+    product_id: str
+    transaction_id: str
+    original_transaction_id: Optional[str] = None
+    purchased_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+    is_trial: bool = False
+    signed_payload: Optional[str] = None
+
+
+class AppleVerifyPurchaseResponse(BaseModel):
+    status: str
+    tier: str
+    source: str
+    features: list[str]
+
+
+class AppleWebhookRequest(BaseModel):
+    notificationUUID: str
+    notificationType: str
+    subtype: Optional[str] = None
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
+class AppleWebhookAck(BaseModel):
+    received: bool
+    notification_type: str

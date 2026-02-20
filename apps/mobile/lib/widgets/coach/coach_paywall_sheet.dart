@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
+import 'package:mint_mobile/services/ios_iap_service.dart';
 
 /// Beautiful bottom sheet displayed when a free user taps a Coach-locked feature.
 ///
@@ -291,17 +292,24 @@ class CoachPaywallSheet extends StatelessWidget {
   }
 
   Widget _buildPrimaryCTA(BuildContext context) {
+    final isIosIap = IosIapService.isSupportedPlatform;
     return SizedBox(
       height: 52,
       child: ElevatedButton(
         onPressed: () async {
           final provider = context.read<SubscriptionProvider>();
-          final success = await provider.startTrial();
+          final success = isIosIap
+              ? await provider.upgrade()
+              : await provider.startTrial();
           if (success && context.mounted) {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Essai gratuit active ! Profite de MINT Coach pendant 14 jours.'),
+              SnackBar(
+                content: Text(
+                  isIosIap
+                      ? 'Abonnement activé avec succès.'
+                      : 'Essai gratuit active ! Profite de MINT Coach pendant 14 jours.',
+                ),
               ),
             );
           }
@@ -315,7 +323,7 @@ class CoachPaywallSheet extends StatelessWidget {
           elevation: 0,
         ),
         child: Text(
-          'Commencer l\'essai gratuit',
+          isIosIap ? 'Débloquer MINT Coach' : 'Commencer l\'essai gratuit',
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,

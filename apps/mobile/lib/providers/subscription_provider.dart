@@ -44,12 +44,14 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   /// Upgrade to Coach tier.
-  Future<void> upgrade() async {
+  Future<bool> upgrade() async {
     final success = await SubscriptionService.upgradeTo(SubscriptionTier.coach);
     if (success) {
       _state = SubscriptionService.currentState();
       notifyListeners();
+      return true;
     }
+    return false;
   }
 
   /// Start a 14-day free trial.

@@ -5,6 +5,7 @@ import 'package:mint_mobile/domain/disability_gap_calculator.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Phase display colors
 const _phaseColors = {
@@ -46,6 +47,7 @@ class _SimulatorDisabilityGapScreenState
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('disability_gap');
     _calculate();
   }
 

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
+import 'package:mint_mobile/screens/advisor/onboarding/onboarding_constants.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepIncome extends StatelessWidget {
@@ -8,13 +11,7 @@ class OnboardingStepIncome extends StatelessWidget {
   final TextEditingController taxController;
   final TextEditingController lamalController;
   final TextEditingController otherFixedController;
-  final String? employmentStatus;
-  final String? householdType;
-  final List<int> incomeQuickPicks;
-  final ValueChanged<String> onIncomeChanged;
   final ValueChanged<int> onIncomeQuickPick;
-  final ValueChanged<String> onEmploymentChanged;
-  final ValueChanged<String> onHouseholdChanged;
   final VoidCallback onContinue;
 
   const OnboardingStepIncome({
@@ -23,19 +20,17 @@ class OnboardingStepIncome extends StatelessWidget {
     required this.taxController,
     required this.lamalController,
     required this.otherFixedController,
-    required this.employmentStatus,
-    required this.householdType,
-    required this.incomeQuickPicks,
-    required this.onIncomeChanged,
     required this.onIncomeQuickPick,
-    required this.onEmploymentChanged,
-    required this.onHouseholdChanged,
     required this.onContinue,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
+    final provider = context.watch<OnboardingProvider>();
+    final employmentStatus = provider.employmentStatus;
+    final householdType = provider.householdType;
+
     final hasIncome = (double.tryParse(incomeController.text) ?? 0) > 0;
     final canContinue =
         hasIncome && employmentStatus != null && householdType != null;
@@ -56,7 +51,7 @@ class OnboardingStepIncome extends StatelessWidget {
             controller: incomeController,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: onIncomeChanged,
+            onChanged: (value) => provider.setIncomeDraft(value),
             decoration: InputDecoration(
               labelText: l10n?.advisorMiniIncomeLabel ?? 'Revenu net mensuel',
               hintText: '5000',
@@ -65,7 +60,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           MintQuickPickChips<int>(
-            options: incomeQuickPicks,
+            options: OnboardingConstants.incomeQuickPicks,
             selected: int.tryParse(incomeController.text),
             labelBuilder: (v) => 'CHF $v',
             onSelected: onIncomeQuickPick,
@@ -75,28 +70,28 @@ class OnboardingStepIncome extends StatelessWidget {
             icon: Icons.business_center_outlined,
             label: l10n?.advisorMiniEmploymentEmployee ?? 'Salarie·e',
             isSelected: employmentStatus == 'employee',
-            onTap: () => onEmploymentChanged('employee'),
+            onTap: () => provider.setEmploymentStatus('employee'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
             icon: Icons.storefront_outlined,
             label: l10n?.advisorMiniEmploymentSelfEmployed ?? 'Independant·e',
             isSelected: employmentStatus == 'self_employed',
-            onTap: () => onEmploymentChanged('self_employed'),
+            onTap: () => provider.setEmploymentStatus('self_employed'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
             icon: Icons.school_outlined,
             label: l10n?.advisorMiniEmploymentStudent ?? 'Etudiant·e',
             isSelected: employmentStatus == 'student',
-            onTap: () => onEmploymentChanged('student'),
+            onTap: () => provider.setEmploymentStatus('student'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
             icon: Icons.pause_circle_outline,
             label: l10n?.advisorMiniEmploymentUnemployed ?? 'Sans emploi',
             isSelected: employmentStatus == 'unemployed',
-            onTap: () => onEmploymentChanged('unemployed'),
+            onTap: () => provider.setEmploymentStatus('unemployed'),
           ),
           const SizedBox(height: 16),
           MintSelectableCard(
@@ -105,7 +100,7 @@ class OnboardingStepIncome extends StatelessWidget {
             description: l10n?.onboardingHouseholdSingleDesc ??
                 'Je gere mes finances en solo',
             isSelected: householdType == 'single',
-            onTap: () => onHouseholdChanged('single'),
+            onTap: () => provider.setHouseholdType('single'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
@@ -114,7 +109,7 @@ class OnboardingStepIncome extends StatelessWidget {
             description: l10n?.onboardingHouseholdCoupleDesc ??
                 'Nous partageons nos objectifs financiers',
             isSelected: householdType == 'couple',
-            onTap: () => onHouseholdChanged('couple'),
+            onTap: () => provider.setHouseholdType('couple'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
@@ -123,7 +118,7 @@ class OnboardingStepIncome extends StatelessWidget {
             description: l10n?.onboardingHouseholdFamilyDesc ??
                 'Avec enfant(s) a charge',
             isSelected: householdType == 'family',
-            onTap: () => onHouseholdChanged('family'),
+            onTap: () => provider.setHouseholdType('family'),
           ),
           const SizedBox(height: 12),
           ExpansionTile(

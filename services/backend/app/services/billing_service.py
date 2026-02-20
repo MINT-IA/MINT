@@ -9,8 +9,10 @@ from typing import Any, Optional
 import hmac
 import hashlib
 import json
+import re
 import urllib.parse
 import urllib.request
+import jwt
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -38,6 +40,7 @@ COACH_FEATURES = [
     "exportPdf",
     "vault",
 ]
+_JWT_COMPACT_RE = re.compile(r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$")
 
 
 def _now() -> datetime:
@@ -300,4 +303,251 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 recompute_entitlements(db, sub.user_id)
 
     record.is_processed = True
+    db.commit()
+
+
+def activate_apple_purchase(
+    db: Session,
+    user: User,
+    *,
+    product_id: str,
+    transaction_id: str,
+    original_transaction_id: Optional[str],
+    purchased_at: Optional[datetime],
+    expires_at: Optional[datetime],
+    is_trial: bool,
+    raw_payload: Optional[str],
+) -> list[str]:
+    """
+    Activate coach subscription from an Apple purchase signal.
+
+    Note: in this foundation phase we accept client-transmitted purchase evidence.
+    Full App Store Server API signature verification is handled in next phase.
+    """
+    expected_product = settings.APPLE_IAP_PRODUCT_COACH_MONTHLY
+    if expected_product and product_id != expected_product:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unknown Apple product_id",
+        )
+    _validate_apple_signed_payload(
+        signed_payload=raw_payload,
+        expected_product_id=product_id,
+        expected_transaction_id=transaction_id,
+    )
+
+    sub = (
+        db.query(SubscriptionModel)
+        .filter(SubscriptionModel.user_id == user.id)
+        .order_by(SubscriptionModel.updated_at.desc())
+        .first()
+    ) or SubscriptionModel(user_id=user.id, source="apple")
+    if sub.id is None:
+        db.add(sub)
+
+    sub.tier = "coach"
+    sub.source = "apple"
+    sub.status = "trialing" if is_trial else "active"
+    sub.is_trial = is_trial
+    sub.external_subscription_id = original_transaction_id or transaction_id
+    sub.current_period_end = expires_at or (_now() + timedelta(days=30))
+    sub.updated_at = _now()
+    db.flush()
+
+    db.add(
+        BillingTransactionModel(
+            subscription_id=sub.id,
+            provider_transaction_id=transaction_id,
+            amount_cents=0,
+            currency="chf",
+            status="succeeded",
+            raw_payload=raw_payload,
+        )
+    )
+
+    features = recompute_entitlements(db, user.id)
+    return features
+
+
+def _validate_apple_signed_payload(
+    *,
+    signed_payload: Optional[str],
+    expected_product_id: str,
+    expected_transaction_id: str,
+) -> None:
+    """
+    Lightweight consistency checks on Apple signed payload.
+    Full cryptographic validation is done in the dedicated App Store Server
+    integration phase. Here we at least ensure payload claims match request fields.
+    """
+    if not signed_payload:
+        return
+    # Webhook payloads may not provide StoreKit's JWS. Only attempt decode
+    # if payload looks like a compact JWS: 3 non-empty base64url-like segments.
+    if not _JWT_COMPACT_RE.match(signed_payload):
+        return
+    try:
+        claims = jwt.decode(
+            signed_payload,
+            options={"verify_signature": False, "verify_exp": False},
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Malformed Apple signed payload",
+        ) from exc
+
+    payload_product = claims.get("productId")
+    payload_tx = claims.get("transactionId")
+    if payload_product and payload_product != expected_product_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apple payload product mismatch",
+        )
+    if payload_tx and payload_tx != expected_transaction_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apple payload transaction mismatch",
+        )
+
+
+def _map_apple_notification_status(
+    notification_type: str,
+    subtype: Optional[str],
+    is_trial: bool,
+) -> tuple[str, str, bool]:
+    upper_type = notification_type.upper()
+    upper_subtype = (subtype or "").upper()
+
+    if upper_type in {"SUBSCRIBED", "DID_RENEW", "OFFER_REDEEMED"}:
+        return ("coach", "trialing" if is_trial else "active", is_trial)
+
+    if upper_type in {"DID_FAIL_TO_RENEW", "GRACE_PERIOD_EXPIRED"}:
+        return ("coach", "past_due", False)
+
+    if upper_type in {"EXPIRED", "REFUND", "REVOKE"}:
+        return ("free", "canceled", False)
+
+    if upper_type == "DID_CHANGE_RENEWAL_STATUS" and upper_subtype == "AUTO_RENEW_DISABLED":
+        return ("coach", "active", False)
+
+    return ("coach", "trialing" if is_trial else "active", is_trial)
+
+
+def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
+    """
+    Process Apple server notification payload (foundation parser).
+
+    Expected minimal fields:
+    - notificationUUID
+    - notificationType
+    - data.user_id (our linkage)
+    - data.product_id
+    - data.transaction_id
+    """
+    notification_uuid = payload.get("notificationUUID")
+    notification_type = payload.get("notificationType", "")
+    if not notification_uuid or not notification_type:
+        raise HTTPException(status_code=400, detail="Malformed Apple notification")
+
+    existing = (
+        db.query(BillingWebhookEventModel)
+        .filter(
+            BillingWebhookEventModel.provider == "apple",
+            BillingWebhookEventModel.event_id == notification_uuid,
+        )
+        .first()
+    )
+    if existing:
+        return
+
+    row = BillingWebhookEventModel(
+        provider="apple",
+        event_id=notification_uuid,
+        event_type=notification_type,
+        payload=json.dumps(payload),
+        is_processed=False,
+    )
+    db.add(row)
+    db.flush()
+
+    data = payload.get("data", {}) or {}
+    user_id = data.get("user_id")
+    product_id = data.get("product_id")
+    transaction_id = data.get("transaction_id")
+    original_transaction_id = data.get("original_transaction_id")
+    is_trial = data.get("is_trial") is True
+    tier, mapped_status, mapped_trial = _map_apple_notification_status(
+        notification_type, payload.get("subtype"), is_trial
+    )
+    expires_at_raw = data.get("expires_at")
+    expires_at = None
+    if isinstance(expires_at_raw, str):
+        try:
+            expires_at = datetime.fromisoformat(expires_at_raw.replace("Z", "+00:00"))
+            if expires_at.tzinfo is not None:
+                expires_at = expires_at.replace(tzinfo=None)
+        except ValueError:
+            expires_at = None
+
+    sub: Optional[SubscriptionModel] = None
+    if original_transaction_id:
+        sub = (
+            db.query(SubscriptionModel)
+            .filter(SubscriptionModel.external_subscription_id == original_transaction_id)
+            .order_by(SubscriptionModel.updated_at.desc())
+            .first()
+        )
+    if sub and not user_id:
+        user_id = sub.user_id
+
+    if user_id and product_id and transaction_id:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            if tier == "free":
+                # Cancellation/refund path
+                current_sub = sub or (
+                    db.query(SubscriptionModel)
+                    .filter(SubscriptionModel.user_id == user.id)
+                    .order_by(SubscriptionModel.updated_at.desc())
+                    .first()
+                )
+                if current_sub:
+                    current_sub.tier = "free"
+                    current_sub.status = mapped_status
+                    current_sub.is_trial = False
+                    current_sub.current_period_end = expires_at or _now()
+                    current_sub.updated_at = _now()
+                    db.flush()
+                    recompute_entitlements(db, user.id)
+            else:
+                activate_apple_purchase(
+                    db,
+                    user,
+                    product_id=product_id,
+                    transaction_id=transaction_id,
+                    original_transaction_id=original_transaction_id,
+                    purchased_at=None,
+                    expires_at=expires_at,
+                    is_trial=mapped_trial,
+                    raw_payload=data.get("signed_payload")
+                    if isinstance(data.get("signed_payload"), str)
+                    else None,
+                )
+                # Force mapped status (active/trialing/past_due)
+                latest_sub = (
+                    db.query(SubscriptionModel)
+                    .filter(SubscriptionModel.user_id == user.id)
+                    .order_by(SubscriptionModel.updated_at.desc())
+                    .first()
+                )
+                if latest_sub:
+                    latest_sub.status = mapped_status
+                    latest_sub.tier = "coach"
+                    latest_sub.is_trial = mapped_trial
+                    latest_sub.updated_at = _now()
+                    db.flush()
+                    recompute_entitlements(db, user.id)
+
+    row.is_processed = True
     db.commit()

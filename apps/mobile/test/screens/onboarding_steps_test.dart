@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_essentials.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_goal.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_income.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_stress.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
+  Widget wrapWithProvider(Widget child) {
+    return ChangeNotifierProvider(
+      create: (_) => OnboardingProvider(),
+      child: MaterialApp(
+        home: Scaffold(body: child),
+      ),
+    );
+  }
+
   testWidgets('OnboardingStepStress smoke', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OnboardingStepStress(
-            selected: null,
-            onSelected: (_) {},
-            onContinue: () {},
-          ),
+      wrapWithProvider(
+        OnboardingStepStress(
+          onContinue: () {},
         ),
       ),
     );
@@ -24,16 +36,10 @@ void main() {
 
   testWidgets('OnboardingStepEssentials smoke', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OnboardingStepEssentials(
-            birthYearController: TextEditingController(text: '1990'),
-            canton: 'VD',
-            birthYearError: null,
-            onBirthYearChanged: (_) {},
-            onCantonChanged: (_) {},
-            onContinue: () {},
-          ),
+      wrapWithProvider(
+        OnboardingStepEssentials(
+          birthYearController: TextEditingController(text: '1990'),
+          onContinue: () {},
         ),
       ),
     );
@@ -43,22 +49,14 @@ void main() {
 
   testWidgets('OnboardingStepIncome smoke', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OnboardingStepIncome(
-            incomeController: TextEditingController(text: '6000'),
-            taxController: TextEditingController(),
-            lamalController: TextEditingController(),
-            otherFixedController: TextEditingController(),
-            employmentStatus: 'employee',
-            householdType: 'single',
-            incomeQuickPicks: const [4000, 6000],
-            onIncomeChanged: (_) {},
-            onIncomeQuickPick: (_) {},
-            onEmploymentChanged: (_) {},
-            onHouseholdChanged: (_) {},
-            onContinue: () {},
-          ),
+      wrapWithProvider(
+        OnboardingStepIncome(
+          incomeController: TextEditingController(text: '6000'),
+          taxController: TextEditingController(),
+          lamalController: TextEditingController(),
+          otherFixedController: TextEditingController(),
+          onIncomeQuickPick: (_) {},
+          onContinue: () {},
         ),
       ),
     );

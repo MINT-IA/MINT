@@ -3,6 +3,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:go_router/go_router.dart';
 
@@ -218,8 +221,154 @@ class _ExploreTabState extends State<ExploreTab>
 
   // ── PILIER 3 — IL M'ARRIVE QUELQUE CHOSE ───────────────
 
+  /// Calcule un score de pertinence (0-100) pour un evenement de vie
+  /// selon le profil utilisateur.
+  int _relevanceScore(String eventId, CoachProfileProvider coachProvider) {
+    final profile = coachProvider.profile;
+    if (profile == null) return 50; // Score neutre si pas de profil
+
+    final age = DateTime.now().year - profile.birthYear;
+    final goalType = profile.goalA.type;
+    final isIndep = profile.employmentStatus == 'independant';
+    final hasDebt = profile.dettes.totalDettes > 0;
+
+    switch (eventId) {
+      case 'first_job':
+        return age < 28 ? 95 : (age < 35 ? 60 : 20);
+      case 'job_change':
+        return (age >= 25 && age <= 50) ? 70 : 40;
+      case 'self_employment':
+        return isIndep ? 90 : (age < 40 ? 55 : 35);
+      case 'job_loss':
+        return 50;
+      case 'retirement':
+        return age > 50 ? 95 : (age > 40 ? 65 : 25);
+      case 'marriage':
+        return age < 40 ? 75 : 45;
+      case 'birth':
+        return age < 42 ? 70 : 30;
+      case 'concubinage':
+        return age < 40 ? 65 : 40;
+      case 'divorce':
+        return age > 30 ? 55 : 30;
+      case 'succession':
+        return age > 45 ? 75 : 35;
+      case 'housing_purchase':
+        return (goalType == GoalAType.achatImmo || (age >= 28 && age <= 50)) ? 85 : 40;
+      case 'housing_sale':
+        return age > 40 ? 55 : 25;
+      case 'donation':
+        return age > 50 ? 60 : 25;
+      case 'expatriation':
+        return 45;
+      case 'disability':
+        return 50;
+      case 'canton_move':
+        return 45;
+      case 'death_of_relative':
+        return age > 40 ? 50 : 30;
+      case 'debt_crisis':
+        return hasDebt ? 90 : (goalType == GoalAType.debtFree ? 80 : 30);
+      default:
+        return 50;
+    }
+  }
+
   Widget _buildLifeEventsSection(BuildContext context) {
     final l10n = S.of(context);
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final activity = context.watch<UserActivityProvider>();
+
+    // Liste des evenements de vie avec ID pour scoring + tracking
+    final events = <_LifeEventData>[
+      _LifeEventData(id: 'marriage', icon: Icons.favorite_outline,
+        title: l10n?.exploreEventMarriage ?? 'Mariage',
+        subtitle: l10n?.exploreEventMarriageSub ?? 'Impact fiscal et LPP',
+        color: MintColors.pink, route: '/mariage'),
+      _LifeEventData(id: 'birth', icon: Icons.child_care,
+        title: l10n?.exploreEventBirth ?? 'Naissance',
+        subtitle: l10n?.exploreEventBirthSub ?? 'Allocations et déductions',
+        color: MintColors.info, route: '/naissance'),
+      _LifeEventData(id: 'concubinage', icon: Icons.people_outline,
+        title: l10n?.exploreEventConcubinage ?? 'Concubinage',
+        subtitle: l10n?.exploreEventConcubinageSub ?? 'Protéger ton couple',
+        color: MintColors.purple, route: '/concubinage'),
+      _LifeEventData(id: 'divorce', icon: Icons.family_restroom,
+        title: l10n?.exploreEventDivorce ?? 'Divorce',
+        subtitle: l10n?.exploreEventDivorceSub ?? 'Partage LPP et AVS',
+        color: MintColors.warning, route: '/life-event/divorce'),
+      _LifeEventData(id: 'succession', icon: Icons.volunteer_activism,
+        title: l10n?.exploreEventSuccession ?? 'Succession',
+        subtitle: l10n?.exploreEventSuccessionSub ?? 'Droits et planning',
+        color: MintColors.success, route: '/life-event/succession'),
+      _LifeEventData(id: 'housing_sale', icon: Icons.home_work_outlined,
+        title: l10n?.exploreEventHouseSale ?? 'Vente immobilière',
+        subtitle: l10n?.exploreEventHouseSaleSub ?? 'Impôt plus-value',
+        color: MintColors.cyan, route: '/life-event/housing-sale'),
+      _LifeEventData(id: 'donation', icon: Icons.card_giftcard,
+        title: l10n?.exploreEventDonation ?? 'Donation',
+        subtitle: l10n?.exploreEventDonationSub ?? 'Fiscalité et limites',
+        color: MintColors.deepOrange, route: '/life-event/donation'),
+      _LifeEventData(id: 'expatriation', icon: Icons.flight_takeoff,
+        title: l10n?.exploreEventExpat ?? 'Expatriation',
+        subtitle: l10n?.exploreEventExpatSub ?? 'Départ ou arrivée',
+        color: MintColors.indigo, route: '/expatriation'),
+      _LifeEventData(id: 'first_job', icon: Icons.work_outline,
+        title: 'Premier emploi',
+        subtitle: 'AVS, LPP, impôts : tout comprendre',
+        color: MintColors.info, route: '/first-job'),
+      _LifeEventData(id: 'job_change', icon: Icons.swap_horiz,
+        title: 'Changement de poste',
+        subtitle: 'Comparer LPP et salaire',
+        color: MintColors.teal, route: '/simulator/job-comparison'),
+      _LifeEventData(id: 'self_employment', icon: Icons.rocket_launch_outlined,
+        title: 'Devenir indépendant',
+        subtitle: 'AVS, 3a, LPP volontaire',
+        color: MintColors.purple, route: '/segments/independant'),
+      _LifeEventData(id: 'job_loss', icon: Icons.work_off_outlined,
+        title: 'Perte d\'emploi',
+        subtitle: 'Chômage, LPP, budget',
+        color: MintColors.warning, route: '/unemployment'),
+      _LifeEventData(id: 'retirement', icon: Icons.beach_access_outlined,
+        title: 'Retraite',
+        subtitle: 'AVS, LPP, retrait 3a',
+        color: MintColors.success, route: '/retirement'),
+      _LifeEventData(id: 'housing_purchase', icon: Icons.house_outlined,
+        title: 'Achat immobilier',
+        subtitle: 'Fonds propres et hypothèque',
+        color: MintColors.cyan, route: '/mortgage/affordability'),
+      _LifeEventData(id: 'disability', icon: Icons.health_and_safety_outlined,
+        title: 'Invalidité',
+        subtitle: 'Lacune de prévoyance',
+        color: MintColors.error, route: '/simulator/disability-gap'),
+      _LifeEventData(id: 'canton_move', icon: Icons.map_outlined,
+        title: 'Déménagement cantonal',
+        subtitle: 'Comparer la fiscalité',
+        color: MintColors.amber, route: '/fiscal'),
+      _LifeEventData(id: 'death_of_relative',
+        icon: Icons.sentiment_very_dissatisfied_outlined,
+        title: 'Décès d\'un proche',
+        subtitle: 'Succession et démarches',
+        color: MintColors.textMuted, route: '/life-event/succession'),
+      _LifeEventData(id: 'debt_crisis', icon: Icons.warning_amber_outlined,
+        title: 'Crise de dette',
+        subtitle: 'Diagnostic et solutions',
+        color: MintColors.error, route: '/check/debt'),
+    ];
+
+    // Trier par score de pertinence decroissant
+    events.sort((a, b) {
+      final scoreA = _relevanceScore(a.id, coachProvider);
+      final scoreB = _relevanceScore(b.id, coachProvider);
+      return scoreB.compareTo(scoreA);
+    });
+
+    // Trouver la suggestion du coach (premier non-explore)
+    final suggestion = events.cast<_LifeEventData?>().firstWhere(
+      (e) => !activity.isLifeEventExplored(e!.id),
+      orElse: () => null,
+    );
+
     return _buildPillarCard(
       context,
       icon: Icons.event_note,
@@ -228,6 +377,10 @@ class _ExploreTabState extends State<ExploreTab>
           'Mariage, naissance, divorce, déménagement... on t\'accompagne.',
       pillarColor: MintColors.warning,
       previewContent: [
+        // Suggestion du coach (si profil disponible et evenement non explore)
+        if (coachProvider.hasProfile && suggestion != null)
+          _buildCoachSuggestion(context, suggestion, activity),
+
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -235,169 +388,100 @@ class _ExploreTabState extends State<ExploreTab>
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 1.15,
-          children: [
-            _buildEventTile(
+          children: events.map((e) {
+            final isExplored = activity.isLifeEventExplored(e.id);
+            return _buildEventTile(
               context,
-              icon: Icons.favorite_outline,
-              title: l10n?.exploreEventMarriage ?? 'Mariage',
-              subtitle: l10n?.exploreEventMarriageSub ?? 'Impact fiscal et LPP',
-              color: MintColors.pink,
-              route: '/mariage',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.child_care,
-              title: l10n?.exploreEventBirth ?? 'Naissance',
-              subtitle:
-                  l10n?.exploreEventBirthSub ?? 'Allocations et déductions',
-              color: MintColors.info,
-              route: '/naissance',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.people_outline,
-              title: l10n?.exploreEventConcubinage ?? 'Concubinage',
-              subtitle: l10n?.exploreEventConcubinageSub ??
-                  'Protéger ton couple',
-              color: MintColors.purple,
-              route: '/concubinage',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.family_restroom,
-              title: l10n?.exploreEventDivorce ?? 'Divorce',
-              subtitle:
-                  l10n?.exploreEventDivorceSub ?? 'Partage LPP et AVS',
-              color: MintColors.warning,
-              route: '/life-event/divorce',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.volunteer_activism,
-              title: l10n?.exploreEventSuccession ?? 'Succession',
-              subtitle: l10n?.exploreEventSuccessionSub ??
-                  'Droits et planning',
-              color: MintColors.success,
-              route: '/life-event/succession',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.home_work_outlined,
-              title: l10n?.exploreEventHouseSale ?? 'Vente immobilière',
-              subtitle:
-                  l10n?.exploreEventHouseSaleSub ?? 'Impôt plus-value',
-              color: MintColors.cyan,
-              route: '/life-event/housing-sale',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.card_giftcard,
-              title: l10n?.exploreEventDonation ?? 'Donation',
-              subtitle: l10n?.exploreEventDonationSub ??
-                  'Fiscalité et limites',
-              color: MintColors.deepOrange,
-              route: '/life-event/donation',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.flight_takeoff,
-              title: l10n?.exploreEventExpat ?? 'Expatriation',
-              subtitle:
-                  l10n?.exploreEventExpatSub ?? 'Départ ou arrivée',
-              color: MintColors.indigo,
-              route: '/expatriation',
-            ),
-            // ── Événements professionnels ──
-            _buildEventTile(
-              context,
-              icon: Icons.work_outline,
-              title: 'Premier emploi',
-              subtitle: 'AVS, LPP, impôts : tout comprendre',
-              color: MintColors.info,
-              route: '/first-job',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.swap_horiz,
-              title: 'Changement de poste',
-              subtitle: 'Comparer LPP et salaire',
-              color: MintColors.teal,
-              route: '/simulator/job-comparison',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.rocket_launch_outlined,
-              title: 'Devenir indépendant',
-              subtitle: 'AVS, 3a, LPP volontaire',
-              color: MintColors.purple,
-              route: '/segments/independant',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.work_off_outlined,
-              title: 'Perte d\'emploi',
-              subtitle: 'Chômage, LPP, budget',
-              color: MintColors.warning,
-              route: '/unemployment',
-            ),
-            _buildEventTile(
-              context,
-              icon: Icons.beach_access_outlined,
-              title: 'Retraite',
-              subtitle: 'AVS, LPP, retrait 3a',
-              color: MintColors.success,
-              route: '/retirement',
-            ),
-            // ── Patrimoine ──
-            _buildEventTile(
-              context,
-              icon: Icons.house_outlined,
-              title: 'Achat immobilier',
-              subtitle: 'Fonds propres et hypothèque',
-              color: MintColors.cyan,
-              route: '/mortgage/affordability',
-            ),
-            // ── Santé ──
-            _buildEventTile(
-              context,
-              icon: Icons.health_and_safety_outlined,
-              title: 'Invalidité',
-              subtitle: 'Lacune de prévoyance',
-              color: MintColors.error,
-              route: '/simulator/disability-gap',
-            ),
-            // ── Mobilité ──
-            _buildEventTile(
-              context,
-              icon: Icons.map_outlined,
-              title: 'Déménagement cantonal',
-              subtitle: 'Comparer la fiscalité',
-              color: MintColors.amber,
-              route: '/fiscal',
-            ),
-            // ── Famille ──
-            _buildEventTile(
-              context,
-              icon: Icons.sentiment_very_dissatisfied_outlined,
-              title: 'Décès d\'un proche',
-              subtitle: 'Succession et démarches',
-              color: MintColors.textMuted,
-              route: '/life-event/succession',
-            ),
-            // ── Crise ──
-            _buildEventTile(
-              context,
-              icon: Icons.warning_amber_outlined,
-              title: 'Crise de dette',
-              subtitle: 'Diagnostic et solutions',
-              color: MintColors.error,
-              route: '/check/debt',
-            ),
-          ],
+              icon: e.icon,
+              title: e.title,
+              subtitle: e.subtitle,
+              color: e.color,
+              route: e.route,
+              eventId: e.id,
+              isExplored: isExplored,
+            );
+          }).toList(),
         ),
       ],
       ctaText: '',
       onCtaTap: () {},
+    );
+  }
+
+  /// Carte "Suggestion du coach" en haut de la section evenements
+  Widget _buildCoachSuggestion(
+    BuildContext context,
+    _LifeEventData event,
+    UserActivityProvider activity,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: InkWell(
+        onTap: () {
+          activity.markLifeEventExplored(event.id);
+          context.push(event.route);
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                event.color.withValues(alpha: 0.08),
+                MintColors.accentPastel.withValues(alpha: 0.3),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: event.color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: event.color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(event.icon, color: event.color, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Suggestion du coach',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      event.title,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      event.subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, size: 16, color: event.color),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -752,56 +836,100 @@ class _ExploreTabState extends State<ExploreTab>
     required String subtitle,
     required Color color,
     required String route,
+    String? eventId,
+    bool isExplored = false,
   }) {
     return InkWell(
-      onTap: () => context.push(route),
+      onTap: () {
+        if (eventId != null) {
+          context.read<UserActivityProvider>().markLifeEventExplored(eventId);
+        }
+        context.push(route);
+      },
       borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: MintColors.lightBorder),
             ),
-            Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                    color: MintColors.textPrimary,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child: Icon(icon, color: color, size: 20),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: MintColors.textMuted,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: MintColors.textMuted,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          // Badge "Explore" si deja visite
+          if (isExplored)
+            Positioned(
+              top: 6,
+              right: 6,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: MintColors.success,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 10),
+              ),
+            ),
+        ],
       ),
     );
   }
+}
+
+/// Donnees d'un evenement de vie pour le scoring et l'affichage.
+class _LifeEventData {
+  final String id;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final String route;
+
+  const _LifeEventData({
+    required this.id,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.route,
+  });
 }

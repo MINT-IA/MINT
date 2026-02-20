@@ -1,5 +1,6 @@
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/services/ios_iap_service.dart';
 
 enum SubscriptionTier { free, coach }
 
@@ -139,6 +140,14 @@ class SubscriptionService {
   }
 
   static Future<bool> upgradeTo(SubscriptionTier tier) async {
+    if (tier == SubscriptionTier.coach && IosIapService.isSupportedPlatform) {
+      final purchased = await IosIapService.purchaseCoachMonthly();
+      if (purchased) {
+        await refreshFromBackend();
+      }
+      return purchased;
+    }
+
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     if (tier == SubscriptionTier.free) {
@@ -164,6 +173,13 @@ class SubscriptionService {
   }
 
   static Future<SubscriptionState> restorePurchases() async {
+    if (IosIapService.isSupportedPlatform) {
+      final restored = await IosIapService.restoreAndSync();
+      if (restored) {
+        return await refreshFromBackend();
+      }
+    }
+
     await Future<void>.delayed(const Duration(milliseconds: 200));
     final refreshed = await refreshFromBackend();
     if (refreshed.source == SubscriptionSource.backend) return refreshed;

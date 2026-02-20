@@ -9,7 +9,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 class OnboardingProvider extends ChangeNotifier {
-  String? stressChoice;
+  Set<String> stressChoices = {};
   String? canton;
   String? employmentStatus;
   String? householdType;
@@ -38,7 +38,7 @@ class OnboardingProvider extends ChangeNotifier {
   Timer? _autoSaveDebounce;
   bool _isDisposed = false;
 
-  bool get canAdvanceFromStep1 => stressChoice != null;
+  bool get canAdvanceFromStep1 => stressChoices.isNotEmpty;
 
   bool get _isBirthYearValid {
     if (birthYear == null) return false;
@@ -98,7 +98,13 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void _hydrateFromSavedAnswers(Map<String, dynamic> answers) {
-    stressChoice = answers['q_financial_stress_check'] as String?;
+    // Support both legacy String and new List<String> format
+    final rawStress = answers['q_financial_stress_check'];
+    if (rawStress is List) {
+      stressChoices = Set<String>.from(rawStress.cast<String>());
+    } else if (rawStress is String) {
+      stressChoices = {rawStress};
+    }
     canton = answers['q_canton'] as String?;
     employmentStatus = answers['q_employment_status'] as String?;
     householdType = answers['q_household_type'] as String?;
@@ -141,8 +147,12 @@ class OnboardingProvider extends ChangeNotifier {
     _safeNotify();
   }
 
-  void setStressChoice(String? value) {
-    stressChoice = value;
+  void toggleStressChoice(String value) {
+    if (stressChoices.contains(value)) {
+      stressChoices = Set<String>.from(stressChoices)..remove(value);
+    } else {
+      stressChoices = Set<String>.from(stressChoices)..add(value);
+    }
     scheduleAutoSave('stress_selected');
     _safeNotify();
   }
@@ -156,6 +166,7 @@ class OnboardingProvider extends ChangeNotifier {
 
   void setCanton(String? value) {
     canton = value;
+    _tryPrefillFixedCosts();
     scheduleAutoSave('canton_changed');
     _safeNotify();
   }
@@ -163,6 +174,7 @@ class OnboardingProvider extends ChangeNotifier {
   void setIncomeDraft(String value) {
     draftIncome = value.trim();
     incomeMonthly = _toDouble(value);
+    _tryPrefillFixedCosts();
     scheduleAutoSave('income_changed');
     _safeNotify();
   }
@@ -207,16 +219,14 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   String suggestGoalFromStress() {
-    switch (stressChoice) {
-      case 'budget':
-      case 'debt':
-        return 'debt_free';
-      case 'tax':
-        return 'real_estate';
-      case 'pension':
-      default:
-        return 'retirement';
+    // Priority: budget/debt → debt_free, tax → real_estate, pension → retirement
+    if (stressChoices.contains('budget') || stressChoices.contains('debt')) {
+      return 'debt_free';
     }
+    if (stressChoices.contains('tax')) {
+      return 'real_estate';
+    }
+    return 'retirement';
   }
 
   String civilStatusForHousehold(String value) {
@@ -251,6 +261,12 @@ class OnboardingProvider extends ChangeNotifier {
     return (baseAdultPremium * adults) + (childPremium * children);
   }
 
+  void _tryPrefillFixedCosts() {
+    if (canton != null && (incomeMonthly ?? 0) > 0) {
+      prefillFixedCostsEstimates();
+    }
+  }
+
   void prefillFixedCostsEstimates() {
     if ((incomeMonthly ?? 0) <= 0 || canton == null) return;
     final civil = civilStatusForHousehold(householdType ?? 'single');
@@ -280,8 +296,8 @@ class OnboardingProvider extends ChangeNotifier {
   Map<String, dynamic> buildAnswersSnapshot() {
     final snapshot = <String, dynamic>{};
 
-    if (stressChoice != null) {
-      snapshot['q_financial_stress_check'] = stressChoice;
+    if (stressChoices.isNotEmpty) {
+      snapshot['q_financial_stress_check'] = stressChoices.toList();
     }
     if (_isBirthYearValid) {
       snapshot['q_birth_year'] = birthYear;
