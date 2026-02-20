@@ -132,3 +132,16 @@ Corrections issues remontées sur 8 captures (LPP, check-in, budget, login, onbo
   - hydratation reprend maintenant les valeurs draft si les valeurs finales ne sont pas encore valides.
 - Files:
   - `apps/mobile/lib/screens/advisor/advisor_onboarding_screen.dart`
+
+### F-12 (STRUCTURE) — Début refonte monolithe onboarding (Phase 0/1/2)
+- Symptom: `advisor_onboarding_screen.dart` (3396 lignes) mélange UI, persistence, analytics, calculs, métriques.
+- Fix (incrémental, sans régression produit):
+  - Phase 0: création `OnboardingProvider` (état, validations, snapshot, autosave, completion, preview, Aha).
+  - Phase 1: création `OnboardingConstants` et remplacement des magic numbers critiques dans l'écran existant.
+  - Phase 2: création d'un UI kit onboarding (`MintSelectableCard`, `MintQuickPickChips`, `MintChfInputField`, `OnboardingInsightCard`, `OnboardingStepHeader`, `OnboardingContinueButton`).
+  - Phase 3 (préparation): création des 4 widgets de step (`stress`, `essentials`, `income`, `goal`) + helper analytics + metrics panel extrait.
+  - App bootstrap: enregistrement de `OnboardingProvider` dans `MultiProvider`.
+- Tests ajoutés:
+  - `test/providers/onboarding_provider_test.dart`
+  - `test/widgets/onboarding_widgets_test.dart`
+  - `test/screens/onboarding_steps_test.dart`

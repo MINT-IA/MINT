@@ -106,6 +106,7 @@ import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -591,6 +592,11 @@ class _MintAppState extends State<MintApp> {
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();
+          return provider;
+        }),
+        ChangeNotifierProvider(create: (_) {
+          final provider = OnboardingProvider();
+          provider.init();
           return provider;
         }),
       ],
