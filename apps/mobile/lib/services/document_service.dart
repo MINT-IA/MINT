@@ -894,7 +894,7 @@ class DocumentService {
   factory DocumentService() => _instance;
   DocumentService._internal();
 
-  static const String _baseUrl = ApiService.baseUrl;
+  static String get _baseUrl => ApiService.baseUrl;
 
   /// Maximum file size for PDF uploads (20 MB).
   static const int maxPdfSizeBytes = 20 * 1024 * 1024;
