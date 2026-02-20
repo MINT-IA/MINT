@@ -1,24 +1,9 @@
-// Subscription service for MINT Coach paywall.
-//
-// Manages subscription state (free vs coach tier).
-// Current implementation is a local mock — designed to be swapped
-// for RevenueCat/StoreKit in production.
-//
-// Coach tier (4.90 CHF/mois) unlocks:
-// - Dashboard trajectoire (score + projection)
-// - Forecast adaptatif (3 scenarios)
-// - Check-in mensuel
-// - Score evolutif + tendance
-// - Alertes proactives
-// - Historique progression
-// - Profil couple
-// - Coach LLM (BYOK)
-// - Scenarios "Et si..."
-// - Export PDF
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:flutter/foundation.dart';
 
 enum SubscriptionTier { free, coach }
 
-enum SubscriptionSource { mock, revenueCat }
+enum SubscriptionSource { mock, backend, revenueCat }
 
 enum CoachFeature {
   dashboard,
@@ -31,7 +16,7 @@ enum CoachFeature {
   coachLlm,
   scenariosEtSi,
   exportPdf,
-  vault, // Document vault — unlimited uploads
+  vault,
 }
 
 class SubscriptionState {
@@ -65,7 +50,6 @@ class SubscriptionState {
     );
   }
 
-  /// Whether the subscription is active (paid or trial, not expired).
   bool get isActive {
     if (tier == SubscriptionTier.free) return false;
     if (expiresAt != null && DateTime.now().isAfter(expiresAt!)) return false;
@@ -92,54 +76,69 @@ class SubscriptionState {
   @override
   String toString() =>
       'SubscriptionState(tier: $tier, trial: $isTrialActive, '
-      'trialDays: $trialDaysRemaining, source: $source, '
-      'expiresAt: $expiresAt)';
+      'trialDays: $trialDaysRemaining, source: $source, expiresAt: $expiresAt)';
 }
 
-/// Mock subscription service for development.
-///
-/// Defaults to [SubscriptionTier.coach] in dev so Coach features
-/// can be tested without hitting a paywall.
-/// Use [setMockTier] or [setMockState] in tests to control state.
 class SubscriptionService {
-  // Trial duration in days
   static const int trialDurationDays = 14;
-
-  // Monthly price in CHF
   static const double monthlyPriceCHF = 4.90;
 
-  // Internal mock state — defaults to coach for development
   static SubscriptionState _state = const SubscriptionState(
-    tier: SubscriptionTier.coach,
+    tier: kReleaseMode ? SubscriptionTier.free : SubscriptionTier.coach,
     source: SubscriptionSource.mock,
   );
 
-  /// Current subscription state.
+  static final Set<String> _activeFeatures = <String>{};
+
   static SubscriptionState currentState() => _state;
 
-  /// Check if a specific Coach feature is available.
-  ///
-  /// All [CoachFeature] values require [SubscriptionTier.coach].
-  /// Returns true if the user has an active coach subscription or trial.
   static bool hasAccess(CoachFeature feature) {
-    // All coach features require coach tier
+    if (_state.source == SubscriptionSource.backend) {
+      return _activeFeatures.contains(feature.name);
+    }
     if (_state.tier == SubscriptionTier.free) return false;
-
-    // Check expiry
-    if (_state.expiresAt != null &&
-        DateTime.now().isAfter(_state.expiresAt!)) {
+    if (_state.expiresAt != null && DateTime.now().isAfter(_state.expiresAt!)) {
       return false;
     }
-
     return true;
   }
 
-  /// Simulate upgrading to a subscription tier.
-  ///
-  /// In production, this would call RevenueCat/StoreKit.
-  /// Mock implementation immediately sets the tier.
+  static Future<SubscriptionState> refreshFromBackend() async {
+    try {
+      final data = await ApiService.get('/billing/entitlements');
+      final tier = (data['tier'] as String?) == 'coach'
+          ? SubscriptionTier.coach
+          : SubscriptionTier.free;
+      final isTrial = data['is_trial'] == true;
+      final periodEndRaw = data['current_period_end'];
+      final periodEnd = periodEndRaw is String
+          ? DateTime.tryParse(periodEndRaw)?.toLocal()
+          : null;
+
+      _activeFeatures
+        ..clear()
+        ..addAll((data['features'] as List?)?.cast<String>() ?? const []);
+
+      _state = SubscriptionState(
+        tier: tier,
+        source: SubscriptionSource.backend,
+        isTrialActive: isTrial,
+        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial),
+        expiresAt: periodEnd,
+      );
+      return _state;
+    } catch (_) {
+      return _state;
+    }
+  }
+
+  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial) {
+    if (!isTrial || periodEnd == null) return 0;
+    final days = periodEnd.difference(DateTime.now()).inDays;
+    return days < 0 ? 0 : days;
+  }
+
   static Future<bool> upgradeTo(SubscriptionTier tier) async {
-    // Simulate network delay
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     if (tier == SubscriptionTier.free) {
@@ -147,6 +146,7 @@ class SubscriptionService {
         tier: SubscriptionTier.free,
         source: SubscriptionSource.mock,
       );
+      _activeFeatures.clear();
       return true;
     }
 
@@ -157,18 +157,16 @@ class SubscriptionService {
       source: SubscriptionSource.mock,
       expiresAt: DateTime.now().add(const Duration(days: 30)),
     );
+    _activeFeatures
+      ..clear()
+      ..addAll(CoachFeature.values.map((f) => f.name));
     return true;
   }
 
-  /// Simulate restoring purchases.
-  ///
-  /// In production, this would query the App Store / Play Store.
-  /// Mock implementation returns current state (no prior purchases).
   static Future<SubscriptionState> restorePurchases() async {
-    // Simulate network delay
     await Future<void>.delayed(const Duration(milliseconds: 200));
-
-    // Mock: no prior purchases to restore — return free
+    final refreshed = await refreshFromBackend();
+    if (refreshed.source == SubscriptionSource.backend) return refreshed;
     _state = const SubscriptionState(
       tier: SubscriptionTier.free,
       source: SubscriptionSource.mock,
@@ -176,22 +174,11 @@ class SubscriptionService {
     return _state;
   }
 
-  /// Start a 14-day free trial of Coach.
-  ///
-  /// Returns true if the trial was started successfully.
-  /// Returns false if a trial is already active or the user
-  /// already has a paid subscription.
   static Future<bool> startTrial() async {
-    // Simulate network delay
     await Future<void>.delayed(const Duration(milliseconds: 100));
-
-    // Cannot start trial if already coach (paid)
     if (_state.tier == SubscriptionTier.coach && !_state.isTrialActive) {
-      // Already a paid subscriber
       return false;
     }
-
-    // Cannot start trial if trial is already active
     if (_state.isTrialActive) {
       return false;
     }
@@ -203,31 +190,37 @@ class SubscriptionService {
       source: SubscriptionSource.mock,
       expiresAt: DateTime.now().add(const Duration(days: trialDurationDays)),
     );
+    _activeFeatures
+      ..clear()
+      ..addAll(CoachFeature.values.map((f) => f.name));
     return true;
   }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // Testing helpers
-  // ═══════════════════════════════════════════════════════════════════════
-
-  /// Set mock tier for testing. Resets trial state.
   static void setMockTier(SubscriptionTier tier) {
     _state = SubscriptionState(
       tier: tier,
       source: SubscriptionSource.mock,
     );
+    if (tier == SubscriptionTier.coach) {
+      _activeFeatures
+        ..clear()
+        ..addAll(CoachFeature.values.map((f) => f.name));
+    } else {
+      _activeFeatures.clear();
+    }
   }
 
-  /// Set full mock state for testing.
   static void setMockState(SubscriptionState state) {
     _state = state;
   }
 
-  /// Reset to default dev state (coach).
   static void resetToDefault() {
     _state = const SubscriptionState(
       tier: SubscriptionTier.coach,
       source: SubscriptionSource.mock,
     );
+    _activeFeatures
+      ..clear()
+      ..addAll(CoachFeature.values.map((f) => f.name));
   }
 }

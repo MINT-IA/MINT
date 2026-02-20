@@ -27,6 +27,12 @@ class Settings(BaseSettings):
     # Redis (for rate limiting; empty string = in-memory fallback)
     REDIS_URL: str = ""
 
+    # Stripe billing
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_COACH_MONTHLY: str = ""
+    BILLING_PORTAL_RETURN_URL: str = "https://mint.ch/profile"
+
 
 settings = Settings()
 

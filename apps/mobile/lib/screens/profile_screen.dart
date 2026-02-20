@@ -338,9 +338,61 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),
+          TextButton.icon(
+            onPressed: authProvider.isLoading
+                ? null
+                : () => _confirmDeleteAccount(context, authProvider),
+            icon: const Icon(Icons.delete_forever, size: 18),
+            label: const Text('Supprimer mon compte cloud'),
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.error,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDeleteAccount(
+    BuildContext context,
+    AuthProvider authProvider,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Supprimer le compte ?'),
+        content: const Text(
+          'Cette action supprime ton compte cloud et les données associées. '
+          'Tes données locales restent sur cet appareil.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: MintColors.error),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final success = await authProvider.deleteAccount();
+    if (!context.mounted) return;
+
+    final message = success
+        ? 'Compte supprimé avec succès.'
+        : (authProvider.error ??
+            'Suppression impossible pour le moment. Réessaie plus tard.');
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    if (success) {
+      context.go('/');
+    }
   }
 
   Widget _buildLanguageSection(BuildContext context) {

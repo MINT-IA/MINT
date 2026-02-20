@@ -26,6 +26,7 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/locale_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -65,6 +66,7 @@ void main() {
             create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider<CoachProfileProvider>(
             create: (_) => CoachProfileProvider()),
+        ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),

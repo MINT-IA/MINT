@@ -19,7 +19,9 @@ class SubscriptionProvider extends ChangeNotifier {
   SubscriptionState _state;
 
   SubscriptionProvider()
-      : _state = SubscriptionService.currentState();
+      : _state = SubscriptionService.currentState() {
+    refreshFromBackend();
+  }
 
   /// Current subscription state.
   SubscriptionState get state => _state;
@@ -69,6 +71,11 @@ class SubscriptionProvider extends ChangeNotifier {
   /// Refresh state from service (useful after external changes).
   void refresh() {
     _state = SubscriptionService.currentState();
+    notifyListeners();
+  }
+
+  Future<void> refreshFromBackend() async {
+    _state = await SubscriptionService.refreshFromBackend();
     notifyListeners();
   }
 }

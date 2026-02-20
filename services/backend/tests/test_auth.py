@@ -300,3 +300,98 @@ def test_anonymous_profile_access(client: TestClient):
     get_response = client.get(f"/api/v1/profiles/{profile_id}")
     assert get_response.status_code == 200
     assert get_response.json()["birthYear"] == 1985
+
+
+def test_delete_account_purges_user_profiles_and_sessions(auth_client: TestClient):
+    """Deleting account removes user and linked profile/session data."""
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "delete-me@example.com", "password": "deletepass123"},
+    )
+    token = register.json()["access_token"]
+
+    profile = auth_client.post(
+        "/api/v1/profiles",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"householdType": "single", "birthYear": 1991, "canton": "VD"},
+    ).json()
+    profile_id = profile["id"]
+
+    session_resp = auth_client.post(
+        "/api/v1/sessions",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "profileId": profile_id,
+            "answers": {"q_birth_year": 1991},
+            "selectedFocusKinds": ["retirement"],
+        },
+    )
+    assert session_resp.status_code == 200
+
+    delete_resp = auth_client.delete(
+        "/api/v1/auth/account",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert delete_resp.status_code == 200
+    body = delete_resp.json()
+    assert body["status"] == "deleted"
+    assert body["deleted_profiles"] >= 1
+    assert body["deleted_sessions"] >= 1
+
+    me_resp = auth_client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert me_resp.status_code == 401
+
+    relogin = auth_client.post(
+        "/api/v1/auth/login",
+        json={"email": "delete-me@example.com", "password": "deletepass123"},
+    )
+    assert relogin.status_code == 401
+
+
+def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestClient):
+    """Claim endpoint migrates local snapshot and is idempotent on next call."""
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "claim-local@example.com", "password": "claimpass123"},
+    )
+    token = register.json()["access_token"]
+
+    payload = {
+        "local_data_version": 1,
+        "device_id": "ios-device-abc123",
+        "mini_onboarding": {
+            "q_birth_year": 1988,
+            "q_canton": "VS",
+            "q_income_monthly": 9200,
+            "q_household_type": "couple",
+            "q_goal": "retire",
+        },
+        "wizard_answers": {"q_has_debt": False},
+        "budget_snapshot": {"income": 9200, "rent": 1900},
+        "checkins": [{"month": "2026-02", "score": 78}],
+    }
+
+    first = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json=payload,
+    )
+    assert first.status_code == 200
+    first_body = first.json()
+    assert first_body["status"] == "ok"
+    assert first_body["created_profile"] is True
+    assert first_body["merged_fields_count"] >= 1
+
+    second = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json=payload,
+    )
+    assert second.status_code == 200
+    second_body = second.json()
+    assert second_body["status"] == "ok"
+    assert second_body["created_profile"] is False
+    assert second_body["profile_id"] == first_body["profile_id"]

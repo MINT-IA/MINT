@@ -5,6 +5,16 @@ import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  const ApiException(this.message, {this.statusCode});
+
+  @override
+  String toString() => message;
+}
+
 class ApiService {
   /// Base URL — override at build time with:
   ///   flutter run --dart-define=API_BASE_URL=https://api.mint.ch/api/v1
@@ -163,10 +173,11 @@ class ApiService {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
-    } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['detail'] ?? 'Registration failed');
     }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Registration failed'),
+      statusCode: response.statusCode,
+    );
   }
 
   /// Login with email and password
@@ -186,10 +197,11 @@ class ApiService {
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-    } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['detail'] ?? 'Login failed');
     }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Login failed'),
+      statusCode: response.statusCode,
+    );
   }
 
   /// Get current user info
@@ -204,6 +216,66 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to get user info: ${response.body}');
+    }
+  }
+
+  static Future<void> deleteAccount() async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/auth/account'),
+      headers: await _authHeaders(),
+    );
+    if (response.statusCode == 200) return;
+    throw ApiException(
+      _extractErrorDetail(
+        response.body,
+        fallback: 'Account deletion failed',
+      ),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> claimLocalData({
+    required int localDataVersion,
+    required String deviceId,
+    Map<String, dynamic> wizardAnswers = const {},
+    Map<String, dynamic> miniOnboarding = const {},
+    Map<String, dynamic> budgetSnapshot = const {},
+    List<Map<String, dynamic>> checkins = const [],
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/sync/claim-local-data'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        'local_data_version': localDataVersion,
+        'device_id': deviceId,
+        'wizard_answers': wizardAnswers,
+        'mini_onboarding': miniOnboarding,
+        'budget_snapshot': budgetSnapshot,
+        'checkins': checkins,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Local data sync failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
+  static String _extractErrorDetail(
+    String responseBody, {
+    required String fallback,
+  }) {
+    try {
+      final decoded = jsonDecode(responseBody);
+      if (decoded is Map<String, dynamic>) {
+        final detail = decoded['detail'];
+        if (detail is String && detail.trim().isNotEmpty) return detail;
+      }
+      return fallback;
+    } catch (_) {
+      return fallback;
     }
   }
 

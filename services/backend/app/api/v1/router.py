@@ -33,6 +33,8 @@ from app.api.v1.endpoints import (
     educational_content,
     communes,
     privacy,
+    sync,
+    billing,
 )
 
 api_router = APIRouter()
@@ -117,4 +119,10 @@ api_router.include_router(
 )
 api_router.include_router(
     privacy.router, prefix="/privacy", tags=["privacy"]
+)
+api_router.include_router(
+    sync.router, prefix="/sync", tags=["sync"]
+)
+api_router.include_router(
+    billing.router, prefix="/billing", tags=["billing"]
 )

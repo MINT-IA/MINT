@@ -81,7 +81,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+      _error = _toUserFriendlyAuthError(e);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -119,7 +119,29 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString().replaceAll('Exception: ', '');
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await ApiService.deleteAccount();
+      await AuthService.logout();
+      _isLoggedIn = false;
+      _userId = null;
+      _email = null;
+      _displayName = null;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -141,5 +163,33 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  String _toUserFriendlyAuthError(Object error) {
+    final raw = error.toString().replaceAll('Exception: ', '').trim();
+    final lower = raw.toLowerCase();
+
+    if (lower.contains('socketexception') ||
+        lower.contains('clientexception') ||
+        lower.contains('failed host lookup') ||
+        lower.contains('connection refused') ||
+        lower.contains('errno = 8') ||
+        lower.contains('errno = 61')) {
+      return 'Connexion au service indisponible. Vérifie ton réseau et réessaie.';
+    }
+
+    if (lower.contains('existe déjà')) {
+      return 'Cet e-mail est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.';
+    }
+
+    if (lower.contains('incorrect')) {
+      return 'E-mail ou mot de passe incorrect.';
+    }
+
+    if (lower.contains('invalid') || lower.contains('invalide')) {
+      return 'Les informations saisies sont invalides.';
+    }
+
+    return 'Action impossible pour le moment. Réessaie dans quelques instants.';
   }
 }

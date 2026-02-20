@@ -99,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Ton Financial OS en 30 secondes',
+                  'Compte optionnel: tes données restent locales par défaut',
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: MintColors.textSecondary,
@@ -284,6 +284,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: authProvider.isLoading
+                      ? null
+                      : () {
+                          context.go('/advisor');
+                        },
+                  child: Text(
+                    'Continuer en mode local',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 // Login link

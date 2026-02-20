@@ -9,8 +9,18 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
+from app.models.analytics_event import AnalyticsEvent
+from app.models.profile_model import ProfileModel
+from app.models.session_model import SessionModel
 from app.models.user import User
-from app.schemas.auth import UserRegister, UserLogin, TokenResponse, UserResponse, RefreshTokenRequest
+from app.schemas.auth import (
+    UserRegister,
+    UserLogin,
+    TokenResponse,
+    UserResponse,
+    RefreshTokenRequest,
+    DeleteAccountResponse,
+)
 from app.services.auth_service import (
     hash_password,
     verify_password,
@@ -179,4 +189,47 @@ def get_current_user_info(
         email=current_user.email,
         display_name=current_user.display_name,
         created_at=current_user.created_at,
+    )
+
+
+@router.delete("/account", response_model=DeleteAccountResponse)
+def delete_account(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> DeleteAccountResponse:
+    """
+    Delete authenticated account and purge linked user data.
+
+    Compliance intent:
+    - Remove user credentials and user-linked financial data.
+    - Keep aggregate analytics rows by anonymizing user_id.
+    """
+    user_id = current_user.id
+
+    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
+    profile_ids = [p.id for p in profiles]
+    deleted_profiles = len(profile_ids)
+    deleted_sessions = 0
+    if profile_ids:
+        deleted_sessions = (
+            db.query(SessionModel)
+            .filter(SessionModel.profile_id.in_(profile_ids))
+            .count()
+        )
+
+    anonymized_analytics_events = (
+        db.query(AnalyticsEvent)
+        .filter(AnalyticsEvent.user_id == user_id)
+        .update({AnalyticsEvent.user_id: None}, synchronize_session=False)
+    )
+
+    db.delete(current_user)
+    db.commit()
+
+    return DeleteAccountResponse(
+        status="deleted",
+        deleted_user_id=user_id,
+        deleted_profiles=deleted_profiles,
+        deleted_sessions=deleted_sessions,
+        anonymized_analytics_events=anonymized_analytics_events,
     )

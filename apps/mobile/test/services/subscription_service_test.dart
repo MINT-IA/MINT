@@ -111,8 +111,8 @@ void main() {
       );
     });
 
-    test('all 10 CoachFeature values exist', () {
-      expect(CoachFeature.values.length, 10);
+    test('all 11 CoachFeature values exist', () {
+      expect(CoachFeature.values.length, 11);
     });
   });
 
@@ -354,9 +354,10 @@ void main() {
       expect(SubscriptionTier.values, contains(SubscriptionTier.coach));
     });
 
-    test('SubscriptionSource has 2 values', () {
-      expect(SubscriptionSource.values.length, 2);
+    test('SubscriptionSource has 3 values', () {
+      expect(SubscriptionSource.values.length, 3);
       expect(SubscriptionSource.values, contains(SubscriptionSource.mock));
+      expect(SubscriptionSource.values, contains(SubscriptionSource.backend));
       expect(
           SubscriptionSource.values, contains(SubscriptionSource.revenueCat));
     });
@@ -374,6 +375,7 @@ void main() {
         'coachLlm',
         'scenariosEtSi',
         'exportPdf',
+        'vault',
       ]));
     });
   });

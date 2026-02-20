@@ -145,3 +145,69 @@ Corrections issues remontées sur 8 captures (LPP, check-in, budget, login, onbo
   - `test/providers/onboarding_provider_test.dart`
   - `test/widgets/onboarding_widgets_test.dart`
   - `test/screens/onboarding_steps_test.dart`
+
+### F-13 (CRITIQUE) — Création de compte: fuite d’erreurs techniques + mode local peu explicite
+- Symptom: écran d’inscription affichait des exceptions brutes (`SocketException`, host lookup), générant une UX anxiogène et incompréhensible.
+- Root cause: propagation directe de `Exception.toString()` jusqu’à l’UI.
+- Fix:
+  - normalisation des erreurs API (`ApiException`) côté mobile.
+  - mapping d’erreurs auth vers messages utilisateurs non-techniques dans `AuthProvider`.
+  - ajout CTA explicite `Continuer en mode local` dans l’écran d’inscription.
+  - positionnement copy aligné local-first (“compte optionnel”).
+- Files:
+  - `apps/mobile/lib/services/api_service.dart`
+  - `apps/mobile/lib/providers/auth_provider.dart`
+  - `apps/mobile/lib/screens/auth/register_screen.dart`
+  - `apps/mobile/test/screens/auth_screens_smoke_test.dart`
+
+### F-14 (CRITIQUE) — Conformité effacement compte + migration locale vers cloud
+- Symptom: absence d’endpoint de suppression de compte (risque nLPD/App Store), absence de voie explicite de claim local→cloud.
+- Fix backend:
+  - endpoint `DELETE /api/v1/auth/account`:
+    - suppression utilisateur et données liées (profils/sessions),
+    - anonymisation des événements analytics (`user_id -> null`).
+  - endpoint `POST /api/v1/sync/claim-local-data`:
+    - import one-shot des snapshots locaux (wizard, mini-onboarding, budget, check-ins),
+    - upsert idempotent sur profil cloud utilisateur.
+  - schémas `DeleteAccountResponse`, `ClaimLocalDataRequest/Response`.
+- Files:
+  - `services/backend/app/api/v1/endpoints/auth.py`
+  - `services/backend/app/api/v1/endpoints/sync.py`
+  - `services/backend/app/api/v1/router.py`
+  - `services/backend/app/schemas/auth.py`
+  - `services/backend/app/schemas/sync.py`
+  - `services/backend/tests/test_auth.py`
+
+### F-15 (CRITIQUE) — Billing réel fondation (Stripe-first + entitlement backend)
+- Symptom: abonnement 100% mock côté mobile, aucune source de vérité backend.
+- Fix backend:
+  - nouvelles tables billing:
+    - `subscriptions`
+    - `entitlements`
+    - `billing_transactions`
+    - `billing_webhook_events`
+  - endpoint entitlements authentifié:
+    - `GET /api/v1/billing/entitlements`
+  - checkout Stripe:
+    - `POST /api/v1/billing/checkout/stripe`
+  - webhook Stripe:
+    - `POST /api/v1/billing/webhooks/stripe` (signature vérifiée si secret configuré)
+  - portail Stripe:
+    - `POST /api/v1/billing/portal/stripe`
+  - endpoint debug interne:
+    - `POST /api/v1/billing/debug/activate` pour activer un abonnement sans store (dev/staging)
+- Fix mobile:
+  - `SubscriptionService` lit désormais `GET /billing/entitlements` et applique les features serveur.
+  - `SubscriptionProvider` déclenche un refresh backend à l’initialisation.
+  - fallback mock conservé pour résilience hors connexion/dev.
+- Files:
+  - `services/backend/app/models/billing.py`
+  - `services/backend/app/services/billing_service.py`
+  - `services/backend/app/api/v1/endpoints/billing.py`
+  - `services/backend/app/schemas/billing.py`
+  - `services/backend/app/api/v1/router.py`
+  - `services/backend/app/core/config.py`
+  - `services/backend/tests/test_billing.py`
+  - `apps/mobile/lib/services/subscription_service.dart`
+  - `apps/mobile/lib/providers/subscription_provider.dart`
+  - `apps/mobile/test/services/subscription_service_test.dart`

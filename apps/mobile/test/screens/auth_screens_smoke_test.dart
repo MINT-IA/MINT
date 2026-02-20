@@ -159,12 +159,13 @@ void main() {
       expect(find.textContaining('er ton compte'), findsWidgets);
     });
 
-    testWidgets('shows subtitle about Financial OS', (tester) async {
+    testWidgets('shows subtitle about optional account and local mode',
+        (tester) async {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
       expect(
-        find.textContaining('Financial OS'),
+        find.textContaining('Compte optionnel'),
         findsOneWidget,
       );
     });
@@ -211,6 +212,18 @@ void main() {
 
       expect(find.textContaining('er mon compte'), findsOneWidget);
       expect(find.byType(FilledButton), findsOneWidget);
+    });
+
+    testWidgets('shows continue in local mode button', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
+      await tester.pump();
+
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -260));
+      await tester.pump();
+
+      expect(find.textContaining('mode local'), findsOneWidget);
+      expect(find.byType(OutlinedButton), findsWidgets);
     });
 
     testWidgets('shows login link for existing users', (tester) async {

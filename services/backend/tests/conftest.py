@@ -55,7 +55,16 @@ def override_get_db():
 def setup_test_database():
     """Create database tables once for all tests."""
     # Import models to ensure they're registered before creating tables
-    from app.models import User, ProfileModel, SessionModel, AnalyticsEvent
+    from app.models import (
+        User,
+        ProfileModel,
+        SessionModel,
+        AnalyticsEvent,
+        SubscriptionModel,
+        EntitlementModel,
+        BillingTransactionModel,
+        BillingWebhookEventModel,
+    )
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
@@ -65,9 +74,22 @@ def setup_test_database():
 def clean_database():
     """Clean all tables before each test."""
     # Delete all data from tables before each test
-    from app.models import AnalyticsEvent, SessionModel, ProfileModel, User
+    from app.models import (
+        AnalyticsEvent,
+        SessionModel,
+        ProfileModel,
+        User,
+        SubscriptionModel,
+        EntitlementModel,
+        BillingTransactionModel,
+        BillingWebhookEventModel,
+    )
     db = TestingSessionLocal()
     try:
+        db.query(BillingWebhookEventModel).delete()
+        db.query(BillingTransactionModel).delete()
+        db.query(EntitlementModel).delete()
+        db.query(SubscriptionModel).delete()
         db.query(AnalyticsEvent).delete()
         db.query(SessionModel).delete()
         db.query(ProfileModel).delete()

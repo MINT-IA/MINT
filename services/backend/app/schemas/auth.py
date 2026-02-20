@@ -32,6 +32,15 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
 
+class DeleteAccountResponse(BaseModel):
+    """Schema for account deletion response."""
+    status: str
+    deleted_user_id: str
+    deleted_profiles: int
+    deleted_sessions: int
+    anonymized_analytics_events: int
+
+
 class TokenResponse(BaseModel):
     """Schema for JWT token response."""
     access_token: str
