@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +13,7 @@ import 'package:mint_mobile/data/cantonal_data.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -66,11 +68,15 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   String? _stressChoice;
   String? _canton;
   String? _employmentStatus;
+  String? _householdType;
   String? _mainGoal;
 
   // Controllers
   final _birthYearController = TextEditingController();
   final _incomeController = TextEditingController();
+  final _taxProvisionController = TextEditingController();
+  final _lamalController = TextEditingController();
+  final _otherFixedController = TextEditingController();
 
   // Saved wizard progress
   bool _hasSavedWizardProgress = false;
@@ -89,6 +95,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   bool _step2AhaTracked = false;
   bool _cohortStartedTracked = false;
   Map<String, int> _variantMetrics = const {};
+  Timer? _autoSaveDebounce;
+  DateTime? _lastAutoSaveAt;
+  bool get _isInternalDebugEnabled => kDebugMode;
 
   void _incMetric(String key, {int by = 1}) {
     unawaited(() async {
@@ -173,11 +182,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
     final stress = _stressChoice ?? 'unknown';
     final employment = _employmentStatus ?? 'unknown';
-    return 'stress_$stress|emp_$employment|${_incomeBucket(income)}';
+    final household = _householdType ?? 'unknown';
+    return 'stress_$stress|emp_$employment|house_$household|${_incomeBucket(income)}';
   }
 
   @override
   void dispose() {
+    _autoSaveDebounce?.cancel();
     if (!_isOnboardingCompleted) {
       unawaited(_saveMiniProgressSnapshot(reason: 'dispose_abandon'));
       _incMetric('abandoned');
@@ -196,6 +207,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _pageController.dispose();
     _birthYearController.dispose();
     _incomeController.dispose();
+    _taxProvisionController.dispose();
+    _lamalController.dispose();
+    _otherFixedController.dispose();
     super.dispose();
   }
 
@@ -225,25 +239,66 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final birthYear = answers['q_birth_year'];
     final canton = answers['q_canton'] as String?;
     final income = answers['q_net_income_period_chf'];
+    final birthYearDraft = answers['mini_draft_birth_year'];
+    final incomeDraft = answers['mini_draft_income'];
+    final taxProvision = answers['q_tax_provision_monthly_chf'];
+    final lamal = answers['q_lamal_premium_monthly_chf'];
+    final otherFixed = answers['q_other_fixed_costs_monthly_chf'];
+    final taxProvisionDraft = answers['mini_draft_tax_provision'];
+    final lamalDraft = answers['mini_draft_lamal'];
+    final otherFixedDraft = answers['mini_draft_other_fixed'];
     final employment = answers['q_employment_status'] as String?;
+    final household = answers['q_household_type'] as String?;
+    final civilStatus = answers['q_civil_status'] as String?;
+    final childrenRaw = answers['q_children'];
     final goal = answers['q_main_goal'] as String?;
 
     _stressChoice = stress ?? _stressChoice;
     _canton = canton ?? _canton;
     _employmentStatus = employment ?? _employmentStatus;
+    _householdType = household ?? _householdType;
     _mainGoal = goal ?? _mainGoal;
+    if (_householdType == null && civilStatus != null) {
+      if (civilStatus == 'married' || civilStatus == 'concubinage') {
+        final children = childrenRaw is num
+            ? childrenRaw.toInt()
+            : int.tryParse(childrenRaw?.toString() ?? '');
+        _householdType = (children ?? 0) > 0 ? 'family' : 'couple';
+      } else {
+        _householdType = 'single';
+      }
+    }
 
-    if (birthYear != null) {
-      final parsedBirthYear = birthYear is num
-          ? birthYear.toInt().toString()
-          : birthYear.toString();
+    if (birthYear != null || birthYearDraft != null) {
+      final source = birthYear ?? birthYearDraft;
+      final parsedBirthYear =
+          source is num ? source.toInt().toString() : source.toString();
       _birthYearController.text = parsedBirthYear;
     }
 
-    if (income != null) {
+    if (income != null || incomeDraft != null) {
+      final source = income ?? incomeDraft;
       final parsedIncome =
-          income is num ? income.toInt().toString() : income.toString();
+          source is num ? source.toInt().toString() : source.toString();
       _incomeController.text = parsedIncome;
+    }
+    if (taxProvision != null || taxProvisionDraft != null) {
+      final source = taxProvision ?? taxProvisionDraft;
+      final parsed =
+          source is num ? source.toInt().toString() : source.toString();
+      _taxProvisionController.text = parsed;
+    }
+    if (lamal != null || lamalDraft != null) {
+      final source = lamal ?? lamalDraft;
+      final parsed =
+          source is num ? source.toInt().toString() : source.toString();
+      _lamalController.text = parsed;
+    }
+    if (otherFixed != null || otherFixedDraft != null) {
+      final source = otherFixed ?? otherFixedDraft;
+      final parsed =
+          source is num ? source.toInt().toString() : source.toString();
+      _otherFixedController.text = parsed;
     }
   }
 
@@ -253,7 +308,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final parsedIncome = double.tryParse(
       _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
     );
-    final step3Done = (parsedIncome ?? 0) > 0 && _employmentStatus != null;
+    final step3Done = (parsedIncome ?? 0) > 0 &&
+        _employmentStatus != null &&
+        _householdType != null;
     final step4Done = _mainGoal != null;
 
     if (!step1Done) return 0;
@@ -342,6 +399,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   Future<void> _saveMiniProgressSnapshot({required String reason}) async {
+    if (_isOnboardingCompleted) return;
     final snapshot = _currentMiniAnswersSnapshot();
     if (snapshot.isEmpty) return;
     final existing = await ReportPersistenceService.loadAnswers();
@@ -363,12 +421,18 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final parsedIncome = double.tryParse(
       _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
     );
+    final taxProvision = _parseChfController(_taxProvisionController);
+    final lamal = _parseChfController(_lamalController);
+    final otherFixed = _parseChfController(_otherFixedController);
     final snapshot = <String, dynamic>{};
     if (_stressChoice != null) {
       snapshot['q_financial_stress_check'] = _stressChoice;
     }
-    if (parsedBirthYear != null &&
-        _validateBirthYear(_birthYearController.text) == null) {
+    final currentYear = DateTime.now().year;
+    final isBirthYearValid = parsedBirthYear != null &&
+        parsedBirthYear >= 1940 &&
+        parsedBirthYear <= currentYear - 16;
+    if (isBirthYearValid) {
       snapshot['q_birth_year'] = parsedBirthYear;
     }
     if (_canton != null) {
@@ -380,8 +444,37 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     if (_employmentStatus != null) {
       snapshot['q_employment_status'] = _employmentStatus;
     }
+    final household = _householdType ?? 'single';
+    snapshot['q_household_type'] = household;
+    snapshot['q_civil_status'] = _civilStatusForHousehold(household);
+    snapshot['q_children'] = _childrenCountFromHousehold(household);
+    if (taxProvision != null && taxProvision > 0) {
+      snapshot['q_tax_provision_monthly_chf'] = taxProvision;
+    }
+    if (lamal != null && lamal > 0) {
+      snapshot['q_lamal_premium_monthly_chf'] = lamal;
+    }
+    if (otherFixed != null && otherFixed > 0) {
+      snapshot['q_other_fixed_costs_monthly_chf'] = otherFixed;
+    }
     if (_mainGoal != null) {
       snapshot['q_main_goal'] = _mainGoal;
+    }
+    if (_birthYearController.text.trim().isNotEmpty) {
+      snapshot['mini_draft_birth_year'] = _birthYearController.text.trim();
+    }
+    if (_incomeController.text.trim().isNotEmpty) {
+      snapshot['mini_draft_income'] = _incomeController.text.trim();
+    }
+    if (_taxProvisionController.text.trim().isNotEmpty) {
+      snapshot['mini_draft_tax_provision'] =
+          _taxProvisionController.text.trim();
+    }
+    if (_lamalController.text.trim().isNotEmpty) {
+      snapshot['mini_draft_lamal'] = _lamalController.text.trim();
+    }
+    if (_otherFixedController.text.trim().isNotEmpty) {
+      snapshot['mini_draft_other_fixed'] = _otherFixedController.text.trim();
     }
     if (_employmentStatus == 'employee' &&
         parsedIncome != null &&
@@ -391,9 +484,21 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     return snapshot;
   }
 
+  void _scheduleAutoSave([String reason = 'field_change']) {
+    if (_isOnboardingCompleted) return;
+    _autoSaveDebounce?.cancel();
+    _autoSaveDebounce = Timer(const Duration(milliseconds: 500), () {
+      final now = DateTime.now();
+      final last = _lastAutoSaveAt;
+      if (last != null && now.difference(last).inMilliseconds < 800) return;
+      _lastAutoSaveAt = now;
+      unawaited(_saveMiniProgressSnapshot(reason: reason));
+    });
+  }
+
   Future<void> _handleClosePressed() async {
     if (_isOnboardingCompleted) {
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) context.pop();
       return;
     }
     if (_currentStep == 0) {
@@ -471,7 +576,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         'elapsed_seconds': elapsedSeconds,
       }),
     );
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) context.pop();
   }
 
   String _stepName(int index) {
@@ -495,16 +600,22 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final income = double.tryParse(
       _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
     );
+    final taxProvision = _parseChfController(_taxProvisionController);
+    final lamal = _parseChfController(_lamalController);
+    final otherFixed = _parseChfController(_otherFixedController);
 
-    if (birthYear == null ||
+    if (_stressChoice == null ||
+        birthYear == null ||
         _validateBirthYear(_birthYearController.text) != null ||
         _canton == null ||
-        income == null) {
+        income == null ||
+        _mainGoal == null) {
       return;
     }
 
     // Resolve employment status (default: employee)
     final empStatus = _employmentStatus ?? 'employee';
+    final household = _householdType ?? 'single';
 
     // Build answers map (compatible with wizard question IDs)
     final answers = <String, dynamic>{
@@ -513,7 +624,15 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       'q_canton': _canton,
       'q_net_income_period_chf': income,
       'q_employment_status': empStatus,
+      'q_household_type': household,
+      'q_civil_status': _civilStatusForHousehold(household),
+      'q_children': _childrenCountFromHousehold(household),
       'q_main_goal': _mainGoal ?? 'retirement',
+      if (taxProvision != null && taxProvision > 0)
+        'q_tax_provision_monthly_chf': taxProvision,
+      if (lamal != null && lamal > 0) 'q_lamal_premium_monthly_chf': lamal,
+      if (otherFixed != null && otherFixed > 0)
+        'q_other_fixed_costs_monthly_chf': otherFixed,
     };
 
     // Auto-infer LPP for employees above threshold (LPP art. 7)
@@ -729,17 +848,6 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(ctx).pop('wizard'),
-                    child: Text(
-                      l10n?.advisorMiniFullDiagnostic ??
-                          'Diagnostic complet (10 min)',
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -847,7 +955,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               IconButton(
                 icon: const Icon(Icons.insights_outlined, size: 20),
                 color: MintColors.textMuted,
-                onPressed: _showOnboardingMetricsPanel,
+                onPressed: _isInternalDebugEnabled
+                    ? _showOnboardingMetricsPanel
+                    : null,
               ),
               IconButton(
                 icon: const Icon(Icons.close, size: 22),
@@ -862,6 +972,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   Future<void> _showOnboardingMetricsPanel() async {
+    if (!_isInternalDebugEnabled) return;
     final l10n = S.of(context);
     final control =
         await ReportPersistenceService.loadMiniOnboardingMetrics('control');
@@ -1113,6 +1224,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ? '-'
         : '${(durationSum / durationCount).toStringAsFixed(1)}s';
     final qualityScore = _computeOnboardingQualityScore(metrics);
+    final step1 = metrics['step_1'] ?? 0;
+    final step2 = metrics['step_2'] ?? 0;
+    final step3 = metrics['step_3'] ?? 0;
+    final avgStep1 = _avgStepDuration(metrics, 1);
+    final avgStep2 = _avgStepDuration(metrics, 2);
+    final avgStep3 = _avgStepDuration(metrics, 3);
+    final avgStep4 = _avgStepDuration(metrics, 4);
 
     String pct(int num, int den) {
       if (den <= 0) return '0%';
@@ -1165,6 +1283,46 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           const SizedBox(height: 6),
           Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: MintColors.lightBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Qualite par step',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                _metricRow(
+                  'S1 -> S2',
+                  '${pct(step1, started)} · $avgStep1',
+                ),
+                _metricRow(
+                  'S2 -> S3',
+                  '${pct(step2, step1)} · $avgStep2',
+                ),
+                _metricRow(
+                  'S3 -> S4',
+                  '${pct(step3, step2)} · $avgStep3',
+                ),
+                _metricRow(
+                  'S4 -> Done',
+                  '${pct(completed, step3)} · $avgStep4',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.08),
@@ -1199,6 +1357,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ],
       ),
     );
+  }
+
+  String _avgStepDuration(Map<String, int> metrics, int step) {
+    final sum = metrics['duration_step_${step}_sum'] ?? 0;
+    final count = metrics['duration_step_${step}_count'] ?? 0;
+    if (count <= 0) return '-';
+    return '${(sum / count).toStringAsFixed(1)}s';
   }
 
   Widget _metricRow(String label, String value) {
@@ -1239,11 +1404,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   int _estimateRemainingSeconds() {
+    if (_currentStep >= 3) return 0;
     final current = _currentStep + 1;
     int total = 0;
-    for (int step = current; step <= 4; step++) {
+    for (int step = current + 1; step <= 4; step++) {
       total += _avgStepDurationSeconds(step);
     }
+    total += (_avgStepDurationSeconds(current) / 2).round();
     return total;
   }
 
@@ -1367,6 +1534,14 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             ),
             if (i < options.length - 1) const SizedBox(height: 12),
           ],
+          if (_stressChoice != null) ...[
+            const SizedBox(height: 14),
+            _buildStepReadyHint(
+              title: l10n?.advisorMiniReadyTitle ?? 'Validation',
+              body: l10n?.advisorMiniReadyStep1 ??
+                  'Priorité enregistrée. On personnalise la trajectoire.',
+            ),
+          ],
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
@@ -1397,47 +1572,45 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          // Secondary options
-          if (_hasSavedWizardProgress) ...[
-            Center(
-              child: TextButton.icon(
-                onPressed: () {
-                  _analytics.trackCTAClick('advisor_resume_full_diagnostic',
-                      screenName: '/advisor');
-                  context.push('/advisor/wizard');
-                },
-                icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                label: Text(
-                  l10n?.advisorMiniResumeDiagnostic('$_savedWizardProgress') ??
-                      'Reprendre mon diagnostic ($_savedWizardProgress%)',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  foregroundColor: MintColors.primary,
-                ),
-              ),
-            ),
-          ],
+          // Secondary option (single path to limit decision overload)
           Center(
-            child: TextButton(
-              onPressed: () {
-                _analytics.trackCTAClick('advisor_full_diagnostic_step1',
-                    screenName: '/advisor');
-                context.push('/advisor/wizard');
-              },
-              child: Text(
-                l10n?.advisorMiniFullDiagnostic ??
-                    'Diagnostic complet (10 min)',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: MintColors.textMuted,
-                ),
-              ),
-            ),
+            child: _hasSavedWizardProgress
+                ? TextButton.icon(
+                    onPressed: () {
+                      _analytics.trackCTAClick('advisor_resume_full_diagnostic',
+                          screenName: '/advisor');
+                      context.push('/advisor/wizard');
+                    },
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: Text(
+                      l10n?.advisorMiniResumeDiagnostic(
+                              '$_savedWizardProgress') ??
+                          'Reprendre mon diagnostic ($_savedWizardProgress%)',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: MintColors.primary,
+                    ),
+                  )
+                : TextButton(
+                    onPressed: () {
+                      _analytics.trackCTAClick('advisor_full_diagnostic_step1',
+                          screenName: '/advisor');
+                      context.push('/advisor/wizard');
+                    },
+                    child: Text(
+                      l10n?.advisorMiniFullDiagnostic ??
+                          'Diagnostic complet (10 min)',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  ),
           ),
           const SizedBox(height: 40),
         ],
@@ -1496,6 +1669,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     return GestureDetector(
       onTap: () {
         setState(() => _stressChoice = value);
+        _scheduleAutoSave('stress_selected');
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -1629,6 +1803,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               _usedBirthYearManual = true;
               _maybeTrackStep2Aha();
               setState(() {});
+              _scheduleAutoSave('birth_year_changed');
             },
             decoration: InputDecoration(
               hintText: '1990',
@@ -1720,11 +1895,20 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               onChanged: (value) {
                 setState(() => _canton = value);
                 _maybeTrackStep2Aha();
+                _scheduleAutoSave('canton_changed');
               },
             ),
           ),
           const SizedBox(height: 16),
           if (_computeStep2AhaData() case final aha?) _buildStep2AhaCard(aha),
+          if (canGoNext) ...[
+            const SizedBox(height: 10),
+            _buildStepReadyHint(
+              title: l10n?.advisorMiniReadyTitle ?? 'Validation',
+              body: l10n?.advisorMiniReadyStep2 ??
+                  'Base fiscale prête. Le contexte cantonal est calibré.',
+            ),
+          ],
 
           const SizedBox(height: 40),
 
@@ -1775,7 +1959,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     .replaceAll(' ', '')) ??
                 0) >
             0;
-    final canContinue = hasIncome && _employmentStatus != null;
+    final canContinue =
+        hasIncome && _employmentStatus != null && _householdType != null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1845,6 +2030,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             onChanged: (_) {
               _usedIncomeManual = true;
               setState(() {});
+              _scheduleAutoSave('income_changed');
             },
             decoration: InputDecoration(
               hintText: '5000',
@@ -1920,8 +2106,61 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             icon: Icons.pause_circle_outline,
           ),
 
+          const SizedBox(height: 24),
+          Text(
+            l10n?.advisorMiniHouseholdLabel ?? 'Ton foyer',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n?.advisorMiniHouseholdSubtitle ??
+                'On ajuste impôts et charges fixes selon ta situation',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildHouseholdChip(
+            label: l10n?.onboardingHouseholdSingle ?? 'Seul(e)',
+            description: l10n?.onboardingHouseholdSingleDesc ??
+                'Je gère mes finances en solo',
+            value: 'single',
+            icon: Icons.person_outline,
+          ),
+          const SizedBox(height: 8),
+          _buildHouseholdChip(
+            label: l10n?.onboardingHouseholdCouple ?? 'En couple',
+            description: l10n?.onboardingHouseholdCoupleDesc ??
+                'Nous partageons nos objectifs financiers',
+            value: 'couple',
+            icon: Icons.people_outline,
+          ),
+          const SizedBox(height: 8),
+          _buildHouseholdChip(
+            label: l10n?.onboardingHouseholdFamily ?? 'Famille',
+            description: l10n?.onboardingHouseholdFamilyDesc ??
+                'Avec enfant(s) à charge',
+            value: 'family',
+            icon: Icons.family_restroom_outlined,
+          ),
+
           const SizedBox(height: 16),
           _buildQuickInsightCard(),
+          const SizedBox(height: 20),
+          _buildFixedCostsSection(),
+          if (canContinue) ...[
+            const SizedBox(height: 10),
+            _buildStepReadyHint(
+              title: l10n?.advisorMiniReadyTitle ?? 'Validation',
+              body: l10n?.advisorMiniReadyStep3 ??
+                  'Profil minimum prêt. Projection fiable activée.',
+            ),
+          ],
 
           const SizedBox(height: 36),
 
@@ -1933,6 +2172,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                   ? () {
                       if (_mainGoal == null) {
                         setState(() => _mainGoal = _suggestGoalFromStress());
+                        _scheduleAutoSave('goal_auto_suggested');
                       }
                       _goToStep(3);
                     }
@@ -1997,7 +2237,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final isSelected = _employmentStatus == value;
 
     return GestureDetector(
-      onTap: () => setState(() => _employmentStatus = value),
+      onTap: () {
+        setState(() => _employmentStatus = value);
+        _scheduleAutoSave('employment_changed');
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -2039,6 +2282,341 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
+  Widget _buildStepReadyHint({
+    required String title,
+    required String body,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: MintColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.check_circle_outline,
+              size: 18, color: MintColors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  body,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHouseholdChip({
+    required String label,
+    required String description,
+    required String value,
+    required IconData icon,
+  }) {
+    final isSelected = _householdType == value;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() => _householdType = value);
+        _scheduleAutoSave('household_changed');
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? MintColors.primary.withValues(alpha: 0.06)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? MintColors.primary : MintColors.lightBorder,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? MintColors.primary : MintColors.textSecondary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected
+                          ? MintColors.primary
+                          : MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle,
+                  color: MintColors.primary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFixedCostsSection() {
+    final l10n = S.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.receipt_long,
+                  size: 18, color: MintColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                l10n?.advisorMiniFixedCostsTitle ?? 'Charges fixes (optionnel)',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n?.advisorMiniFixedCostsSubtitle ??
+                'Ajoute impôts, LAMal et autres fixes pour un budget réaliste dès le dashboard.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: _prefillFixedCostsEstimates,
+              icon: const Icon(Icons.auto_fix_high, size: 16),
+              label: Text(
+                l10n?.advisorMiniPrefillEstimates ?? 'Préremplir estimations',
+                style: GoogleFonts.inter(
+                    fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: MintColors.primary,
+                side: const BorderSide(color: MintColors.primary),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          _buildChfOptionalField(
+            controller: _taxProvisionController,
+            label:
+                l10n?.advisorMiniTaxProvisionLabel ?? 'Provision impôts / mois',
+            hint: '900',
+          ),
+          const SizedBox(height: 8),
+          _buildChfOptionalField(
+            controller: _lamalController,
+            label: l10n?.advisorMiniLamalLabel ?? 'Primes LAMal / mois',
+            hint: '430',
+          ),
+          const SizedBox(height: 8),
+          _buildChfOptionalField(
+            controller: _otherFixedController,
+            label: l10n?.advisorMiniOtherFixedLabel ??
+                'Autres charges fixes / mois',
+            hint: '300',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChfOptionalField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onChanged: (_) {
+            setState(() {});
+            _scheduleAutoSave('fixed_cost_changed');
+          },
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixText: 'CHF  ',
+            prefixStyle: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: MintColors.textMuted,
+            ),
+            hintStyle: TextStyle(
+              color: MintColors.textMuted.withValues(alpha: 0.5),
+            ),
+            filled: true,
+            fillColor: MintColors.surface,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.lightBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.lightBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: MintColors.primary, width: 1.8),
+            ),
+          ),
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: MintColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  double? _parseChfController(TextEditingController controller) {
+    final raw = controller.text.replaceAll("'", '').replaceAll(' ', '').trim();
+    if (raw.isEmpty) return null;
+    return double.tryParse(raw);
+  }
+
+  void _prefillFixedCostsEstimates() {
+    final income = double.tryParse(
+      _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
+    );
+    if (income == null || income <= 0 || _canton == null) return;
+    final household = _householdType ?? 'single';
+    final parsedBirthYear = int.tryParse(_birthYearController.text);
+    final age = parsedBirthYear != null
+        ? (DateTime.now().year - parsedBirthYear).clamp(18, 80)
+        : 35;
+
+    final monthlyTax = TaxEstimatorService.estimateMonthlyProvision(
+      TaxEstimatorService.estimateAnnualTax(
+        netMonthlyIncome: income,
+        cantonCode: _canton!,
+        civilStatus: _civilStatusForHousehold(household),
+        childrenCount: _childrenCountFromHousehold(household),
+        age: age,
+        isSourceTaxed: false,
+      ),
+    );
+    final lamal = _estimateLamalFromCanton(_canton!, householdType: household);
+
+    if (_taxProvisionController.text.trim().isEmpty) {
+      _taxProvisionController.text = monthlyTax.round().toString();
+    }
+    if (_lamalController.text.trim().isEmpty) {
+      _lamalController.text = lamal.round().toString();
+    }
+    setState(() {});
+    _scheduleAutoSave('fixed_cost_prefill');
+  }
+
+  double _estimateLamalFromCanton(
+    String cantonCode, {
+    String householdType = 'single',
+  }) {
+    const highCantons = {'GE', 'VD', 'BS', 'NE'};
+    const lowCantons = {'ZG', 'AI', 'UR', 'OW', 'NW'};
+    final baseAdultPremium = highCantons.contains(cantonCode)
+        ? 520.0
+        : lowCantons.contains(cantonCode)
+            ? 350.0
+            : 430.0;
+    final adults = _adultCountFromHousehold(householdType);
+    final children = _childrenCountFromHousehold(householdType);
+    final childPremium = (baseAdultPremium * 0.27).roundToDouble();
+    return (baseAdultPremium * adults) + (childPremium * children);
+  }
+
+  String _civilStatusForHousehold(String householdType) {
+    switch (householdType) {
+      case 'couple':
+      case 'family':
+        return 'married';
+      default:
+        return 'single';
+    }
+  }
+
+  int _childrenCountFromHousehold(String householdType) {
+    return householdType == 'family' ? 1 : 0;
+  }
+
+  int _adultCountFromHousehold(String householdType) {
+    return householdType == 'single' ? 1 : 2;
+  }
+
   List<int> _birthYearQuickPicks() {
     final currentYear = DateTime.now().year;
     return [
@@ -2065,6 +2643,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
     _maybeTrackStep2Aha();
     setState(() {});
+    _scheduleAutoSave('birth_year_quick_pick');
   }
 
   void _applyIncomeQuickPick(int amount) {
@@ -2080,6 +2659,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       }),
     );
     setState(() {});
+    _scheduleAutoSave('income_quick_pick');
   }
 
   Widget _buildQuickChoiceChip({
@@ -2129,6 +2709,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final avgRate = cantonProfile.averageMarginalRate;
     final swissAvg = CantonalDataService.getByCode(null).averageMarginalRate;
     final deltaRate = avgRate - swissAvg;
+    final estimatedTaxOn100k = (avgRate * 100000).round();
     final annualDeltaOn100k = (deltaRate * 100000).round();
 
     return {
@@ -2137,6 +2718,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       'canton_code': _canton,
       'canton_name': cantonProfile.name,
       'avg_rate_percent': (avgRate * 100),
+      'tax_on_100k': estimatedTaxOn100k,
       'delta_vs_ch_percent': (deltaRate * 100),
       'annual_delta_on_100k': annualDeltaOn100k,
     };
@@ -2163,6 +2745,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final yearsToRetirement = aha['years_to_retirement'] as int;
     final cantonCode = aha['canton_code'] as String;
     final avgRatePercent = aha['avg_rate_percent'] as double;
+    final taxOn100k = aha['tax_on_100k'] as int;
     final deltaVsCh = aha['delta_vs_ch_percent'] as double;
     final annualDelta = aha['annual_delta_on_100k'] as int;
     final isChallenge = _miniOnboardingVariant == 'challenge';
@@ -2170,6 +2753,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ? (l10n?.advisorMiniStep2AhaDirectionAbove ?? 'au-dessus')
         : (l10n?.advisorMiniStep2AhaDirectionBelow ?? 'en-dessous');
     final annualDeltaAbs = annualDelta.abs();
+    final deltaRateAbs = deltaVsCh.abs().toStringAsFixed(1);
 
     final body = isChallenge
         ? (l10n?.advisorMiniStep2AhaEmotional(
@@ -2231,6 +2815,18 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             ),
           ),
           const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _buildAhaChip(
+                  'Taux marginal estimé: ${avgRatePercent.toStringAsFixed(1)}%'),
+              _buildAhaChip('Impôt estimé sur CHF 100\'000: CHF $taxOn100k/an'),
+              _buildAhaChip(
+                  'Écart vs CH: ${annualDelta >= 0 ? '+' : '-'}CHF $annualDeltaAbs/an (${annualDelta >= 0 ? '+' : '-'}$deltaRateAbs pts)'),
+            ],
+          ),
+          const SizedBox(height: 8),
           Text(
             l10n?.advisorMiniStep2AhaDisclaimer ??
                 'Ordre de grandeur éducatif, basé sur données cantonales de référence MINT.',
@@ -2240,6 +2836,25 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAhaChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: MintColors.textSecondary,
+        ),
       ),
     );
   }
@@ -2302,7 +2917,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   Widget _buildStep4GoalAndPreview() {
     final l10n = S.of(context);
     final canComplete = _mainGoal != null;
-    final preview = _computePreviewProjection();
+    final preview = _mainGoal != null ? _computePreviewProjection() : null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -2328,6 +2943,26 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               fontSize: 14,
               color: MintColors.textSecondary,
               height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: MintColors.coachBubble,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: MintColors.lightBorder),
+            ),
+            child: Text(
+              _mainGoal == null
+                  ? 'Choisis 1 priorité. Tu pourras en ajouter d’autres ensuite.'
+                  : 'Priorité active: ${_labelForGoal(_mainGoal!, l10n)}',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textSecondary,
+              ),
             ),
           ),
           const SizedBox(height: 22),
@@ -2358,6 +2993,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           const SizedBox(height: 16),
           if (preview != null) _buildProjectionPreviewCard(preview),
+          if (preview != null) ...[
+            const SizedBox(height: 10),
+            _buildMintUnderstoodCard(preview),
+          ],
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
@@ -2416,6 +3055,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     return GestureDetector(
       onTap: () {
         setState(() => _mainGoal = value);
+        _scheduleAutoSave('goal_selected');
         _analytics.trackEvent(
           'onboarding_goal_selected',
           category: 'engagement',
@@ -2463,25 +3103,50 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
+  String _labelForGoal(String goal, S? l10n) {
+    switch (goal) {
+      case 'retirement':
+        return l10n?.advisorMiniGoalRetirement ?? 'Préparer ma retraite';
+      case 'real_estate':
+        return l10n?.advisorMiniGoalRealEstate ?? 'Acheter un bien immobilier';
+      case 'debt_free':
+        return l10n?.advisorMiniGoalDebtFree ?? 'Réduire mes dettes';
+      case 'independence':
+        return l10n?.advisorMiniGoalIndependence ??
+            'Construire mon indépendance financière';
+      default:
+        return goal;
+    }
+  }
+
   Map<String, dynamic>? _computePreviewProjection() {
     try {
       final birthYear = int.tryParse(_birthYearController.text);
       final income = double.tryParse(
         _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
       );
+      final empStatus = _employmentStatus ?? 'employee';
       if (birthYear == null ||
           income == null ||
           income <= 0 ||
-          _canton == null ||
-          _employmentStatus == null) {
+          _canton == null) {
         return null;
       }
+
+      // Keep preview assumptions aligned with mini-onboarding completion:
+      // employee + annual income above LPP threshold => pension fund "yes".
+      final hasPensionFund = empStatus == 'employee' && income * 12 > 22680;
+      final monthlySavings = (income * 0.10).clamp(100.0, 1200.0);
 
       final answers = <String, dynamic>{
         'q_birth_year': birthYear,
         'q_canton': _canton,
+        'q_pay_frequency': 'monthly',
         'q_net_income_period_chf': income,
-        'q_employment_status': _employmentStatus,
+        'q_employment_status': empStatus,
+        'q_has_pension_fund': hasPensionFund ? 'yes' : 'no',
+        'q_savings_monthly': monthlySavings,
+        'q_savings_allocation': const ['epargne_libre'],
         'q_main_goal': _mainGoal ?? 'retirement',
       };
       final profile = CoachProfile.fromWizardAnswers(answers);
@@ -2499,7 +3164,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         'optimiste': projection.optimiste.capitalFinal,
         'yearsLeft': yearsLeft,
       };
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[MiniOnboarding] Preview projection error: $e');
+      }
       return null;
     }
   }
@@ -2567,6 +3235,16 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             optimiste,
             const Color(0xFF10B981),
           ),
+          const SizedBox(height: 10),
+          Text(
+            l10n?.advisorMiniProjectionDisclaimer ??
+                'Outil educatif — ne constitue pas un conseil financier (LAVS/LPP).',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ],
       ),
     );
@@ -2601,5 +3279,118 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildMintUnderstoodCard(Map<String, dynamic> preview) {
+    final l10n = S.of(context);
+    final income = double.tryParse(
+          _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
+        ) ??
+        0;
+    final fixedCount = [
+      _parseChfController(_taxProvisionController),
+      _parseChfController(_lamalController),
+      _parseChfController(_otherFixedController),
+    ].where((v) => (v ?? 0) > 0).length;
+    final horizon = '~${preview['yearsLeft']} ans';
+    final goalLabel = _labelForGoal(_mainGoal ?? 'retirement', l10n);
+    final employmentLabel = _labelForEmployment(_employmentStatus, l10n);
+    final householdLabel = _labelForHousehold(_householdType, l10n);
+    final cantonLabel = _canton ?? '--';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n?.advisorMiniReadyLabel ?? 'Ce que MINT a compris',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _mintUnderstoodRow(
+            l10n?.advisorMiniReadyStress(goalLabel) ?? 'Priorité: $goalLabel',
+          ),
+          _mintUnderstoodRow(
+            l10n?.advisorMiniReadyProfile(employmentLabel, householdLabel) ??
+                'Profil: $employmentLabel · $householdLabel',
+          ),
+          _mintUnderstoodRow(
+            l10n?.advisorMiniReadyLocation(cantonLabel, horizon) ??
+                'Base fiscale: $cantonLabel · $horizon',
+          ),
+          _mintUnderstoodRow(
+            l10n?.advisorMiniReadyIncome(income.round().toString()) ??
+                'Revenu net: CHF ${income.round()}/mois',
+          ),
+          _mintUnderstoodRow(
+            l10n?.advisorMiniReadyFixed('$fixedCount') ??
+                'Charges fixes captées: $fixedCount/3',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mintUnderstoodRow(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Icon(Icons.circle, size: 6, color: MintColors.primary),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textSecondary,
+                height: 1.25,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _labelForEmployment(String? employment, S? l10n) {
+    switch (employment) {
+      case 'employee':
+        return l10n?.advisorMiniEmploymentEmployee ?? 'Salarié·e';
+      case 'self_employed':
+        return l10n?.advisorMiniEmploymentSelfEmployed ?? 'Indépendant·e';
+      case 'student':
+        return l10n?.advisorMiniEmploymentStudent ?? 'Étudiant·e';
+      case 'unemployed':
+        return l10n?.advisorMiniEmploymentUnemployed ?? 'Sans emploi';
+      default:
+        return l10n?.advisorMiniEmploymentEmployee ?? 'Salarié·e';
+    }
+  }
+
+  String _labelForHousehold(String? household, S? l10n) {
+    switch (household) {
+      case 'couple':
+        return l10n?.onboardingHouseholdCouple ?? 'En couple';
+      case 'family':
+        return l10n?.onboardingHouseholdFamily ?? 'Famille';
+      default:
+        return l10n?.onboardingHouseholdSingle ?? 'Seul(e)';
+    }
   }
 }

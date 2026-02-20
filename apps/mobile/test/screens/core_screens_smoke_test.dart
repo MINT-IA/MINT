@@ -133,7 +133,7 @@ void main() {
 
       // Step 1 stress check cards
       expect(find.textContaining('budget'), findsOneWidget);
-      expect(find.textContaining('dettes'), findsOneWidget);
+      expect(find.textContaining('dettes'), findsWidgets);
       expect(find.textContaining('impots'), findsOneWidget);
       expect(find.textContaining('retraite'), findsOneWidget);
     });
@@ -156,9 +156,87 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // PageView is present for the 3 steps
+      // PageView is present for the 4 steps
       expect(find.byType(PageView), findsOneWidget);
     });
+
+    testWidgets('step 4 shows goal chips and projection preview',
+        (tester) async {
+      // Use a tall viewport to avoid offscreen tap issues
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildOnboarding());
+      await tester.pump();
+
+      // ── Step 1: select a stress choice ──
+      await tester.tap(find.textContaining('budget'));
+      await tester.pump();
+      await tester.tap(find.byType(FilledButton).last);
+      await tester.pumpAndSettle();
+
+      // ── Step 2: enter birth year + canton ──
+      await tester.enterText(find.byType(TextField).first, '1990');
+      await tester.pump();
+      // Open canton dropdown and pick first item
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Zurich (ZH)').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FilledButton).last);
+      await tester.pumpAndSettle();
+
+      // ── Step 3: enter income + status ──
+      await tester.enterText(find.byType(TextField).first, '6000');
+      await tester.pump();
+      await tester.tap(find.textContaining('Salarie'));
+      await tester.pump();
+      await tester.tap(find.textContaining('Seul'));
+      await tester.pump();
+      await tester.ensureVisible(find.textContaining('Voir ma projection'));
+      await tester.tap(find.textContaining('Voir ma projection'));
+      await tester.pumpAndSettle();
+
+      // ── Step 4: verify goal chips ──
+      expect(find.text('4/4'), findsOneWidget);
+      expect(find.textContaining('retraite'), findsWidgets);
+      expect(find.textContaining('immobilier'), findsOneWidget);
+      expect(find.textContaining('dettes'), findsWidgets);
+      expect(find.textContaining('independance'), findsOneWidget);
+
+      // Projection preview visible (defaults to retirement)
+      expect(find.textContaining('Preview trajectoire'), findsOneWidget);
+      expect(find.textContaining('Prudent'), findsOneWidget);
+      expect(find.textContaining('Optimiste'), findsOneWidget);
+      expect(find.textContaining('CHF'), findsWidgets);
+      final previewTexts = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((t) => t.data ?? '')
+          .where((txt) => txt.contains('CHF'))
+          .toList();
+      final hasZeroPreview = previewTexts.any(
+        (txt) => txt.contains('CHF 0') || txt.contains('CHF\u00A00'),
+      );
+      expect(
+        hasZeroPreview,
+        isFalse,
+        reason: 'Step 4 preview should not show CHF 0 for completed inputs.',
+      );
+
+      // Compliance disclaimer present
+      expect(
+        find.textContaining('ne constitue pas un conseil financier'),
+        findsOneWidget,
+      );
+
+      // CTA button present but disabled (no goal selected yet)
+      expect(find.textContaining('Activer mon dashboard'), findsOneWidget);
+    });
+
   });
 
   // ===========================================================================

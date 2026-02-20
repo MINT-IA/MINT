@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,6 +117,22 @@ void main() {
       expect(loaded['q_net_income_period_chf'], 5000.50);
       expect(loaded['q_birth_year'], 1990);
       expect(loaded['q_savings_monthly'], 0);
+    });
+
+    test('persists mini-onboarding draft fields', () async {
+      final answers = <String, dynamic>{
+        'q_canton': 'VD',
+        'mini_draft_birth_year': '199',
+        'mini_draft_income': '6200',
+        'mini_draft_tax_provision': '900',
+      };
+
+      await ReportPersistenceService.saveAnswers(answers);
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(loaded['mini_draft_birth_year'], '199');
+      expect(loaded['mini_draft_income'], '6200');
+      expect(loaded['mini_draft_tax_provision'], '900');
     });
 
     test('returns empty map when stored JSON is corrupted', () async {
@@ -450,6 +468,187 @@ void main() {
       final planState =
           await ReportPersistenceService.loadOnboarding30PlanState();
       expect(planState, isEmpty);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Coach History — clearCoachHistory
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('ReportPersistenceService.clearCoachHistory', () {
+    test('clears check-ins, scores, and explored simulators', () async {
+      // Populate coach history data
+      await ReportPersistenceService.saveCheckIns([
+        {'date': '2026-01', 'score': 72},
+      ]);
+      await ReportPersistenceService.saveLastScore(85);
+      await ReportPersistenceService.markSimulatorExplored('3a');
+      await ReportPersistenceService.markSimulatorExplored('lpp');
+
+      // Verify data exists
+      expect(await ReportPersistenceService.loadCheckIns(), isNotEmpty);
+      expect(await ReportPersistenceService.loadLastScore(), isNotNull);
+      expect(await ReportPersistenceService.loadScoreHistory(), isNotEmpty);
+      expect(await ReportPersistenceService.loadExploredSimulators(), isNotEmpty);
+
+      // Clear coach history
+      await ReportPersistenceService.clearCoachHistory();
+
+      // Verify everything is cleared
+      expect(await ReportPersistenceService.loadCheckIns(), isEmpty);
+      expect(await ReportPersistenceService.loadLastScore(), isNull);
+      expect(await ReportPersistenceService.loadScoreHistory(), isEmpty);
+      expect(await ReportPersistenceService.loadExploredSimulators(), isEmpty);
+    });
+
+    test('clearCoachHistory does not affect diagnostic data', () async {
+      // Populate both
+      await ReportPersistenceService.saveAnswers({'q_canton': 'GE'});
+      await ReportPersistenceService.setCompleted(true);
+      await ReportPersistenceService.saveCheckIns([
+        {'date': '2026-01', 'score': 72},
+      ]);
+
+      await ReportPersistenceService.clearCoachHistory();
+
+      // Diagnostic data should remain
+      expect(await ReportPersistenceService.loadAnswers(), isNotEmpty);
+      expect(await ReportPersistenceService.isCompleted(), true);
+      // Coach history should be gone
+      expect(await ReportPersistenceService.loadCheckIns(), isEmpty);
+    });
+
+    test('clearCoachHistory is idempotent', () async {
+      await ReportPersistenceService.clearCoachHistory();
+      await ReportPersistenceService.clearCoachHistory();
+      expect(await ReportPersistenceService.loadCheckIns(), isEmpty);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Coach Data Persistence (check-ins, scores, simulators, contributions)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('ReportPersistenceService coach data persistence', () {
+    test('saveCheckIns and loadCheckIns roundtrip', () async {
+      final checkIns = [
+        {'date': '2026-01', 'score': 72, 'savings': 500},
+        {'date': '2026-02', 'score': 78, 'savings': 600},
+      ];
+      await ReportPersistenceService.saveCheckIns(checkIns);
+      final loaded = await ReportPersistenceService.loadCheckIns();
+      expect(loaded.length, 2);
+      expect(loaded[0]['date'], '2026-01');
+      expect(loaded[1]['score'], 78);
+    });
+
+    test('saveLastScore and loadLastScore roundtrip', () async {
+      await ReportPersistenceService.saveLastScore(91);
+      final score = await ReportPersistenceService.loadLastScore();
+      expect(score, 91);
+    });
+
+    test('loadLastScore returns null when empty', () async {
+      final score = await ReportPersistenceService.loadLastScore();
+      expect(score, isNull);
+    });
+
+    test('saveScoreToHistory adds entry for current month', () async {
+      await ReportPersistenceService.saveScoreToHistory(80);
+      await ReportPersistenceService.saveScoreToHistory(85);
+      final history = await ReportPersistenceService.loadScoreHistory();
+      // Both calls use the same month (DateTime.now()), so the second
+      // replaces the first — only 1 entry should exist.
+      expect(history.length, 1);
+      expect(history[0]['score'], 85);
+    });
+
+    test('saveScoreToHistory limits to 24 entries', () async {
+      // Directly inject 30 entries via saveCheckIns-style approach
+      // Since saveScoreToHistory auto-dedupes by current month, we
+      // pre-populate the score_history_v1 key with 30 entries directly
+      // and then call saveScoreToHistory to trigger the trim.
+      final prefs = await SharedPreferences.getInstance();
+      final fakeHistory = List.generate(
+        30,
+        (i) => {
+          'month':
+              '${2022 + i ~/ 12}-${(i % 12 + 1).toString().padLeft(2, '0')}',
+          'score': 50 + i,
+        },
+      );
+      await prefs.setString('score_history_v1', json.encode(fakeHistory));
+
+      // Trigger trim by adding a score for the current month
+      await ReportPersistenceService.saveScoreToHistory(99);
+
+      final history = await ReportPersistenceService.loadScoreHistory();
+      expect(history.length, lessThanOrEqualTo(24));
+    });
+
+    test('markSimulatorExplored and loadExploredSimulators', () async {
+      await ReportPersistenceService.markSimulatorExplored('3a');
+      await ReportPersistenceService.markSimulatorExplored('lpp');
+      await ReportPersistenceService.markSimulatorExplored('3a'); // duplicate
+      final explored = await ReportPersistenceService.loadExploredSimulators();
+      expect(explored, contains('3a'));
+      expect(explored, contains('lpp'));
+      // Set should deduplicate
+      expect(explored.length, 2);
+    });
+
+    test('contributions save and load roundtrip', () async {
+      final contributions = [
+        {'name': '3a', 'amount': 7258.0, 'frequency': 'annual'},
+      ];
+      await ReportPersistenceService.saveContributions(contributions);
+      final loaded = await ReportPersistenceService.loadContributions();
+      expect(loaded.length, 1);
+      expect(loaded[0]['amount'], 7258.0);
+    });
+
+    test('hasCustomContributions returns false when empty', () async {
+      final has = await ReportPersistenceService.hasCustomContributions();
+      expect(has, isFalse);
+    });
+
+    test('hasCustomContributions returns true after save', () async {
+      await ReportPersistenceService.saveContributions([
+        {'name': '3a', 'amount': 7258.0},
+      ]);
+      final has = await ReportPersistenceService.hasCustomContributions();
+      expect(has, isTrue);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Full clear covers coach history + diagnostic + letters
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('ReportPersistenceService.clear covers coach history', () {
+    test('clear removes coach history + diagnostic + letters', () async {
+      // Populate everything
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ReportPersistenceService.setCompleted(true);
+      await ReportPersistenceService.saveLettersHistory([
+        {'title': 'Test'}
+      ]);
+      await ReportPersistenceService.saveCheckIns([
+        {'date': '2026-01', 'score': 72},
+      ]);
+      await ReportPersistenceService.saveLastScore(85);
+      await ReportPersistenceService.markSimulatorExplored('3a');
+
+      await ReportPersistenceService.clear();
+
+      // Everything should be gone
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+      expect(await ReportPersistenceService.isCompleted(), false);
+      expect(await ReportPersistenceService.loadLettersHistory(), isEmpty);
+      expect(await ReportPersistenceService.loadCheckIns(), isEmpty);
+      expect(await ReportPersistenceService.loadLastScore(), isNull);
+      expect(await ReportPersistenceService.loadScoreHistory(), isEmpty);
+      expect(await ReportPersistenceService.loadExploredSimulators(), isEmpty);
     });
   });
 

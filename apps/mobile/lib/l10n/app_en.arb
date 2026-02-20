@@ -102,6 +102,12 @@
   "advisorMiniIncomeLabel": "Monthly net income (CHF)",
   "advisorMiniQuickPickLabel": "Quick pick",
   "advisorMiniQuickPickIncomeLabel": "Common amounts",
+  "advisorMiniFixedCostsTitle": "Fixed costs (optional)",
+  "advisorMiniFixedCostsSubtitle": "Add taxes, LAMal and other fixed costs for a realistic budget from day one.",
+  "advisorMiniPrefillEstimates": "Prefill estimates",
+  "advisorMiniTaxProvisionLabel": "Tax provision / month",
+  "advisorMiniLamalLabel": "LAMal premiums / month",
+  "advisorMiniOtherFixedLabel": "Other fixed costs / month",
   "advisorMiniStep2AhaTitle": "Instant key insight",
   "advisorMiniStep2AhaDirectionAbove": "above",
   "advisorMiniStep2AhaDirectionBelow": "below",
@@ -128,6 +134,7 @@
     }
   },
   "advisorMiniStep2AhaDisclaimer": "Educational order-of-magnitude based on MINT reference cantonal data.",
+  "advisorMiniProjectionDisclaimer": "Educational tool — does not constitute financial advice (OASI/BVG).",
   "advisorMiniExitTitle": "Leave now?",
   "advisorMiniExitBodyControl": "Your progress is saved. You can resume later.",
   "advisorMiniExitBodyChallenge": "Just a few more seconds and you get your personalized trajectory.",
@@ -153,6 +160,45 @@
   "advisorMiniEtaConfidenceHigh": "High confidence",
   "advisorMiniEtaConfidenceLow": "Medium confidence",
   "advisorMiniEmploymentLabel": "Employment status",
+  "advisorMiniHouseholdLabel": "Your household",
+  "advisorMiniHouseholdSubtitle": "We adjust taxes and fixed costs to your situation",
+  "advisorMiniReadyTitle": "Ready",
+  "advisorMiniReadyLabel": "What MINT understood",
+  "advisorMiniReadyStep1": "Priority captured. We personalize your trajectory.",
+  "advisorMiniReadyStep2": "Tax base is ready. Cantonal context is calibrated.",
+  "advisorMiniReadyStep3": "Minimum profile ready. Reliable projection enabled.",
+  "advisorMiniReadyStress": "Priority: {label}",
+  "@advisorMiniReadyStress": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyProfile": "Profile: {employment} · {household}",
+  "@advisorMiniReadyProfile": {
+    "placeholders": {
+      "employment": { "type": "String" },
+      "household": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyLocation": "Tax base: {canton} · {horizon}",
+  "@advisorMiniReadyLocation": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "horizon": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyIncome": "Net income: CHF {income}/month",
+  "@advisorMiniReadyIncome": {
+    "placeholders": {
+      "income": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyFixed": "Fixed costs captured: {count}/3",
+  "@advisorMiniReadyFixed": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
   "advisorMiniEmploymentEmployee": "Employee",
   "advisorMiniEmploymentSelfEmployed": "Self-employed",
   "advisorMiniEmploymentStudent": "Student / Apprentice",

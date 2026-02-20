@@ -102,6 +102,12 @@
   "advisorMiniIncomeLabel": "Rendimento liquido mensal (CHF)",
   "advisorMiniQuickPickLabel": "Escolha rapida",
   "advisorMiniQuickPickIncomeLabel": "Montantes frequentes",
+  "advisorMiniFixedCostsTitle": "Custos fixos (opcional)",
+  "advisorMiniFixedCostsSubtitle": "Adiciona impostos, LAMal e outros custos fixos para um orcamento realista desde o inicio.",
+  "advisorMiniPrefillEstimates": "Preencher estimativas",
+  "advisorMiniTaxProvisionLabel": "Provisao de impostos / mes",
+  "advisorMiniLamalLabel": "Premios LAMal / mes",
+  "advisorMiniOtherFixedLabel": "Outros custos fixos / mes",
   "advisorMiniStep2AhaTitle": "Insight-chave imediato",
   "advisorMiniStep2AhaDirectionAbove": "acima de",
   "advisorMiniStep2AhaDirectionBelow": "abaixo de",
@@ -128,6 +134,7 @@
     }
   },
   "advisorMiniStep2AhaDisclaimer": "Ordem de grandeza educativa baseada em dados cantonais de referencia MINT.",
+  "advisorMiniProjectionDisclaimer": "Ferramenta educativa — nao constitui aconselhamento financeiro (LAVS/LPP).",
   "advisorMiniExitTitle": "Sair agora?",
   "advisorMiniExitBodyControl": "O teu progresso esta guardado. Podes retomar mais tarde.",
   "advisorMiniExitBodyChallenge": "So mais alguns segundos e tens a tua trajetoria personalizada.",
@@ -153,6 +160,45 @@
   "advisorMiniEtaConfidenceHigh": "Confianca alta",
   "advisorMiniEtaConfidenceLow": "Confianca media",
   "advisorMiniEmploymentLabel": "Estatuto profissional",
+  "advisorMiniHouseholdLabel": "O teu agregado",
+  "advisorMiniHouseholdSubtitle": "Ajustamos impostos e custos fixos ao teu contexto",
+  "advisorMiniReadyTitle": "Validado",
+  "advisorMiniReadyLabel": "O que a MINT entendeu",
+  "advisorMiniReadyStep1": "Prioridade registada. Personalizamos a tua trajetoria.",
+  "advisorMiniReadyStep2": "Base fiscal pronta. Contexto cantonal calibrado.",
+  "advisorMiniReadyStep3": "Perfil minimo pronto. Projecao fiavel ativada.",
+  "advisorMiniReadyStress": "Prioridade: {label}",
+  "@advisorMiniReadyStress": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyProfile": "Perfil: {employment} · {household}",
+  "@advisorMiniReadyProfile": {
+    "placeholders": {
+      "employment": { "type": "String" },
+      "household": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyLocation": "Base fiscal: {canton} · {horizon}",
+  "@advisorMiniReadyLocation": {
+    "placeholders": {
+      "canton": { "type": "String" },
+      "horizon": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyIncome": "Rendimento liquido: CHF {income}/mes",
+  "@advisorMiniReadyIncome": {
+    "placeholders": {
+      "income": { "type": "String" }
+    }
+  },
+  "advisorMiniReadyFixed": "Custos fixos captados: {count}/3",
+  "@advisorMiniReadyFixed": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
   "advisorMiniEmploymentEmployee": "Assalariado/a",
   "advisorMiniEmploymentSelfEmployed": "Independente",
   "advisorMiniEmploymentStudent": "Estudante / Aprendiz",
