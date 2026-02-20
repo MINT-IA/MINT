@@ -16,6 +16,7 @@ class ChiffreChocCard extends StatelessWidget {
   final String prefix;
   final String suffix;
   final String message;
+  final String? narrativeMessage; // LLM-enriched emotional message (null if no BYOK)
   final String source;
   final String ctaLabel;
   final String ctaRoute;
@@ -28,6 +29,7 @@ class ChiffreChocCard extends StatelessWidget {
     this.prefix = 'CHF ',
     this.suffix = '',
     required this.message,
+    this.narrativeMessage,
     required this.source,
     required this.ctaLabel,
     required this.ctaRoute,
@@ -107,16 +109,41 @@ class ChiffreChocCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Message
-          Text(
-            message,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: MintColors.textPrimary,
-              height: 1.5,
+          // Message — LLM narrative (if available) or static fallback
+          if (narrativeMessage != null && narrativeMessage!.isNotEmpty) ...[
+            Text(
+              narrativeMessage!,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                height: 1.5,
+                color: MintColors.textPrimary,
+                fontStyle: FontStyle.italic,
+              ),
             ),
-          ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome, size: 12, color: MintColors.coachAccent),
+                const SizedBox(width: 4),
+                Text(
+                  'Coach MINT',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ] else
+            Text(
+              message,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: MintColors.textPrimary,
+                height: 1.5,
+              ),
+            ),
           const SizedBox(height: 14),
 
           // CTA

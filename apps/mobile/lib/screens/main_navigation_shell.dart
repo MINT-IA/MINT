@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
@@ -7,7 +8,9 @@ import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 /// Shell principal de navigation MINT Coach
 ///
@@ -24,10 +27,62 @@ class MainNavigationShell extends StatefulWidget {
   State<MainNavigationShell> createState() => _MainNavigationShellState();
 }
 
-class _MainNavigationShellState extends State<MainNavigationShell> {
+class _MainNavigationShellState extends State<MainNavigationShell>
+    with WidgetsBindingObserver {
   int _currentIndex = 0;
   final AnalyticsService _analytics = AnalyticsService();
   bool _budgetLoaded = false;
+  int _lastKnownSimulatorCount = 0;
+
+  /// Timestamp when the app was last paused (backgrounded)
+  DateTime? _lastPauseTime;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _lastPauseTime = DateTime.now();
+    }
+    if (state == AppLifecycleState.resumed) {
+      // Check for deep link from notification tap
+      final pendingRoute = NotificationService.consumePendingRoute();
+      if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            GoRouter.of(context).go(pendingRoute);
+          }
+        });
+      }
+
+      // Show welcome-back snackbar if away > 1 hour
+      if (_lastPauseTime != null) {
+        final away = DateTime.now().difference(_lastPauseTime!);
+        if (away.inHours >= 1 && mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Bienvenue ! Tes donnees sont a jour.'),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+          });
+        }
+      }
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -67,11 +122,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             children: _tabs,
           ),
 
-          // FAB Mentor (toujours visible)
-          const Positioned(
+          // FAB Mentor (toujours visible, contextuel par tab)
+          Positioned(
             right: 20,
             bottom: 90,
-            child: MentorFAB(),
+            child: MentorFAB(currentTabIndex: _currentIndex),
           ),
         ],
       ),
@@ -141,6 +196,26 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         onTap: () {
           if (_currentIndex != index) {
             _analytics.trackTabSwitch(_tabNames[_currentIndex], _tabNames[index]);
+
+            // Feedback loop: snackbar au retour sur Dashboard si nouveaux simulateurs explores
+            if (index == 0) {
+              final activity = context.read<UserActivityProvider>();
+              final currentCount = activity.exploredSimulators.length;
+              if (currentCount > _lastKnownSimulatorCount && _lastKnownSimulatorCount > 0) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Recommandations mises a jour'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                });
+              }
+              _lastKnownSimulatorCount = currentCount;
+            }
+
             setState(() => _currentIndex = index);
           }
         },

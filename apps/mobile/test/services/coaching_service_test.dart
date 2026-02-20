@@ -726,4 +726,124 @@ void main() {
       expect(missing3a.estimatedImpactChf, closeTo(7258 * 0.33, 0.01));
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  TIP ENRICHMENT (T2 — Tips Narratifs)
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachingService - Tip Enrichment', () {
+    const testProfile = CoachingProfile(
+      age: 35,
+      canton: 'VD',
+      revenuAnnuel: 85000,
+      has3a: false,
+      montant3a: 0,
+      hasLpp: true,
+      avoirLpp: 95000,
+      lacuneLpp: 42000,
+      tauxActivite: 100,
+      chargesFixesMensuelles: 3800,
+      epargneDispo: 8500,
+      detteTotale: 0,
+      hasBudget: false,
+      employmentStatus: EmploymentStatus.salarie,
+      etatCivil: EtatCivil.celibataire,
+    );
+
+    test('enrichTips returns tips unchanged when no BYOK', () async {
+      final tips = CoachingService.generateTips(profile: testProfile);
+      final result = await CoachingService.enrichTips(
+        tips: tips,
+        profile: testProfile,
+        firstName: 'Julien',
+        apiKey: null,
+        provider: null,
+      );
+      expect(result.length, tips.length);
+      for (final tip in result) {
+        expect(tip.narrativeMessage, isNull);
+      }
+    });
+
+    test('enrichTips returns tips unchanged when apiKey is empty', () async {
+      final tips = CoachingService.generateTips(profile: testProfile);
+      final result = await CoachingService.enrichTips(
+        tips: tips,
+        profile: testProfile,
+        firstName: 'Julien',
+        apiKey: '',
+        provider: 'openai',
+      );
+      for (final tip in result) {
+        expect(tip.narrativeMessage, isNull);
+      }
+    });
+
+    test('enrichTips handles empty tips list', () async {
+      final result = await CoachingService.enrichTips(
+        tips: [],
+        profile: testProfile,
+        firstName: 'Julien',
+        apiKey: 'sk-test',
+        provider: 'openai',
+      );
+      expect(result, isEmpty);
+    });
+
+    test('enrichTips gracefully handles LLM failure', () async {
+      // When RAG backend is unreachable, tips should be returned unchanged
+      final tips = [
+        CoachingTip(
+          id: 'test',
+          category: 'test',
+          priority: CoachingPriority.haute,
+          title: 'Test',
+          message: 'Original message',
+          action: 'Test',
+          source: 'Test',
+          icon: Icons.info,
+        ),
+      ];
+      final result = await CoachingService.enrichTips(
+        tips: tips,
+        profile: testProfile,
+        firstName: 'Julien',
+        apiKey: 'sk-fake-key',
+        provider: 'openai',
+      );
+      // Should not crash, tips returned with original message
+      expect(result.first.message, 'Original message');
+    });
+
+    test('narrativeMessage field defaults to null on CoachingTip', () {
+      final tip = CoachingTip(
+        id: 'test',
+        category: 'test',
+        priority: CoachingPriority.haute,
+        title: 'Test',
+        message: 'Original',
+        action: 'Test',
+        source: 'Test',
+        icon: Icons.info,
+      );
+      expect(tip.narrativeMessage, isNull);
+      expect(tip.message, 'Original');
+    });
+
+    test('narrativeMessage can be set after construction', () {
+      final tip = CoachingTip(
+        id: 'test',
+        category: 'test',
+        priority: CoachingPriority.haute,
+        title: 'Test',
+        message: 'Original',
+        action: 'Test',
+        source: 'Test',
+        icon: Icons.info,
+      );
+      tip.narrativeMessage = 'Enriched narrative message for Julien';
+      expect(tip.narrativeMessage, 'Enriched narrative message for Julien');
+      expect(tip.message, 'Original'); // original unchanged
+    });
+  });
 }

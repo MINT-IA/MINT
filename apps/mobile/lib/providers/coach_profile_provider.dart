@@ -209,6 +209,87 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met a jour le profil depuis le check-up annuel (annual refresh).
+  /// Seuls les champs non-null sont mis a jour.
+  /// Persiste les reponses wizard mises a jour et recalcule le score.
+  Future<void> updateFromRefresh({
+    double? salaireBrutMensuel,
+    String? employmentStatus,
+    double? avoirLppTotal,
+    double? totalEpargne3a,
+    String? realEstateProject,
+    String? familyChange,
+    String? riskTolerance,
+  }) async {
+    if (_profile == null) return;
+
+    final p = _profile!;
+
+    // Build updated prevoyance if LPP or 3a changed
+    final updatedPrevoyance = PrevoyanceProfile(
+      anneesContribuees: p.prevoyance.anneesContribuees,
+      lacunesAVS: p.prevoyance.lacunesAVS,
+      renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
+      nomCaisse: p.prevoyance.nomCaisse,
+      avoirLppTotal: avoirLppTotal ?? p.prevoyance.avoirLppTotal,
+      rachatMaximum: p.prevoyance.rachatMaximum,
+      rachatEffectue: p.prevoyance.rachatEffectue,
+      tauxConversion: p.prevoyance.tauxConversion,
+      rendementCaisse: p.prevoyance.rendementCaisse,
+      nombre3a: p.prevoyance.nombre3a,
+      totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
+      comptes3a: p.prevoyance.comptes3a,
+      canContribute3a: p.prevoyance.canContribute3a,
+    );
+
+    _profile = CoachProfile(
+      firstName: p.firstName,
+      birthYear: p.birthYear,
+      canton: p.canton,
+      commune: p.commune,
+      etatCivil: p.etatCivil,
+      nombreEnfants: p.nombreEnfants,
+      conjoint: p.conjoint,
+      salaireBrutMensuel: salaireBrutMensuel ?? p.salaireBrutMensuel,
+      nombreDeMois: p.nombreDeMois,
+      bonusPourcentage: p.bonusPourcentage,
+      employmentStatus: employmentStatus ?? p.employmentStatus,
+      depenses: p.depenses,
+      prevoyance: updatedPrevoyance,
+      patrimoine: p.patrimoine,
+      dettes: p.dettes,
+      goalA: p.goalA,
+      goalsB: p.goalsB,
+      plannedContributions: p.plannedContributions,
+      checkIns: p.checkIns,
+      housingStatus: p.housingStatus,
+      riskTolerance: riskTolerance ?? p.riskTolerance,
+      realEstateProject: realEstateProject ?? p.realEstateProject,
+      providers3a: p.providers3a,
+      createdAt: p.createdAt,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist updated wizard answers with refreshed fields
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (salaireBrutMensuel != null) {
+      // Convert back to net for wizard format (brut * 0.87)
+      answers['q_net_income_period_chf'] = salaireBrutMensuel * 0.87;
+    }
+    if (employmentStatus != null) {
+      answers['q_employment_status'] = employmentStatus;
+    }
+    if (riskTolerance != null) {
+      answers['q_risk_tolerance'] = riskTolerance;
+    }
+    if (realEstateProject != null) {
+      answers['q_real_estate_project'] = realEstateProject;
+    }
+    await ReportPersistenceService.saveAnswers(answers);
+
+    notifyListeners();
+  }
+
   /// Reset le profil (logout / reset).
   void clear() {
     _profile = null;

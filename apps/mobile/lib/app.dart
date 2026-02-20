@@ -9,6 +9,8 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
+import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
+import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
@@ -40,6 +42,7 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
+import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/screens/coaching_screen.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
@@ -88,6 +91,7 @@ import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:mint_mobile/screens/mortgage/imputed_rental_screen.dart';
 import 'package:mint_mobile/screens/mortgage/saron_vs_fixed_screen.dart';
+import 'package:mint_mobile/screens/admin_observability_screen.dart';
 // Pillar 3a Deep (Sprint S17)
 import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
@@ -103,10 +107,12 @@ import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -127,6 +133,14 @@ final _router = GoRouter(
     GoRoute(
       path: '/auth/register',
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password',
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/auth/verify-email',
+      builder: (context, state) => const VerifyEmailScreen(),
     ),
     // Main Dashboard (Shell with internal tabs)
     GoRoute(
@@ -153,6 +167,11 @@ final _router = GoRouter(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoachChatScreen(),
+    ),
+    GoRoute(
+      path: '/coach/refresh',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AnnualRefreshScreen(),
     ),
     // Feature Routes (Full Screen)
     GoRoute(
@@ -183,6 +202,10 @@ final _router = GoRouter(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
       routes: [
+        GoRoute(
+          path: 'admin-observability',
+          builder: (context, state) => const AdminObservabilityScreen(),
+        ),
         GoRoute(
           path: 'consent',
           builder: (context, state) => const ConsentDashboardScreen(),
@@ -568,6 +591,8 @@ class _MintAppState extends State<MintApp> {
     super.initState();
     // Initialize analytics service
     AnalyticsService().init();
+    // Initialize local notifications for coaching reminders
+    NotificationService().init();
   }
 
   @override
@@ -597,6 +622,11 @@ class _MintAppState extends State<MintApp> {
         ChangeNotifierProvider(create: (_) {
           final provider = OnboardingProvider();
           provider.init();
+          return provider;
+        }),
+        ChangeNotifierProvider(create: (_) {
+          final provider = UserActivityProvider();
+          provider.loadAll();
           return provider;
         }),
       ],

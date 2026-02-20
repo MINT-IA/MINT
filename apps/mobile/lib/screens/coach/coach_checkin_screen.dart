@@ -7,7 +7,11 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/services/milestone_detection_service.dart';
+import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
+import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
+import 'package:mint_mobile/services/notification_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHECK-IN SCREEN — Sprint C6 / MINT Coach
@@ -211,10 +215,35 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     // Persist score for trend tracking
     coachProvider.saveCurrentScore(_scoreAfter);
 
+    // Re-schedule notifications with updated profile (new check-in resets reminders)
+    NotificationService().scheduleCoachingReminders(profile: updatedProfile);
+
     setState(() {
       _isSubmitted = true;
     });
     _checkAnimController.forward();
+
+    // ── Milestone detection (async, after check-in persisted) ──
+    _detectAndCelebrateMilestones(updatedProfile);
+  }
+
+  /// Detect newly achieved milestones and show celebration sheets.
+  Future<void> _detectAndCelebrateMilestones(CoachProfile updatedProfile) async {
+    final streakResult = StreakService.compute(updatedProfile);
+    final milestones = await MilestoneDetectionService.detectNew(
+      profile: updatedProfile,
+      currentScore: _scoreAfter,
+      streak: streakResult,
+    );
+    for (final milestone in milestones) {
+      if (!mounted) break;
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => MilestoneCelebrationSheet(milestone: milestone),
+      );
+    }
   }
 
   int _calculateStreak(List<MonthlyCheckIn> checkIns) {

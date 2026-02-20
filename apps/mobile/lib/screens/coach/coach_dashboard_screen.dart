@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -13,7 +15,10 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
@@ -77,6 +82,13 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   List<Map<String, dynamic>>? _scoreHistory;
   Map<String, dynamic> _onboarding30PlanState = const {};
   bool _onboarding30PlanLoaded = false;
+  bool _showRefreshBanner = false;
+
+  // Chiffre choc emotional narratives (LLM-generated via BYOK)
+  Map<String, String> _chiffreChocNarratives = {};
+
+  // T7: Coach narrative (LLM or static fallback)
+  CoachNarrative? _narrative;
 
   // "Et si..." state
   bool _etSiExpanded = false;
@@ -148,6 +160,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         _coachingTips = CoachingService.generateTips(
           profile: _profile!.toCoachingProfile(),
         );
+
+        // T3: Load emotional narratives for chiffre choc cards (BYOK LLM)
+        unawaited(_loadChiffreChocNarratives());
+
+        // T7: Load coach narrative (BYOK or static fallback)
+        unawaited(_loadCoachNarrative());
       }
 
       // Filtrer les tips dont le simulateur a ete explore (inter-tab sync)
@@ -168,6 +186,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       }
       // Charger l'historique des scores depuis le provider
       _scoreHistory = coachProvider.scoreHistory;
+
+      // Detect if profile needs annual refresh (~11 months)
+      final daysSinceUpdate =
+          DateTime.now().difference(_profile!.updatedAt).inDays;
+      _showRefreshBanner = daysSinceUpdate >= 330;
     } else {
       _profile = null;
       _score = null;
@@ -206,6 +229,204 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       _onboarding30PlanState = state;
       _onboarding30PlanLoaded = true;
     });
+  }
+
+  // ── Chiffre Choc Emotional Narratives (T3 — Coach AI Layer) ──
+
+  /// Generate emotional narratives for chiffre choc cards via BYOK LLM.
+  /// Returns a map of category -> narrative message.
+  /// Falls back to empty map (use static message) if no BYOK or LLM fails.
+  Future<void> _loadChiffreChocNarratives() async {
+    final byok = context.read<ByokProvider>();
+    if (!byok.isConfigured || _profile == null) return;
+
+    // Check 24h cache
+    final prefs = await SharedPreferences.getInstance();
+    final cacheKey =
+        'chiffre_choc_narratives_${DateTime.now().toIso8601String().substring(0, 10)}';
+    final cached = prefs.getString(cacheKey);
+    if (cached != null) {
+      try {
+        final map = Map<String, String>.from(
+          (jsonDecode(cached) as Map).map(
+            (k, v) => MapEntry(k.toString(), v.toString()),
+          ),
+        );
+        if (map.isNotEmpty && mounted) {
+          setState(() => _chiffreChocNarratives = map);
+        }
+        return;
+      } catch (_) {
+        // Cache corrupted — regenerate
+      }
+    }
+
+    // Generate via LLM
+    try {
+      final ragService = RagService();
+      final prompt = '''
+Tu es le coach MINT. Transforme ces chiffres choc en impact emotionnel pour ${_profile!.firstName ?? 'utilisateur'} :
+
+${_buildChiffreChocContext()}
+
+Pour CHAQUE chiffre, genere une phrase qui :
+- Traduit le montant en impact de vie quotidien (vacances, loyer, creche, etc.)
+- Utilise des comparaisons concretes et tangibles
+- Tutoiement, ton chaleureux
+- JAMAIS : garanti, certain, assure, sans risque, optimal, meilleur, parfait
+
+Reponds UNIQUEMENT en JSON valide : {"fiscalite": "...", "prevoyance": "...", "avs": "..."}
+Si une categorie ne s'applique pas, omets-la.
+''';
+      final response = await ragService.query(
+        question: prompt,
+        apiKey: byok.apiKey!,
+        provider: byok.provider ?? 'openai',
+        profileContext: {
+          'financial_summary':
+              '${_profile!.firstName ?? 'utilisateur'}, ${_profile!.age} ans',
+        },
+      );
+
+      // Parse JSON from LLM response (may be wrapped in markdown backticks)
+      var rawAnswer = response.answer.trim();
+      if (rawAnswer.startsWith('```json')) {
+        rawAnswer = rawAnswer.substring(7);
+      } else if (rawAnswer.startsWith('```')) {
+        rawAnswer = rawAnswer.substring(3);
+      }
+      if (rawAnswer.endsWith('```')) {
+        rawAnswer = rawAnswer.substring(0, rawAnswer.length - 3);
+      }
+      rawAnswer = rawAnswer.trim();
+
+      final parsed = jsonDecode(rawAnswer) as Map;
+      final result =
+          parsed.map((k, v) => MapEntry(k.toString(), v.toString()));
+
+      // Filter banned terms from each narrative
+      final filtered = result.map((k, v) => MapEntry(k, _filterBannedTerms(v)));
+
+      // Cache for 24h
+      await prefs.setString(cacheKey, jsonEncode(filtered));
+
+      if (mounted) {
+        setState(() => _chiffreChocNarratives = Map<String, String>.from(filtered));
+      }
+    } catch (_) {
+      // Fallback: use static messages (empty map = no narrative)
+    }
+  }
+
+  /// Build context string describing the user's current chiffre choc values.
+  String _buildChiffreChocContext() {
+    final buffer = StringBuffer();
+    final revenuBrutAnnuel = _profile!.revenuBrutAnnuel;
+
+    // 3a tax savings
+    final cotisation3aAnnuelle = _profile!.total3aMensuel * 12;
+    const plafond3a = 7258.0;
+    if (cotisation3aAnnuelle < plafond3a &&
+        _profile!.prevoyance.canContribute3a) {
+      final tauxMarginal =
+          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
+      final economiePotentielle =
+          (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
+      final anneesRestantes = _profile!.anneesAvantRetraite;
+      final economieTotale = economiePotentielle * anneesRestantes;
+      if (economieTotale > 500) {
+        buffer.writeln(
+            'FISCALITE: CHF ${economieTotale.toStringAsFixed(0)} d\'economies d\'impots potentielles d\'ici la retraite en maximisant le 3a.');
+      }
+    }
+
+    // LPP buyback
+    final lacuneLpp = _profile!.prevoyance.lacuneRachatRestante;
+    if (lacuneLpp > 5000) {
+      final tauxMarginal =
+          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
+      final economieRachat = lacuneLpp * tauxMarginal;
+      buffer.writeln(
+          'PREVOYANCE: CHF ${economieRachat.toStringAsFixed(0)} de deduction fiscale potentielle en rachetant la lacune LPP de CHF ${lacuneLpp.toStringAsFixed(0)}.');
+    }
+
+    // AVS gap
+    final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
+    if (lacunesAVS > 0) {
+      const reductionParAnnee = 1.0 / avsDureeCotisationComplete;
+      final perteTotaleAnnuelle = lacunesAVS * reductionParAnnee * 30240;
+      final perteTotaleRetraite = perteTotaleAnnuelle * 20;
+      buffer.writeln(
+          'AVS: CHF ${perteTotaleRetraite.toStringAsFixed(0)} de rente AVS perdue sur 20 ans de retraite avec $lacunesAVS annee(s) de cotisation manquante(s).');
+    }
+
+    if (buffer.isEmpty) {
+      buffer.writeln('Pas de chiffre choc specifique pour cet utilisateur.');
+    }
+
+    return buffer.toString();
+  }
+
+  /// Filter banned terms from a narrative string (compliance guardrail).
+  static String _filterBannedTerms(String text) {
+    const bannedTerms = [
+      'garanti',
+      'certain',
+      'assuré',
+      'assure',
+      'sans risque',
+      'optimal',
+      'meilleur',
+      'parfait',
+    ];
+    var filtered = text;
+    for (final term in bannedTerms) {
+      if (filtered.toLowerCase().contains(term.toLowerCase())) {
+        filtered = filtered.replaceAll(
+          RegExp(term, caseSensitive: false),
+          '[terme retire]',
+        );
+      }
+    }
+    return filtered;
+  }
+
+  // ── Coach Narrative (T7 — Coach AI Layer) ──
+
+  /// Load full coach narrative via BYOK LLM or static fallback.
+  /// Populates _narrative which is used across the dashboard.
+  Future<void> _loadCoachNarrative() async {
+    if (_profile == null) return;
+
+    final byok = context.read<ByokProvider>();
+    LlmConfig? byokConfig;
+    if (byok.isConfigured) {
+      final LlmProvider llmProvider;
+      switch (byok.provider) {
+        case 'claude':
+        case 'anthropic':
+          llmProvider = LlmProvider.anthropic;
+        case 'mistral':
+          llmProvider = LlmProvider.mistral;
+        default:
+          llmProvider = LlmProvider.openai;
+      }
+      byokConfig = LlmConfig(
+        apiKey: byok.apiKey!,
+        provider: llmProvider,
+      );
+    }
+
+    final narrative = await CoachNarrativeService.generate(
+      profile: _profile!,
+      scoreHistory: _scoreHistory,
+      tips: _coachingTips,
+      byokConfig: byokConfig,
+    );
+
+    if (mounted) {
+      setState(() => _narrative = narrative);
+    }
   }
 
   bool _hasOnboarding30PlanToResume() {
@@ -331,6 +552,73 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRefreshBanner() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              MintColors.coachAccent.withAlpha(25),
+              Colors.white,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.coachAccent.withAlpha(75),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.update, color: MintColors.coachAccent),
+                const SizedBox(width: 8),
+                Text(
+                  'Check-up annuel',
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Ton profil date de plus de 11 mois. Quelques questions rapides pour mettre tes donnees a jour.',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => context.push('/coach/refresh'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MintColors.coachAccent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Mettre a jour',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -470,6 +758,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 _buildCoachAlertCard(),
                 const SizedBox(height: 24),
                 _buildCheckInReminderCard(),
+                if (_showRefreshBanner) _buildRefreshBanner(),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
                 _buildScoreSection(),
@@ -480,6 +769,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
                 _buildTrajectorySection(),
+                _buildScenarioNarrations(),
                 const SizedBox(height: 12),
                 _buildEtSiPanel(),
                 const SizedBox(height: 24),
@@ -1619,7 +1909,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
         title: Text(
-          l10n?.coachHello(firstName) ?? 'Bonjour $firstName',
+          _narrative?.greeting ?? (l10n?.coachHello(firstName) ?? 'Bonjour $firstName'),
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -1685,7 +1975,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final String? ctaLabel;
     final String? ctaRoute;
     if (topTip != null) {
-      message = topTip.message;
+      message = topTip.narrativeMessage ?? (_narrative?.topTipNarrative ?? topTip.message);
       ctaLabel = topTip.action;
       ctaRoute = tipRoute(topTip);
     } else {
@@ -1697,7 +1987,45 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     // Count active (non-dismissed) tips
     final activeTipCount = tips.length;
 
-    return Container(
+    // T7: Build urgent alert widget from narrative if available
+    final Widget? urgentAlertWidget;
+    if (_narrative?.urgentAlert != null) {
+      urgentAlertWidget = Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEF2F2),
+          borderRadius: BorderRadius.circular(12),
+          border: const Border(
+            left: BorderSide(color: Color(0xFFEF4444), width: 4),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.warning_amber_rounded,
+                color: Color(0xFFEF4444), size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _narrative!.urgentAlert!,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFFEF4444),
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      urgentAlertWidget = null;
+    }
+
+    final alertCard = Container(
       decoration: BoxDecoration(
         color: urgency == _AlertUrgency.urgent
             ? const Color(0xFFFEF2F2)
@@ -1850,6 +2178,19 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         ],
       ),
     );
+
+    // T7: Wrap with urgent alert if present
+    if (urgentAlertWidget != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          urgentAlertWidget,
+          alertCard,
+        ],
+      );
+    }
+
+    return alertCard;
   }
 
   _AlertUrgency _computeAlertUrgency(CoachingTip? tip) {
@@ -2130,7 +2471,21 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final IconData icon;
     final Color color;
 
-    if (trend > 3) {
+    // T7: Use LLM-generated trend message if available
+    if (_narrative != null && _narrative!.isLlmGenerated) {
+      text = _narrative!.trendMessage;
+      // Still determine icon/color from numeric trend
+      if (trend > 3) {
+        icon = Icons.trending_up;
+        color = const Color(0xFF10B981);
+      } else if (trend < -3) {
+        icon = Icons.trending_down;
+        color = const Color(0xFFEF4444);
+      } else {
+        icon = Icons.trending_flat;
+        color = const Color(0xFF6B7280);
+      }
+    } else if (trend > 3) {
       text = 'En progression — continue comme ca';
       icon = Icons.trending_up;
       color = const Color(0xFF10B981);
@@ -2341,6 +2696,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           value: economieTotale,
           message: 'Économies d\'impôts potentielles d\'ici ta retraite en '
               'maximisant ton 3a chaque année.',
+          narrativeMessage: _chiffreChocNarratives['fiscalite'],
           source: 'OPP3 art. 7 · LIFD',
           ctaLabel: 'Simuler mon 3a',
           ctaRoute: '/simulator/3a',
@@ -2361,6 +2717,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         value: economieRachat,
         message: 'Déduction fiscale potentielle en rachetant '
             'ta lacune LPP de CHF ${_formatChf(lacuneLpp)}.',
+        narrativeMessage: _chiffreChocNarratives['prevoyance'],
         source: 'LPP art. 79b',
         ctaLabel: 'Explorer le rachat',
         ctaRoute: '/lpp-deep/rachat',
@@ -2383,6 +2740,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         message: 'Rente AVS perdue sur 20 ans de retraite avec '
             '$lacunesAVS année${lacunesAVS > 1 ? 's' : ''} '
             'de cotisation manquante${lacunesAVS > 1 ? 's' : ''}.',
+        narrativeMessage: _chiffreChocNarratives['avs'],
         source: 'LAVS art. 29',
         ctaLabel: 'Vérifier mes lacunes',
         ctaRoute: '/retirement',
@@ -2488,6 +2846,126 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
             result: _etSiProjection ?? _projection!,
             goalALabel: _profile!.goalA.label,
             onTap: () => context.push('/retirement/projection'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  4b. SCENARIO NARRATIONS (T7 — Coach AI Layer)
+  // ════════════════════════════════════════════════════════════════
+
+  /// Displays LLM-generated scenario narrations (Prudent / Base / Optimiste).
+  /// Returns SizedBox.shrink() if no narrative or no scenarios available.
+  Widget _buildScenarioNarrations() {
+    if (_narrative == null ||
+        _narrative!.scenarioNarrations == null ||
+        _narrative!.scenarioNarrations!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final labels = ['Prudent', 'Base', 'Optimiste'];
+    final colors = [
+      const Color(0xFF6B7280), // grey for prudent
+      MintColors.primary, // mint green for base
+      const Color(0xFF10B981), // emerald for optimiste
+    ];
+    final icons = [
+      Icons.shield_outlined,
+      Icons.balance,
+      Icons.trending_up,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            children: [
+              const Icon(Icons.auto_stories,
+                  size: 18, color: MintColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                'Tes scenarios decryptes',
+                style: GoogleFonts.montserrat(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Coach IA',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        for (int i = 0;
+            i < min(_narrative!.scenarioNarrations!.length, 3);
+            i++)
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: colors[i].withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12),
+              border:
+                  Border(left: BorderSide(color: colors[i], width: 3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icons[i], size: 16, color: colors[i]),
+                    const SizedBox(width: 6),
+                    Text(
+                      labels[i],
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w700,
+                        color: colors[i],
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _narrative!.scenarioNarrations![i],
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            CoachNarrativeService.disclaimer,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textMuted,
+            ),
           ),
         ),
       ],

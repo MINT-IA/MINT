@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACHING PROACTIF SERVICE — Sprint S11
@@ -79,18 +80,20 @@ class CoachingTip {
   final String category; // "fiscalite", "prevoyance", "budget", "retraite"
   final CoachingPriority priority;
   final String title;
-  final String message;
+  final String message; // original static message
+  String? narrativeMessage; // LLM-enriched message (null if no BYOK)
   final String action; // call-to-action text
   final double? estimatedImpactChf;
   final String source; // legal/regulatory source reference
   final IconData icon;
 
-  const CoachingTip({
+  CoachingTip({
     required this.id,
     required this.category,
     required this.priority,
     required this.title,
     required this.message,
+    this.narrativeMessage,
     required this.action,
     this.estimatedImpactChf,
     required this.source,
@@ -212,6 +215,133 @@ class CoachingService {
     });
 
     return tips;
+  }
+
+  /// Enrichit les 3 premiers tips avec des narrations LLM personnalisees.
+  /// Si pas de BYOK, retourne les tips inchanges (zero regression).
+  ///
+  /// Le LLM recoit le tip original + le profil complet et genere un
+  /// message narratif qui croise toutes les dimensions du profil
+  /// (age, situation familiale, emploi, canton, chiffres specifiques).
+  static Future<List<CoachingTip>> enrichTips({
+    required List<CoachingTip> tips,
+    required CoachingProfile profile,
+    required String firstName,
+    required String? apiKey,
+    required String? provider,
+    String? model,
+  }) async {
+    // If no BYOK, return tips unchanged
+    if (apiKey == null || apiKey.isEmpty) return tips;
+    if (tips.isEmpty) return tips;
+
+    // Enrich only the top 3 tips (economy of tokens)
+    final toEnrich = tips.take(3).toList();
+
+    for (final tip in toEnrich) {
+      try {
+        final ragService = RagService();
+        final prompt = _buildEnrichmentPrompt(tip, profile, firstName);
+
+        final response = await ragService.query(
+          question: prompt,
+          apiKey: apiKey,
+          provider: provider ?? 'openai',
+          model: model,
+          profileContext: {
+            'age': profile.age,
+            'canton': profile.canton,
+            'financial_summary':
+                _buildFinancialSummary(profile, firstName),
+          },
+        );
+
+        // Apply guardrails (filter banned terms)
+        final filtered = _filterBannedTerms(response.answer);
+        if (filtered.isNotEmpty && filtered.length > 20) {
+          tip.narrativeMessage = filtered;
+        }
+      } catch (_) {
+        // Silently fail — keep original message (resilience)
+      }
+    }
+
+    return tips;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  //  Enrichment helpers (private)
+  // ──────────────────────────────────────────────────────────
+
+  static String _buildEnrichmentPrompt(
+    CoachingTip tip,
+    CoachingProfile profile,
+    String firstName,
+  ) {
+    return '''
+Tu es le coach MINT. Personnalise ce conseil pour $firstName :
+
+TIP :
+- Titre : ${tip.title}
+- Message : ${tip.message}
+- Impact : ${tip.estimatedImpactChf != null ? 'CHF ${tip.estimatedImpactChf!.toStringAsFixed(0)}' : 'non estime'}
+- Source : ${tip.source}
+
+PROFIL :
+- Age : ${profile.age} ans
+- Canton : ${profile.canton}
+- Statut civil : ${profile.etatCivil.name}
+- Emploi : ${profile.employmentStatus.name} (${profile.tauxActivite}%)
+- Revenu annuel : CHF ${profile.revenuAnnuel.toStringAsFixed(0)}
+- 3a : ${profile.has3a ? 'oui (CHF ${profile.montant3a.toStringAsFixed(0)})' : 'non'}
+- LPP : avoir CHF ${profile.avoirLpp.toStringAsFixed(0)}, lacune CHF ${profile.lacuneLpp.toStringAsFixed(0)}
+- Epargne dispo : CHF ${profile.epargneDispo.toStringAsFixed(0)}
+- Dettes : CHF ${profile.detteTotale.toStringAsFixed(0)}
+- Charges fixes : CHF ${profile.chargesFixesMensuelles.toStringAsFixed(0)}/mois
+
+INSTRUCTIONS :
+Reecris le message en 3-4 phrases max. Personnalise en croisant la situation familiale, l'emploi, l'age et les chiffres. Tutoiement. Ton chaleureux et educatif. JAMAIS : garanti, certain, assure, sans risque, optimal, meilleur, parfait. Retourne UNIQUEMENT le nouveau message.''';
+  }
+
+  static String _buildFinancialSummary(
+    CoachingProfile profile,
+    String firstName,
+  ) {
+    return '$firstName, ${profile.age} ans, ${profile.canton}, '
+        '${profile.employmentStatus.name}, '
+        'revenu CHF ${profile.revenuAnnuel.toStringAsFixed(0)}';
+  }
+
+  /// Filter banned terms from LLM output, replacing with safe alternatives.
+  static String _filterBannedTerms(String text) {
+    var result = text;
+    const banned = [
+      'garanti',
+      'certain',
+      'assuré',
+      'assuree',
+      'sans risque',
+      'optimal',
+      'meilleur',
+      'parfait',
+    ];
+    const replacements = [
+      'potentiel',
+      'probable',
+      'estime',
+      'estimee',
+      'a faible risque',
+      'adapte',
+      'pertinent',
+      'solide',
+    ];
+    for (int i = 0; i < banned.length; i++) {
+      result = result.replaceAll(
+        RegExp(banned[i], caseSensitive: false),
+        replacements[i],
+      );
+    }
+    return result;
   }
 
   // ──────────────────────────────────────────────────────────
