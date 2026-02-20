@@ -852,6 +852,9 @@ class CoachProfile {
       hasBudget: plannedContributions.isNotEmpty,
       employmentStatus: empStatus,
       etatCivil: civilStatus,
+      lastCheckInDepensesExceptionnelles: checkIns.isNotEmpty
+          ? checkIns.last.depensesExceptionnelles
+          : null,
     );
   }
 

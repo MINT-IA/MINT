@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/services/streak_service.dart';
@@ -33,6 +34,8 @@ class _TimelineEvent {
   final IconData icon;
   final Color color;
   final String? cta;
+  final bool isPast;
+  final bool isCompleted;
 
   const _TimelineEvent({
     required this.date,
@@ -41,6 +44,8 @@ class _TimelineEvent {
     required this.icon,
     required this.color,
     this.cta,
+    this.isPast = false,
+    this.isCompleted = false,
   });
 }
 
@@ -54,27 +59,6 @@ class CoachAgirScreen extends StatefulWidget {
 enum _AgirResetAction { resetHistory, resetDiagnostic }
 
 class _CoachAgirScreenState extends State<CoachAgirScreen> {
-  Set<String> _exploredSimulators = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadExploredSimulators();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Rafraichir les checkmarks au retour de navigation
-    _loadExploredSimulators();
-  }
-
-  Future<void> _loadExploredSimulators() async {
-    final explored = await ReportPersistenceService.loadExploredSimulators();
-    if (mounted) {
-      setState(() => _exploredSimulators = explored);
-    }
-  }
 
   Widget _buildResetMenuButton() {
     return PopupMenuButton<_AgirResetAction>(
@@ -107,7 +91,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       await ReportPersistenceService.clearCoachHistory();
       if (!mounted) return;
       await context.read<CoachProfileProvider>().loadFromWizard();
-      await _loadExploredSimulators();
+      await context.read<UserActivityProvider>().clearAll();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Historique coach réinitialisé.')),
@@ -236,10 +220,14 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     // Build timeline events from profile + milestones
     final timelineEvents = _buildTimelineEvents(profile, s);
 
-    // Coaching tips tries par impact
-    final tips = CoachingService.generateTips(
+    // User activity provider (inter-tab sync)
+    final activity = context.watch<UserActivityProvider>();
+
+    // Coaching tips tries par impact — filtrer les tips inactifs
+    final allTips = CoachingService.generateTips(
       profile: profile.toCoachingProfile(),
     );
+    final tips = allTips.where((t) => activity.isTipActive(t.id)).toList();
 
     // Group tips by priority quarter
     final priorityGroups = _prioritizeByQuarter(tips);
@@ -278,6 +266,10 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   ),
                   const SizedBox(height: 24),
                 ],
+
+                // ── Section: Progression annuelle des versements ──
+                if (profile.plannedContributions.isNotEmpty)
+                  ..._buildContributionProgress(profile),
 
                 // ── Section: Ce mois ─────────────────────────
                 _buildSectionHeader(
@@ -413,7 +405,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         ),
       );
 
-      // Tip cards within this group
+      // Tip cards within this group (swipeable)
+      final activity = context.watch<UserActivityProvider>();
       for (final tip in tips) {
         // Check dependency indicator: prevoyance tip + debt in immediate
         final showDependency =
@@ -421,16 +414,92 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
         // Check if this tip's simulator has been explored
         final simId = _simulatorIdForTip(tip);
-        final isExplored = simId != null && _exploredSimulators.contains(simId);
+        final isExplored = simId != null && activity.isSimulatorExplored(simId);
 
         widgets.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: _CoachingTipCard(
-              tip: tip,
-              dependencyHint:
-                  showDependency ? 'Apres : remboursement dette' : null,
-              isExplored: isExplored,
+            child: Dismissible(
+              key: ValueKey('tip_${tip.id}'),
+              // Swipe droite → Fait (dismiss)
+              background: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 24),
+                decoration: BoxDecoration(
+                  color: MintColors.success,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white, size: 24),
+                    SizedBox(width: 8),
+                    Text(
+                      'Fait',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Swipe gauche → Reporter 30j (snooze)
+              secondaryBackground: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 24),
+                decoration: BoxDecoration(
+                  color: MintColors.warning,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Reporter 30j',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.schedule, color: Colors.white, size: 24),
+                  ],
+                ),
+              ),
+              onDismissed: (direction) {
+                if (direction == DismissDirection.startToEnd) {
+                  // Swipe right → dismiss
+                  activity.dismissTip(tip.id);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${tip.title} — marque comme fait'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                } else {
+                  // Swipe left → snooze 30 days
+                  activity.snoozeTip(tip.id, const Duration(days: 30));
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${tip.title} — reporte de 30 jours'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: _CoachingTipCard(
+                tip: tip,
+                dependencyHint:
+                    showDependency ? 'Apres : remboursement dette' : null,
+                isExplored: isExplored,
+              ),
             ),
           ),
         );
@@ -685,6 +754,74 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   }
 
   // ── No contributions state ──────────────────────────────
+  // ── Contribution annual progress ─────────────────────────
+  List<Widget> _buildContributionProgress(CoachProfile profile) {
+    final now = DateTime.now();
+    final currentYear = now.year;
+
+    // Aggregate actual versements from check-ins this year
+    final yearCheckIns = profile.checkIns.where(
+      (ci) => ci.month.year == currentYear,
+    );
+    final actualByCategory = <String, double>{};
+    for (final ci in yearCheckIns) {
+      for (final entry in ci.versements.entries) {
+        actualByCategory[entry.key] =
+            (actualByCategory[entry.key] ?? 0) + entry.value;
+      }
+    }
+
+    // Build progress cards for each planned contribution
+    final widgets = <Widget>[
+      _buildSectionHeader(
+        title: 'Progression annuelle',
+        subtitle: 'Planifie vs verse en $currentYear',
+        icon: Icons.bar_chart,
+        color: const Color(0xFF6366F1),
+      ),
+      const SizedBox(height: 16),
+    ];
+
+    for (final contribution in profile.plannedContributions) {
+      final annualTarget = contribution.amount * 12;
+      // Special case for 3a: cap at pillar 3a ceiling
+      final target = contribution.category == '3a' && annualTarget > 7258
+          ? 7258.0
+          : annualTarget;
+
+      // Sum actual from matching check-in keys
+      double actual = 0;
+      for (final entry in actualByCategory.entries) {
+        if (entry.key.toLowerCase().contains(
+              contribution.category.toLowerCase(),
+            )) {
+          actual += entry.value;
+        }
+      }
+
+      final progress = target > 0 ? (actual / target).clamp(0.0, 1.0) : 0.0;
+      final monthsElapsed = now.month;
+      final expectedProgress = monthsElapsed / 12;
+      final isOnTrack = progress >= expectedProgress * 0.8;
+
+      widgets.add(Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _ContributionProgressCard(
+          label: contribution.label,
+          category: contribution.category,
+          actual: actual,
+          target: target,
+          progress: progress,
+          isOnTrack: isOnTrack,
+          hasCheckIns: yearCheckIns.isNotEmpty,
+        ),
+      ));
+    }
+
+    widgets.add(const SizedBox(height: 24));
+    return widgets;
+  }
+
   Widget _buildNoContributions(BuildContext context, S? s) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -793,43 +930,83 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final now = DateTime.now();
     final events = <_TimelineEvent>[];
 
+    // Helper: is a date in the past?
+    bool isPastDate(DateTime d) => d.isBefore(now);
+    // Helper: is event within 30 days (imminent)?
+    bool isImminent(DateTime d) =>
+        !isPastDate(d) && d.difference(now).inDays <= 30;
+
     // 1. 3a deadline — Dec of current year
+    final dec31 = DateTime(now.year, 12, 31);
     events.add(_TimelineEvent(
-      date: DateTime(now.year, 12, 31),
+      date: dec31,
       title: s?.agirTimeline3a ?? 'Dernier jour versement 3a',
       subtitle: s?.agirTimeline3aSub ??
           'Vérifie que ton plafond est atteint avant fin décembre.',
       icon: Icons.savings,
-      color: const Color(0xFF4F46E5),
+      color: isImminent(dec31)
+          ? const Color(0xFFF59E0B)
+          : const Color(0xFF4F46E5),
       cta: s?.agirTimeline3aCta ?? 'Vérifier mon 3a',
+      isPast: isPastDate(dec31),
+      isCompleted: false, // would need 3a max check
     ));
 
     // 2. Tax filing — March of next year
     final taxYear = now.month <= 3 ? now.year : now.year + 1;
+    final taxDeadline = DateTime(taxYear, 3, 31);
     events.add(_TimelineEvent(
-      date: DateTime(taxYear, 3, 31),
+      date: taxDeadline,
       title: s?.agirTimelineTax(profile.canton) ??
           'Déclaration impôts ${profile.canton}',
       subtitle: s?.agirTimelineTaxSub ??
           'Pense à rassembler tes attestations 3a et LPP.',
       icon: Icons.description,
-      color: MintColors.warning,
+      color: isImminent(taxDeadline)
+          ? const Color(0xFFF59E0B)
+          : MintColors.warning,
       cta: s?.agirTimelineTaxCta ?? 'Préparer mes documents',
+      isPast: isPastDate(taxDeadline),
     ));
 
     // 3. LAMal franchise — November of current year
     final lamalYear = now.month <= 11 ? now.year : now.year + 1;
+    final lamalDeadline = DateTime(lamalYear, 11, 30);
     events.add(_TimelineEvent(
-      date: DateTime(lamalYear, 11, 30),
+      date: lamalDeadline,
       title: s?.agirTimelineLamal ?? 'Franchise LAMal (changer ?)',
       subtitle: s?.agirTimelineLamalSub ??
           'Évalue si ta franchise actuelle est toujours adaptée.',
       icon: Icons.health_and_safety,
-      color: MintColors.error,
+      color: isImminent(lamalDeadline)
+          ? const Color(0xFFF59E0B)
+          : MintColors.error,
       cta: s?.agirTimelineLamalCta ?? 'Simuler les franchises',
+      isPast: isPastDate(lamalDeadline),
     ));
 
-    // 4. Milestones from ForecasterService
+    // 4. Monthly check-in event (1st of next month if not done)
+    final hasCurrentCheckIn = profile.checkIns.any(
+      (ci) => ci.month.year == now.year && ci.month.month == now.month,
+    );
+    final checkInDate = DateTime(now.year, now.month, 1);
+    events.add(_TimelineEvent(
+      date: checkInDate,
+      title: 'Check-in mensuel',
+      subtitle: hasCurrentCheckIn
+          ? 'Fait — versements confirmes pour ce mois.'
+          : 'Confirme tes versements du mois en 2 min.',
+      icon: hasCurrentCheckIn
+          ? Icons.check_circle
+          : Icons.calendar_today_outlined,
+      color: hasCurrentCheckIn
+          ? const Color(0xFF10B981)
+          : const Color(0xFFF59E0B),
+      cta: hasCurrentCheckIn ? null : 'Faire mon check-in',
+      isCompleted: hasCurrentCheckIn,
+    ));
+
+    // 5. Milestones from ForecasterService
     try {
       final projection = ForecasterService.project(profile: profile);
       for (final milestone in projection.milestones.take(3)) {
@@ -837,28 +1014,34 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           date: milestone.date,
           title: milestone.label,
           icon: Icons.flag,
-          color: MintColors.trajectoryBase,
+          color: isPastDate(milestone.date)
+              ? MintColors.textMuted
+              : MintColors.trajectoryBase,
+          isPast: isPastDate(milestone.date),
         ));
       }
     } catch (_) {
       // Graceful degradation — skip milestones if projection fails
     }
 
-    // 5. Retirement
+    // 6. Retirement
     events.add(_TimelineEvent(
       date: profile.goalA.targetDate,
       title: 'Retraite ${profile.firstName ?? ''} (65 ans)',
       subtitle: s?.agirTimelineRetireSub ?? 'Ton objectif principal.',
       icon: Icons.beach_access,
       color: MintColors.trajectoryOptimiste,
+      isPast: isPastDate(profile.goalA.targetDate),
     ));
 
     // Sort by date
     events.sort((a, b) => a.date.compareTo(b.date));
 
-    // Filter to only future events
+    // Keep past completed events (for visual progression) + all future events
     return events
-        .where((e) => e.date.isAfter(now.subtract(const Duration(days: 1))))
+        .where((e) =>
+            e.isCompleted ||
+            e.date.isAfter(now.subtract(const Duration(days: 31))))
         .toList();
   }
 
@@ -1063,22 +1246,9 @@ class _TimelineItem extends StatelessWidget {
                 else
                   const SizedBox(height: 12),
 
-                // Dot
-                Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: event.color,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: event.color.withValues(alpha: 0.3),
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
+                // Dot — visual state: completed (green+check), past (grey),
+                // imminent (<30d, orange pulse), upcoming (blue)
+                _buildTimelineDot(),
 
                 // Bottom connector line
                 if (!isLast)
@@ -1161,7 +1331,14 @@ class _TimelineItem extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: MintColors.textPrimary,
+                        color: event.isCompleted
+                            ? const Color(0xFF10B981)
+                            : event.isPast
+                                ? MintColors.textMuted
+                                : MintColors.textPrimary,
+                        decoration: event.isCompleted
+                            ? TextDecoration.lineThrough
+                            : null,
                       ),
                     ),
 
@@ -1172,7 +1349,9 @@ class _TimelineItem extends StatelessWidget {
                         event.subtitle!,
                         style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: MintColors.textSecondary,
+                          color: event.isPast
+                              ? MintColors.textMuted
+                              : MintColors.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -1191,6 +1370,8 @@ class _TimelineItem extends StatelessWidget {
                             context.push('/documents');
                           } else if (cta.contains('franchises')) {
                             context.push('/assurances/lamal');
+                          } else if (cta.contains('check-in')) {
+                            context.push('/coach/checkin');
                           }
                         },
                         style: TextButton.styleFrom(
@@ -1222,6 +1403,48 @@ class _TimelineItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTimelineDot() {
+    final now = DateTime.now();
+    final daysUntil = event.date.difference(now).inDays;
+
+    Color dotColor;
+    Widget? dotChild;
+
+    if (event.isCompleted) {
+      // Completed: green with checkmark
+      dotColor = const Color(0xFF10B981);
+      dotChild = const Icon(Icons.check, size: 10, color: Colors.white);
+    } else if (event.isPast) {
+      // Past but not completed: grey
+      dotColor = const Color(0xFF9CA3AF);
+    } else if (daysUntil <= 30 && daysUntil >= 0) {
+      // Imminent: orange
+      dotColor = const Color(0xFFF59E0B);
+    } else {
+      // Upcoming: use event color
+      dotColor = event.color;
+    }
+
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        color: dotColor,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: dotColor.withValues(alpha: 0.3),
+            blurRadius: 6,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: dotChild != null
+          ? Center(child: dotChild)
+          : null,
     );
   }
 
@@ -1563,5 +1786,144 @@ class _CoachingTipCard extends StatelessWidget {
       default:
         return MintColors.info;
     }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CONTRIBUTION PROGRESS CARD
+// ════════════════════════════════════════════════════════════════
+
+class _ContributionProgressCard extends StatelessWidget {
+  final String label;
+  final String category;
+  final double actual;
+  final double target;
+  final double progress;
+  final bool isOnTrack;
+  final bool hasCheckIns;
+
+  const _ContributionProgressCard({
+    required this.label,
+    required this.category,
+    required this.actual,
+    required this.target,
+    required this.progress,
+    required this.isOnTrack,
+    required this.hasCheckIns,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = colorForCategory(category);
+    final icon = iconForCategory(category);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+              if (!hasCheckIns)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'A confirmer',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  '${(progress * 100).toStringAsFixed(0)}%',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: isOnTrack
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFF59E0B),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: MintColors.lightBorder,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                isOnTrack
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFF59E0B),
+              ),
+              minHeight: 6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${ForecasterService.formatChf(actual)} verses',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              Text(
+                'Objectif : ${ForecasterService.formatChf(target)}',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

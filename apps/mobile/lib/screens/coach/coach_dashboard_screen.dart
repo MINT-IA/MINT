@@ -22,6 +22,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -62,6 +63,9 @@ class CoachDashboardScreen extends StatefulWidget {
 }
 
 enum _DashboardResetAction { resetHistory, resetDiagnostic }
+
+/// Urgency level for coach alert card.
+enum _AlertUrgency { urgent, active, info }
 
 class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     with SingleTickerProviderStateMixin {
@@ -145,6 +149,23 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           profile: _profile!.toCoachingProfile(),
         );
       }
+
+      // Filtrer les tips dont le simulateur a ete explore (inter-tab sync)
+      final activity = context.watch<UserActivityProvider>();
+      if (activity.isLoaded && activity.exploredSimulators.isNotEmpty) {
+        // Tips explores sont deprioritises (mis en fin de liste)
+        final explored = <CoachingTip>[];
+        final notExplored = <CoachingTip>[];
+        for (final tip in _coachingTips) {
+          final simId = _simulatorIdForTip(tip);
+          if (simId != null && activity.isSimulatorExplored(simId)) {
+            explored.add(tip);
+          } else {
+            notExplored.add(tip);
+          }
+        }
+        _coachingTips = [...notExplored, ...explored];
+      }
       // Charger l'historique des scores depuis le provider
       _scoreHistory = coachProvider.scoreHistory;
     } else {
@@ -154,6 +175,27 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       _baselineProjection = null;
       _coachingTips = [];
       _scoreHistory = null;
+    }
+  }
+
+  /// Mappe un coaching tip a un ID de simulateur pour le feedback loop.
+  String? _simulatorIdForTip(CoachingTip tip) {
+    switch (tip.category) {
+      case 'fiscalite':
+        return '3a';
+      case 'prevoyance':
+        if (tip.id.contains('lpp')) return 'lpp_deep';
+        if (tip.id.contains('3a')) return '3a';
+        return null;
+      case 'retraite':
+        if (tip.id.contains('rente') || tip.id.contains('capital')) {
+          return 'rente_capital';
+        }
+        return 'retirement_projection';
+      case 'budget':
+        return 'budget';
+      default:
+        return null;
     }
   }
 
@@ -183,6 +225,115 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final lastRoute = _onboarding30PlanState['last_route'];
     if (lastRoute is String && lastRoute.isNotEmpty) return lastRoute;
     return '/advisor/plan-30-days';
+  }
+
+  // ── Check-in state helpers ──
+
+  bool _isCheckInDoneThisMonth() {
+    if (_profile == null) return false;
+    final now = DateTime.now();
+    return _profile!.checkIns.any(
+      (ci) => ci.month.year == now.year && ci.month.month == now.month,
+    );
+  }
+
+  Widget _buildCheckInReminderCard() {
+    if (_isCheckInDoneThisMonth()) return const SizedBox.shrink();
+
+    final streakResult = StreakService.compute(_profile!);
+    final streak = streakResult.currentStreak;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: GestureDetector(
+        onTap: () => context.push('/coach/checkin'),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF10B981), Color(0xFF059669)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF10B981).withValues(alpha: 0.25),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.calendar_today_outlined,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Check-in mensuel disponible',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Confirme tes versements du mois en 2 min',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                    if (streak > 0) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.local_fire_department,
+                            color: Color(0xFFFFD54F),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Serie : $streak mois consecutifs',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFD54F),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 16,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildResumePlan30Card() {
@@ -318,9 +469,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               delegate: SliverChildListDelegate([
                 _buildCoachAlertCard(),
                 const SizedBox(height: 24),
+                _buildCheckInReminderCard(),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
                 _buildScoreSection(),
+                _buildScoreTrendText(),
                 _buildScoreHistorySection(),
                 const SizedBox(height: 24),
                 _buildNowVsWithCard(),
@@ -1498,30 +1651,34 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   /// Instead of a generic message per fitness level, this surfaces
   /// the most impactful coaching tip with a specific CHF amount
   /// and a direct CTA to the relevant simulator.
+  ///
+  /// Urgency levels:
+  /// - Alerte urgente (haute priority + deadline proche): red border, warning icon
+  /// - Conseil actif (haute priority, no deadline): orange border
+  /// - Info coach (moyenne/basse): green border
   Widget _buildCoachAlertCard() {
-    final level = _score!.level;
-
-    // Utiliser les tips caches depuis didChangeDependencies
     final tips = _coachingTips;
     final topTip = tips.isNotEmpty ? tips.first : null;
 
-    // Border color based on fitness level
+    // Determine urgency level from tip priority + deadline proximity
+    final _AlertUrgency urgency = _computeAlertUrgency(topTip);
+
     final Color borderColor;
     final IconData iconData;
-    switch (level) {
-      case FitnessLevel.excellent:
-        borderColor = MintColors.scoreExcellent;
-        iconData = Icons.check_circle_outline;
-      case FitnessLevel.bon:
-        borderColor = MintColors.scoreBon;
+    switch (urgency) {
+      case _AlertUrgency.urgent:
+        borderColor = const Color(0xFFEF4444); // red
+        iconData = Icons.warning_amber_rounded;
+      case _AlertUrgency.active:
+        borderColor = const Color(0xFFF59E0B); // orange
         iconData = Icons.lightbulb_outline;
-      case FitnessLevel.attention:
-        borderColor = MintColors.scoreAttention;
-        iconData = Icons.warning_amber_outlined;
-      case FitnessLevel.critique:
-        borderColor = MintColors.scoreCritique;
-        iconData = Icons.error_outline;
+      case _AlertUrgency.info:
+        borderColor = const Color(0xFF10B981); // green
+        iconData = Icons.info_outline;
     }
+
+    // Compute deadline countdown for known tips
+    final String? deadlineText = _computeDeadlineText(topTip);
 
     // Use the top coaching tip if available; fallback to generic message
     final String message;
@@ -1537,9 +1694,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       ctaRoute = null;
     }
 
+    // Count active (non-dismissed) tips
+    final activeTipCount = tips.length;
+
     return Container(
       decoration: BoxDecoration(
-        color: MintColors.coachBubble,
+        color: urgency == _AlertUrgency.urgent
+            ? const Color(0xFFFEF2F2)
+            : MintColors.coachBubble,
         borderRadius: BorderRadius.circular(16),
         border: Border(
           left: BorderSide(color: borderColor, width: 4),
@@ -1566,13 +1728,38 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (topTip != null) ...[
-                      Text(
-                        topTip.title,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              topTip.title,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: MintColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          if (deadlineText != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: borderColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                deadlineText,
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: borderColor,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                     ],
@@ -1595,7 +1782,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          'Impact estimé : ~CHF ${topTip!.estimatedImpactChf!.toStringAsFixed(0)}',
+                          'Impact estime : ~CHF ${topTip!.estimatedImpactChf!.toStringAsFixed(0)}',
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1612,16 +1799,26 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           const SizedBox(height: 12),
           Row(
             children: [
-              // Autres recommandations badge
-              if (tips.length > 1)
+              // Active tips count badge
+              if (activeTipCount > 1)
                 GestureDetector(
                   onTap: () => context.push('/coach/agir'),
-                  child: Text(
-                    '${tips.length - 1} autre${tips.length > 2 ? 's' : ''} recommandation${tips.length > 2 ? 's' : ''}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textSecondary,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: MintColors.textSecondary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${activeTipCount - 1} autre${activeTipCount > 2 ? 's' : ''} action${activeTipCount > 2 ? 's' : ''}',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textSecondary,
+                      ),
                     ),
                   ),
                 ),
@@ -1629,7 +1826,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
               TextButton(
                 onPressed: () => context.push(ctaRoute ?? '/report'),
                 style: TextButton.styleFrom(
-                  foregroundColor: MintColors.coachAccent,
+                  foregroundColor: borderColor,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 ),
@@ -1653,6 +1850,46 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         ],
       ),
     );
+  }
+
+  _AlertUrgency _computeAlertUrgency(CoachingTip? tip) {
+    if (tip == null) return _AlertUrgency.info;
+    if (tip.priority != CoachingPriority.haute) return _AlertUrgency.info;
+
+    // Check if this tip has an imminent deadline
+    final deadlineDays = _getDeadlineDaysForTip(tip);
+    if (deadlineDays != null && deadlineDays <= 30) {
+      return _AlertUrgency.urgent;
+    }
+
+    return _AlertUrgency.active;
+  }
+
+  String? _computeDeadlineText(CoachingTip? tip) {
+    if (tip == null) return null;
+    final days = _getDeadlineDaysForTip(tip);
+    if (days == null || days < 0) return null;
+    if (days == 0) return "Aujourd'hui";
+    if (days == 1) return 'Demain';
+    return 'J-$days';
+  }
+
+  int? _getDeadlineDaysForTip(CoachingTip tip) {
+    final now = DateTime.now();
+    DateTime? deadline;
+
+    switch (tip.id) {
+      case 'deadline_3a':
+        // 3a must be paid by Dec 31
+        deadline = DateTime(now.year, 12, 31);
+      case 'tax_deadline':
+        // Tax declaration due March 31
+        deadline = DateTime(now.year, 3, 31);
+      default:
+        return null;
+    }
+
+    return deadline.difference(now).inDays;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1873,6 +2110,58 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildScoreTrendText() {
+    if (_scoreHistory == null || _scoreHistory!.length < 2) {
+      return const SizedBox.shrink();
+    }
+
+    final history = _scoreHistory!;
+    final recent = history.length >= 3
+        ? history.sublist(history.length - 3)
+        : history;
+    final firstScore = (recent.first['score'] as num?)?.toDouble() ?? 0;
+    final lastScore = (recent.last['score'] as num?)?.toDouble() ?? 0;
+    final trend = lastScore - firstScore;
+
+    final String text;
+    final IconData icon;
+    final Color color;
+
+    if (trend > 3) {
+      text = 'En progression — continue comme ca';
+      icon = Icons.trending_up;
+      color = const Color(0xFF10B981);
+    } else if (trend < -3) {
+      text = 'Attention — ton score baisse. Verifie tes actions.';
+      icon = Icons.trending_down;
+      color = const Color(0xFFEF4444);
+    } else {
+      text = 'Stable — tes efforts maintiennent le cap.';
+      icon = Icons.trending_flat;
+      color = const Color(0xFF6B7280);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2638,6 +2927,60 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
   Widget _buildQuickActions() {
     final l10n = S.of(context);
+    final checkInDone = _isCheckInDoneThisMonth();
+
+    // Build personalized actions from coaching tips
+    final actions = <({IconData icon, String label, String route, bool done})>[];
+
+    if (checkInDone) {
+      // Check-in done → show with "Fait" badge, fill remaining from tips
+      actions.add((
+        icon: Icons.check_circle_outlined,
+        label: l10n?.coachCheckin ?? 'Check-in\nmensuel',
+        route: '/coach/checkin',
+        done: true,
+      ));
+    } else {
+      actions.add((
+        icon: Icons.calendar_today_outlined,
+        label: l10n?.coachCheckin ?? 'Check-in\nmensuel',
+        route: '/coach/checkin',
+        done: false,
+      ));
+    }
+
+    // Add top 2 coaching tips (by priority + impact, already sorted)
+    final usedRoutes = <String>{'/coach/checkin'};
+    for (final tip in _coachingTips) {
+      if (actions.length >= 3) break;
+      final route = tipRoute(tip);
+      if (usedRoutes.contains(route)) continue;
+      usedRoutes.add(route);
+      // Truncate title to ~15 chars for chip display
+      final shortTitle = tip.title.length > 18
+          ? '${tip.title.substring(0, 15)}...'
+          : tip.title;
+      actions.add((icon: tip.icon, label: shortTitle, route: route, done: false));
+    }
+
+    // Fallback: pad with defaults if not enough tips
+    if (actions.length < 2) {
+      actions.add((
+        icon: Icons.savings_outlined,
+        label: l10n?.coachVerse3a ?? 'Verser\n3a',
+        route: '/simulator/3a',
+        done: false,
+      ));
+    }
+    if (actions.length < 3) {
+      actions.add((
+        icon: Icons.account_balance_outlined,
+        label: l10n?.coachSimBuyback ?? 'Simuler\nrachat',
+        route: '/lpp-deep/rachat',
+        done: false,
+      ));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2652,29 +2995,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              child: _buildActionChip(
-                icon: Icons.calendar_today_outlined,
-                label: l10n?.coachCheckin ?? 'Check-in\nmensuel',
-                route: '/coach/checkin',
+            for (int i = 0; i < actions.length && i < 3; i++) ...[
+              if (i > 0) const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionChip(
+                  icon: actions[i].icon,
+                  label: actions[i].label,
+                  route: actions[i].route,
+                  showDoneBadge: actions[i].done,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildActionChip(
-                icon: Icons.savings_outlined,
-                label: l10n?.coachVerse3a ?? 'Verser\n3a',
-                route: '/simulator/3a',
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildActionChip(
-                icon: Icons.account_balance_outlined,
-                label: l10n?.coachSimBuyback ?? 'Simuler\nrachat',
-                route: '/lpp-deep/rachat',
-              ),
-            ),
+            ],
           ],
         ),
       ],
@@ -2685,40 +3016,75 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     required IconData icon,
     required String label,
     required String route,
+    bool showDoneBadge = false,
   }) {
     return GestureDetector(
       onTap: () => context.push(route),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: MintColors.lightBorder,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 28,
-              color: MintColors.coachAccent,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-                height: 1.3,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            decoration: BoxDecoration(
+              color: showDoneBadge
+                  ? const Color(0xFFF0FDF4)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: showDoneBadge
+                    ? const Color(0xFF10B981)
+                    : MintColors.lightBorder,
+                width: showDoneBadge ? 1.5 : 1,
               ),
             ),
-          ],
-        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 28,
+                  color: showDoneBadge
+                      ? const Color(0xFF10B981)
+                      : MintColors.coachAccent,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (showDoneBadge)
+            Positioned(
+              top: -6,
+              right: -6,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Fait',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

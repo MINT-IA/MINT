@@ -551,6 +551,91 @@ void main() {
   });
 
   // ════════════════════════════════════════════════════════════
+  //  BUDGET DRIFT TRIGGER
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachingService - Budget Drift', () {
+    test('exceptional expenses > 20% of income triggers budget_drift', () {
+      final tips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 30,
+          canton: 'VD',
+          revenuAnnuel: 60000, // 5000/month
+          has3a: true,
+          montant3a: 7056,
+          hasLpp: true,
+          hasBudget: true,
+          employmentStatus: EmploymentStatus.salarie,
+          lastCheckInDepensesExceptionnelles: 1500, // 30% of monthly income
+        ),
+      );
+
+      final drift = tips.where((t) => t.id == 'budget_drift');
+      expect(drift, isNotEmpty);
+      expect(drift.first.category, 'budget');
+      expect(drift.first.priority, CoachingPriority.moyenne);
+    });
+
+    test('exceptional expenses > 40% triggers haute priority', () {
+      final tips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 30,
+          canton: 'VD',
+          revenuAnnuel: 60000, // 5000/month
+          has3a: true,
+          montant3a: 7056,
+          hasLpp: true,
+          hasBudget: true,
+          employmentStatus: EmploymentStatus.salarie,
+          lastCheckInDepensesExceptionnelles: 2500, // 50% of monthly income
+        ),
+      );
+
+      final drift = tips.where((t) => t.id == 'budget_drift');
+      expect(drift, isNotEmpty);
+      expect(drift.first.priority, CoachingPriority.haute);
+    });
+
+    test('exceptional expenses <= 20% does not trigger budget_drift', () {
+      final tips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 30,
+          canton: 'VD',
+          revenuAnnuel: 60000, // 5000/month
+          has3a: true,
+          montant3a: 7056,
+          hasLpp: true,
+          hasBudget: true,
+          employmentStatus: EmploymentStatus.salarie,
+          lastCheckInDepensesExceptionnelles: 800, // 16% of monthly income
+        ),
+      );
+
+      final drift = tips.where((t) => t.id == 'budget_drift');
+      expect(drift, isEmpty);
+    });
+
+    test('no check-in data does not trigger budget_drift', () {
+      final tips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 30,
+          canton: 'VD',
+          revenuAnnuel: 60000,
+          has3a: true,
+          montant3a: 7056,
+          hasLpp: true,
+          hasBudget: true,
+          employmentStatus: EmploymentStatus.salarie,
+          // lastCheckInDepensesExceptionnelles defaults to null
+        ),
+      );
+
+      final drift = tips.where((t) => t.id == 'budget_drift');
+      expect(drift, isEmpty);
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
   //  SORTING & GENERAL
   // ════════════════════════════════════════════════════════════
 
@@ -637,8 +722,8 @@ void main() {
 
       // missing_3a tip should be generated with default rate
       final missing3a = tips.firstWhere((t) => t.id == 'missing_3a');
-      // Impact = 7056 * 0.33 = 2328.48
-      expect(missing3a.estimatedImpactChf, closeTo(7056 * 0.33, 0.01));
+      // Impact = 7258 (plafond 3a 2025) * 0.33 (default taux) = 2395.14
+      expect(missing3a.estimatedImpactChf, closeTo(7258 * 0.33, 0.01));
     });
   });
 }

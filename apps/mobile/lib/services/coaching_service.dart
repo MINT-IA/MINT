@@ -50,6 +50,9 @@ class CoachingProfile {
   final EmploymentStatus employmentStatus;
   final EtatCivil etatCivil;
 
+  /// Depenses exceptionnelles du dernier check-in (null si aucun check-in).
+  final double? lastCheckInDepensesExceptionnelles;
+
   const CoachingProfile({
     required this.age,
     required this.canton,
@@ -66,6 +69,7 @@ class CoachingProfile {
     this.hasBudget = false,
     this.employmentStatus = EmploymentStatus.salarie,
     this.etatCivil = EtatCivil.celibataire,
+    this.lastCheckInDepensesExceptionnelles,
   });
 }
 
@@ -194,6 +198,9 @@ class CoachingService {
 
     // l) 3a not maxed
     _check3aNotMaxed(profile, tips);
+
+    // m) Budget drift detection
+    _checkBudgetDrift(profile, tips);
 
     // Sort: haute first, then by impact descending
     tips.sort((a, b) {
@@ -594,6 +601,41 @@ class CoachingService {
       estimatedImpactChf: impact,
       source: 'OPP3 art. 7',
       icon: Icons.trending_up,
+    ));
+  }
+
+  /// m) Budget drift: exceptional expenses > 20% of monthly income.
+  static void _checkBudgetDrift(
+    CoachingProfile profile,
+    List<CoachingTip> tips,
+  ) {
+    final depExc = profile.lastCheckInDepensesExceptionnelles;
+    if (depExc == null || depExc <= 0) return;
+
+    final revenuMensuel = profile.revenuAnnuel / 12;
+    if (revenuMensuel <= 0) return;
+
+    final ratio = depExc / revenuMensuel;
+    if (ratio <= 0.20) return;
+
+    final ratioPct = (ratio * 100).toStringAsFixed(0);
+
+    tips.add(CoachingTip(
+      id: 'budget_drift',
+      category: 'budget',
+      priority: ratio > 0.40
+          ? CoachingPriority.haute
+          : CoachingPriority.moyenne,
+      title: 'Depenses exceptionnelles elevees',
+      message:
+          'Tes depenses exceptionnelles du dernier mois representent '
+          '$ratioPct% de ton revenu mensuel (${_formatChf(depExc)}). '
+          'Verifie que ton budget reste sur les rails et ajuste '
+          'si necessaire.',
+      action: 'Verifier mon budget',
+      estimatedImpactChf: depExc,
+      source: 'Recommandation Budget-conseil Suisse',
+      icon: Icons.trending_down,
     ));
   }
 
