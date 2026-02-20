@@ -170,6 +170,10 @@ class _BudgetScreenState extends State<BudgetScreen>
     final income = widget.inputs.netIncome;
     final housing = widget.inputs.housingCost;
     final debt = widget.inputs.debtPayments;
+    final taxes = widget.inputs.taxProvision;
+    final health = widget.inputs.healthInsurance;
+    final otherFixed = widget.inputs.otherFixedCosts;
+    final available = income - housing - debt - taxes - health - otherFixed;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -189,13 +193,25 @@ class _BudgetScreenState extends State<BudgetScreen>
             const SizedBox(height: 8),
             _breakdownRow('Remboursement dettes', debt),
           ],
+          if (taxes > 0) ...[
+            const SizedBox(height: 8),
+            _breakdownRow('Provision impôts', taxes),
+          ],
+          if (health > 0) ...[
+            const SizedBox(height: 8),
+            _breakdownRow('Primes maladie (LAMal)', health),
+          ],
+          if (otherFixed > 0) ...[
+            const SizedBox(height: 8),
+            _breakdownRow('Autres charges fixes', otherFixed),
+          ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Divider(height: 1),
           ),
           _breakdownRow(
             'Disponible',
-            income - housing - debt,
+            available.clamp(0, double.infinity),
             isPositive: true,
             isBold: true,
           ),
@@ -315,8 +331,7 @@ class _BudgetScreenState extends State<BudgetScreen>
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: progressColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
@@ -386,8 +401,10 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _buildDisclaimers(BuildContext context) {
-    final style =
-        Theme.of(context).textTheme.bodySmall?.copyWith(color: MintColors.textMuted);
+    final style = Theme.of(context)
+        .textTheme
+        .bodySmall
+        ?.copyWith(color: MintColors.textMuted);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

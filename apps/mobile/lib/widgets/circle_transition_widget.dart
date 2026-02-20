@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -5,17 +7,21 @@ import 'package:mint_mobile/theme/colors.dart';
 class CircleTransitionWidget extends StatefulWidget {
   final String nextSectionName;
   final String description;
+  final String? progressLabel;
   final IconData icon;
   final Color color;
   final VoidCallback onComplete;
+  final Duration autoAdvanceAfter;
 
   const CircleTransitionWidget({
     super.key,
     required this.nextSectionName,
     required this.description,
+    this.progressLabel,
     required this.icon,
     required this.color,
     required this.onComplete,
+    this.autoAdvanceAfter = const Duration(milliseconds: 2600),
   });
 
   @override
@@ -27,6 +33,8 @@ class _CircleTransitionWidgetState extends State<CircleTransitionWidget>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+  Timer? _autoAdvanceTimer;
+  bool _completed = false;
 
   @override
   void initState() {
@@ -41,20 +49,28 @@ class _CircleTransitionWidgetState extends State<CircleTransitionWidget>
         CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5)));
 
     _controller.forward();
+    _autoAdvanceTimer = Timer(widget.autoAdvanceAfter, _complete);
 
     // User advances via "Continuer" button or tap
   }
 
   @override
   void dispose() {
+    _autoAdvanceTimer?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _complete() {
+    if (_completed) return;
+    _completed = true;
+    widget.onComplete();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onComplete,
+      onTap: _complete,
       child: Container(
         color: MintColors.background,
         child: Center(
@@ -85,6 +101,17 @@ class _CircleTransitionWidgetState extends State<CircleTransitionWidget>
                         letterSpacing: 1.5,
                       ),
                     ),
+                    if (widget.progressLabel != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.progressLabel!,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     Text(
                       widget.nextSectionName,
@@ -109,11 +136,13 @@ class _CircleTransitionWidgetState extends State<CircleTransitionWidget>
                     ),
                     const SizedBox(height: 40),
                     FilledButton(
-                      onPressed: widget.onComplete,
+                      onPressed: _complete,
                       style: FilledButton.styleFrom(
                         backgroundColor: widget.color,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
                       child: Text(
                         'Continuer',

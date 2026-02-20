@@ -31,7 +31,6 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   int _currentQuestionIndex = 0;
   late List<WizardQuestion> _questions;
 
-
   @override
   void initState() {
     super.initState();
@@ -86,20 +85,27 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return 'Patrimoine';
   }
 
-  int get _sectionStart =>
-      _currentQuestionIndex < 6 ? 0 :
-      _currentQuestionIndex < 12 ? 6 :
-      _currentQuestionIndex < 18 ? 12 : 18;
+  int get _sectionStart => _currentQuestionIndex < 6
+      ? 0
+      : _currentQuestionIndex < 12
+          ? 6
+          : _currentQuestionIndex < 18
+              ? 12
+              : 18;
 
-  int get _sectionEnd =>
-      _currentQuestionIndex < 6 ? 6 :
-      _currentQuestionIndex < 12 ? 12 :
-      _currentQuestionIndex < 18 ? 18 : _questions.length;
+  int get _sectionEnd => _currentQuestionIndex < 6
+      ? 6
+      : _currentQuestionIndex < 12
+          ? 12
+          : _currentQuestionIndex < 18
+              ? 18
+              : _questions.length;
 
   int get _sectionQuestionNumber {
     int count = 0;
     for (int i = _sectionStart; i <= _currentQuestionIndex; i++) {
-      if (WizardConditionsService.shouldAskQuestion(_questions[i].id, _answers)) {
+      if (WizardConditionsService.shouldAskQuestion(
+          _questions[i].id, _answers)) {
         count++;
       }
     }
@@ -109,7 +115,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   int get _sectionTotalQuestions {
     int count = 0;
     for (int i = _sectionStart; i < _sectionEnd; i++) {
-      if (WizardConditionsService.shouldAskQuestion(_questions[i].id, _answers)) {
+      if (WizardConditionsService.shouldAskQuestion(
+          _questions[i].id, _answers)) {
         count++;
       }
     }
@@ -371,8 +378,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     final currentQuestion = _questions[_currentQuestionIndex];
 
     // Dynamic subtitle override based on profile context
-    final dynamicSubtitle = WizardQuestionsV2.getDynamicSubtitle(
-        currentQuestion.id, _answers);
+    final dynamicSubtitle =
+        WizardQuestionsV2.getDynamicSubtitle(currentQuestion.id, _answers);
     final displayQuestion = dynamicSubtitle != null
         ? WizardQuestion(
             id: currentQuestion.id,
@@ -403,7 +410,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             Text(
               _currentSection,
               style: GoogleFonts.outfit(
-                fontSize: 16, 
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: MintColors.textPrimary,
               ),
@@ -411,7 +418,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             Text(
               'Question $_sectionQuestionNumber/$_sectionTotalQuestions',
               style: GoogleFonts.inter(
-                fontSize: 12, 
+                fontSize: 12,
                 color: MintColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
@@ -797,28 +804,35 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     switch (nextSection) {
       case 'Budget & Protection':
         description =
-            "Analysons ta stabilité financière (Dettes, Fonds d'urgence).\n\nCercle 1/3";
+            "Analysons ta stabilité financière: dettes, fonds d'urgence et reste à vivre.";
         icon = Icons.shield_rounded;
         color = Colors.green;
         break;
       case 'Prévoyance':
         description =
-            "Optimisons tes impôts et ta retraite (LPP, 3a).\n\nCercle 2/3";
+            "Optimisons prévoyance et fiscalité: AVS, LPP, pilier 3a.";
         icon = Icons.savings_rounded;
         color = Colors.blue;
         break;
       case 'Patrimoine':
-        description = "Parlons investissement et projets futurs.\n\nCercle 3/3";
+        description =
+            "Terminons avec l'investissement et tes projets long terme.";
         icon = Icons.trending_up_rounded;
         color = Colors.orange;
         break;
     }
+
+    String progressLabel = '';
+    if (nextSection == 'Budget & Protection') progressLabel = 'Cercle 1/3';
+    if (nextSection == 'Prévoyance') progressLabel = 'Cercle 2/3';
+    if (nextSection == 'Patrimoine') progressLabel = 'Cercle 3/3';
 
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, anim, secAnim) => CircleTransitionWidget(
           nextSectionName: nextSection,
           description: description,
+          progressLabel: progressLabel,
           icon: icon,
           color: color,
           onComplete: () {

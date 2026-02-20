@@ -17,11 +17,15 @@ class BudgetService {
   BudgetPlan computePlan(BudgetInputs inputs,
       {Map<String, double>? overrides}) {
     // 1. Calcul du Available de base
-    // available = income - housing - debt
+    // available = income - charges fixes (logement + dettes + impots + sante + autres)
     // On s'assure de ne pas descendre sous 0 logiquement pour le "disponible à répartir"
     // (même si techniquement un déficit est possible, ici on parle de l'allocation).
-    final rawAvailable =
-        inputs.netIncome - inputs.housingCost - inputs.debtPayments;
+    final rawAvailable = inputs.netIncome -
+        inputs.housingCost -
+        inputs.debtPayments -
+        inputs.taxProvision -
+        inputs.healthInsurance -
+        inputs.otherFixedCosts;
     final available = max(0.0, rawAvailable);
 
     if (inputs.style == BudgetStyle.justAvailable) {
@@ -77,7 +81,8 @@ class BudgetService {
       available: available,
       variables: variables,
       future: future,
-      stopRuleTriggered: variables <= 0.01, /* quasi 0 */
+      stopRuleTriggered: variables <= 0.01,
+      /* quasi 0 */
       emergencyFundMonths: inputs.emergencyFundMonths,
     );
   }

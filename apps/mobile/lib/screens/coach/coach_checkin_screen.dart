@@ -169,11 +169,12 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     _coachTip = scoreBefore.coachMessage;
 
     // Build updated profile with new check-in + potentially updated contributions
-    final updatedProfile = _profile
-        .copyWithCheckIns(updatedCheckIns)
-        .copyWithContributions(
-          contributionsChanged ? updatedContributions : _profile.plannedContributions,
-        );
+    final updatedProfile =
+        _profile.copyWithCheckIns(updatedCheckIns).copyWithContributions(
+              contributionsChanged
+                  ? updatedContributions
+                  : _profile.plannedContributions,
+            );
     final scoreAfter = FinancialFitnessService.calculate(
       profile: updatedProfile,
       previousScore: _scoreBefore,
@@ -189,7 +190,15 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       profile: updatedProfile,
       targetDate: updatedProfile.goalA.targetDate,
     );
-    _impactCapital = projectionAfter.base.capitalFinal - projectionBefore.base.capitalFinal;
+    _impactCapital =
+        projectionAfter.base.capitalFinal - projectionBefore.base.capitalFinal;
+    final oneMonthImpact = ForecasterService.calculateMonthlyDelta(
+      profile: updatedProfile,
+      versements: versements,
+    );
+    if (_impactCapital.abs() < 1 && oneMonthImpact > 0) {
+      _impactCapital = oneMonthImpact;
+    }
 
     // Persist check-in via provider
     coachProvider.addCheckIn(checkIn);
@@ -261,7 +270,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
-        (s?.checkinTitle(_currentMonthLabel) ?? 'CHECK-IN $_currentMonthLabel').toUpperCase(),
+        (s?.checkinTitle(_currentMonthLabel) ?? 'CHECK-IN $_currentMonthLabel')
+            .toUpperCase(),
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -291,7 +301,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section: Planned contributions
-            _buildSectionTitle(s?.checkinPlannedSection ?? 'Versements planifiés'),
+            _buildSectionTitle(
+                s?.checkinPlannedSection ?? 'Versements planifiés'),
             const SizedBox(height: 12),
             ..._buildContributionRows(),
             const SizedBox(height: 28),
@@ -317,7 +328,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
             const SizedBox(height: 28),
 
             // Section: Note
-            _buildSectionTitle(s?.checkinNoteSection ?? 'Note du mois (optionnel)'),
+            _buildSectionTitle(
+                s?.checkinNoteSection ?? 'Note du mois (optionnel)'),
             const SizedBox(height: 12),
             _buildNoteField(),
             const SizedBox(height: 32),
@@ -356,7 +368,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s?.checkinHeader(_currentMonthLabel) ?? 'Check-in $_currentMonthLabel',
+                s?.checkinHeader(_currentMonthLabel) ??
+                    'Check-in $_currentMonthLabel',
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -427,7 +440,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline, color: MintColors.coachAccent, size: 20),
+            Icon(Icons.add_circle_outline,
+                color: MintColors.coachAccent, size: 20),
             const SizedBox(width: 8),
             Text(
               s?.checkinAddContribution ?? 'Ajouter un versement',
@@ -446,7 +460,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   void _removeContribution(int index) {
     final coachProvider = context.read<CoachProfileProvider>();
     setState(() {
-      final contributions = List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
+      final contributions =
+          List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
       contributions.removeAt(index);
       _amountControllers[index].dispose();
       _amountControllers.removeAt(index);
@@ -459,10 +474,30 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   void _showAddContributionSheet() {
     final s = S.of(context);
     final categories = [
-      ('3a', s?.checkinCat3a ?? 'Pilier 3a', Icons.savings, const Color(0xFF4F46E5)),
-      ('lpp_buyback', s?.checkinCatLpp ?? 'Rachat LPP', Icons.account_balance, const Color(0xFF0891B2)),
-      ('investissement', s?.checkinCatInvest ?? 'Investissement', Icons.trending_up, MintColors.success),
-      ('epargne_libre', s?.checkinCatEpargne ?? 'Epargne libre', Icons.wallet, MintColors.warning),
+      (
+        '3a',
+        s?.checkinCat3a ?? 'Pilier 3a',
+        Icons.savings,
+        const Color(0xFF4F46E5)
+      ),
+      (
+        'lpp_buyback',
+        s?.checkinCatLpp ?? 'Rachat LPP',
+        Icons.account_balance,
+        const Color(0xFF0891B2)
+      ),
+      (
+        'investissement',
+        s?.checkinCatInvest ?? 'Investissement',
+        Icons.trending_up,
+        MintColors.success
+      ),
+      (
+        'epargne_libre',
+        s?.checkinCatEpargne ?? 'Epargne libre',
+        Icons.wallet,
+        MintColors.warning
+      ),
     ];
 
     String selectedCategory = '3a';
@@ -478,7 +513,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         return StatefulBuilder(
           builder: (ctx, setSheetState) {
             return Container(
-              padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+              padding: EdgeInsets.fromLTRB(
+                  24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -490,7 +526,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                   // Handle
                   Center(
                     child: Container(
-                      width: 40, height: 4,
+                      width: 40,
+                      height: 4,
                       decoration: BoxDecoration(
                         color: MintColors.border,
                         borderRadius: BorderRadius.circular(2),
@@ -524,28 +561,41 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                     children: categories.map((cat) {
                       final isSelected = selectedCategory == cat.$1;
                       return GestureDetector(
-                        onTap: () => setSheetState(() => selectedCategory = cat.$1),
+                        onTap: () =>
+                            setSheetState(() => selectedCategory = cat.$1),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? cat.$4.withValues(alpha: 0.12) : MintColors.surface,
+                            color: isSelected
+                                ? cat.$4.withValues(alpha: 0.12)
+                                : MintColors.surface,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isSelected ? cat.$4 : MintColors.lightBorder,
+                              color:
+                                  isSelected ? cat.$4 : MintColors.lightBorder,
                               width: isSelected ? 1.5 : 1,
                             ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(cat.$3, size: 16, color: isSelected ? cat.$4 : MintColors.textMuted),
+                              Icon(cat.$3,
+                                  size: 16,
+                                  color: isSelected
+                                      ? cat.$4
+                                      : MintColors.textMuted),
                               const SizedBox(width: 6),
                               Text(
                                 cat.$2,
                                 style: GoogleFonts.inter(
                                   fontSize: 13,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                  color: isSelected ? cat.$4 : MintColors.textSecondary,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: isSelected
+                                      ? cat.$4
+                                      : MintColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -568,10 +618,13 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: labelController,
-                    style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+                    style: GoogleFonts.inter(
+                        fontSize: 14, color: MintColors.textPrimary),
                     decoration: InputDecoration(
-                      hintText: s?.checkinLabelHint ?? 'Ex: 3a VIAC, Epargne vacances...',
-                      hintStyle: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
+                      hintText: s?.checkinLabelHint ??
+                          'Ex: 3a VIAC, Epargne vacances...',
+                      hintStyle: GoogleFonts.inter(
+                          fontSize: 13, color: MintColors.textMuted),
                       filled: true,
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
@@ -584,9 +637,11 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: MintColors.coachAccent, width: 1.5),
+                        borderSide: const BorderSide(
+                            color: MintColors.coachAccent, width: 1.5),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -603,13 +658,17 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    style: GoogleFonts.inter(
+                        fontSize: 14, color: MintColors.textPrimary),
                     decoration: InputDecoration(
                       prefixText: 'CHF ',
-                      prefixStyle: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
+                      prefixStyle: GoogleFonts.inter(
+                          fontSize: 13, color: MintColors.textMuted),
                       hintText: '0.00',
-                      hintStyle: GoogleFonts.inter(fontSize: 13, color: MintColors.textMuted),
+                      hintStyle: GoogleFonts.inter(
+                          fontSize: 13, color: MintColors.textMuted),
                       filled: true,
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
@@ -622,9 +681,11 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: MintColors.coachAccent, width: 1.5),
+                        borderSide: const BorderSide(
+                            color: MintColors.coachAccent, width: 1.5),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -656,10 +717,12 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                     child: ElevatedButton(
                       onPressed: () {
                         final label = labelController.text.trim();
-                        final amount = double.tryParse(amountController.text) ?? 0;
+                        final amount =
+                            double.tryParse(amountController.text) ?? 0;
                         if (label.isEmpty || amount <= 0) return;
 
-                        final id = '${selectedCategory}_${label.toLowerCase().replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}';
+                        final id =
+                            '${selectedCategory}_${label.toLowerCase().replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}';
                         final contribution = PlannedMonthlyContribution(
                           id: id,
                           label: label,
@@ -674,7 +737,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: MintColors.primary,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                         elevation: 0,
                       ),
                       child: Text(
@@ -698,7 +762,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   void _addContribution(PlannedMonthlyContribution contribution) {
     final coachProvider = context.read<CoachProfileProvider>();
     setState(() {
-      final contributions = List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
+      final contributions =
+          List<PlannedMonthlyContribution>.from(_profile.plannedContributions);
       contributions.add(contribution);
       _amountControllers.add(
         TextEditingController(text: contribution.amount.toStringAsFixed(2)),
@@ -772,7 +837,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: MintColors.coachAccent, width: 1.5),
+                borderSide:
+                    const BorderSide(color: MintColors.coachAccent, width: 1.5),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -796,7 +862,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         color: MintColors.textPrimary,
       ),
       decoration: InputDecoration(
-        hintText: s?.checkinNoteHint ?? 'Ex: Mois compliqué, dépense imprévue pour la voiture...',
+        hintText: s?.checkinNoteHint ??
+            'Ex: Mois compliqué, dépense imprévue pour la voiture...',
         hintStyle: GoogleFonts.inter(
           fontSize: 14,
           color: MintColors.textMuted,
@@ -813,7 +880,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: MintColors.coachAccent, width: 1.5),
+          borderSide:
+              const BorderSide(color: MintColors.coachAccent, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(16),
       ),
@@ -885,7 +953,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       // Success title
       Center(
         child: Text(
-          s?.checkinSuccessTitle(_currentMonthLabel) ?? 'Bravo ! Check-in $_currentMonthLabel complété',
+          s?.checkinSuccessTitle(_currentMonthLabel) ??
+              'Bravo ! Check-in $_currentMonthLabel complété',
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
             fontSize: 22,
@@ -1053,7 +1122,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  s?.checkinImpactCapital(impactFormatted) ?? 'Capital projeté +$impactFormatted ce mois',
+                  s?.checkinImpactCapital(impactFormatted) ??
+                      'Capital projeté +$impactFormatted ce mois',
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1062,7 +1132,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  s?.checkinImpactTotal(totalFormatted) ?? 'Total versements : $totalFormatted',
+                  s?.checkinImpactTotal(totalFormatted) ??
+                      'Total versements : $totalFormatted',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1116,7 +1187,8 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  s?.checkinStreakCount(_streak.toString()) ?? '$_streak mois consécutifs on-track !',
+                  s?.checkinStreakCount(_streak.toString()) ??
+                      '$_streak mois consécutifs on-track !',
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1208,9 +1280,10 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              s?.checkinDisclaimer ?? 'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
-              'Les projections sont basées sur des hypothèses et peuvent varier. '
-              'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
+              s?.checkinDisclaimer ??
+                  'Outil éducatif — ne constitue pas un conseil financier personnalisé. '
+                      'Les projections sont basées sur des hypothèses et peuvent varier. '
+                      'Consulte un·e spécialiste pour un accompagnement adapté. LSFin.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -1300,7 +1373,9 @@ class _ContributionRow extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        contribution.isAutomatic ? (s?.checkinAuto ?? 'Auto') : (s?.checkinManuel ?? 'Manuel'),
+                        contribution.isAutomatic
+                            ? (s?.checkinAuto ?? 'Auto')
+                            : (s?.checkinManuel ?? 'Manuel'),
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -1358,7 +1433,8 @@ class _ContributionRow extends StatelessWidget {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) return null; // optional
-                    if (double.tryParse(value) == null) return s?.checkinInvalidAmount ?? 'Montant invalide';
+                    if (double.tryParse(value) == null)
+                      return s?.checkinInvalidAmount ?? 'Montant invalide';
                     return null;
                   },
                 ),

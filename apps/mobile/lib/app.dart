@@ -105,6 +105,7 @@ import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/locale_provider.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -587,16 +588,26 @@ class _MintAppState extends State<MintApp> {
           provider.loadFromWizard();
           return provider;
         }),
+        ChangeNotifierProvider(create: (_) {
+          final provider = LocaleProvider();
+          provider.load();
+          return provider;
+        }),
       ],
-      child: MaterialApp.router(
-        title: 'Mint',
-        debugShowCheckedModeBanner: false,
-        theme: _buildPremiumTheme(),
-        themeMode: ThemeMode.light,
-        routerConfig: _router,
-        localizationsDelegates: S.localizationsDelegates,
-        supportedLocales: S.supportedLocales,
-        locale: const Locale('fr'),
+      child: Builder(
+        builder: (context) {
+          final localeProvider = context.watch<LocaleProvider>();
+          return MaterialApp.router(
+            title: 'Mint',
+            debugShowCheckedModeBanner: false,
+            theme: _buildPremiumTheme(),
+            themeMode: ThemeMode.light,
+            routerConfig: _router,
+            localizationsDelegates: S.localizationsDelegates,
+            supportedLocales: S.supportedLocales,
+            locale: localeProvider.locale,
+          );
+        },
       ),
     );
   }

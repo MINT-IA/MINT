@@ -99,11 +99,11 @@ class ProjectionPoint {
   });
 
   Map<String, dynamic> toJson() => {
-    'date': date.toIso8601String(),
-    'capitalCumule': capitalCumule,
-    'contributionMensuelle': contributionMensuelle,
-    'rendementCumule': rendementCumule,
-  };
+        'date': date.toIso8601String(),
+        'capitalCumule': capitalCumule,
+        'contributionMensuelle': contributionMensuelle,
+        'rendementCumule': rendementCumule,
+      };
 }
 
 /// Jalon de progression (ex: "100k de capital prevoyance atteint")
@@ -119,10 +119,10 @@ class ProjectionMilestone {
   });
 
   Map<String, dynamic> toJson() => {
-    'date': date.toIso8601String(),
-    'label': label,
-    'amount': amount,
-  };
+        'date': date.toIso8601String(),
+        'label': label,
+        'amount': amount,
+      };
 }
 
 /// Resultat d'un scenario de projection
@@ -143,12 +143,12 @@ class ProjectionScenario {
   });
 
   Map<String, dynamic> toJson() => {
-    'label': label,
-    'capitalFinal': capitalFinal,
-    'revenuAnnuelRetraite': revenuAnnuelRetraite,
-    'decomposition': decomposition,
-    'pointsCount': points.length,
-  };
+        'label': label,
+        'capitalFinal': capitalFinal,
+        'revenuAnnuelRetraite': revenuAnnuelRetraite,
+        'decomposition': decomposition,
+        'pointsCount': points.length,
+      };
 }
 
 /// Resultat complet de projection (3 scenarios)
@@ -172,14 +172,14 @@ class ProjectionResult {
   });
 
   Map<String, dynamic> toJson() => {
-    'prudent': prudent.toJson(),
-    'base': base.toJson(),
-    'optimiste': optimiste.toJson(),
-    'tauxRemplacementBase': tauxRemplacementBase,
-    'milestones': milestones.map((m) => m.toJson()).toList(),
-    'disclaimer': disclaimer,
-    'sources': sources,
-  };
+        'prudent': prudent.toJson(),
+        'base': base.toJson(),
+        'optimiste': optimiste.toJson(),
+        'tauxRemplacementBase': tauxRemplacementBase,
+        'milestones': milestones.map((m) => m.toJson()).toList(),
+        'disclaimer': disclaimer,
+        'sources': sources,
+      };
 }
 
 /// Service de projection financiere.
@@ -278,21 +278,32 @@ class ForecasterService {
     final target = targetDate ?? profile.goalA.targetDate;
 
     // Calculate spreads from original presets (base - prudent, optimiste - base)
-    final lppSpreadDown = ScenarioAssumptions.base.lppReturn - ScenarioAssumptions.prudent.lppReturn;
-    final lppSpreadUp = ScenarioAssumptions.optimiste.lppReturn - ScenarioAssumptions.base.lppReturn;
-    final threeASpreadDown = ScenarioAssumptions.base.threeAReturn - ScenarioAssumptions.prudent.threeAReturn;
-    final threeASpreadUp = ScenarioAssumptions.optimiste.threeAReturn - ScenarioAssumptions.base.threeAReturn;
-    final investSpreadDown = ScenarioAssumptions.base.investmentReturn - ScenarioAssumptions.prudent.investmentReturn;
-    final investSpreadUp = ScenarioAssumptions.optimiste.investmentReturn - ScenarioAssumptions.base.investmentReturn;
-    final savingsSpreadDown = ScenarioAssumptions.base.savingsReturn - ScenarioAssumptions.prudent.savingsReturn;
-    final savingsSpreadUp = ScenarioAssumptions.optimiste.savingsReturn - ScenarioAssumptions.base.savingsReturn;
+    final lppSpreadDown = ScenarioAssumptions.base.lppReturn -
+        ScenarioAssumptions.prudent.lppReturn;
+    final lppSpreadUp = ScenarioAssumptions.optimiste.lppReturn -
+        ScenarioAssumptions.base.lppReturn;
+    final threeASpreadDown = ScenarioAssumptions.base.threeAReturn -
+        ScenarioAssumptions.prudent.threeAReturn;
+    final threeASpreadUp = ScenarioAssumptions.optimiste.threeAReturn -
+        ScenarioAssumptions.base.threeAReturn;
+    final investSpreadDown = ScenarioAssumptions.base.investmentReturn -
+        ScenarioAssumptions.prudent.investmentReturn;
+    final investSpreadUp = ScenarioAssumptions.optimiste.investmentReturn -
+        ScenarioAssumptions.base.investmentReturn;
+    final savingsSpreadDown = ScenarioAssumptions.base.savingsReturn -
+        ScenarioAssumptions.prudent.savingsReturn;
+    final savingsSpreadUp = ScenarioAssumptions.optimiste.savingsReturn -
+        ScenarioAssumptions.base.savingsReturn;
 
     final customPrudent = ScenarioAssumptions(
       label: 'Prudent',
       lppReturn: (customBase.lppReturn - lppSpreadDown).clamp(0.0, 0.15),
-      threeAReturn: (customBase.threeAReturn - threeASpreadDown).clamp(0.0, 0.20),
-      investmentReturn: (customBase.investmentReturn - investSpreadDown).clamp(0.0, 0.25),
-      savingsReturn: (customBase.savingsReturn - savingsSpreadDown).clamp(0.0, 0.10),
+      threeAReturn:
+          (customBase.threeAReturn - threeASpreadDown).clamp(0.0, 0.20),
+      investmentReturn:
+          (customBase.investmentReturn - investSpreadDown).clamp(0.0, 0.25),
+      savingsReturn:
+          (customBase.savingsReturn - savingsSpreadDown).clamp(0.0, 0.10),
       inflation: customBase.inflation,
     );
 
@@ -300,8 +311,10 @@ class ForecasterService {
       label: 'Optimiste',
       lppReturn: (customBase.lppReturn + lppSpreadUp).clamp(0.0, 0.15),
       threeAReturn: (customBase.threeAReturn + threeASpreadUp).clamp(0.0, 0.20),
-      investmentReturn: (customBase.investmentReturn + investSpreadUp).clamp(0.0, 0.25),
-      savingsReturn: (customBase.savingsReturn + savingsSpreadUp).clamp(0.0, 0.10),
+      investmentReturn:
+          (customBase.investmentReturn + investSpreadUp).clamp(0.0, 0.25),
+      savingsReturn:
+          (customBase.savingsReturn + savingsSpreadUp).clamp(0.0, 0.10),
       inflation: customBase.inflation,
     );
 
@@ -336,8 +349,7 @@ class ForecasterService {
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
       milestones: milestones,
-      disclaimer:
-          'Simulation "Et si..." a titre educatif uniquement. '
+      disclaimer: 'Simulation "Et si..." a titre educatif uniquement. '
           'Hypotheses de rendement ajustees manuellement. '
           'Ne constitue pas un conseil financier (LSFin). '
           'Les rendements passes ne presagent pas des rendements futurs.',
@@ -355,9 +367,33 @@ class ForecasterService {
     required CoachProfile profile,
     required Map<String, double> versements,
   }) {
+    final targetDate = profile.goalA.targetDate;
+    final months = _monthsBetween(DateTime.now(), targetDate);
+    if (months <= 0) {
+      return versements.values.fold(0.0, (sum, v) => sum + v);
+    }
+
+    final base = ScenarioAssumptions.base;
+    final monthlyRates = <String, double>{
+      '3a': _monthlyRate(base.threeAReturn),
+      'lpp_buyback': _monthlyRate(base.lppReturn),
+      'investissement': _monthlyRate(base.investmentReturn),
+      'epargne_libre': _monthlyRate(base.savingsReturn),
+    };
+
+    String? categoryForId(String id) {
+      for (final c in profile.plannedContributions) {
+        if (c.id == id) return c.category;
+      }
+      return null;
+    }
+
     double delta = 0;
     for (final entry in versements.entries) {
-      delta += entry.value;
+      final category = categoryForId(entry.key);
+      final monthlyRate =
+          monthlyRates[category] ?? _monthlyRate(base.savingsReturn);
+      delta += entry.value * pow(1 + monthlyRate, months);
     }
     return delta;
   }
@@ -431,8 +467,9 @@ class ForecasterService {
     final threeAMonthlyRate = assumptions.threeAReturn / 12;
     final investMonthlyRate = assumptions.investmentReturn / 12;
     final savingsMonthlyRate = assumptions.savingsReturn / 12;
-    final conjLppMonthlyRate =
-        (profile.conjoint?.prevoyance?.rendementCaisse ?? assumptions.lppReturn) / 12;
+    final conjLppMonthlyRate = (profile.conjoint?.prevoyance?.rendementCaisse ??
+            assumptions.lppReturn) /
+        12;
 
     // 3a annual cap tracking
     const plafond3a = pilier3aPlafondAvecLpp;
@@ -468,8 +505,11 @@ class ForecasterService {
       final conjLppReturn = conjLppBalance * conjLppMonthlyRate;
       conjLppBalance += conjLppReturn;
 
-      totalRendement += lppReturn + threeAReturn + investReturn +
-          savingsReturn + conjLppReturn;
+      totalRendement += lppReturn +
+          threeAReturn +
+          investReturn +
+          savingsReturn +
+          conjLppReturn;
 
       // --- Apply contributions ---
       // 3a (capped at annual plafond)
@@ -492,8 +532,8 @@ class ForecasterService {
       // Conjoint LPP buyback
       double effectiveConjBuyback = conjMonthlyLppBuyback;
       if (conjLppBuybackDone + effectiveConjBuyback > conjLppBuybackCap) {
-        effectiveConjBuyback =
-            (conjLppBuybackCap - conjLppBuybackDone).clamp(0, conjLppBuybackCap);
+        effectiveConjBuyback = (conjLppBuybackCap - conjLppBuybackDone)
+            .clamp(0, conjLppBuybackCap);
       }
       conjLppBalance += effectiveConjBuyback;
       conjLppBuybackDone += effectiveConjBuyback;
@@ -506,11 +546,17 @@ class ForecasterService {
       // (monthlySavings already counted in savingsBalance above)
 
       // --- Record point ---
-      final totalCapital = lppBalance + threeABalance +
-          investmentBalance + savingsBalance +
-          conjLppBalance + conjSavingsBalance;
-      final totalContrib = effective3a + effectiveLppBuyback +
-          effectiveConjBuyback + monthlyInvestment + monthlySavings;
+      final totalCapital = lppBalance +
+          threeABalance +
+          investmentBalance +
+          savingsBalance +
+          conjLppBalance +
+          conjSavingsBalance;
+      final totalContrib = effective3a +
+          effectiveLppBuyback +
+          effectiveConjBuyback +
+          monthlyInvestment +
+          monthlySavings;
 
       points.add(ProjectionPoint(
         date: date,
@@ -524,10 +570,8 @@ class ForecasterService {
     final avsResult = _estimateAvsCouple(profile);
     final renteAvsAnnuelle = avsResult['renteAnnuelleCouple'] as double;
 
-    final renteLppJulien =
-        lppBalance * (lppTauxConversionMin / 100);
-    final renteLppLauren =
-        conjLppBalance * (lppTauxConversionMin / 100);
+    final renteLppJulien = lppBalance * (lppTauxConversionMin / 100);
+    final renteLppLauren = conjLppBalance * (lppTauxConversionMin / 100);
 
     // 3a: annualize over 20 years
     final retrait3aAnnualise = threeABalance / 20;
@@ -536,9 +580,11 @@ class ForecasterService {
     final rendementLibreAnnuel =
         (investmentBalance + savingsBalance + conjSavingsBalance) * 0.04;
 
-    final revenuRetraiteAnnuel =
-        renteAvsAnnuelle + renteLppJulien + renteLppLauren +
-        retrait3aAnnualise + rendementLibreAnnuel;
+    final revenuRetraiteAnnuel = renteAvsAnnuelle +
+        renteLppJulien +
+        renteLppLauren +
+        retrait3aAnnualise +
+        rendementLibreAnnuel;
 
     final capitalFinal = points.isNotEmpty ? points.last.capitalCumule : 0.0;
 
@@ -566,8 +612,7 @@ class ForecasterService {
     final ageJulien = profile.age;
     final anneesContribJulien = profile.prevoyance.anneesContribuees ??
         (ageJulien - 20).clamp(0, avsDureeCotisationComplete);
-    final gapFactorJulien =
-        anneesContribJulien / avsDureeCotisationComplete;
+    final gapFactorJulien = anneesContribJulien / avsDureeCotisationComplete;
     final renteJulienMensuelle = avsRenteMaxMensuelle * gapFactorJulien;
 
     // Conjoint
@@ -609,17 +654,25 @@ class ForecasterService {
     List<ProjectionPoint> points,
   ) {
     final milestones = <ProjectionMilestone>[];
-    final thresholds = [50000, 100000, 200000, 500000, 1000000, 1500000, 2000000];
+    final thresholds = [
+      50000,
+      100000,
+      200000,
+      500000,
+      1000000,
+      1500000,
+      2000000
+    ];
     final reached = <int>{};
 
     for (final point in points) {
       for (final threshold in thresholds) {
-        if (!reached.contains(threshold) &&
-            point.capitalCumule >= threshold) {
+        if (!reached.contains(threshold) && point.capitalCumule >= threshold) {
           reached.add(threshold);
           milestones.add(ProjectionMilestone(
             date: point.date,
-            label: 'CHF ${_formatNumber(threshold.toDouble())} de capital atteint',
+            label:
+                'CHF ${_formatNumber(threshold.toDouble())} de capital atteint',
             amount: threshold.toDouble(),
           ));
         }
@@ -635,6 +688,10 @@ class ForecasterService {
 
   static int _monthsBetween(DateTime from, DateTime to) {
     return (to.year - from.year) * 12 + (to.month - from.month);
+  }
+
+  static double _monthlyRate(double annualRate) {
+    return pow(1 + annualRate, 1 / 12) - 1;
   }
 
   static String _formatNumber(double value) {

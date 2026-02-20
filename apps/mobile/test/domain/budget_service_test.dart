@@ -94,5 +94,21 @@ void main() {
       final plan = service.computePlan(inputs);
       expect(plan.available, 0); // Should be max(0, ...)
     });
+
+    test('computePlan inclut impots, lamal et autres charges fixes', () {
+      final inputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 1800,
+        debtPayments: 400,
+        taxProvision: 1200,
+        healthInsurance: 430,
+        otherFixedCosts: 300,
+        style: BudgetStyle.justAvailable,
+      );
+
+      final plan = service.computePlan(inputs);
+      expect(plan.available, 3870); // 8000 - 1800 - 400 - 1200 - 430 - 300
+    });
   });
 }

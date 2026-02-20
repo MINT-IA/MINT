@@ -108,7 +108,7 @@ class AnalyticsService {
     String? screenName,
   }) {
     if (!_isInitialized) {
-      // Queue event for tracking after initialization
+      // Drop event — service not initialized yet
       return;
     }
 
@@ -306,5 +306,14 @@ class AnalyticsService {
     _eventQueue.clear();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_eventsQueueKey);
+  }
+
+  /// Resets singleton state for test isolation.
+  @visibleForTesting
+  void resetForTesting() {
+    _isInitialized = false;
+    _isEnabled = false;
+    _sessionId = null;
+    _eventQueue.clear();
   }
 }

@@ -5,7 +5,6 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
-import 'package:mint_mobile/widgets/report/circle_score_card.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 import 'package:mint_mobile/widgets/report/debt_alert_banner.dart';
 import 'package:mint_mobile/widgets/report/budget_waterfall.dart';
@@ -16,6 +15,8 @@ import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/services/tax_estimator_service.dart';
+import 'package:mint_mobile/services/wizard_service.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -47,7 +48,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
-    final hasDebt = wizardAnswers['q_has_consumer_debt'] == 'yes';
+    final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
+    final safeModeReasons = _buildSafeModeReasons(wizardAnswers);
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -85,8 +87,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: DebtAlertBanner(
-                  totalBalance: (wizardAnswers['q_debt_total_balance'] as num?)?.toDouble(),
-                  monthlyPayment: (wizardAnswers['q_debt_payments_period_chf'] as num?)?.toDouble(),
+                  totalBalance: (wizardAnswers['q_debt_total_balance'] as num?)
+                      ?.toDouble(),
+                  monthlyPayment:
+                      (wizardAnswers['q_debt_payments_period_chf'] as num?)
+                          ?.toDouble(),
                   onTap: () => context.push('/budget'),
                 ),
               ),
@@ -100,14 +105,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
             // ── Protection thematic card ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildProtectionSection(context, wizardAnswers, report.healthScore),
+              child: _buildProtectionSection(
+                  context, wizardAnswers, report.healthScore),
             ),
 
             // ── Retirement thematic card ──
             if (report.retirementProjection != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildRetirementThematicSection(context, report, wizardAnswers),
+                child: _buildRetirementThematicSection(
+                    context, report, wizardAnswers),
               ),
 
             // ── Tax thematic card ──
@@ -125,6 +132,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               lockedMessage:
                   'Tes actions prioritaires sont remplac\u00e9es par un plan de d\u00e9sendettement. '
                   'Stabilise ta situation avant d\'explorer les recommandations.',
+              reasons: safeModeReasons,
               child: _buildTopPriorities(context, report.priorityActions),
             ),
 
@@ -151,6 +159,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   lockedMessage:
                       'Le comparateur 3a est d\u00e9sactiv\u00e9e tant que tu as des dettes actives. '
                       'Rembourser tes dettes est prioritaire avant toute \u00e9pargne 3a.',
+                  reasons: safeModeReasons,
                   child: Pillar3aComparatorWidget(
                     monthlyIncome: report.profile.monthlyNetIncome,
                     yearsUntilRetirement: report.profile.yearsToRetirement,
@@ -169,6 +178,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 lockedMessage:
                     'Le rachat LPP est d\u00e9sactiv\u00e9 en mode protection. '
                     'Rembourser tes dettes avant de bloquer de la liquidit\u00e9 dans la pr\u00e9voyance.',
+                reasons: safeModeReasons,
                 child: _buildLppBuybackSection(report.lppBuybackStrategy!),
               ),
 
@@ -215,7 +225,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [MintColors.primary, MintColors.primary.withValues(alpha: 0.7)],
+          colors: [
+            MintColors.primary,
+            MintColors.primary.withValues(alpha: 0.7)
+          ],
         ),
       ),
       child: SafeArea(
@@ -274,11 +287,37 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  THEMATIC CARD: BUDGET
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers) {
-    final income = (answers['q_net_income_period_chf'] as num?)?.toDouble() ?? 0;
-    final housing = (answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
-    final debt = (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
-    final available = income - housing - debt;
+  Widget _buildBudgetSection(
+      BuildContext context, Map<String, dynamic> answers) {
+    final income = WizardService.getMonthlyIncome(answers);
+    final housing =
+        (answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
+    final debt =
+        (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+    final civilStatus = answers['q_civil_status'] as String? ?? 'single';
+    final childrenCount = _parseChildren(answers['q_children']);
+    final canton = answers['q_canton'] as String? ?? 'CH';
+
+    final taxProvision =
+        (answers['q_tax_provision_monthly_chf'] as num?)?.toDouble() ??
+            TaxEstimatorService.estimateMonthlyProvision(
+              TaxEstimatorService.estimateAnnualTax(
+                netMonthlyIncome: income,
+                cantonCode: canton,
+                civilStatus: civilStatus,
+                childrenCount: childrenCount,
+                age: 35,
+                isSourceTaxed: false,
+              ),
+            );
+    final healthInsurance = (answers['q_lamal_premium_monthly_chf'] as num?)
+            ?.toDouble() ??
+        _estimateLamalMonthly(canton, answers['q_household_type'] as String?);
+    final otherFixed =
+        (answers['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble() ?? 0;
+
+    final available =
+        income - housing - debt - taxProvision - healthInsurance - otherFixed;
     final ratio = income > 0 ? available / income : 0.0;
 
     final status = ratio > 0.3
@@ -291,21 +330,82 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83d\udcb0', // money bag
       title: 'Ton Budget',
       status: status,
-      keyNumber: 'CHF ${available.toStringAsFixed(0)}',
-      keyNumberLabel: 'Disponible par mois',
+      keyNumber:
+          'CHF ${available.clamp(0, double.infinity).toStringAsFixed(0)}',
+      keyNumberLabel: 'Reste à vivre (après fixes)',
       actionLabel: 'Configurer mes enveloppes',
       onActionTap: () => context.push('/budget'),
       children: [
-        BudgetWaterfall(income: income, housing: housing, debt: debt),
+        BudgetWaterfall(
+          income: income,
+          housing: housing,
+          debt: debt,
+          taxes: taxProvision,
+          healthInsurance: healthInsurance,
+          otherFixed: otherFixed,
+        ),
       ],
     );
+  }
+
+  int _parseChildren(dynamic raw) {
+    if (raw == null) return 0;
+    final text = raw.toString().replaceAll('+', '');
+    return int.tryParse(text) ?? 0;
+  }
+
+  double _estimateLamalMonthly(String cantonCode, String? householdType) {
+    const highCantons = {'GE', 'VD', 'BS', 'NE'};
+    const lowCantons = {'ZG', 'AI', 'UR', 'OW', 'NW'};
+    final adults =
+        householdType == 'couple' || householdType == 'family' ? 2 : 1;
+
+    final baseAdult = highCantons.contains(cantonCode)
+        ? 520.0
+        : lowCantons.contains(cantonCode)
+            ? 350.0
+            : 430.0;
+
+    return baseAdult * adults;
+  }
+
+  List<String> _buildSafeModeReasons(Map<String, dynamic> answers) {
+    final reasons = <String>[];
+
+    if (answers['q_has_consumer_credit'] == 'yes' ||
+        answers['q_has_consumer_debt'] == 'yes') {
+      reasons.add('Dette à la consommation active.');
+    }
+    if (answers['q_has_leasing'] == 'yes') {
+      reasons.add('Leasing actif avec charge mensuelle.');
+    }
+
+    final debtPayment =
+        (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+    if (debtPayment > 0) {
+      reasons.add(
+          'Remboursements de dette: CHF ${debtPayment.toStringAsFixed(0)} / mois.');
+    }
+
+    final emergencyFund = answers['q_emergency_fund'] as String?;
+    if (emergencyFund == null || emergencyFund == 'no') {
+      reasons.add('Fonds d’urgence insuffisant (< 3 mois).');
+    }
+
+    if (reasons.isEmpty) {
+      reasons.add(
+          'Signal de fragilité détecté: priorité à la stabilité budgétaire.');
+    }
+
+    return reasons;
   }
 
   // ════════════════════════════════════════════════════════════════
   //  THEMATIC CARD: PROTECTION
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildProtectionSection(BuildContext context, Map<String, dynamic> answers, FinancialHealthScore healthScore) {
+  Widget _buildProtectionSection(BuildContext context,
+      Map<String, dynamic> answers, FinancialHealthScore healthScore) {
     final hasEmergencyFund = answers['q_emergency_fund'] as String?;
     final fundStatus = hasEmergencyFund == 'yes_6months'
         ? CardStatus.serein
@@ -326,7 +426,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
       keyNumber: '$fundMonths mois',
       keyNumberLabel: 'Fonds d\'urgence (cible : 6 mois)',
       source: 'Source : LP art. 93 \u2014 Minimum vital',
-      actionLabel: fundStatus != CardStatus.serein ? 'Constituer mon fonds d\'urgence' : null,
+      actionLabel: fundStatus != CardStatus.serein
+          ? 'Constituer mon fonds d\'urgence'
+          : null,
       onActionTap: () => context.push('/budget'),
     );
   }
@@ -335,7 +437,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  THEMATIC CARD: RETIREMENT
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildRetirementThematicSection(BuildContext context, FinancialReport report, Map<String, dynamic> answers) {
+  Widget _buildRetirementThematicSection(BuildContext context,
+      FinancialReport report, Map<String, dynamic> answers) {
     final projection = report.retirementProjection;
     if (projection == null) return const SizedBox.shrink();
 
@@ -361,14 +464,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
           contributionYears = (theoretical - gaps).clamp(0, 44);
         }
       } else if (avsStatus == 'lived_abroad') {
-        final yearsAbroad = (answers['q_avs_years_abroad'] as num?)?.toInt() ?? 0;
+        final yearsAbroad =
+            (answers['q_avs_years_abroad'] as num?)?.toInt() ?? 0;
         contributionYears = (theoretical - yearsAbroad).clamp(0, 44);
       }
       // Fallback legacy: q_first_employment_year
       if (contributionYears == null) {
-        final firstEmploymentYear = (answers['q_first_employment_year'] as num?)?.toInt();
+        final firstEmploymentYear =
+            (answers['q_first_employment_year'] as num?)?.toInt();
         if (firstEmploymentYear != null) {
-          final startYear = [firstEmploymentYear, birthYear + 21].reduce((a, b) => a > b ? a : b);
+          final startYear = [firstEmploymentYear, birthYear + 21]
+              .reduce((a, b) => a > b ? a : b);
           contributionYears = (DateTime.now().year - startYear).clamp(0, 44);
         }
       }
@@ -376,11 +482,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
     // 3a sub-section
     final has3a = answers['q_has_3a'] == 'yes';
-    final nb3a = int.tryParse(answers['q_3a_accounts_count']?.toString() ?? '0') ?? 0;
+    final nb3a =
+        int.tryParse(answers['q_3a_accounts_count']?.toString() ?? '0') ?? 0;
 
     final String threeAText;
     if (!has3a || nb3a == 0) {
-      threeAText = 'Pas encore de 3a \u2014 jusqu\'\u00e0 CHF 7\'258/an de d\u00e9duction fiscale possible';
+      threeAText =
+          'Pas encore de 3a \u2014 jusqu\'\u00e0 CHF 7\'258/an de d\u00e9duction fiscale possible';
     } else if (nb3a == 1) {
       threeAText = '1 compte 3a \u2014 ouvre un 2e pour optimiser le retrait';
     } else {
@@ -391,7 +499,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final lppBuyback = report.lppBuybackStrategy;
     String? lppText;
     if (lppBuyback != null) {
-      lppText = 'Rachat LPP disponible : CHF ${lppBuyback.totalBuybackAvailable.toStringAsFixed(0)} \u2014 \u00e9conomie fiscale estim\u00e9e : CHF ${lppBuyback.totalTaxSavings.toStringAsFixed(0)}';
+      lppText =
+          'Rachat LPP disponible : CHF ${lppBuyback.totalBuybackAvailable.toStringAsFixed(0)} \u2014 \u00e9conomie fiscale estim\u00e9e : CHF ${lppBuyback.totalTaxSavings.toStringAsFixed(0)}';
     }
 
     return ThematicCard(
@@ -425,7 +534,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  THEMATIC CARD: TAX
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildTaxThematicSection(BuildContext context, FinancialReport report) {
+  Widget _buildTaxThematicSection(
+      BuildContext context, FinancialReport report) {
     final tax = report.taxSimulation;
 
     final status = tax.effectiveRate < 0.15
@@ -439,19 +549,25 @@ class FinancialReportScreenV2 extends StatelessWidget {
       title: 'Tes Imp\u00f4ts',
       status: status,
       keyNumber: 'CHF ${tax.totalTax.toStringAsFixed(0)}/an',
-      keyNumberLabel: 'Imp\u00f4ts estim\u00e9s (taux effectif : ${(tax.effectiveRate * 100).toStringAsFixed(1)}%)',
+      keyNumberLabel:
+          'Imp\u00f4ts estim\u00e9s (taux effectif : ${(tax.effectiveRate * 100).toStringAsFixed(1)}%)',
       actionLabel: 'Comparer 26 cantons',
       onActionTap: () => context.push('/fiscal'),
       source: 'Source : LIFD art. 33',
       children: [
-        _taxRow('Revenu imposable', 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
+        _taxRow(
+            'Revenu imposable', 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
         if (tax.totalDeductions > 0) ...[
           const SizedBox(height: 4),
-          _taxRow('D\u00e9ductions', '\u2013 CHF ${tax.totalDeductions.toStringAsFixed(0)}'),
+          _taxRow('D\u00e9ductions',
+              '\u2013 CHF ${tax.totalDeductions.toStringAsFixed(0)}'),
         ],
         const Divider(height: 16),
-        _taxRow('Imp\u00f4ts estim\u00e9s', 'CHF ${tax.totalTax.toStringAsFixed(0)}', isBold: true),
-        if (tax.taxSavingsFromBuyback != null && tax.taxSavingsFromBuyback! > 0) ...[
+        _taxRow('Imp\u00f4ts estim\u00e9s',
+            'CHF ${tax.totalTax.toStringAsFixed(0)}',
+            isBold: true),
+        if (tax.taxSavingsFromBuyback != null &&
+            tax.taxSavingsFromBuyback! > 0) ...[
           const SizedBox(height: 8),
           _buildInfoChip(
             Icons.lightbulb_outline,
@@ -482,7 +598,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+              style: GoogleFonts.inter(
+                  fontSize: 12, color: MintColors.textPrimary, height: 1.4),
             ),
           ),
         ],
@@ -639,7 +756,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 backgroundColor: priorityColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -764,8 +882,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.verified_outlined,
-                    size: 20, color: MintColors.info),
+                Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
                   'Transparence et conformit\u00e9',

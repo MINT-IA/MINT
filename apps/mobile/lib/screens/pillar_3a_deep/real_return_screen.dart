@@ -93,6 +93,8 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
   }
 
   Widget _buildChiffreChoc(RealReturnResult result) {
+    final effortNet = _versementAnnuel * (1 - _tauxMarginal);
+    final premiumPts = result.rendementReel - result.rendementNominal;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -105,7 +107,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       child: Column(
         children: [
           Text(
-            'Rendement reel avec avantage fiscal',
+            'Taux equivalent sur effort net',
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -123,10 +125,20 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'vs ${result.rendementNominal.toStringAsFixed(1)}% sans avantage fiscal',
+            'vs ${result.rendementNominal.toStringAsFixed(1)}% taux net 3a (brut - frais)',
             style: TextStyle(
               fontSize: 13,
               color: Colors.green.shade600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Effort net: ${formatChf(effortNet)}/an | Prime fiscale implicite: +${premiumPts.toStringAsFixed(1)} pts',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.green.shade700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -308,6 +320,15 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             '${result.rendementReel.toStringAsFixed(1)}% / an',
             isBold: true,
             color: MintColors.success,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Ce taux est un taux equivalent: il ne represente pas un rendement de marche attendu.',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              height: 1.35,
+            ),
           ),
           const Divider(height: 20),
           _buildResultRow(

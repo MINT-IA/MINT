@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/api_service.dart';
 
 /// Unit tests for ApiService
@@ -25,16 +26,12 @@ void main() {
       expect(ApiService.baseUrl, endsWith('/api/v1'));
     });
 
-    test('baseUrl uses port 8888', () {
-      expect(ApiService.baseUrl, contains(':8888'));
-    });
-
-    test('baseUrl is localhost for development', () {
-      expect(ApiService.baseUrl, contains('localhost'));
-    });
-
-    test('baseUrl has expected exact value', () {
-      expect(ApiService.baseUrl, equals('http://localhost:8888/api/v1'));
+    test('baseUrl fallback depends on build mode', () {
+      if (kReleaseMode) {
+        expect(ApiService.baseUrl, equals('https://api.mint.ch/api/v1'));
+      } else {
+        expect(ApiService.baseUrl, equals('http://localhost:8888/api/v1'));
+      }
     });
   });
 
@@ -45,9 +42,11 @@ void main() {
   group('ApiService — URI construction', () {
     test('endpoint appended to baseUrl produces valid URI', () {
       final uri = Uri.parse('${ApiService.baseUrl}/profiles');
-      expect(uri.host, equals('localhost'));
-      expect(uri.port, equals(8888));
       expect(uri.path, equals('/api/v1/profiles'));
+      if (!kReleaseMode) {
+        expect(uri.host, equals('localhost'));
+        expect(uri.port, equals(8888));
+      }
     });
 
     test('auth/register endpoint URI is correct', () {
@@ -73,8 +72,7 @@ void main() {
 
     test('session report endpoint with ID produces valid URI', () {
       const sessionId = 'abc-123';
-      final uri =
-          Uri.parse('${ApiService.baseUrl}/sessions/$sessionId/report');
+      final uri = Uri.parse('${ApiService.baseUrl}/sessions/$sessionId/report');
       expect(uri.path, equals('/api/v1/sessions/abc-123/report'));
     });
 

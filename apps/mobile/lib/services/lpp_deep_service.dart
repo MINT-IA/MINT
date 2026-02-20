@@ -103,8 +103,7 @@ class RachatEchelonneSimulator {
       economieEchelonneTotal: totalEconomieEchelonne,
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
-      disclaimer:
-          'Simulation pédagogique basée sur une progressivité estimée. '
+      disclaimer: 'Simulation pédagogique basée sur une progressivité estimée. '
           'Le rachat LPP est soumis à acceptation par la caisse de pension. '
           'Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). '
           'Consulte ta caisse de pension et un ou une spécialiste '
@@ -123,17 +122,22 @@ class RachatEchelonneSimulator {
   ) {
     if (deduction <= 0 || income <= 0) return 0.0;
 
-    // Modele simplifie : taux marginal decroit lineairement
-    // sur la tranche deduite
-    const steps = 10;
-    final stepSize = deduction / steps;
+    // Une deduction ne peut pas reduire la base imposable en dessous de 0.
+    // Sans ce cap, la simulation surestime les economies sur gros rachats en bloc.
+    final taxableDeduction = deduction.clamp(0.0, income);
+    if (taxableDeduction <= 0) return 0.0;
+
+    // Modele progressif simplifie:
+    // le taux effectif diminue fortement quand on descend les tranches.
+    const steps = 12;
+    final stepSize = taxableDeduction / steps;
     var currentIncome = income;
     var totalSaved = 0.0;
 
     for (var i = 0; i < steps; i++) {
-      // Le taux a ce niveau de revenu
-      final ratio = (currentIncome / income).clamp(0.0, 1.0);
-      final rate = marginalRate * (0.7 + 0.3 * ratio);
+      final midIncome = (currentIncome - stepSize / 2).clamp(0.0, income);
+      final ratio = (midIncome / income).clamp(0.0, 1.0);
+      final rate = (marginalRate * pow(ratio, 1.3)).clamp(0.0, marginalRate);
       totalSaved += stepSize * rate;
       currentIncome -= stepSize;
     }
@@ -216,8 +220,7 @@ class LibrePassageAdvisor {
     // Regles communes
     checklist.add(const ChecklistItem(
       title: 'Demander un décompte de sortie',
-      description:
-          'Exige un décompte détaillé de ta caisse de pension '
+      description: 'Exige un décompte détaillé de ta caisse de pension '
           'avec la répartition obligatoire / surobligatoire.',
       urgency: ChecklistUrgency.haute,
     ));
@@ -260,8 +263,7 @@ class LibrePassageAdvisor {
 
       checklist.add(const ChecklistItem(
         title: 'Choisir entre compte bancaire et police de libre passage',
-        description:
-            'Le compte bancaire offre plus de flexibilité. La police '
+        description: 'Le compte bancaire offre plus de flexibilité. La police '
             'd\'assurance peut inclure une couverture risque.',
         urgency: ChecklistUrgency.haute,
       ));
@@ -289,16 +291,14 @@ class LibrePassageAdvisor {
 
       checklist.add(const ChecklistItem(
         title: 'Annoncer ton départ à la caisse de pension',
-        description:
-            'Informe ta caisse dans les 30 jours suivant ton départ.',
+        description: 'Informe ta caisse dans les 30 jours suivant ton départ.',
         urgency: ChecklistUrgency.haute,
       ));
 
       if (daysSinceDeparture > 0 && daysSinceDeparture <= 180) {
         alerts.add(const LibrePassageAlert(
           title: 'Transfert à effectuer dans les 6 mois',
-          message:
-              'Après un départ de Suisse, tu disposes de 6 mois pour '
+          message: 'Après un départ de Suisse, tu disposes de 6 mois pour '
               'transférer ton avoir ou ouvrir un compte de libre passage.',
           urgency: ChecklistUrgency.haute,
         ));
@@ -331,8 +331,7 @@ class LibrePassageAdvisor {
     // Avoirs oublies
     checklist.add(const ChecklistItem(
       title: 'Rechercher des avoirs oubliés',
-      description:
-          'Utilisez la Centrale du 2e pilier (sfbvg.ch) pour '
+      description: 'Utilisez la Centrale du 2e pilier (sfbvg.ch) pour '
           'rechercher d\'éventuels avoirs de libre passage oubliés.',
       urgency: ChecklistUrgency.moyenne,
     ));
@@ -340,8 +339,7 @@ class LibrePassageAdvisor {
     // Couverture risque
     checklist.add(const ChecklistItem(
       title: 'Vérifier la couverture risque transitoire',
-      description:
-          'Pendant la période de libre passage, la couverture décès '
+      description: 'Pendant la période de libre passage, la couverture décès '
           'et invalidité peut être réduite. Vérifie tes contrats.',
       urgency: ChecklistUrgency.haute,
     ));
@@ -350,8 +348,7 @@ class LibrePassageAdvisor {
       checklist: checklist,
       alerts: alerts,
       recommendations: recommendations,
-      disclaimer:
-          'Ces informations sont pédagogiques et ne constituent pas '
+      disclaimer: 'Ces informations sont pédagogiques et ne constituent pas '
           'un conseil juridique ou financier personnalisé. Les règles '
           'dépendent de ta caisse de pension et de ta situation. '
           'Base légale : LFLP, OLP. Consultez un ou une spécialiste '

@@ -25,8 +25,8 @@ void main() {
       );
       // Delta positif = echelonne economise plus que bloc
       expect(result.delta, greaterThan(0));
-      expect(result.economieEchelonneTotal,
-          greaterThan(result.economieBlocTotal));
+      expect(
+          result.economieEchelonneTotal, greaterThan(result.economieBlocTotal));
     });
 
     test('plan annuel contient le bon nombre d annees', () {
@@ -102,6 +102,18 @@ void main() {
       );
       expect(result.economieBlocTotal, 0);
       expect(result.economieEchelonneTotal, 0);
+    });
+
+    test('economie fiscale bloc est capee par revenu imposable', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 100000,
+        rachatMax: 300000, // deduction > revenu imposable
+        revenuImposable: 100000,
+        tauxMarginalEstime: 0.40,
+        horizon: 1,
+      );
+      // Impossible d'economiser plus que la deduction taxable * taux marginal.
+      expect(result.economieBlocTotal, lessThanOrEqualTo(40000));
     });
 
     test('disclaimer mentionne LPP art. 79b al. 3', () {

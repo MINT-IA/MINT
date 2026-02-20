@@ -11,6 +11,9 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/widgets/language_selector_widget.dart';
+import 'package:mint_mobile/l10n/locale_helper.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -77,6 +80,8 @@ class ProfileScreen extends StatelessWidget {
                         S.of(context)?.profileReward10 ?? '+10% de précision',
                     onTap: () => context.push('/advisor/wizard'),
                   ),
+                  const SizedBox(height: 32),
+                  _buildLanguageSection(context),
                   const SizedBox(height: 32),
                   Text(S.of(context)?.profileSecurityTitle ?? 'Sécurité & Data',
                       style: const TextStyle(
@@ -335,6 +340,56 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLanguageSection(BuildContext context) {
+    final localeProvider = context.watch<LocaleProvider>();
+    final code = localeProvider.locale.languageCode;
+    final flag = MintLocales.flagOf(code);
+    final name = MintLocales.nameOf(code);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Langue / Sprache / Language',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () async {
+            final selected =
+                await showLanguageSelector(context, localeProvider.locale);
+            if (selected != null && context.mounted) {
+              context.read<LocaleProvider>().setLocale(selected);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: MintColors.border),
+            ),
+            child: Row(
+              children: [
+                Text(flag, style: const TextStyle(fontSize: 24)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: MintColors.textMuted),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

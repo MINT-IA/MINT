@@ -191,9 +191,9 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('Rendement reel avec avantage fiscal'), findsOneWidget);
+      expect(find.text('Taux equivalent sur effort net'), findsOneWidget);
       expect(find.textContaining('%'), findsWidgets);
-      expect(find.textContaining('sans avantage fiscal'), findsOneWidget);
+      expect(find.textContaining('taux net 3a'), findsOneWidget);
     });
 
     testWidgets('displays parameters section with 5 sliders', (tester) async {

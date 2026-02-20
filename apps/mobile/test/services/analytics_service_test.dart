@@ -12,6 +12,8 @@ void main() {
       // Clear SharedPreferences before each test
       SharedPreferences.setMockInitialValues({});
       analytics = AnalyticsService();
+      // Reset singleton state so init() re-reads from fresh SharedPreferences
+      analytics.resetForTesting();
       await analytics.init();
     });
 
@@ -292,6 +294,34 @@ void main() {
       expect(after.getString('analytics_events_queue'), isNull);
       expect(analytics.sessionId, equals(sessionBefore));
       expect(analytics.isEnabled, equals(consentBefore));
+    });
+
+    test('trackEvent persists events to SharedPreferences', () async {
+      await analytics.setConsent(true);
+      analytics.trackEvent('persist_test', category: 'test');
+
+      final prefs = await SharedPreferences.getInstance();
+      final queueJson = prefs.getString('analytics_events_queue');
+      expect(queueJson, isNotNull);
+      expect(queueJson, contains('persist_test'));
+    });
+
+    test('setConsent(false) clears persisted queue', () async {
+      await analytics.setConsent(true);
+      analytics.trackEvent('temp_event', category: 'test');
+
+      // Verify event is queued
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('analytics_events_queue'), contains('temp_event'));
+
+      // Revoke consent
+      await analytics.setConsent(false);
+
+      // Queue should be cleared (only revocation event may remain or be flushed)
+      final afterRevoke = prefs.getString('analytics_events_queue');
+      if (afterRevoke != null) {
+        expect(afterRevoke, isNot(contains('temp_event')));
+      }
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
@@ -7,10 +8,14 @@ import 'package:mint_mobile/services/auth_service.dart';
 class ApiService {
   /// Base URL — override at build time with:
   ///   flutter run --dart-define=API_BASE_URL=https://api.mint.ch/api/v1
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8888/api/v1',
-  );
+  static final String baseUrl = (() {
+    const defined = String.fromEnvironment('API_BASE_URL');
+    if (defined.isNotEmpty) return defined;
+    // Safe fallback: release builds must never point to localhost.
+    return kReleaseMode
+        ? 'https://api.mint.ch/api/v1'
+        : 'http://localhost:8888/api/v1';
+  })();
 
   // Helper method to get auth headers with JWT token
   static Future<Map<String, String>> _authHeaders() async {
@@ -73,7 +78,8 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>> post(
+      String endpoint, Map<String, dynamic> data) async {
     var response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeaders(),
@@ -95,7 +101,8 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>> put(
+      String endpoint, Map<String, dynamic> data) async {
     var response = await http.put(
       Uri.parse('$baseUrl$endpoint'),
       headers: await _authHeaders(),

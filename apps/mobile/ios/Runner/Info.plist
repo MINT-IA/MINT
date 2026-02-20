@@ -45,6 +45,14 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>MINT utilise le réseau local en mode debug pour se connecter aux outils de développement Flutter.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+		<string>_dartVmService._tcp</string>
+		<string>_flutter-devtools._tcp</string>
+	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>MINT a besoin d'accéder à ta galerie pour importer des documents financiers.</string>
 </dict>

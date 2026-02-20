@@ -1,3 +1,5 @@
+import 'package:mint_mobile/services/tax_estimator_service.dart';
+
 enum PayFrequency {
   monthly,
   biweekly,
@@ -14,14 +16,21 @@ class BudgetInputs {
   final double netIncome; // Périodique (selon frequency)
   final double housingCost; // Périodique
   final double debtPayments; // Périodique
+  final double taxProvision; // Mensuel (provision impots)
+  final double healthInsurance; // Mensuel (LAMal)
+  final double otherFixedCosts; // Mensuel (assurances/autres charges fixes)
   final BudgetStyle style;
-  final double emergencyFundMonths; // Mois de dépenses couverts par l'épargne liquide
+  final double
+      emergencyFundMonths; // Mois de dépenses couverts par l'épargne liquide
 
   const BudgetInputs({
     required this.payFrequency,
     required this.netIncome,
     required this.housingCost,
     required this.debtPayments,
+    this.taxProvision = 0,
+    this.healthInsurance = 0,
+    this.otherFixedCosts = 0,
     this.style = BudgetStyle.envelopes3,
     this.emergencyFundMonths = 0,
   });
@@ -45,16 +54,51 @@ class BudgetInputs {
       }
     }
 
+    final payFrequency = PayFrequency.values.firstWhere(
+      (e) => e.name == map['q_pay_frequency'],
+      orElse: () => PayFrequency.monthly,
+    );
+    final netIncome =
+        (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final housingCost =
+        (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final debtPayments =
+        (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0;
+
+    final normalizedMonthlyIncome = _toMonthly(netIncome, payFrequency);
+    final taxProvisionRaw =
+        (map['q_tax_provision_monthly_chf'] as num?)?.toDouble();
+    final lamalRaw = (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble();
+    final otherFixedRaw =
+        (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble();
+
+    final civilStatus = map['q_civil_status'] as String? ?? 'single';
+    final canton = map['q_canton'] as String? ?? 'CH';
+    final children = _parseChildrenCount(map['q_children']);
+
+    final estimatedTax = taxProvisionRaw ??
+        TaxEstimatorService.estimateMonthlyProvision(
+          TaxEstimatorService.estimateAnnualTax(
+            netMonthlyIncome: normalizedMonthlyIncome,
+            cantonCode: canton,
+            civilStatus: civilStatus,
+            childrenCount: children,
+            age: 35,
+            isSourceTaxed: false,
+          ),
+        );
+
+    final estimatedLamal = lamalRaw ??
+        _estimateLamalPremium(canton, map['q_household_type'] as String?);
+
     return BudgetInputs(
-      payFrequency: PayFrequency.values.firstWhere(
-        (e) => e.name == map['q_pay_frequency'],
-        orElse: () => PayFrequency.monthly,
-      ),
-      netIncome: (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0,
-      housingCost:
-          (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0,
-      debtPayments:
-          (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0,
+      payFrequency: payFrequency,
+      netIncome: netIncome,
+      housingCost: housingCost,
+      debtPayments: debtPayments,
+      taxProvision: estimatedTax,
+      healthInsurance: estimatedLamal,
+      otherFixedCosts: otherFixedRaw ?? 0.0,
       style: BudgetStyle.values.firstWhere(
         (e) => e.name == map['q_budget_style'],
         orElse: () => BudgetStyle.envelopes3,
@@ -69,8 +113,44 @@ class BudgetInputs {
       'q_net_income_period_chf': netIncome,
       'q_housing_cost_period_chf': housingCost,
       'q_debt_payments_period_chf': debtPayments,
+      'q_tax_provision_monthly_chf': taxProvision,
+      'q_lamal_premium_monthly_chf': healthInsurance,
+      'q_other_fixed_costs_monthly_chf': otherFixedCosts,
       'q_budget_style': style.name,
       'emergency_fund_months': emergencyFundMonths,
     };
+  }
+
+  static double _toMonthly(double amount, PayFrequency frequency) {
+    switch (frequency) {
+      case PayFrequency.weekly:
+        return amount * 4.333;
+      case PayFrequency.biweekly:
+        return amount * 2.166;
+      case PayFrequency.monthly:
+        return amount;
+    }
+  }
+
+  static int _parseChildrenCount(dynamic raw) {
+    if (raw == null) return 0;
+    final text = raw.toString().trim().replaceAll('+', '');
+    return int.tryParse(text) ?? 0;
+  }
+
+  static double _estimateLamalPremium(
+      String cantonCode, String? householdType) {
+    const highCantons = {'GE', 'VD', 'BS', 'NE'};
+    const lowCantons = {'ZG', 'AI', 'UR', 'OW', 'NW'};
+    final adults =
+        householdType == 'couple' || householdType == 'family' ? 2 : 1;
+
+    final baseAdult = highCantons.contains(cantonCode)
+        ? 520.0
+        : lowCantons.contains(cantonCode)
+            ? 350.0
+            : 430.0;
+
+    return baseAdult * adults;
   }
 }

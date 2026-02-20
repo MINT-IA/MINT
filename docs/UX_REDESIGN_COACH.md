@@ -1216,3 +1216,58 @@ La refonte doit etre pilotee par une logique simple:
 
 Le plan Phase 1-4 permet de livrer vite une valeur tangible, puis d'industrialiser
 le coach BYOK/docs sans compromettre la fiabilite des calculs ni la compliance.
+
+---
+
+## ONBOARDING REMEDIATION P0-P3 (MOBILE) — ETAT AU 19 FEVRIER 2026
+
+### P0 (livre)
+- Debug metrics panel masque hors debug build (icone desactivee en prod).
+- ETA corrige:
+  - etape 4 affiche 0s restant.
+  - etapes 1-3 utilisent `reste = 50% etape courante + etapes suivantes`.
+- Simplification CTA:
+  - Step 1 garde un seul CTA secondaire (resume wizard OU full diagnostic).
+  - Completion sheet garde un seul secondaire (`Activer mon dashboard`).
+- Correctif robustesse lifecycle:
+  - snapshot mini-onboarding en `dispose()` ne depend plus de `Localizations`.
+- Regression test:
+  - ajout assertion Step 4 pour eviter preview `CHF 0` avec inputs complets.
+
+### P1 (prochaine tranche, 1 sprint)
+- Decouper `advisor_onboarding_screen.dart` en composants:
+  - `onboarding_top_bar.dart`
+  - `onboarding_eta_hint.dart`
+  - `onboarding_step_indicator.dart`
+  - `onboarding_completion_sheet.dart`
+  - `onboarding_preview_card.dart`
+- Introduire `AdvisorMiniOnboardingController` (state + validation + save/restore)
+  pour sortir la logique metier de l'ecran.
+- Cible: fichier ecran < 1000 lignes, couverture smoke inchangée.
+
+### P2 (explicabilite finance, 1 sprint)
+- Bloc "Hypotheses de projection" sur Step 4:
+  - horizon,
+  - statut emploi suppose,
+  - epargne estimee (si profil partiel),
+  - nature indicative des scenarios.
+- Lien "Pourquoi ce chiffre?" ouvrant un bottom-sheet pedagogique.
+- Events analytics additionnels:
+  - `preview_hypothesis_opened`
+  - `preview_hypothesis_dismissed`
+  - `preview_assumption_changed`
+
+### P3 (prod hardening i18n + a11y, 1 sprint)
+- Zero string user-facing hardcodee dans onboarding.
+- VoiceOver/TalkBack:
+  - labels semantiques sur cards,
+  - annonce etape courante,
+  - hint explicite sur CTA principal.
+- Navigation clavier:
+  - `textInputAction`,
+  - `onSubmitted`,
+  - focus order coherent.
+- Gate release:
+  - smoke onboarding green,
+  - a11y basic checks green,
+  - aucun warning nouveau onboarding.

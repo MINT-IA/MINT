@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
@@ -55,6 +56,8 @@ class ReportPersistenceService {
       'mini_onboarding_metrics_challenge_v1';
   static const String _onboardingCohortMetricsKey =
       'mini_onboarding_cohort_metrics_v1';
+
+  static Future<void>? _metricLock;
 
   /// Marque le mini-onboarding comme complété (3 questions essentielles)
   static Future<void> setMiniOnboardingCompleted(bool isCompleted) async {
@@ -158,13 +161,24 @@ class ReportPersistenceService {
     String metricKey, {
     int by = 1,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = _metricsKeyForVariant(variant);
-    final current = Map<String, int>.from(
-      await loadMiniOnboardingMetrics(variant),
-    );
-    current[metricKey] = (current[metricKey] ?? 0) + by;
-    await prefs.setString(key, json.encode(current));
+    // Serialize concurrent calls to prevent lost increments
+    while (_metricLock != null) {
+      await _metricLock;
+    }
+    final completer = Completer<void>();
+    _metricLock = completer.future;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = _metricsKeyForVariant(variant);
+      final current = Map<String, int>.from(
+        await loadMiniOnboardingMetrics(variant),
+      );
+      current[metricKey] = (current[metricKey] ?? 0) + by;
+      await prefs.setString(key, json.encode(current));
+    } finally {
+      _metricLock = null;
+      completer.complete();
+    }
   }
 
   /// Efface les metriques onboarding (control + challenge).
@@ -204,23 +218,34 @@ class ReportPersistenceService {
     String metricKey, {
     int by = 1,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final root = Map<String, dynamic>.from(
-      await loadMiniOnboardingCohortMetrics(),
-    );
+    // Serialize concurrent calls to prevent lost increments
+    while (_metricLock != null) {
+      await _metricLock;
+    }
+    final completer = Completer<void>();
+    _metricLock = completer.future;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final root = Map<String, dynamic>.from(
+        await loadMiniOnboardingCohortMetrics(),
+      );
 
-    final variantMap = Map<String, dynamic>.from(
-      (root[variant] as Map?) ?? const {},
-    );
-    final bucketMap = Map<String, dynamic>.from(
-      (variantMap[profileBucket] as Map?) ?? const {},
-    );
-    final current = (bucketMap[metricKey] as num?)?.toInt() ?? 0;
-    bucketMap[metricKey] = current + by;
-    variantMap[profileBucket] = bucketMap;
-    root[variant] = variantMap;
+      final variantMap = Map<String, dynamic>.from(
+        (root[variant] as Map?) ?? const {},
+      );
+      final bucketMap = Map<String, dynamic>.from(
+        (variantMap[profileBucket] as Map?) ?? const {},
+      );
+      final current = (bucketMap[metricKey] as num?)?.toInt() ?? 0;
+      bucketMap[metricKey] = current + by;
+      variantMap[profileBucket] = bucketMap;
+      root[variant] = variantMap;
 
-    await prefs.setString(_onboardingCohortMetricsKey, json.encode(root));
+      await prefs.setString(_onboardingCohortMetricsKey, json.encode(root));
+    } finally {
+      _metricLock = null;
+      completer.complete();
+    }
   }
 
   /// Export CSV des cohortes A/B avec completion par profil.
@@ -563,6 +588,7 @@ class ReportPersistenceService {
     await prefs.remove(_miniOnboardingExposureTrackedKey);
     await prefs.remove(_onboardingMetricsControlKey);
     await prefs.remove(_onboardingMetricsChallengeKey);
+    await prefs.remove(_onboardingCohortMetricsKey);
     await prefs.remove(_contributionsKey);
     await prefs.remove(_onboarding30PlanKey);
   }

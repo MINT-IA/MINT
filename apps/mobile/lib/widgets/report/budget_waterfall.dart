@@ -6,15 +6,23 @@ class BudgetWaterfall extends StatelessWidget {
   final double income;
   final double housing;
   final double debt;
+  final double taxes;
+  final double healthInsurance;
+  final double otherFixed;
 
   const BudgetWaterfall({
     super.key,
     required this.income,
     required this.housing,
     required this.debt,
+    this.taxes = 0,
+    this.healthInsurance = 0,
+    this.otherFixed = 0,
   });
 
-  double get available => (income - housing - debt).clamp(0, double.infinity);
+  double get available =>
+      (income - housing - debt - taxes - healthInsurance - otherFixed)
+          .clamp(0, double.infinity);
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +36,18 @@ class BudgetWaterfall extends StatelessWidget {
         ],
         if (debt > 0) ...[
           _row('Dettes', debt, MintColors.error),
+          const SizedBox(height: 8),
+        ],
+        if (taxes > 0) ...[
+          _row('Impôts (provision)', taxes, MintColors.textSecondary),
+          const SizedBox(height: 8),
+        ],
+        if (healthInsurance > 0) ...[
+          _row('Primes LAMal', healthInsurance, MintColors.textSecondary),
+          const SizedBox(height: 8),
+        ],
+        if (otherFixed > 0) ...[
+          _row('Autres fixes', otherFixed, MintColors.textSecondary),
           const SizedBox(height: 8),
         ],
         const Divider(height: 1),
@@ -66,7 +86,8 @@ class BudgetWaterfall extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-                color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+                color:
+                    isBold ? MintColors.textPrimary : MintColors.textSecondary,
               ),
             ),
           ],
