@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,6 +16,7 @@ import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
+import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -409,6 +411,52 @@ void main() {
       expect(find.textContaining('Jour 1-7'), findsWidgets);
       expect(find.textContaining('Jour 8-15'), findsOneWidget);
       expect(find.textContaining('Jour 16-30'), findsOneWidget);
+    });
+
+    testWidgets('tap "Completer mon diagnostic" navigates to wizard',
+        (tester) async {
+      final router = GoRouter(
+        initialLocation: '/advisor/plan-30-days',
+        routes: [
+          GoRoute(
+            path: '/advisor/plan-30-days',
+            builder: (context, state) => const Onboarding30DayPlanScreen(),
+          ),
+          GoRoute(
+            path: '/advisor/wizard',
+            builder: (context, state) => const AdvisorWizardScreenV2(),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      final scrollable = find.byType(Scrollable).first;
+      await tester.drag(scrollable, const Offset(0, -400));
+      await tester.pumpAndSettle(const Duration(milliseconds: 400));
+
+      final completeDiagnosticButton = find.byType(OutlinedButton).first;
+      expect(completeDiagnosticButton, findsOneWidget);
+      await tester.tap(completeDiagnosticButton);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(AdvisorWizardScreenV2), findsOneWidget);
+      expect(find.textContaining('Question'), findsWidgets);
     });
   });
 
