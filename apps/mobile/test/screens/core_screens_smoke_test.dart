@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 // Screens under test
-import 'package:mint_mobile/screens/advisor/advisor_start_screen.dart';
 import 'package:mint_mobile/screens/advisor/advisor_onboarding_screen.dart';
 import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
@@ -12,6 +11,7 @@ import 'package:mint_mobile/screens/portfolio_screen.dart';
 // Dependencies for PortfolioScreen and AdvisorOnboardingScreen
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,90 +21,20 @@ void main() {
   });
 
   // ===========================================================================
-  // 1. ADVISOR START SCREEN
-  // ===========================================================================
-
-  group('AdvisorSessionStartScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorSessionStartScreen(),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.byType(AdvisorSessionStartScreen), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('displays French intro text', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorSessionStartScreen(),
-        ),
-      );
-      await tester.pump();
-
-      // Main heading
-      expect(
-        find.textContaining('Ta Session'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('Spécialiste'),
-        findsOneWidget,
-      );
-
-      // Intro paragraph in French
-      expect(
-        find.textContaining('diagnostic rapide'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('has CTA button with French label', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorSessionStartScreen(),
-        ),
-      );
-      await tester.pump();
-
-      // The main CTA
-      expect(
-        find.text('Commencer le diagnostic'),
-        findsOneWidget,
-      );
-      expect(find.byType(FilledButton), findsOneWidget);
-    });
-
-    testWidgets('shows info rows with icons', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorSessionStartScreen(),
-        ),
-      );
-      await tester.pump();
-
-      // Duration info row
-      expect(find.textContaining('5 minutes'), findsOneWidget);
-      // Confidentiality info row
-      expect(find.textContaining('Confidentiel'), findsOneWidget);
-      // Disclaimer-like info row
-      expect(find.textContaining('pas de conseil juridique'), findsOneWidget);
-      // Footer educational text
-      expect(find.text('Éducation financière proactive'), findsOneWidget);
-    });
-  });
-
-  // ===========================================================================
   // 2. ADVISOR ONBOARDING SCREEN
   // ===========================================================================
 
   group('AdvisorOnboardingScreen', () {
     Widget buildOnboarding() {
-      return ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<OnboardingProvider>(
+            create: (_) => OnboardingProvider(),
+          ),
+        ],
         child: const MaterialApp(
           home: AdvisorOnboardingScreen(),
         ),
@@ -235,6 +165,69 @@ void main() {
 
       // CTA button present but disabled (no goal selected yet)
       expect(find.textContaining('Activer mon dashboard'), findsOneWidget);
+    });
+
+    testWidgets(
+        'step 3 couple blocks progression until partner required fields are complete',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildOnboarding());
+      await tester.pump();
+
+      // Step 1
+      await tester.tap(find.textContaining('budget'));
+      await tester.pump();
+      await tester.tap(find.byType(FilledButton).last);
+      await tester.pumpAndSettle();
+
+      // Step 2
+      await tester.enterText(find.byType(TextField).first, '1990');
+      await tester.pump();
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Zurich (ZH)').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FilledButton).last);
+      await tester.pumpAndSettle();
+
+      // Step 3
+      await tester.enterText(find.byType(TextField).first, '7000');
+      await tester.pump();
+      await tester.tap(find.textContaining('Salarie'));
+      await tester.pump();
+      await tester.tap(find.textContaining('En couple'));
+      await tester.pump();
+
+      await tester.ensureVisible(find.textContaining('Voir ma projection'));
+      await tester.tap(find.textContaining('Voir ma projection'));
+      await tester.pumpAndSettle();
+
+      // Must still be blocked on step 3 when partner data is missing.
+      expect(find.text('3/4'), findsOneWidget);
+      expect(find.text('4/4'), findsNothing);
+      expect(find.textContaining('Infos partenaire requises'), findsOneWidget);
+      expect(find.textContaining('Profil minimum prêt'), findsNothing);
+
+      // Fill partner required data
+      await tester.tap(find.textContaining('Marie'));
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).at(1), '5000');
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).at(2), '1992');
+      await tester.pump();
+      await tester.tap(find.textContaining('Salarie').last);
+      await tester.pump();
+
+      await tester.tap(find.textContaining('Voir ma projection'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('4/4'), findsOneWidget);
     });
 
   });

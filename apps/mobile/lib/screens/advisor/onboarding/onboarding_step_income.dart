@@ -11,6 +11,8 @@ class OnboardingStepIncome extends StatelessWidget {
   final TextEditingController taxController;
   final TextEditingController lamalController;
   final TextEditingController otherFixedController;
+  final TextEditingController partnerIncomeController;
+  final TextEditingController partnerBirthYearController;
   final ValueChanged<int> onIncomeQuickPick;
   final VoidCallback onContinue;
 
@@ -20,6 +22,8 @@ class OnboardingStepIncome extends StatelessWidget {
     required this.taxController,
     required this.lamalController,
     required this.otherFixedController,
+    required this.partnerIncomeController,
+    required this.partnerBirthYearController,
     required this.onIncomeQuickPick,
     required this.onContinue,
   });
@@ -30,10 +34,36 @@ class OnboardingStepIncome extends StatelessWidget {
     final provider = context.watch<OnboardingProvider>();
     final employmentStatus = provider.employmentStatus;
     final householdType = provider.householdType;
-
-    final hasIncome = (double.tryParse(incomeController.text) ?? 0) > 0;
-    final canContinue =
-        hasIncome && employmentStatus != null && householdType != null;
+    final canContinue = provider.canAdvanceFromStep3;
+    final missingItems = <String>[];
+    if ((provider.incomeMonthly ?? 0) <= 0) {
+      missingItems.add(
+          l10n?.advisorMiniIncomeLabel ?? 'Revenu net mensuel');
+    }
+    if (employmentStatus == null) {
+      missingItems.add(l10n?.advisorMiniEmploymentEmployee ?? 'Statut professionnel');
+    }
+    if (householdType == null) {
+      missingItems.add(l10n?.onboardingHouseholdSingle ?? 'Type de foyer');
+    }
+    if (provider.isHouseholdWithPartner) {
+      if (provider.civilStatusChoice == null) {
+        missingItems.add(
+            l10n?.advisorMiniCivilStatusConcubinage ?? 'Etat civil');
+      }
+      if ((provider.partnerIncome ?? 0) <= 0) {
+        missingItems.add(l10n?.advisorMiniPartnerIncomeLabel ??
+            'Revenu partenaire');
+      }
+      if (provider.partnerBirthYear == null) {
+        missingItems.add(l10n?.advisorMiniPartnerBirthYearLabel ??
+            'Annee de naissance partenaire');
+      }
+      if (provider.partnerEmploymentStatus == null) {
+        missingItems.add(
+            l10n?.advisorMiniPartnerStatusInactive ?? 'Statut partenaire');
+      }
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -52,6 +82,7 @@ class OnboardingStepIncome extends StatelessWidget {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (value) => provider.setIncomeDraft(value),
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
               labelText: l10n?.advisorMiniIncomeLabel ?? 'Revenu net mensuel',
               hintText: '5000',
@@ -120,6 +151,98 @@ class OnboardingStepIncome extends StatelessWidget {
             isSelected: householdType == 'family',
             onTap: () => provider.setHouseholdType('family'),
           ),
+          const SizedBox(height: 8),
+          MintSelectableCard(
+            icon: Icons.child_care_outlined,
+            label: l10n?.onboardingHouseholdSingleParent ?? 'Parent solo',
+            description: l10n?.onboardingHouseholdSingleParentDesc ??
+                'Je gere seul(e) avec enfant(s) a charge',
+            isSelected: householdType == 'single_parent',
+            onTap: () => provider.setHouseholdType('single_parent'),
+          ),
+          // ── Partner data (couple / family only) ──
+          if (householdType == 'couple' || householdType == 'family') ...[
+            const SizedBox(height: 16),
+            // Civil status choice
+            MintSelectableCard(
+              icon: Icons.favorite,
+              label: l10n?.advisorMiniCivilStatusMarried ?? 'Marie·e',
+              isSelected: provider.civilStatusChoice == 'married',
+              onTap: () => provider.setCivilStatusChoice('married'),
+            ),
+            const SizedBox(height: 8),
+            MintSelectableCard(
+              icon: Icons.people,
+              label:
+                  l10n?.advisorMiniCivilStatusConcubinage ?? 'En concubinage',
+              isSelected: provider.civilStatusChoice == 'concubinage',
+              onTap: () => provider.setCivilStatusChoice('concubinage'),
+            ),
+            const SizedBox(height: 12),
+            // Partner income
+            TextField(
+              controller: partnerIncomeController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (value) => provider.setPartnerIncomeDraft(value),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              decoration: InputDecoration(
+                labelText: l10n?.advisorMiniPartnerIncomeLabel ??
+                    'Revenu net mensuel du·de la partenaire',
+                hintText: '4000',
+                prefixText: 'CHF  ',
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Partner birth year
+            TextField(
+              controller: partnerBirthYearController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (value) => provider.setPartnerBirthYearDraft(value),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              decoration: InputDecoration(
+                labelText: l10n?.advisorMiniPartnerBirthYearLabel ??
+                    'Annee de naissance du·de la partenaire',
+                hintText: '1990',
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Partner employment status
+            MintSelectableCard(
+              icon: Icons.business_center_outlined,
+              label: l10n?.advisorMiniEmploymentEmployee ?? 'Salarie·e',
+              description: l10n?.advisorMiniPartnerStatusHint ?? 'Partenaire',
+              isSelected: provider.partnerEmploymentStatus == 'employee',
+              onTap: () => provider.setPartnerEmploymentStatus('employee'),
+            ),
+            const SizedBox(height: 8),
+            MintSelectableCard(
+              icon: Icons.storefront_outlined,
+              label: l10n?.advisorMiniEmploymentSelfEmployed ?? 'Independant·e',
+              description: l10n?.advisorMiniPartnerStatusHint ?? 'Partenaire',
+              isSelected: provider.partnerEmploymentStatus == 'self_employed',
+              onTap: () => provider.setPartnerEmploymentStatus('self_employed'),
+            ),
+            const SizedBox(height: 8),
+            MintSelectableCard(
+              icon: Icons.pause_circle_outline,
+              label: l10n?.advisorMiniPartnerStatusInactive ?? 'Sans activite',
+              description: l10n?.advisorMiniPartnerStatusHint ?? 'Partenaire',
+              isSelected: provider.partnerEmploymentStatus == 'inactive',
+              onTap: () => provider.setPartnerEmploymentStatus('inactive'),
+            ),
+            if (!provider.hasPartnerRequiredData) ...[
+              const SizedBox(height: 12),
+              OnboardingInsightCard(
+                icon: Icons.info_outline,
+                title: l10n?.advisorMiniPartnerRequiredTitle ??
+                    'Infos partenaire requises',
+                body: l10n?.advisorMiniPartnerRequiredBody ??
+                    'Ajoute l\'etat civil, le revenu, l\'annee de naissance et le statut du partenaire pour une projection foyer fiable.',
+              ),
+            ],
+          ],
           const SizedBox(height: 12),
           ExpansionTile(
             title: Text(l10n?.advisorMiniFixedCostsTitle ??
@@ -164,6 +287,15 @@ class OnboardingStepIncome extends StatelessWidget {
             icon: Icons.auto_awesome,
             onPressed: onContinue,
           ),
+          if (!canContinue && missingItems.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            OnboardingInsightCard(
+              icon: Icons.info_outline,
+              title: l10n?.advisorMiniReadyTitle ?? 'Validation',
+              body:
+                  'Complète: ${missingItems.take(3).join(', ')}${missingItems.length > 3 ? '…' : ''}',
+            ),
+          ],
           const SizedBox(height: 24),
         ],
       ),

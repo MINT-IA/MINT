@@ -53,7 +53,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   int _currentStep = 0;
 
   // Answer state is now in OnboardingProvider — these accessors read from it.
-  OnboardingProvider get _provider => context.read<OnboardingProvider>();
+  late OnboardingProvider _onboardingProvider;
+  bool _providerBound = false;
+  OnboardingProvider get _provider =>
+      _providerBound ? _onboardingProvider : context.read<OnboardingProvider>();
   Set<String> get _stressChoices => _provider.stressChoices;
   String? get _canton => _provider.canton;
   String? get _employmentStatus => _provider.employmentStatus;
@@ -66,6 +69,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   final _taxProvisionController = TextEditingController();
   final _lamalController = TextEditingController();
   final _otherFixedController = TextEditingController();
+  final _partnerIncomeController = TextEditingController();
+  final _partnerBirthYearController = TextEditingController();
 
   // Saved wizard progress (read from provider)
   bool get _hasSavedWizardProgress => _provider.hasSavedWizardProgress;
@@ -112,6 +117,15 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _analytics.trackScreenView('/advisor');
     _initExperimentContext();
     _checkSavedProgress();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_providerBound) {
+      _onboardingProvider = context.read<OnboardingProvider>();
+      _providerBound = true;
+    }
   }
 
   Future<void> _initExperimentContext() async {
@@ -164,7 +178,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final income = double.tryParse(
       _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
     );
-    final stress = _stressChoices.isNotEmpty ? _stressChoices.join(',') : 'unknown';
+    final stress =
+        _stressChoices.isNotEmpty ? _stressChoices.join(',') : 'unknown';
     final employment = _employmentStatus ?? 'unknown';
     final household = _householdType ?? 'unknown';
     return 'stress_$stress|emp_$employment|house_$household|${_incomeBucket(income)}';
@@ -173,7 +188,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   @override
   void dispose() {
     _autoSaveDebounce?.cancel();
-    if (!_isOnboardingCompleted) {
+    if (!_isOnboardingCompleted && _providerBound) {
       unawaited(_saveMiniProgressSnapshot(reason: 'dispose_abandon'));
       _incMetric('abandoned');
       final elapsedSeconds =
@@ -194,6 +209,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _taxProvisionController.dispose();
     _lamalController.dispose();
     _otherFixedController.dispose();
+    _partnerIncomeController.dispose();
+    _partnerBirthYearController.dispose();
     super.dispose();
   }
 
@@ -224,6 +241,18 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _otherFixedController.text = p.draftOtherFixed!;
     } else if (p.otherFixedCostsMonthly != null) {
       _otherFixedController.text = p.otherFixedCostsMonthly!.toInt().toString();
+    }
+    // Partner controllers
+    if (p.draftPartnerIncome != null && p.draftPartnerIncome!.isNotEmpty) {
+      _partnerIncomeController.text = p.draftPartnerIncome!;
+    } else if (p.partnerIncome != null) {
+      _partnerIncomeController.text = p.partnerIncome!.toInt().toString();
+    }
+    if (p.draftPartnerBirthYear != null &&
+        p.draftPartnerBirthYear!.isNotEmpty) {
+      _partnerBirthYearController.text = p.draftPartnerBirthYear!;
+    } else if (p.partnerBirthYear != null) {
+      _partnerBirthYearController.text = p.partnerBirthYear.toString();
     }
   }
 
@@ -486,6 +515,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       final action = await _showCompletionSheet(preview);
       if (!mounted) return;
       if (action == 'wizard') {
+        _incMetric('completion_action_wizard');
         _analytics.trackCTAClick(
           'advisor_completion_full_diagnostic',
           screenName: '/advisor',
@@ -493,6 +523,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         );
         context.push('/advisor/wizard');
       } else if (action == 'plan30') {
+        _incMetric('completion_action_plan30');
         _analytics.trackCTAClick(
           'advisor_completion_open_plan_30_days',
           screenName: '/advisor',
@@ -504,12 +535,14 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         context.go(
           '/advisor/plan-30-days',
           extra: {
-            'stress_choice': _stressChoices.isNotEmpty ? _stressChoices.first : null,
+            'stress_choice':
+                _stressChoices.isNotEmpty ? _stressChoices.first : null,
             'stress_choices': _stressChoices.toList(),
             'main_goal': _mainGoal ?? 'retirement',
           },
         );
       } else {
+        _incMetric('completion_action_dashboard');
         _analytics.trackCTAClick(
           'advisor_completion_open_dashboard',
           screenName: '/advisor',
@@ -524,6 +557,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final l10n = S.of(context);
     final baseValue = preview?['base'] as double?;
     final yearsLeft = preview?['yearsLeft'];
+    final isChallenge = _miniOnboardingVariant == 'challenge';
+    _incMetric('completion_sheet_shown');
+    _incMetric('completion_sheet_shown_$_miniOnboardingVariant');
     return showModalBottomSheet<String>(
       context: context,
       isDismissible: false,
@@ -609,6 +645,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     ),
                   ),
                 ],
+                const SizedBox(height: 14),
+                _buildCoachIntroBlock(),
                 const SizedBox(height: 18),
                 SizedBox(
                   width: double.infinity,
@@ -619,7 +657,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
-                      'Voir mon plan 30 jours',
+                      isChallenge
+                          ? (l10n?.advisorMiniWeekOneCta ??
+                              'Lancer ma semaine 1')
+                          : 'Voir mon plan 30 jours',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w700,
                       ),
@@ -632,8 +673,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(ctx).pop('dashboard'),
                     child: Text(
-                      l10n?.advisorMiniActivateDashboard ??
-                          'Activer mon dashboard',
+                      isChallenge
+                          ? (l10n?.advisorMiniStartWithDashboard ??
+                              'Commencer avec le dashboard')
+                          : (l10n?.advisorMiniActivateDashboard ??
+                              'Activer mon dashboard'),
                     ),
                   ),
                 ),
@@ -645,6 +689,130 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
+  Widget _buildCoachIntroBlock() {
+    final l10n = S.of(context);
+    final priorities = _coachIntroPriorities();
+    final isChallenge = _miniOnboardingVariant == 'challenge';
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome_rounded,
+                size: 16,
+                color: MintColors.info,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n?.advisorMiniCoachIntroTitle ?? 'Ton coach MINT',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isChallenge
+                ? (S.of(context)?.advisorMiniCoachIntroChallenge ??
+                    'Objectif: passer de l analyse a l action cette semaine. On commence maintenant avec 3 priorites.')
+                : (l10n?.advisorMiniCoachIntroControl ??
+                    'Tu as maintenant un plan concret. On avance en 3 priorites sur 7 jours, puis on ajuste avec ton coach.'),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...priorities.asMap().entries.map(
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 5),
+                  child: Text(
+                    '${entry.key + 1}. ${entry.value}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textPrimary,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+
+  List<String> _coachIntroPriorities() {
+    final l10n = S.of(context);
+    final stress =
+        _stressChoices.isNotEmpty ? _stressChoices.first : 'retirement';
+    final goal = _mainGoal ?? 'retirement';
+    final household = _householdType ?? 'single';
+    final priorities = <String>[
+      l10n?.advisorMiniCoachPriorityBaseline ??
+          'Confirmer ton score et ta trajectoire de depart',
+    ];
+    if (household == 'couple' || household == 'family') {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityCouple ??
+            'Aligner la strategie du foyer pour eviter les angles morts de couple',
+      );
+    } else if (household == 'single_parent') {
+      priorities.add(
+        l10n?.advisorMiniCoachPrioritySingleParent ??
+            'Prioriser la protection du foyer et le matelas de securite',
+      );
+    }
+    if (stress == 'debt' || stress == 'budget') {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityBudget ??
+            'Stabiliser ton budget et tes charges fixes en premier',
+      );
+    } else if (stress == 'tax') {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityTax ??
+            'Identifier les optimisations fiscales prioritaires',
+      );
+    } else {
+      priorities.add(l10n?.advisorMiniCoachPriorityRetirement ??
+          'Renforcer ta trajectoire retraite avec des actions concretes');
+    }
+    if (goal == 'real_estate') {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityRealEstate ??
+            'Verifier la soutenabilite de ton projet immobilier',
+      );
+    } else if (goal == 'debt_free') {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityDebtFree ??
+            'Accelerer ton desendettement sans casser ta liquidite',
+      );
+    } else if (goal == 'wealth') {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityWealth ??
+            'Construire un plan d accumulation de patrimoine robuste',
+      );
+    } else {
+      priorities.add(
+        l10n?.advisorMiniCoachPriorityPension ??
+            'Optimiser 3a/LPP et le niveau de revenu a la retraite',
+      );
+    }
+    return priorities.take(3).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -653,10 +821,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         if (didPop) return;
         await _handleClosePressed();
       },
-      child: Scaffold(
-        backgroundColor: MintColors.surface,
-        body: SafeArea(
-          child: Column(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: MintColors.surface,
+          body: SafeArea(
+            child: Column(
             children: [
               // Top bar with back/close + step indicator
               _buildTopBar(),
@@ -682,6 +853,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             ],
           ),
         ),
+          ),
       ),
     );
   }
@@ -774,6 +946,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         await ReportPersistenceService.exportMiniOnboardingCohortCsv();
     final cohortJson = jsonEncode(cohorts);
     if (!mounted) return;
+    final provider = context.read<OnboardingProvider>();
+    final liveQuality = _computeLiveMiniQualityScore(provider).round();
+    final liveSection = _recommendedSectionFromMini(provider);
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -819,6 +994,12 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                   ),
                   const SizedBox(height: 10),
                   _buildCohortSummaryCard(cohorts),
+                  const SizedBox(height: 10),
+                  _buildLiveOnboardingQualityCard(
+                    provider: provider,
+                    qualityPct: liveQuality,
+                    recommendedSection: liveSection,
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -923,6 +1104,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   Widget _buildCohortSummaryCard(Map<String, dynamic> cohorts) {
+    final l10n = S.of(context);
     final control =
         Map<String, dynamic>.from((cohorts['control'] as Map?) ?? const {});
     final challenge =
@@ -957,6 +1139,20 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final controlCompleted = completed(control);
     final challengeStarted = started(challenge);
     final challengeCompleted = completed(challenge);
+    final controlRate =
+        controlStarted > 0 ? (controlCompleted / controlStarted) : 0.0;
+    final challengeRate =
+        challengeStarted > 0 ? (challengeCompleted / challengeStarted) : 0.0;
+    final hasComparableData = controlStarted >= 10 && challengeStarted >= 10;
+    final winner = !hasComparableData
+        ? 'Insuffisant'
+        : challengeRate > controlRate
+            ? 'Challenge'
+            : controlRate > challengeRate
+                ? 'Control'
+                : 'Égalité';
+    final upliftPct =
+        hasComparableData ? ((challengeRate - controlRate) * 100) : 0.0;
 
     return Container(
       width: double.infinity,
@@ -984,6 +1180,22 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               rate(challengeCompleted, challengeStarted)),
           _metricRow('Control started', '$controlStarted'),
           _metricRow('Challenge started', '$challengeStarted'),
+          const SizedBox(height: 6),
+          _metricRow(
+            l10n?.advisorMiniMetricsWinnerLive ?? 'Winner live',
+            winner,
+          ),
+          if (hasComparableData)
+            _metricRow(
+              l10n?.advisorMiniMetricsUplift ?? 'Uplift challenge vs control',
+              '${upliftPct >= 0 ? '+' : ''}${upliftPct.toStringAsFixed(1)} pts',
+            )
+          else
+            _metricRow(
+              l10n?.advisorMiniMetricsSignal ?? 'Signal',
+              l10n?.advisorMiniMetricsSignalInsufficient ??
+                  'Attendre >=10 starts par variante',
+            ),
         ],
       ),
     );
@@ -1014,6 +1226,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ? '-'
         : '${(durationSum / durationCount).toStringAsFixed(1)}s';
     final qualityScore = _computeOnboardingQualityScore(metrics);
+    final qualityLabel = qualityScore >= 80
+        ? 'Excellent'
+        : qualityScore >= 60
+            ? 'Solide'
+            : qualityScore >= 40
+                ? 'Moyen'
+                : 'Fragile';
     final step1 = metrics['step_1'] ?? 0;
     final step2 = metrics['step_2'] ?? 0;
     final step3 = metrics['step_3'] ?? 0;
@@ -1141,6 +1360,23 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     color: MintColors.primary,
                   ),
                 ),
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: MintColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    qualityLabel,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.primary,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1181,6 +1417,99 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         ],
       ),
     );
+  }
+
+  String _sectionLabel(String section) {
+    final s = S.of(context);
+    switch (section) {
+      case 'identity':
+        return s?.profileSectionIdentity ?? 'Identite & Foyer';
+      case 'income':
+        return s?.profileSectionIncome ?? 'Revenus & Epargne';
+      case 'pension':
+        return s?.profileSectionPension ?? 'Prevoyance (LPP)';
+      case 'property':
+        return s?.profileSectionProperty ?? 'Immobilier & Dettes';
+      default:
+        return s?.advisorMiniFullDiagnostic ?? 'Diagnostic complet';
+    }
+  }
+
+  Widget _buildLiveOnboardingQualityCard({
+    required OnboardingProvider provider,
+    required int qualityPct,
+    required String recommendedSection,
+  }) {
+    final s = S.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s?.advisorMiniMetricsLiveTitle ?? 'Qualite onboarding live',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _metricRow(
+            s?.advisorMiniMetricsLiveStep ?? 'Step courant',
+            '${provider.currentStep + 1}/${OnboardingConstants.totalSteps}',
+          ),
+          _metricRow(
+            s?.advisorMiniMetricsLiveQuality ?? 'Score qualite',
+            '$qualityPct%',
+          ),
+          _metricRow(
+            s?.advisorMiniMetricsLiveNext ?? 'Section recommandee',
+            _sectionLabel(recommendedSection),
+          ),
+        ],
+      ),
+    );
+  }
+
+  double _computeLiveMiniQualityScore(OnboardingProvider provider) {
+    var points = 0;
+    var total = 8;
+    if (provider.stressChoices.isNotEmpty) points += 1;
+    if (provider.birthYear != null) points += 1;
+    if (provider.canton != null) points += 1;
+    if ((provider.incomeMonthly ?? 0) > 0) points += 1;
+    if (provider.employmentStatus != null) points += 1;
+    if (provider.householdType != null) points += 1;
+    if (provider.mainGoal != null) points += 1;
+    if ((provider.taxProvisionMonthly ?? 0) > 0 ||
+        (provider.lamalPremiumMonthly ?? 0) > 0 ||
+        (provider.otherFixedCostsMonthly ?? 0) > 0) {
+      points += 1;
+    }
+
+    if (provider.isHouseholdWithPartner) {
+      total += 4;
+      if (provider.civilStatusChoice != null) points += 1;
+      if ((provider.partnerIncome ?? 0) > 0) points += 1;
+      if (provider.partnerBirthYear != null) points += 1;
+      if (provider.partnerEmploymentStatus != null) points += 1;
+    }
+    if (total <= 0) return 0;
+    return (points / total * 100).clamp(0, 100);
+  }
+
+  String _recommendedSectionFromMini(OnboardingProvider provider) {
+    if (!provider.canAdvanceFromStep2) return 'identity';
+    if (!provider.canAdvanceFromStep3) return 'income';
+    if (!provider.canAdvanceFromStep4) return 'pension';
+    return 'property';
   }
 
   int _avgStepDurationSeconds(int step) {
@@ -1345,6 +1674,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           child: OnboardingStepEssentials(
             birthYearController: _birthYearController,
             onContinue: () {
+              FocusScope.of(context).unfocus();
               _maybeTrackStep2Aha();
               _goToStep(2);
             },
@@ -1373,14 +1703,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildStep3Income() {
-    final hasIncome = _incomeController.text.isNotEmpty &&
-        (double.tryParse(_incomeController.text
-                    .replaceAll("'", '')
-                    .replaceAll(' ', '')) ??
-                0) >
-            0;
-    final canContinue =
-        hasIncome && _employmentStatus != null && _householdType != null;
+    // Keep readiness hint aligned with the actual CTA gating in OnboardingStepIncome.
+    // This avoids showing "Profil minimum pret" while the CTA remains disabled.
+    final canContinue = _provider.canAdvanceFromStep3;
 
     return Column(
       children: [
@@ -1390,8 +1715,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             taxController: _taxProvisionController,
             lamalController: _lamalController,
             otherFixedController: _otherFixedController,
+            partnerIncomeController: _partnerIncomeController,
+            partnerBirthYearController: _partnerBirthYearController,
             onIncomeQuickPick: (amount) => _applyIncomeQuickPick(amount),
             onContinue: () {
+              FocusScope.of(context).unfocus();
               if (_mainGoal == null) {
                 _provider.setMainGoal(_suggestGoalFromStress());
               }
@@ -1459,7 +1787,6 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
-
   double? _parseChfController(TextEditingController controller) {
     final raw = controller.text.replaceAll("'", '').replaceAll(' ', '').trim();
     if (raw.isEmpty) return null;
@@ -1481,7 +1808,6 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
     setState(() {});
   }
-
 
   Map<String, dynamic>? _computeStep2AhaData() =>
       _provider.computeStep2AhaData();
@@ -1620,7 +1946,6 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       ),
     );
   }
-
 
   Widget _buildStep4GoalAndPreview() {
     final l10n = S.of(context);

@@ -51,6 +51,7 @@ class OnboardingStepEssentials extends StatelessWidget {
               LengthLimitingTextInputFormatter(4),
             ],
             onChanged: (value) => provider.setBirthYearDraft(value),
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
               labelText:
                   l10n?.advisorMiniBirthYearLabel ?? 'Annee de naissance',

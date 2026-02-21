@@ -165,6 +165,7 @@ class MintChfInputField extends StatelessWidget {
           controller: controller,
           keyboardType: TextInputType.number,
           onChanged: onChanged,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           decoration: InputDecoration(
             hintText: hint,
             prefixText: 'CHF  ',

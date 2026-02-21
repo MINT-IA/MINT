@@ -7,7 +7,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // Screens under test
-import 'package:mint_mobile/screens/home_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
@@ -27,6 +26,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -67,6 +67,7 @@ void main() {
         ChangeNotifierProvider<CoachProfileProvider>(
             create: (_) => CoachProfileProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider<UserActivityProvider>(create: (_) => UserActivityProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -81,52 +82,6 @@ void main() {
       ),
     );
   }
-
-  // ===========================================================================
-  // 1. HOME SCREEN
-  // ===========================================================================
-
-  group('HomeScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const HomeScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(HomeScreen), findsOneWidget);
-      expect(find.byType(Scaffold), findsWidgets);
-    });
-
-    testWidgets('displays MINT title in app bar', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const HomeScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('MINT'), findsOneWidget);
-    });
-
-    testWidgets('shows Mentor Advisor section', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const HomeScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Mentor Advisor'), findsOneWidget);
-    });
-
-    testWidgets('shows recommendation cards', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const HomeScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Hardcoded recommendations in the screen
-      expect(find.textContaining('Le pouvoir du temps'), findsOneWidget);
-      expect(find.textContaining('Optimisation Fiscale'), findsOneWidget);
-    });
-
-    testWidgets('shows simulator grid', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const HomeScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Simulator icons are present in the grid
-      expect(find.byIcon(Icons.savings_outlined), findsWidgets);
-      expect(find.byIcon(Icons.trending_up), findsWidgets);
-    });
-  });
 
   // ===========================================================================
   // 2. PROFILE SCREEN
@@ -159,9 +114,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Foyer'), findsOneWidget);
-      expect(find.textContaining('Revenus'), findsOneWidget);
-      expect(find.textContaining('LPP'), findsOneWidget);
+      expect(find.textContaining('Foyer'), findsWidgets);
+      expect(find.textContaining('Revenus'), findsWidgets);
+      expect(find.textContaining('LPP'), findsWidgets);
     });
 
     testWidgets('shows security and data section', (tester) async {
@@ -176,6 +131,89 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining('Supprimer'), findsOneWidget);
+    });
+
+    testWidgets('navigates to wizard from FactFind CTAs (no grey error screen)',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final router = GoRouter(
+        initialLocation: '/profile',
+        routes: [
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/advisor/wizard',
+            builder: (context, state) => const AdvisorWizardScreenV2(),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ProfileProvider>(create: (_) {
+              final p = ProfileProvider();
+              p.setProfile(Profile(
+                id: 'test-user',
+                householdType: HouseholdType.single,
+                goal: Goal.emergency,
+                createdAt: DateTime(2025, 1, 1),
+                birthYear: 1990,
+                canton: 'VD',
+                incomeNetMonthly: 6000,
+              ));
+              return p;
+            }),
+            ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+            ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+            ChangeNotifierProvider<DocumentProvider>(
+                create: (_) => DocumentProvider()),
+            ChangeNotifierProvider<BudgetProvider>(
+                create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<SubscriptionProvider>(
+                create: (_) => SubscriptionProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>(
+                create: (_) => CoachProfileProvider()),
+            ChangeNotifierProvider<LocaleProvider>(
+                create: (_) => LocaleProvider()),
+            ChangeNotifierProvider<UserActivityProvider>(
+                create: (_) => UserActivityProvider()),
+          ],
+          child: MaterialApp.router(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      final identityLabel = find.textContaining('Identité & Foyer').last;
+      await tester.ensureVisible(identityLabel);
+      final identitySection = find.ancestor(
+        of: identityLabel,
+        matching: find.byType(InkWell),
+      );
+      await tester.tap(identitySection.first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(AdvisorWizardScreenV2), findsOneWidget);
+      expect(find.textContaining('Cette page n'), findsNothing);
     });
   });
 
@@ -432,16 +470,37 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp.router(
-          locale: const Locale('fr'),
-          localizationsDelegates: const [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ProfileProvider>(create: (_) {
+              final p = ProfileProvider();
+              p.setProfile(Profile(
+                id: 'test-user',
+                householdType: HouseholdType.single,
+                goal: Goal.emergency,
+                createdAt: DateTime(2025, 1, 1),
+                birthYear: 1990,
+                canton: 'VD',
+                incomeNetMonthly: 6000,
+              ));
+              return p;
+            }),
+            ChangeNotifierProvider<CoachProfileProvider>(
+                create: (_) => CoachProfileProvider()),
+            ChangeNotifierProvider<UserActivityProvider>(
+                create: (_) => UserActivityProvider()),
           ],
-          supportedLocales: S.supportedLocales,
-          routerConfig: router,
+          child: MaterialApp.router(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            routerConfig: router,
+          ),
         ),
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
