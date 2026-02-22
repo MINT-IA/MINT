@@ -61,7 +61,7 @@ class BudgetContainerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               FilledButton.icon(
-                onPressed: () => context.push('/advisor/wizard'),
+                onPressed: () => context.push('/advisor/wizard?section=budget'),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Faire mon diagnostic'),
                 style: FilledButton.styleFrom(

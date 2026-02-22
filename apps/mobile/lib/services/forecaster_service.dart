@@ -218,11 +218,15 @@ class ForecasterService {
     );
 
     // Taux de remplacement base sur le scenario base
+    // Use household income (main + partner) when conjoint exists
     final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
-    final revenuNetAnnuel = revenuNetMensuel * 12;
-    final tauxRemplacement = revenuNetAnnuel > 0
-        ? (scenarioBase.revenuAnnuelRetraite / revenuNetAnnuel * 100)
-        : 0.0;
+    final partnerNetMensuel =
+        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
+    final tauxRemplacement = _safeReplacementRate(
+      annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
+      annualCurrentIncome: householdNetAnnuel,
+    );
 
     // Milestones
     final milestones = _detectMilestones(scenarioBase.points);
@@ -334,12 +338,15 @@ class ForecasterService {
       targetDate: target,
     );
 
-    // Taux de remplacement base
+    // Taux de remplacement base (household income for couples)
     final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
-    final revenuNetAnnuel = revenuNetMensuel * 12;
-    final tauxRemplacement = revenuNetAnnuel > 0
-        ? (scenarioBase.revenuAnnuelRetraite / revenuNetAnnuel * 100)
-        : 0.0;
+    final partnerNetMensuel =
+        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
+    final tauxRemplacement = _safeReplacementRate(
+      annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
+      annualCurrentIncome: householdNetAnnuel,
+    );
 
     final milestones = _detectMilestones(scenarioBase.points);
 
@@ -362,40 +369,20 @@ class ForecasterService {
     );
   }
 
-  /// Calcule le delta mensuel (impact d'un mois de versements)
+  /// Calcule le delta mensuel visible au check-in.
+  ///
+  /// Ce KPI represente l'effort du mois valide (somme des versements),
+  /// et non une valeur future composee jusqu'a la retraite.
+  /// La valeur future est deja couverte par la projection complete.
   static double calculateMonthlyDelta({
     required CoachProfile profile,
     required Map<String, double> versements,
   }) {
-    final targetDate = profile.goalA.targetDate;
-    final months = _monthsBetween(DateTime.now(), targetDate);
-    if (months <= 0) {
-      return versements.values.fold(0.0, (sum, v) => sum + v);
-    }
-
-    final base = ScenarioAssumptions.base;
-    final monthlyRates = <String, double>{
-      '3a': _monthlyRate(base.threeAReturn),
-      'lpp_buyback': _monthlyRate(base.lppReturn),
-      'investissement': _monthlyRate(base.investmentReturn),
-      'epargne_libre': _monthlyRate(base.savingsReturn),
-    };
-
-    String? categoryForId(String id) {
-      for (final c in profile.plannedContributions) {
-        if (c.id == id) return c.category;
-      }
-      return null;
-    }
-
-    double delta = 0;
-    for (final entry in versements.entries) {
-      final category = categoryForId(entry.key);
-      final monthlyRate =
-          monthlyRates[category] ?? _monthlyRate(base.savingsReturn);
-      delta += entry.value * pow(1 + monthlyRate, months);
-    }
-    return delta;
+    // profile is intentionally kept in signature for backward compatibility.
+    if (versements.isEmpty) return 0;
+    return versements.values
+        .where((v) => v.isFinite)
+        .fold<double>(0, (sum, v) => sum + v);
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -444,6 +431,26 @@ class ForecasterService {
       }
     }
 
+    // --- Couple adjustments ---
+    // Partner 3a contribution potential: if conjoint exists and has income,
+    // add 604.83 CHF/month (7258/12) as potential 3a contribution
+    // (only if not already captured in planned contributions)
+    double partner3aMonthly = 0;
+    if (profile.conjoint != null &&
+        (profile.conjoint!.salaireBrutMensuel ?? 0) > 0) {
+      final conjAnnualSalary =
+          (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
+      // Partner is salaried with LPP if their salary exceeds the LPP threshold
+      if (conjAnnualSalary > lppSeuilEntree) {
+        // Check if partner 3a is already in planned contributions
+        final hasPartner3a = profile.plannedContributions
+            .any((c) => c.category == '3a' && c.id.contains('partner'));
+        if (!hasPartner3a) {
+          partner3aMonthly = pilier3aPlafondAvecLpp / 12; // 604.83
+        }
+      }
+    }
+
     // Conjoint LPP buyback
     double conjMonthlyLppBuyback = 0;
     for (final c in profile.plannedContributions) {
@@ -471,9 +478,13 @@ class ForecasterService {
             assumptions.lppReturn) /
         12;
 
+    // Partner 3a balance (separate from main user 3a)
+    double partner3aBalance = 0;
+
     // 3a annual cap tracking
     const plafond3a = pilier3aPlafondAvecLpp;
     double threeAYearContrib = 0;
+    double partner3aYearContrib = 0;
     int currentYear = now.year;
 
     // --- Projection loop ---
@@ -486,6 +497,7 @@ class ForecasterService {
       // Reset 3a cap at year boundary
       if (date.year != currentYear) {
         threeAYearContrib = 0;
+        partner3aYearContrib = 0;
         currentYear = date.year;
       }
 
@@ -511,6 +523,11 @@ class ForecasterService {
           savingsReturn +
           conjLppReturn;
 
+      // --- Apply returns on partner 3a ---
+      final partner3aReturn = partner3aBalance * threeAMonthlyRate;
+      partner3aBalance += partner3aReturn;
+      totalRendement += partner3aReturn;
+
       // --- Apply contributions ---
       // 3a (capped at annual plafond)
       double effective3a = monthly3a;
@@ -519,6 +536,15 @@ class ForecasterService {
       }
       threeABalance += effective3a;
       threeAYearContrib += effective3a;
+
+      // Partner 3a (capped at annual plafond independently)
+      double effectivePartner3a = partner3aMonthly;
+      if (partner3aYearContrib + effectivePartner3a > plafond3a) {
+        effectivePartner3a =
+            (plafond3a - partner3aYearContrib).clamp(0, plafond3a);
+      }
+      partner3aBalance += effectivePartner3a;
+      partner3aYearContrib += effectivePartner3a;
 
       // LPP buyback (capped at remaining lacune)
       double effectiveLppBuyback = monthlyLppBuyback;
@@ -548,11 +574,13 @@ class ForecasterService {
       // --- Record point ---
       final totalCapital = lppBalance +
           threeABalance +
+          partner3aBalance +
           investmentBalance +
           savingsBalance +
           conjLppBalance +
           conjSavingsBalance;
       final totalContrib = effective3a +
+          effectivePartner3a +
           effectiveLppBuyback +
           effectiveConjBuyback +
           monthlyInvestment +
@@ -573,8 +601,8 @@ class ForecasterService {
     final renteLppJulien = lppBalance * (lppTauxConversionMin / 100);
     final renteLppLauren = conjLppBalance * (lppTauxConversionMin / 100);
 
-    // 3a: annualize over 20 years
-    final retrait3aAnnualise = threeABalance / 20;
+    // 3a: annualize over 20 years (both user + partner)
+    final retrait3aAnnualise = (threeABalance + partner3aBalance) / 20;
 
     // Free: 4% safe withdrawal rate
     final rendementLibreAnnuel =
@@ -688,6 +716,19 @@ class ForecasterService {
 
   static int _monthsBetween(DateTime from, DateTime to) {
     return (to.year - from.year) * 12 + (to.month - from.month);
+  }
+
+  static double _safeReplacementRate({
+    required double annualRetirementIncome,
+    required double annualCurrentIncome,
+  }) {
+    // Evite les pourcentages absurdes quand le revenu courant est incomplet
+    // (profil partiel, valeur aberrante, import inachevé).
+    if (annualCurrentIncome <= 0 || annualRetirementIncome <= 0) return 0.0;
+    if (annualCurrentIncome < 12000) return 0.0;
+    final raw = annualRetirementIncome / annualCurrentIncome * 100;
+    if (!raw.isFinite) return 0.0;
+    return raw.clamp(0.0, 200.0);
   }
 
   static double _monthlyRate(double annualRate) {

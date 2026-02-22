@@ -521,7 +521,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           screenName: '/advisor',
           data: _onboardingContextData(),
         );
-        context.push('/advisor/wizard');
+        context.push('/advisor/wizard?section=identity');
       } else if (action == 'plan30') {
         _incMetric('completion_action_plan30');
         _analytics.trackCTAClick(
@@ -564,19 +564,24 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       context: context,
       isDismissible: false,
       enableDrag: false,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
+        final maxHeight = MediaQuery.of(ctx).size.height * 0.90;
         return Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            top: false,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   children: [
                     Container(
@@ -681,7 +686,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     ),
                   ),
                 ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -1632,7 +1638,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     onPressed: () {
                       _analytics.trackCTAClick('advisor_resume_full_diagnostic',
                           screenName: '/advisor');
-                      context.push('/advisor/wizard');
+                      context.push('/advisor/wizard?section=identity');
                     },
                     icon: const Icon(Icons.play_arrow_rounded, size: 18),
                     label: Text(
@@ -1645,7 +1651,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     onPressed: () {
                       _analytics.trackCTAClick('advisor_full_diagnostic_step1',
                           screenName: '/advisor');
-                      context.push('/advisor/wizard');
+                      context.push('/advisor/wizard?section=identity');
                     },
                     child: Text(
                       l10n?.advisorMiniFullDiagnostic ??

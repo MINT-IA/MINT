@@ -835,3 +835,64 @@ Planned checks:
 ### Residual risk notes
 - If users select couple/family, partner fields are intentionally mandatory for projection reliability.
 - UX copy should explicitly indicate mandatory partner block near CTA in Step 3 (future polish), even though technical gating is now consistent.
+
+## Step 10 — P0 TestFlight hotfixes (onboarding/profil/navigation)
+
+### Why
+- TestFlight feedback reported 5 blockers:
+  1) couple fields hard to read
+  2) completion sheet cropped on iPhone mini
+  3) several CTAs leading to grey screen
+  4) absurd replacement rate (e.g. 4455%)
+  5) top/bottom bars too thick on small devices
+
+### What changed
+- `apps/mobile/lib/app.dart`
+  - `/advisor/wizard` now supports both `extra['section']` and `?section=` query param.
+
+- `apps/mobile/lib/screens/profile_screen.dart`
+  - FactFind CTAs now use robust query routing (`/advisor/wizard?section=...`).
+  - App bar compact/pinned on small screens to avoid overlap/clipping.
+
+- `apps/mobile/lib/screens/budget/budget_container_screen.dart`
+  - Empty-state CTA now routes with query section (`/advisor/wizard?section=budget`).
+
+- `apps/mobile/lib/screens/advisor/onboarding_30_day_plan_screen.dart`
+  - "Compléter mon diagnostic" now routes to `/advisor/wizard?section=identity`.
+
+- `apps/mobile/lib/screens/advisor/advisor_onboarding_screen.dart`
+  - Completion sheet made scroll-safe on small devices:
+    - `isScrollControlled: true`
+    - max height 90% viewport
+    - internal `SingleChildScrollView`
+  - Step-1 diagnostic CTAs normalized to identity section.
+
+- `apps/mobile/lib/screens/advisor/onboarding/onboarding_step_income.dart`
+  - Added explicit partner section header card for better readability in couple/family flow.
+
+- `apps/mobile/lib/services/forecaster_service.dart`
+  - Added `_safeReplacementRate(...)` guard:
+    - invalid/incomplete income => 0
+    - low annual income floor (< 12k) => 0
+    - clamp replacement rate to [0, 200]
+
+- `apps/mobile/lib/widgets/coach/mint_trajectory_chart.dart`
+  - UI display clamps replacement rate to avoid absurd values.
+
+- `apps/mobile/lib/screens/main_navigation_shell.dart`
+  - Bottom nav compact mode for small screens (iPhone mini): reduced paddings, icon/text sizes.
+
+- `apps/mobile/lib/screens/coach/coach_dashboard_screen.dart`
+  - Top app bars compact mode for small screens: reduced expanded/toolbar heights and title size.
+
+### Verification results (executed)
+- `flutter test test/screens/core_app_screens_smoke_test.dart` -> PASS
+- `flutter test test/screens/onboarding_steps_test.dart` -> PASS
+- `flutter test test/screens/coach/coach_dashboard_test.dart` -> PASS
+- `flutter test test/screens/coach/navigation_shell_test.dart` -> PASS
+- `flutter test test/screens/core_app_screens_smoke_test.dart --plain-name "navigates to wizard from FactFind CTAs (no grey error screen)"` -> PASS
+- `flutter test test/screens/core_screens_smoke_test.dart --plain-name "step 3 couple blocks progression until partner required fields are complete"` -> PASS
+
+### Notes
+- `flutter analyze` on touched files: 0 errors, info/warnings non-blocking only.
+- This patch is intentionally surgical (route robustness + mobile layout hardening) to avoid regression risk.

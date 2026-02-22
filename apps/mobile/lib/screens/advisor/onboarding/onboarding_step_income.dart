@@ -163,6 +163,24 @@ class OnboardingStepIncome extends StatelessWidget {
           // ── Partner data (couple / family only) ──
           if (householdType == 'couple' || householdType == 'family') ...[
             const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Text(
+                'Profil du/de la partenaire',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF111827),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
             // Civil status choice
             MintSelectableCard(
               icon: Icons.favorite,

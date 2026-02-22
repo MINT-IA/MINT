@@ -75,8 +75,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 // Expatriation + Frontaliers (Sprint S23)
 import 'package:mint_mobile/screens/expat_screen.dart';
-// Report Demo + V2
-import 'package:mint_mobile/screens/advisor/financial_report_demo_screen.dart';
+// Report V2
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 // Score Reveal (Post-Wizard)
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
@@ -120,6 +119,7 @@ final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
+  errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   routes: [
     GoRoute(
       path: '/',
@@ -192,11 +192,22 @@ final _router = GoRouter(
             );
           },
         ),
-        GoRoute(
-          path: 'wizard',
-          builder: (context, state) => const AdvisorWizardScreenV2(),
-        ),
       ],
+    ),
+    GoRoute(
+      path: '/advisor/wizard',
+      builder: (context, state) {
+        final extra = state.extra;
+        Map<String, dynamic>? contextData;
+        if (extra is Map<String, dynamic>) {
+          contextData = extra;
+        }
+        final sectionFromQuery = state.uri.queryParameters['section'];
+        final section = (contextData?['section'] as String?) ?? sectionFromQuery;
+        return AdvisorWizardScreenV2(
+          initialSection: section,
+        );
+      },
     ),
     GoRoute(
       path: '/profile',
@@ -306,11 +317,6 @@ final _router = GoRouter(
       path: '/report',
       parentNavigatorKey: _rootNavigatorKey,
       redirect: (context, state) => '/report/v2',
-    ),
-    GoRoute(
-      path: '/report/demo',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FinancialReportDemoScreen(),
     ),
     GoRoute(
       path: '/report/v2',
@@ -778,4 +784,44 @@ ThemeData _buildPremiumTheme() {
       thickness: 1,
     ),
   );
+}
+
+class _MintErrorScreen extends StatelessWidget {
+  final Exception? error;
+  const _MintErrorScreen({this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Page introuvable'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.explore_off_outlined, size: 64, color: Colors.grey),
+              const SizedBox(height: 24),
+              const Text(
+                'Cette page n\'existe pas ou a ete deplacee.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => context.go('/home'),
+                icon: const Icon(Icons.home_outlined),
+                label: const Text('Retour a l\'accueil'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

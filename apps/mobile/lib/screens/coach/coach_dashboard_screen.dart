@@ -80,9 +80,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   ProjectionResult? _baselineProjection; // projection sans contributions
   List<CoachingTip> _coachingTips = [];
   List<Map<String, dynamic>>? _scoreHistory;
+  StreakResult? _streak;
   Map<String, dynamic> _onboarding30PlanState = const {};
   bool _onboarding30PlanLoaded = false;
   bool _showRefreshBanner = false;
+  bool _coachUxPrefsLoaded = false;
+  CoachNarrativeMode _narrativeMode = CoachNarrativeMode.detailed;
+  String? _lastScoreDeltaReason;
+  int? _lastScoreDeltaPersisted;
 
   // Chiffre choc emotional narratives (LLM-generated via BYOK)
   Map<String, String> _chiffreChocNarratives = {};
@@ -131,6 +136,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     unawaited(_loadOnboarding30PlanState());
+    if (!_coachUxPrefsLoaded) {
+      unawaited(_loadCoachUxPreferences());
+    }
     final coachProvider = context.watch<CoachProfileProvider>();
 
     // BUG FIX: Ne plus utiliser CoachProfile.buildDemo() comme fallback.
@@ -161,6 +169,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
           _baselineProjection = null;
         }
 
+        // Streak computation (cached as state for badge display)
+        _streak = StreakService.compute(_profile!);
+
         // Coaching tips caches (evite le recalcul a chaque rebuild)
         _coachingTips = CoachingService.generateTips(
           profile: _profile!.toCoachingProfile(),
@@ -169,11 +180,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         // Capture provider synchronously before async calls (BUG 3 fix)
         final byokProvider = context.read<ByokProvider>();
 
-        // T3: Load emotional narratives for chiffre choc cards (BYOK LLM)
-        unawaited(_loadChiffreChocNarratives(byokProvider));
-
-        // T7: Load coach narrative (BYOK or static fallback)
-        unawaited(_loadCoachNarrative(byokProvider));
+        // Charge la couche Coach IA en flux unique pour limiter la latence
+        // et eviter les appels LLM redondants.
+        unawaited(_loadCoachAiLayer(byokProvider));
       }
 
       // Filtrer les tips dont le simulateur a ete explore (inter-tab sync)
@@ -239,7 +248,54 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     });
   }
 
+  Future<void> _loadCoachUxPreferences() async {
+    final mode = await ReportPersistenceService.loadCoachNarrativeMode();
+    final attribution =
+        await ReportPersistenceService.loadLastScoreAttribution();
+    if (!mounted) return;
+    setState(() {
+      _coachUxPrefsLoaded = true;
+      _narrativeMode = mode == 'concise'
+          ? CoachNarrativeMode.concise
+          : CoachNarrativeMode.detailed;
+      _lastScoreDeltaReason = attribution?['reason'] as String?;
+      _lastScoreDeltaPersisted = attribution?['delta'] as int?;
+    });
+  }
+
+  Future<void> _setNarrativeMode(CoachNarrativeMode mode) async {
+    if (_narrativeMode == mode) return;
+    setState(() => _narrativeMode = mode);
+    await ReportPersistenceService.saveCoachNarrativeMode(
+      mode == CoachNarrativeMode.concise ? 'concise' : 'detailed',
+    );
+  }
+
   // ── Chiffre Choc Emotional Narratives (T3 — Coach AI Layer) ──
+
+  /// Enrich top 3 coaching tips via LLM if BYOK is configured.
+  /// Falls back to original tips (no enrichment) on error.
+  Future<void> _loadEnrichedTips(ByokProvider byok) async {
+    if (!byok.isConfigured || _profile == null) return;
+    if (_coachingTips.isEmpty) return;
+
+    try {
+      final enriched = await CoachingService.enrichTips(
+        tips: _coachingTips.take(3).toList(),
+        profile: _profile!.toCoachingProfile(),
+        firstName: _profile!.firstName ?? 'utilisateur',
+        apiKey: byok.apiKey,
+        provider: byok.provider ?? 'openai',
+      );
+      if (!mounted) return;
+      setState(() {
+        // Replace top tips with enriched versions
+        _coachingTips = [...enriched, ..._coachingTips.skip(enriched.length)];
+      });
+    } catch (_) {
+      // Fallback: use original tips without enrichment
+    }
+  }
 
   /// Generate emotional narratives for chiffre choc cards via BYOK LLM.
   /// Returns a map of category -> narrative message.
@@ -316,8 +372,7 @@ Si une categorie ne s'applique pas, omets-la.
       rawAnswer = rawAnswer.trim();
 
       final parsed = jsonDecode(rawAnswer) as Map;
-      final result =
-          parsed.map((k, v) => MapEntry(k.toString(), v.toString()));
+      final result = parsed.map((k, v) => MapEntry(k.toString(), v.toString()));
 
       // Filter banned terms from each narrative
       final filtered = result.map((k, v) => MapEntry(k, _filterBannedTerms(v)));
@@ -328,7 +383,8 @@ Si une categorie ne s'applique pas, omets-la.
       await prefs.setString(cacheKey, jsonEncode(filtered));
 
       if (mounted && gen == _chiffreChocGeneration) {
-        setState(() => _chiffreChocNarratives = Map<String, String>.from(filtered));
+        setState(
+            () => _chiffreChocNarratives = Map<String, String>.from(filtered));
       }
     } catch (_) {
       // Fallback: use static messages (empty map = no narrative)
@@ -409,6 +465,26 @@ Si une categorie ne s'applique pas, omets-la.
   }
 
   // ── Coach Narrative (T7 — Coach AI Layer) ──
+
+  /// Charge la couche Coach IA pour le dashboard.
+  ///
+  /// Sequence:
+  /// 1) Narrative globale (BYOK ou fallback statique)
+  /// 2) Enrichissements complementaires uniquement si la narrative n'a pas ete
+  ///    produite par le LLM (fallback/erreur), afin de reduire les appels.
+  Future<void> _loadCoachAiLayer(ByokProvider byok) async {
+    await _loadCoachNarrative(byok);
+    if (!mounted) return;
+
+    // Si la narrative vient deja du LLM, on evite 2 appels supplementaires
+    // (tips enrichis + chiffre choc) pour limiter cout et latence.
+    if (_narrative?.isLlmGenerated == true) return;
+
+    await Future.wait<void>([
+      _loadEnrichedTips(byok),
+      _loadChiffreChocNarratives(byok),
+    ]);
+  }
 
   /// Load full coach narrative via BYOK LLM or static fallback.
   /// Populates _narrative which is used across the dashboard.
@@ -772,13 +848,20 @@ Si une categorie ne s'applique pas, omets-la.
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                _buildCoachPulseCard(),
+                const SizedBox(height: 10),
+                _buildNarrativeModeControl(),
+                const SizedBox(height: 16),
                 _buildCoachAlertCard(),
+                _buildMilestoneNarrativeChip(),
                 const SizedBox(height: 24),
                 _buildCheckInReminderCard(),
                 if (_showRefreshBanner) _buildRefreshBanner(),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
                 _buildScoreSection(),
+                _buildScoreAttribution(),
+                _buildStreakBadge(),
                 _buildScoreTrendText(),
                 _buildScoreHistorySection(),
                 const SizedBox(height: 24),
@@ -898,6 +981,7 @@ Si une categorie ne s'applique pas, omets-la.
     final provider = context.watch<CoachProfileProvider>();
     final completeness = provider.profileCompleteness;
     final dataPoints = provider.dataPointsCount;
+    final qualityScore = (provider.onboardingQualityScore * 100).round();
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -910,6 +994,16 @@ Si une categorie ne s'applique pas, omets-la.
               delegate: SliverChildListDelegate([
                 // Precision badge
                 _buildPrecisionBadge(completeness, dataPoints),
+                const SizedBox(height: 12),
+                _buildDataQualityTrustCard(
+                  completeness: completeness,
+                  dataPoints: dataPoints,
+                ),
+                const SizedBox(height: 10),
+                _buildPersonaGuidanceCard(provider, qualityScore),
+                const SizedBox(height: 12),
+                _buildCoachPulseCard(),
+                _buildMilestoneNarrativeChip(),
                 const SizedBox(height: 20),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 20),
@@ -917,7 +1011,7 @@ Si une categorie ne s'applique pas, omets-la.
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
                 // Estimated score with "enrichir" prompt
-                _buildPartialScoreCard(),
+                _buildPartialScoreCard(provider),
                 const SizedBox(height: 24),
                 // Teaser trajectory (blurred, but less aggressive)
                 _buildTeaserTrajectory(),
@@ -926,7 +1020,7 @@ Si une categorie ne s'applique pas, omets-la.
                 _buildQuickWinCards(),
                 const SizedBox(height: 24),
                 // Enrichir CTA
-                _buildEnrichirBanner(),
+                _buildEnrichirBanner(provider),
                 const SizedBox(height: 24),
                 // Ask MINT
                 _buildAskMintCard(),
@@ -934,6 +1028,145 @@ Si une categorie ne s'applique pas, omets-la.
                 _buildDisclaimer(),
                 const SizedBox(height: 40),
               ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openRecommendedWizardSection(CoachProfileProvider provider) {
+    final section = provider.recommendedWizardSection;
+    context.push('/advisor/wizard?section=$section');
+  }
+
+  String _personaGuidanceTitle(CoachProfileProvider provider) {
+    final s = S.of(context);
+    switch (provider.personaKey) {
+      case 'couple':
+        return s?.coachPersonaPriorityCouple ?? 'Priorite couple';
+      case 'family':
+        return s?.coachPersonaPriorityFamily ?? 'Priorite famille';
+      case 'single_parent':
+        return s?.coachPersonaPrioritySingleParent ?? 'Priorite parent solo';
+      default:
+        return s?.coachPersonaPrioritySingle ?? 'Priorite personnelle';
+    }
+  }
+
+  String _personaGuidanceBody(CoachProfileProvider provider) {
+    final s = S.of(context);
+    final section = provider.recommendedWizardSection;
+    final sectionLabel = switch (section) {
+      'identity' => s?.coachWizardSectionIdentity ?? 'Identite & foyer',
+      'income' => s?.coachWizardSectionIncome ?? 'Revenu & foyer',
+      'pension' => s?.coachWizardSectionPension ?? 'Prevoyance',
+      'property' => s?.coachWizardSectionProperty ?? 'Immobilier & dettes',
+      _ => s?.advisorMiniFullDiagnostic ?? 'Diagnostic',
+    };
+    switch (provider.personaKey) {
+      case 'couple':
+      case 'family':
+        return s?.coachPersonaGuidanceCouple(sectionLabel) ??
+            'Pour fiabiliser tes projections foyer, complete maintenant la section $sectionLabel.';
+      case 'single_parent':
+        return s?.coachPersonaGuidanceSingleParent(sectionLabel) ??
+            'Ton plan depend de la protection du foyer. Complete maintenant la section $sectionLabel.';
+      default:
+        return s?.coachPersonaGuidanceSingle(sectionLabel) ??
+            'Pour personnaliser ton plan coach, complete maintenant la section $sectionLabel.';
+    }
+  }
+
+  String _enrichBannerTitle(CoachProfileProvider provider) {
+    final s = S.of(context);
+    final pct = (provider.onboardingQualityScore * 100).round();
+    return s?.coachEnrichTargetTitle('$pct', '60') ??
+        'Passe de $pct% a 60% de precision';
+  }
+
+  String _enrichBannerBody(CoachProfileProvider provider) {
+    final s = S.of(context);
+    final section = provider.recommendedWizardSection;
+    switch (section) {
+      case 'identity':
+        return s?.coachEnrichBodyIdentity ??
+            'Ajoute les bases identite/foyer pour activer des calculs fiables des aujourd hui.';
+      case 'income':
+        return s?.coachEnrichBodyIncome ??
+            'Complete revenus et structure du foyer pour des recommandations vraiment personnalisees.';
+      case 'pension':
+        return s?.coachEnrichBodyPension ??
+            'Renseigne AVS/LPP/3a pour une projection retraite exploitable.';
+      case 'property':
+        return s?.coachEnrichBodyProperty ??
+            'Ajoute immobilier et dettes pour calibrer ton budget et ton risque reel.';
+      default:
+        return s?.coachEnrichBodyDefault ??
+            'Le diagnostic complet prend 10 minutes et deverrouille ta trajectoire personnalisee.';
+    }
+  }
+
+  String _enrichButtonLabel(CoachProfileProvider provider) {
+    final s = S.of(context);
+    return switch (provider.recommendedWizardSection) {
+      'identity' =>
+        s?.coachEnrichActionIdentity ?? 'Completer Identite & foyer',
+      'income' => s?.coachEnrichActionIncome ?? 'Completer Revenu & foyer',
+      'pension' => s?.coachEnrichActionPension ?? 'Completer Prevoyance',
+      'property' =>
+        s?.coachEnrichActionProperty ?? 'Completer Immobilier & dettes',
+      _ => s?.coachEnrichActionDefault ?? 'Completer mon diagnostic',
+    };
+  }
+
+  Widget _buildPersonaGuidanceCard(
+    CoachProfileProvider provider,
+    int qualityScore,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.radar, color: MintColors.info, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${_personaGuidanceTitle(provider)} · $qualityScore%',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _personaGuidanceBody(provider),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1024,11 +1257,191 @@ Si une categorie ne s'applique pas, omets-la.
     );
   }
 
+  Widget _buildDataQualityTrustCard({
+    required double completeness,
+    required int dataPoints,
+  }) {
+    final l10n = S.of(context);
+    final percentage = (completeness * 100).round();
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.verified_user_outlined,
+                size: 16,
+                color: MintColors.info,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n?.coachDataQualityTitle ?? 'Qualite des donnees',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n?.coachDataQualityBody('$dataPoints', '$percentage') ??
+                'Calcul actuel: $dataPoints donnees saisies ($percentage%). '
+                    'Les postes non renseignes restent en estimation jusqu au diagnostic complet.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              _TrustChip(label: 'saisi', color: MintColors.success),
+              _TrustChip(label: 'estime', color: MintColors.warning),
+              _TrustChip(label: 'a completer', color: MintColors.textMuted),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoachPulseCard() {
+    final l10n = S.of(context);
+    final pulseTextRaw = _narrative?.scoreSummary ?? _defaultCoachPulseText();
+    final pulseText =
+        CoachNarrativeService.applyDetailMode(pulseTextRaw, _narrativeMode);
+    final hasLlmNarrative = _narrative != null && _narrative!.isLlmGenerated;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: hasLlmNarrative
+              ? MintColors.info.withValues(alpha: 0.35)
+              : MintColors.lightBorder,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome_rounded,
+                size: 16,
+                color: MintColors.info,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n?.coachPulseTitle ?? 'Coach Pulse',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              if (hasLlmNarrative)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: MintColors.info.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'personnalise',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.info,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            pulseText,
+            style: GoogleFonts.inter(
+              fontSize: 12.5,
+              height: 1.4,
+              color: MintColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNarrativeModeControl() {
+    final l10n = S.of(context);
+    return Align(
+      alignment: Alignment.centerRight,
+      child: SegmentedButton<CoachNarrativeMode>(
+        segments: [
+          ButtonSegment<CoachNarrativeMode>(
+            value: CoachNarrativeMode.concise,
+            label: Text(l10n?.coachNarrativeModeConcise ?? 'Court'),
+            icon: Icon(Icons.short_text, size: 16),
+          ),
+          ButtonSegment<CoachNarrativeMode>(
+            value: CoachNarrativeMode.detailed,
+            label: Text(l10n?.coachNarrativeModeDetailed ?? 'Détail'),
+            icon: Icon(Icons.subject, size: 16),
+          ),
+        ],
+        selected: {_narrativeMode},
+        onSelectionChanged: (selection) {
+          if (selection.isEmpty) return;
+          unawaited(_setNarrativeMode(selection.first));
+        },
+        showSelectedIcon: false,
+        emptySelectionAllowed: false,
+        multiSelectionEnabled: false,
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          textStyle: WidgetStatePropertyAll(
+            GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _defaultCoachPulseText() {
+    if (_score == null) {
+      return 'Ton profil est en cours de construction. Complete ton diagnostic pour activer un plan plus precis.';
+    }
+    final score = _score!.global.round();
+    if (score >= 75) {
+      return 'Tu avances bien. Priorite du mois: verrouille une action a fort impact pour maintenir ta trajectoire.';
+    }
+    if (score >= 55) {
+      return 'Ta base est correcte, mais il reste des optimisations claires. Active une action prioritaire pour gagner des points rapidement.';
+    }
+    return 'Ton plan a besoin d une stabilisation rapide. Commence par la protection budget/dettes avant les optimisations long terme.';
+  }
+
   // ────────────────────────────────────────────────────────────
   //  B.2 PARTIAL SCORE CARD — score estimatif avec badge
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildPartialScoreCard() {
+  Widget _buildPartialScoreCard(CoachProfileProvider provider) {
     if (_score == null) return const SizedBox.shrink();
 
     return Column(
@@ -1099,10 +1512,10 @@ Si une categorie ne s'applique pas, omets-la.
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => context.push('/advisor/wizard'),
+                  onPressed: () => _openRecommendedWizardSection(provider),
                   icon: const Icon(Icons.auto_awesome, size: 18),
                   label: Text(
-                    'Enrichir mon profil',
+                    _enrichButtonLabel(provider),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1129,7 +1542,7 @@ Si une categorie ne s'applique pas, omets-la.
   //  B.3 ENRICHIR BANNER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildEnrichirBanner() {
+  Widget _buildEnrichirBanner(CoachProfileProvider provider) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1167,7 +1580,7 @@ Si une categorie ne s'applique pas, omets-la.
           ),
           const SizedBox(height: 16),
           Text(
-            'Passe de 15% a 60% de precision',
+            _enrichBannerTitle(provider),
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 16,
@@ -1178,8 +1591,7 @@ Si une categorie ne s'applique pas, omets-la.
           ),
           const SizedBox(height: 8),
           Text(
-            'Le diagnostic complet prend 10 minutes '
-            'et deverrouille ta trajectoire personnalisee.',
+            _enrichBannerBody(provider),
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -1192,7 +1604,7 @@ Si une categorie ne s'applique pas, omets-la.
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => context.push('/advisor/wizard'),
+              onPressed: () => _openRecommendedWizardSection(provider),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: MintColors.primary,
@@ -1202,7 +1614,7 @@ Si une categorie ne s'applique pas, omets-la.
                 ),
               ),
               child: Text(
-                'Completer mon diagnostic',
+                _enrichButtonLabel(provider),
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1257,10 +1669,11 @@ Si une categorie ne s'applique pas, omets-la.
 
   Widget _buildEmptyAppBar() {
     final l10n = S.of(context);
+    final isCompact = MediaQuery.of(context).size.height <= 760;
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 90,
-      toolbarHeight: 48,
+      expandedHeight: isCompact ? 74 : 90,
+      toolbarHeight: isCompact ? 44 : 48,
       automaticallyImplyLeading: false,
       backgroundColor: MintColors.primary,
       actions: [
@@ -1268,12 +1681,16 @@ Si une categorie ne s'applique pas, omets-la.
         const SizedBox(width: 8),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
+        titlePadding: EdgeInsets.only(
+          left: 20,
+          bottom: isCompact ? 10 : 12,
+          right: 20,
+        ),
         title: Text(
           l10n?.coachWelcome ?? 'Bienvenue sur MINT',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: isCompact ? 18 : 20,
             color: Colors.white,
           ),
         ),
@@ -1913,10 +2330,11 @@ Si une categorie ne s'applique pas, omets-la.
   Widget _buildAppBar() {
     final l10n = S.of(context);
     final firstName = _profile!.firstName ?? 'Coach';
+    final isCompact = MediaQuery.of(context).size.height <= 760;
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 90,
-      toolbarHeight: 48,
+      expandedHeight: isCompact ? 74 : 90,
+      toolbarHeight: isCompact ? 44 : 48,
       automaticallyImplyLeading: false,
       backgroundColor: MintColors.primary,
       actions: [
@@ -1924,12 +2342,17 @@ Si une categorie ne s'applique pas, omets-la.
         const SizedBox(width: 8),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 24, bottom: 12, right: 24),
+        titlePadding: EdgeInsets.only(
+          left: 20,
+          bottom: isCompact ? 10 : 12,
+          right: 20,
+        ),
         title: Text(
-          _narrative?.greeting ?? (l10n?.coachHello(firstName) ?? 'Bonjour $firstName'),
+          _narrative?.greeting ??
+              (l10n?.coachHello(firstName) ?? 'Bonjour $firstName'),
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: isCompact ? 18 : 20,
             color: Colors.white,
           ),
         ),
@@ -1992,7 +2415,8 @@ Si une categorie ne s'applique pas, omets-la.
     final String? ctaLabel;
     final String? ctaRoute;
     if (topTip != null) {
-      message = topTip.narrativeMessage ?? (_narrative?.topTipNarrative ?? topTip.message);
+      message = topTip.narrativeMessage ??
+          (_narrative?.topTipNarrative ?? topTip.message);
       ctaLabel = topTip.action;
       ctaRoute = tipRoute(topTip);
     } else {
@@ -2467,7 +2891,74 @@ Si une categorie ne s'applique pas, omets-la.
             onTap: () => context.push('/report'),
           ),
         ),
+        if (_narrative?.scoreSummary != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: MintColors.coachBubble,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: MintColors.lightBorder),
+            ),
+            child: Text(
+              CoachNarrativeService.applyDetailMode(
+                _narrative!.scoreSummary,
+                _narrativeMode,
+              ),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildMilestoneNarrativeChip() {
+    final message = _narrative?.milestoneMessage;
+    if (message == null || message.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: MintColors.success.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: MintColors.success.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 1),
+              child: Icon(
+                Icons.emoji_events_outlined,
+                size: 16,
+                color: MintColors.success,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textPrimary,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -2477,9 +2968,8 @@ Si une categorie ne s'applique pas, omets-la.
     }
 
     final history = _scoreHistory!;
-    final recent = history.length >= 3
-        ? history.sublist(history.length - 3)
-        : history;
+    final recent =
+        history.length >= 3 ? history.sublist(history.length - 3) : history;
     final firstScore = (recent.first['score'] as num?)?.toDouble() ?? 0;
     final lastScore = (recent.last['score'] as num?)?.toDouble() ?? 0;
     final trend = lastScore - firstScore;
@@ -2532,6 +3022,205 @@ Si une categorie ne s'applique pas, omets-la.
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  3.1 SCORE ATTRIBUTION — delta pts depuis dernier check-in
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildScoreAttribution() {
+    if (_score == null) return const SizedBox.shrink();
+    final coachProvider = context.read<CoachProfileProvider>();
+    final previousScore = coachProvider.previousScore;
+    final delta = previousScore == null
+        ? (_lastScoreDeltaPersisted ?? 0)
+        : _score!.global - previousScore;
+    if (previousScore == null &&
+        (_lastScoreDeltaReason == null || _lastScoreDeltaReason!.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+    if (delta == 0) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+        child: Column(
+          children: [
+            Text(
+              'Stable — tes efforts maintiennent le cap.',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (_lastScoreDeltaReason != null &&
+                _lastScoreDeltaReason!.trim().isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                CoachNarrativeService.applyDetailMode(
+                  _lastScoreDeltaReason!,
+                  _narrativeMode,
+                ),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    final sign = delta > 0 ? '+' : '';
+    final color = delta > 0 ? MintColors.success : MintColors.warning;
+    final icon = delta > 0 ? Icons.trending_up : Icons.trending_down;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Text(
+                '$sign$delta pts depuis le dernier check-in',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          if (_lastScoreDeltaReason != null &&
+              _lastScoreDeltaReason!.trim().isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              CoachNarrativeService.applyDetailMode(
+                _lastScoreDeltaReason!,
+                _narrativeMode,
+              ),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textMuted,
+                height: 1.35,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  3.2 STREAK BADGE — serie + badges gagnes
+  // ════════════════════════════════════════════════════════════════
+
+  Widget _buildStreakBadge() {
+    if (_streak == null || _profile == null) return const SizedBox.shrink();
+
+    final streak = _streak!;
+
+    // No check-ins at all: show onboarding message
+    if (streak.currentStreak == 0 && _profile!.checkIns.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.local_fire_department,
+              size: 18,
+              color: MintColors.textMuted,
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Commence ta serie avec un check-in mensuel',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textMuted,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // No current streak (had check-ins but gap)
+    if (streak.currentStreak == 0) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Column(
+        children: [
+          // Streak row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.local_fire_department,
+                size: 20,
+                color: Color(0xFFFF6D00),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Serie : ${streak.currentStreak} mois consecutifs',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFFF6D00),
+                ),
+              ),
+            ],
+          ),
+          // Earned badges as chips
+          if (streak.earnedBadges.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              alignment: WrapAlignment.center,
+              children: streak.earnedBadges.map((badge) {
+                return Chip(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  avatar: Icon(badge.icon, size: 14, color: MintColors.primary),
+                  label: Text(
+                    badge.label,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  backgroundColor: MintColors.surface,
+                  side: BorderSide(color: MintColors.lightBorder),
+                  padding: EdgeInsets.zero,
+                );
+              }).toList(),
+            ),
+          ],
+          // Next badge teaser
+          if (streak.nextBadge != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Encore ${streak.monthsToNextBadge} mois pour "${streak.nextBadge!.label}"',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: MintColors.textMuted,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -2693,6 +3382,7 @@ Si une categorie ne s'applique pas, omets-la.
   // ════════════════════════════════════════════════════════════════
 
   Widget _buildChiffreChocSection() {
+    final l10n = S.of(context);
     final revenuBrutAnnuel = _profile!.revenuBrutAnnuel;
     final cards = <Widget>[];
 
@@ -2772,7 +3462,7 @@ Si une categorie ne s'applique pas, omets-la.
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tes chiffres-chocs',
+          l10n?.coachShockTitle ?? 'Tes chiffres-chocs',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -2781,7 +3471,8 @@ Si une categorie ne s'applique pas, omets-la.
         ),
         const SizedBox(height: 4),
         Text(
-          'Des montants personnalisés pour éclairer tes décisions',
+          l10n?.coachShockSubtitle ??
+              'Des montants personnalisés pour éclairer tes décisions',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -2876,6 +3567,7 @@ Si une categorie ne s'applique pas, omets-la.
   /// Displays LLM-generated scenario narrations (Prudent / Base / Optimiste).
   /// Returns SizedBox.shrink() if no narrative or no scenarios available.
   Widget _buildScenarioNarrations() {
+    final l10n = S.of(context);
     final narrations = _narrative?.scenarioNarrations;
     if (narrations == null || narrations.isEmpty) {
       return const SizedBox.shrink();
@@ -2892,6 +3584,9 @@ Si une categorie ne s'applique pas, omets-la.
       Icons.balance,
       Icons.trending_up,
     ];
+    final coachBadgeLabel = (_narrative?.isLlmGenerated ?? false)
+        ? (l10n?.coachIaBadge ?? 'Coach IA')
+        : (l10n?.coachBadgeStatic ?? 'Coach');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2905,7 +3600,7 @@ Si une categorie ne s'applique pas, omets-la.
                   size: 18, color: MintColors.primary),
               const SizedBox(width: 8),
               Text(
-                'Tes scenarios decryptes',
+                l10n?.coachScenarioDecodedTitle ?? 'Tes scenarios decryptes',
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -2914,14 +3609,13 @@ Si une categorie ne s'applique pas, omets-la.
               ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Coach IA',
+                  coachBadgeLabel,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -2932,17 +3626,14 @@ Si une categorie ne s'applique pas, omets-la.
             ],
           ),
         ),
-        for (int i = 0;
-            i < min(narrations.length, 3);
-            i++)
+        for (int i = 0; i < min(narrations.length, 3); i++)
           Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: colors[i].withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border:
-                  Border(left: BorderSide(color: colors[i], width: 3)),
+              border: Border(left: BorderSide(color: colors[i], width: 3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2963,7 +3654,10 @@ Si une categorie ne s'applique pas, omets-la.
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  narrations[i],
+                  CoachNarrativeService.applyDetailMode(
+                    narrations[i],
+                    _narrativeMode,
+                  ),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -3424,7 +4118,8 @@ Si une categorie ne s'applique pas, omets-la.
     final checkInDone = _isCheckInDoneThisMonth();
 
     // Build personalized actions from coaching tips
-    final actions = <({IconData icon, String label, String route, bool done})>[];
+    final actions =
+        <({IconData icon, String label, String route, bool done})>[];
 
     if (checkInDone) {
       // Check-in done → show with "Fait" badge, fill remaining from tips
@@ -3454,7 +4149,8 @@ Si une categorie ne s'applique pas, omets-la.
       final shortTitle = tip.title.length > 18
           ? '${tip.title.substring(0, 15)}...'
           : tip.title;
-      actions.add((icon: tip.icon, label: shortTitle, route: route, done: false));
+      actions
+          .add((icon: tip.icon, label: shortTitle, route: route, done: false));
     }
 
     // Fallback: pad with defaults if not enough tips
@@ -3520,9 +4216,8 @@ Si une categorie ne s'applique pas, omets-la.
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
             decoration: BoxDecoration(
-              color: showDoneBadge
-                  ? const Color(0xFFF0FDF4)
-                  : MintColors.surface,
+              color:
+                  showDoneBadge ? const Color(0xFFF0FDF4) : MintColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: showDoneBadge
@@ -3590,7 +4285,7 @@ Si une categorie ne s'applique pas, omets-la.
   Widget _buildStreakMilestoneSection() {
     if (_profile == null) return const SizedBox.shrink();
 
-    final streakResult = StreakService.compute(_profile!);
+    final streakResult = _streak ?? StreakService.compute(_profile!);
     final milestones = StreakService.computeMilestones(_profile!);
     final reachedCount = milestones.where((m) => m.isReached).length;
 
@@ -4217,5 +4912,31 @@ class _ScoreHistoryPainter extends CustomPainter {
   bool shouldRepaint(covariant _ScoreHistoryPainter oldDelegate) {
     return oldDelegate.history != history ||
         oldDelegate.isImproving != isImproving;
+  }
+}
+
+class _TrustChip extends StatelessWidget {
+  const _TrustChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
   }
 }

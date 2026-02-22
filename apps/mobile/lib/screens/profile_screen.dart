@@ -10,6 +10,9 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/widgets/language_selector_widget.dart';
@@ -21,9 +24,31 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = context.watch<ProfileProvider>().profile;
     final authProvider = context.watch<AuthProvider>();
-    final double precision = profile?.factfindCompletionIndex ?? 0.3;
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final coachProfile = coachProvider.profile;
+    final double precision = coachProvider.profileCompleteness;
+    final recommendedSection = coachProvider.recommendedWizardSection;
+    final onboardingQuality =
+        (coachProvider.onboardingQualityScore * 100).round();
+
+    // Compute real completion for each FactFind section
+    // Identity: complete if birthYear + canton present (mini-onboarding or full wizard)
+    final identityComplete =
+        coachProfile != null && coachProfile.canton.isNotEmpty;
+
+    // Income: complete if salaireBrutMensuel > 0
+    final incomeComplete =
+        coachProfile != null && coachProfile.salaireBrutMensuel > 0;
+
+    // Pension: complete if LPP data is present (avoirLppTotal > 0)
+    final pensionComplete = coachProfile != null &&
+        (coachProfile.prevoyance.avoirLppTotal ?? 0) > 0;
+
+    // Property: complete if patrimoine data is present or full wizard done
+    final propertyComplete = coachProfile != null &&
+        (coachProfile.patrimoine.totalPatrimoine > 0 ||
+            coachProvider.hasFullProfile);
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -37,6 +62,16 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildPrecisionCard(context, precision),
+                  const SizedBox(height: 12),
+                  _buildCoachJourneyCard(context, coachProvider, precision),
+                  const SizedBox(height: 12),
+                  _buildCoachMonthlySummaryCard(context, coachProvider),
+                  const SizedBox(height: 12),
+                  _buildProfileGuidanceCard(
+                    context,
+                    recommendedSection: recommendedSection,
+                    onboardingQuality: onboardingQuality,
+                  ),
                   const SizedBox(height: 32),
                   Text(
                       S.of(context)?.profileFactFindTitle ?? 'Détails FactFind',
@@ -46,39 +81,56 @@ class ProfileScreen extends StatelessWidget {
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionIdentity ??
                         'Identité & Foyer',
-                    status: S.of(context)?.profileStatusComplete ?? 'Complet',
-                    isComplete: true,
+                    status: identityComplete
+                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
+                        : (S.of(context)?.profileStatusPartial ??
+                            'A completer'),
+                    isComplete: identityComplete,
                     icon: Icons.person_outline,
-                    onTap: () => context.push('/advisor/wizard'),
+                    onTap: () =>
+                        context.push('/advisor/wizard?section=identity'),
                   ),
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionIncome ??
                         'Revenus & Épargne',
-                    status:
-                        S.of(context)?.profileStatusPartial ?? 'Partial (Net)',
-                    isComplete: false,
+                    status: incomeComplete
+                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
+                        : (S.of(context)?.profileStatusPartial ??
+                            'A completer'),
+                    isComplete: incomeComplete,
                     icon: Icons.account_balance_wallet_outlined,
-                    onTap: () => context.push('/advisor/wizard'),
+                    onTap: () =>
+                        context.push('/advisor/wizard?section=income'),
                   ),
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionPension ??
                         'Prévoyance (LPP)',
-                    status: S.of(context)?.profileStatusMissing ?? 'Manquant',
-                    isComplete: false,
+                    status: pensionComplete
+                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
+                        : (S.of(context)?.profileStatusMissing ?? 'Manquant'),
+                    isComplete: pensionComplete,
                     icon: Icons.security_outlined,
-                    reward:
-                        S.of(context)?.profileReward15 ?? '+15% de précision',
-                    onTap: () => context.push('/advisor/wizard'),
+                    reward: pensionComplete
+                        ? null
+                        : (S.of(context)?.profileReward15 ??
+                            '+15% de précision'),
+                    onTap: () =>
+                        context.push('/advisor/wizard?section=pension'),
                   ),
                   _buildFactFindSection(
                     title: S.of(context)?.profileSectionProperty ??
                         'Immobilier & Dettes',
-                    status: S.of(context)?.profileStatusMissing ?? 'Manquant',
-                    isComplete: false,
+                    status: propertyComplete
+                        ? (S.of(context)?.profileStatusComplete ?? 'Complet')
+                        : (S.of(context)?.profileStatusMissing ?? 'Manquant'),
+                    isComplete: propertyComplete,
                     icon: Icons.home_outlined,
-                    reward:
-                        S.of(context)?.profileReward10 ?? '+10% de précision',
-                    onTap: () => context.push('/advisor/wizard'),
+                    reward: propertyComplete
+                        ? null
+                        : (S.of(context)?.profileReward10 ??
+                            '+10% de précision'),
+                    onTap: () =>
+                        context.push('/advisor/wizard?section=property'),
                   ),
                   const SizedBox(height: 32),
                   _buildLanguageSection(context),
@@ -132,11 +184,16 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext context) {
     final s = S.of(context);
+    final isCompact = MediaQuery.of(context).size.height <= 760;
     return SliverAppBar(
+      pinned: true,
+      toolbarHeight: isCompact ? 44 : 52,
       backgroundColor: MintColors.background,
       title: Text(s?.profileTitle ?? 'MON PROFIL MENTOR',
           style: GoogleFonts.montserrat(
-              fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              fontSize: isCompact ? 13 : 14,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2)),
     );
   }
 
@@ -198,14 +255,411 @@ class ProfileScreen extends StatelessWidget {
             label: s?.profileSectionPension ?? 'Prevoyance (LPP)',
             isComplete: hasFullWizard,
             reward: hasFullWizard ? null : '+15%',
-            onTap: hasFullWizard ? null : () => context.push('/advisor/wizard'),
+            onTap: hasFullWizard
+                ? null
+                : () => context.push('/advisor/wizard?section=pension'),
           ),
           _buildPrecisionRow(
             icon: Icons.home_outlined,
             label: s?.profileSectionProperty ?? 'Immobilier & Dettes',
             isComplete: hasFullWizard,
             reward: hasFullWizard ? null : '+10%',
-            onTap: hasFullWizard ? null : () => context.push('/advisor/wizard'),
+            onTap: hasFullWizard
+                ? null
+                : () => context.push('/advisor/wizard?section=property'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoachJourneyCard(
+    BuildContext context,
+    CoachProfileProvider coachProvider,
+    double precision,
+  ) {
+    final s = S.of(context);
+    final profile = coachProvider.profile;
+    final score = profile == null ? null : (precision * 100).round();
+    final checkins = profile?.checkIns.length ?? 0;
+    final scorePart = score != null ? ' • Score estime: $score/100' : '';
+    final profileState = coachProvider.hasFullProfile
+        ? (s?.profileStateFull ?? 'Profil complet')
+        : coachProvider.isPartialProfile
+            ? (s?.profileStatePartial ?? 'Profil partiel')
+            : (s?.profileStateMissing ?? 'Profil non renseigne');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.insights_outlined,
+                  size: 16, color: MintColors.info),
+              const SizedBox(width: 8),
+              Text(
+                s?.profileCoachKnowledgeTitle ?? 'Ce que MINT sait de toi',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            s?.profileCoachKnowledgeSummary(
+                  profileState,
+                  '${(precision * 100).round()}',
+                  '$checkins',
+                  scorePart,
+                ) ??
+                '$profileState • Precision ${(precision * 100).round()}% • '
+                    'Check-ins: $checkins${score != null ? " • Score estime: $score/100" : ""}',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              _buildDataStateChip(
+                  s?.profileChipEntered ?? 'saisi', MintColors.success),
+              _buildDataStateChip(
+                  s?.profileChipEstimated ?? 'estime', MintColors.warning),
+              _buildDataStateChip(s?.profileChipToComplete ?? 'a completer',
+                  MintColors.textMuted),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDataStateChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoachMonthlySummaryCard(
+    BuildContext context,
+    CoachProfileProvider coachProvider,
+  ) {
+    final s = S.of(context);
+    final byok = context.watch<ByokProvider>();
+    final profile = coachProvider.profile;
+    if (profile == null) return const SizedBox.shrink();
+
+    final history = coachProvider.scoreHistory;
+    final latestScore =
+        history.isNotEmpty ? (history.last['score'] as num?)?.toInt() : null;
+    final previousScore = history.length >= 2
+        ? (history[history.length - 2]['score'] as num?)?.toInt()
+        : null;
+    final delta = (latestScore != null && previousScore != null)
+        ? (latestScore - previousScore)
+        : null;
+
+    final now = DateTime.now();
+    final checkInThisMonth = profile.checkIns.any(
+      (ci) => ci.month.year == now.year && ci.month.month == now.month,
+    );
+
+    final trendText = delta == null
+        ? (s?.profileCoachMonthlyTrendInsufficient ??
+            'Pas encore assez de check-ins pour une tendance mensuelle.')
+        : delta > 0
+            ? (s?.profileCoachMonthlyTrendUp(delta.toString()) ??
+                '+$delta points ce mois, bonne dynamique.')
+            : delta < 0
+                ? (s?.profileCoachMonthlyTrendDown(delta.abs().toString()) ??
+                    '-${delta.abs()} points ce mois, on ajuste tes priorites.')
+                : (s?.profileCoachMonthlyTrendFlat ??
+                    'Score stable ce mois, continue le rythme.');
+    final coachModeLabel = byok.isConfigured
+        ? (s?.coachIaBadge ?? 'Coach IA')
+        : (s?.coachBadgeStatic ?? 'Coach');
+    final trendWithMode = byok.isConfigured
+        ? (s?.profileCoachMonthlyByokPrefix(trendText) ??
+            'Lecture coach IA: $trendText')
+        : trendText;
+
+    final nextAction = !coachProvider.hasFullProfile
+        ? (s?.profileCoachMonthlyActionComplete ??
+            'Prochaine etape: completer ton diagnostic pour fiabiliser les recommandations.')
+        : !checkInThisMonth
+            ? (s?.profileCoachMonthlyActionCheckin ??
+                'Prochaine etape: faire ton check-in mensuel pour recalibrer le plan.')
+            : (s?.profileCoachMonthlyActionAgir ??
+                'Prochaine etape: executer une action prioritaire dans Agir.');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.insights_rounded,
+                size: 16,
+                color: MintColors.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                s?.profileCoachMonthlyTitle ?? 'Resume coach du mois',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  coachModeLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            trendWithMode,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            nextAction,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textPrimary,
+              fontWeight: FontWeight.w600,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          FutureBuilder<CoachNarrative>(
+            future: _loadProfileNarrative(
+              coachProvider: coachProvider,
+              byok: byok,
+            ),
+            builder: (context, snapshot) {
+              final narrative = snapshot.data;
+              final coachLine = narrative == null
+                  ? (s?.profileCoachMonthlyTrendInsufficient ??
+                      'Ton coach affine ton analyse avec les donnees disponibles.')
+                  : CoachNarrativeService.applyDetailMode(
+                      narrative.trendMessage.isNotEmpty
+                          ? narrative.trendMessage
+                          : narrative.scoreSummary,
+                      CoachNarrativeMode.concise,
+                    );
+              return Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: MintColors.coachBubble,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: MintColors.lightBorder),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 1),
+                      child: Icon(
+                        Icons.record_voice_over_outlined,
+                        size: 15,
+                        color: MintColors.info,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        coachLine,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5,
+                          color: MintColors.textSecondary,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<CoachNarrative> _loadProfileNarrative({
+    required CoachProfileProvider coachProvider,
+    required ByokProvider byok,
+  }) async {
+    final profile = coachProvider.profile;
+    if (profile == null) {
+      return CoachNarrative(
+        greeting: '',
+        scoreSummary: '',
+        trendMessage: '',
+        isLlmGenerated: false,
+        generatedAt: DateTime.now(),
+      );
+    }
+
+    LlmConfig? byokConfig;
+    if (byok.isConfigured && byok.apiKey != null) {
+      final provider = switch (byok.provider) {
+        'claude' || 'anthropic' => LlmProvider.anthropic,
+        'mistral' => LlmProvider.mistral,
+        _ => LlmProvider.openai,
+      };
+      byokConfig = LlmConfig(apiKey: byok.apiKey!, provider: provider);
+    }
+
+    final tips = CoachingService.generateTips(
+      profile: profile.toCoachingProfile(),
+    );
+
+    return CoachNarrativeService.generate(
+      profile: profile,
+      scoreHistory: coachProvider.scoreHistory,
+      tips: tips,
+      byokConfig: byokConfig,
+    );
+  }
+
+  String _wizardSectionLabel(BuildContext context, String section) {
+    final s = S.of(context);
+    switch (section) {
+      case 'identity':
+        return s?.profileSectionIdentity ?? 'Identité & Foyer';
+      case 'income':
+        return s?.profileSectionIncome ?? 'Revenus & Épargne';
+      case 'pension':
+        return s?.profileSectionPension ?? 'Prévoyance (LPP)';
+      case 'property':
+        return s?.profileSectionProperty ?? 'Immobilier & Dettes';
+      default:
+        return s?.advisorMiniFullDiagnostic ?? 'Diagnostic complet';
+    }
+  }
+
+  Widget _buildProfileGuidanceCard(
+    BuildContext context, {
+    required String recommendedSection,
+    required int onboardingQuality,
+  }) {
+    final s = S.of(context);
+    final sectionLabel = _wizardSectionLabel(context, recommendedSection);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.radar, size: 16, color: MintColors.info),
+              const SizedBox(width: 8),
+              Text(
+                s?.profileGuidanceTitle ?? 'Section recommandée',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '$onboardingQuality%',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.info,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            s?.profileGuidanceBody(sectionLabel) ??
+                'Complète maintenant $sectionLabel pour fiabiliser ton plan.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(
+                '/advisor/wizard',
+                extra: {'section': recommendedSection},
+              ),
+              icon: const Icon(Icons.auto_awesome, size: 16),
+              label: Text(
+                s?.profileGuidanceCta(sectionLabel) ??
+                    'Compléter $sectionLabel',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
         ],
       ),
@@ -225,8 +679,8 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Icon(icon, size: 16,
-                color: isComplete ? Colors.white : Colors.white38),
+            Icon(icon,
+                size: 16, color: isComplete ? Colors.white : Colors.white38),
             const SizedBox(width: 10),
             Expanded(
               child: Text(label,
@@ -468,7 +922,8 @@ class ProfileScreen extends StatelessWidget {
         ? 'Compte supprimé avec succès.'
         : (authProvider.error ??
             'Suppression impossible pour le moment. Réessaie plus tard.');
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
     if (success) {
       context.go('/');
     }

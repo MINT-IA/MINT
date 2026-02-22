@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -40,11 +43,100 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
   String? _lastRoute;
   bool _isCompleted = false;
   bool _isHydrating = true;
+  bool _autoTrackingDone = false;
 
   @override
   void initState() {
     super.initState();
     _initPlanState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_autoTrackingDone && !_isHydrating) {
+      _autoTrackFromActivity();
+    }
+  }
+
+  /// Auto-detect completed phases from UserActivityProvider
+  /// and CoachProfileProvider, marking matching routes as opened.
+  void _autoTrackFromActivity() {
+    _autoTrackingDone = true;
+    final userActivity = context.read<UserActivityProvider>();
+    final coachProvider = context.read<CoachProfileProvider>();
+
+    final actions = _buildPlanActions();
+    bool changed = false;
+
+    for (final action in actions) {
+      if (_openedRoutes.contains(action.route)) continue;
+
+      bool autoCompleted = false;
+
+      switch (action.route) {
+        // Budget/Debt phase routes
+        case '/check/debt':
+          autoCompleted = userActivity.isSimulatorExplored('debt') ||
+              userActivity.isSimulatorExplored('debt_ratio');
+        case '/budget':
+          autoCompleted = userActivity.isSimulatorExplored('budget') ||
+              userActivity.isSimulatorExplored('simulator_budget');
+        // Tax phase routes
+        case '/fiscal':
+          autoCompleted = userActivity.isSimulatorExplored('fiscal') ||
+              userActivity.isSimulatorExplored('tax_optimizer');
+        case '/simulator/3a':
+          autoCompleted = userActivity.isSimulatorExplored('simulator_3a') ||
+              userActivity.isSimulatorExplored('3a');
+        // Pension phase routes
+        case '/retirement/projection':
+          autoCompleted = userActivity.isSimulatorExplored('retirement_projection') ||
+              userActivity.isSimulatorExplored('retirement');
+        case '/simulator/rente-capital':
+          autoCompleted = userActivity.isSimulatorExplored('rente_capital') ||
+              userActivity.isSimulatorExplored('simulator_rente_capital');
+        // Action phase routes (check-in or agir)
+        case '/coach/agir':
+        case '/coach/checkin':
+          autoCompleted = coachProvider.hasProfile &&
+              coachProvider.profile!.checkIns.isNotEmpty;
+      }
+
+      if (autoCompleted) {
+        _openedRoutes = {..._openedRoutes, action.route};
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      // Check if all phases done after auto-tracking
+      final allDone = !_isCompleted && _openedRoutes.length >= actions.length;
+      if (allDone) {
+        _isCompleted = true;
+        ReportPersistenceService.setOnboarding30PlanCompleted(true);
+        _analytics.trackEvent(
+          'onboarding_plan30_auto_completed',
+          category: 'conversion',
+          data: {
+            'stress_choice': widget.stressChoice,
+            'auto_tracked_routes': _openedRoutes.length,
+          },
+        );
+      }
+      setState(() {});
+
+      // Show celebration if all 3 phases auto-completed
+      if (allDone && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Toutes les etapes sont terminees, bravo !'),
+            backgroundColor: MintColors.success,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _initPlanState() async {
@@ -66,6 +158,11 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
       _isCompleted = refreshed['completed'] == true;
       _isHydrating = false;
     });
+
+    // Auto-detect completed phases from user activity after hydration
+    if (!_autoTrackingDone) {
+      _autoTrackFromActivity();
+    }
 
     _analytics.trackEvent(
       'onboarding_plan30_viewed',
@@ -369,7 +466,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
                 'onboarding_plan30_open_wizard',
                 screenName: '/advisor/plan-30-days',
               );
-              context.push('/advisor/wizard');
+              context.push('/advisor/wizard?section=identity');
             },
             child: const Text('Completer mon diagnostic'),
           ),

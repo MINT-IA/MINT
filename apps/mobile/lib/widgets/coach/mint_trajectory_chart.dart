@@ -523,7 +523,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   Widget _buildTauxRemplacement() {
     final s = S.of(context);
-    final taux = widget.result.tauxRemplacementBase;
+    final taux = widget.result.tauxRemplacementBase.clamp(0.0, 200.0);
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
     final color = isGood ? MintColors.scoreExcellent : MintColors.scoreAttention;

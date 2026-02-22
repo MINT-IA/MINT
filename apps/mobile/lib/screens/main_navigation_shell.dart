@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/mentor_fab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 /// Shell principal de navigation MINT Coach
@@ -95,6 +96,18 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         budgetProvider.loadFromStorage();
       }
     }
+
+    // Auto-sync budget quand le profil change (wizard, annual refresh)
+    final coachProvider = context.watch<CoachProfileProvider>();
+    if (coachProvider.profileUpdatedSinceBudget && coachProvider.hasProfile) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final budgetProv = context.read<BudgetProvider>();
+          budgetProv.refreshFromProfile(coachProvider.profile!);
+          coachProvider.markBudgetSynced();
+        }
+      });
+    }
   }
 
   final List<Widget> _tabs = const [
@@ -135,6 +148,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   }
 
   Widget _buildBottomNav() {
+    final isCompact = MediaQuery.of(context).size.height <= 760;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -148,7 +162,10 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: isCompact ? 2 : 4,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -157,24 +174,28 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 icon: Icons.home_outlined,
                 activeIcon: Icons.home,
                 label: 'Dashboard',
+                isCompact: isCompact,
               ),
               _buildNavItem(
                 index: 1,
                 icon: Icons.flash_on_outlined,
                 activeIcon: Icons.flash_on,
                 label: 'Agir',
+                isCompact: isCompact,
               ),
               _buildNavItem(
                 index: 2,
                 icon: Icons.explore_outlined,
                 activeIcon: Icons.explore,
                 label: 'Apprendre',
+                isCompact: isCompact,
               ),
               _buildNavItem(
                 index: 3,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
                 label: 'Profil',
+                isCompact: isCompact,
               ),
             ],
           ),
@@ -188,6 +209,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     required IconData icon,
     required IconData activeIcon,
     required String label,
+    required bool isCompact,
   }) {
     final isActive = _currentIndex == index;
 
@@ -221,20 +243,20 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          padding: EdgeInsets.symmetric(vertical: isCompact ? 4 : 6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 isActive ? activeIcon : icon,
                 color: isActive ? MintColors.primary : MintColors.textMuted,
-                size: 22,
+                size: isCompact ? 20 : 22,
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: isCompact ? 1 : 2),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: isCompact ? 9 : 10,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   color: isActive ? MintColors.primary : MintColors.textMuted,
                   letterSpacing: 0.5,
