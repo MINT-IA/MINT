@@ -1108,9 +1108,11 @@ class CoachProfile {
 
     // Estimate 3a total from contribution and age
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere
+    final reported3aTotal = _parseDouble(answers['q_3a_total']);
     final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
-    final estimated3aTotal = coachTotal3a
-        ?? (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);
+    final estimated3aTotal = reported3aTotal ??
+        coachTotal3a ??
+        (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
@@ -1127,6 +1129,7 @@ class CoachProfile {
 
     final estimatedMonthlyExpenses = monthlyHousing + assuranceMaladie;
     final emergencyFundRaw = answers['q_emergency_fund'];
+    final cashTotal = _parseDouble(answers['q_cash_total']) ?? 0;
     double epargneLiquide;
     if (emergencyFundRaw is String) {
       switch (emergencyFundRaw.toLowerCase()) {
@@ -1142,13 +1145,17 @@ class CoachProfile {
     } else {
       epargneLiquide = _parseDouble(emergencyFundRaw) ?? (savingsMonthly * 3);
     }
+    if (cashTotal > 0) {
+      epargneLiquide = cashTotal;
+    }
 
     // Estimation investissements: si l'utilisateur déclare avoir des
     // investissements sans préciser le montant, on estime ~2 mois de revenu
     // net comme ordre de grandeur conservateur.
-    final estimatedInvestments = hasInvestments
-        ? (monthlyNetIncome * 2).clamp(0.0, 50000.0)
-        : 0.0;
+    final investmentsTotal = _parseDouble(answers['q_investments_total']) ?? 0;
+    final estimatedInvestments = investmentsTotal > 0
+        ? investmentsTotal
+        : (hasInvestments ? (monthlyNetIncome * 2).clamp(0.0, 50000.0) : 0.0);
 
     final patrimoine = PatrimoineProfile(
       epargneLiquide: epargneLiquide,

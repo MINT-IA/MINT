@@ -69,6 +69,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   final _incomeController = TextEditingController();
   final _housingController = TextEditingController();
   final _debtPaymentsController = TextEditingController();
+  final _cashSavingsController = TextEditingController();
+  final _investmentsController = TextEditingController();
+  final _pillar3aTotalController = TextEditingController();
   final _taxProvisionController = TextEditingController();
   final _lamalController = TextEditingController();
   final _otherFixedController = TextEditingController();
@@ -213,6 +216,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _incomeController.dispose();
     _housingController.dispose();
     _debtPaymentsController.dispose();
+    _cashSavingsController.dispose();
+    _investmentsController.dispose();
+    _pillar3aTotalController.dispose();
     _taxProvisionController.dispose();
     _lamalController.dispose();
     _otherFixedController.dispose();
@@ -249,6 +255,22 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _debtPaymentsController.text = p.draftDebtPayments!;
     } else if (p.debtPaymentsMonthly != null) {
       _debtPaymentsController.text = p.debtPaymentsMonthly!.toInt().toString();
+    }
+    if (p.draftCashSavings != null && p.draftCashSavings!.isNotEmpty) {
+      _cashSavingsController.text = p.draftCashSavings!;
+    } else if (p.cashSavingsTotal != null) {
+      _cashSavingsController.text = p.cashSavingsTotal!.toInt().toString();
+    }
+    if (p.draftInvestmentsTotal != null &&
+        p.draftInvestmentsTotal!.isNotEmpty) {
+      _investmentsController.text = p.draftInvestmentsTotal!;
+    } else if (p.investmentsTotal != null) {
+      _investmentsController.text = p.investmentsTotal!.toInt().toString();
+    }
+    if (p.draftPillar3aTotal != null && p.draftPillar3aTotal!.isNotEmpty) {
+      _pillar3aTotalController.text = p.draftPillar3aTotal!;
+    } else if (p.pillar3aTotal != null) {
+      _pillar3aTotalController.text = p.pillar3aTotal!.toInt().toString();
     }
     if (p.draftTaxProvision != null && p.draftTaxProvision!.isNotEmpty) {
       _taxProvisionController.text = p.draftTaxProvision!;
@@ -1759,6 +1781,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             incomeController: _incomeController,
             housingController: _housingController,
             debtPaymentsController: _debtPaymentsController,
+            cashSavingsController: _cashSavingsController,
+            investmentsController: _investmentsController,
+            pillar3aTotalController: _pillar3aTotalController,
             taxController: _taxProvisionController,
             lamalController: _lamalController,
             otherFixedController: _otherFixedController,
@@ -2141,7 +2166,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
 
   Map<String, dynamic> _computeAdvisorReadiness() {
     int points = 0;
-    int total = 9;
+    int total = 7;
     final missing = <String>[];
 
     if (_provider.birthYear != null && _provider.canton != null) {
@@ -2173,8 +2198,19 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     } else {
       missing.add('Charges fixes');
     }
-    if (_provider.effectiveDebtPaymentsMonthly > 0) {
+    final debtCaptured = (_provider.draftDebtPayments ?? '').isNotEmpty ||
+        _provider.debtPaymentsMonthly != null;
+    if (debtCaptured) {
       points += 1;
+    } else {
+      missing.add('Dettes/leasing');
+    }
+    if (_provider.effectiveCashSavingsTotal > 0 ||
+        _provider.effectiveInvestmentsTotal > 0 ||
+        _provider.effectivePillar3aTotal > 0) {
+      points += 1;
+    } else {
+      missing.add('Patrimoine (liquidités/placements/3a)');
     }
 
     if (_provider.isHouseholdWithPartner) {
@@ -2207,6 +2243,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   Widget _buildAdvisorReadinessCard(Map<String, dynamic> readiness) {
+    final l10n = S.of(context);
     final score = readiness['score'] as int;
     final level = readiness['level'] as String;
     final missing = (readiness['missing'] as List).cast<String>();
@@ -2228,7 +2265,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Fiabilité conseil: $score%',
+            '${l10n?.advisorReadinessLabel ?? 'Fiabilité conseil'}: $score%',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -2237,7 +2274,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Niveau $level. ${missing.isEmpty ? 'Socle suffisant pour un plan initial.' : 'À compléter: ${missing.take(2).join(', ')}${missing.length > 2 ? '…' : ''}'}',
+            () {
+              final levelLabel = l10n?.advisorReadinessLevel ?? 'Niveau';
+              final detail = missing.isEmpty
+                  ? (l10n?.advisorReadinessSufficient ?? 'Socle suffisant pour un plan initial.')
+                  : '${l10n?.advisorReadinessToComplete ?? 'À compléter'}: ${missing.take(2).join(', ')}${missing.length > 2 ? '…' : ''}';
+              return '$levelLabel $level. $detail';
+            }(),
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -2445,6 +2488,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _parseChfController(_lamalController),
       _parseChfController(_otherFixedController),
     ].where((v) => (v ?? 0) > 0).length;
+    final cash = _parseChfController(_cashSavingsController) ?? 0;
+    final investments = _parseChfController(_investmentsController) ?? 0;
+    final total3a = _parseChfController(_pillar3aTotalController) ?? 0;
     final housing = _parseChfController(_housingController) ?? 0;
     final debtPayments = _parseChfController(_debtPaymentsController) ?? 0;
     final horizon = '~${preview['yearsLeft']} ans';
@@ -2499,6 +2545,18 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           if (debtPayments > 0)
             _mintUnderstoodRow(
               'Dettes/Leasing: CHF ${debtPayments.round()}/mois',
+            ),
+          if (cash > 0)
+            _mintUnderstoodRow(
+              'Liquidités: CHF ${cash.round()}',
+            ),
+          if (investments > 0)
+            _mintUnderstoodRow(
+              'Placements: CHF ${investments.round()}',
+            ),
+          if (total3a > 0)
+            _mintUnderstoodRow(
+              'Total 3a: CHF ${total3a.round()}',
             ),
           if (showPartnerIncome)
             _mintUnderstoodRow(

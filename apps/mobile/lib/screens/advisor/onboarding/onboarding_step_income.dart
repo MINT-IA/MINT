@@ -11,6 +11,9 @@ class OnboardingStepIncome extends StatelessWidget {
   final TextEditingController incomeController;
   final TextEditingController housingController;
   final TextEditingController debtPaymentsController;
+  final TextEditingController cashSavingsController;
+  final TextEditingController investmentsController;
+  final TextEditingController pillar3aTotalController;
   final TextEditingController taxController;
   final TextEditingController lamalController;
   final TextEditingController otherFixedController;
@@ -25,6 +28,9 @@ class OnboardingStepIncome extends StatelessWidget {
     required this.incomeController,
     required this.housingController,
     required this.debtPaymentsController,
+    required this.cashSavingsController,
+    required this.investmentsController,
+    required this.pillar3aTotalController,
     required this.taxController,
     required this.lamalController,
     required this.otherFixedController,
@@ -44,12 +50,13 @@ class OnboardingStepIncome extends StatelessWidget {
     final housingStatus = provider.housingStatus;
     final canContinue = provider.canAdvanceFromStep3;
     final missingItems = <String>[];
-    if ((provider.incomeMonthly ?? 0) <= 0) {
+    if (provider.effectiveIncomeMonthly <= 0) {
       missingItems.add(
           l10n?.advisorMiniIncomeLabel ?? 'Revenu net mensuel');
     }
-    if ((provider.effectiveHousingCostMonthly) <= 0 ||
-        provider.housingStatus == null) {
+    if (provider.housingStatus == null ||
+        (provider.housingStatus != 'hosted' &&
+            provider.effectiveHousingCostMonthly <= 0)) {
       missingItems.add(l10n?.advisorMiniHousingTitle ?? 'Logement');
     }
     if (employmentStatus == null) {
@@ -61,7 +68,7 @@ class OnboardingStepIncome extends StatelessWidget {
     if (provider.isHouseholdWithPartner) {
       if (provider.civilStatusChoice == null) {
         missingItems.add(
-            l10n?.advisorMiniCivilStatusConcubinage ?? 'Etat civil');
+            l10n?.advisorMiniCivilStatusLabel ?? 'État civil du couple');
       }
       if (provider.effectivePartnerIncomeMonthly <= 0) {
         missingItems.add(l10n?.advisorMiniPartnerIncomeLabel ??
@@ -184,12 +191,21 @@ class OnboardingStepIncome extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Text(
-                'Profil du/de la partenaire',
+                l10n?.advisorMiniPartnerProfileTitle ?? 'Profil du/de la partenaire',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF111827),
                 ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n?.advisorMiniPartnerRequiredBody ??
+                  'Ajoute l\'état civil, le revenu, l\'année de naissance et le statut du partenaire pour une projection foyer fiable.',
+              style: const TextStyle(
+                fontSize: 12,
+                color: MintColors.textSecondary,
               ),
             ),
             const SizedBox(height: 10),
@@ -356,6 +372,42 @@ class OnboardingStepIncome extends StatelessWidget {
             hint: '0',
             optional: true,
             onChanged: (value) => provider.setDebtPaymentsDraft(value),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n?.advisorMiniPatrimonyTitle ?? 'Patrimoine (optionnel)',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          MintChfInputField(
+            controller: cashSavingsController,
+            label: l10n?.advisorMiniCashSavingsLabel ??
+                'Liquidités / épargne disponible',
+            hint: '20000',
+            optional: true,
+            onChanged: (value) => provider.setCashSavingsDraft(value),
+          ),
+          const SizedBox(height: 8),
+          MintChfInputField(
+            controller: investmentsController,
+            label: l10n?.advisorMiniInvestmentsTotalLabel ??
+                'Placements (titres, ETF, fonds)',
+            hint: '50000',
+            optional: true,
+            onChanged: (value) => provider.setInvestmentsTotalDraft(value),
+          ),
+          const SizedBox(height: 8),
+          MintChfInputField(
+            controller: pillar3aTotalController,
+            label: l10n?.advisorMiniPillar3aTotalLabel ??
+                'Total 3a approximatif',
+            hint: '30000',
+            optional: true,
+            onChanged: (value) => provider.setPillar3aTotalDraft(value),
           ),
           const SizedBox(height: 12),
           ExpansionTile(

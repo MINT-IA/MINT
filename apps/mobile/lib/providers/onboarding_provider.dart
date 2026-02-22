@@ -21,6 +21,9 @@ class OnboardingProvider extends ChangeNotifier {
   double? incomeMonthly;
   double? housingCostMonthly;
   double? debtPaymentsMonthly;
+  double? cashSavingsTotal;
+  double? investmentsTotal;
+  double? pillar3aTotal;
   double? taxProvisionMonthly;
   double? lamalPremiumMonthly;
   double? otherFixedCostsMonthly;
@@ -37,6 +40,9 @@ class OnboardingProvider extends ChangeNotifier {
   String? draftIncome;
   String? draftHousingCost;
   String? draftDebtPayments;
+  String? draftCashSavings;
+  String? draftInvestmentsTotal;
+  String? draftPillar3aTotal;
   String? draftTaxProvision;
   String? draftLamal;
   String? draftOtherFixed;
@@ -66,9 +72,10 @@ class OnboardingProvider extends ChangeNotifier {
   bool get canAdvanceFromStep2 => _isBirthYearValid && canton != null;
 
   bool get canAdvanceFromStep3 {
+    final hasHousing = housingStatus == 'hosted' ||
+        (housingStatus != null && _effectiveHousingCost > 0);
     final hasCoreIncomeData = _effectiveIncome > 0 &&
-        _effectiveHousingCost > 0 &&
-        housingStatus != null &&
+        hasHousing &&
         employmentStatus != null &&
         householdType != null;
     if (!hasCoreIncomeData) return false;
@@ -110,6 +117,9 @@ class OnboardingProvider extends ChangeNotifier {
   double get effectiveIncomeMonthly => _effectiveIncome;
   double get effectiveHousingCostMonthly => _effectiveHousingCost;
   double get effectiveDebtPaymentsMonthly => _effectiveDebtPayments;
+  double get effectiveCashSavingsTotal => _effectiveCashSavings;
+  double get effectiveInvestmentsTotal => _effectiveInvestments;
+  double get effectivePillar3aTotal => _effectivePillar3a;
   double get effectivePartnerIncomeMonthly => _effectivePartnerIncome;
   int? get effectivePartnerBirthYear => _effectivePartnerBirthYear;
 
@@ -118,6 +128,12 @@ class OnboardingProvider extends ChangeNotifier {
       housingCostMonthly ?? _toDouble(draftHousingCost) ?? 0;
   double get _effectiveDebtPayments =>
       debtPaymentsMonthly ?? _toDouble(draftDebtPayments) ?? 0;
+  double get _effectiveCashSavings =>
+      cashSavingsTotal ?? _toDouble(draftCashSavings) ?? 0;
+  double get _effectiveInvestments =>
+      investmentsTotal ?? _toDouble(draftInvestmentsTotal) ?? 0;
+  double get _effectivePillar3a =>
+      pillar3aTotal ?? _toDouble(draftPillar3aTotal) ?? 0;
   double get _effectivePartnerIncome =>
       partnerIncome ?? _toDouble(draftPartnerIncome) ?? 0;
   int? get _effectivePartnerBirthYear =>
@@ -172,6 +188,9 @@ class OnboardingProvider extends ChangeNotifier {
     incomeMonthly = _toDouble(answers['q_net_income_period_chf']);
     housingCostMonthly = _toDouble(answers['q_housing_cost_period_chf']);
     debtPaymentsMonthly = _toDouble(answers['q_debt_payments_period_chf']);
+    cashSavingsTotal = _toDouble(answers['q_cash_total']);
+    investmentsTotal = _toDouble(answers['q_investments_total']);
+    pillar3aTotal = _toDouble(answers['q_3a_total']);
     taxProvisionMonthly = _toDouble(answers['q_tax_provision_monthly_chf']);
     lamalPremiumMonthly = _toDouble(answers['q_lamal_premium_monthly_chf']);
     otherFixedCostsMonthly =
@@ -181,6 +200,10 @@ class OnboardingProvider extends ChangeNotifier {
     draftIncome = answers['mini_draft_income']?.toString();
     draftHousingCost = answers['mini_draft_housing_cost']?.toString();
     draftDebtPayments = answers['mini_draft_debt_payments']?.toString();
+    draftCashSavings = answers['mini_draft_cash_savings']?.toString();
+    draftInvestmentsTotal =
+        answers['mini_draft_investments_total']?.toString();
+    draftPillar3aTotal = answers['mini_draft_3a_total']?.toString();
     draftTaxProvision = answers['mini_draft_tax_provision']?.toString();
     draftLamal = answers['mini_draft_lamal']?.toString();
     draftOtherFixed = answers['mini_draft_other_fixed']?.toString();
@@ -283,6 +306,27 @@ class OnboardingProvider extends ChangeNotifier {
     draftDebtPayments = value.trim();
     debtPaymentsMonthly = _toDouble(value);
     scheduleAutoSave('debt_payments_changed');
+    _safeNotify();
+  }
+
+  void setCashSavingsDraft(String value) {
+    draftCashSavings = value.trim();
+    cashSavingsTotal = _toDouble(value);
+    scheduleAutoSave('cash_savings_changed');
+    _safeNotify();
+  }
+
+  void setInvestmentsTotalDraft(String value) {
+    draftInvestmentsTotal = value.trim();
+    investmentsTotal = _toDouble(value);
+    scheduleAutoSave('investments_total_changed');
+    _safeNotify();
+  }
+
+  void setPillar3aTotalDraft(String value) {
+    draftPillar3aTotal = value.trim();
+    pillar3aTotal = _toDouble(value);
+    scheduleAutoSave('3a_total_changed');
     _safeNotify();
   }
 
@@ -435,7 +479,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void prefillFixedCostsEstimates() {
-    if ((incomeMonthly ?? 0) <= 0 || canton == null) return;
+    if (_effectiveIncome <= 0 || canton == null) return;
     final civil = civilStatusForHousehold(householdType ?? 'single');
     final children = childrenCountForHousehold(householdType ?? 'single');
     final currentAge = age?.clamp(18, 80) ?? 35;
@@ -515,6 +559,23 @@ class OnboardingProvider extends ChangeNotifier {
     } else {
       snapshot['q_has_consumer_debt'] = 'no';
     }
+    if (_effectiveCashSavings > 0) {
+      snapshot['q_cash_total'] = _effectiveCashSavings;
+    }
+    if (_effectiveInvestments > 0) {
+      snapshot['q_has_investments'] = 'yes';
+      snapshot['q_investments_total'] = _effectiveInvestments;
+    } else {
+      snapshot['q_has_investments'] = 'no';
+    }
+    if (_effectivePillar3a > 0) {
+      snapshot['q_has_3a'] = 'yes';
+      snapshot['q_3a_accounts_count'] = 1;
+      snapshot['q_3a_total'] = _effectivePillar3a;
+    } else {
+      snapshot['q_has_3a'] = 'no';
+      snapshot['q_3a_accounts_count'] = 0;
+    }
     if (employmentStatus != null) {
       snapshot['q_employment_status'] = employmentStatus;
     }
@@ -575,6 +636,15 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if ((draftDebtPayments ?? '').isNotEmpty) {
       snapshot['mini_draft_debt_payments'] = draftDebtPayments;
+    }
+    if ((draftCashSavings ?? '').isNotEmpty) {
+      snapshot['mini_draft_cash_savings'] = draftCashSavings;
+    }
+    if ((draftInvestmentsTotal ?? '').isNotEmpty) {
+      snapshot['mini_draft_investments_total'] = draftInvestmentsTotal;
+    }
+    if ((draftPillar3aTotal ?? '').isNotEmpty) {
+      snapshot['mini_draft_3a_total'] = draftPillar3aTotal;
     }
     if ((draftTaxProvision ?? '').isNotEmpty) {
       snapshot['mini_draft_tax_provision'] = draftTaxProvision;
@@ -666,7 +736,7 @@ class OnboardingProvider extends ChangeNotifier {
 
     final employment = employmentStatus ?? 'employee';
     final hasPensionFund = employment == 'employee' &&
-        incomeMonthly! * 12 > OnboardingConstants.lppAccessThreshold;
+        _effectiveIncome * 12 > OnboardingConstants.lppAccessThreshold;
     final monthlySavings =
         (incomeMonthly! * OnboardingConstants.defaultSavingsRate)
             .clamp(
@@ -679,13 +749,25 @@ class OnboardingProvider extends ChangeNotifier {
       'q_birth_year': birthYear,
       'q_canton': canton,
       'q_pay_frequency': 'monthly',
-      'q_net_income_period_chf': incomeMonthly,
+      'q_net_income_period_chf': _effectiveIncome,
       'q_employment_status': employment,
       'q_has_pension_fund': hasPensionFund ? 'yes' : 'no',
       'q_savings_monthly': monthlySavings,
       'q_savings_allocation': const ['epargne_libre'],
       'q_main_goal': mainGoal ?? 'retirement',
       'q_household_type': householdType ?? 'single',
+      'q_housing_status': housingStatus ?? 'tenant',
+      'q_housing_cost_period_chf': _effectiveHousingCost > 0
+          ? _effectiveHousingCost
+          : (0.28 * _effectiveIncome).roundToDouble(),
+      'q_debt_payments_period_chf': _effectiveDebtPayments,
+      'q_has_consumer_debt': _effectiveDebtPayments > 0 ? 'yes' : 'no',
+      'q_cash_total': _effectiveCashSavings,
+      'q_has_investments': _effectiveInvestments > 0 ? 'yes' : 'no',
+      'q_investments_total': _effectiveInvestments,
+      'q_has_3a': _effectivePillar3a > 0 ? 'yes' : 'no',
+      'q_3a_total': _effectivePillar3a,
+      'q_3a_accounts_count': _effectivePillar3a > 0 ? 1 : 0,
     };
 
     final profile = CoachProfile.fromWizardAnswers(answers);
