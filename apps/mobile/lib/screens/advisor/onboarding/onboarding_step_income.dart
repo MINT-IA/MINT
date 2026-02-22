@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_constants.dart';
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepIncome extends StatelessWidget {
@@ -198,31 +199,52 @@ class OnboardingStepIncome extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             // Partner income
-            TextField(
+            MintChfInputField(
               controller: partnerIncomeController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              label: l10n?.advisorMiniPartnerIncomeLabel ??
+                  'Revenu net mensuel du·de la partenaire',
+              hint: '4000',
               onChanged: (value) => provider.setPartnerIncomeDraft(value),
-              onTapOutside: (_) => FocusScope.of(context).unfocus(),
-              decoration: InputDecoration(
-                labelText: l10n?.advisorMiniPartnerIncomeLabel ??
-                    'Revenu net mensuel du·de la partenaire',
-                hintText: '4000',
-                prefixText: 'CHF  ',
-              ),
             ),
             const SizedBox(height: 12),
             // Partner birth year
             TextField(
               controller: partnerBirthYearController,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              maxLength: 4,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(4),
+              ],
               onChanged: (value) => provider.setPartnerBirthYearDraft(value),
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
                 labelText: l10n?.advisorMiniPartnerBirthYearLabel ??
-                    'Annee de naissance du·de la partenaire',
+                    'Année de naissance du/de la partenaire',
                 hintText: '1990',
+                counterText: '',
+                filled: true,
+                fillColor: MintColors.surface,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: MintColors.lightBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: MintColors.lightBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: MintColors.primary, width: 1.8),
+                ),
+              ),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
