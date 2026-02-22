@@ -428,6 +428,30 @@ class OnboardingStepIncome extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
+                    if (provider.taxProvisionMonthly != null || provider.lamalPremiumMonthly != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Icon(Icons.info_outline, size: 14, color: MintColors.info),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                _buildPrefillHintText(provider, l10n),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: MintColors.info,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     MintChfInputField(
                       controller: taxController,
                       label: l10n?.advisorMiniTaxProvisionLabel ??
@@ -476,5 +500,47 @@ class OnboardingStepIncome extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Builds a contextual hint explaining what's auto-estimated and why.
+  /// Shows canton, household size (adults/children for LAMal), and income basis.
+  String _buildPrefillHintText(OnboardingProvider provider, S? l10n) {
+    final canton = provider.canton ?? '?';
+    final household = provider.householdType ?? 'single';
+    final isCouple = household == 'couple' || household == 'family';
+    final parts = <String>[];
+
+    // Tax basis
+    if (provider.taxProvisionMonthly != null) {
+      final taxBasis = isCouple
+          ? (l10n?.advisorMiniPrefillTaxCouple(canton) ??
+              'Impôts estimés sur ton revenu (canton $canton, statut couple)')
+          : (l10n?.advisorMiniPrefillTaxSingle(canton) ??
+              'Impôts estimés sur ton revenu (canton $canton)');
+      parts.add(taxBasis);
+    }
+
+    // LAMal basis
+    if (provider.lamalPremiumMonthly != null) {
+      final adults = provider.adultCountForHousehold(household);
+      final children = provider.childrenCountForHousehold(household);
+      final lamalBasis = children > 0
+          ? (l10n?.advisorMiniPrefillLamalFamily(
+                  adults.toString(), children.toString()) ??
+              'LAMal estimée pour $adults adulte(s) + $children enfant(s)')
+          : adults > 1
+              ? (l10n?.advisorMiniPrefillLamalCouple(adults.toString()) ??
+                  'LAMal estimée pour $adults adultes')
+              : (l10n?.advisorMiniPrefillLamalSingle ??
+                  'LAMal estimée pour 1 adulte');
+      parts.add(lamalBasis);
+    }
+
+    if (parts.isEmpty) {
+      return l10n?.advisorMiniPrefillHint ??
+          'Estimé selon ton canton — ajuste si différent.';
+    }
+
+    return '${parts.join('. ')}. ${l10n?.advisorMiniPrefillAdjust ?? 'Ajuste si différent.'}';
   }
 }

@@ -63,10 +63,46 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _buildPrecisionCard(context, precision),
                   const SizedBox(height: 12),
+                  if (precision >= 1.0) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: MintColors.success.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                            color: MintColors.success.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle_outline,
+                              color: MintColors.success, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              S.of(context)?.profileCompleteBanner ??
+                                  'Profil complet ! Ton coach dispose de toutes les données pour des conseils fiables.',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: MintColors.success,
+                                fontWeight: FontWeight.w600,
+                                height: 1.35,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   _buildCoachJourneyCard(context, coachProvider, precision),
                   const SizedBox(height: 12),
                   _buildCoachMonthlySummaryCard(context, coachProvider),
                   const SizedBox(height: 12),
+                  if (_shouldShowAnnualRefresh(coachProvider)) ...[
+                    const SizedBox(height: 12),
+                    _buildAnnualRefreshCard(context),
+                  ],
                   _buildProfileGuidanceCard(
                     context,
                     recommendedSection: recommendedSection,
@@ -535,6 +571,70 @@ class ProfileScreen extends StatelessWidget {
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _shouldShowAnnualRefresh(CoachProfileProvider provider) {
+    final profile = provider.profile;
+    if (profile == null) return false;
+    final lastUpdate = profile.checkIns.isNotEmpty
+        ? profile.checkIns.last.month
+        : DateTime(profile.birthYear);
+    return DateTime.now().difference(lastUpdate).inDays >= 300;
+  }
+
+  Widget _buildAnnualRefreshCard(BuildContext context) {
+    final s = S.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.update_outlined,
+                  size: 16, color: MintColors.warning),
+              const SizedBox(width: 8),
+              Text(
+                s?.profileAnnualRefreshTitle ?? 'Mise à jour annuelle',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            s?.profileAnnualRefreshBody ??
+                'Tes données datent de plus de 10 mois. Un check-up rapide (2 min) fiabilise ton plan.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/coach/refresh'),
+              icon: const Icon(Icons.refresh, size: 16),
+              label: Text(
+                s?.profileAnnualRefreshCta ?? 'Lancer le check-up',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
         ],
       ),

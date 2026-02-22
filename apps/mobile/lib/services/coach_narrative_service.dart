@@ -300,13 +300,43 @@ class CoachNarrativeService {
       scenarioNarrations = null;
     }
 
+    // ── urgentAlert: deadline-based alerts in static mode ──
+    String? urgentAlert;
+    final now = DateTime.now();
+
+    // Oct-Dec: deadline 3a avant le 31 decembre (OPP3 art. 7)
+    if (now.month >= 10 && now.month <= 12) {
+      final plafond =
+          profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+      final verseAnnuel = profile.total3aMensuel * 12;
+      final marge = plafond - verseAnnuel;
+      if (marge > 0) {
+        final deadline = DateTime(now.year, 12, 31);
+        final joursRestants = deadline.difference(now).inDays;
+        urgentAlert = 'Il reste $joursRestants jours pour maximiser ton 3a '
+            '(CHF ${marge.toStringAsFixed(0)} de marge). '
+            '\u2014 OPP3 art. 7';
+      }
+    }
+
+    // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID)
+    if (urgentAlert == null && now.month >= 2 && now.month <= 3) {
+      final deadline = DateTime(now.year, 3, 31);
+      final joursRestants = deadline.difference(now).inDays;
+      if (joursRestants >= 0) {
+        urgentAlert = 'Declaration fiscale a rendre avant le 31 mars '
+            '($joursRestants jours restants). '
+            '\u2014 LIFD / LHID';
+      }
+    }
+
     return CoachNarrative(
       greeting: greeting,
       scoreSummary: scoreSummary,
       trendMessage: trendMessage,
       topTipNarrative: topTipNarrative,
-      urgentAlert: null, // Pas d'alerte dans le mode statique actuel
-      milestoneMessage: null, // Pas de milestone dans le mode statique actuel
+      urgentAlert: urgentAlert,
+      milestoneMessage: null, // Milestones: async detection, handled in generate()
       scenarioNarrations: scenarioNarrations,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),

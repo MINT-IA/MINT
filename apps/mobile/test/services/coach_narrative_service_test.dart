@@ -143,8 +143,18 @@ void main() {
       // Le narratif statique doit correspondre au comportement
       // exact du dashboard actuel
       expect(narrative.greeting, equals('Bonjour Julien'));
-      expect(narrative.urgentAlert, isNull); // Pas d'alerte en mode statique
-      expect(narrative.milestoneMessage, isNull); // Pas de milestone en mode statique
+      // urgentAlert is now season-aware: non-null in Q4 (3a) and Feb-Mar (fiscal)
+      final now = DateTime.now();
+      if (now.month >= 10 && now.month <= 12) {
+        expect(narrative.urgentAlert, isNotNull);
+        expect(narrative.urgentAlert, contains('3a'));
+      } else if (now.month >= 2 && now.month <= 3) {
+        expect(narrative.urgentAlert, isNotNull);
+        expect(narrative.urgentAlert, contains('31 mars'));
+      } else {
+        expect(narrative.urgentAlert, isNull);
+      }
+      expect(narrative.milestoneMessage, isNull); // Milestones: async, handled in generate()
       expect(narrative.scenarioNarrations, isNotNull);
       expect(narrative.scenarioNarrations!.length, 3);
     });
@@ -627,6 +637,66 @@ void main() {
       expect(second.greeting, equals(first.greeting));
       // Note: generatedAt pourrait etre egal si dans la meme seconde,
       // mais le test verifie que l'appel ne plante pas
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // urgentAlert static mode — deadline-based alerts (OPP3 / LIFD / LHID)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('CoachNarrativeService — urgentAlert static mode', () {
+    test('urgentAlert is non-null in Q4 (Oct-Dec) when 3a margin > 0', () {
+      // Test the static generation with seasonal awareness
+      final profile = _buildTestProfile();
+      final tips = _generateTips(profile);
+      final narrative = CoachNarrativeService.generateStatic(
+        profile: profile,
+        scoreHistory: _buildScoreHistory(scores: [55, 58, 62]),
+        tips: tips,
+      );
+      // The actual Q4 check depends on the current date at test runtime
+      final now = DateTime.now();
+      if (now.month >= 10 && now.month <= 12) {
+        expect(narrative.urgentAlert, isNotNull);
+        expect(narrative.urgentAlert, contains('3a'));
+        expect(narrative.urgentAlert, contains('OPP3'));
+      }
+    });
+
+    test('urgentAlert mentions fiscal deadline in Feb-Mar', () {
+      final profile = _buildTestProfile();
+      final tips = _generateTips(profile);
+      final narrative = CoachNarrativeService.generateStatic(
+        profile: profile,
+        scoreHistory: _buildScoreHistory(scores: [55, 58, 62]),
+        tips: tips,
+      );
+      final now = DateTime.now();
+      if (now.month >= 2 && now.month <= 3) {
+        expect(narrative.urgentAlert, isNotNull);
+        expect(narrative.urgentAlert, contains('31 mars'));
+        expect(narrative.urgentAlert, contains('LIFD'));
+      }
+    });
+
+    test('urgentAlert structure is valid (non-null or null based on season)',
+        () {
+      final profile = _buildTestProfile();
+      final tips = _generateTips(profile);
+      final narrative = CoachNarrativeService.generateStatic(
+        profile: profile,
+        scoreHistory: _buildScoreHistory(scores: [55, 58, 62]),
+        tips: tips,
+      );
+      // urgentAlert is either null (off-season) or a non-empty string
+      if (narrative.urgentAlert != null) {
+        expect(narrative.urgentAlert!.isNotEmpty, isTrue);
+        // Should not contain banned terms
+        expect(
+          CoachNarrativeService.containsBannedTerms(narrative.urgentAlert!),
+          isFalse,
+        );
+      }
     });
   });
 }

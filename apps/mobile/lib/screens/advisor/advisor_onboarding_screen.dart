@@ -633,6 +633,43 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                // Welcome header (Phase 2 — Coach Feel Uplift)
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: MintColors.success.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.celebration_outlined,
+                          color: MintColors.success, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n?.advisorMiniWelcomeTitle ?? 'Bienvenue !',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n?.advisorMiniWelcomeBody ??
+                      'Ton espace financier est prêt. Découvre ce que ton coach a préparé.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Trajectory section
                 Row(
                   children: [
                     Container(
@@ -778,6 +815,18 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          // Warmth phrase (Phase 2 — Coach Feel Uplift)
+          Text(
+            l10n?.advisorMiniCoachIntroWarmth ??
+                'On y va ensemble. Chaque semaine, je t\'aide à avancer sur un point concret.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textPrimary,
+              fontWeight: FontWeight.w600,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
