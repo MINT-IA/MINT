@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/rente_vs_capital_calculator.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
@@ -53,8 +56,32 @@ class _SimulatorRenteCapitalScreenState
   @override
   void initState() {
     super.initState();
+    _initFromProfile();
     ReportPersistenceService.markSimulatorExplored('rente_capital');
     _calculate();
+  }
+
+  /// Pre-fill from onboarding profile if available
+  void _initFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    final prevoyance = profile.prevoyance;
+    if (prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0) {
+      // Split estimate: ~70% obligatoire, ~30% surobligatoire (Swiss average)
+      _avoirObligatoire = (prevoyance.avoirLppTotal! * 0.7).roundToDouble();
+      _avoirSurobligatoire = (prevoyance.avoirLppTotal! * 0.3).roundToDouble();
+    }
+    if (prevoyance.tauxConversion > 0 && prevoyance.tauxConversion < 0.068) {
+      _tauxConversionSurob = prevoyance.tauxConversion * 100; // stored as decimal
+    }
+    if (profile.canton.isNotEmpty) {
+      _canton = profile.canton;
+    }
+    _statutCivil = switch (profile.etatCivil) {
+      CoachCivilStatus.marie => 'married',
+      _ => 'single',
+    };
   }
 
   void _calculate() {

@@ -507,7 +507,10 @@ class OnboardingProvider extends ChangeNotifier {
             : OnboardingConstants.lowLamalCantons.contains(cantonCode)
                 ? 350.0
                 : 430.0;
-    final adults = adultCountForHousehold(mode);
+    // LAMal: always count all adults in the household.
+    // Concubinage = 2 separate premiums, but total household cost is the same
+    // as married (no LAMal solidarité doesn't reduce the number of premiums).
+    final adults = (mode == 'couple' || mode == 'family') ? 2 : 1;
     final children = childrenCountForHousehold(mode);
     final childPremium = (baseAdultPremium * 0.27).roundToDouble();
     return (baseAdultPremium * adults) + (childPremium * children);

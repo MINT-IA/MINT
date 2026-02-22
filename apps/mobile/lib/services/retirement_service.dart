@@ -211,7 +211,7 @@ class RetirementService {
 
     // Capital tax
     final taux = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    final impot = _calculateProgressiveTax(capitalLpp, taux);
+    final impot = calculateProgressiveTax(capitalLpp, taux);
     final capitalNet = capitalLpp - impot;
 
     // Breakeven
@@ -297,7 +297,9 @@ class RetirementService {
   //  PROGRESSIVE TAX CALCULATION
   // ════════════════════════════════════════════════════════════
 
-  static double _calculateProgressiveTax(double montant, double baseRate) {
+  /// Progressive capital withdrawal tax (LIFD art. 38).
+  /// Exposed for use by RetirementProjectionService.
+  static double calculateProgressiveTax(double montant, double baseRate) {
     if (montant <= 0) return 0.0;
     const brackets = [
       [0, 100000, 1.0],

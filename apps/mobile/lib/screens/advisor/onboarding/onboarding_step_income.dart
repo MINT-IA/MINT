@@ -622,9 +622,9 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
       parts.add(taxBasis);
     }
 
-    // LAMal basis
+    // LAMal basis — always count all adults in household for premium total
     if (provider.lamalPremiumMonthly != null) {
-      final adults = provider.adultCountForHousehold(household);
+      final adults = (household == 'couple' || household == 'family') ? 2 : 1;
       final children = provider.childrenCountForHousehold(household);
       final lamalBasis = children > 0
           ? (l10n?.advisorMiniPrefillLamalFamily(

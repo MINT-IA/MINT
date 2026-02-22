@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/data/average_tax_multipliers.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
@@ -68,12 +71,41 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _initFromProfile();
     _recalculate();
     // Charge les donnees communales (si pas deja chargees)
     if (!CommuneData.isLoaded) {
       CommuneData.load().then((_) {
         if (mounted) setState(() {});
       });
+    }
+  }
+
+  /// Pre-fill from onboarding profile if available
+  void _initFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    if (profile.revenuBrutAnnuel > 0) {
+      _revenuBrut = profile.revenuBrutAnnuel;
+    }
+    if (profile.canton.isNotEmpty) {
+      _canton = profile.canton;
+      _cantonDepart = profile.canton;
+    }
+    if (profile.commune != null && profile.commune!.isNotEmpty) {
+      _commune = profile.commune;
+      _communeDepart = profile.commune;
+    }
+    _etatCivil = switch (profile.etatCivil) {
+      CoachCivilStatus.marie => 'marie',
+      CoachCivilStatus.concubinage => 'celibataire', // taxed individually
+      _ => 'celibataire',
+    };
+    _nombreEnfants = profile.nombreEnfants;
+    if (profile.patrimoine.investissements > 0 || profile.patrimoine.epargneLiquide > 0) {
+      _fortune = profile.patrimoine.epargneLiquide + profile.patrimoine.investissements;
+      _fortuneController.text = _fortune.toInt().toString();
     }
   }
 

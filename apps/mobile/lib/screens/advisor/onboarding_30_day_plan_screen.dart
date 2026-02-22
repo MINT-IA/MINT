@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -106,6 +108,9 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
       if (autoCompleted) {
         _openedRoutes = {..._openedRoutes, action.route};
         changed = true;
+        // Persist to storage so dashboard card reflects actual progress
+        unawaited(ReportPersistenceService.markOnboarding30PlanRouteOpened(
+            action.route));
       }
     }
 

@@ -382,7 +382,7 @@ class RetirementProjectionService {
     // ── 3a ───────────────────────────────────────────────
     final isIndepSansLpp = profile.employmentStatus == 'independant' &&
         profile.revenuBrutAnnuel < lppSeuilEntree;
-    final threeACapital = _project3aToRetirement(
+    final threeACapitalBrut = _project3aToRetirement(
       currentBalance: profile.prevoyance.totalEpargne3a +
           (profile.conjoint?.prevoyance?.totalEpargne3a ?? 0),
       monthly3a: profile.total3aMensuel,
@@ -390,6 +390,11 @@ class RetirementProjectionService {
       averageReturn: _average3aReturn(profile),
       isIndependantSansLpp: isIndepSansLpp,
     );
+    // Apply capital withdrawal tax (LIFD art. 38) before annualizing
+    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final taux3a = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
+    final threeACapital = threeACapitalBrut -
+        RetirementService.calculateProgressiveTax(threeACapitalBrut, taux3a);
     if (threeACapital > 0) {
       sources.add(RetirementIncomeSource(
         id: '3a',
@@ -598,12 +603,43 @@ class RetirementProjectionService {
       userRetiresFirst: userFirst,
     );
 
-    // Phase 2: both retired
+    // Phase 2: both retired — adjust 3a/libre for capital already consumed
+    // during Phase 1 transition period.
     final phase2Sources = _computeIncomes(
       profile: profile,
       ageUser: ageUser,
       ageConjoint: ageConjoint,
     );
+
+    // Deduplication: Phase 1 already drew down 3a/libre capital.
+    // Reduce Phase 2 amounts by what was consumed during transition years.
+    final transitionYears = (secondYear - firstYear).clamp(0, 10);
+    if (transitionYears > 0) {
+      for (int i = 0; i < phase2Sources.length; i++) {
+        final src = phase2Sources[i];
+        if (src.id == '3a') {
+          // 3a capital consumed during Phase 1
+          final phase1_3a = phase1
+              .where((s) => s.id == '3a')
+              .fold(0.0, (sum, s) => sum + s.monthlyAmount);
+          final consumed = phase1_3a * 12 * transitionYears;
+          // Remaining 3a capital = original - consumed, re-annualized
+          final original3aMonthly =
+              src.monthlyAmount * _3aAnnualizationYears * 12;
+          final remaining = (original3aMonthly - consumed).clamp(0.0, double.infinity);
+          phase2Sources[i] = RetirementIncomeSource(
+            id: src.id,
+            label: src.label,
+            monthlyAmount: remaining / _3aAnnualizationYears / 12,
+            color: src.color,
+            isIndexed: src.isIndexed,
+          );
+        } else if (src.id == 'libre') {
+          // Libre: 4% SWR means capital is largely preserved (Trinity study),
+          // no deduction needed — the withdrawal rate is sustainable.
+        }
+      }
+    }
 
     return [
       RetirementPhase(
@@ -737,7 +773,7 @@ class RetirementProjectionService {
 
     final isIndepSansLpp = profile.employmentStatus == 'independant' &&
         profile.revenuBrutAnnuel < lppSeuilEntree;
-    final threeACapital = _project3aToRetirement(
+    final threeACapitalBrut = _project3aToRetirement(
       currentBalance: profile.prevoyance.totalEpargne3a +
           (profile.conjoint?.prevoyance?.totalEpargne3a ?? 0),
       monthly3a: profile.total3aMensuel,
@@ -745,6 +781,11 @@ class RetirementProjectionService {
       averageReturn: _average3aReturn(profile),
       isIndependantSansLpp: isIndepSansLpp,
     );
+    // Apply capital withdrawal tax (LIFD art. 38) before annualizing
+    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final taux3a = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
+    final threeACapital = threeACapitalBrut -
+        RetirementService.calculateProgressiveTax(threeACapitalBrut, taux3a);
     if (threeACapital > 0) {
       sources.add(RetirementIncomeSource(
         id: '3a',
