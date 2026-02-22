@@ -130,7 +130,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
       if (allDone && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Toutes les etapes sont terminees, bravo !'),
+            content: Text('Toutes les étapes sont terminées, bravo !'),
             backgroundColor: MintColors.success,
             duration: Duration(seconds: 3),
           ),
@@ -221,13 +221,13 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
           ),
           _PlanAction(
             title: 'Jour 8-15 · Simuler',
-            subtitle: 'Teste les scenarios 3a et rachat LPP.',
+            subtitle: 'Teste les scénarios 3a et rachat LPP.',
             route: '/simulator/3a',
             icon: Icons.calculate_rounded,
           ),
           _PlanAction(
-            title: 'Jour 16-30 · Executer',
-            subtitle: 'Transforme les scenarios en actions coachables.',
+            title: 'Jour 16-30 · Exécuter',
+            subtitle: 'Transforme les scénarios en actions coachables.',
             route: '/coach/agir',
             icon: Icons.rocket_launch_rounded,
           ),
@@ -345,7 +345,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton onboarding est complete.',
+                  'Ton onboarding est complété.',
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -354,7 +354,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Voici ton plan actionnable sur 30 jours pour passer de la theorie aux resultats.',
+                  'Voici ton plan actionnable sur 30 jours pour passer de la théorie aux résultats.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -374,7 +374,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${_openedRoutes.length}/${actions.length} etapes ouvertes',
+                  '${_openedRoutes.length}/${actions.length} étapes ouvertes',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textMuted,
@@ -401,8 +401,8 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
                   Expanded(
                     child: Text(
                       _lastRoute != null
-                          ? 'Reprendre ta derniere action'
-                          : 'Prochaine action recommandee: ${nextAction.title}',
+                          ? 'Reprendre ta dernière action'
+                          : 'Prochaine action recommandée: ${nextAction.title}',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -468,7 +468,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
               );
               context.push('/advisor/wizard?section=identity');
             },
-            child: const Text('Completer mon diagnostic'),
+            child: const Text('Compléter mon diagnostic'),
           ),
         ],
       ),

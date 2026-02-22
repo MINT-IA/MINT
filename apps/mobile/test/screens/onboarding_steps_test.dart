@@ -26,6 +26,7 @@ void main() {
     await tester.pumpWidget(
       wrapWithProvider(
         OnboardingStepStress(
+          firstNameController: TextEditingController(),
           onContinue: () {},
         ),
       ),
@@ -57,6 +58,7 @@ void main() {
           otherFixedController: TextEditingController(),
           partnerIncomeController: TextEditingController(),
           partnerBirthYearController: TextEditingController(),
+          partnerFirstNameController: TextEditingController(),
           onIncomeQuickPick: (_) {},
           onContinue: () {},
         ),

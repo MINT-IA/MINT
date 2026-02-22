@@ -14,6 +14,7 @@ class OnboardingStepIncome extends StatelessWidget {
   final TextEditingController otherFixedController;
   final TextEditingController partnerIncomeController;
   final TextEditingController partnerBirthYearController;
+  final TextEditingController partnerFirstNameController;
   final ValueChanged<int> onIncomeQuickPick;
   final VoidCallback onContinue;
 
@@ -25,6 +26,7 @@ class OnboardingStepIncome extends StatelessWidget {
     required this.otherFixedController,
     required this.partnerIncomeController,
     required this.partnerBirthYearController,
+    required this.partnerFirstNameController,
     required this.onIncomeQuickPick,
     required this.onContinue,
   });
@@ -52,11 +54,11 @@ class OnboardingStepIncome extends StatelessWidget {
         missingItems.add(
             l10n?.advisorMiniCivilStatusConcubinage ?? 'Etat civil');
       }
-      if ((provider.partnerIncome ?? 0) <= 0) {
+      if (provider.effectivePartnerIncomeMonthly <= 0) {
         missingItems.add(l10n?.advisorMiniPartnerIncomeLabel ??
             'Revenu partenaire');
       }
-      if (provider.partnerBirthYear == null) {
+      if (provider.effectivePartnerBirthYear == null) {
         missingItems.add(l10n?.advisorMiniPartnerBirthYearLabel ??
             'Annee de naissance partenaire');
       }
@@ -198,6 +200,19 @@ class OnboardingStepIncome extends StatelessWidget {
               onTap: () => provider.setCivilStatusChoice('concubinage'),
             ),
             const SizedBox(height: 12),
+            TextField(
+              controller: partnerFirstNameController,
+              textCapitalization: TextCapitalization.words,
+              onChanged: provider.setPartnerFirstNameDraft,
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              decoration: InputDecoration(
+                labelText: l10n?.advisorMiniPartnerFirstNameLabel ??
+                    'Prénom du/de la partenaire (optionnel)',
+                hintText:
+                    l10n?.advisorMiniPartnerFirstNameHint ?? 'Ex: Lauren',
+              ),
+            ),
+            const SizedBox(height: 12),
             // Partner income
             MintChfInputField(
               controller: partnerIncomeController,
@@ -291,7 +306,17 @@ class OnboardingStepIncome extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      l10n?.advisorMiniFixedCostsHint ??
+                          'Inclure: logement, internet/mobile, assurances ménage/RC/auto, transport, abonnements et frais récurrents.',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     MintChfInputField(
                       controller: taxController,
                       label: l10n?.advisorMiniTaxProvisionLabel ??
@@ -323,7 +348,7 @@ class OnboardingStepIncome extends StatelessWidget {
           const SizedBox(height: 20),
           OnboardingContinueButton(
             enabled: canContinue,
-            label: 'Continuer',
+            label: l10n?.onboardingContinue ?? 'Continuer',
             icon: Icons.auto_awesome,
             onPressed: onContinue,
           ),

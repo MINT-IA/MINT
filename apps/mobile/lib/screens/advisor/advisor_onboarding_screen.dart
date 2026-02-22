@@ -64,6 +64,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   String? get _mainGoal => _provider.mainGoal;
 
   // Controllers (widget-owned, synced from provider on init)
+  final _firstNameController = TextEditingController();
   final _birthYearController = TextEditingController();
   final _incomeController = TextEditingController();
   final _taxProvisionController = TextEditingController();
@@ -71,6 +72,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   final _otherFixedController = TextEditingController();
   final _partnerIncomeController = TextEditingController();
   final _partnerBirthYearController = TextEditingController();
+  final _partnerFirstNameController = TextEditingController();
 
   // Saved wizard progress (read from provider)
   bool get _hasSavedWizardProgress => _provider.hasSavedWizardProgress;
@@ -204,6 +206,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       );
     }
     _pageController.dispose();
+    _firstNameController.dispose();
     _birthYearController.dispose();
     _incomeController.dispose();
     _taxProvisionController.dispose();
@@ -211,12 +214,18 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _otherFixedController.dispose();
     _partnerIncomeController.dispose();
     _partnerBirthYearController.dispose();
+    _partnerFirstNameController.dispose();
     super.dispose();
   }
 
   /// Syncs text controllers from provider's already-hydrated state.
   void _syncControllersFromProvider() {
     final p = _provider;
+    if (p.draftFirstName != null && p.draftFirstName!.isNotEmpty) {
+      _firstNameController.text = p.draftFirstName!;
+    } else if (p.firstName != null) {
+      _firstNameController.text = p.firstName!;
+    }
     if (p.draftBirthYear != null && p.draftBirthYear!.isNotEmpty) {
       _birthYearController.text = p.draftBirthYear!;
     } else if (p.birthYear != null) {
@@ -253,6 +262,12 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _partnerBirthYearController.text = p.draftPartnerBirthYear!;
     } else if (p.partnerBirthYear != null) {
       _partnerBirthYearController.text = p.partnerBirthYear.toString();
+    }
+    if (p.draftPartnerFirstName != null &&
+        p.draftPartnerFirstName!.isNotEmpty) {
+      _partnerFirstNameController.text = p.draftPartnerFirstName!;
+    } else if (p.partnerFirstName != null) {
+      _partnerFirstNameController.text = p.partnerFirstName!;
     }
   }
 
@@ -1627,6 +1642,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       children: [
         Expanded(
           child: OnboardingStepStress(
+            firstNameController: _firstNameController,
             onContinue: () => _goToStep(1),
           ),
         ),
@@ -1723,6 +1739,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             otherFixedController: _otherFixedController,
             partnerIncomeController: _partnerIncomeController,
             partnerBirthYearController: _partnerBirthYearController,
+            partnerFirstNameController: _partnerFirstNameController,
             onIncomeQuickPick: (amount) => _applyIncomeQuickPick(amount),
             onContinue: () {
               FocusScope.of(context).unfocus();
@@ -1956,7 +1973,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   Widget _buildStep4GoalAndPreview() {
     final l10n = S.of(context);
     final canComplete = _mainGoal != null;
-    final preview = _mainGoal != null ? _computePreviewProjection() : null;
+    final hasCoreProjectionContext = _provider.canAdvanceFromStep3 &&
+        (!_provider.isHouseholdWithPartner || _provider.hasPartnerRequiredData);
+    final preview =
+        (_mainGoal != null && hasCoreProjectionContext) ? _computePreviewProjection() : null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -2032,6 +2052,12 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           const SizedBox(height: 16),
           if (preview != null) _buildProjectionPreviewCard(preview),
+          if (preview == null)
+            _buildStepReadyHint(
+              title: 'Aperçu en préparation',
+              body:
+                  'On finalise d’abord les données de base du foyer. La projection chiffrée sera affichée juste après.',
+            ),
           if (preview != null) ...[
             const SizedBox(height: 10),
             _buildMintUnderstoodCard(preview),
@@ -2270,6 +2296,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             0);
     final householdIncome = income + partnerIncome;
     final householdType = _provider.householdType ?? _householdType;
+    final firstName = (_provider.firstName ?? _firstNameController.text).trim();
+    final partnerFirstName =
+        (_provider.partnerFirstName ?? _partnerFirstNameController.text).trim();
     final showPartnerIncome = partnerIncome > 0;
     final fixedCount = [
       _parseChfController(_taxProvisionController),
@@ -2309,6 +2338,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             l10n?.advisorMiniReadyProfile(employmentLabel, householdLabel) ??
                 'Profil: $employmentLabel · $householdLabel',
           ),
+          if (firstName.isNotEmpty)
+            _mintUnderstoodRow('Prénom: $firstName'),
+          if (partnerFirstName.isNotEmpty)
+            _mintUnderstoodRow('Partenaire: $partnerFirstName'),
           _mintUnderstoodRow(
             l10n?.advisorMiniReadyLocation(cantonLabel, horizon) ??
                 'Base fiscale: $cantonLabel · $horizon',

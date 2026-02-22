@@ -6,10 +6,12 @@ import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepStress extends StatelessWidget {
+  final TextEditingController firstNameController;
   final VoidCallback onContinue;
 
   const OnboardingStepStress({
     super.key,
+    required this.firstNameController,
     required this.onContinue,
   });
 
@@ -29,6 +31,21 @@ class OnboardingStepStress extends StatelessWidget {
             title: l10n?.advisorMiniStep1Title ?? 'Quelle est ta priorite ?',
             subtitle: l10n?.advisorMiniStep1Subtitle ??
                 'MINT s\'adapte a ce qui compte pour toi maintenant',
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: firstNameController,
+            textCapitalization: TextCapitalization.words,
+            onChanged: provider.setFirstNameDraft,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
+            decoration: InputDecoration(
+              labelText: l10n?.advisorMiniFirstNameLabel ?? 'Prénom (optionnel)',
+              hintText: l10n?.advisorMiniFirstNameHint ?? 'Ex: Julien',
+              filled: true,
+              fillColor: MintColors.surface,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
           ),
           const SizedBox(height: 22),
           MintSelectableCard(

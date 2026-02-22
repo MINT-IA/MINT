@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 class OnboardingProvider extends ChangeNotifier {
+  String? firstName;
   Set<String> stressChoices = {};
   String? canton;
   String? employmentStatus;
@@ -26,7 +27,9 @@ class OnboardingProvider extends ChangeNotifier {
   int? partnerBirthYear;
   String? partnerEmploymentStatus;
   String? civilStatusChoice; // 'married' or 'concubinage'
+  String? partnerFirstName;
 
+  String? draftFirstName;
   String? draftBirthYear;
   String? draftIncome;
   String? draftTaxProvision;
@@ -34,6 +37,7 @@ class OnboardingProvider extends ChangeNotifier {
   String? draftOtherFixed;
   String? draftPartnerIncome;
   String? draftPartnerBirthYear;
+  String? draftPartnerFirstName;
 
   int currentStep = 0;
   bool isCompleted = false;
@@ -96,6 +100,10 @@ class OnboardingProvider extends ChangeNotifier {
         partnerEmploymentStatus != null;
   }
 
+  double get effectiveIncomeMonthly => _effectiveIncome;
+  double get effectivePartnerIncomeMonthly => _effectivePartnerIncome;
+  int? get effectivePartnerBirthYear => _effectivePartnerBirthYear;
+
   double get _effectiveIncome => incomeMonthly ?? _toDouble(draftIncome) ?? 0;
   double get _effectivePartnerIncome =>
       partnerIncome ?? _toDouble(draftPartnerIncome) ?? 0;
@@ -133,6 +141,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void _hydrateFromSavedAnswers(Map<String, dynamic> answers) {
+    firstName = answers['q_firstname'] as String?;
     // Support both legacy String and new List<String> format
     final rawStress = answers['q_financial_stress_check'];
     if (rawStress is List) {
@@ -159,13 +168,17 @@ class OnboardingProvider extends ChangeNotifier {
     draftOtherFixed = answers['mini_draft_other_fixed']?.toString();
 
     // Partner data
+    partnerFirstName = answers['q_partner_firstname'] as String?;
     partnerIncome = _toDouble(answers['q_partner_net_income_chf']);
     partnerBirthYear = _toInt(answers['q_partner_birth_year']);
     partnerEmploymentStatus = answers['q_partner_employment_status'] as String?;
     civilStatusChoice = answers['q_civil_status_choice'] as String?;
+    draftFirstName = answers['mini_draft_firstname']?.toString();
     draftPartnerIncome = answers['mini_draft_partner_income']?.toString();
     draftPartnerBirthYear =
         answers['mini_draft_partner_birth_year']?.toString();
+    draftPartnerFirstName =
+        answers['mini_draft_partner_firstname']?.toString();
 
     if (householdType == null) {
       final civilStatus = answers['q_civil_status'] as String?;
@@ -210,6 +223,14 @@ class OnboardingProvider extends ChangeNotifier {
     _safeNotify();
   }
 
+  void setFirstNameDraft(String value) {
+    final trimmed = value.trim();
+    draftFirstName = trimmed;
+    firstName = trimmed.isEmpty ? null : trimmed;
+    scheduleAutoSave('first_name_changed');
+    _safeNotify();
+  }
+
   void setCanton(String? value) {
     canton = value;
     _tryPrefillFixedCosts();
@@ -238,8 +259,10 @@ class OnboardingProvider extends ChangeNotifier {
       partnerIncome = null;
       partnerBirthYear = null;
       partnerEmploymentStatus = null;
+      partnerFirstName = null;
       draftPartnerIncome = null;
       draftPartnerBirthYear = null;
+      draftPartnerFirstName = null;
     }
     scheduleAutoSave('household_changed');
     _safeNotify();
@@ -275,6 +298,14 @@ class OnboardingProvider extends ChangeNotifier {
   void setPartnerIncome(double? value) {
     partnerIncome = value;
     scheduleAutoSave('partner_income');
+    _safeNotify();
+  }
+
+  void setPartnerFirstNameDraft(String value) {
+    final trimmed = value.trim();
+    draftPartnerFirstName = trimmed;
+    partnerFirstName = trimmed.isEmpty ? null : trimmed;
+    scheduleAutoSave('partner_first_name');
     _safeNotify();
   }
 
@@ -381,8 +412,16 @@ class OnboardingProvider extends ChangeNotifier {
 
     taxProvisionMonthly ??= monthlyTax;
     lamalPremiumMonthly ??= estimateLamalFromCanton(canton!);
+    otherFixedCostsMonthly ??= switch (householdType ?? 'single') {
+      'single' => 250,
+      'couple' => 450,
+      'family' => 700,
+      'single_parent' => 550,
+      _ => 300,
+    };
     draftTaxProvision ??= monthlyTax.round().toString();
     draftLamal ??= lamalPremiumMonthly?.round().toString();
+    draftOtherFixed ??= otherFixedCostsMonthly?.round().toString();
 
     scheduleAutoSave('fixed_cost_prefill');
     _safeNotify();
@@ -390,6 +429,10 @@ class OnboardingProvider extends ChangeNotifier {
 
   Map<String, dynamic> buildAnswersSnapshot() {
     final snapshot = <String, dynamic>{};
+
+    if ((firstName ?? '').trim().isNotEmpty) {
+      snapshot['q_firstname'] = firstName!.trim();
+    }
 
     if (stressChoices.isNotEmpty) {
       snapshot['q_financial_stress_check'] = stressChoices.toList();
@@ -430,6 +473,9 @@ class OnboardingProvider extends ChangeNotifier {
       if (_effectivePartnerIncome > 0) {
         snapshot['q_partner_net_income_chf'] = _effectivePartnerIncome;
       }
+      if ((partnerFirstName ?? '').trim().isNotEmpty) {
+        snapshot['q_partner_firstname'] = partnerFirstName!.trim();
+      }
       if (_effectivePartnerBirthYear != null) {
         snapshot['q_partner_birth_year'] = _effectivePartnerBirthYear;
       }
@@ -449,6 +495,9 @@ class OnboardingProvider extends ChangeNotifier {
     if ((draftBirthYear ?? '').isNotEmpty) {
       snapshot['mini_draft_birth_year'] = draftBirthYear;
     }
+    if ((draftFirstName ?? '').isNotEmpty) {
+      snapshot['mini_draft_firstname'] = draftFirstName;
+    }
     if ((draftIncome ?? '').isNotEmpty) {
       snapshot['mini_draft_income'] = draftIncome;
     }
@@ -462,6 +511,9 @@ class OnboardingProvider extends ChangeNotifier {
       snapshot['mini_draft_other_fixed'] = draftOtherFixed;
     }
     if (isHouseholdWithPartner) {
+      if ((draftPartnerFirstName ?? '').isNotEmpty) {
+        snapshot['mini_draft_partner_firstname'] = draftPartnerFirstName;
+      }
       if ((draftPartnerIncome ?? '').isNotEmpty) {
         snapshot['mini_draft_partner_income'] = draftPartnerIncome;
       }
