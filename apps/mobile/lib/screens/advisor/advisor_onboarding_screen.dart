@@ -68,6 +68,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   final _birthYearController = TextEditingController();
   final _incomeController = TextEditingController();
   final _housingController = TextEditingController();
+  final _debtPaymentsController = TextEditingController();
   final _taxProvisionController = TextEditingController();
   final _lamalController = TextEditingController();
   final _otherFixedController = TextEditingController();
@@ -211,6 +212,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _birthYearController.dispose();
     _incomeController.dispose();
     _housingController.dispose();
+    _debtPaymentsController.dispose();
     _taxProvisionController.dispose();
     _lamalController.dispose();
     _otherFixedController.dispose();
@@ -242,6 +244,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _housingController.text = p.draftHousingCost!;
     } else if (p.housingCostMonthly != null) {
       _housingController.text = p.housingCostMonthly!.toInt().toString();
+    }
+    if (p.draftDebtPayments != null && p.draftDebtPayments!.isNotEmpty) {
+      _debtPaymentsController.text = p.draftDebtPayments!;
+    } else if (p.debtPaymentsMonthly != null) {
+      _debtPaymentsController.text = p.debtPaymentsMonthly!.toInt().toString();
     }
     if (p.draftTaxProvision != null && p.draftTaxProvision!.isNotEmpty) {
       _taxProvisionController.text = p.draftTaxProvision!;
@@ -1751,6 +1758,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           child: OnboardingStepIncome(
             incomeController: _incomeController,
             housingController: _housingController,
+            debtPaymentsController: _debtPaymentsController,
             taxController: _taxProvisionController,
             lamalController: _lamalController,
             otherFixedController: _otherFixedController,
@@ -1990,6 +1998,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   Widget _buildStep4GoalAndPreview() {
     final l10n = S.of(context);
     final canComplete = _mainGoal != null;
+    final readiness = _computeAdvisorReadiness();
     final hasCoreProjectionContext = _provider.canAdvanceFromStep3 &&
         (!_provider.isHouseholdWithPartner || _provider.hasPartnerRequiredData);
     final preview =
@@ -2068,6 +2077,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             icon: Icons.trending_up_outlined,
           ),
           const SizedBox(height: 16),
+          _buildAdvisorReadinessCard(readiness),
+          const SizedBox(height: 12),
           if (preview != null) _buildProjectionPreviewCard(preview),
           if (preview == null)
             _buildStepReadyHint(
@@ -2123,6 +2134,116 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             ),
           ),
           const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Map<String, dynamic> _computeAdvisorReadiness() {
+    int points = 0;
+    int total = 9;
+    final missing = <String>[];
+
+    if (_provider.birthYear != null && _provider.canton != null) {
+      points += 1;
+    } else {
+      missing.add('Âge + canton');
+    }
+    if (_provider.effectiveIncomeMonthly > 0 &&
+        _provider.employmentStatus != null) {
+      points += 1;
+    } else {
+      missing.add('Revenu + statut');
+    }
+    if (_provider.housingStatus != null &&
+        _provider.effectiveHousingCostMonthly > 0) {
+      points += 1;
+    } else {
+      missing.add('Logement');
+    }
+    if (_provider.householdType != null) {
+      points += 1;
+    } else {
+      missing.add('Type de foyer');
+    }
+    if ((_provider.taxProvisionMonthly ?? 0) > 0 ||
+        (_provider.lamalPremiumMonthly ?? 0) > 0 ||
+        (_provider.otherFixedCostsMonthly ?? 0) > 0) {
+      points += 1;
+    } else {
+      missing.add('Charges fixes');
+    }
+    if (_provider.effectiveDebtPaymentsMonthly > 0) {
+      points += 1;
+    }
+
+    if (_provider.isHouseholdWithPartner) {
+      total += 3;
+      if (_provider.civilStatusChoice != null) {
+        points += 1;
+      } else {
+        missing.add('État civil couple');
+      }
+      if (_provider.effectivePartnerIncomeMonthly > 0 &&
+          _provider.partnerEmploymentStatus != null) {
+        points += 1;
+      } else {
+        missing.add('Revenu + statut partenaire');
+      }
+      if (_provider.effectivePartnerBirthYear != null) {
+        points += 1;
+      } else {
+        missing.add('Âge partenaire');
+      }
+    }
+
+    final score = ((points / total) * 100).round();
+    final level = score >= 80
+        ? 'haute'
+        : score >= 60
+            ? 'moyenne'
+            : 'faible';
+    return {'score': score, 'level': level, 'missing': missing};
+  }
+
+  Widget _buildAdvisorReadinessCard(Map<String, dynamic> readiness) {
+    final score = readiness['score'] as int;
+    final level = readiness['level'] as String;
+    final missing = (readiness['missing'] as List).cast<String>();
+    final color = switch (level) {
+      'haute' => MintColors.success,
+      'moyenne' => MintColors.warning,
+      _ => MintColors.error,
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Fiabilité conseil: $score%',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Niveau $level. ${missing.isEmpty ? 'Socle suffisant pour un plan initial.' : 'À compléter: ${missing.take(2).join(', ')}${missing.length > 2 ? '…' : ''}'}',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.3,
+            ),
+          ),
         ],
       ),
     );
@@ -2319,11 +2440,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final showPartnerIncome = partnerIncome > 0;
     final fixedCount = [
       _parseChfController(_housingController),
+      _parseChfController(_debtPaymentsController),
       _parseChfController(_taxProvisionController),
       _parseChfController(_lamalController),
       _parseChfController(_otherFixedController),
     ].where((v) => (v ?? 0) > 0).length;
     final housing = _parseChfController(_housingController) ?? 0;
+    final debtPayments = _parseChfController(_debtPaymentsController) ?? 0;
     final horizon = '~${preview['yearsLeft']} ans';
     final goalLabel = _labelForGoal(_mainGoal ?? 'retirement', l10n);
     final employmentLabel = _labelForEmployment(_employmentStatus, l10n);
@@ -2373,6 +2496,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             _mintUnderstoodRow(
               'Logement: CHF ${housing.round()}/mois',
             ),
+          if (debtPayments > 0)
+            _mintUnderstoodRow(
+              'Dettes/Leasing: CHF ${debtPayments.round()}/mois',
+            ),
           if (showPartnerIncome)
             _mintUnderstoodRow(
               'Revenu partenaire: CHF ${partnerIncome.round()}/mois',
@@ -2382,7 +2509,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               'Revenu foyer total: CHF ${householdIncome.round()}/mois',
             ),
           _mintUnderstoodRow(
-            'Charges fixes captées: $fixedCount/4',
+            'Charges fixes captées: $fixedCount/5',
           ),
         ],
       ),

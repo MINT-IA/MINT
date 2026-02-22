@@ -110,6 +110,7 @@
   "advisorMiniHousingHosted": "Alojado/a / sin alquiler",
   "advisorMiniHousingCostTenant": "Alquiler / gastos vivienda / mes",
   "advisorMiniHousingCostOwner": "Costes vivienda / hipoteca / mes",
+  "advisorMiniDebtPaymentsLabel": "Cuotas de deuda / leasing / mes",
   "advisorMiniCivilStatusMarried": "Casado/a",
   "advisorMiniCivilStatusConcubinage": "En concubinato",
   "advisorMiniPartnerIncomeLabel": "Ingreso neto mensual de la pareja",

@@ -1157,12 +1157,19 @@ class CoachProfile {
 
     // ── Dettes ──────────────────────────────────────────────
     final hasDebt = _parseBool(answers['q_has_consumer_debt']);
-    // Estimation dette consommation: 5% du revenu brut annuel.
-    // Source: OFS Enquête budget ménages 2022 — médiane endettement
-    // consommation CH ≈ 4-6% du revenu brut. On retient 5% (conservateur).
-    final dettes = hasDebt
-        ? DetteProfile(creditConsommation: salaireBrutMensuel * 12 * 0.05)
-        : const DetteProfile();
+    final debtPaymentsMonthly =
+        _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
+    final dettes = (() {
+      if (debtPaymentsMonthly > 0) {
+        // Proxy conservateur: principal restant ≈ 24 mois de mensualités.
+        return DetteProfile(creditConsommation: debtPaymentsMonthly * 24);
+      }
+      if (hasDebt) {
+        // Fallback si uniquement booléen déclaré sans montant.
+        return DetteProfile(creditConsommation: salaireBrutMensuel * 12 * 0.05);
+      }
+      return const DetteProfile();
+    })();
 
     // ── Goal A ──────────────────────────────────────────────
     final mainGoalRaw = answers['q_main_goal'] as String?;

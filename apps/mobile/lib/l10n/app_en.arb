@@ -110,6 +110,7 @@
   "advisorMiniHousingHosted": "Hosted / no rent",
   "advisorMiniHousingCostTenant": "Rent / housing charges / month",
   "advisorMiniHousingCostOwner": "Housing costs / mortgage / month",
+  "advisorMiniDebtPaymentsLabel": "Debt / leasing repayments / month",
   "advisorMiniCivilStatusMarried": "Married",
   "advisorMiniCivilStatusConcubinage": "Cohabiting",
   "advisorMiniPartnerIncomeLabel": "Partner monthly net income",

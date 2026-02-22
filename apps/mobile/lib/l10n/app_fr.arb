@@ -110,6 +110,7 @@
   "advisorMiniHousingHosted": "Hébergé·e / sans loyer",
   "advisorMiniHousingCostTenant": "Loyer / charges logement / mois",
   "advisorMiniHousingCostOwner": "Charges logement / hypothèque / mois",
+  "advisorMiniDebtPaymentsLabel": "Remboursements dettes / leasing / mois",
   "advisorMiniCivilStatusMarried": "Marié·e",
   "advisorMiniCivilStatusConcubinage": "En concubinage",
   "advisorMiniPartnerIncomeLabel": "Revenu net mensuel du/de la partenaire",

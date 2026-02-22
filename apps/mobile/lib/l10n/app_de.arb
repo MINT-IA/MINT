@@ -110,6 +110,7 @@
   "advisorMiniHousingHosted": "Unterkunft / keine Miete",
   "advisorMiniHousingCostTenant": "Miete / Wohnkosten / Monat",
   "advisorMiniHousingCostOwner": "Wohnkosten / Hypothek / Monat",
+  "advisorMiniDebtPaymentsLabel": "Schulden-/Leasingraten / Monat",
   "advisorMiniCivilStatusMarried": "Verheiratet",
   "advisorMiniCivilStatusConcubinage": "Konkubinat",
   "advisorMiniPartnerIncomeLabel": "Monatliches Nettoeinkommen des Partners",

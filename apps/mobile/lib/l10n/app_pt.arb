@@ -110,6 +110,7 @@
   "advisorMiniHousingHosted": "Alojado/a / sem renda",
   "advisorMiniHousingCostTenant": "Renda / custos habitacao / mes",
   "advisorMiniHousingCostOwner": "Custos habitacao / hipoteca / mes",
+  "advisorMiniDebtPaymentsLabel": "Prestacoes de divida / leasing / mes",
   "advisorMiniCivilStatusMarried": "Casado/a",
   "advisorMiniCivilStatusConcubinage": "Em uniao de facto",
   "advisorMiniPartnerIncomeLabel": "Rendimento liquido mensal do parceiro",

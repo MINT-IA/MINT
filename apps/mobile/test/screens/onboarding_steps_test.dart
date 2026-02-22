@@ -51,10 +51,11 @@ void main() {
   testWidgets('OnboardingStepIncome smoke', (tester) async {
     await tester.pumpWidget(
       wrapWithProvider(
-        OnboardingStepIncome(
-          incomeController: TextEditingController(text: '6000'),
-          housingController: TextEditingController(text: '1800'),
-          taxController: TextEditingController(),
+          OnboardingStepIncome(
+            incomeController: TextEditingController(text: '6000'),
+            housingController: TextEditingController(text: '1800'),
+            debtPaymentsController: TextEditingController(text: '0'),
+            taxController: TextEditingController(),
           lamalController: TextEditingController(),
           otherFixedController: TextEditingController(),
           partnerIncomeController: TextEditingController(),

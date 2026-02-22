@@ -20,6 +20,7 @@ class OnboardingProvider extends ChangeNotifier {
   int? birthYear;
   double? incomeMonthly;
   double? housingCostMonthly;
+  double? debtPaymentsMonthly;
   double? taxProvisionMonthly;
   double? lamalPremiumMonthly;
   double? otherFixedCostsMonthly;
@@ -35,6 +36,7 @@ class OnboardingProvider extends ChangeNotifier {
   String? draftBirthYear;
   String? draftIncome;
   String? draftHousingCost;
+  String? draftDebtPayments;
   String? draftTaxProvision;
   String? draftLamal;
   String? draftOtherFixed;
@@ -65,6 +67,8 @@ class OnboardingProvider extends ChangeNotifier {
 
   bool get canAdvanceFromStep3 {
     final hasCoreIncomeData = _effectiveIncome > 0 &&
+        _effectiveHousingCost > 0 &&
+        housingStatus != null &&
         employmentStatus != null &&
         householdType != null;
     if (!hasCoreIncomeData) return false;
@@ -104,10 +108,16 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   double get effectiveIncomeMonthly => _effectiveIncome;
+  double get effectiveHousingCostMonthly => _effectiveHousingCost;
+  double get effectiveDebtPaymentsMonthly => _effectiveDebtPayments;
   double get effectivePartnerIncomeMonthly => _effectivePartnerIncome;
   int? get effectivePartnerBirthYear => _effectivePartnerBirthYear;
 
   double get _effectiveIncome => incomeMonthly ?? _toDouble(draftIncome) ?? 0;
+  double get _effectiveHousingCost =>
+      housingCostMonthly ?? _toDouble(draftHousingCost) ?? 0;
+  double get _effectiveDebtPayments =>
+      debtPaymentsMonthly ?? _toDouble(draftDebtPayments) ?? 0;
   double get _effectivePartnerIncome =>
       partnerIncome ?? _toDouble(draftPartnerIncome) ?? 0;
   int? get _effectivePartnerBirthYear =>
@@ -161,6 +171,7 @@ class OnboardingProvider extends ChangeNotifier {
     birthYear = _toInt(answers['q_birth_year']);
     incomeMonthly = _toDouble(answers['q_net_income_period_chf']);
     housingCostMonthly = _toDouble(answers['q_housing_cost_period_chf']);
+    debtPaymentsMonthly = _toDouble(answers['q_debt_payments_period_chf']);
     taxProvisionMonthly = _toDouble(answers['q_tax_provision_monthly_chf']);
     lamalPremiumMonthly = _toDouble(answers['q_lamal_premium_monthly_chf']);
     otherFixedCostsMonthly =
@@ -169,6 +180,7 @@ class OnboardingProvider extends ChangeNotifier {
     draftBirthYear = answers['mini_draft_birth_year']?.toString();
     draftIncome = answers['mini_draft_income']?.toString();
     draftHousingCost = answers['mini_draft_housing_cost']?.toString();
+    draftDebtPayments = answers['mini_draft_debt_payments']?.toString();
     draftTaxProvision = answers['mini_draft_tax_provision']?.toString();
     draftLamal = answers['mini_draft_lamal']?.toString();
     draftOtherFixed = answers['mini_draft_other_fixed']?.toString();
@@ -264,6 +276,13 @@ class OnboardingProvider extends ChangeNotifier {
     draftHousingCost = value.trim();
     housingCostMonthly = _toDouble(value);
     scheduleAutoSave('housing_cost_changed');
+    _safeNotify();
+  }
+
+  void setDebtPaymentsDraft(String value) {
+    draftDebtPayments = value.trim();
+    debtPaymentsMonthly = _toDouble(value);
+    scheduleAutoSave('debt_payments_changed');
     _safeNotify();
   }
 
@@ -487,8 +506,14 @@ class OnboardingProvider extends ChangeNotifier {
     if ((housingStatus ?? '').isNotEmpty) {
       snapshot['q_housing_status'] = housingStatus;
     }
-    if ((housingCostMonthly ?? 0) > 0) {
-      snapshot['q_housing_cost_period_chf'] = housingCostMonthly;
+    if (_effectiveHousingCost > 0) {
+      snapshot['q_housing_cost_period_chf'] = _effectiveHousingCost;
+    }
+    if (_effectiveDebtPayments > 0) {
+      snapshot['q_debt_payments_period_chf'] = _effectiveDebtPayments;
+      snapshot['q_has_consumer_debt'] = 'yes';
+    } else {
+      snapshot['q_has_consumer_debt'] = 'no';
     }
     if (employmentStatus != null) {
       snapshot['q_employment_status'] = employmentStatus;
@@ -547,6 +572,9 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if ((draftHousingCost ?? '').isNotEmpty) {
       snapshot['mini_draft_housing_cost'] = draftHousingCost;
+    }
+    if ((draftDebtPayments ?? '').isNotEmpty) {
+      snapshot['mini_draft_debt_payments'] = draftDebtPayments;
     }
     if ((draftTaxProvision ?? '').isNotEmpty) {
       snapshot['mini_draft_tax_provision'] = draftTaxProvision;

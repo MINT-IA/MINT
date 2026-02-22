@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 class OnboardingStepIncome extends StatelessWidget {
   final TextEditingController incomeController;
   final TextEditingController housingController;
+  final TextEditingController debtPaymentsController;
   final TextEditingController taxController;
   final TextEditingController lamalController;
   final TextEditingController otherFixedController;
@@ -23,6 +24,7 @@ class OnboardingStepIncome extends StatelessWidget {
     super.key,
     required this.incomeController,
     required this.housingController,
+    required this.debtPaymentsController,
     required this.taxController,
     required this.lamalController,
     required this.otherFixedController,
@@ -45,6 +47,10 @@ class OnboardingStepIncome extends StatelessWidget {
     if ((provider.incomeMonthly ?? 0) <= 0) {
       missingItems.add(
           l10n?.advisorMiniIncomeLabel ?? 'Revenu net mensuel');
+    }
+    if ((provider.effectiveHousingCostMonthly) <= 0 ||
+        provider.housingStatus == null) {
+      missingItems.add(l10n?.advisorMiniHousingTitle ?? 'Logement');
     }
     if (employmentStatus == null) {
       missingItems.add(l10n?.advisorMiniEmploymentEmployee ?? 'Statut professionnel');
@@ -341,6 +347,15 @@ class OnboardingStepIncome extends StatelessWidget {
                     'Loyer / charges logement / mois'),
             hint: '1900',
             onChanged: (value) => provider.setHousingCostDraft(value),
+          ),
+          const SizedBox(height: 10),
+          MintChfInputField(
+            controller: debtPaymentsController,
+            label: l10n?.advisorMiniDebtPaymentsLabel ??
+                'Remboursements dettes / leasing / mois',
+            hint: '0',
+            optional: true,
+            onChanged: (value) => provider.setDebtPaymentsDraft(value),
           ),
           const SizedBox(height: 12),
           ExpansionTile(
