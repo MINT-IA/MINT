@@ -427,6 +427,8 @@ class OnboardingProvider extends ChangeNotifier {
 
   void setCivilStatusChoice(String? value) {
     civilStatusChoice = value;
+    // Recalculate: concubinage → individual tax/LAMal, married → joint
+    _tryPrefillFixedCosts();
     scheduleAutoSave('civil_status_choice');
     _safeNotify();
   }
@@ -442,11 +444,16 @@ class OnboardingProvider extends ChangeNotifier {
     return 'retirement';
   }
 
+  /// Maps household type → wizard q_civil_status value.
+  /// Swiss law: concubinage has NO legal existence (CC) — treated as 'cohabiting'
+  /// in the wizard, NOT as 'married' (no splitting, no solidarité, no succession).
   String civilStatusForHousehold(String value) {
     switch (value) {
       case 'couple':
       case 'family':
-        return civilStatusChoice ?? 'married';
+        final choice = civilStatusChoice;
+        if (choice == 'concubinage') return 'cohabiting';
+        return choice ?? 'married';
       case 'single_parent':
         return 'single';
       default:
@@ -454,13 +461,22 @@ class OnboardingProvider extends ChangeNotifier {
     }
   }
 
+  /// Whether the current couple is in concubinage (not married/registered).
+  /// Concubinage = two separate fiscal/legal individuals in Swiss law.
+  bool get isConcubinage => civilStatusChoice == 'concubinage';
+
   int childrenCountForHousehold(String value) {
     if (value == 'family' || value == 'single_parent') return 1;
     return 0;
   }
 
+  /// Adult count for LAMal/charge estimation.
+  /// Concubinage: 1 adult (individual premium — no solidarité LAMal).
   int adultCountForHousehold(String value) {
-    return (value == 'single' || value == 'single_parent') ? 1 : 2;
+    if (value == 'single' || value == 'single_parent') return 1;
+    // Couple/family: 2 adults if married, 1 if concubinage (individual)
+    if (isConcubinage) return 1;
+    return 2;
   }
 
   double estimateLamalFromCanton(String cantonCode, {String? household}) {
@@ -491,8 +507,10 @@ class OnboardingProvider extends ChangeNotifier {
     final currentAge = age?.clamp(18, 80) ?? 35;
 
     // Imposition commune (LIFD art. 9 al. 1): additionner les deux revenus
-    final isCouple = household == 'couple' || household == 'family';
-    final combinedIncome = isCouple
+    // SAUF concubinage — pas de solidarité fiscale, taxation individuelle
+    final isJointlyTaxed = (household == 'couple' || household == 'family')
+        && !isConcubinage;
+    final combinedIncome = isJointlyTaxed
         ? _effectiveIncome + _effectivePartnerIncome
         : _effectiveIncome;
 
@@ -516,7 +534,9 @@ class OnboardingProvider extends ChangeNotifier {
       draftLamal = lamalPremiumMonthly?.round().toString();
     }
     if (!_userEditedOtherFixed) {
-      otherFixedCostsMonthly = switch (householdType ?? 'single') {
+      // Concubinage: charges individuelles, pas de foyer partagé
+      final effectiveHousehold = isConcubinage ? 'single' : (householdType ?? 'single');
+      otherFixedCostsMonthly = switch (effectiveHousehold) {
         'single' => 350,
         'couple' => 550,
         'family' => 750,
@@ -601,7 +621,11 @@ class OnboardingProvider extends ChangeNotifier {
     final household = householdType ?? 'single';
     snapshot['q_household_type'] = household;
     snapshot['q_civil_status'] = civilStatusForHousehold(household);
-    snapshot['q_children'] = childrenCountForHousehold(household);
+    // Only pre-fill children count when we're certain (0 for single/couple).
+    // For family/single_parent, let the wizard ask for exact count (1, 2, 3+).
+    if (household == 'single' || household == 'couple') {
+      snapshot['q_children'] = 0;
+    }
 
     if ((taxProvisionMonthly ?? 0) > 0) {
       snapshot['q_tax_provision_monthly_chf'] = taxProvisionMonthly;
@@ -726,61 +750,26 @@ class OnboardingProvider extends ChangeNotifier {
     return merged;
   }
 
-  /// Swiss average tax on 100k net (single), computed from engine across 26 cantons.
-  /// Cached at class level to avoid recomputing on every call.
-  static double? _cachedSwissAvgTaxOn100k;
-
-  static double _computeSwissAvgTaxOn100k() {
-    if (_cachedSwissAvgTaxOn100k != null) return _cachedSwissAvgTaxOn100k!;
-    const cantonCodes = [
-      'ZH', 'BE', 'LU', 'UR', 'SZ', 'OW', 'NW', 'GL', 'ZG',
-      'FR', 'SO', 'BS', 'BL', 'AR', 'AI', 'SG', 'GR', 'AG',
-      'TG', 'TI', 'VD', 'VS', 'NE', 'GE', 'JU', 'SH',
-    ];
-    double total = 0;
-    for (final code in cantonCodes) {
-      total += TaxEstimatorService.estimateAnnualTax(
-        netMonthlyIncome: 100000 / 12,
-        cantonCode: code,
-        civilStatus: 'single',
-        childrenCount: 0,
-        age: 35,
-      );
-    }
-    _cachedSwissAvgTaxOn100k = total / cantonCodes.length;
-    return _cachedSwissAvgTaxOn100k!;
-  }
-
   Map<String, dynamic>? computeStep2AhaData() {
     if (!_isBirthYearValid || canton == null) return null;
 
     final cantonProfile = CantonalDataService.getByCode(canton);
 
-    // Use real tax engine (bracket data) for realistic estimation
-    // Reference: single, no children, 100k CHF net income
-    final taxOn100k = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: 100000 / 12,
-      cantonCode: canton!,
-      civilStatus: 'single',
-      childrenCount: 0,
-      age: age ?? 35,
-    );
-    final effectiveRate = taxOn100k / 100000;
-
-    // Swiss average: computed dynamically from same engine across 26 cantons
-    final swissAvgTaxOn100k = _computeSwissAvgTaxOn100k();
-    final swissAvgRate = swissAvgTaxOn100k / 100000;
-    final deltaRate = effectiveRate - swissAvgRate;
+    // Qualitative tax positioning only — no specific amounts
+    // (user has only entered age + canton at this point, no income)
+    final pressureLabel = switch (cantonProfile.taxPressureIncome) {
+      TaxPressure.low => 'low',
+      TaxPressure.medium => 'medium',
+      TaxPressure.high => 'high',
+      TaxPressure.veryHigh => 'veryHigh',
+    };
 
     return {
       'age': age,
       'years_to_retirement': yearsToRetirement,
       'canton_code': canton,
       'canton_name': cantonProfile.name,
-      'avg_rate_percent': effectiveRate * 100,
-      'tax_on_100k': taxOn100k.round(),
-      'delta_vs_ch_percent': deltaRate * 100,
-      'annual_delta_on_100k': (taxOn100k - swissAvgTaxOn100k).round(),
+      'tax_pressure': pressureLabel,
     };
   }
 

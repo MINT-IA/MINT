@@ -142,6 +142,30 @@ void main() {
       );
     });
 
+    test('spouse AVS lacunes status skipped for concubinage', () {
+      final answers = <String, dynamic>{
+        'q_civil_status': 'cohabiting',
+      };
+      // Concubinage = no couple rente AVS (LAVS art. 35) → skip spouse AVS
+      expect(
+        WizardConditionsService.shouldAskQuestion(
+            'q_spouse_avs_lacunes_status', answers),
+        false,
+      );
+    });
+
+    test('spouse AVS lacunes status asked for registered_partner', () {
+      final answers = <String, dynamic>{
+        'q_civil_status': 'registered_partner',
+      };
+      // Registered partner = same as married (CC art. 65a) → ask spouse AVS
+      expect(
+        WizardConditionsService.shouldAskQuestion(
+            'q_spouse_avs_lacunes_status', answers),
+        true,
+      );
+    });
+
     test('spouse AVS lacunes status asked when married', () {
       final answers = <String, dynamic>{
         'q_civil_status': 'married',

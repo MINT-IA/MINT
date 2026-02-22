@@ -567,7 +567,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           screenName: '/advisor',
           data: _onboardingContextData(),
         );
-        context.push('/advisor/wizard?section=identity');
+        final recommended = context.read<CoachProfileProvider>().recommendedWizardSection;
+        context.push('/advisor/wizard?section=$recommended');
       } else if (action == 'plan30') {
         _incMetric('completion_action_plan30');
         _analytics.trackCTAClick(
@@ -1958,36 +1959,26 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final l10n = S.of(context);
     final yearsToRetirement = aha['years_to_retirement'] as int;
     final cantonCode = aha['canton_code'] as String;
-    final avgRatePercent = aha['avg_rate_percent'] as double;
-    final taxOn100k = aha['tax_on_100k'] as int;
-    final deltaVsCh = aha['delta_vs_ch_percent'] as double;
-    final annualDelta = aha['annual_delta_on_100k'] as int;
-    final isChallenge = _miniOnboardingVariant == 'challenge';
-    final directionLabel = deltaVsCh >= 0
-        ? (l10n?.advisorMiniStep2AhaDirectionAbove ?? 'au-dessus')
-        : (l10n?.advisorMiniStep2AhaDirectionBelow ?? 'en-dessous');
-    final annualDeltaAbs = annualDelta.abs();
-    final deltaRateAbs = deltaVsCh.abs().toStringAsFixed(1);
+    final cantonName = aha['canton_name'] as String;
+    final taxPressure = aha['tax_pressure'] as String;
 
-    final body = isChallenge
-        ? (l10n?.advisorMiniStep2AhaEmotional(
-              '$yearsToRetirement',
-              cantonCode,
-              avgRatePercent.toStringAsFixed(1),
-              deltaVsCh.abs().toStringAsFixed(1),
-              directionLabel,
-              '$annualDeltaAbs',
-            ) ??
-            'Tu as environ $yearsToRetirement ans avant 65 ans. Dans le canton de $cantonCode, le taux effectif estimé est ~${avgRatePercent.toStringAsFixed(1)}% (${deltaVsCh.abs().toStringAsFixed(1)} pts $directionLabel la moyenne CH), soit un enjeu d\'environ CHF $annualDeltaAbs/an pour CHF 100\'000 imposables.')
-        : (l10n?.advisorMiniStep2AhaFactual(
-              '$yearsToRetirement',
-              cantonCode,
-              avgRatePercent.toStringAsFixed(1),
-              deltaVsCh.abs().toStringAsFixed(1),
-              directionLabel,
-              '$annualDeltaAbs',
-            ) ??
-            'Horizon retraite : ~$yearsToRetirement ans. En $cantonCode, taux effectif estimé ~${avgRatePercent.toStringAsFixed(1)}% (${deltaVsCh.abs().toStringAsFixed(1)} pts $directionLabel la moyenne CH), soit ~CHF $annualDeltaAbs/an pour CHF 100\'000 imposables.');
+    // Qualitative label for tax pressure
+    final pressureLabel = switch (taxPressure) {
+      'low' => l10n?.advisorMiniStep2AhaPressureLow ?? 'faible',
+      'medium' => l10n?.advisorMiniStep2AhaPressureMedium ?? 'modérée',
+      'high' => l10n?.advisorMiniStep2AhaPressureHigh ?? 'élevée',
+      'veryHigh' => l10n?.advisorMiniStep2AhaPressureVeryHigh ?? 'très élevée',
+      _ => l10n?.advisorMiniStep2AhaPressureMedium ?? 'modérée',
+    };
+
+    // Color coding for tax pressure chip
+    final pressureColor = switch (taxPressure) {
+      'low' => MintColors.success,
+      'medium' => MintColors.info,
+      'high' => MintColors.warning,
+      'veryHigh' => MintColors.error,
+      _ => MintColors.info,
+    };
 
     return Container(
       width: double.infinity,
@@ -2002,14 +1993,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                isChallenge ? Icons.bolt : Icons.insights,
-                size: 20,
-                color: MintColors.primary,
-              ),
+              const Icon(Icons.insights, size: 20, color: MintColors.primary),
               const SizedBox(width: 8),
               Text(
-                l10n?.advisorMiniStep2AhaTitle ?? 'Point clé instantané',
+                l10n?.advisorMiniStep2AhaTitle ?? 'Ton canton en bref',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -2018,62 +2005,51 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          // Delta highlight
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: MintColors.lightBorder),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Écart vs moyenne CH',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ),
-                Text(
-                  '${annualDelta >= 0 ? '+' : '-'}CHF $annualDeltaAbs/an',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: annualDelta >= 0 ? MintColors.error : MintColors.success,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            body,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
+          const SizedBox(height: 12),
+          // Retirement horizon
+          Row(
             children: [
-              _buildAhaChip(
-                  'Taux effectif: ${avgRatePercent.toStringAsFixed(1)}%'),
-              _buildAhaChip('Impôt: CHF $taxOn100k/an'),
+              const Icon(Icons.calendar_today, size: 16, color: MintColors.textSecondary),
+              const SizedBox(width: 8),
+              Text(
+                l10n?.advisorMiniStep2AhaHorizon(yearsToRetirement.toString()) ??
+                    'Horizon retraite : ~$yearsToRetirement ans',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          // Canton tax positioning — qualitative
+          Row(
+            children: [
+              const Icon(Icons.account_balance, size: 16, color: MintColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n?.advisorMiniStep2AhaTaxQualitative(cantonName, pressureLabel) ??
+                      'Fiscalité en $cantonName : $pressureLabel par rapport à la moyenne suisse',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Tax pressure chip
+          _buildAhaChip(
+            '$cantonCode · ${l10n?.advisorMiniStep2AhaPressureLabel ?? 'Pression fiscale'} $pressureLabel',
+            color: pressureColor,
+          ),
+          const SizedBox(height: 10),
           Text(
-            'Sur un revenu de référence de CHF 100\'000 net (célibataire, sans enfant). Ordre de grandeur éducatif.',
+            l10n?.advisorMiniStep2AhaQualitativeHint ?? 'On affinera avec ton revenu à l\'étape suivante.',
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -2085,20 +2061,21 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
-  Widget _buildAhaChip(String label) {
+  Widget _buildAhaChip(String label, {Color? color}) {
+    final chipColor = color ?? MintColors.textSecondary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: chipColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: MintColors.lightBorder),
+        border: Border.all(color: chipColor.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,
         style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: MintColors.textSecondary,
+          color: chipColor,
         ),
       ),
     );

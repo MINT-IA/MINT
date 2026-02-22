@@ -49,7 +49,8 @@ void main() {
     final snapshot = provider.buildAnswersSnapshot();
     expect(snapshot['q_household_type'], 'family');
     expect(snapshot['q_civil_status'], 'married');
-    expect(snapshot['q_children'], 1);
+    // family/single_parent don't pre-fill children count — wizard asks for exact count
+    expect(snapshot.containsKey('q_children'), isFalse);
     expect(snapshot['mini_draft_birth_year'], '1991');
     expect(snapshot['q_has_pension_fund'], 'yes');
   });
@@ -90,6 +91,28 @@ void main() {
     expect(provider.canAdvanceFromStep2, isTrue);
   });
 
+  test('concubinage maps to cohabiting and uses individual taxation', () {
+    final provider = OnboardingProvider()
+      ..householdType = 'couple'
+      ..civilStatusChoice = 'concubinage'
+      ..incomeMonthly = 8000
+      ..partnerIncome = 6000
+      ..partnerBirthYear = 1992
+      ..partnerEmploymentStatus = 'employee'
+      ..birthYear = 1990
+      ..canton = 'VD'
+      ..employmentStatus = 'employee';
+
+    final snapshot = provider.buildAnswersSnapshot();
+
+    // civilStatusForHousehold maps 'concubinage' → 'cohabiting' (wizard value)
+    expect(snapshot['q_civil_status'], 'cohabiting');
+    // isConcubinage helper
+    expect(provider.isConcubinage, isTrue);
+    // Individual adult count for LAMal (not couple)
+    expect(provider.adultCountForHousehold('couple'), 1);
+  });
+
   test('switching to single clears partner fields from snapshot', () {
     final provider = OnboardingProvider()
       ..householdType = 'couple'
@@ -111,12 +134,13 @@ void main() {
     expect(snapshot.containsKey('mini_draft_partner_birth_year'), isFalse);
   });
 
-  test('single_parent keeps single civil status with one child', () {
+  test('single_parent keeps single civil status and lets wizard ask children count', () {
     final provider = OnboardingProvider()..householdType = 'single_parent';
     final snapshot = provider.buildAnswersSnapshot();
 
     expect(provider.isHouseholdWithPartner, isFalse);
     expect(snapshot['q_civil_status'], 'single');
-    expect(snapshot['q_children'], 1);
+    // single_parent doesn't pre-fill children — wizard asks for exact count (1, 2, 3+)
+    expect(snapshot.containsKey('q_children'), isFalse);
   });
 }

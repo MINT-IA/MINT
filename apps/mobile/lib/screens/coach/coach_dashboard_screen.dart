@@ -21,6 +21,7 @@ import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
+import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -1975,6 +1976,82 @@ Si une categorie ne s'applique pas, omets-la.
 
   Widget _buildTeaserTrajectory() {
     final l10n = S.of(context);
+
+    // Show REAL trajectory with disclaimer when projection data exists
+    if (_projection != null && _profile != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                l10n?.coachTrajectory ?? 'Ta trajectoire',
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: MintColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Estimation partielle',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.warning,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: MintColors.card,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                MintTrajectoryChart(
+                  result: _projection!,
+                  goalALabel: _profile!.goalA.label,
+                  onTap: () {
+                    final provider = context.read<CoachProfileProvider>();
+                    _openRecommendedWizardSection(provider);
+                  },
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Complete ton diagnostic pour affiner cette projection.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textMuted,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Fallback: blurred teaser when no projection data yet
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2004,7 +2081,6 @@ Si une categorie ne s'applique pas, omets-la.
             clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
-                // ── Placeholder chart (blurred) ──
                 ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
                   child: Padding(
@@ -2018,8 +2094,6 @@ Si une categorie ne s'applique pas, omets-la.
                     ),
                   ),
                 ),
-
-                // ── Overlay with pulsing glow ──
                 Positioned.fill(
                   child: AnimatedBuilder(
                     animation: _pulseAnimation,
@@ -2042,8 +2116,6 @@ Si une categorie ne s'applique pas, omets-la.
                     },
                   ),
                 ),
-
-                // ── Text overlay ──
                 Positioned.fill(
                   child: Center(
                     child: Padding(
@@ -2067,7 +2139,7 @@ Si une categorie ne s'applique pas, omets-la.
                           const SizedBox(height: 12),
                           Text(
                             l10n?.coachTrajectoryPrompt ??
-                                'Ta trajectoire financière t\'attend',
+                                'Ta trajectoire financiere t\'attend',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
@@ -2691,6 +2763,42 @@ Si une categorie ne s'applique pas, omets-la.
     final tauxAvec = _projection!.tauxRemplacementBase;
     final deltaTaux = tauxAvec - tauxSans;
 
+    // Tax savings from 3a + LPP deductions
+    // LIFD art. 9 al. 1: seuls les mariés déclarent conjointement.
+    // Concubins = taxés individuellement (single).
+    double taxSavingsAnnual = 0;
+    double savings3a = 0;
+    double savingsLpp = 0;
+    if (_profile != null) {
+      final profile = _profile!;
+      final isMarriedForTax =
+          profile.etatCivil == CoachCivilStatus.marie;
+      // Married: combined household income (joint filing)
+      // Single/Concubin: only main user's income (individual filing)
+      final netMonthlyForTax = isMarriedForTax
+          ? profile.salaireBrutMensuel * 0.87 +
+              (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87
+          : profile.salaireBrutMensuel * 0.87;
+
+      if (netMonthlyForTax > 0) {
+        final marginalRate = TaxEstimatorService.estimateMarginalTaxRate(
+          netMonthlyIncome: netMonthlyForTax,
+          cantonCode: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+          civilStatus: isMarriedForTax ? 'married' : 'single',
+          communeName:
+              (profile.commune?.isNotEmpty ?? false) ? profile.commune : null,
+        );
+
+        final annual3a = profile.total3aMensuel * 12;
+        final annualLppBuyback = profile.totalLppBuybackMensuel * 12;
+        savings3a =
+            TaxEstimatorService.calculateTaxSavings(annual3a, marginalRate);
+        savingsLpp = TaxEstimatorService.calculateTaxSavings(
+            annualLppBuyback, marginalRate);
+        taxSavingsAnnual = savings3a + savingsLpp;
+      }
+    }
+
     if (deltaCapital <= 0) return const SizedBox.shrink();
 
     return Padding(
@@ -2772,6 +2880,14 @@ Si une categorie ne s'applique pas, omets-la.
               delta: deltaTaux,
               isCurrency: false,
             ),
+            if (taxSavingsAnnual > 0) ...[
+              const SizedBox(height: 14),
+              _buildTaxSavingsRow(
+                totalSavings: taxSavingsAnnual,
+                savings3a: savings3a,
+                savingsLpp: savingsLpp,
+              ),
+            ],
           ],
         ),
       ),
@@ -2843,6 +2959,95 @@ Si une categorie ne s'applique pas, omets-la.
               ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaxSavingsRow({
+    required double totalSavings,
+    required double savings3a,
+    required double savingsLpp,
+  }) {
+    final parts = <String>[];
+    if (savings3a > 0) {
+      parts.add('3a: ${ForecasterService.formatChf(savings3a)}');
+    }
+    if (savingsLpp > 0) {
+      parts.add('LPP: ${ForecasterService.formatChf(savingsLpp)}');
+    }
+    final detail = parts.join(' + ');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Économie d\'impôt annuelle',
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        if (detail.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            detail,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+            ),
+          ),
+        ],
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Text(
+              ForecasterService.formatChf(0),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: MintColors.textMuted,
+                decoration: TextDecoration.lineThrough,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward,
+                size: 14, color: MintColors.success),
+            const SizedBox(width: 8),
+            Text(
+              '${ForecasterService.formatChf(totalSavings)}/an',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const Spacer(),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '+${ForecasterService.formatChf(totalSavings)}',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.success,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'LIFD art. 33 \u00b7 Estimation \u00e9ducative',
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            color: MintColors.textMuted,
+          ),
         ),
       ],
     );

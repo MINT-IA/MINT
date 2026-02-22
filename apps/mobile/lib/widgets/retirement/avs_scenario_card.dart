@@ -65,14 +65,17 @@ class AvsScenarioCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            // Label
-            Text(
-              config.label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
+            // Label — FittedBox prevents overflow on small screens
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                config.label,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -99,8 +102,27 @@ class AvsScenarioCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Penalty/bonus badge
-            if (penalitePct != 0)
+            // Penalty/bonus badge — epsilon for float safety, if/else for correctness
+            if (penalitePct.abs() < 0.01)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: MintColors.info.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Référence',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.info,
+                    ),
+                  ),
+                ),
+              )
+            else
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -117,22 +139,6 @@ class AvsScenarioCard extends StatelessWidget {
                     color: penalitePct < 0
                         ? MintColors.error
                         : MintColors.success,
-                  ),
-                ),
-              ),
-            if (penalitePct == 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: MintColors.info.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'Reference',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.info,
                   ),
                 ),
               ),
@@ -179,7 +185,14 @@ class AvsScenarioCard extends StatelessWidget {
           icon: Icons.fast_forward,
           color: MintColors.info,
         );
+      case 'normal':
+        return _ScenarioConfig(
+          label: 'Normal (65 ans)',
+          icon: Icons.check_circle_outline,
+          color: MintColors.success,
+        );
       default:
+        assert(false, 'Unknown AVS scenario: $scenario');
         return _ScenarioConfig(
           label: 'Normal (65 ans)',
           icon: Icons.check_circle_outline,

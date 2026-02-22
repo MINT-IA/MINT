@@ -91,37 +91,38 @@ class _RetirementScreenState extends State<RetirementScreen>
 
     _profileLoaded = true;
 
-    final isCouple = profile.etatCivil == CoachCivilStatus.marie ||
-        profile.etatCivil == CoachCivilStatus.concubinage ||
-        profile.conjoint != null;
+    // Use canonical isCouple getter (consistent with rest of app)
+    final isCouple = profile.isCouple;
 
-    setState(() {
-      // Tab 1: AVS
-      _ageActuel = profile.age;
-      _isCouple = isCouple;
-      _anneesLacunes = profile.prevoyance.lacunesAVS ?? 0;
+    // Tab 1: AVS
+    _ageActuel = profile.age.clamp(18, 70);
+    _isCouple = isCouple;
+    _anneesLacunes = profile.prevoyance.lacunesAVS ?? 0;
 
-      // Tab 2: LPP
-      if (profile.prevoyance.avoirLppTotal != null &&
-          profile.prevoyance.avoirLppTotal! > 0) {
-        _capitalLpp = profile.prevoyance.avoirLppTotal!;
-      }
-      _cantonLpp = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    // Tab 2: LPP — clamp to slider bounds [100k, 2M]
+    if (profile.prevoyance.avoirLppTotal != null &&
+        profile.prevoyance.avoirLppTotal! > 0) {
+      _capitalLpp = profile.prevoyance.avoirLppTotal!.clamp(100000, 2000000);
+    }
+    _cantonLpp = profile.canton.isNotEmpty ? profile.canton : 'ZH';
 
-      // Tab 3: Budget
-      final netMensuel = profile.salaireBrutMensuel * 0.87;
-      final partnerNet = (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
-      _budgetRevenuPre = netMensuel + partnerNet;
-      _budgetCouple = isCouple;
-      if (profile.depenses.totalMensuel > 0) {
-        _budgetDepenses = profile.depenses.totalMensuel;
-      }
-      if (profile.prevoyance.totalEpargne3a > 0) {
-        _budget3a = profile.prevoyance.totalEpargne3a;
-      }
+    // Tab 3: Budget — clamp to slider bounds
+    final netMensuel = profile.salaireBrutMensuel * 0.87;
+    final partnerNet = (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    _budgetRevenuPre = (netMensuel + partnerNet).clamp(2000, 20000);
+    _budgetCouple = isCouple;
+    if (profile.depenses.totalMensuel > 0) {
+      _budgetDepenses = profile.depenses.totalMensuel.clamp(1000, 15000);
+    }
+    if (profile.prevoyance.totalEpargne3a > 0) {
+      _budget3a = profile.prevoyance.totalEpargne3a;
+    }
 
-      _recalculateAll();
-    });
+    // Recalculate and rebuild once (avoid nested setState)
+    _recalculateAvs();
+    _recalculateLpp();
+    _recalculateBudget();
+    setState(() {});
   }
 
   @override

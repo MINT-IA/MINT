@@ -47,7 +47,8 @@ class WizardQuestionsV2 {
           id: 'q_civil_status',
           title: 'Quelle est ta situation familiale ?',
           subtitle:
-              'Impact fiscal majeur : Marié = Splitting, Concubinage = Aucun avantage',
+              'Impact fiscal majeur : Marie = Splitting. '
+              'Concubinage = ZERO avantage legal (pas de solidarite, pas de succession, pas de rente survivant).',
           type: QuestionType.choice,
           options: [
             QuestionOption(
@@ -384,6 +385,8 @@ class WizardQuestionsV2 {
         ),
 
         // Conjoint — même logique AVS
+        // Condition : marié ou partenariat enregistré (CC art. 65a)
+        // Concubinage EXCLU : pas de rente de couple AVS (LAVS art. 35)
         WizardQuestion(
           id: 'q_spouse_avs_lacunes_status',
           title: 'Et ton/ta conjoint·e, a-t-il/elle des lacunes AVS ?',
@@ -408,7 +411,10 @@ class WizardQuestionsV2 {
                 icon: 'help'),
           ],
           tags: ['prevoyance', 'avs'],
-          condition: (answers) => answers['q_civil_status'] == 'married',
+          condition: (answers) {
+            final civil = answers['q_civil_status'];
+            return civil == 'married' || civil == 'registered_partner';
+          },
         ),
 
         WizardQuestion(
@@ -419,7 +425,10 @@ class WizardQuestionsV2 {
           minValue: 1960,
           maxValue: 2026,
           tags: ['prevoyance', 'avs'],
-          condition: (answers) => answers['q_civil_status'] == 'married',
+          condition: (answers) {
+            final civil = answers['q_civil_status'];
+            return civil == 'married' || civil == 'registered_partner';
+          },
         ),
 
         WizardQuestion(
@@ -430,7 +439,10 @@ class WizardQuestionsV2 {
           minValue: 0,
           maxValue: 40,
           tags: ['prevoyance', 'avs'],
-          condition: (answers) => answers['q_civil_status'] == 'married',
+          condition: (answers) {
+            final civil = answers['q_civil_status'];
+            return civil == 'married' || civil == 'registered_partner';
+          },
         ),
 
         // ═══════════════════════════════════════════════════════════
@@ -517,6 +529,12 @@ class WizardQuestionsV2 {
   /// Retourne un subtitle adapté au profil pour certaines questions
   static String? getDynamicSubtitle(String questionId, Map<String, dynamic> answers) {
     if (questionId == 'q_net_income_period_chf') {
+      // Concubinage: revenu individuel (pas de revenu du ménage)
+      final civil = answers['q_civil_status'];
+      if (civil == 'cohabiting') {
+        return 'TON revenu personnel uniquement. '
+            'En concubinage, chacun est impose individuellement (LIFD art. 9).';
+      }
       final status = answers['q_employment_status'];
       switch (status) {
         case 'retired':

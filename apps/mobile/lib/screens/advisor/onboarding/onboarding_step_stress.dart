@@ -40,7 +40,7 @@ class OnboardingStepStress extends StatelessWidget {
             onTapOutside: (_) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
               labelText: l10n?.advisorMiniFirstNameLabel ?? 'Prénom (optionnel)',
-              hintText: l10n?.advisorMiniFirstNameHint ?? 'Ex: Julien',
+              hintText: l10n?.advisorMiniFirstNameHint ?? 'Prénom',
               filled: true,
               fillColor: MintColors.surface,
               contentPadding:

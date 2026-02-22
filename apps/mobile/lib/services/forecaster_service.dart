@@ -451,13 +451,57 @@ class ForecasterService {
       }
     }
 
-    // Conjoint LPP buyback
+    // Conjoint LPP buyback — split before smart check-in adjustment
     double conjMonthlyLppBuyback = 0;
     for (final c in profile.plannedContributions) {
       if (c.id.contains('lauren') && c.category == 'lpp_buyback') {
         conjMonthlyLppBuyback += c.amount;
         // Remove from main person's total
         monthlyLppBuyback -= c.amount;
+      }
+    }
+
+    // Smart contributions: use max(planned, rolling avg of last 3 check-ins)
+    // This makes projections responsive to actual behavior without punishing
+    // temporary dips (garde-fou: only increases, never decreases).
+    // Average is computed per-month (sum all entries of same category per
+    // check-in) to compare correctly with total planned amounts.
+    if (profile.checkIns.length >= 2) {
+      final recent = profile.checkIns.length > 3
+          ? profile.checkIns.sublist(profile.checkIns.length - 3)
+          : profile.checkIns;
+
+      double sum3a = 0, sumLpp = 0;
+      int monthsWith3a = 0, monthsWithLpp = 0;
+
+      for (final ci in recent) {
+        double monthTotal3a = 0, monthTotalLpp = 0;
+        for (final entry in ci.versements.entries) {
+          final contrib = profile.plannedContributions
+              .where((c) => c.id == entry.key)
+              .firstOrNull;
+          if (contrib == null) continue;
+          if (contrib.category == '3a') {
+            monthTotal3a += entry.value;
+          } else if (contrib.category == 'lpp_buyback') {
+            monthTotalLpp += entry.value;
+          }
+        }
+        if (monthTotal3a > 0) {
+          sum3a += monthTotal3a;
+          monthsWith3a++;
+        }
+        if (monthTotalLpp > 0) {
+          sumLpp += monthTotalLpp;
+          monthsWithLpp++;
+        }
+      }
+
+      if (monthsWith3a > 0) {
+        monthly3a = max(monthly3a, sum3a / monthsWith3a);
+      }
+      if (monthsWithLpp > 0) {
+        monthlyLppBuyback = max(monthlyLppBuyback, sumLpp / monthsWithLpp);
       }
     }
 

@@ -56,7 +56,7 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
     final employmentStatus = provider.employmentStatus;
     final householdType = provider.householdType;
     final housingStatus = provider.housingStatus;
-    final canContinue = provider.canAdvanceFromStep3;
+    final canContinue = provider.canAdvanceFromStep2;
 
     // Auto-scroll to partner section when household switches to couple/family
     final isNowPartner = householdType == 'couple' || householdType == 'family';
@@ -261,7 +261,7 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
                 labelText: l10n?.advisorMiniPartnerFirstNameLabel ??
                     'Prénom du/de la partenaire (optionnel)',
                 hintText:
-                    l10n?.advisorMiniPartnerFirstNameHint ?? 'Ex: Lauren',
+                    l10n?.advisorMiniPartnerFirstNameHint ?? 'Prénom',
               ),
             ),
             const SizedBox(height: 12),
@@ -602,16 +602,23 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
   String _buildPrefillHintText(OnboardingProvider provider, S? l10n) {
     final canton = provider.canton ?? '?';
     final household = provider.householdType ?? 'single';
-    final isCouple = household == 'couple' || household == 'family';
+    final isCouple = (household == 'couple' || household == 'family')
+        && !provider.isConcubinage;
     final parts = <String>[];
 
-    // Tax basis
+    // Tax basis — clarify this is computed from the income above
+    // Concubinage = individual taxation, not couple
     if (provider.taxProvisionMonthly != null) {
-      final taxBasis = isCouple
-          ? (l10n?.advisorMiniPrefillTaxCouple(canton) ??
-              'Impôts estimés sur ton revenu (canton $canton, statut couple)')
-          : (l10n?.advisorMiniPrefillTaxSingle(canton) ??
-              'Impôts estimés sur ton revenu (canton $canton)');
+      String taxBasis;
+      if (provider.isConcubinage) {
+        taxBasis = 'Impots individuels (concubinage = pas de splitting, canton $canton)';
+      } else if (isCouple) {
+        taxBasis = l10n?.advisorMiniPrefillTaxCouple(canton) ??
+            'Pré-rempli d\'après ton revenu ci-dessus (canton $canton, couple)';
+      } else {
+        taxBasis = l10n?.advisorMiniPrefillTaxSingle(canton) ??
+            'Pré-rempli d\'après ton revenu ci-dessus (canton $canton)';
+      }
       parts.add(taxBasis);
     }
 

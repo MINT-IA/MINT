@@ -114,7 +114,9 @@ class TaxEstimatorService {
     required String civilStatus,
     String? communeName, // Commune pour multiplicateur précis
   }) {
-    final double taxableIncome = netMonthlyIncome * 12;
+    // Apply same deductions as estimateAnnualTax (LIFD art. 26, 33, 33a)
+    final double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
+    final double taxableIncome = netMonthlyIncome * 12 * (1 - deductionRate);
 
     // Mapping statut
     String tariff = "Single, no children";
@@ -147,7 +149,7 @@ class TaxEstimatorService {
       // Ajouter marginal fédéral (LIFD art. 36)
       totalMarginal += _getIfdMarginalRate(taxableIncome, civilStatus);
 
-      return totalMarginal.clamp(0.10, 0.45);
+      return totalMarginal.clamp(0.05, 0.45);
     }
 
     // Fallback
@@ -160,7 +162,7 @@ class TaxEstimatorService {
     final grossAnnual = (netMonthlyIncome * 12) / _netToGrossFactor;
     if (grossAnnual == 0) return 0.0;
     final effectiveRate = annualTax / grossAnnual;
-    return (effectiveRate * _marginalMultiplier).clamp(0.10, 0.45);
+    return (effectiveRate * _marginalMultiplier).clamp(0.05, 0.45);
   }
 
   static double calculateTaxSavings(

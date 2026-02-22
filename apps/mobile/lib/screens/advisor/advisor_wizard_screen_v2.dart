@@ -62,8 +62,28 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       'property' || 'patrimoine' => 27,
       _ => 0,
     };
+    final sectionEndIndex = switch (section) {
+      'identity' || 'profil' => 6,
+      'income' || 'budget' => 15,
+      'pension' || 'prevoyance' => 27,
+      'property' || 'patrimoine' => _questions.length,
+      _ => _questions.length,
+    };
     setState(() {
-      _currentQuestionIndex = sectionIndex;
+      // Find first UNANSWERED question in this section (skip already-filled)
+      for (int i = sectionIndex; i < sectionEndIndex && i < _questions.length; i++) {
+        final q = _questions[i];
+        if (!WizardConditionsService.shouldAskQuestion(q.id, _answers)) continue;
+        if (_answers.containsKey(q.id)) {
+          if (!_questionHistory.contains(q.id)) _questionHistory.add(q.id);
+          continue;
+        }
+        // Found first unanswered question in this section
+        _currentQuestionIndex = i;
+        return;
+      }
+      // All questions in this section answered — find first unanswered globally
+      _recalculateCurrentStep();
     });
   }
 
@@ -613,6 +633,22 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         }
 
       case 'q_civil_status':
+        final civilAnswer = _answers['q_civil_status'] as String?;
+        if (civilAnswer == 'cohabiting') {
+          // Concubinage: Swiss CFA-level warnings
+          return _buildMindBlowingInsight(
+            icon: Icons.warning_amber,
+            title: 'CONCUBINAGE : ZERO PROTECTION LEGALE',
+            text: 'Le concubinage n\'existe PAS en droit suisse (CC). '
+                'Consequences : pas de rente de survivant AVS, '
+                'pas de beneficiaire LPP automatique, '
+                'pas de droits successoraux, '
+                'pas de splitting fiscal. '
+                'Actions urgentes : testament, clause beneficiaire LPP/3a, '
+                'assurance deces croisee.',
+            color: Colors.red.shade700,
+          );
+        }
         return _buildMindBlowingInsight(
           icon: Icons.balance_outlined,
           title: 'IMPACT FISCAL',

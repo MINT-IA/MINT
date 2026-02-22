@@ -583,4 +583,162 @@ void main() {
       expect(etSi.prudent.capitalFinal, greaterThan(0));
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  SMART CHECK-IN CONTRIBUTIONS
+  // ════════════════════════════════════════════════════════════
+
+  group('ForecasterService - Smart check-in contributions', () {
+    late CoachProfile demo;
+
+    setUp(() {
+      demo = CoachProfile.buildDemo();
+    });
+
+    MonthlyCheckIn _makeCheckIn(DateTime month, Map<String, double> v) {
+      return MonthlyCheckIn(
+        month: month,
+        versements: v,
+        completedAt: month.add(const Duration(days: 28)),
+      );
+    }
+
+    test('0 check-ins: projection uses planned values only', () {
+      // Demo has 0 check-ins by default
+      expect(demo.checkIns, isEmpty);
+      final result = ForecasterService.project(profile: demo);
+      expect(result.base.capitalFinal, greaterThan(0));
+    });
+
+    test('1 check-in: smart block skipped (requires >= 2)', () {
+      final profile = demo.copyWithCheckIns([
+        _makeCheckIn(DateTime(2026, 1, 1), {
+          '3a_julien': 900,
+          '3a_lauren': 900,
+        }),
+      ]);
+      final resultWith = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // With only 1 check-in, should be identical to base
+      expect(resultWith.base.capitalFinal, resultBase.base.capitalFinal);
+    });
+
+    test('2 check-ins with higher 3a: projection increases', () {
+      final profile = demo.copyWithCheckIns([
+        _makeCheckIn(DateTime(2026, 1, 1), {
+          '3a_julien': 900,
+          '3a_lauren': 900,
+          'lpp_buyback_julien': 1000,
+          'lpp_buyback_lauren': 500,
+        }),
+        _makeCheckIn(DateTime(2026, 2, 1), {
+          '3a_julien': 900,
+          '3a_lauren': 900,
+          'lpp_buyback_julien': 1000,
+          'lpp_buyback_lauren': 500,
+        }),
+      ]);
+      final resultSmart = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // Actual 3a = 1800/month > planned 1209.66/month → capital should increase
+      expect(resultSmart.base.capitalFinal,
+          greaterThan(resultBase.base.capitalFinal));
+    });
+
+    test('check-ins with lower amounts: garde-fou prevents decrease', () {
+      final profile = demo.copyWithCheckIns([
+        _makeCheckIn(DateTime(2026, 1, 1), {
+          '3a_julien': 200,
+          '3a_lauren': 200,
+          'lpp_buyback_julien': 300,
+        }),
+        _makeCheckIn(DateTime(2026, 2, 1), {
+          '3a_julien': 200,
+          '3a_lauren': 200,
+          'lpp_buyback_julien': 300,
+        }),
+      ]);
+      final resultSmart = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // Garde-fou: max(planned, actual) → should not decrease
+      expect(resultSmart.base.capitalFinal,
+          greaterThanOrEqualTo(resultBase.base.capitalFinal));
+    });
+
+    test('3+ check-ins: only last 3 are used', () {
+      final profile = demo.copyWithCheckIns([
+        // Old check-in with very high amount (should be ignored)
+        _makeCheckIn(DateTime(2025, 10, 1), {
+          '3a_julien': 3000,
+          '3a_lauren': 3000,
+        }),
+        // Recent 3 check-ins with moderate increase
+        _makeCheckIn(DateTime(2026, 1, 1), {
+          '3a_julien': 700,
+          '3a_lauren': 700,
+        }),
+        _makeCheckIn(DateTime(2026, 2, 1), {
+          '3a_julien': 700,
+          '3a_lauren': 700,
+        }),
+        _makeCheckIn(DateTime(2026, 3, 1), {
+          '3a_julien': 700,
+          '3a_lauren': 700,
+        }),
+      ]);
+      final result = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // Rolling avg of last 3 = 1400/mo > planned 1209.66 → increases
+      expect(result.base.capitalFinal,
+          greaterThan(resultBase.base.capitalFinal));
+    });
+
+    test('check-ins with empty versements: no crash', () {
+      final profile = demo.copyWithCheckIns([
+        _makeCheckIn(DateTime(2026, 1, 1), {}),
+        _makeCheckIn(DateTime(2026, 2, 1), {}),
+      ]);
+      final result = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // Empty versements → counts stay 0, planned values used
+      expect(result.base.capitalFinal, resultBase.base.capitalFinal);
+    });
+
+    test('check-ins with unknown IDs: gracefully skipped', () {
+      final profile = demo.copyWithCheckIns([
+        _makeCheckIn(DateTime(2026, 1, 1), {
+          'unknown_contribution': 5000,
+          'also_unknown': 3000,
+        }),
+        _makeCheckIn(DateTime(2026, 2, 1), {
+          'unknown_contribution': 5000,
+        }),
+      ]);
+      final result = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // Unknown IDs are skipped → same as planned
+      expect(result.base.capitalFinal, resultBase.base.capitalFinal);
+    });
+
+    test('per-month averaging: couple 3a entries summed per month', () {
+      // This tests CRIT-C1 fix: average should be per-month, not per-entry
+      // Planned total 3a = 604.83 + 604.83 = 1209.66/month
+      // Actual per month = 800 + 800 = 1600/month → should trigger increase
+      final profile = demo.copyWithCheckIns([
+        _makeCheckIn(DateTime(2026, 1, 1), {
+          '3a_julien': 800,
+          '3a_lauren': 800,
+        }),
+        _makeCheckIn(DateTime(2026, 2, 1), {
+          '3a_julien': 800,
+          '3a_lauren': 800,
+        }),
+      ]);
+      final resultSmart = ForecasterService.project(profile: profile);
+      final resultBase = ForecasterService.project(profile: demo);
+      // Per-month total 1600 > planned 1209.66 → capital must increase
+      expect(resultSmart.base.capitalFinal,
+          greaterThan(resultBase.base.capitalFinal));
+    });
+  });
 }

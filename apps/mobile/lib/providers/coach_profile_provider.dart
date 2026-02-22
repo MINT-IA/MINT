@@ -39,19 +39,22 @@ class CoachProfileProvider extends ChangeNotifier {
   bool get hasFullProfile => _profile != null && !_isPartialProfile;
 
   /// Niveau de completude du profil (0.0 a 1.0).
-  /// Mini-onboarding = ~0.15, wizard complet = ~0.60, wizard + documents = 1.0.
+  /// Dynamique: ratio des signaux qualite renseignes sur le total.
+  /// Plancher: partial=0.10, full=0.60.
   double get profileCompleteness {
     if (_profile == null) return 0.0;
-    if (_isPartialProfile) return 0.15;
-    // Full wizard = 0.60 base (documents ajouteraient le reste)
-    return 0.60;
+    final total = onboardingTotalSignals;
+    if (total == 0) return _isPartialProfile ? 0.10 : 0.60;
+    final raw = onboardingAnsweredSignals / total;
+    if (_isPartialProfile) return raw.clamp(0.10, 0.55);
+    return raw.clamp(0.60, 1.0);
   }
 
   /// Nombre de donnees renseignees (pour le badge precision).
+  /// Dynamique: compte les signaux qualite effectivement remplis.
   int get dataPointsCount {
     if (_profile == null) return 0;
-    if (_isPartialProfile) return 4; // birthYear, canton, revenu, statut
-    return 25; // wizard complet
+    return onboardingAnsweredSignals;
   }
 
   /// Dernier score enregistre (pour le calcul de tendance).
