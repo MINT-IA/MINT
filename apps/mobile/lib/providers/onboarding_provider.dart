@@ -16,6 +16,7 @@ class OnboardingProvider extends ChangeNotifier {
   String? householdType;
   String? mainGoal;
   String? housingStatus;
+  String? residencePermit;
 
   int? birthYear;
   double? incomeMonthly;
@@ -63,6 +64,7 @@ class OnboardingProvider extends ChangeNotifier {
   Map<String, int> variantMetrics = const {};
 
   Timer? _autoSaveDebounce;
+  Timer? _partnerCleanupTimer;
   bool _isDisposed = false;
 
   // 3-step flow: Step 1 = Essentials, Step 2 = Income, Step 3 = Goal
@@ -75,7 +77,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   bool get canAdvanceFromStep2 {
-    final hasHousing = housingStatus == 'hosted' ||
+    final hasHousing = housingStatus == 'family' ||
         (housingStatus != null && _effectiveHousingCost > 0);
     final hasCoreIncomeData = _effectiveIncome > 0 &&
         hasHousing &&
@@ -186,6 +188,10 @@ class OnboardingProvider extends ChangeNotifier {
     householdType = answers['q_household_type'] as String?;
     mainGoal = answers['q_main_goal'] as String?;
     housingStatus = answers['q_housing_status'] as String?;
+    residencePermit = answers['q_residence_permit'] as String?;
+    // Migrate legacy housing values → wizard-aligned values
+    if (housingStatus == 'tenant') housingStatus = 'renter';
+    if (housingStatus == 'hosted') housingStatus = 'family';
 
     birthYear = _toInt(answers['q_birth_year']);
     incomeMonthly = _toDouble(answers['q_net_income_period_chf']);
@@ -331,6 +337,18 @@ class OnboardingProvider extends ChangeNotifier {
     _safeNotify();
   }
 
+  void setResidencePermit(String? value) {
+    residencePermit = value;
+    _tryPrefillFixedCosts();
+    scheduleAutoSave('permit_changed');
+    _safeNotify();
+  }
+
+  /// Whether the user is source-taxed (LIFD art. 83-86 / art. 91)
+  /// Permis B (séjour) and Permis G (frontalier) = impôt à la source
+  bool get isSourceTaxed =>
+      residencePermit == 'permit_b' || residencePermit == 'permit_g';
+
   void setEmploymentStatus(String? value) {
     employmentStatus = value;
     scheduleAutoSave('employment_changed');
@@ -350,6 +368,8 @@ class OnboardingProvider extends ChangeNotifier {
       draftPartnerIncome = null;
       draftPartnerBirthYear = null;
       draftPartnerFirstName = null;
+      // Purge partner keys from persisted answers to avoid phantom partner on reload
+      _schedulePartnerCleanup();
     }
     scheduleAutoSave('household_changed');
     _safeNotify();
@@ -521,7 +541,7 @@ class OnboardingProvider extends ChangeNotifier {
         civilStatus: civil,
         childrenCount: children,
         age: currentAge,
-        isSourceTaxed: false,
+        isSourceTaxed: isSourceTaxed,
       ),
     );
 
@@ -548,6 +568,39 @@ class OnboardingProvider extends ChangeNotifier {
 
     scheduleAutoSave('fixed_cost_prefill');
     _safeNotify();
+  }
+
+  void _schedulePartnerCleanup() {
+    // Use a separate timer so scheduleAutoSave() doesn't cancel us
+    _partnerCleanupTimer?.cancel();
+    _partnerCleanupTimer = Timer(
+      OnboardingConstants.autoSaveDebounce + const Duration(milliseconds: 100),
+      () {
+        unawaited(() async {
+          final existing = await ReportPersistenceService.loadAnswers();
+          const partnerKeys = [
+            'q_partner_net_income_chf',
+            'q_partner_firstname',
+            'q_partner_birth_year',
+            'q_partner_employment_status',
+            'q_civil_status_choice',
+            'mini_draft_partner_income',
+            'mini_draft_partner_birth_year',
+            'mini_draft_partner_firstname',
+          ];
+          var changed = false;
+          for (final key in partnerKeys) {
+            if (existing.containsKey(key)) {
+              existing.remove(key);
+              changed = true;
+            }
+          }
+          if (changed) {
+            await ReportPersistenceService.saveAnswers(existing);
+          }
+        }());
+      },
+    );
   }
 
   void _tryPrefillHousingCost() {
@@ -582,6 +635,9 @@ class OnboardingProvider extends ChangeNotifier {
     if (canton != null) {
       snapshot['q_canton'] = canton;
     }
+    if (residencePermit != null) {
+      snapshot['q_residence_permit'] = residencePermit;
+    }
     if (_effectiveIncome > 0) {
       snapshot['q_net_income_period_chf'] = _effectiveIncome;
     }
@@ -608,11 +664,11 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if (_effectivePillar3a > 0) {
       snapshot['q_has_3a'] = 'yes';
-      snapshot['q_3a_accounts_count'] = 1;
+      snapshot['q_3a_accounts_count'] = '1';
       snapshot['q_3a_total'] = _effectivePillar3a;
     } else {
       snapshot['q_has_3a'] = 'no';
-      snapshot['q_3a_accounts_count'] = 0;
+      snapshot['q_3a_accounts_count'] = '0';
     }
     if (employmentStatus != null) {
       snapshot['q_employment_status'] = employmentStatus;
@@ -624,7 +680,7 @@ class OnboardingProvider extends ChangeNotifier {
     // Only pre-fill children count when we're certain (0 for single/couple).
     // For family/single_parent, let the wizard ask for exact count (1, 2, 3+).
     if (household == 'single' || household == 'couple') {
-      snapshot['q_children'] = 0;
+      snapshot['q_children'] = '0';
     }
 
     if ((taxProvisionMonthly ?? 0) > 0) {
@@ -638,6 +694,34 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if (mainGoal != null) {
       snapshot['q_main_goal'] = mainGoal;
+    }
+
+    // Compute savings monthly (deduced — q_savings_monthly removed from wizard)
+    final computedSavings = _effectiveIncome
+        - _effectiveHousingCost
+        - (taxProvisionMonthly ?? 0)
+        - (lamalPremiumMonthly ?? 0)
+        - (otherFixedCostsMonthly ?? 0)
+        - _effectiveDebtPayments;
+    if (computedSavings > 0) {
+      snapshot['q_savings_monthly'] = computedSavings;
+    }
+
+    // Compute emergency fund coverage (deduced — q_emergency_fund removed from wizard)
+    final monthlyExpenses = _effectiveHousingCost
+        + (taxProvisionMonthly ?? 0)
+        + (lamalPremiumMonthly ?? 0)
+        + (otherFixedCostsMonthly ?? 0)
+        + _effectiveDebtPayments;
+    if (monthlyExpenses > 0 && _effectiveCashSavings > 0) {
+      final monthsCovered = _effectiveCashSavings / monthlyExpenses;
+      if (monthsCovered >= 6) {
+        snapshot['q_emergency_fund'] = 'yes_6months';
+      } else if (monthsCovered >= 3) {
+        snapshot['q_emergency_fund'] = 'yes_3months';
+      } else {
+        snapshot['q_emergency_fund'] = 'no';
+      }
     }
 
     // Partner data (couple / family only)
@@ -805,7 +889,7 @@ class OnboardingProvider extends ChangeNotifier {
       'q_savings_allocation': const ['epargne_libre'],
       'q_main_goal': mainGoal ?? 'retirement',
       'q_household_type': householdType ?? 'single',
-      'q_housing_status': housingStatus ?? 'tenant',
+      'q_housing_status': housingStatus ?? 'renter',
       'q_housing_cost_period_chf': _effectiveHousingCost > 0
           ? _effectiveHousingCost
           : (0.28 * _effectiveIncome).roundToDouble(),
@@ -816,7 +900,7 @@ class OnboardingProvider extends ChangeNotifier {
       'q_investments_total': _effectiveInvestments,
       'q_has_3a': _effectivePillar3a > 0 ? 'yes' : 'no',
       'q_3a_total': _effectivePillar3a,
-      'q_3a_accounts_count': _effectivePillar3a > 0 ? 1 : 0,
+      'q_3a_accounts_count': _effectivePillar3a > 0 ? '1' : '0',
     };
 
     final profile = CoachProfile.fromWizardAnswers(answers);
@@ -859,6 +943,7 @@ class OnboardingProvider extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     _autoSaveDebounce?.cancel();
+    _partnerCleanupTimer?.cancel();
     super.dispose();
   }
 }

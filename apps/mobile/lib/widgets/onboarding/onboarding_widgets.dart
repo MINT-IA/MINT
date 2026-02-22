@@ -353,3 +353,156 @@ class OnboardingContinueButton extends StatelessWidget {
     );
   }
 }
+
+/// "Voici ce que ton coach a déduit" — confirmation card for wizard.
+/// Shows computed/inferred data so the user can confirm or correct.
+class CoachDeductionCard extends StatelessWidget {
+  final List<DeductionItem> items;
+  final VoidCallback onConfirm;
+  final VoidCallback onCorrect;
+
+  const CoachDeductionCard({
+    super.key,
+    required this.items,
+    required this.onConfirm,
+    required this.onCorrect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.coachBubble,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.psychology_outlined, size: 20, color: MintColors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Voici ce que ton coach a déduit',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...items.map((item) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Icon(
+                  item.isPositive ? Icons.check_circle : Icons.warning_amber,
+                  size: 16,
+                  color: item.isPositive ? MintColors.success : MintColors.warning,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.label,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        item.value,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  item.source,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: MintColors.textMuted,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          )),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onCorrect,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: const BorderSide(color: MintColors.lightBorder),
+                  ),
+                  child: Text(
+                    'Corriger',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: FilledButton(
+                  onPressed: onConfirm,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'C\'est correct',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DeductionItem {
+  final String label;
+  final String value;
+  final String source;
+  final bool isPositive;
+
+  const DeductionItem({
+    required this.label,
+    required this.value,
+    required this.source,
+    this.isPositive = true,
+  });
+}

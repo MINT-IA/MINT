@@ -84,6 +84,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final keys = <String>[
       'q_birth_year',
       'q_canton',
+      'q_residence_permit',
       'q_net_income_period_chf',
       'q_employment_status',
       'q_household_type',
@@ -177,10 +178,9 @@ class CoachProfileProvider extends ChangeNotifier {
             _isAnswered(_lastAnswers['q_avs_lacunes_status']));
     if (!pensionComplete) return 'pension';
 
-    final propertyComplete = _isAnswered(_lastAnswers['q_housing_status']) ||
-        _isAnswered(_lastAnswers['q_real_estate_value']) ||
-        _isAnswered(_lastAnswers['q_has_mortgage']) ||
-        _isAnswered(_lastAnswers['q_total_consumer_debt']);
+    final propertyComplete = _isAnswered(_lastAnswers['q_has_investments']) ||
+        _isAnswered(_lastAnswers['q_real_estate_project']) ||
+        _isAnswered(_lastAnswers['q_risk_tolerance']);
     if (!propertyComplete) return 'property';
 
     return 'income';

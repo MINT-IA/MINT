@@ -50,30 +50,32 @@ void main() {
       );
     });
 
-    test('investments allowed with debt=no and emergency=yes_3months', () {
+    test('investments allowed with no debt and sufficient cash reserve', () {
       final answers = <String, dynamic>{
         'q_has_consumer_debt': 'no',
-        'q_emergency_fund': 'yes_3months',
+        'q_cash_total': 30000.0,
+        'q_housing_cost_period_chf': 2000.0,
+        'q_tax_provision_monthly_chf': 800.0,
+        'q_lamal_premium_monthly_chf': 400.0,
       };
-      // yes_3months is not 'no', so emergency fund condition passes
+      // cash / expenses = 30000 / 3200 = 9.4 months => has emergency fund
       expect(
         WizardConditionsService.shouldAskQuestion('q_has_investments', answers),
         true,
       );
     });
 
-    test('investments skipped when emergency fund absent (defaults to no)', () {
-      // q_emergency_fund not in answers => answers['q_emergency_fund'] == 'no' is false
-      // but the logic checks: answers['q_emergency_fund'] == 'no'
-      // null == 'no' is false => emergencyFund = false => condition passes? No.
-      // Let's verify the actual behavior:
-      // hasDebt = (null == 'yes') = false
-      // emergencyFund = (null == 'no') = false
-      // if (hasDebt || emergencyFund) => false || false => does NOT skip
-      final answers = <String, dynamic>{};
+    test('investments skipped when no cash reserve (computed emergency fund)', () {
+      // No cash or expenses => computed emergency fund is false (cash <= 10000)
+      final answers = <String, dynamic>{
+        'q_has_consumer_debt': 'no',
+        'q_cash_total': 5000.0,
+        'q_housing_cost_period_chf': 2000.0,
+      };
+      // cash / expenses = 5000 / 2000 = 2.5 months < 3 => no emergency fund
       expect(
         WizardConditionsService.shouldAskQuestion('q_has_investments', answers),
-        true,
+        false,
       );
     });
 
@@ -87,10 +89,7 @@ void main() {
             'q_3a_accounts_count', answers),
         false,
       );
-      expect(
-        WizardConditionsService.shouldAskQuestion('q_3a_providers', answers),
-        false,
-      );
+      // q_3a_providers was removed (low value, zero calc impact)
       expect(
         WizardConditionsService.shouldAskQuestion(
             'q_3a_annual_contribution', answers),
@@ -104,10 +103,7 @@ void main() {
         WizardConditionsService.shouldAskQuestion('q_3a_accounts_count', {}),
         false,
       );
-      expect(
-        WizardConditionsService.shouldAskQuestion('q_3a_providers', {}),
-        false,
-      );
+      // q_3a_providers was removed (low value, zero calc impact)
       expect(
         WizardConditionsService.shouldAskQuestion(
             'q_3a_annual_contribution', {}),
@@ -352,7 +348,9 @@ void main() {
         'q_has_3a': 'yes',
         'q_has_pension_fund': 'yes',
         'q_has_consumer_debt': 'no',
-        'q_emergency_fund': 'yes_6months',
+        'q_cash_total': 50000.0, // Computed emergency fund via cash/expenses
+        'q_housing_cost_period_chf': 2000.0,
+        'q_employment_status': 'employee',
       };
 
       final singleNoGaps = <String, dynamic>{
@@ -361,7 +359,6 @@ void main() {
         'q_has_3a': 'no',
         'q_has_pension_fund': 'no',
         'q_has_consumer_debt': 'yes',
-        'q_emergency_fund': 'no',
       };
 
       final totalMarried =
@@ -380,18 +377,22 @@ void main() {
         'q_has_pension_fund': 'yes',
         'q_has_3a': 'yes',
         'q_has_consumer_debt': 'no',
-        'q_emergency_fund': 'yes_6months',
+        'q_cash_total': 50000.0, // Enough cash for computed emergency fund
+        'q_housing_cost_period_chf': 2000.0,
         'q_avs_lacunes_status': 'arrived_late',
         'q_civil_status': 'married',
+        'q_spouse_avs_lacunes_status': 'arrived_late',
+        'q_employment_status': 'employee',
       };
 
       final total = WizardConditionsService.calculateTotalSteps(maxProfile);
       final allCount = WizardQuestionsV2.questions.length;
 
       // Maximal profile should include all or nearly all questions
-      // Not exactly allCount because arrived_late and lived_abroad are
-      // mutually exclusive (same for spouse variants)
-      expect(total, greaterThanOrEqualTo(allCount - 6));
+      // Skipped: q_has_pension_fund (pre-answered), arrived_late vs lived_abroad
+      // mutually exclusive (2 own + 2 spouse = 4), housing_cost (not family)
+      // q_3a_providers removed. Net: allCount - ~8
+      expect(total, greaterThanOrEqualTo(allCount - 10));
     });
 
     test('step count never exceeds total questions', () {
@@ -428,9 +429,11 @@ void main() {
         'q_has_pension_fund': 'yes',
         'q_has_3a': 'yes',
         'q_has_consumer_debt': 'no',
-        'q_emergency_fund': 'yes_6months',
+        'q_cash_total': 50000.0, // Computed emergency fund via cash/expenses
+        'q_housing_cost_period_chf': 2000.0,
         'q_avs_lacunes_status': 'arrived_late',
         'q_civil_status': 'married',
+        'q_employment_status': 'employee',
       };
 
       final questions = WizardQuestionsV2.questions;
@@ -460,7 +463,7 @@ void main() {
         'q_has_pension_fund': 'no',
         'q_has_3a': 'no',
         'q_has_consumer_debt': 'yes',
-        'q_emergency_fund': 'no',
+        'q_cash_total': 1000.0, // Low cash → no emergency fund (computed)
         'q_avs_lacunes_status': 'no_gaps',
         'q_civil_status': 'single',
       };

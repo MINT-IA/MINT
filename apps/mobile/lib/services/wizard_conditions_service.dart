@@ -22,27 +22,30 @@ class WizardConditionsService {
     }
 
     // 2. Logique Statut Professionnel & LPP
-    // La question q_has_pension_fund est pertinente pour tous,
-    // mais on peut la pré-remplir ou sauter si on voulait être agressif.
-    // Pour l'instant on la garde pour tout le monde pour confirmer.
+    // Skip if already inferred from mini-onboarding (employee + income > threshold)
+    if (questionId == 'q_has_pension_fund') {
+      if (answers.containsKey('q_has_pension_fund')) return false;
+      final status = answers['q_employment_status'];
+      if (status == 'student' || status == 'retired') return false;
+    }
 
-    // 3. Logique Budget & Dettes
-    // Si "Dettes de consommation" = OUI (q_has_consumer_debt == 'yes'),
-    // On pourrait prioriser le fonds d'urgence et sauter l'investissement.
+    // 3. Logique Budget & Dettes — computed emergency fund (no longer asked)
+    // Si dettes OU pas de fonds d'urgence critique -> Mode Protection
+    // (MINT Philosophie : Protection d'abord)
     if (questionId == 'q_has_investments') {
       final hasDebt = answers['q_has_consumer_debt'] == 'yes';
-      final emergencyFund = answers['q_emergency_fund'] == 'no';
-
-      // Si dettes OU pas de fonds d'urgence critique -> Mode Protection
-      // On évite de parler d'investissements exotiques pour ne pas distraire
-      // (MINT Philosophie : Protection d'abord)
-      if (hasDebt || emergencyFund) return false;
+      // Compute emergency fund from cash / monthly expenses
+      final cash = _toDouble(answers['q_cash_total']) ?? 0;
+      final monthlyExpenses = _estimateMonthlyExpenses(answers);
+      final hasEmergencyFund = monthlyExpenses > 0
+          ? cash / monthlyExpenses >= 3
+          : cash > 10000;
+      if (hasDebt || !hasEmergencyFund) return false;
     }
 
     // 4. Logique Prévoyance 3a
     // Si pas de 3a, on saute les questions de détails
     if (questionId == 'q_3a_accounts_count' ||
-        questionId == 'q_3a_providers' ||
         questionId == 'q_3a_annual_contribution') {
       final has3a = answers['q_has_3a'];
       if (has3a != 'yes') return false;
@@ -83,13 +86,7 @@ class WizardConditionsService {
       if (answers['q_has_consumer_debt'] != 'yes') return false;
     }
 
-    // 8. Logique Emploi → LPP non pertinent pour étudiants et retraités
-    if (questionId == 'q_has_pension_fund') {
-      final status = answers['q_employment_status'];
-      if (status == 'student' || status == 'retired') return false;
-    }
-
-    // 9. Logique Emploi → Rachat LPP impossible pour retraités et sans emploi
+    // 8. Logique Emploi → Rachat LPP impossible pour retraités et sans emploi
     if (questionId == 'q_lpp_buyback_available') {
       final status = answers['q_employment_status'];
       if (status == 'retired' || status == 'unemployed' || status == 'student') {
@@ -97,12 +94,12 @@ class WizardConditionsService {
       }
     }
 
-    // 10. Logique Logement → Pas de coût si chez parents
+    // 9. Logique Logement → Pas de coût si chez parents
     if (questionId == 'q_housing_cost_period_chf') {
       if (answers['q_housing_status'] == 'family') return false;
     }
 
-    // 11. Logique Âge → Rachat LPP pas avant 25 ans (épargne LPP commence à 25)
+    // 10. Logique Âge → Rachat LPP pas avant 25 ans (épargne LPP commence à 25)
     if (questionId == 'q_lpp_buyback_available') {
       final birthYear = answers['q_birth_year'];
       if (birthYear != null) {
@@ -111,7 +108,49 @@ class WizardConditionsService {
       }
     }
 
+    // 11. Logique Taux d'activité → seulement pour salariés
+    if (questionId == 'q_activity_rate') {
+      return answers['q_employment_status'] == 'employee';
+    }
+
+    // 12. Logique Revenu brut → seulement pour salariés (indépendants reportent le net)
+    if (questionId == 'q_gross_income') {
+      return answers['q_employment_status'] == 'employee';
+    }
+
+    // 13. Logique Capital LPP → seulement si caisse de pension
+    if (questionId == 'q_lpp_current_capital') {
+      final hasPension = answers['q_has_pension_fund'];
+      if (hasPension == 'no' || hasPension == 'unknown') return false;
+      // Also skip for students/retired (same logic as buyback)
+      final status = answers['q_employment_status'];
+      if (status == 'student' || status == 'retired') return false;
+    }
+
+    // 14. Logique Immobilier existant → seulement pour propriétaires
+    if (questionId == 'q_property_value' || questionId == 'q_mortgage_balance') {
+      return answers['q_housing_status'] == 'owner';
+    }
+
     return true; // Par défaut, on pose la question
+  }
+
+  /// Estime les dépenses mensuelles totales à partir des réponses connues.
+  /// Utilisé pour le calcul du fonds d'urgence déduit.
+  static double _estimateMonthlyExpenses(Map<String, dynamic> answers) {
+    final housing = _toDouble(answers['q_housing_cost_period_chf']) ?? 0;
+    final debt = _toDouble(answers['q_debt_payments_period_chf']) ?? 0;
+    final tax = _toDouble(answers['q_tax_provision_monthly_chf']) ?? 0;
+    final lamal = _toDouble(answers['q_lamal_premium_monthly_chf']) ?? 0;
+    final other = _toDouble(answers['q_other_fixed_costs_monthly_chf']) ?? 0;
+    return housing + debt + tax + lamal + other;
+  }
+
+  static double? _toDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value.toString().replaceAll("'", '').trim());
   }
 
   /// Retourne la prochaine question applicable à partir de l'ID actuel

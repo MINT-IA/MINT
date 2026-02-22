@@ -16,6 +16,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 /// Wizard V2 avec ordre logique : Profil → Budget → Prévoyance → Patrimoine
 class AdvisorWizardScreenV2 extends StatefulWidget {
@@ -30,6 +31,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   final Map<String, dynamic> _answers = {};
   int _currentQuestionIndex = 0;
   late List<WizardQuestion> _questions;
+  bool _showDeductionScreen = false;
 
   @override
   void initState() {
@@ -45,27 +47,108 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         setState(() {
           _answers.addAll(savedAnswers);
           _recalculateCurrentStep();
+          // Show deduction screen if coming from mini-onboarding with significant data
+          final isMiniUser = savedAnswers.containsKey('q_net_income_period_chf') &&
+              savedAnswers.containsKey('q_canton');
+          _showDeductionScreen = isMiniUser && widget.initialSection != null;
         });
       }
     }
     // Jump to requested section if specified via route parameter
-    if (widget.initialSection != null && mounted) {
+    if (widget.initialSection != null && mounted && !_showDeductionScreen) {
       _jumpToSection(widget.initialSection!);
     }
+  }
+
+  List<DeductionItem> _buildDeductionItems() {
+    final items = <DeductionItem>[];
+    // Emergency fund coverage
+    final cash = _toDouble(_answers['q_cash_total']) ?? 0;
+    final housing = _toDouble(_answers['q_housing_cost_period_chf']) ?? 0;
+    final tax = _toDouble(_answers['q_tax_provision_monthly_chf']) ?? 0;
+    final lamal = _toDouble(_answers['q_lamal_premium_monthly_chf']) ?? 0;
+    final other = _toDouble(_answers['q_other_fixed_costs_monthly_chf']) ?? 0;
+    final debt = _toDouble(_answers['q_debt_payments_period_chf']) ?? 0;
+    final monthlyExpenses = housing + tax + lamal + other + debt;
+    if (monthlyExpenses > 0 && cash > 0) {
+      final months = cash / monthlyExpenses;
+      items.add(DeductionItem(
+        label: 'Fonds d\'urgence',
+        value: '${months.toStringAsFixed(1)} mois de charges',
+        source: 'liquidités / charges',
+        isPositive: months >= 3,
+      ));
+    }
+    // Computed savings
+    final income = _toDouble(_answers['q_net_income_period_chf']) ?? 0;
+    if (income > 0 && monthlyExpenses > 0) {
+      final surplus = income - monthlyExpenses;
+      items.add(DeductionItem(
+        label: 'Capacité d\'épargne',
+        value: 'CHF ${surplus.round()}/mois',
+        source: 'revenu - dépenses',
+        isPositive: surplus > 0,
+      ));
+    }
+    // LPP status
+    final employment = _answers['q_employment_status'];
+    if (employment == 'employee' && income * 12 > 22680) {
+      items.add(const DeductionItem(
+        label: 'Caisse de pension (LPP)',
+        value: 'Affilié (obligatoire)',
+        source: 'salarié + revenu > 22k',
+      ));
+    }
+    // Debt status
+    if (debt > 0) {
+      items.add(DeductionItem(
+        label: 'Dettes de consommation',
+        value: 'CHF ${debt.round()}/mois de remboursements',
+        source: 'déclaré',
+        isPositive: false,
+      ));
+    } else {
+      items.add(const DeductionItem(
+        label: 'Dettes de consommation',
+        value: 'Aucune',
+        source: 'déclaré',
+      ));
+    }
+    // Property equity
+    final propertyValue = _toDouble(_answers['q_property_value']) ?? 0;
+    final mortgageBalance = _toDouble(_answers['q_mortgage_balance']) ?? 0;
+    if (propertyValue > 0) {
+      final equity = propertyValue - mortgageBalance;
+      final ltv = (mortgageBalance / propertyValue * 100);
+      items.add(DeductionItem(
+        label: 'Patrimoine immobilier',
+        value: 'Équité CHF ${equity.round()} (LTV ${ltv.toStringAsFixed(0)}%)',
+        source: 'bien - hypothèque',
+        isPositive: ltv <= 80,
+      ));
+    }
+    return items;
+  }
+
+  double? _toDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value.toString().replaceAll("'", '').trim());
   }
 
   void _jumpToSection(String section) {
     final sectionIndex = switch (section) {
       'identity' || 'profil' => 0,
-      'income' || 'budget' => 6,
-      'pension' || 'prevoyance' => 15,
-      'property' || 'patrimoine' => 27,
+      'income' || 'budget' => 8,
+      'pension' || 'prevoyance' => 17,
+      'property' || 'patrimoine' => 29,
       _ => 0,
     };
     final sectionEndIndex = switch (section) {
-      'identity' || 'profil' => 6,
-      'income' || 'budget' => 15,
-      'pension' || 'prevoyance' => 27,
+      'identity' || 'profil' => 8,
+      'income' || 'budget' => 17,
+      'pension' || 'prevoyance' => 29,
       'property' || 'patrimoine' => _questions.length,
       _ => _questions.length,
     };
@@ -116,26 +199,26 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   }
 
   String get _currentSection {
-    if (_currentQuestionIndex < 6) return 'Profil';
-    if (_currentQuestionIndex < 15) return 'Budget & Protection';
-    if (_currentQuestionIndex < 27) return 'Prévoyance';
+    if (_currentQuestionIndex < 8) return 'Profil';
+    if (_currentQuestionIndex < 17) return 'Budget & Protection';
+    if (_currentQuestionIndex < 29) return 'Prévoyance';
     return 'Patrimoine';
   }
 
-  int get _sectionStart => _currentQuestionIndex < 6
+  int get _sectionStart => _currentQuestionIndex < 8
       ? 0
-      : _currentQuestionIndex < 15
-          ? 6
-          : _currentQuestionIndex < 27
-              ? 15
-              : 27;
+      : _currentQuestionIndex < 17
+          ? 8
+          : _currentQuestionIndex < 29
+              ? 17
+              : 29;
 
-  int get _sectionEnd => _currentQuestionIndex < 6
-      ? 6
-      : _currentQuestionIndex < 15
-          ? 15
-          : _currentQuestionIndex < 27
-              ? 27
+  int get _sectionEnd => _currentQuestionIndex < 8
+      ? 8
+      : _currentQuestionIndex < 17
+          ? 17
+          : _currentQuestionIndex < 29
+              ? 29
               : _questions.length;
 
   int get _sectionQuestionNumber {
@@ -558,15 +641,37 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                           ],
                         ),
                       ),
-                    WizardQuestionWidget(
-                      key: ValueKey(displayQuestion.id),
-                      question: displayQuestion,
-                      onAnswer: _handleAnswer,
-                      currentAnswer: _answers[currentQuestion.id],
-                      answers: _answers,
-                      defaultExpanded: _currentQuestionIndex < 3,
-                      onMultiChoiceConfirm: _advanceFromCurrent,
-                    ),
+                    if (_showDeductionScreen) ...[
+                      CoachDeductionCard(
+                        items: _buildDeductionItems(),
+                        onConfirm: () {
+                          setState(() {
+                            _showDeductionScreen = false;
+                            if (widget.initialSection != null) {
+                              _jumpToSection(widget.initialSection!);
+                            }
+                          });
+                        },
+                        onCorrect: () {
+                          setState(() {
+                            _showDeductionScreen = false;
+                            // Go to Section 2 (Budget) to correct deductions
+                            _jumpToSection('budget');
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                    ] else ...[
+                      WizardQuestionWidget(
+                        key: ValueKey(displayQuestion.id),
+                        question: displayQuestion,
+                        onAnswer: _handleAnswer,
+                        currentAnswer: _answers[currentQuestion.id],
+                        answers: _answers,
+                        defaultExpanded: _currentQuestionIndex < 3,
+                        onMultiChoiceConfirm: _advanceFromCurrent,
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     const SizedBox(height: 24),
                     AnimatedSwitcher(
@@ -688,6 +793,23 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           return _buildFiscalInsight();
         }
 
+      case 'q_gross_income':
+        if (_answers['q_gross_income'] != null && _answers['q_net_income_period_chf'] != null) {
+          final gross = (_answers['q_gross_income'] as num).toDouble();
+          final net = (_answers['q_net_income_period_chf'] as num).toDouble();
+          final charges = gross - net;
+          final chargesPercent = gross > 0 ? (charges / gross * 100) : 0;
+          return _buildMindBlowingInsight(
+            icon: Icons.receipt_long,
+            title: 'TES CHARGES SOCIALES',
+            text: 'Brut CHF ${gross.round()} - Net CHF ${net.round()} = '
+                'CHF ${charges.round()}/mois de charges sociales (${chargesPercent.toStringAsFixed(1)}%). '
+                'Dont AVS 5.3%, LPP ~7-18% selon ton âge, AC 1.1%. '
+                'Ces cotisations construisent ta retraite — ce n\'est pas de l\'argent perdu.',
+            color: Colors.blueGrey,
+          );
+        }
+
       case 'q_housing_status':
         return _buildMindBlowingInsight(
           icon: Icons.home_outlined,
@@ -760,28 +882,18 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           );
         }
 
-      case 'q_emergency_fund':
-        if (_answers['q_net_income_period_chf'] != null) {
-          final income = (_answers['q_net_income_period_chf'] as num).toDouble();
-          final housing = (_answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
-          final monthlyExpenses = housing + (income * 0.3); // estimate
-          final target6months = monthlyExpenses * 6;
-          return _buildMindBlowingInsight(
-            icon: Icons.shield_outlined,
-            title: 'TON FILET DE SECURITE',
-            text: 'Pour toi, 6 mois de charges = ~CHF ${target6months.toStringAsFixed(0)}. '
-                'C\'est ta protection contre le chomage (delai de carence LACI), '
-                'un accident ou une urgence medicale. Priorite absolue avant tout investissement.',
-            color: MintColors.info,
-          );
-        }
+      case 'q_lamal_franchise':
+        return _buildMindBlowingInsight(
+          icon: Icons.health_and_safety,
+          title: 'LA REGLE DES CHF 5\'000',
+          text: 'Franchise 300 → 2\'500 CHF = économie ~CHF 1\'500-2\'400/an de primes. '
+              'Si tu as >CHF 5\'000 d\'épargne d\'urgence et <2 visites médecin/an, '
+              'la franchise haute est mathématiquement rentable. '
+              'Sinon, reste à 300 CHF pour la tranquillité d\'esprit.',
+          color: Colors.teal,
+        );
 
-      case 'q_savings_monthly':
-        if (_answers['q_net_income_period_chf'] != null &&
-            _answers['q_canton'] != null &&
-            _answers['q_birth_year'] != null) {
-          return _buildNeighborInsight();
-        }
+      // q_emergency_fund and q_savings_monthly removed — deduced from data
 
       case 'q_savings_allocation':
         if (_answers['q_savings_monthly'] != null) {
@@ -847,6 +959,24 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           );
         }
 
+      case 'q_lpp_current_capital':
+        if (_answers['q_lpp_current_capital'] != null && _answers['q_birth_year'] != null) {
+          final capital = (_answers['q_lpp_current_capital'] as num).toDouble();
+          final age = _currentAge;
+          final yearsToRetirement = (65 - age).clamp(0, 40);
+          final projectedPension = capital * 0.068; // Taux de conversion minimum
+          final monthlyPension = projectedPension / 12;
+          return _buildMindBlowingInsight(
+            icon: Icons.account_balance,
+            title: 'TA RENTE LPP PROJETEE',
+            text: 'Capital actuel CHF ${capital.round()} × taux de conversion 6.8% = '
+                'CHF ${projectedPension.round()}/an (CHF ${monthlyPension.round()}/mois) '
+                'sur la part obligatoire. Avec $yearsToRetirement ans de cotisations restantes, '
+                'ton capital va encore croître significativement.',
+            color: MintColors.info,
+          );
+        }
+
       case 'q_has_3a':
         if (_answers['q_net_income_period_chf'] != null && _answers['q_canton'] != null) {
           return _build3aInsight();
@@ -862,15 +992,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           color: Colors.purple,
         );
 
-      case 'q_3a_providers':
-        return _buildMindBlowingInsight(
-          icon: Icons.compare,
-          title: 'FRAIS = POISON SILENCIEUX',
-          text: 'Banque classique : frais ~0.7-1.2%/an. Fintech (VIAC, Finpension) : ~0.4%. '
-              'Sur 30 ans avec CHF 100\'000, la difference de 0.5% = CHF 16\'000 en moins. '
-              'Les assurances-vie 3a ont souvent les frais les plus eleves + penalite de rachat.',
-          color: Colors.deepOrange,
-        );
+      // q_3a_providers removed — zero calc impact
 
       case 'q_3a_annual_contribution':
         if (_answers['q_3a_annual_contribution'] != null) {
@@ -982,6 +1104,28 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           color: const Color(0xFF1565C0),
         );
 
+      case 'q_has_life_insurance':
+        final civil = _answers['q_civil_status'] as String?;
+        if (civil == 'cohabiting') {
+          return _buildMindBlowingInsight(
+            icon: Icons.warning_amber,
+            title: 'PROTECTION URGENTE',
+            text: 'En concubinage, ton/ta partenaire n\'a AUCUN droit : '
+                'pas de rente survivant AVS (LAVS art. 23), pas de LPP automatique, '
+                'pas de droits successoraux. Une assurance décès croisée + '
+                'testament + clause bénéficiaire LPP/3a sont le MINIMUM VITAL.',
+            color: Colors.red.shade700,
+          );
+        }
+        return _buildMindBlowingInsight(
+          icon: Icons.shield_outlined,
+          title: 'PROTECTION DES PROCHES',
+          text: 'L\'assurance décès couvre le risque que tes proches ne pourraient pas '
+              'absorber financièrement. Coût typique : CHF 15-40/mois pour CHF 200\'000 de capital. '
+              'En Suisse, la rente de survivant AVS est plafonnée à CHF 24\'192/an (80% de 30\'240, LAVS art. 23).',
+          color: Colors.indigo,
+        );
+
       case 'q_real_estate_project':
         return _buildMindBlowingInsight(
           icon: Icons.house_outlined,
@@ -991,6 +1135,38 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               'Attention : rachat LPP + achat immo dans les 3 ans = incompatible legalement (LPP art. 79b).',
           color: Colors.brown.shade700,
         );
+
+      case 'q_property_value':
+        if (_answers['q_property_value'] != null) {
+          final value = (_answers['q_property_value'] as num).toDouble();
+          final fortuneEstimate = value * 0.7; // Valeur fiscale ~70%
+          return _buildMindBlowingInsight(
+            icon: Icons.home_work,
+            title: 'FORTUNE IMMOBILIERE',
+            text: 'Bien estimé à CHF ${value.round()}. '
+                'Valeur fiscale probable : ~CHF ${fortuneEstimate.round()} (60-80% de la valeur vénale). '
+                'Cette fortune est imposée chaque année par le canton (LHID art. 14). '
+                'Les intérêts hypothécaires sont déductibles — c\'est un levier fiscal majeur.',
+            color: Colors.brown.shade700,
+          );
+        }
+
+      case 'q_mortgage_balance':
+        if (_answers['q_mortgage_balance'] != null && _answers['q_property_value'] != null) {
+          final mortgage = (_answers['q_mortgage_balance'] as num).toDouble();
+          final value = (_answers['q_property_value'] as num).toDouble();
+          final ltv = value > 0 ? (mortgage / value * 100) : 0;
+          final mustAmortize = ltv > 67;
+          return _buildMindBlowingInsight(
+            icon: Icons.account_balance_wallet,
+            title: 'TON RATIO HYPOTHECAIRE',
+            text: 'Hypothèque CHF ${mortgage.round()} / Bien CHF ${value.round()} = '
+                '${ltv.toStringAsFixed(1)}% LTV (Loan-to-Value). '
+                '${mustAmortize ? "Au-dessus de 67% — amortissement obligatoire en 15 ans (directive ASB). " : "En dessous de 67% — pas d\'amortissement obligatoire. "}'
+                'Les intérêts (~CHF ${(mortgage * 0.015 / 12).round()}/mois à 1.5%) sont déductibles fiscalement.',
+            color: ltv > 80 ? Colors.red.shade700 : Colors.green.shade700,
+          );
+        }
 
       case 'q_main_goal':
         if (_answers['q_birth_year'] != null) {
@@ -1238,9 +1414,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   }
 
   String _getSectionForIndex(int index) {
-    if (index < 6) return 'Profil';
-    if (index < 15) return 'Budget & Protection';
-    if (index < 27) return 'Prévoyance';
+    if (index < 8) return 'Profil';
+    if (index < 17) return 'Budget & Protection';
+    if (index < 29) return 'Prévoyance';
     return 'Patrimoine';
   }
 }

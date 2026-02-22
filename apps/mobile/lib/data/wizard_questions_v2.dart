@@ -6,7 +6,7 @@ import 'package:mint_mobile/data/cantonal_data.dart';
 class WizardQuestionsV2 {
   static List<WizardQuestion> get questions => [
         // ═══════════════════════════════════════════════════════════
-        // SECTION 1 : PROFIL (6 questions - 2 minutes)
+        // SECTION 1 : PROFIL (8 questions - 2 minutes)
         // Objectif : Contexte minimal pour personnaliser le reste
         // Note: Stress check removed — redundant with q_main_goal
         // and already captured by mini-onboarding flow.
@@ -40,6 +40,26 @@ class WizardQuestionsV2 {
                   QuestionOption(label: '${c.name} (${c.code})', value: c.code))
               .toList()
             ..sort((a, b) => a.label.compareTo(b.label)),
+          tags: ['profil'],
+        ),
+
+        WizardQuestion(
+          id: 'q_residence_permit',
+          title: 'Quel est ton permis de séjour ?',
+          subtitle:
+              'Impact fiscal majeur : Permis B = impôt à la source (LIFD art. 83-86).\n'
+              'Permis C/Suisse = déclaration ordinaire.',
+          type: QuestionType.choice,
+          options: [
+            QuestionOption(
+                label: 'Nationalité suisse', value: 'swiss', icon: 'flag'),
+            QuestionOption(
+                label: 'Permis C (établissement)', value: 'permit_c', icon: 'verified'),
+            QuestionOption(
+                label: 'Permis B (séjour)', value: 'permit_b', icon: 'badge'),
+            QuestionOption(
+                label: 'Permis G (frontalier)', value: 'permit_g', icon: 'commute'),
+          ],
           tags: ['profil'],
         ),
 
@@ -106,8 +126,25 @@ class WizardQuestionsV2 {
           tags: ['profil'],
         ),
 
+        WizardQuestion(
+          id: 'q_activity_rate',
+          title: 'Ton taux d\'activité ?',
+          subtitle:
+              'Affecte ta déduction de coordination LPP (art. 8 al. 1).\n'
+              'À 80%, ta couverture LPP est réduite proportionnellement.',
+          type: QuestionType.choice,
+          options: [
+            QuestionOption(label: '100%', value: '100'),
+            QuestionOption(label: '80%', value: '80'),
+            QuestionOption(label: '60%', value: '60'),
+            QuestionOption(label: 'Moins de 60%', value: 'other'),
+          ],
+          tags: ['profil'],
+          condition: (answers) => answers['q_employment_status'] == 'employee',
+        ),
+
         // ═══════════════════════════════════════════════════════════
-        // SECTION 2 : CERCLE 1 - BUDGET & PROTECTION (6 questions - 3 min)
+        // SECTION 2 : CERCLE 1 - BUDGET & PROTECTION (9 questions - 3 min)
         // Objectif : Calculer la capacité d'épargne AVANT de parler d'investissement
         // ═══════════════════════════════════════════════════════════
 
@@ -119,6 +156,18 @@ class WizardQuestionsV2 {
           type: QuestionType.number,
           tags: ['budget', 'sensitive'],
           minValue: 0,
+        ),
+
+        WizardQuestion(
+          id: 'q_gross_income',
+          title: 'Ton salaire brut mensuel ?',
+          subtitle:
+              'Ligne "Salaire brut" sur ta fiche de paie.\n'
+              'Permet de vérifier tes cotisations AVS/LPP/AC.',
+          type: QuestionType.number,
+          tags: ['budget', 'income'],
+          minValue: 0,
+          condition: (answers) => answers['q_employment_status'] == 'employee',
         ),
 
         WizardQuestion(
@@ -185,30 +234,25 @@ class WizardQuestionsV2 {
         ),
 
         WizardQuestion(
-          id: 'q_emergency_fund',
-          title: 'As-tu un fonds d\'urgence ?',
+          id: 'q_lamal_franchise',
+          title: 'Quelle est ta franchise LAMal ?',
           subtitle:
-              'Argent liquide (pas bloqué) pour couvrir 3-6 mois de charges en cas de coup dur',
+              'Franchise haute (2500 CHF) = primes basses mais risque élevé en cas de maladie.\n'
+              'Franchise basse (300 CHF) = primes hautes mais protection maximale.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
-                label: 'Oui, 6+ mois', value: 'yes_6months', icon: 'shield'),
-            QuestionOption(
-                label: 'Oui, 3-6 mois', value: 'yes_3months', icon: 'verified'),
-            QuestionOption(label: 'Non, < 3 mois', value: 'no', icon: 'error'),
+            QuestionOption(label: 'CHF 300 (minimum)', value: '300'),
+            QuestionOption(label: 'CHF 500', value: '500'),
+            QuestionOption(label: 'CHF 1\'000', value: '1000'),
+            QuestionOption(label: 'CHF 1\'500', value: '1500'),
+            QuestionOption(label: 'CHF 2\'000', value: '2000'),
+            QuestionOption(label: 'CHF 2\'500 (maximum)', value: '2500'),
           ],
-          tags: ['budget', 'protection'],
+          tags: ['budget', 'lamal'],
         ),
 
-        WizardQuestion(
-          id: 'q_savings_monthly',
-          title: 'Combien arrives-tu à épargner par mois ?',
-          subtitle:
-              'En moyenne, une fois toutes tes charges payées (Loyer, Impôts, Assurances...)',
-          type: QuestionType.number,
-          minValue: 0,
-          tags: ['budget', 'savings'],
-        ),
+        // q_emergency_fund REMOVED — deduced from q_cash_total / monthly expenses
+        // q_savings_monthly REMOVED — deduced from income - total expenses
 
         WizardQuestion(
           id: 'q_savings_allocation',
@@ -237,15 +281,21 @@ class WizardQuestionsV2 {
           ],
           tags: ['budget', 'savings', 'allocation'],
           condition: (answers) {
-            final savings = answers['q_savings_monthly'];
-            if (savings == null) return false;
-            final amount = double.tryParse(savings.toString()) ?? 0;
-            return amount > 0;
+            // Compute savings from income - ALL expenses (q_savings_monthly removed)
+            double _parse(dynamic v) => double.tryParse(v?.toString() ?? '') ?? 0;
+            final income = _parse(answers['q_net_income_period_chf']);
+            final housing = _parse(answers['q_housing_cost_period_chf']);
+            final debt = _parse(answers['q_debt_payments_period_chf']);
+            final tax = _parse(answers['q_tax_provision_monthly_chf']);
+            final lamal = _parse(answers['q_lamal_premium_monthly_chf']);
+            final other = _parse(answers['q_other_fixed_costs_monthly_chf']);
+            final surplus = income - housing - debt - tax - lamal - other;
+            return surplus > 0;
           },
         ),
 
         // ═══════════════════════════════════════════════════════════
-        // SECTION 3 : CERCLE 2 - PRÉVOYANCE FISCALE (7 questions - 4 min)
+        // SECTION 3 : CERCLE 2 - PRÉVOYANCE FISCALE (12 questions - 4 min)
         // Objectif : Optimiser la prévoyance MAINTENANT qu'on connaît le budget
         // ═══════════════════════════════════════════════════════════
 
@@ -271,6 +321,17 @@ class WizardQuestionsV2 {
           type: QuestionType.number,
           minValue: 0,
           tags: ['prevoyance', 'lpp'],
+        ),
+
+        WizardQuestion(
+          id: 'q_lpp_current_capital',
+          title: 'Quel est ton avoir de vieillesse LPP actuel ?',
+          subtitle:
+              'Ligne "Avoir de vieillesse" sur ton certificat de prévoyance.\n'
+              'Inclut la part obligatoire et surobligatoire.',
+          type: QuestionType.number,
+          tags: ['prevoyance', 'lpp'],
+          minValue: 0,
         ),
 
         WizardQuestion(
@@ -300,24 +361,7 @@ class WizardQuestionsV2 {
           tags: ['prevoyance', '3a'],
         ),
 
-        WizardQuestion(
-          id: 'q_3a_providers',
-          title: 'Où sont tes 3a actuellement ?',
-          subtitle: 'Tu peux sélectionner plusieurs si tu as plusieurs comptes',
-          type: QuestionType.multiChoice,
-          options: [
-            QuestionOption(
-                label: '🏦 Banque (UBS, CS, Raiffeisen...)', value: 'bank'),
-            QuestionOption(
-                label: '🛡️ Assurance (AXA, Zurich, SwissLife...)',
-                value: 'insurance'),
-            QuestionOption(
-                label: '🔀 Mixte (Banque + Assurance)', value: 'mixed'),
-            QuestionOption(
-                label: '📱 Fintech (VIAC, Finpension...)', value: 'fintech'),
-          ],
-          tags: ['prevoyance', '3a'],
-        ),
+        // q_3a_providers REMOVED — low value, zero calculation impact
 
         WizardQuestion(
           id: 'q_3a_annual_contribution',
@@ -446,7 +490,7 @@ class WizardQuestionsV2 {
         ),
 
         // ═══════════════════════════════════════════════════════════
-        // SECTION 4 : CERCLE 3 - CROISSANCE & PATRIMOINE (4 questions - 3 min)
+        // SECTION 4 : CERCLE 3 - CROISSANCE & PATRIMOINE (7 questions - 3 min)
         // Objectif : Investissements et patrimoine (uniquement si cercles 1-2 OK)
         // ═══════════════════════════════════════════════════════════
 
@@ -460,6 +504,22 @@ class WizardQuestionsV2 {
             QuestionOption(label: 'Oui', value: 'yes'),
           ],
           tags: ['patrimoine', 'investments'],
+        ),
+
+        WizardQuestion(
+          id: 'q_has_life_insurance',
+          title: 'As-tu une assurance vie ou décès ?',
+          subtitle:
+              'Assurance risque pur (décès/invalidité) ou mixte (3b).\n'
+              'Essentiel pour protéger tes proches, surtout en concubinage.',
+          type: QuestionType.choice,
+          options: [
+            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            QuestionOption(label: 'Oui, risque pur (décès)', value: 'yes_risk', icon: 'shield'),
+            QuestionOption(label: 'Oui, mixte (3b)', value: 'yes_3b', icon: 'savings'),
+            QuestionOption(label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
+          ],
+          tags: ['patrimoine', 'insurance'],
         ),
 
         WizardQuestion(
@@ -479,6 +539,30 @@ class WizardQuestionsV2 {
         ),
 
         WizardQuestion(
+          id: 'q_property_value',
+          title: 'Valeur estimée de ton bien immobilier ?',
+          subtitle:
+              'Valeur vénale actuelle de ta résidence principale.\n'
+              'Taxée comme fortune immobilière par le canton.',
+          type: QuestionType.number,
+          tags: ['patrimoine', 'real_estate'],
+          minValue: 0,
+          condition: (answers) => answers['q_housing_status'] == 'owner',
+        ),
+
+        WizardQuestion(
+          id: 'q_mortgage_balance',
+          title: 'Solde hypothécaire restant ?',
+          subtitle:
+              'Total de ta dette hypothécaire (1er + 2e rang).\n'
+              'Les intérêts sont déductibles fiscalement (LIFD art. 33).',
+          type: QuestionType.number,
+          tags: ['patrimoine', 'real_estate'],
+          minValue: 0,
+          condition: (answers) => answers['q_housing_status'] == 'owner',
+        ),
+
+        WizardQuestion(
           id: 'q_main_goal',
           title: 'Ton objectif financier principal ?',
           subtitle: 'Ce qui te motive à optimiser ta situation',
@@ -494,6 +578,10 @@ class WizardQuestionsV2 {
                 label: 'Indépendance financière',
                 value: 'independence',
                 icon: 'flight_takeoff'),
+            QuestionOption(
+                label: 'Sortir de l\'endettement',
+                value: 'debt_free',
+                icon: 'money_off'),
             QuestionOption(
                 label: 'Transmettre un héritage',
                 value: 'inheritance',
@@ -549,6 +637,119 @@ class WizardQuestionsV2 {
           return null; // Use default subtitle
       }
     }
+    // Context-aware subtitles for LPP buyback
+    if (questionId == 'q_lpp_buyback_available') {
+      final canton = answers['q_canton'] as String?;
+      final income = answers['q_net_income_period_chf'];
+      if (canton != null && income != null) {
+        final monthlyIncome = double.tryParse(income.toString()) ?? 0;
+        if (monthlyIncome > 0) {
+          return 'Avec un revenu de CHF ${monthlyIncome.round()}/mois en $canton — '
+              'vérifie ton certificat LPP, ligne "Montant rachetable". '
+              'Déduction fiscale à 100% (LIFD art. 33 al. 1 let. d).';
+        }
+      }
+    }
+
+    // Context-aware subtitles for AVS gaps
+    if (questionId == 'q_avs_lacunes_status') {
+      final birthYear = answers['q_birth_year'];
+      if (birthYear != null) {
+        final by = birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0;
+        final expectedYears = (DateTime.now().year - by - 21).clamp(0, 44);
+        return 'À ton âge, tu devrais avoir ~$expectedYears années de cotisation '
+            '(échelle complète = 44 ans, LAVS art. 29ter). '
+            'Chaque année manquante = -2.3% de rente à vie.';
+      }
+    }
+
+    // Source taxation context
+    if (questionId == 'q_residence_permit') {
+      final canton = answers['q_canton'] as String?;
+      if (canton != null) {
+        return 'En $canton, le barème d\'impôt à la source (Permis B) peut '
+            'différer significativement de la déclaration ordinaire (LIFD art. 83-86).';
+      }
+    }
+
+    // Gross income context
+    if (questionId == 'q_gross_income') {
+      final net = answers['q_net_income_period_chf'];
+      if (net != null) {
+        final netIncome = double.tryParse(net.toString()) ?? 0;
+        if (netIncome > 0) {
+          final estimatedGross = (netIncome / 0.85).round(); // ~15% social charges
+          return 'Ton net est CHF ${netIncome.round()}/mois. '
+              'Le brut est généralement ~15% plus élevé (~CHF $estimatedGross). '
+              'Vérifie sur ta fiche de paie.';
+        }
+      }
+    }
+
+    // LAMal franchise context
+    if (questionId == 'q_lamal_franchise') {
+      final canton = answers['q_canton'] as String?;
+      if (canton != null) {
+        return 'En $canton, passer de CHF 300 à CHF 2\'500 de franchise '
+            'peut économiser CHF 100-200/mois de primes. '
+            'Règle : si tu as >CHF 5\'000 d\'épargne disponible, la franchise haute est souvent rentable.';
+      }
+    }
+
+    // LPP current capital context
+    if (questionId == 'q_lpp_current_capital') {
+      final birthYear = answers['q_birth_year'];
+      if (birthYear != null) {
+        final by = birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0;
+        final age = DateTime.now().year - by;
+        final yearsContributing = (age - 25).clamp(0, 40);
+        return 'À $age ans avec ~$yearsContributing ans de cotisation, '
+            'ton avoir LPP devrait être entre CHF ${(yearsContributing * 5000).toString()} '
+            'et CHF ${(yearsContributing * 12000).toString()} selon ton salaire et ta caisse.';
+      }
+    }
+
+    // Life insurance — critical for concubinage
+    if (questionId == 'q_has_life_insurance') {
+      final civil = answers['q_civil_status'];
+      if (civil == 'cohabiting') {
+        return 'CRITIQUE en concubinage : ton/ta partenaire n\'a AUCUN droit '
+            'à une rente de survivant AVS (LAVS art. 23) ni LPP automatique. '
+            'Une assurance décès croisée est le minimum vital.';
+      }
+      final children = answers['q_children'];
+      if (children != null && children != '0' && children != 0) {
+        return 'Avec des enfants à charge, une assurance décès protège '
+            'leur niveau de vie en cas de disparition d\'un parent. '
+            'Capital recommandé : 3-5x le revenu annuel.';
+      }
+    }
+
+    // Property value context
+    if (questionId == 'q_property_value') {
+      final canton = answers['q_canton'] as String?;
+      if (canton != null) {
+        return 'En $canton, la valeur fiscale est souvent 60-80% de la valeur vénale. '
+            'Cette valeur entre dans ta fortune imposable (LHID art. 14).';
+      }
+    }
+
+    // Mortgage balance context
+    if (questionId == 'q_mortgage_balance') {
+      final propertyValue = answers['q_property_value'];
+      if (propertyValue != null) {
+        final value = double.tryParse(propertyValue.toString()) ?? 0;
+        if (value > 0) {
+          final maxDebt = value * 0.80;
+          final twoThirds = value * 0.67;
+          return 'Valeur du bien : CHF ${value.round()}. '
+              'Hypothèque max autorisée : CHF ${maxDebt.round()} (80%). '
+              'Amortissement obligatoire jusqu\'aux 2/3 : CHF ${twoThirds.round()} '
+              'en 15 ans max (directive ASB).';
+        }
+      }
+    }
+
     return null;
   }
 }

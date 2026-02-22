@@ -134,6 +134,38 @@ class OnboardingStepEssentials extends StatelessWidget {
                 .toList(),
             onChanged: (value) => provider.setCanton(value),
           ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: provider.residencePermit,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: 'Permis de séjour',
+              filled: true,
+              fillColor: MintColors.surface,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: MintColors.primary, width: 1.8),
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(value: 'swiss', child: Text('Nationalité suisse')),
+              DropdownMenuItem(value: 'permit_c', child: Text('Permis C (établissement)')),
+              DropdownMenuItem(value: 'permit_b', child: Text('Permis B (séjour)')),
+              DropdownMenuItem(value: 'permit_g', child: Text('Permis G (frontalier)')),
+            ],
+            onChanged: (value) => provider.setResidencePermit(value),
+          ),
           const SizedBox(height: 24),
           OnboardingContinueButton(
             enabled: canContinue,

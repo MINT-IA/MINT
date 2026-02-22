@@ -81,7 +81,7 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
           l10n?.advisorMiniIncomeLabel ?? 'Revenu net mensuel');
     }
     if (provider.housingStatus == null ||
-        (provider.housingStatus != 'hosted' &&
+        (provider.housingStatus != 'family' &&
             provider.effectiveHousingCostMonthly <= 0)) {
       missingItems.add(l10n?.advisorMiniHousingTitle ?? 'Logement');
     }
@@ -355,8 +355,8 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
           MintSelectableCard(
             icon: Icons.home_outlined,
             label: l10n?.advisorMiniHousingTenant ?? 'Locataire',
-            isSelected: housingStatus == 'tenant',
-            onTap: () => provider.setHousingStatus('tenant'),
+            isSelected: housingStatus == 'renter',
+            onTap: () => provider.setHousingStatus('renter'),
           ),
           const SizedBox(height: 8),
           MintSelectableCard(
@@ -369,8 +369,8 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
           MintSelectableCard(
             icon: Icons.groups_outlined,
             label: l10n?.advisorMiniHousingHosted ?? 'Hébergé / sans loyer',
-            isSelected: housingStatus == 'hosted',
-            onTap: () => provider.setHousingStatus('hosted'),
+            isSelected: housingStatus == 'family',
+            onTap: () => provider.setHousingStatus('family'),
           ),
           const SizedBox(height: 10),
           MintChfInputField(

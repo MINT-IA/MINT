@@ -1,6 +1,6 @@
 class OnboardingConstants {
   static const int totalSteps = 3;
-  static const int wizardTotalQuestions = 24;
+  static const int wizardTotalQuestions = 36;
 
   static const double defaultSavingsRate = 0.10;
   static const double maxMonthlySavingsCap = 1200.0;
