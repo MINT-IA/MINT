@@ -127,7 +127,7 @@
   "advisorMiniPartnerRequiredTitle": "Dati partner richiesti",
   "advisorMiniPartnerRequiredBody": "Aggiungi stato civile, reddito, anno di nascita e stato del partner per una proiezione familiare affidabile.",
   "advisorMiniPartnerProfileTitle": "Profilo del/della partner",
-  "advisorReadinessLabel": "Affidabilità del consiglio",
+  "advisorReadinessLabel": "Completezza del profilo",
   "advisorReadinessLevel": "Livello",
   "advisorReadinessSufficient": "Base sufficiente per un piano iniziale.",
   "advisorReadinessToComplete": "Da completare",
@@ -169,7 +169,7 @@
   "advisorMiniStep2AhaTitle": "Insight chiave immediato",
   "advisorMiniStep2AhaDirectionAbove": "sopra",
   "advisorMiniStep2AhaDirectionBelow": "sotto",
-  "advisorMiniStep2AhaFactual": "Orizzonte pensione: ~{years} anni. In {canton}, l'aliquota marginale media e ~{rate}% ({delta} punti {direction} la media CH), cioe ~CHF {annual}/anno per CHF 100'000 imponibili.",
+  "advisorMiniStep2AhaFactual": "Orizzonte pensione: ~{years} anni. In {canton}, l'aliquota effettiva stimata e ~{rate}% ({delta} punti {direction} la media CH), cioe ~CHF {annual}/anno per CHF 100'000 imponibili.",
   "@advisorMiniStep2AhaFactual": {
     "placeholders": {
       "years": { "type": "String" },
@@ -180,7 +180,7 @@
       "annual": { "type": "String" }
     }
   },
-  "advisorMiniStep2AhaEmotional": "Hai circa {years} anni prima dei 65. Nel cantone {canton}, l'aliquota marginale media e ~{rate}% ({delta} punti {direction} la media CH), cio puo valere ~CHF {annual}/anno su CHF 100'000 imponibili.",
+  "advisorMiniStep2AhaEmotional": "Hai circa {years} anni prima dei 65. Nel cantone {canton}, l'aliquota effettiva stimata e ~{rate}% ({delta} punti {direction} la media CH), cio puo valere ~CHF {annual}/anno su CHF 100'000 imponibili.",
   "@advisorMiniStep2AhaEmotional": {
     "placeholders": {
       "years": { "type": "String" },

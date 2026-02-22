@@ -28,6 +28,10 @@ class OnboardingProvider extends ChangeNotifier {
   double? lamalPremiumMonthly;
   double? otherFixedCostsMonthly;
 
+  bool _userEditedTax = false;
+  bool _userEditedLamal = false;
+  bool _userEditedOtherFixed = false;
+
   // Partner data (couple / family)
   double? partnerIncome;
   int? partnerBirthYear;
@@ -61,7 +65,8 @@ class OnboardingProvider extends ChangeNotifier {
   Timer? _autoSaveDebounce;
   bool _isDisposed = false;
 
-  bool get canAdvanceFromStep1 => stressChoices.isNotEmpty;
+  // 3-step flow: Step 1 = Essentials, Step 2 = Income, Step 3 = Goal
+  bool get canAdvanceFromStep1 => _isBirthYearValid && canton != null;
 
   bool get _isBirthYearValid {
     if (birthYear == null) return false;
@@ -69,9 +74,7 @@ class OnboardingProvider extends ChangeNotifier {
     return birthYear! >= 1940 && birthYear! <= maxYear;
   }
 
-  bool get canAdvanceFromStep2 => _isBirthYearValid && canton != null;
-
-  bool get canAdvanceFromStep3 {
+  bool get canAdvanceFromStep2 {
     final hasHousing = housingStatus == 'hosted' ||
         (housingStatus != null && _effectiveHousingCost > 0);
     final hasCoreIncomeData = _effectiveIncome > 0 &&
@@ -83,7 +86,7 @@ class OnboardingProvider extends ChangeNotifier {
     return hasPartnerRequiredData;
   }
 
-  bool get canAdvanceFromStep4 => mainGoal != null;
+  bool get canAdvanceFromStep3 => mainGoal != null;
 
   int? get age {
     if (birthYear == null) return null;
@@ -237,9 +240,7 @@ class OnboardingProvider extends ChangeNotifier {
   int computeResumeStep() {
     if (!canAdvanceFromStep1) return 0;
     if (!canAdvanceFromStep2) return 1;
-    if (!canAdvanceFromStep3) return 2;
-    if (!canAdvanceFromStep4) return 3;
-    return 3;
+    return 2;
   }
 
   void setCurrentStep(int value) {
@@ -339,6 +340,7 @@ class OnboardingProvider extends ChangeNotifier {
   void setHouseholdType(String? value) {
     householdType = value;
     _tryPrefillHousingCost();
+    _tryPrefillFixedCosts();
     if (value == 'single' || value == 'single_parent') {
       civilStatusChoice = null;
       partnerIncome = null;
@@ -360,6 +362,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void setTaxProvisionDraft(String value) {
+    _userEditedTax = true;
     draftTaxProvision = value.trim();
     taxProvisionMonthly = _toDouble(value);
     scheduleAutoSave('fixed_cost_changed');
@@ -367,6 +370,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void setLamalDraft(String value) {
+    _userEditedLamal = true;
     draftLamal = value.trim();
     lamalPremiumMonthly = _toDouble(value);
     scheduleAutoSave('fixed_cost_changed');
@@ -374,6 +378,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void setOtherFixedDraft(String value) {
+    _userEditedOtherFixed = true;
     draftOtherFixed = value.trim();
     otherFixedCostsMonthly = _toDouble(value);
     scheduleAutoSave('fixed_cost_changed');
@@ -480,13 +485,20 @@ class OnboardingProvider extends ChangeNotifier {
 
   void prefillFixedCostsEstimates() {
     if (_effectiveIncome <= 0 || canton == null) return;
-    final civil = civilStatusForHousehold(householdType ?? 'single');
-    final children = childrenCountForHousehold(householdType ?? 'single');
+    final household = householdType ?? 'single';
+    final civil = civilStatusForHousehold(household);
+    final children = childrenCountForHousehold(household);
     final currentAge = age?.clamp(18, 80) ?? 35;
+
+    // Imposition commune (LIFD art. 9 al. 1): additionner les deux revenus
+    final isCouple = household == 'couple' || household == 'family';
+    final combinedIncome = isCouple
+        ? _effectiveIncome + _effectivePartnerIncome
+        : _effectiveIncome;
 
     final monthlyTax = TaxEstimatorService.estimateMonthlyProvision(
       TaxEstimatorService.estimateAnnualTax(
-        netMonthlyIncome: incomeMonthly!,
+        netMonthlyIncome: combinedIncome,
         cantonCode: canton!,
         civilStatus: civil,
         childrenCount: children,
@@ -495,18 +507,24 @@ class OnboardingProvider extends ChangeNotifier {
       ),
     );
 
-    taxProvisionMonthly ??= monthlyTax;
-    lamalPremiumMonthly ??= estimateLamalFromCanton(canton!);
-    otherFixedCostsMonthly ??= switch (householdType ?? 'single') {
-      'single' => 350,
-      'couple' => 550,
-      'family' => 750,
-      'single_parent' => 600,
-      _ => 400,
-    };
-    draftTaxProvision ??= monthlyTax.round().toString();
-    draftLamal ??= lamalPremiumMonthly?.round().toString();
-    draftOtherFixed ??= otherFixedCostsMonthly?.round().toString();
+    if (!_userEditedTax) {
+      taxProvisionMonthly = monthlyTax;
+      draftTaxProvision = monthlyTax.round().toString();
+    }
+    if (!_userEditedLamal) {
+      lamalPremiumMonthly = estimateLamalFromCanton(canton!, household: householdType);
+      draftLamal = lamalPremiumMonthly?.round().toString();
+    }
+    if (!_userEditedOtherFixed) {
+      otherFixedCostsMonthly = switch (householdType ?? 'single') {
+        'single' => 350,
+        'couple' => 550,
+        'family' => 750,
+        'single_parent' => 600,
+        _ => 400,
+      };
+      draftOtherFixed = otherFixedCostsMonthly?.round().toString();
+    }
 
     scheduleAutoSave('fixed_cost_prefill');
     _safeNotify();
@@ -693,8 +711,7 @@ class OnboardingProvider extends ChangeNotifier {
   Future<Map<String, dynamic>?> completeMiniOnboarding() async {
     if (!(canAdvanceFromStep1 &&
         canAdvanceFromStep2 &&
-        canAdvanceFromStep3 &&
-        canAdvanceFromStep4)) {
+        canAdvanceFromStep3)) {
       return null;
     }
 
@@ -709,23 +726,61 @@ class OnboardingProvider extends ChangeNotifier {
     return merged;
   }
 
+  /// Swiss average tax on 100k net (single), computed from engine across 26 cantons.
+  /// Cached at class level to avoid recomputing on every call.
+  static double? _cachedSwissAvgTaxOn100k;
+
+  static double _computeSwissAvgTaxOn100k() {
+    if (_cachedSwissAvgTaxOn100k != null) return _cachedSwissAvgTaxOn100k!;
+    const cantonCodes = [
+      'ZH', 'BE', 'LU', 'UR', 'SZ', 'OW', 'NW', 'GL', 'ZG',
+      'FR', 'SO', 'BS', 'BL', 'AR', 'AI', 'SG', 'GR', 'AG',
+      'TG', 'TI', 'VD', 'VS', 'NE', 'GE', 'JU', 'SH',
+    ];
+    double total = 0;
+    for (final code in cantonCodes) {
+      total += TaxEstimatorService.estimateAnnualTax(
+        netMonthlyIncome: 100000 / 12,
+        cantonCode: code,
+        civilStatus: 'single',
+        childrenCount: 0,
+        age: 35,
+      );
+    }
+    _cachedSwissAvgTaxOn100k = total / cantonCodes.length;
+    return _cachedSwissAvgTaxOn100k!;
+  }
+
   Map<String, dynamic>? computeStep2AhaData() {
     if (!_isBirthYearValid || canton == null) return null;
 
     final cantonProfile = CantonalDataService.getByCode(canton);
-    final swissAvg = CantonalDataService.getByCode(null).averageMarginalRate;
-    final avgRate = cantonProfile.averageMarginalRate;
-    final deltaRate = avgRate - swissAvg;
+
+    // Use real tax engine (bracket data) for realistic estimation
+    // Reference: single, no children, 100k CHF net income
+    final taxOn100k = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: 100000 / 12,
+      cantonCode: canton!,
+      civilStatus: 'single',
+      childrenCount: 0,
+      age: age ?? 35,
+    );
+    final effectiveRate = taxOn100k / 100000;
+
+    // Swiss average: computed dynamically from same engine across 26 cantons
+    final swissAvgTaxOn100k = _computeSwissAvgTaxOn100k();
+    final swissAvgRate = swissAvgTaxOn100k / 100000;
+    final deltaRate = effectiveRate - swissAvgRate;
 
     return {
       'age': age,
       'years_to_retirement': yearsToRetirement,
       'canton_code': canton,
       'canton_name': cantonProfile.name,
-      'avg_rate_percent': avgRate * 100,
-      'tax_on_100k': (avgRate * 100000).round(),
+      'avg_rate_percent': effectiveRate * 100,
+      'tax_on_100k': taxOn100k.round(),
       'delta_vs_ch_percent': deltaRate * 100,
-      'annual_delta_on_100k': (deltaRate * 100000).round(),
+      'annual_delta_on_100k': (taxOn100k - swissAvgTaxOn100k).round(),
     };
   }
 
@@ -737,12 +792,17 @@ class OnboardingProvider extends ChangeNotifier {
     final employment = employmentStatus ?? 'employee';
     final hasPensionFund = employment == 'employee' &&
         _effectiveIncome * 12 > OnboardingConstants.lppAccessThreshold;
-    final monthlySavings =
-        (incomeMonthly! * OnboardingConstants.defaultSavingsRate)
-            .clamp(
-              OnboardingConstants.minMonthlySavingsFloor,
-              OnboardingConstants.maxMonthlySavingsCap,
-            )
+    final totalMonthlyExpenses = _effectiveHousingCost
+        + (taxProvisionMonthly ?? 0)
+        + (lamalPremiumMonthly ?? 0)
+        + (otherFixedCostsMonthly ?? 0)
+        + _effectiveDebtPayments;
+    final surplus = _effectiveIncome - totalMonthlyExpenses;
+    final monthlySavings = surplus > 0
+        ? (surplus * 0.5).clamp(0.0, 2000.0)
+        : (incomeMonthly! * OnboardingConstants.defaultSavingsRate)
+            .clamp(OnboardingConstants.minMonthlySavingsFloor,
+                   OnboardingConstants.maxMonthlySavingsCap)
             .toDouble();
 
     final answers = <String, dynamic>{

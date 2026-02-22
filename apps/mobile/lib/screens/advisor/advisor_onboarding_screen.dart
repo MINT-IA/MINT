@@ -12,7 +12,6 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_constants.dart';
-import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_stress.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_essentials.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_income.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
@@ -23,15 +22,13 @@ import 'package:go_router/go_router.dart';
 //  MINI-ONBOARDING — "60 secondes to value"
 // ────────────────────────────────────────────────────────────
 //
-// Remplace l'ancien ecran d'information statique par un
-// questionnaire en 4 etapes rapides. Apres quelques questions
+// Questionnaire en 3 etapes rapides. Apres quelques questions
 // essentielles, l'utilisateur obtient un chiffre choc
 // personnalise sur le dashboard.
 //
-// Etape 1 : Stress check (ta priorite financiere)
-// Etape 2 : Age + Canton (2 champs combines)
-// Etape 3 : Revenu + Statut professionnel
-// Etape 4 : Objectif principal + preview projection
+// Etape 1 : Prenom + Age + Canton
+// Etape 2 : Revenu + Statut professionnel + Foyer + Charges
+// Etape 3 : Objectif principal + preview projection
 //
 // Le wizard complet reste accessible pour enrichir le profil.
 // Les reponses sont sauvegardees via ReportPersistenceService
@@ -362,10 +359,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _incMetric('duration_step_${from + 1}_sum', by: stepDuration);
       _incMetric('duration_step_${from + 1}_count');
     }
-    if (from == 1 && to == 2 && _step2AhaTracked) {
+    if (from == 0 && to == 1 && _step2AhaTracked) {
       _incMetric('step2_to_step3_after_aha');
     }
-    if (from == 2 && to == 3 && !_cohortStartedTracked) {
+    if (from == 1 && to == 2 && !_cohortStartedTracked) {
       _cohortStartedTracked = true;
       final bucket = _profileCohortBucket();
       unawaited(
@@ -497,12 +494,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   String _stepName(int index) {
     switch (index) {
       case 0:
-        return 'stress';
-      case 1:
         return 'essentials';
-      case 2:
+      case 1:
         return 'income_status';
-      case 3:
+      case 2:
         return 'goal_preview';
       default:
         return 'unknown';
@@ -517,29 +512,29 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     // Create partial profile
     if (mounted) {
       final now = DateTime.now();
-      final enteredAt = _stepEnteredAt[3];
-      final step4Duration =
+      final enteredAt = _stepEnteredAt[2];
+      final step3Duration =
           enteredAt != null ? now.difference(enteredAt).inSeconds : null;
       final totalDuration = now.difference(_onboardingStartedAt).inSeconds;
       _analytics.trackOnboardingStep(
-        4,
-        _stepName(3),
+        3,
+        _stepName(2),
         totalSteps: OnboardingConstants.totalSteps,
         data: _onboardingContextData(),
       );
-      _incMetric('step_4');
+      _incMetric('step_3');
       _analytics.trackEvent(
         'onboarding_step_duration',
         category: 'engagement',
         data: _withOnboardingContext({
-          'step': 4,
-          'step_name': _stepName(3),
-          if (step4Duration != null) 'duration_seconds': step4Duration,
+          'step': 3,
+          'step_name': _stepName(2),
+          if (step3Duration != null) 'duration_seconds': step3Duration,
         }),
       );
-      if (step4Duration != null && step4Duration > 0) {
-        _incMetric('duration_step_4_sum', by: step4Duration);
-        _incMetric('duration_step_4_count');
+      if (step3Duration != null && step3Duration > 0) {
+        _incMetric('duration_step_3_sum', by: step3Duration);
+        _incMetric('duration_step_3_count');
       }
       _analytics.trackOnboardingCompleted(
         timeSpentSeconds: totalDuration,
@@ -949,10 +944,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   onPageChanged: (i) => setState(() => _currentStep = i),
                   children: [
-                    _buildStep1StressCheck(),
-                    _buildStep2Essentials(),
-                    _buildStep3Income(),
-                    _buildStep4GoalAndPreview(),
+                    _buildStep1Essentials(),
+                    _buildStep2Income(),
+                    _buildStep3GoalAndPreview(),
                   ],
                 ),
               ),
@@ -1341,11 +1335,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                 : 'Fragile';
     final step1 = metrics['step_1'] ?? 0;
     final step2 = metrics['step_2'] ?? 0;
-    final step3 = metrics['step_3'] ?? 0;
     final avgStep1 = _avgStepDuration(metrics, 1);
     final avgStep2 = _avgStepDuration(metrics, 2);
     final avgStep3 = _avgStepDuration(metrics, 3);
-    final avgStep4 = _avgStepDuration(metrics, 4);
 
     String pct(int num, int den) {
       if (den <= 0) return '0%';
@@ -1426,12 +1418,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                   '${pct(step2, step1)} · $avgStep2',
                 ),
                 _metricRow(
-                  'S3 -> S4',
-                  '${pct(step3, step2)} · $avgStep3',
-                ),
-                _metricRow(
-                  'S4 -> Done',
-                  '${pct(completed, step3)} · $avgStep4',
+                  'S3 -> Done',
+                  '${pct(completed, step2)} · $avgStep3',
                 ),
               ],
             ),
@@ -1612,9 +1600,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   String _recommendedSectionFromMini(OnboardingProvider provider) {
-    if (!provider.canAdvanceFromStep2) return 'identity';
-    if (!provider.canAdvanceFromStep3) return 'income';
-    if (!provider.canAdvanceFromStep4) return 'pension';
+    if (!provider.canAdvanceFromStep1) return 'identity';
+    if (!provider.canAdvanceFromStep2) return 'income';
+    if (!provider.canAdvanceFromStep3) return 'pension';
     return 'property';
   }
 
@@ -1628,7 +1616,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   int _estimateRemainingSeconds() {
-    if (_currentStep >= 3) return 0;
+    if (_currentStep >= OnboardingConstants.totalSteps - 1) return 0;
     final current = _currentStep + 1;
     int total = 0;
     for (int step = current + 1;
@@ -1718,58 +1706,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  STEP 1 : STRESS CHECK
+  //  STEP 1 : PRÉNOM + AGE + CANTON
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildStep1StressCheck() {
-    final l10n = S.of(context);
-    return Column(
-      children: [
-        Expanded(
-          child: OnboardingStepStress(
-            firstNameController: _firstNameController,
-            onContinue: () => _goToStep(1),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 18),
-          child: Center(
-            child: _hasSavedWizardProgress
-                ? TextButton.icon(
-                    onPressed: () {
-                      _analytics.trackCTAClick('advisor_resume_full_diagnostic',
-                          screenName: '/advisor');
-                      context.push('/advisor/wizard?section=identity');
-                    },
-                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                    label: Text(
-                      l10n?.advisorMiniResumeDiagnostic(
-                              '$_savedWizardProgress') ??
-                          'Reprendre mon diagnostic ($_savedWizardProgress%)',
-                    ),
-                  )
-                : TextButton(
-                    onPressed: () {
-                      _analytics.trackCTAClick('advisor_full_diagnostic_step1',
-                          screenName: '/advisor');
-                      context.push('/advisor/wizard?section=identity');
-                    },
-                    child: Text(
-                      l10n?.advisorMiniFullDiagnostic ??
-                          'Diagnostic complet (10 min)',
-                    ),
-                  ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  STEP 2 : AGE + CANTON
-  // ════════════════════════════════════════════════════════════════
-
-  Widget _buildStep2Essentials() {
+  Widget _buildStep1Essentials() {
     final birthYearError = _validateBirthYear(_birthYearController.text);
     final canGoNext = birthYearError == null &&
         _birthYearController.text.length == 4 &&
@@ -1779,19 +1719,20 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       children: [
         Expanded(
           child: OnboardingStepEssentials(
+            firstNameController: _firstNameController,
             birthYearController: _birthYearController,
             onContinue: () {
               FocusScope.of(context).unfocus();
               _maybeTrackStep2Aha();
-              _goToStep(2);
+              final aha = _computeStep2AhaData();
+              if (aha != null) {
+                _showAhaBottomSheet(aha);
+              } else {
+                _goToStep(1);
+              }
             },
           ),
         ),
-        if (_computeStep2AhaData() case final aha?)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 14),
-            child: _buildStep2AhaCard(aha),
-          ),
         if (canGoNext)
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
@@ -1806,13 +1747,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  STEP 3 : INCOME + STATUS
+  //  STEP 2 : INCOME + STATUS
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildStep3Income() {
+  Widget _buildStep2Income() {
     // Keep readiness hint aligned with the actual CTA gating in OnboardingStepIncome.
     // This avoids showing "Profil minimum pret" while the CTA remains disabled.
-    final canContinue = _provider.canAdvanceFromStep3;
+    final canContinue = _provider.canAdvanceFromStep2;
     if (_housingController.text.isEmpty) {
       final draft = _provider.draftHousingCost;
       final value = _provider.housingCostMonthly;
@@ -1845,7 +1786,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               if (_mainGoal == null) {
                 _provider.setMainGoal(_suggestGoalFromStress());
               }
-              _goToStep(3);
+              _goToStep(2);
             },
           ),
         ),
@@ -1950,6 +1891,69 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
+  /// Shows a modal bottom sheet with the AHA insight before advancing to Step 2.
+  /// This ensures 100% visibility — the user sees the personalized insight
+  /// instead of it being hidden below the fold on Step 1.
+  void _showAhaBottomSheet(Map<String, dynamic> aha) {
+    final l10n = S.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Handle bar
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: MintColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Insight card content
+                  _buildStep2AhaCard(aha),
+                  const SizedBox(height: 20),
+                  // CTA button
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        _goToStep(1);
+                      },
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: Text(
+                        l10n?.onboardingContinue ?? 'Continuer',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildStep2AhaCard(Map<String, dynamic> aha) {
     final l10n = S.of(context);
     final yearsToRetirement = aha['years_to_retirement'] as int;
@@ -1974,7 +1978,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               directionLabel,
               '$annualDeltaAbs',
             ) ??
-            'Tu as environ $yearsToRetirement ans avant 65 ans. Dans le canton de $cantonCode, le taux marginal moyen est ~${avgRatePercent.toStringAsFixed(1)}% (${deltaVsCh.abs().toStringAsFixed(1)} pts $directionLabel la moyenne CH), soit un enjeu d\'environ CHF $annualDeltaAbs/an pour CHF 100\'000 imposables.')
+            'Tu as environ $yearsToRetirement ans avant 65 ans. Dans le canton de $cantonCode, le taux effectif estimé est ~${avgRatePercent.toStringAsFixed(1)}% (${deltaVsCh.abs().toStringAsFixed(1)} pts $directionLabel la moyenne CH), soit un enjeu d\'environ CHF $annualDeltaAbs/an pour CHF 100\'000 imposables.')
         : (l10n?.advisorMiniStep2AhaFactual(
               '$yearsToRetirement',
               cantonCode,
@@ -1983,15 +1987,15 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               directionLabel,
               '$annualDeltaAbs',
             ) ??
-            'Horizon retraite: ~$yearsToRetirement ans. En $cantonCode, taux marginal moyen ~${avgRatePercent.toStringAsFixed(1)}% (${deltaVsCh.abs().toStringAsFixed(1)} pts $directionLabel la moyenne CH), soit ~CHF $annualDeltaAbs/an pour CHF 100\'000 imposables.');
+            'Horizon retraite : ~$yearsToRetirement ans. En $cantonCode, taux effectif estimé ~${avgRatePercent.toStringAsFixed(1)}% (${deltaVsCh.abs().toStringAsFixed(1)} pts $directionLabel la moyenne CH), soit ~CHF $annualDeltaAbs/an pour CHF 100\'000 imposables.');
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.lightBorder),
+        color: MintColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2000,49 +2004,80 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             children: [
               Icon(
                 isChallenge ? Icons.bolt : Icons.insights,
-                size: 18,
+                size: 20,
                 color: MintColors.primary,
               ),
               const SizedBox(width: 8),
               Text(
                 l10n?.advisorMiniStep2AhaTitle ?? 'Point clé instantané',
                 style: GoogleFonts.inter(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          // Delta highlight
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: MintColors.lightBorder),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Écart vs moyenne CH',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${annualDelta >= 0 ? '+' : '-'}CHF $annualDeltaAbs/an',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: annualDelta >= 0 ? MintColors.error : MintColors.success,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
           Text(
             body,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
               color: MintColors.textSecondary,
-              height: 1.35,
+              height: 1.4,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Wrap(
             spacing: 6,
             runSpacing: 6,
             children: [
               _buildAhaChip(
-                  'Taux marginal estimé: ${avgRatePercent.toStringAsFixed(1)}%'),
-              _buildAhaChip('Impôt estimé sur CHF 100\'000: CHF $taxOn100k/an'),
-              _buildAhaChip(
-                  'Écart vs CH: ${annualDelta >= 0 ? '+' : '-'}CHF $annualDeltaAbs/an (${annualDelta >= 0 ? '+' : '-'}$deltaRateAbs pts)'),
+                  'Taux effectif: ${avgRatePercent.toStringAsFixed(1)}%'),
+              _buildAhaChip('Impôt: CHF $taxOn100k/an'),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            l10n?.advisorMiniStep2AhaDisclaimer ??
-                'Ordre de grandeur éducatif, basé sur données cantonales de référence MINT.',
+            'Sur un revenu de référence de CHF 100\'000 net (célibataire, sans enfant). Ordre de grandeur éducatif.',
             style: GoogleFonts.inter(
-              fontSize: 10,
+              fontSize: 11,
               color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
             ),
           ),
         ],
@@ -2069,11 +2104,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     );
   }
 
-  Widget _buildStep4GoalAndPreview() {
+  Widget _buildStep3GoalAndPreview() {
     final l10n = S.of(context);
     final canComplete = _mainGoal != null;
     final readiness = _computeAdvisorReadiness();
-    final hasCoreProjectionContext = _provider.canAdvanceFromStep3 &&
+    final hasCoreProjectionContext = _provider.canAdvanceFromStep2 &&
         (!_provider.isHouseholdWithPartner || _provider.hasPartnerRequiredData);
     final preview =
         (_mainGoal != null && hasCoreProjectionContext) ? _computePreviewProjection() : null;
@@ -2314,7 +2349,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${l10n?.advisorReadinessLabel ?? 'Fiabilité conseil'}: $score%',
+            '${l10n?.advisorReadinessLabel ?? 'Complétude du profil'}: $score%',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,

@@ -8,11 +8,13 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepEssentials extends StatelessWidget {
+  final TextEditingController firstNameController;
   final TextEditingController birthYearController;
   final VoidCallback onContinue;
 
   const OnboardingStepEssentials({
     super.key,
+    required this.firstNameController,
     required this.birthYearController,
     required this.onContinue,
   });
@@ -39,11 +41,26 @@ class OnboardingStepEssentials extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
           OnboardingStepHeader(
-            title: l10n?.advisorMiniStep2Title ?? 'L\'essentiel',
+            title: l10n?.advisorMiniStep2Title ?? 'Ton profil',
             subtitle: l10n?.advisorMiniStep2Subtitle ??
                 'Age et canton changent tout en Suisse',
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+          TextField(
+            controller: firstNameController,
+            textCapitalization: TextCapitalization.words,
+            onChanged: provider.setFirstNameDraft,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
+            decoration: InputDecoration(
+              labelText: l10n?.advisorMiniFirstNameLabel ?? 'Prénom (optionnel)',
+              hintText: l10n?.advisorMiniFirstNameHint ?? 'Ex: Julien',
+              filled: true,
+              fillColor: MintColors.surface,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+          const SizedBox(height: 16),
           TextField(
             controller: birthYearController,
             keyboardType: TextInputType.number,

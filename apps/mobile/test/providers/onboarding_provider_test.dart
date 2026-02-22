@@ -14,7 +14,6 @@ void main() {
     expect(provider.canAdvanceFromStep1, isFalse);
     expect(provider.canAdvanceFromStep2, isFalse);
     expect(provider.canAdvanceFromStep3, isFalse);
-    expect(provider.canAdvanceFromStep4, isFalse);
   });
 
   test('resume step computes from partial answers', () async {
@@ -25,12 +24,15 @@ void main() {
       'q_net_income_period_chf': 6000,
       'q_employment_status': 'employee',
       'q_household_type': 'single',
+      'q_housing_status': 'tenant',
+      'q_housing_cost_period_chf': 1800,
     });
 
     final provider = OnboardingProvider();
     await provider.initFromPersistence();
 
-    expect(provider.computeResumeStep(), 3);
+    // All step 1+2 data present → resume at step 2 (goal)
+    expect(provider.computeResumeStep(), 2);
   });
 
   test('build snapshot includes household + civil status + drafts', () {
@@ -60,6 +62,8 @@ void main() {
       ..incomeMonthly = 7000
       ..employmentStatus = 'employee'
       ..householdType = 'single'
+      ..housingStatus = 'tenant'
+      ..housingCostMonthly = 1800
       ..mainGoal = 'retirement';
 
     final merged = await provider.completeMiniOnboarding();
@@ -67,13 +71,15 @@ void main() {
     expect(await ReportPersistenceService.isMiniOnboardingCompleted(), isTrue);
   });
 
-  test('couple household requires partner data to advance step 3', () {
+  test('couple household requires partner data to advance step 2', () {
     final provider = OnboardingProvider()
       ..incomeMonthly = 7000
       ..employmentStatus = 'employee'
-      ..householdType = 'couple';
+      ..householdType = 'couple'
+      ..housingStatus = 'tenant'
+      ..housingCostMonthly = 1800;
 
-    expect(provider.canAdvanceFromStep3, isFalse);
+    expect(provider.canAdvanceFromStep2, isFalse);
 
     provider
       ..civilStatusChoice = 'married'
@@ -81,7 +87,7 @@ void main() {
       ..partnerBirthYear = 1992
       ..partnerEmploymentStatus = 'employee';
 
-    expect(provider.canAdvanceFromStep3, isTrue);
+    expect(provider.canAdvanceFromStep2, isTrue);
   });
 
   test('switching to single clears partner fields from snapshot', () {

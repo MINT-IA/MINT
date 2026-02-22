@@ -52,7 +52,10 @@ class BudgetInputs {
   /// Le revenu net est estime a 87% du brut (charges sociales).
   /// Les dettes sont reparties sur 36 mois de remboursement.
   static BudgetInputs fromCoachProfile(CoachProfile profile) {
-    final monthlyNet = profile.salaireBrutMensuel * 0.87;
+    // Revenu net du ménage (utilisateur + conjoint si couple)
+    final ownNet = profile.salaireBrutMensuel * 0.87;
+    final partnerNet = (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final monthlyNet = ownNet + partnerNet;
     final monthlyDebt =
         profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
     // Charges fixes hors loyer et assurance maladie

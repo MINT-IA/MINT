@@ -7,7 +7,7 @@ import 'package:mint_mobile/screens/advisor/onboarding/onboarding_constants.dart
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
-class OnboardingStepIncome extends StatelessWidget {
+class OnboardingStepIncome extends StatefulWidget {
   final TextEditingController incomeController;
   final TextEditingController housingController;
   final TextEditingController debtPaymentsController;
@@ -42,6 +42,14 @@ class OnboardingStepIncome extends StatelessWidget {
   });
 
   @override
+  State<OnboardingStepIncome> createState() => _OnboardingStepIncomeState();
+}
+
+class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
+  final _partnerSectionKey = GlobalKey();
+  String? _previousHouseholdType;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final provider = context.watch<OnboardingProvider>();
@@ -49,6 +57,24 @@ class OnboardingStepIncome extends StatelessWidget {
     final householdType = provider.householdType;
     final housingStatus = provider.housingStatus;
     final canContinue = provider.canAdvanceFromStep3;
+
+    // Auto-scroll to partner section when household switches to couple/family
+    final isNowPartner = householdType == 'couple' || householdType == 'family';
+    final wasPartner = _previousHouseholdType == 'couple' || _previousHouseholdType == 'family';
+    if (isNowPartner && !wasPartner) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _partnerSectionKey.currentContext;
+        if (ctx != null) {
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+    _previousHouseholdType = householdType;
+
     final missingItems = <String>[];
     if (provider.effectiveIncomeMonthly <= 0) {
       missingItems.add(
@@ -97,7 +123,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           TextField(
-            controller: incomeController,
+            controller: widget.incomeController,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (value) => provider.setIncomeDraft(value),
@@ -111,9 +137,9 @@ class OnboardingStepIncome extends StatelessWidget {
           const SizedBox(height: 10),
           MintQuickPickChips<int>(
             options: OnboardingConstants.incomeQuickPicks,
-            selected: int.tryParse(incomeController.text),
+            selected: int.tryParse(widget.incomeController.text),
             labelBuilder: (v) => 'CHF $v',
-            onSelected: onIncomeQuickPick,
+            onSelected: widget.onIncomeQuickPick,
           ),
           const SizedBox(height: 16),
           MintSelectableCard(
@@ -183,6 +209,7 @@ class OnboardingStepIncome extends StatelessWidget {
           if (householdType == 'couple' || householdType == 'family') ...[
             const SizedBox(height: 16),
             Container(
+              key: _partnerSectionKey,
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -226,7 +253,7 @@ class OnboardingStepIncome extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: partnerFirstNameController,
+              controller: widget.partnerFirstNameController,
               textCapitalization: TextCapitalization.words,
               onChanged: provider.setPartnerFirstNameDraft,
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -240,7 +267,7 @@ class OnboardingStepIncome extends StatelessWidget {
             const SizedBox(height: 12),
             // Partner income
             MintChfInputField(
-              controller: partnerIncomeController,
+              controller: widget.partnerIncomeController,
               label: l10n?.advisorMiniPartnerIncomeLabel ??
                   'Revenu net mensuel du·de la partenaire',
               hint: '4000',
@@ -249,7 +276,7 @@ class OnboardingStepIncome extends StatelessWidget {
             const SizedBox(height: 12),
             // Partner birth year
             TextField(
-              controller: partnerBirthYearController,
+              controller: widget.partnerBirthYearController,
               keyboardType: TextInputType.number,
               maxLength: 4,
               inputFormatters: [
@@ -312,16 +339,8 @@ class OnboardingStepIncome extends StatelessWidget {
               isSelected: provider.partnerEmploymentStatus == 'inactive',
               onTap: () => provider.setPartnerEmploymentStatus('inactive'),
             ),
-            if (!provider.hasPartnerRequiredData) ...[
-              const SizedBox(height: 12),
-              OnboardingInsightCard(
-                icon: Icons.info_outline,
-                title: l10n?.advisorMiniPartnerRequiredTitle ??
-                    'Infos partenaire requises',
-                body: l10n?.advisorMiniPartnerRequiredBody ??
-                    'Ajoute l\'etat civil, le revenu, l\'annee de naissance et le statut du partenaire pour une projection foyer fiable.',
-              ),
-            ],
+            const SizedBox(height: 12),
+            _buildPartnerChecklist(provider, l10n),
           ],
           const SizedBox(height: 12),
           Text(
@@ -355,7 +374,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           MintChfInputField(
-            controller: housingController,
+            controller: widget.housingController,
             label: (housingStatus == 'owner')
                 ? (l10n?.advisorMiniHousingCostOwner ??
                     'Charges logement / hypothèque / mois')
@@ -366,7 +385,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           MintChfInputField(
-            controller: debtPaymentsController,
+            controller: widget.debtPaymentsController,
             label: l10n?.advisorMiniDebtPaymentsLabel ??
                 'Remboursements dettes / leasing / mois',
             hint: '0',
@@ -384,7 +403,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           MintChfInputField(
-            controller: cashSavingsController,
+            controller: widget.cashSavingsController,
             label: l10n?.advisorMiniCashSavingsLabel ??
                 'Liquidités / épargne disponible',
             hint: '20000',
@@ -393,7 +412,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           MintChfInputField(
-            controller: investmentsController,
+            controller: widget.investmentsController,
             label: l10n?.advisorMiniInvestmentsTotalLabel ??
                 'Placements (titres, ETF, fonds)',
             hint: '50000',
@@ -402,7 +421,7 @@ class OnboardingStepIncome extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           MintChfInputField(
-            controller: pillar3aTotalController,
+            controller: widget.pillar3aTotalController,
             label: l10n?.advisorMiniPillar3aTotalLabel ??
                 'Total 3a approximatif',
             hint: '30000',
@@ -453,27 +472,30 @@ class OnboardingStepIncome extends StatelessWidget {
                         ),
                       ),
                     MintChfInputField(
-                      controller: taxController,
+                      controller: widget.taxController,
                       label: l10n?.advisorMiniTaxProvisionLabel ??
                           'Provision impots / mois',
                       hint: '900',
                       optional: true,
+                      onChanged: (value) => provider.setTaxProvisionDraft(value),
                     ),
                     const SizedBox(height: 8),
                     MintChfInputField(
-                      controller: lamalController,
+                      controller: widget.lamalController,
                       label:
                           l10n?.advisorMiniLamalLabel ?? 'Primes LAMal / mois',
                       hint: '430',
                       optional: true,
+                      onChanged: (value) => provider.setLamalDraft(value),
                     ),
                     const SizedBox(height: 8),
                     MintChfInputField(
-                      controller: otherFixedController,
+                      controller: widget.otherFixedController,
                       label: l10n?.advisorMiniOtherFixedLabel ??
                           'Autres charges fixes / mois',
                       hint: '300',
                       optional: true,
+                      onChanged: (value) => provider.setOtherFixedDraft(value),
                     ),
                   ],
                 ),
@@ -485,16 +507,31 @@ class OnboardingStepIncome extends StatelessWidget {
             enabled: canContinue,
             label: l10n?.onboardingContinue ?? 'Continuer',
             icon: Icons.auto_awesome,
-            onPressed: onContinue,
+            onPressed: widget.onContinue,
           ),
           if (!canContinue && missingItems.isNotEmpty) ...[
             const SizedBox(height: 10),
-            OnboardingInsightCard(
-              icon: Icons.info_outline,
-              title: l10n?.advisorMiniReadyTitle ?? 'Validation',
-              body:
-                  'Complète: ${missingItems.take(3).join(', ')}${missingItems.length > 3 ? '…' : ''}',
-            ),
+            if (provider.isHouseholdWithPartner && !provider.hasPartnerRequiredData)
+              GestureDetector(
+                onTap: () {
+                  final ctx = _partnerSectionKey.currentContext;
+                  if (ctx != null) {
+                    Scrollable.ensureVisible(
+                      ctx,
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+                child: _buildPartnerChecklist(provider, l10n),
+              )
+            else
+              OnboardingInsightCard(
+                icon: Icons.info_outline,
+                title: l10n?.advisorMiniReadyTitle ?? 'Validation',
+                body:
+                    'Complète: ${missingItems.take(3).join(', ')}${missingItems.length > 3 ? '…' : ''}',
+              ),
           ],
           const SizedBox(height: 24),
         ],
@@ -502,8 +539,66 @@ class OnboardingStepIncome extends StatelessWidget {
     );
   }
 
-  /// Builds a contextual hint explaining what's auto-estimated and why.
-  /// Shows canton, household size (adults/children for LAMal), and income basis.
+  Widget _buildPartnerChecklist(OnboardingProvider provider, S? l10n) {
+    final hasCivil = provider.civilStatusChoice != null;
+    final hasIncome = provider.effectivePartnerIncomeMonthly > 0;
+    final birthYear = provider.effectivePartnerBirthYear;
+    final hasBirthYear = birthYear != null &&
+        birthYear >= 1940 &&
+        birthYear <= DateTime.now().year - 16;
+    final hasStatus = provider.partnerEmploymentStatus != null;
+    final allDone = hasCivil && hasIncome && hasBirthYear && hasStatus;
+
+    Widget item(String label, bool done) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            Icon(
+              done ? Icons.check_circle : Icons.radio_button_unchecked,
+              size: 16,
+              color: done ? MintColors.success : MintColors.error,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: done ? FontWeight.w400 : FontWeight.w600,
+                  color: done ? MintColors.textSecondary : MintColors.error,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: allDone ? const Color(0xFFF0FDF4) : const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: allDone
+              ? MintColors.success.withValues(alpha: 0.4)
+              : MintColors.warning.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          item(l10n?.advisorMiniCivilStatusLabel ?? 'État civil du couple', hasCivil),
+          item(l10n?.advisorMiniPartnerIncomeLabel ?? 'Revenu partenaire', hasIncome),
+          item(l10n?.advisorMiniPartnerBirthYearLabel ?? 'Année de naissance partenaire', hasBirthYear),
+          item(l10n?.advisorMiniPartnerStatusInactive ?? 'Statut professionnel partenaire', hasStatus),
+        ],
+      ),
+    );
+  }
+
   String _buildPrefillHintText(OnboardingProvider provider, S? l10n) {
     final canton = provider.canton ?? '?';
     final household = provider.householdType ?? 'single';

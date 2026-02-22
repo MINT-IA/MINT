@@ -39,6 +39,7 @@ void main() {
     await tester.pumpWidget(
       wrapWithProvider(
         OnboardingStepEssentials(
+          firstNameController: TextEditingController(),
           birthYearController: TextEditingController(text: '1990'),
           onContinue: () {},
         ),

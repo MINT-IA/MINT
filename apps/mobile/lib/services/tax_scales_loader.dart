@@ -132,9 +132,26 @@ class TaxScalesLoader {
   /// These are converted to bracket widths at load time so that
   /// _calculateFromScales() works uniformly.
   /// Both full names (JSON keys) and codes (test fixtures) are listed.
+  ///
+  /// Band-width cantons (NOT cumulative): ZH, BE, VD, AG, JU, NW, SZ, OW, UR.
   static const Set<String> _cumulativeCantons = {
+    'Appenzell Ausserrhoden', 'AR',
+    'Appenzell Innerrhoden', 'AI',
+    'Basel-Landschaft', 'BL',
     'Basel-Stadt', 'BS',
+    'Fribourg', 'FR',
     'Geneva', 'GE',
+    'Glarus', 'GL',
+    'Graubünden', 'GR',
+    'Lucerne', 'LU',
+    'Neuchâtel', 'NE',
+    'Schaffhausen', 'SH',
+    'Solothurn', 'SO',
+    'St. Gallen', 'SG',
+    'Thurgau', 'TG',
+    'Ticino', 'TI',
+    'Valais', 'VS',
+    'Zug', 'ZG',
   };
 
   /// Detects cantons whose JSON uses cumulative income thresholds

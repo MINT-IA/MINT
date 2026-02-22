@@ -127,7 +127,7 @@
   "advisorMiniPartnerRequiredTitle": "Infos partenaire requises",
   "advisorMiniPartnerRequiredBody": "Ajoute l'état civil, le revenu, l'année de naissance et le statut du partenaire pour une projection foyer fiable.",
   "advisorMiniPartnerProfileTitle": "Profil du/de la partenaire",
-  "advisorReadinessLabel": "Fiabilité conseil",
+  "advisorReadinessLabel": "Complétude du profil",
   "advisorReadinessLevel": "Niveau",
   "advisorReadinessSufficient": "Socle suffisant pour un plan initial.",
   "advisorReadinessToComplete": "À compléter",
@@ -169,7 +169,7 @@
   "advisorMiniStep2AhaTitle": "Point clé instantané",
   "advisorMiniStep2AhaDirectionAbove": "au-dessus de",
   "advisorMiniStep2AhaDirectionBelow": "en-dessous de",
-  "advisorMiniStep2AhaFactual": "Horizon retraite : ~{years} ans. En {canton}, le taux marginal moyen est ~{rate}% ({delta} pts {direction} la moyenne CH), soit ~CHF {annual}/an pour CHF 100'000 imposables.",
+  "advisorMiniStep2AhaFactual": "Horizon retraite : ~{years} ans. En {canton}, le taux effectif estimé est ~{rate}% ({delta} pts {direction} la moyenne CH), soit ~CHF {annual}/an pour CHF 100'000 imposables.",
   "@advisorMiniStep2AhaFactual": {
     "placeholders": {
       "years": { "type": "String" },
@@ -180,7 +180,7 @@
       "annual": { "type": "String" }
     }
   },
-  "advisorMiniStep2AhaEmotional": "Tu as environ {years} ans avant 65 ans. Dans le canton de {canton}, le taux marginal moyen est ~{rate}% ({delta} pts {direction} la moyenne CH), soit un enjeu d'environ CHF {annual}/an pour CHF 100'000 imposables.",
+  "advisorMiniStep2AhaEmotional": "Tu as environ {years} ans avant 65 ans. Dans le canton de {canton}, le taux effectif estimé est ~{rate}% ({delta} pts {direction} la moyenne CH), soit un enjeu d'environ CHF {annual}/an pour CHF 100'000 imposables.",
   "@advisorMiniStep2AhaEmotional": {
     "placeholders": {
       "years": { "type": "String" },

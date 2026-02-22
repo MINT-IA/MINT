@@ -44,11 +44,17 @@ class TaxEstimatorService {
       return (netMonthlyIncome * 12) * _sourceTaxRate;
     }
 
-    // 1. Reconstitution Revenu Brut Annuel Imposable (Approx)
-    // On enlève charges sociales (15%) + Déductions standards (forfaitaires, transport, repas ~10%)
-    // Hypothèse MVP: Net mensuel * 12 est proche du Brut Imposable après déductions de base.
-    // Ou restons sur l'ancienne formule simple : Brut = Net / 0.85
-    final double taxableIncomeApprox = (netMonthlyIncome * 12);
+    // 1. Revenu net annuel → Revenu imposable (après déductions forfaitaires)
+    // netMonthlyIncome est le salaire net (après charges sociales).
+    // Déductions standards suisses (LIFD art. 26, 33, 33a):
+    //   - Frais professionnels forfaitaires: ~4'000 CHF
+    //   - Assurances/prévoyance (LIFD art. 33): ~2'600 (célibataire) / ~5'200 (marié)
+    //   - 3a éventuel: jusqu'à 7'258 CHF
+    // Simplification: déduction forfaitaire de 15% pour célibataire, 12% pour marié
+    // (le splitting réduit déjà l'impôt pour les mariés).
+    final double netAnnual = netMonthlyIncome * 12;
+    final double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
+    final double taxableIncomeApprox = netAnnual * (1 - deductionRate);
 
     // TENTATIVE DE CALCUL PRÉCIS (DATA RÉELLE)
     // Mapping statut

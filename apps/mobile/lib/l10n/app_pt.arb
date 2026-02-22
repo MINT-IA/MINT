@@ -127,7 +127,7 @@
   "advisorMiniPartnerRequiredTitle": "Dados do parceiro obrigatorios",
   "advisorMiniPartnerRequiredBody": "Adiciona estado civil, rendimento, ano de nascimento e estado do parceiro para uma projecao familiar fiavel.",
   "advisorMiniPartnerProfileTitle": "Perfil do/da parceiro/a",
-  "advisorReadinessLabel": "Fiabilidade do conselho",
+  "advisorReadinessLabel": "Completude do perfil",
   "advisorReadinessLevel": "Nível",
   "advisorReadinessSufficient": "Base suficiente para um plano inicial.",
   "advisorReadinessToComplete": "A completar",
@@ -169,7 +169,7 @@
   "advisorMiniStep2AhaTitle": "Insight-chave imediato",
   "advisorMiniStep2AhaDirectionAbove": "acima de",
   "advisorMiniStep2AhaDirectionBelow": "abaixo de",
-  "advisorMiniStep2AhaFactual": "Horizonte de reforma: ~{years} anos. Em {canton}, a taxa marginal media e ~{rate}% ({delta} pts {direction} a media CH), ou seja ~CHF {annual}/ano para CHF 100'000 tributaveis.",
+  "advisorMiniStep2AhaFactual": "Horizonte de reforma: ~{years} anos. Em {canton}, a taxa efetiva estimada e ~{rate}% ({delta} pts {direction} a media CH), ou seja ~CHF {annual}/ano para CHF 100'000 tributaveis.",
   "@advisorMiniStep2AhaFactual": {
     "placeholders": {
       "years": { "type": "String" },
@@ -180,7 +180,7 @@
       "annual": { "type": "String" }
     }
   },
-  "advisorMiniStep2AhaEmotional": "Tens cerca de {years} anos ate aos 65. No cantao {canton}, a taxa marginal media e ~{rate}% ({delta} pts {direction} a media CH), o que pode representar ~CHF {annual}/ano sobre CHF 100'000 tributaveis.",
+  "advisorMiniStep2AhaEmotional": "Tens cerca de {years} anos ate aos 65. No cantao {canton}, a taxa efetiva estimada e ~{rate}% ({delta} pts {direction} a media CH), o que pode representar ~CHF {annual}/ano sobre CHF 100'000 tributaveis.",
   "@advisorMiniStep2AhaEmotional": {
     "placeholders": {
       "years": { "type": "String" },

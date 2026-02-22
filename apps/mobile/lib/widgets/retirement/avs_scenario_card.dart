@@ -38,7 +38,7 @@ class AvsScenarioCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isSelected ? config.color.withValues(alpha: 0.06) : Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -48,46 +48,45 @@ class AvsScenarioCard extends StatelessWidget {
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Icon + label
-            Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: config.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    config.icon,
-                    size: 16,
-                    color: config.color,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    config.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            // Monthly rente (large number)
-            Text(
-              RetirementService.formatChf(renteMensuelle),
-              style: GoogleFonts.montserrat(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+            // Icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: config.color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                config.icon,
+                size: 16,
                 color: config.color,
+              ),
+            ),
+            const SizedBox(height: 6),
+            // Label
+            Text(
+              config.label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Monthly rente (large number) — FittedBox prevents overflow
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                RetirementService.formatChf(renteMensuelle),
+                style: GoogleFonts.montserrat(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: config.color,
+                ),
               ),
             ),
             const SizedBox(height: 2),
@@ -141,6 +140,8 @@ class AvsScenarioCard extends StatelessWidget {
 
             // Duration badge
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
                   Icons.all_inclusive,
@@ -149,7 +150,7 @@ class AvsScenarioCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'a vie',
+                  'à vie',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,

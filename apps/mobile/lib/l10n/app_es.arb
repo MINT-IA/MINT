@@ -127,7 +127,7 @@
   "advisorMiniPartnerRequiredTitle": "Informacion de pareja requerida",
   "advisorMiniPartnerRequiredBody": "Anade estado civil, ingreso, ano de nacimiento y estado de la pareja para una proyeccion del hogar fiable.",
   "advisorMiniPartnerProfileTitle": "Perfil de la pareja",
-  "advisorReadinessLabel": "Fiabilidad del consejo",
+  "advisorReadinessLabel": "Completitud del perfil",
   "advisorReadinessLevel": "Nivel",
   "advisorReadinessSufficient": "Base suficiente para un plan inicial.",
   "advisorReadinessToComplete": "Por completar",
@@ -169,7 +169,7 @@
   "advisorMiniStep2AhaTitle": "Insight clave inmediato",
   "advisorMiniStep2AhaDirectionAbove": "por encima de",
   "advisorMiniStep2AhaDirectionBelow": "por debajo de",
-  "advisorMiniStep2AhaFactual": "Horizonte de jubilacion: ~{years} anos. En {canton}, el tipo marginal medio es ~{rate}% ({delta} pts {direction} la media CH), es decir ~CHF {annual}/ano para CHF 100'000 imponibles.",
+  "advisorMiniStep2AhaFactual": "Horizonte de jubilacion: ~{years} anos. En {canton}, el tipo efectivo estimado es ~{rate}% ({delta} pts {direction} la media CH), es decir ~CHF {annual}/ano para CHF 100'000 imponibles.",
   "@advisorMiniStep2AhaFactual": {
     "placeholders": {
       "years": { "type": "String" },
@@ -180,7 +180,7 @@
       "annual": { "type": "String" }
     }
   },
-  "advisorMiniStep2AhaEmotional": "Te quedan unos {years} anos hasta los 65. En el canton {canton}, el tipo marginal medio es ~{rate}% ({delta} pts {direction} la media CH), lo que puede representar ~CHF {annual}/ano sobre CHF 100'000 imponibles.",
+  "advisorMiniStep2AhaEmotional": "Te quedan unos {years} anos hasta los 65. En el canton {canton}, el tipo efectivo estimado es ~{rate}% ({delta} pts {direction} la media CH), lo que puede representar ~CHF {annual}/ano sobre CHF 100'000 imponibles.",
   "@advisorMiniStep2AhaEmotional": {
     "placeholders": {
       "years": { "type": "String" },

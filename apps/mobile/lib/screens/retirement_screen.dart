@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 import 'package:mint_mobile/widgets/retirement/avs_scenario_card.dart';
 import 'package:mint_mobile/widgets/retirement/lpp_comparison_card.dart';
 import 'package:mint_mobile/widgets/retirement/budget_gauge_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SCREEN — Sprint S21 / Retraite complete
@@ -64,11 +67,61 @@ class _RetirementScreenState extends State<RetirementScreen>
   // ── Tab 4: Planning checklist ────────────────────────────
   final Set<int> _planningChecked = {};
 
+  bool _profileLoaded = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _recalculateAll();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_profileLoaded) {
+      _loadFromProfile();
+    }
+  }
+
+  /// Pre-fill all inputs from the user's CoachProfile (onboarding data).
+  void _loadFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    _profileLoaded = true;
+
+    final isCouple = profile.etatCivil == CoachCivilStatus.marie ||
+        profile.etatCivil == CoachCivilStatus.concubinage ||
+        profile.conjoint != null;
+
+    setState(() {
+      // Tab 1: AVS
+      _ageActuel = profile.age;
+      _isCouple = isCouple;
+      _anneesLacunes = profile.prevoyance.lacunesAVS ?? 0;
+
+      // Tab 2: LPP
+      if (profile.prevoyance.avoirLppTotal != null &&
+          profile.prevoyance.avoirLppTotal! > 0) {
+        _capitalLpp = profile.prevoyance.avoirLppTotal!;
+      }
+      _cantonLpp = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+
+      // Tab 3: Budget
+      final netMensuel = profile.salaireBrutMensuel * 0.87;
+      final partnerNet = (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+      _budgetRevenuPre = netMensuel + partnerNet;
+      _budgetCouple = isCouple;
+      if (profile.depenses.totalMensuel > 0) {
+        _budgetDepenses = profile.depenses.totalMensuel;
+      }
+      if (profile.prevoyance.totalEpargne3a > 0) {
+        _budget3a = profile.prevoyance.totalEpargne3a;
+      }
+
+      _recalculateAll();
+    });
   }
 
   @override

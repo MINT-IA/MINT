@@ -127,7 +127,7 @@
   "advisorMiniPartnerRequiredTitle": "Partner info required",
   "advisorMiniPartnerRequiredBody": "Add civil status, income, birth year and partner status for a reliable household projection.",
   "advisorMiniPartnerProfileTitle": "Partner profile",
-  "advisorReadinessLabel": "Advice reliability",
+  "advisorReadinessLabel": "Profile completeness",
   "advisorReadinessLevel": "Level",
   "advisorReadinessSufficient": "Sufficient foundation for an initial plan.",
   "advisorReadinessToComplete": "To complete",
@@ -169,7 +169,7 @@
   "advisorMiniStep2AhaTitle": "Instant key insight",
   "advisorMiniStep2AhaDirectionAbove": "above",
   "advisorMiniStep2AhaDirectionBelow": "below",
-  "advisorMiniStep2AhaFactual": "Retirement horizon: ~{years} years. In {canton}, average marginal rate is ~{rate}% ({delta} pts {direction} CH average), i.e. ~CHF {annual}/year for CHF 100,000 taxable income.",
+  "advisorMiniStep2AhaFactual": "Retirement horizon: ~{years} years. In {canton}, estimated effective rate is ~{rate}% ({delta} pts {direction} CH average), i.e. ~CHF {annual}/year for CHF 100,000 taxable income.",
   "@advisorMiniStep2AhaFactual": {
     "placeholders": {
       "years": { "type": "String" },
@@ -180,7 +180,7 @@
       "annual": { "type": "String" }
     }
   },
-  "advisorMiniStep2AhaEmotional": "You have about {years} years before 65. In canton {canton}, average marginal rate is ~{rate}% ({delta} pts {direction} CH average), which can mean roughly CHF {annual}/year on CHF 100,000 taxable income.",
+  "advisorMiniStep2AhaEmotional": "You have about {years} years before 65. In canton {canton}, estimated effective rate is ~{rate}% ({delta} pts {direction} CH average), which can mean roughly CHF {annual}/year on CHF 100,000 taxable income.",
   "@advisorMiniStep2AhaEmotional": {
     "placeholders": {
       "years": { "type": "String" },

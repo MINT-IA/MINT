@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -292,6 +293,15 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           _buildSpecialAidCard(),
         ],
         const SizedBox(height: 32),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Valider mon check-up'),
+          ),
+        ),
+        const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(

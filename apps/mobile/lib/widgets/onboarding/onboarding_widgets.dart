@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -164,6 +165,7 @@ class MintChfInputField extends StatelessWidget {
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: onChanged,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),
           decoration: InputDecoration(

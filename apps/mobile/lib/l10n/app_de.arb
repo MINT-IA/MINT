@@ -127,7 +127,7 @@
   "advisorMiniPartnerRequiredTitle": "Partnerinfos erforderlich",
   "advisorMiniPartnerRequiredBody": "Füge Zivilstand, Einkommen, Geburtsjahr und Status des Partners hinzu für eine verlässliche Haushaltsprojektion.",
   "advisorMiniPartnerProfileTitle": "Partnerprofil",
-  "advisorReadinessLabel": "Beratungsqualität",
+  "advisorReadinessLabel": "Profilvollständigkeit",
   "advisorReadinessLevel": "Stufe",
   "advisorReadinessSufficient": "Ausreichende Grundlage für einen ersten Plan.",
   "advisorReadinessToComplete": "Zu ergänzen",
@@ -169,7 +169,7 @@
   "advisorMiniStep2AhaTitle": "Sofortiger Kernhinweis",
   "advisorMiniStep2AhaDirectionAbove": "über",
   "advisorMiniStep2AhaDirectionBelow": "unter",
-  "advisorMiniStep2AhaFactual": "Rentenhorizont: ~{years} Jahre. In {canton} liegt der durchschnittliche Grenzsteuersatz bei ~{rate}% ({delta} Punkte {direction} dem CH-Durchschnitt), also ~CHF {annual}/Jahr bei CHF 100'000 steuerbarem Einkommen.",
+  "advisorMiniStep2AhaFactual": "Rentenhorizont: ~{years} Jahre. In {canton} liegt der geschätzte effektive Steuersatz bei ~{rate}% ({delta} Punkte {direction} dem CH-Durchschnitt), also ~CHF {annual}/Jahr bei CHF 100'000 steuerbarem Einkommen.",
   "@advisorMiniStep2AhaFactual": {
     "placeholders": {
       "years": { "type": "String" },
@@ -180,7 +180,7 @@
       "annual": { "type": "String" }
     }
   },
-  "advisorMiniStep2AhaEmotional": "Du hast etwa {years} Jahre bis 65. Im Kanton {canton} liegt der durchschnittliche Grenzsteuersatz bei ~{rate}% ({delta} Punkte {direction} dem CH-Durchschnitt), das entspricht etwa CHF {annual}/Jahr bei CHF 100'000 steuerbarem Einkommen.",
+  "advisorMiniStep2AhaEmotional": "Du hast etwa {years} Jahre bis 65. Im Kanton {canton} liegt der geschätzte effektive Steuersatz bei ~{rate}% ({delta} Punkte {direction} dem CH-Durchschnitt), das entspricht etwa CHF {annual}/Jahr bei CHF 100'000 steuerbarem Einkommen.",
   "@advisorMiniStep2AhaEmotional": {
     "placeholders": {
       "years": { "type": "String" },
