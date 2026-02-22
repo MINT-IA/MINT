@@ -37,10 +37,10 @@ void main() {
           path: '/',
           builder: (context, state) => const AdvisorWizardScreenV2(),
         ),
-        // Add placeholder routes for any navigation attempts
         GoRoute(
           path: '/simulators/:type',
-          builder: (context, state) => const Scaffold(body: Center(child: Text('Simulator'))),
+          builder: (context, state) =>
+              const Scaffold(body: Center(child: Text('Simulator'))),
         ),
       ],
     );
@@ -52,8 +52,8 @@ void main() {
         scaffoldBackgroundColor: MintColors.background,
       ),
     ));
-    await tester.pumpAndSettle(); // Initial Load
-    await tester.pumpAndSettle(); // Animation settle
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
     print('STEP 1: Done');
 
     // Helper to tap next securely
@@ -63,51 +63,41 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    print('STEP 1b: Stress Check');
-    // Q0: Financial Stress Check (choice) - Use the helper from persona tests
-    await _answerChoice(tester, 'Optimiser mes impôts');
-
+    // Q0: Name (stress check removed — wizard now starts with Profil section)
     print('STEP 2: Name');
-    // Q1: Name
     await tester.enterText(find.byType(TextField).first, 'TestUser');
     await tapNext();
 
     print('STEP 3: Birth Year');
-    // Q2: Birth Year
-    await tester.enterText(find.byType(TextField).first, '1990'); // Age 36
+    // Q1: Birth Year
+    await tester.enterText(find.byType(TextField).first, '1990');
     await tapNext();
 
     print('STEP 4: Canton');
-    // Q3: Canton (choice type with labels like "Vaud (VD)")
+    // Q2: Canton
     await _answerChoice(tester, 'Vaud (VD)');
 
     print('STEP 5: Civil Status');
-    // Q4: Civil Status
+    // Q3: Civil Status
     await _answerChoice(tester, 'Célibataire');
 
     print('STEP 6: Children');
-    // Q5: Children (after this, section transitions to Budget & Protection)
+    // Q4: Children
     await _answerChoice(tester, 'Aucun');
 
     print('STEP 7: Employment');
-    // Q6: Employment (now in Budget & Protection section)
+    // Q5: Employment (last Profil question)
     await _answerChoice(tester, 'Salarié(e)');
 
-    print('STEP 8: Pay Frequency');
-    // Q7: Pay Frequency
-    await _answerChoice(tester, 'Mensuel');
-
-    print('STEP 9: Income');
-    // Q8: Net Income
+    print('STEP 8: Income');
+    // Q6: Net Income (first Budget & Protection question)
     await tester.enterText(
         find.byType(TextField).first, '10000'); // 10k/month => 120k/year
-
-    // Tap Next to finalize answer
     await tapNext();
 
-    print('STEP 10: Check Insight');
+    print('STEP 9: Check Insight');
 
-    // Scroll down to find the insight widgets (they appear below the question)
+    // Scroll down to find the insight widgets
     final scrollable = find.byKey(const ValueKey('wizard_scroll_view'));
     if (scrollable.evaluate().isNotEmpty) {
       for (int i = 0; i < 5; i++) {
@@ -116,13 +106,9 @@ void main() {
       }
     }
 
-    // CHECK: Does the Insight appear?
-    expect(find.byKey(const ValueKey('tax_freedom')), findsOneWidget);
-    expect(find.textContaining('INSIGHT FISCAL'), findsOneWidget);
-
-    // Check Neighbor Comp (VD -> VS/FR saves money)
-    expect(find.byKey(const ValueKey('neighbor_comp')), findsOneWidget);
-    expect(find.textContaining('OPTIMISATION LOCALE'), findsOneWidget);
+    // CHECK: Tax freedom insight appears on income question
+    expect(find.textContaining('LIBERATION FISCALE'), findsOneWidget);
+    expect(find.textContaining('impots'), findsWidgets);
 
     addTearDown(() {
       tester.view.resetPhysicalSize();
@@ -139,7 +125,6 @@ Future<void> _answerChoice(WidgetTester tester, String exactText) async {
   final target = find.textContaining(exactText);
   final scrollable = find.byKey(const ValueKey('wizard_scroll_view'));
 
-  // Scroll down to make the question options visible (they may be after the educational insert)
   if (scrollable.evaluate().isNotEmpty && target.evaluate().isEmpty) {
     for (int i = 0; i < 10; i++) {
       await tester.drag(scrollable, const Offset(0, -300));
@@ -153,8 +138,8 @@ Future<void> _answerChoice(WidgetTester tester, String exactText) async {
     fail("Choice '$exactText' not found.");
   }
 
-  // If there are multiple matches (e.g., in educational insert + question), tap the last one
-  final targetToUse = finalTarget.evaluate().length > 1 ? finalTarget.last : finalTarget.first;
+  final targetToUse =
+      finalTarget.evaluate().length > 1 ? finalTarget.last : finalTarget.first;
 
   final inkWell =
       find.ancestor(of: targetToUse, matching: find.byType(InkWell));
@@ -170,7 +155,7 @@ Future<void> _answerChoice(WidgetTester tester, String exactText) async {
 
 Future<void> _handlePotentialTransition(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
-  if (find.textContaining("Prochaine étape").evaluate().isNotEmpty) {
+  if (find.textContaining("Prochaine").evaluate().isNotEmpty) {
     await tester.pumpAndSettle(const Duration(seconds: 6));
   }
 }

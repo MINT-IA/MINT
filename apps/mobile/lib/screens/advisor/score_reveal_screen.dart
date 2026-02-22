@@ -729,7 +729,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
           // Secondary action
           TextButton(
             onPressed: _ctaOpacity.value > 0.5
-                ? () => context.go('/report/v2', extra: widget.wizardAnswers)
+                ? () => context.push('/report/v2', extra: widget.wizardAnswers)
                 : null,
             child: Text(
               'Voir le rapport détaillé',

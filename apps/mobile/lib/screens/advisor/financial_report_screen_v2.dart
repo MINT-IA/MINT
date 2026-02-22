@@ -57,6 +57,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
         title: const Text('Ton Plan Mint'),
         backgroundColor: MintColors.primary,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => context.go('/home'),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),

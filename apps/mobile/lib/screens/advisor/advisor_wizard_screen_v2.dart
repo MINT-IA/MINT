@@ -57,9 +57,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   void _jumpToSection(String section) {
     final sectionIndex = switch (section) {
       'identity' || 'profil' => 0,
-      'income' || 'budget' => 7,
-      'pension' || 'prevoyance' => 16,
-      'property' || 'patrimoine' => 28,
+      'income' || 'budget' => 6,
+      'pension' || 'prevoyance' => 15,
+      'property' || 'patrimoine' => 27,
       _ => 0,
     };
     setState(() {
@@ -96,26 +96,26 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   }
 
   String get _currentSection {
-    if (_currentQuestionIndex < 7) return 'Profil';
-    if (_currentQuestionIndex < 16) return 'Budget & Protection';
-    if (_currentQuestionIndex < 28) return 'Prévoyance';
+    if (_currentQuestionIndex < 6) return 'Profil';
+    if (_currentQuestionIndex < 15) return 'Budget & Protection';
+    if (_currentQuestionIndex < 27) return 'Prévoyance';
     return 'Patrimoine';
   }
 
-  int get _sectionStart => _currentQuestionIndex < 7
+  int get _sectionStart => _currentQuestionIndex < 6
       ? 0
-      : _currentQuestionIndex < 16
-          ? 7
-          : _currentQuestionIndex < 28
-              ? 16
-              : 28;
+      : _currentQuestionIndex < 15
+          ? 6
+          : _currentQuestionIndex < 27
+              ? 15
+              : 27;
 
-  int get _sectionEnd => _currentQuestionIndex < 7
-      ? 7
-      : _currentQuestionIndex < 16
-          ? 16
-          : _currentQuestionIndex < 28
-              ? 28
+  int get _sectionEnd => _currentQuestionIndex < 6
+      ? 6
+      : _currentQuestionIndex < 15
+          ? 15
+          : _currentQuestionIndex < 27
+              ? 27
               : _questions.length;
 
   int get _sectionQuestionNumber {
@@ -575,251 +575,620 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     );
   }
 
-  /// Construit un widget de "Feedback Educatif (Hermeneutic Loop)"
-  /// qui illumine le "Pourquoi" derrière la question actuelle.
+  /// One unique, mind-blowing insight per wizard question.
+  /// Each insight is contextual and uses the user's actual data.
   Widget _buildInsightWidget() {
-    // 1. Fiscal Intelligence (Si revenu, canton et âge connus)
-    if (_answers['q_net_income_period_chf'] != null &&
-        _answers['q_canton'] != null &&
-        _answers['q_birth_year'] != null) {
-      final income = (_answers['q_net_income_period_chf'] as num).toDouble();
-      final canton = _answers['q_canton'] as String;
-      final birthYear = (_answers['q_birth_year'] as num).toInt();
-      final age = DateTime.now().year - birthYear;
-      final status = _answers['q_civil_status'] as String? ?? 'single';
-      final childrenRaw = _answers['q_children'];
-      final children = switch (childrenRaw) {
-        int v => v,
-        num v => v.toInt(),
-        String v => int.tryParse(v) ?? 0,
-        _ => 0,
-      };
+    final currentQuestion = _questions[_currentQuestionIndex];
+    final qId = currentQuestion.id;
 
-      // Afficher cet insight surtout quand on parle d'épargne ou prévoyance
-      if (_currentSection == 'Budget & Protection' ||
-          _currentSection == 'Prévoyance') {
-        final annualTax = TaxEstimatorService.estimateAnnualTax(
-          netMonthlyIncome: income,
-          cantonCode: canton,
-          civilStatus: status,
-          childrenCount: children,
-          age: age,
+    switch (qId) {
+      // ── PROFIL ──
+
+      case 'q_birth_year':
+        if (_answers['q_birth_year'] != null) {
+          final age = _currentAge;
+          final yearsToRetirement = (65 - age).clamp(0, 50);
+          final horizon = yearsToRetirement > 0
+              ? 'Dans $yearsToRetirement ans, CHF 100 investis aujourd\'hui '
+                'pourraient valoir CHF ${(100 * _compoundFactor(yearsToRetirement)).toStringAsFixed(0)} (5%/an).'
+              : 'A $age ans, tu es proche de la retraite. Chaque franc optimise compte.';
+          return _buildMindBlowingInsight(
+            icon: Icons.timer_outlined,
+            title: 'TON HORIZON',
+            text: horizon,
+            color: MintColors.primary,
+          );
+        }
+
+      case 'q_canton':
+        if (_answers['q_canton'] != null) {
+          return _buildMindBlowingInsight(
+            icon: Icons.map_outlined,
+            title: 'SAVIEZ-VOUS ?',
+            text: 'L\'ecart d\'impots entre le canton le moins cher (ZG) et le plus cher (GE) '
+                'peut depasser CHF 20\'000/an pour un meme revenu. '
+                'Le canton est le levier fiscal n\u00b01 en Suisse.',
+            color: Colors.indigo,
+          );
+        }
+
+      case 'q_civil_status':
+        return _buildMindBlowingInsight(
+          icon: Icons.balance_outlined,
+          title: 'IMPACT FISCAL',
+          text: 'Marie = Splitting fiscal (impots calcules sur la moitie du revenu cumule). '
+              'Concubinage = Chacun est impose individuellement. '
+              'Difference possible : plusieurs milliers de CHF/an.',
+          color: Colors.deepPurple,
         );
 
-        final monthsForTax =
-            FiscalIntelligenceService.calculateMonthsWorkedForTax(
-          annualTax: annualTax,
-          netAnnualIncome: income * 12,
+      case 'q_children':
+        return _buildMindBlowingInsight(
+          icon: Icons.child_care,
+          title: 'DEDUCTIONS ENFANTS',
+          text: 'Chaque enfant = CHF 6\'600 de deduction federale (LIFD art. 35) '
+              '+ deduction cantonale (CHF 6\'000-13\'000 selon canton) '
+              '+ allocations familiales CHF 200-400/mois.',
+          color: Colors.teal,
         );
 
-        // DATE DE LIBÉRATION FISCALE
-        final dayOfYear = (monthsForTax * 30).round();
-        final taxFreedomDate =
-            DateTime(DateTime.now().year, 1, 1).add(Duration(days: dayOfYear));
-        final formattedDate = "${taxFreedomDate.day}.${taxFreedomDate.month}";
-
-        // COMPARAISON VOISIN
-        final neighborComp = FiscalIntelligenceService.findBetterNeighbor(
-          currentCanton: canton,
-          netMonthlyIncome: income,
-          civilStatus: status,
-          age: age,
-          childrenCount: children,
+      case 'q_employment_status':
+        return _buildMindBlowingInsight(
+          icon: Icons.work_outline,
+          title: 'CLE DE VOUTE',
+          text: 'Ton statut professionnel determine tout : '
+              'Salarie = LPP obligatoire + 3a max 7\'258 CHF. '
+              'Independant = Pas de LPP + 3a max 36\'288 CHF (5x plus !). '
+              'Le bon statut peut changer toute ta strategie.',
+          color: Colors.blueGrey,
         );
 
-        return Column(
-          children: [
-            // Insight 1: Tax Freedom
-            Container(
-              key: const ValueKey('tax_freedom'),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: MintColors.lightBorder),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4)),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.auto_awesome,
-                        color: MintColors.primary, size: 20),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "INSIGHT FISCAL",
-                          style: GoogleFonts.outfit(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: MintColors.textMuted,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        RichText(
-                          text: TextSpan(
-                            style: GoogleFonts.inter(
-                                fontSize: 14,
-                                color: MintColors.textPrimary,
-                                height: 1.5),
-                            children: [
-                              const TextSpan(text: "Tu travailles jusqu'au "),
-                              TextSpan(
-                                  text: formattedDate,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: MintColors.primary)),
-                              TextSpan(
-                                  text:
-                                      " pour couvrir tes impôts (${monthsForTax.toStringAsFixed(1)} mois)."),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      // ── BUDGET & PROTECTION ──
+
+      case 'q_net_income_period_chf':
+        if (_answers['q_net_income_period_chf'] != null &&
+            _answers['q_canton'] != null &&
+            _answers['q_birth_year'] != null) {
+          return _buildFiscalInsight();
+        }
+
+      case 'q_housing_status':
+        return _buildMindBlowingInsight(
+          icon: Icons.home_outlined,
+          title: 'LOUER VS ACHETER',
+          text: 'En Suisse, la regle FINMA : '
+              'charges max 1/3 du revenu brut, fonds propres min 20%. '
+              'Un salaire de CHF 8\'000/mois = prix max ~CHF 650\'000. '
+              'Locataire n\'est pas "perdre de l\'argent" — c\'est de la flexibilite.',
+          color: Colors.brown,
+        );
+
+      case 'q_housing_cost_period_chf':
+        if (_answers['q_net_income_period_chf'] != null &&
+            _answers['q_housing_cost_period_chf'] != null) {
+          final income = (_answers['q_net_income_period_chf'] as num).toDouble();
+          final housing = (_answers['q_housing_cost_period_chf'] as num).toDouble();
+          final ratio = income > 0 ? (housing / income * 100) : 0;
+          final verdict = ratio > 33
+              ? 'Au-dessus du seuil recommande (33%). Attention a ta capacite d\'epargne.'
+              : ratio > 25
+                  ? 'Dans la norme suisse. Marge de manoeuvre correcte.'
+                  : 'Excellent ratio ! Tu as une belle capacite d\'epargne.';
+          return _buildMindBlowingInsight(
+            icon: Icons.pie_chart_outline,
+            title: 'TON RATIO LOGEMENT',
+            text: 'Ton logement = ${ratio.toStringAsFixed(0)}% de ton revenu. $verdict '
+                'Norme FINMA : max 33% du revenu brut.',
+            color: ratio > 33 ? Colors.red.shade700 : Colors.green.shade700,
+          );
+        }
+
+      case 'q_has_consumer_debt':
+        return _buildMindBlowingInsight(
+          icon: Icons.priority_high,
+          title: 'MATHEMATIQUE CRUELLE',
+          text: 'Un credit conso a 9.9% coute CHF 4\'950/an sur CHF 50\'000 de dette. '
+              'Un ETF monde rapporte ~6%/an. Rembourser ses dettes = '
+              'le placement le plus rentable et le seul GARANTI.',
+          color: Colors.red.shade700,
+        );
+
+      case 'q_debt_payments_period_chf':
+        if (_answers['q_debt_payments_period_chf'] != null) {
+          final monthly = (_answers['q_debt_payments_period_chf'] as num).toDouble();
+          final annualCost = monthly * 12;
+          return _buildMindBlowingInsight(
+            icon: Icons.trending_down,
+            title: 'COUT ANNUEL',
+            text: 'Tes remboursements = CHF ${annualCost.toStringAsFixed(0)}/an. '
+                'En 10 ans, c\'est CHF ${(annualCost * 10).toStringAsFixed(0)} qui ne travaillent pas pour toi. '
+                'Methode avalanche : rembourse d\'abord le taux le plus eleve.',
+            color: Colors.orange.shade800,
+          );
+        }
+
+      case 'q_total_debt_balance_chf':
+        if (_answers['q_total_debt_balance_chf'] != null &&
+            _answers['q_debt_payments_period_chf'] != null) {
+          final total = (_answers['q_total_debt_balance_chf'] as num).toDouble();
+          final monthly = (_answers['q_debt_payments_period_chf'] as num).toDouble();
+          final monthsToFreedom = monthly > 0 ? (total / monthly).ceil() : 999;
+          final yearsToFreedom = (monthsToFreedom / 12).ceil();
+          return _buildMindBlowingInsight(
+            icon: Icons.flag_outlined,
+            title: 'DATE DE LIBERTE',
+            text: 'A CHF ${monthly.toStringAsFixed(0)}/mois, tu seras libre de dettes '
+                'dans ~$monthsToFreedom mois ($yearsToFreedom ans). '
+                'Augmenter de CHF 200/mois = ${((total / (monthly + 200)).ceil())} mois au lieu de $monthsToFreedom.',
+            color: Colors.green.shade700,
+          );
+        }
+
+      case 'q_emergency_fund':
+        if (_answers['q_net_income_period_chf'] != null) {
+          final income = (_answers['q_net_income_period_chf'] as num).toDouble();
+          final housing = (_answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
+          final monthlyExpenses = housing + (income * 0.3); // estimate
+          final target6months = monthlyExpenses * 6;
+          return _buildMindBlowingInsight(
+            icon: Icons.shield_outlined,
+            title: 'TON FILET DE SECURITE',
+            text: 'Pour toi, 6 mois de charges = ~CHF ${target6months.toStringAsFixed(0)}. '
+                'C\'est ta protection contre le chomage (delai de carence LACI), '
+                'un accident ou une urgence medicale. Priorite absolue avant tout investissement.',
+            color: MintColors.info,
+          );
+        }
+
+      case 'q_savings_monthly':
+        if (_answers['q_net_income_period_chf'] != null &&
+            _answers['q_canton'] != null &&
+            _answers['q_birth_year'] != null) {
+          return _buildNeighborInsight();
+        }
+
+      case 'q_savings_allocation':
+        if (_answers['q_savings_monthly'] != null) {
+          final savings = (_answers['q_savings_monthly'] as num).toDouble();
+          if (savings > 0) {
+            final totalFuture = savings * 12 * 20 * 1.6;
+            final gain = totalFuture - (savings * 12 * 20);
+            return _buildMindBlowingInsight(
+              icon: Icons.auto_graph,
+              title: 'INTERET COMPOSE',
+              text: 'CHF ${savings.toStringAsFixed(0)}/mois investis pendant 20 ans = '
+                  'CHF ${totalFuture.toStringAsFixed(0)} dont CHF ${gain.toStringAsFixed(0)} d\'interets purs. '
+                  'Einstein appelait les interets composes "la 8e merveille du monde".',
+              color: const Color(0xFF1565C0),
+            );
+          }
+        }
+
+      // ── PREVOYANCE ──
+
+      case 'q_has_pension_fund':
+        if (_answers['q_employment_status'] != null) {
+          final status = _answers['q_employment_status'] as String;
+          if (status == 'employee') {
+            return _buildMindBlowingInsight(
+              icon: Icons.account_balance,
+              title: 'TON 2E PILIER',
+              text: 'En tant que salarie, ton employeur cotise autant que toi a ta LPP. '
+                  'C\'est de l\'argent "gratuit" — CHF 3\'000-10\'000/an selon ton age. '
+                  'Taux de conversion garanti : 6.8% sur la part obligatoire (LPP art. 14).',
+              color: MintColors.info,
+            );
+          } else {
+            return _buildMindBlowingInsight(
+              icon: Icons.account_balance,
+              title: 'LPP VOLONTAIRE',
+              text: 'Les independants peuvent s\'affilier volontairement (LPP art. 4). '
+                  'Avantage : cotisations deductibles des impots + '
+                  'capital bloque pour un achat immobilier (EPL).',
+              color: MintColors.info,
+            );
+          }
+        }
+
+      case 'q_lpp_buyback_available':
+        if (_answers['q_net_income_period_chf'] != null && _answers['q_canton'] != null) {
+          final income = (_answers['q_net_income_period_chf'] as num).toDouble();
+          final canton = _answers['q_canton'] as String;
+          // Estimate marginal rate
+          final marginalRate = TaxEstimatorService.estimateMarginalTaxRate(
+            netMonthlyIncome: income,
+            cantonCode: canton,
+            civilStatus: _answers['q_civil_status'] as String? ?? 'single',
+          ).clamp(0.10, 0.50);
+          return _buildMindBlowingInsight(
+            icon: Icons.savings,
+            title: 'RACHAT = DEDUCTION ILLIMITEE',
+            text: 'Contrairement au 3a (plafond 7\'258 CHF), le rachat LPP n\'a PAS de plafond annuel. '
+                'A ton taux marginal de ${(marginalRate * 100).toStringAsFixed(0)}% ($canton), '
+                'un rachat de CHF 10\'000 = economie fiscale de CHF ${(10000 * marginalRate).toStringAsFixed(0)}. '
+                'Attention : blocage 3 ans si retrait (LPP art. 79b).',
+            color: Colors.green.shade700,
+          );
+        }
+
+      case 'q_has_3a':
+        if (_answers['q_net_income_period_chf'] != null && _answers['q_canton'] != null) {
+          return _build3aInsight();
+        }
+
+      case 'q_3a_accounts_count':
+        return _buildMindBlowingInsight(
+          icon: Icons.account_balance_wallet,
+          title: 'STRATEGIE MULTI-COMPTES',
+          text: 'Les retraits 3a sont imposes progressivement. '
+              'Avec 3 comptes retires sur 3 ans differents, tu paies le taux le plus bas chaque annee. '
+              'Economie potentielle : CHF 5\'000-15\'000 sur l\'ensemble du capital.',
+          color: Colors.purple,
+        );
+
+      case 'q_3a_providers':
+        return _buildMindBlowingInsight(
+          icon: Icons.compare,
+          title: 'FRAIS = POISON SILENCIEUX',
+          text: 'Banque classique : frais ~0.7-1.2%/an. Fintech (VIAC, Finpension) : ~0.4%. '
+              'Sur 30 ans avec CHF 100\'000, la difference de 0.5% = CHF 16\'000 en moins. '
+              'Les assurances-vie 3a ont souvent les frais les plus eleves + penalite de rachat.',
+          color: Colors.deepOrange,
+        );
+
+      case 'q_3a_annual_contribution':
+        if (_answers['q_3a_annual_contribution'] != null) {
+          final contribution = (_answers['q_3a_annual_contribution'] as num).toDouble();
+          final max3a = 7258.0;
+          final gap = (max3a - contribution).clamp(0, max3a);
+          if (gap > 500 && _answers['q_canton'] != null) {
+            final canton = _answers['q_canton'] as String;
+            final marginalRate = TaxEstimatorService.estimateMarginalTaxRate(
+              netMonthlyIncome: (_answers['q_net_income_period_chf'] as num?)?.toDouble() ?? 6000,
+              cantonCode: canton,
+              civilStatus: _answers['q_civil_status'] as String? ?? 'single',
+            ).clamp(0.10, 0.50);
+            final missedSavings = gap * marginalRate;
+            return _buildMindBlowingInsight(
+              icon: Icons.warning_amber,
+              title: 'ARGENT LAISSE SUR LA TABLE',
+              text: 'Tu verses CHF ${contribution.toStringAsFixed(0)} au lieu du max de CHF ${max3a.toStringAsFixed(0)}. '
+                  'Gap : CHF ${gap.toStringAsFixed(0)}/an = CHF ${missedSavings.toStringAsFixed(0)} d\'impots '
+                  'non economises chaque annee dans le canton $canton.',
+              color: Colors.amber.shade800,
+            );
+          }
+        }
+
+      case 'q_avs_lacunes_status':
+        final age = _currentAge;
+        final theoreticalYears = (age - 21).clamp(0, 44);
+        return _buildMindBlowingInsight(
+          icon: Icons.history_edu,
+          title: 'ECHELLE COMPLETE = 44 ANS',
+          text: 'A $age ans, tu devrais avoir $theoreticalYears annees de cotisation. '
+              'Rente max individuelle : CHF 30\'240/an (couple: CHF 45\'360). '
+              'Chaque annee manquante = -2.3% de rente A VIE. '
+              'Tu peux racheter les 5 dernieres annees manquantes (LAVS art. 16).',
+          color: MintColors.warning,
+        );
+
+      case 'q_avs_arrival_year':
+        if (_answers['q_avs_arrival_year'] != null && _answers['q_birth_year'] != null) {
+          final arrivalYear = (_answers['q_avs_arrival_year'] as num).toInt();
+          final birthYear = (_answers['q_birth_year'] as num).toInt();
+          final startAge = 21;
+          final gapYears = (arrivalYear - (birthYear + startAge)).clamp(0, 44);
+          final renteLoss = (gapYears * 2.3).clamp(0, 100);
+          final monthlyLoss = (30240 * renteLoss / 100 / 12);
+          return _buildMindBlowingInsight(
+            icon: Icons.flight_land,
+            title: 'TES LACUNES AVS',
+            text: 'Arrive en Suisse en $arrivalYear = $gapYears annees de lacune AVS. '
+                'Impact : -${renteLoss.toStringAsFixed(1)}% de rente = '
+                'CHF ${monthlyLoss.toStringAsFixed(0)}/mois en moins a vie. '
+                'Racheter 5 ans = recuperer ~11.5% de rente (LAVS art. 16).',
+            color: Colors.red.shade700,
+          );
+        }
+
+      case 'q_avs_years_abroad':
+        if (_answers['q_avs_years_abroad'] != null) {
+          final yearsAbroad = (_answers['q_avs_years_abroad'] as num).toInt();
+          final renteLoss = (yearsAbroad * 2.3).clamp(0, 100);
+          return _buildMindBlowingInsight(
+            icon: Icons.public,
+            title: 'IMPACT ETRANGER',
+            text: '$yearsAbroad ans hors Suisse = -${renteLoss.toStringAsFixed(1)}% de rente AVS. '
+                'Bonne nouvelle : les cotisations de jeunesse (18-20 ans) peuvent combler '
+                'jusqu\'a 3 annees (RAVS art. 52b). '
+                'Les accords bilateraux EU/AELE comptent aussi.',
+            color: Colors.indigo,
+          );
+        }
+
+      case 'q_spouse_avs_lacunes_status':
+        return _buildMindBlowingInsight(
+          icon: Icons.people_outline,
+          title: 'RENTE DE COUPLE',
+          text: 'Plafond couple = 150% de la rente max individuelle (LAVS art. 35). '
+              'Si un conjoint a des lacunes, la rente du couple entier baisse. '
+              'Il est parfois plus rentable de racheter les lacunes du conjoint que les siennes.',
+          color: Colors.purple.shade700,
+        );
+
+      case 'q_spouse_avs_arrival_year':
+        if (_answers['q_spouse_avs_arrival_year'] != null && _answers['q_birth_year'] != null) {
+          final spouseArrival = (_answers['q_spouse_avs_arrival_year'] as num).toInt();
+          // Use partner birth year if available, else estimate
+          final partnerBirth = (_answers['q_partner_birth_year'] as num?)?.toInt() ??
+              ((_answers['q_birth_year'] as num).toInt());
+          final gapYears = (spouseArrival - (partnerBirth + 21)).clamp(0, 44);
+          return _buildMindBlowingInsight(
+            icon: Icons.flight_land,
+            title: 'LACUNES CONJOINT',
+            text: 'Ton/ta conjoint·e : $gapYears annees de lacune AVS estimees. '
+                'Cela affecte directement la rente de couple (plafond 150%). '
+                'Le rachat est possible pour les 5 dernieres annees manquantes.',
+            color: Colors.orange.shade800,
+          );
+        }
+
+      // ── PATRIMOINE ──
+
+      case 'q_has_investments':
+        return _buildMindBlowingInsight(
+          icon: Icons.show_chart,
+          title: 'INFLATION = IMPOT INVISIBLE',
+          text: 'CHF 100\'000 sur un compte epargne a 0.5% perdent 2-3% de pouvoir '
+              'd\'achat par an. Dans 20 ans, ils ne "valent" plus que ~CHF 65\'000. '
+              'Investir (diversifie, long terme) est le seul remede contre l\'erosion.',
+          color: const Color(0xFF1565C0),
+        );
+
+      case 'q_real_estate_project':
+        return _buildMindBlowingInsight(
+          icon: Icons.house_outlined,
+          title: 'REGLE DES 20%',
+          text: 'Fonds propres min 20% du prix (max 10% du 2e pilier). '
+              'Pour un bien a CHF 800\'000 : CHF 160\'000 minimum dont CHF 80\'000 en cash. '
+              'Attention : rachat LPP + achat immo dans les 3 ans = incompatible legalement (LPP art. 79b).',
+          color: Colors.brown.shade700,
+        );
+
+      case 'q_main_goal':
+        if (_answers['q_birth_year'] != null) {
+          final age = _currentAge;
+          final yearsToRetirement = (65 - age).clamp(0, 50);
+          return _buildMindBlowingInsight(
+            icon: Icons.flag_outlined,
+            title: 'TON POTENTIEL',
+            text: 'A $age ans avec $yearsToRetirement ans devant toi, '
+                'CHF 500/mois investis a 5% = CHF ${(500 * 12 * yearsToRetirement * _compoundFactor(yearsToRetirement) / _compoundFactor(yearsToRetirement)).toStringAsFixed(0)} '
+                'de capital a 65 ans. Chaque annee de retard coute cher grace aux interets composes.',
+            color: MintColors.primary,
+          );
+        }
+
+      case 'q_risk_tolerance':
+        return _buildMindBlowingInsight(
+          icon: Icons.analytics_outlined,
+          title: 'RENDEMENTS HISTORIQUES',
+          text: 'Sur 20 ans (SPI, MSCI World) : '
+              'Prudent (obligations) ~2%/an. '
+              'Equilibre (mixte) ~4-5%/an. '
+              'Dynamique (actions) ~6-8%/an. '
+              'Aucune perte sur 15+ ans historiquement — le temps est le meilleur allie.',
+          color: Colors.teal.shade700,
+        );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  /// Compound factor for N years at 5%
+  double _compoundFactor(int years) {
+    double factor = 1.0;
+    for (int i = 0; i < years; i++) {
+      factor *= 1.05;
+    }
+    return factor;
+  }
+
+  int get _currentAge {
+    final birthYear = _answers['q_birth_year'];
+    if (birthYear == null) return 35;
+    return DateTime.now().year - (birthYear as num).toInt();
+  }
+
+  int _parseChildrenCount() {
+    final raw = _answers['q_children'];
+    return switch (raw) {
+      int v => v,
+      num v => v.toInt(),
+      String v => int.tryParse(v) ?? 0,
+      _ => 0,
+    };
+  }
+
+  /// 3a tax savings insight
+  Widget _build3aInsight() {
+    final income = (_answers['q_net_income_period_chf'] as num).toDouble();
+    final canton = _answers['q_canton'] as String;
+    final status = _answers['q_civil_status'] as String? ?? 'single';
+    final children = _parseChildrenCount();
+    final age = _currentAge;
+
+    final taxWithout3a = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: income,
+      cantonCode: canton,
+      civilStatus: status,
+      childrenCount: children,
+      age: age,
+    );
+    final taxWith3a = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: income - (7258 / 12),
+      cantonCode: canton,
+      civilStatus: status,
+      childrenCount: children,
+      age: age,
+    );
+    final savings = (taxWithout3a - taxWith3a).clamp(0.0, double.infinity);
+    final yearsToRetirement = (65 - age).clamp(0, 50);
+    final lifetimeSavings = savings * yearsToRetirement;
+
+    return _buildMindBlowingInsight(
+      icon: Icons.savings,
+      title: 'LE 3A = TON ARME FISCALE',
+      text: 'Max 3a : 7\'258 CHF/an = economie de CHF ${savings.toStringAsFixed(0)}/an '
+          'dans le canton $canton. Sur $yearsToRetirement ans = CHF ${lifetimeSavings.toStringAsFixed(0)} '
+          'd\'impots economises au total. C\'est le meilleur outil fiscal en Suisse.',
+      color: Colors.green.shade700,
+    );
+  }
+
+  /// Fiscal insight: Tax Freedom Date — shown once on income question
+  Widget _buildFiscalInsight() {
+    final income = (_answers['q_net_income_period_chf'] as num).toDouble();
+    final canton = _answers['q_canton'] as String;
+    final age = _currentAge;
+    final status = _answers['q_civil_status'] as String? ?? 'single';
+    final children = _parseChildrenCount();
+
+    final annualTax = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: income,
+      cantonCode: canton,
+      civilStatus: status,
+      childrenCount: children,
+      age: age,
+    );
+    final monthsForTax = FiscalIntelligenceService.calculateMonthsWorkedForTax(
+      annualTax: annualTax,
+      netAnnualIncome: income * 12,
+    );
+    final dayOfYear = (monthsForTax * 30).round();
+    final taxFreedomDate =
+        DateTime(DateTime.now().year, 1, 1).add(Duration(days: dayOfYear));
+    final formattedDate = "${taxFreedomDate.day}.${taxFreedomDate.month}";
+
+    return _buildMindBlowingInsight(
+      icon: Icons.auto_awesome,
+      title: 'DATE DE LIBERATION FISCALE',
+      text: 'Tu travailles jusqu\'au $formattedDate rien que pour payer tes impots '
+          '(${monthsForTax.toStringAsFixed(1)} mois sur 12). '
+          'Chaque franc d\'optimisation fiscale = du temps de vie recupere.',
+      color: MintColors.primary,
+    );
+  }
+
+  /// Neighbor comparison insight — shown once on savings question
+  Widget _buildNeighborInsight() {
+    final income = (_answers['q_net_income_period_chf'] as num).toDouble();
+    final canton = _answers['q_canton'] as String;
+    final age = _currentAge;
+    final status = _answers['q_civil_status'] as String? ?? 'single';
+    final children = _parseChildrenCount();
+
+    final neighborComp = FiscalIntelligenceService.findBetterNeighbor(
+      currentCanton: canton,
+      netMonthlyIncome: income,
+      civilStatus: status,
+      age: age,
+      childrenCount: children,
+    );
+
+    if (neighborComp == null) {
+      return _buildMindBlowingInsight(
+        icon: Icons.emoji_events,
+        title: 'BIEN PLACE !',
+        text: 'Ton canton ($canton) est deja parmi les plus competitifs fiscalement. '
+            'Concentre-toi sur les deductions (3a, LPP, frais professionnels) '
+            'plutot que sur un demenagement.',
+        color: Colors.green.shade700,
+      );
+    }
+
+    final savingsAmount = (neighborComp['savings'] as double).toStringAsFixed(0);
+    return _buildMindBlowingInsight(
+      icon: Icons.compare_arrows,
+      title: 'OPTIMISATION CANTONALE',
+      text: 'A ${neighborComp['canton']}, tu economiserais CHF $savingsAmount/an d\'impots. '
+          'Sur 10 ans = CHF ${((neighborComp['savings'] as double) * 10).toStringAsFixed(0)}. '
+          'Bien sur, demenager a un cout — mais le chiffre merite reflexion.',
+      color: Colors.indigo,
+    );
+  }
+
+  /// Mind-blowing insight card — premium design with title header
+  Widget _buildMindBlowingInsight({
+    required IconData icon,
+    required String title,
+    required String text,
+    required Color color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.08),
+              shape: BoxShape.circle,
             ),
-
-            if (neighborComp != null) ...[
-              const SizedBox(height: 16),
-              // Insight 2: Neighbor Comparison
-              Container(
-                key: const ValueKey('neighbor_comp'),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: MintColors.lightBorder),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4)),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF5F5F7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.compare_arrows,
-                          color: MintColors.primary, size: 20),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "OPTIMISATION LOCALE",
-                            style: GoogleFonts.outfit(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: MintColors.textMuted,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: MintColors.textPrimary,
-                                  height: 1.5),
-                              children: [
-                                const TextSpan(text: "À "),
-                                TextSpan(
-                                    text: "${neighborComp['canton']}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: MintColors.primary)),
-                                const TextSpan(text: ", l'économie serait de "),
-                                TextSpan(
-                                    text:
-                                        "CHF ${(neighborComp['savings'] as double).toStringAsFixed(0)}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: MintColors.primary)),
-                                const TextSpan(text: "/an."),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        );
-      }
-    }
-
-    // 2. Insight Compound Interest (Si épargne mensuelle connue)
-    if (_answers['q_savings_monthly'] != null) {
-      final savings = (_answers['q_savings_monthly'] as num).toDouble();
-      if (savings > 0 && _currentSection == 'Patrimoine') {
-        // Simulation 20 ans @ 5%
-        final totalFuture =
-            savings * 12 * 20 * 1.6; // approx x1.6 sur 20 ans à 5%
-        final gain = totalFuture - (savings * 12 * 20);
-
-        return Container(
-          key: const ValueKey('compound_insight'),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE3F2FD), // Bleu très doux
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF64B5F6).withOpacity(0.5)),
+            child: Icon(icon, color: color, size: 20),
           ),
-          child: Row(
-            children: [
-              const Icon(Icons.trending_up, color: Color(0xFF1565C0), size: 24),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  "En investissant cette épargne, tu pourrais gagner +CHF ${gain.toStringAsFixed(0)} d'intérêts sur 20 ans.",
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    color: const Color(0xFF0D47A1),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.outfit(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: color.withOpacity(0.7),
+                    letterSpacing: 0.8,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  text,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textPrimary,
+                    height: 1.55,
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
-      }
-    }
-
-    return const SizedBox.shrink(); // Pas d'insight pour le moment
+        ],
+      ),
+    );
   }
 
   void _announceSectionChange(String nextSection) {
     final progressLabel = switch (nextSection) {
-      'Budget & Protection' => 'Étape 2/4',
-      'Prévoyance' => 'Étape 3/4',
-      'Patrimoine' => 'Étape 4/4',
-      _ => 'Étape suivante',
+      'Budget & Protection' => 'Partie 2/4',
+      'Prévoyance' => 'Partie 3/4',
+      'Patrimoine' => 'Derniere partie',
+      _ => 'Section suivante',
     };
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -833,9 +1202,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   }
 
   String _getSectionForIndex(int index) {
-    if (index < 7) return 'Profil';
-    if (index < 16) return 'Budget & Protection';
-    if (index < 28) return 'Prévoyance';
+    if (index < 6) return 'Profil';
+    if (index < 15) return 'Budget & Protection';
+    if (index < 27) return 'Prévoyance';
     return 'Patrimoine';
   }
 }

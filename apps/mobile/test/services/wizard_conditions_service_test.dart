@@ -17,15 +17,15 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('WizardConditionsService.shouldAskQuestion — combinations', () {
-    test('LPP buyback allowed when pension fund is unknown (default true)', () {
+    test('LPP buyback skipped when pension fund is unknown', () {
       final answers = <String, dynamic>{
         'q_has_pension_fund': 'unknown',
       };
-      // 'unknown' is not 'no', so the condition should pass
+      // 'unknown' means user doesn't know their LPP status — can't know buyback
       expect(
         WizardConditionsService.shouldAskQuestion(
             'q_lpp_buyback_available', answers),
-        true,
+        false,
       );
     });
 
@@ -200,12 +200,12 @@ void main() {
       expect(next, isNull);
     });
 
-    test('returns first question after stress check with empty answers', () {
-      // First question is q_financial_stress_check
+    test('returns second question after firstname with empty answers', () {
+      // First question is q_firstname (stress check removed)
       final next = WizardConditionsService.getNextQuestion(
-          'q_financial_stress_check', {});
+          'q_firstname', {});
       expect(next, isNotNull);
-      expect(next!.id, 'q_firstname');
+      expect(next!.id, 'q_birth_year');
     });
 
     test('skips 3a detail questions when has_3a is no', () {

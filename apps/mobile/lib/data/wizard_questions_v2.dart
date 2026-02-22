@@ -6,36 +6,10 @@ import 'package:mint_mobile/data/cantonal_data.dart';
 class WizardQuestionsV2 {
   static List<WizardQuestion> get questions => [
         // ═══════════════════════════════════════════════════════════
-        // SECTION 0 : INTRODUCTION & STRESS CHECK
-        // ═══════════════════════════════════════════════════════════
-
-        WizardQuestion(
-          id: 'q_financial_stress_check',
-          title: 'Ton stress financier, en clair',
-          subtitle: 'Identifions ton levier n°1 en 30 secondes',
-          type: QuestionType.choice,
-          options: [
-            QuestionOption(
-                label: 'Maîtriser mon budget',
-                value: 'budget',
-                icon: 'savings'),
-            QuestionOption(
-                label: 'Réduire mes dettes', value: 'debt', icon: 'money_off'),
-            QuestionOption(
-                label: 'Optimiser mes impôts',
-                value: 'tax',
-                icon: 'account_balance'),
-            QuestionOption(
-                label: 'Sécuriser ma retraite',
-                value: 'pension',
-                icon: 'beach_access'),
-          ],
-          tags: ['stress', 'onboarding'],
-        ),
-
-        // ═══════════════════════════════════════════════════════════
-        // SECTION 1 : PROFIL (5 questions - 2 minutes)
+        // SECTION 1 : PROFIL (6 questions - 2 minutes)
         // Objectif : Contexte minimal pour personnaliser le reste
+        // Note: Stress check removed — redundant with q_main_goal
+        // and already captured by mini-onboarding flow.
         // ═══════════════════════════════════════════════════════════
 
         WizardQuestion(

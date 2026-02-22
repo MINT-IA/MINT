@@ -16,11 +16,9 @@ class WizardConditionsService {
     // - On a une caisse de pension (q_has_pension_fund == 'yes')
     if (questionId == 'q_lpp_buyback_available') {
       final hasPension = answers['q_has_pension_fund'];
-      // Si on a répondu 'no' ou 'unknown' à la q_has_pension_fund, on saute
-      if (hasPension == 'no') return false;
-
-      // Si indépendant, on check le statut (souvent pas de LPP, mais parfois oui)
-      // Par sécurité, on se fie à q_has_pension_fund qui est explicite
+      // Skip buyback if user has no pension fund or doesn't know
+      // (if you don't know your LPP status, you can't know your buyback amount)
+      if (hasPension == 'no' || hasPension == 'unknown') return false;
     }
 
     // 2. Logique Statut Professionnel & LPP
@@ -62,17 +60,21 @@ class WizardConditionsService {
       return answers['q_avs_lacunes_status'] == 'lived_abroad';
     }
 
-    // 6b. Logique AVS conjoint — uniquement si marié + conditions correspondantes
+    // 6b. Logique AVS conjoint — si marié ou partenariat enregistré
+    //     (même traitement fiscal, CC art. 65a)
     if (questionId == 'q_spouse_avs_lacunes_status') {
-      return answers['q_civil_status'] == 'married';
+      final civil = answers['q_civil_status'];
+      return civil == 'married' || civil == 'registered_partner';
     }
     if (questionId == 'q_spouse_avs_arrival_year') {
-      return answers['q_civil_status'] == 'married' &&
-          answers['q_spouse_avs_lacunes_status'] == 'arrived_late';
+      final civil = answers['q_civil_status'];
+      final isPartner = civil == 'married' || civil == 'registered_partner';
+      return isPartner && answers['q_spouse_avs_lacunes_status'] == 'arrived_late';
     }
     if (questionId == 'q_spouse_avs_years_abroad') {
-      return answers['q_civil_status'] == 'married' &&
-          answers['q_spouse_avs_lacunes_status'] == 'lived_abroad';
+      final civil = answers['q_civil_status'];
+      final isPartner = civil == 'married' || civil == 'registered_partner';
+      return isPartner && answers['q_spouse_avs_lacunes_status'] == 'lived_abroad';
     }
 
     // 7. Logique Dettes → Détails uniquement si dettes déclarées
@@ -81,14 +83,18 @@ class WizardConditionsService {
       if (answers['q_has_consumer_debt'] != 'yes') return false;
     }
 
-    // 8. Logique Emploi → LPP non pertinent pour étudiants
+    // 8. Logique Emploi → LPP non pertinent pour étudiants et retraités
     if (questionId == 'q_has_pension_fund') {
-      if (answers['q_employment_status'] == 'student') return false;
+      final status = answers['q_employment_status'];
+      if (status == 'student' || status == 'retired') return false;
     }
 
-    // 9. Logique Emploi → Rachat LPP impossible pour retraités
+    // 9. Logique Emploi → Rachat LPP impossible pour retraités et sans emploi
     if (questionId == 'q_lpp_buyback_available') {
-      if (answers['q_employment_status'] == 'retired') return false;
+      final status = answers['q_employment_status'];
+      if (status == 'retired' || status == 'unemployed' || status == 'student') {
+        return false;
+      }
     }
 
     // 10. Logique Logement → Pas de coût si chez parents
