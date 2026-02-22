@@ -67,6 +67,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
   final _firstNameController = TextEditingController();
   final _birthYearController = TextEditingController();
   final _incomeController = TextEditingController();
+  final _housingController = TextEditingController();
   final _taxProvisionController = TextEditingController();
   final _lamalController = TextEditingController();
   final _otherFixedController = TextEditingController();
@@ -209,6 +210,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     _firstNameController.dispose();
     _birthYearController.dispose();
     _incomeController.dispose();
+    _housingController.dispose();
     _taxProvisionController.dispose();
     _lamalController.dispose();
     _otherFixedController.dispose();
@@ -235,6 +237,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       _incomeController.text = p.draftIncome!;
     } else if (p.incomeMonthly != null) {
       _incomeController.text = p.incomeMonthly!.toInt().toString();
+    }
+    if (p.draftHousingCost != null && p.draftHousingCost!.isNotEmpty) {
+      _housingController.text = p.draftHousingCost!;
+    } else if (p.housingCostMonthly != null) {
+      _housingController.text = p.housingCostMonthly!.toInt().toString();
     }
     if (p.draftTaxProvision != null && p.draftTaxProvision!.isNotEmpty) {
       _taxProvisionController.text = p.draftTaxProvision!;
@@ -1728,12 +1735,22 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     // Keep readiness hint aligned with the actual CTA gating in OnboardingStepIncome.
     // This avoids showing "Profil minimum pret" while the CTA remains disabled.
     final canContinue = _provider.canAdvanceFromStep3;
+    if (_housingController.text.isEmpty) {
+      final draft = _provider.draftHousingCost;
+      final value = _provider.housingCostMonthly;
+      if (draft != null && draft.isNotEmpty) {
+        _housingController.text = draft;
+      } else if (value != null && value > 0) {
+        _housingController.text = value.toInt().toString();
+      }
+    }
 
     return Column(
       children: [
         Expanded(
           child: OnboardingStepIncome(
             incomeController: _incomeController,
+            housingController: _housingController,
             taxController: _taxProvisionController,
             lamalController: _lamalController,
             otherFixedController: _otherFixedController,
@@ -2301,10 +2318,12 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         (_provider.partnerFirstName ?? _partnerFirstNameController.text).trim();
     final showPartnerIncome = partnerIncome > 0;
     final fixedCount = [
+      _parseChfController(_housingController),
       _parseChfController(_taxProvisionController),
       _parseChfController(_lamalController),
       _parseChfController(_otherFixedController),
     ].where((v) => (v ?? 0) > 0).length;
+    final housing = _parseChfController(_housingController) ?? 0;
     final horizon = '~${preview['yearsLeft']} ans';
     final goalLabel = _labelForGoal(_mainGoal ?? 'retirement', l10n);
     final employmentLabel = _labelForEmployment(_employmentStatus, l10n);
@@ -2350,6 +2369,10 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             l10n?.advisorMiniReadyIncome(income.round().toString()) ??
                 'Revenu net: CHF ${income.round()}/mois',
           ),
+          if (housing > 0)
+            _mintUnderstoodRow(
+              'Logement: CHF ${housing.round()}/mois',
+            ),
           if (showPartnerIncome)
             _mintUnderstoodRow(
               'Revenu partenaire: CHF ${partnerIncome.round()}/mois',
@@ -2359,8 +2382,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               'Revenu foyer total: CHF ${householdIncome.round()}/mois',
             ),
           _mintUnderstoodRow(
-            l10n?.advisorMiniReadyFixed('$fixedCount') ??
-                'Charges fixes captées: $fixedCount/3',
+            'Charges fixes captées: $fixedCount/4',
           ),
         ],
       ),

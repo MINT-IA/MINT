@@ -53,6 +53,7 @@ void main() {
       wrapWithProvider(
         OnboardingStepIncome(
           incomeController: TextEditingController(text: '6000'),
+          housingController: TextEditingController(text: '1800'),
           taxController: TextEditingController(),
           lamalController: TextEditingController(),
           otherFixedController: TextEditingController(),

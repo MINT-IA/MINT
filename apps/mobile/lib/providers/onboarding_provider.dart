@@ -15,9 +15,11 @@ class OnboardingProvider extends ChangeNotifier {
   String? employmentStatus;
   String? householdType;
   String? mainGoal;
+  String? housingStatus;
 
   int? birthYear;
   double? incomeMonthly;
+  double? housingCostMonthly;
   double? taxProvisionMonthly;
   double? lamalPremiumMonthly;
   double? otherFixedCostsMonthly;
@@ -32,6 +34,7 @@ class OnboardingProvider extends ChangeNotifier {
   String? draftFirstName;
   String? draftBirthYear;
   String? draftIncome;
+  String? draftHousingCost;
   String? draftTaxProvision;
   String? draftLamal;
   String? draftOtherFixed;
@@ -153,9 +156,11 @@ class OnboardingProvider extends ChangeNotifier {
     employmentStatus = answers['q_employment_status'] as String?;
     householdType = answers['q_household_type'] as String?;
     mainGoal = answers['q_main_goal'] as String?;
+    housingStatus = answers['q_housing_status'] as String?;
 
     birthYear = _toInt(answers['q_birth_year']);
     incomeMonthly = _toDouble(answers['q_net_income_period_chf']);
+    housingCostMonthly = _toDouble(answers['q_housing_cost_period_chf']);
     taxProvisionMonthly = _toDouble(answers['q_tax_provision_monthly_chf']);
     lamalPremiumMonthly = _toDouble(answers['q_lamal_premium_monthly_chf']);
     otherFixedCostsMonthly =
@@ -163,6 +168,7 @@ class OnboardingProvider extends ChangeNotifier {
 
     draftBirthYear = answers['mini_draft_birth_year']?.toString();
     draftIncome = answers['mini_draft_income']?.toString();
+    draftHousingCost = answers['mini_draft_housing_cost']?.toString();
     draftTaxProvision = answers['mini_draft_tax_provision']?.toString();
     draftLamal = answers['mini_draft_lamal']?.toString();
     draftOtherFixed = answers['mini_draft_other_fixed']?.toString();
@@ -241,8 +247,23 @@ class OnboardingProvider extends ChangeNotifier {
   void setIncomeDraft(String value) {
     draftIncome = value.trim();
     incomeMonthly = _toDouble(value);
+    _tryPrefillHousingCost();
     _tryPrefillFixedCosts();
     scheduleAutoSave('income_changed');
+    _safeNotify();
+  }
+
+  void setHousingStatus(String? value) {
+    housingStatus = value;
+    _tryPrefillHousingCost();
+    scheduleAutoSave('housing_status_changed');
+    _safeNotify();
+  }
+
+  void setHousingCostDraft(String value) {
+    draftHousingCost = value.trim();
+    housingCostMonthly = _toDouble(value);
+    scheduleAutoSave('housing_cost_changed');
     _safeNotify();
   }
 
@@ -254,6 +275,7 @@ class OnboardingProvider extends ChangeNotifier {
 
   void setHouseholdType(String? value) {
     householdType = value;
+    _tryPrefillHousingCost();
     if (value == 'single' || value == 'single_parent') {
       civilStatusChoice = null;
       partnerIncome = null;
@@ -427,6 +449,22 @@ class OnboardingProvider extends ChangeNotifier {
     _safeNotify();
   }
 
+  void _tryPrefillHousingCost() {
+    if ((incomeMonthly ?? 0) <= 0) return;
+    if ((housingCostMonthly ?? 0) > 0) return;
+    final income = incomeMonthly ?? 0;
+    final ratio = switch (householdType ?? 'single') {
+      'single' => 0.28,
+      'single_parent' => 0.30,
+      'couple' => 0.26,
+      'family' => 0.27,
+      _ => 0.28,
+    };
+    final estimated = (income * ratio).clamp(700, 4500).roundToDouble();
+    housingCostMonthly = estimated;
+    draftHousingCost ??= estimated.round().toString();
+  }
+
   Map<String, dynamic> buildAnswersSnapshot() {
     final snapshot = <String, dynamic>{};
 
@@ -445,6 +483,12 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if (_effectiveIncome > 0) {
       snapshot['q_net_income_period_chf'] = _effectiveIncome;
+    }
+    if ((housingStatus ?? '').isNotEmpty) {
+      snapshot['q_housing_status'] = housingStatus;
+    }
+    if ((housingCostMonthly ?? 0) > 0) {
+      snapshot['q_housing_cost_period_chf'] = housingCostMonthly;
     }
     if (employmentStatus != null) {
       snapshot['q_employment_status'] = employmentStatus;
@@ -500,6 +544,9 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if ((draftIncome ?? '').isNotEmpty) {
       snapshot['mini_draft_income'] = draftIncome;
+    }
+    if ((draftHousingCost ?? '').isNotEmpty) {
+      snapshot['mini_draft_housing_cost'] = draftHousingCost;
     }
     if ((draftTaxProvision ?? '').isNotEmpty) {
       snapshot['mini_draft_tax_provision'] = draftTaxProvision;

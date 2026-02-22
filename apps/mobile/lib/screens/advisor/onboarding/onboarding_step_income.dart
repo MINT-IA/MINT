@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepIncome extends StatelessWidget {
   final TextEditingController incomeController;
+  final TextEditingController housingController;
   final TextEditingController taxController;
   final TextEditingController lamalController;
   final TextEditingController otherFixedController;
@@ -21,6 +22,7 @@ class OnboardingStepIncome extends StatelessWidget {
   const OnboardingStepIncome({
     super.key,
     required this.incomeController,
+    required this.housingController,
     required this.taxController,
     required this.lamalController,
     required this.otherFixedController,
@@ -37,6 +39,7 @@ class OnboardingStepIncome extends StatelessWidget {
     final provider = context.watch<OnboardingProvider>();
     final employmentStatus = provider.employmentStatus;
     final householdType = provider.householdType;
+    final housingStatus = provider.housingStatus;
     final canContinue = provider.canAdvanceFromStep3;
     final missingItems = <String>[];
     if ((provider.incomeMonthly ?? 0) <= 0) {
@@ -298,6 +301,47 @@ class OnboardingStepIncome extends StatelessWidget {
               ),
             ],
           ],
+          const SizedBox(height: 12),
+          Text(
+            l10n?.advisorMiniHousingTitle ?? 'Logement',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          MintSelectableCard(
+            icon: Icons.home_outlined,
+            label: l10n?.advisorMiniHousingTenant ?? 'Locataire',
+            isSelected: housingStatus == 'tenant',
+            onTap: () => provider.setHousingStatus('tenant'),
+          ),
+          const SizedBox(height: 8),
+          MintSelectableCard(
+            icon: Icons.house_outlined,
+            label: l10n?.advisorMiniHousingOwner ?? 'Propriétaire',
+            isSelected: housingStatus == 'owner',
+            onTap: () => provider.setHousingStatus('owner'),
+          ),
+          const SizedBox(height: 8),
+          MintSelectableCard(
+            icon: Icons.groups_outlined,
+            label: l10n?.advisorMiniHousingHosted ?? 'Hébergé / sans loyer',
+            isSelected: housingStatus == 'hosted',
+            onTap: () => provider.setHousingStatus('hosted'),
+          ),
+          const SizedBox(height: 10),
+          MintChfInputField(
+            controller: housingController,
+            label: (housingStatus == 'owner')
+                ? (l10n?.advisorMiniHousingCostOwner ??
+                    'Charges logement / hypothèque / mois')
+                : (l10n?.advisorMiniHousingCostTenant ??
+                    'Loyer / charges logement / mois'),
+            hint: '1900',
+            onChanged: (value) => provider.setHousingCostDraft(value),
+          ),
           const SizedBox(height: 12),
           ExpansionTile(
             title: Text(l10n?.advisorMiniFixedCostsTitle ??
