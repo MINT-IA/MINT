@@ -294,6 +294,77 @@ void main() {
       // Married couple: each gets 1890 * reductionFactor
       expect(report.retirementProjection!.monthlyAvsRent, greaterThan(0));
     });
+
+    test('replacement rate uses actual monthly income, not hardcoded value', () {
+      // Regression: replacementRate was dividing by hardcoded 7800 CHF
+      // instead of the user's actual monthly income.
+      // User at 10k/month with projected 6.5k retirement => 65%, NOT 83%.
+      // Ref: LPP art. 14 — taux de conversion minimum de 6.8% (part obligatoire)
+      final projection = RetirementProjection(
+        yearsUntilRetirement: 25,
+        lppCapital: 500000,
+        pillar3aCapital: 100000,
+        monthlyAvsRent: 2520, // max AVS rent
+        monthlyLppRent: 3980, // to reach 6500 total
+        currentMonthlyIncome: 10000,
+      );
+      // totalMonthlyIncome = 2520 + 3980 = 6500
+      // replacementRate = (6500 / 10000) * 100 = 65.0%
+      expect(projection.replacementRate, closeTo(65.0, 0.1));
+      // Verify it's NOT the old buggy value (6500/7800)*100 ≈ 83.3
+      expect(projection.replacementRate, isNot(closeTo(83.3, 1.0)));
+    });
+
+    test('replacement rate is clamped between 0 and 150', () {
+      // Edge case: very low income, high retirement income => clamped at 150%
+      final projHigh = RetirementProjection(
+        yearsUntilRetirement: 10,
+        lppCapital: 200000,
+        pillar3aCapital: 50000,
+        monthlyAvsRent: 2520,
+        monthlyLppRent: 3000,
+        currentMonthlyIncome: 2000, // Low income => ratio > 1.5
+      );
+      expect(projHigh.replacementRate, equals(150.0));
+
+      // Edge case: zero income => 0%
+      final projZero = RetirementProjection(
+        yearsUntilRetirement: 10,
+        lppCapital: 200000,
+        pillar3aCapital: 50000,
+        monthlyAvsRent: 2520,
+        monthlyLppRent: 1000,
+        currentMonthlyIncome: 0,
+      );
+      expect(projZero.replacementRate, equals(0.0));
+    });
+
+    test('replacement rate defaults to 7800 when currentMonthlyIncome not provided', () {
+      // Backward compatibility: default currentMonthlyIncome = 7800
+      final projection = RetirementProjection(
+        yearsUntilRetirement: 20,
+        lppCapital: 300000,
+        pillar3aCapital: 80000,
+        monthlyAvsRent: 2520,
+        monthlyLppRent: 1500,
+      );
+      // totalMonthlyIncome = 2520 + 1500 = 4020
+      // replacementRate = (4020 / 7800) * 100 ≈ 51.54%
+      expect(projection.currentMonthlyIncome, equals(7800.0));
+      expect(projection.replacementRate, closeTo(51.54, 0.1));
+    });
+
+    test('replacement rate uses profile income via service (integration)', () {
+      // Integration: verify the service passes the real income to the projection
+      final answers = _minimalAnswers();
+      answers['q_net_income_period_chf'] = 10000.0; // 10k/month
+      final report = service.generateReport(answers);
+      expect(report.retirementProjection, isNotNull);
+      expect(report.retirementProjection!.currentMonthlyIncome, equals(10000.0));
+      // The replacement rate should reflect 10k income, not 7800
+      expect(report.retirementProjection!.replacementRate, greaterThan(0));
+      expect(report.retirementProjection!.replacementRate, lessThanOrEqualTo(150.0));
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════

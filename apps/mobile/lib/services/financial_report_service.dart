@@ -309,6 +309,7 @@ class FinancialReportService {
       monthlyLppRent: monthlyLppRent,
       avsReductionFactor: profile.avsReductionFactor,
       spouseAvsReductionFactor: profile.spouseAvsReductionFactor,
+      currentMonthlyIncome: profile.monthlyNetIncome,
     );
   }
 

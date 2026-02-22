@@ -216,10 +216,14 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
 
   Widget _buildSimulation() {
     if (widget.question.id == 'q_has_3a') {
-      return const Interactive3aSimulation(
+      // OPP3: indépendant sans LPP → plafond 3a = 20% revenu net, max 36'288 CHF
+      final employmentStatus = widget.answers['q_employment_status'] as String?;
+      final isEmployee = employmentStatus != 'self_employed';
+
+      return Interactive3aSimulation(
         initialMonthlyContribution: 600,
         initialYears: 30,
-        isEmployee: true, // TODO: Get from answers
+        isEmployee: isEmployee,
       );
     }
 

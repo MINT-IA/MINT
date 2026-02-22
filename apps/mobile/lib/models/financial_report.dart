@@ -174,6 +174,11 @@ class RetirementProjection {
   final double avsReductionFactor;
   final double spouseAvsReductionFactor;
 
+  /// Revenu mensuel net actuel de l'utilisateur, utilisé pour calculer le
+  /// taux de remplacement. Défaut conservateur de 7800 CHF (revenu médian
+  /// suisse) si non fourni, pour rétrocompatibilité.
+  final double currentMonthlyIncome;
+
   // Total
   final double totalCapital;
   final double totalMonthlyIncome;
@@ -188,11 +193,20 @@ class RetirementProjection {
     required this.monthlyLppRent,
     this.avsReductionFactor = 1.0,
     this.spouseAvsReductionFactor = 1.0,
+    this.currentMonthlyIncome = 7800.0,
   })  : totalCapital = lppCapital + pillar3aCapital + (otherAssets ?? 0),
         totalMonthlyIncome = monthlyAvsRent + monthlyLppRent;
 
-  double get replacementRate =>
-      (totalMonthlyIncome / 7800) * 100; // TODO: Dynamic
+  /// Taux de remplacement : revenu mensuel projeté à la retraite divisé par
+  /// le revenu mensuel actuel. Exprimé en pourcentage (ex: 65.0 = 65%).
+  /// Clampé entre 0% et 150% (peut dépasser 100% dans certains cas, ex.
+  /// faible revenu actuel + rentes complètes).
+  /// Ref: LPP art. 14 — taux de conversion minimum de 6.8% (part obligatoire)
+  double get replacementRate {
+    if (currentMonthlyIncome <= 0) return 0.0;
+    final rate = (totalMonthlyIncome / currentMonthlyIncome) * 100;
+    return rate.clamp(0.0, 150.0);
+  }
 }
 
 /// Analyse 3a

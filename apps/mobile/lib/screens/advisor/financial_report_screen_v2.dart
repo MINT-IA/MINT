@@ -179,7 +179,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     'Le rachat LPP est d\u00e9sactiv\u00e9 en mode protection. '
                     'Rembourser tes dettes avant de bloquer de la liquidit\u00e9 dans la pr\u00e9voyance.',
                 reasons: safeModeReasons,
-                child: _buildLppBuybackSection(report.lppBuybackStrategy!),
+                child: _buildLppBuybackSection(report.lppBuybackStrategy!, report.profile),
               ),
 
             const SizedBox(height: 24),
@@ -770,7 +770,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  LPP BUYBACK SECTION (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppBuybackSection(LppBuybackStrategy strategy) {
+  Widget _buildLppBuybackSection(LppBuybackStrategy strategy, UserProfile profile) {
+    // Taux marginal estimé selon canton + revenu (LIFD + ICC)
+    final double marginalRate = profile.canton.isNotEmpty && profile.canton != 'CH'
+        ? TaxEstimatorService.estimateMarginalTaxRate(
+            netMonthlyIncome: profile.monthlyNetIncome,
+            cantonCode: profile.canton,
+            civilStatus: profile.civilStatus,
+          ).clamp(0.10, 0.50)
+        : 0.30; // Fallback conservateur si canton inconnu
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -853,7 +861,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   'Comprends pourquoi \u00e9chelonner tes rachats LPP te fait \u00e9conomiser des milliers de francs suppl\u00e9mentaires.',
               sections: FinancialExplanations.lppBuybackExplanation(
                 strategy.totalBuybackAvailable,
-                0.35, // TODO: Utiliser le vrai taux marginal du profil
+                marginalRate,
               ),
               accentColor: Colors.green.shade700,
             ),
