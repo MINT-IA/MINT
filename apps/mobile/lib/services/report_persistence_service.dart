@@ -372,6 +372,10 @@ class ReportPersistenceService {
   static const String _lastScoreKey = 'last_fitness_score_v1';
   static const String _lastScoreMonthKey = 'last_fitness_score_month_v1';
   static const String _scoreHistoryKey = 'score_history_v1';
+  static const String _lastScoreReasonKey = 'last_fitness_score_reason_v1';
+  static const String _lastScoreDeltaKey = 'last_fitness_score_delta_v1';
+  static const String _lastScoreReasonAtKey = 'last_fitness_score_reason_at_v1';
+  static const String _coachNarrativeModeKey = 'coach_narrative_mode_v1';
 
   /// Sauvegarde le score du mois en cours pour comparer au suivant.
   /// Ajoute egalement le score a l'historique mensuel.
@@ -438,6 +442,48 @@ class ReportPersistenceService {
           error: e, stackTrace: stack, name: 'Persistence');
       return [];
     }
+  }
+
+  /// Sauvegarde la raison explicative du dernier delta de score (check-in).
+  static Future<void> saveLastScoreAttribution({
+    required String reason,
+    required int delta,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastScoreReasonKey, reason);
+    await prefs.setInt(_lastScoreDeltaKey, delta);
+    await prefs.setString(
+        _lastScoreReasonAtKey, DateTime.now().toIso8601String());
+  }
+
+  /// Charge la raison explicative du dernier delta de score (si presente).
+  static Future<Map<String, dynamic>?> loadLastScoreAttribution() async {
+    final prefs = await SharedPreferences.getInstance();
+    final reason = prefs.getString(_lastScoreReasonKey);
+    if (reason == null || reason.trim().isEmpty) return null;
+    return {
+      'reason': reason,
+      'delta': prefs.getInt(_lastScoreDeltaKey) ?? 0,
+      'at': prefs.getString(_lastScoreReasonAtKey),
+    };
+  }
+
+  /// Mode de narration partage entre Dashboard/Agir:
+  /// - detailed (par defaut)
+  /// - concise
+  static Future<String> loadCoachNarrativeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mode = prefs.getString(_coachNarrativeModeKey);
+    if (mode == 'concise' || mode == 'detailed') {
+      return mode!;
+    }
+    return 'detailed';
+  }
+
+  static Future<void> saveCoachNarrativeMode(String mode) async {
+    if (mode != 'concise' && mode != 'detailed') return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_coachNarrativeModeKey, mode);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -576,6 +622,9 @@ class ReportPersistenceService {
     await prefs.remove(_lastScoreKey);
     await prefs.remove(_lastScoreMonthKey);
     await prefs.remove(_scoreHistoryKey);
+    await prefs.remove(_lastScoreReasonKey);
+    await prefs.remove(_lastScoreDeltaKey);
+    await prefs.remove(_lastScoreReasonAtKey);
     await prefs.remove(_exploredSimulatorsKey);
     await prefs.remove(_exploredLifeEventsKey);
     await prefs.remove(_dismissedTipsKey);
@@ -598,5 +647,6 @@ class ReportPersistenceService {
     await prefs.remove(_onboardingCohortMetricsKey);
     await prefs.remove(_contributionsKey);
     await prefs.remove(_onboarding30PlanKey);
+    await prefs.remove(_coachNarrativeModeKey);
   }
 }

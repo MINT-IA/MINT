@@ -7,8 +7,6 @@ import 'package:mint_mobile/screens/independant_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/main_tabs/now_tab.dart';
-import 'package:mint_mobile/screens/main_tabs/track_tab.dart';
 import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 
@@ -16,6 +14,8 @@ import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -24,16 +24,6 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 /// Simple wrapper for screens without provider dependencies.
 Widget buildTestable(Widget child) {
   return MaterialApp(home: child);
-}
-
-/// Wrapper that provides ProfileProvider (needed by NowTab, TrackTab).
-Widget buildWithProfileProvider(Widget child) {
-  return MaterialApp(
-    home: ChangeNotifierProvider<ProfileProvider>(
-      create: (_) => ProfileProvider(),
-      child: child,
-    ),
-  );
 }
 
 /// Wrapper that provides ProfileProvider + ByokProvider (needed by ExploreTab).
@@ -46,6 +36,12 @@ Widget buildWithExploreProviders(Widget child) {
         ),
         ChangeNotifierProvider<ByokProvider>(
           create: (_) => ByokProvider(),
+        ),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => CoachProfileProvider(),
+        ),
+        ChangeNotifierProvider<UserActivityProvider>(
+          create: (_) => UserActivityProvider(),
         ),
       ],
       child: child,
@@ -305,101 +301,7 @@ void main() {
   });
 
   // ===========================================================================
-  // 5. NOW TAB (needs ProfileProvider)
-  // ===========================================================================
-
-  group('NowTab', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const NowTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(NowTab), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('shows MAINTENANT header', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const NowTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('MAINTENANT'), findsOneWidget);
-    });
-
-    testWidgets('shows Bonjour greeting', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const NowTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Bonjour'), findsOneWidget);
-    });
-
-    testWidgets('shows situation card', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const NowTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // When no profile, shows normal mode with stat chips
-      expect(find.textContaining('Objectif'), findsOneWidget);
-    });
-
-    testWidgets('displays complete profil button', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const NowTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(
-        find.textContaining('profil'),
-        findsWidgets,
-      );
-    });
-  });
-
-  // ===========================================================================
-  // 6. TRACK TAB (needs ProfileProvider)
-  // ===========================================================================
-
-  group('TrackTab', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const TrackTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(TrackTab), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('displays SUIVRE app bar title', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const TrackTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('SUIVRE'), findsOneWidget);
-    });
-
-    testWidgets('shows evolution section header', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const TrackTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(
-        find.textContaining('VOLUTION'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('shows score section', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const TrackTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(
-        find.textContaining('Score de Sant'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('has progress indicator', (tester) async {
-      await tester.pumpWidget(buildWithProfileProvider(const TrackTab()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(LinearProgressIndicator), findsWidgets);
-    });
-  });
-
-  // ===========================================================================
-  // 7. TIMELINE SCREEN
+  // 5. TIMELINE SCREEN
   //    Uses a larger surface size to prevent overflow in quick-action cards.
   // ===========================================================================
 
@@ -487,7 +389,7 @@ void main() {
   });
 
   // ===========================================================================
-  // 8. BUDGET CONTAINER SCREEN (needs BudgetProvider)
+  // 6. BUDGET CONTAINER SCREEN (needs BudgetProvider)
   // ===========================================================================
 
   group('BudgetContainerScreen', () {

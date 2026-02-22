@@ -21,11 +21,19 @@ class OnboardingProvider extends ChangeNotifier {
   double? lamalPremiumMonthly;
   double? otherFixedCostsMonthly;
 
+  // Partner data (couple / family)
+  double? partnerIncome;
+  int? partnerBirthYear;
+  String? partnerEmploymentStatus;
+  String? civilStatusChoice; // 'married' or 'concubinage'
+
   String? draftBirthYear;
   String? draftIncome;
   String? draftTaxProvision;
   String? draftLamal;
   String? draftOtherFixed;
+  String? draftPartnerIncome;
+  String? draftPartnerBirthYear;
 
   int currentStep = 0;
   bool isCompleted = false;
@@ -49,9 +57,12 @@ class OnboardingProvider extends ChangeNotifier {
   bool get canAdvanceFromStep2 => _isBirthYearValid && canton != null;
 
   bool get canAdvanceFromStep3 {
-    return (incomeMonthly ?? 0) > 0 &&
+    final hasCoreIncomeData = (incomeMonthly ?? 0) > 0 &&
         employmentStatus != null &&
         householdType != null;
+    if (!hasCoreIncomeData) return false;
+    if (!isHouseholdWithPartner) return true;
+    return hasPartnerRequiredData;
   }
 
   bool get canAdvanceFromStep4 => mainGoal != null;
@@ -65,6 +76,23 @@ class OnboardingProvider extends ChangeNotifier {
     final value = age;
     if (value == null) return 0;
     return (65 - value).clamp(0, 60);
+  }
+
+  bool get isHouseholdWithPartner {
+    return householdType == 'couple' || householdType == 'family';
+  }
+
+  bool get _isPartnerBirthYearValid {
+    if (partnerBirthYear == null) return false;
+    final maxYear = DateTime.now().year - 16;
+    return partnerBirthYear! >= 1940 && partnerBirthYear! <= maxYear;
+  }
+
+  bool get hasPartnerRequiredData {
+    return civilStatusChoice != null &&
+        (partnerIncome ?? 0) > 0 &&
+        _isPartnerBirthYearValid &&
+        partnerEmploymentStatus != null;
   }
 
   Future<void> init() async {
@@ -123,11 +151,22 @@ class OnboardingProvider extends ChangeNotifier {
     draftLamal = answers['mini_draft_lamal']?.toString();
     draftOtherFixed = answers['mini_draft_other_fixed']?.toString();
 
+    // Partner data
+    partnerIncome = _toDouble(answers['q_partner_net_income_chf']);
+    partnerBirthYear = _toInt(answers['q_partner_birth_year']);
+    partnerEmploymentStatus = answers['q_partner_employment_status'] as String?;
+    civilStatusChoice = answers['q_civil_status_choice'] as String?;
+    draftPartnerIncome = answers['mini_draft_partner_income']?.toString();
+    draftPartnerBirthYear =
+        answers['mini_draft_partner_birth_year']?.toString();
+
     if (householdType == null) {
       final civilStatus = answers['q_civil_status'] as String?;
       final children = _toInt(answers['q_children']) ?? 0;
       if (civilStatus == 'married' || civilStatus == 'concubinage') {
         householdType = children > 0 ? 'family' : 'couple';
+      } else if (children > 0) {
+        householdType = 'single_parent';
       } else {
         householdType = 'single';
       }
@@ -187,6 +226,14 @@ class OnboardingProvider extends ChangeNotifier {
 
   void setHouseholdType(String? value) {
     householdType = value;
+    if (value == 'single' || value == 'single_parent') {
+      civilStatusChoice = null;
+      partnerIncome = null;
+      partnerBirthYear = null;
+      partnerEmploymentStatus = null;
+      draftPartnerIncome = null;
+      draftPartnerBirthYear = null;
+    }
     scheduleAutoSave('household_changed');
     _safeNotify();
   }
@@ -218,6 +265,44 @@ class OnboardingProvider extends ChangeNotifier {
     _safeNotify();
   }
 
+  void setPartnerIncome(double? value) {
+    partnerIncome = value;
+    scheduleAutoSave('partner_income');
+    _safeNotify();
+  }
+
+  void setPartnerIncomeDraft(String value) {
+    draftPartnerIncome = value.trim();
+    partnerIncome = _toDouble(value);
+    scheduleAutoSave('partner_income');
+    _safeNotify();
+  }
+
+  void setPartnerBirthYear(int? value) {
+    partnerBirthYear = value;
+    scheduleAutoSave('partner_birth_year');
+    _safeNotify();
+  }
+
+  void setPartnerBirthYearDraft(String value) {
+    draftPartnerBirthYear = value.trim();
+    partnerBirthYear = _toInt(value);
+    scheduleAutoSave('partner_birth_year');
+    _safeNotify();
+  }
+
+  void setPartnerEmploymentStatus(String? value) {
+    partnerEmploymentStatus = value;
+    scheduleAutoSave('partner_employment');
+    _safeNotify();
+  }
+
+  void setCivilStatusChoice(String? value) {
+    civilStatusChoice = value;
+    scheduleAutoSave('civil_status_choice');
+    _safeNotify();
+  }
+
   String suggestGoalFromStress() {
     // Priority: budget/debt → debt_free, tax → real_estate, pension → retirement
     if (stressChoices.contains('budget') || stressChoices.contains('debt')) {
@@ -233,18 +318,21 @@ class OnboardingProvider extends ChangeNotifier {
     switch (value) {
       case 'couple':
       case 'family':
-        return 'married';
+        return civilStatusChoice ?? 'married';
+      case 'single_parent':
+        return 'single';
       default:
         return 'single';
     }
   }
 
   int childrenCountForHousehold(String value) {
-    return value == 'family' ? 1 : 0;
+    if (value == 'family' || value == 'single_parent') return 1;
+    return 0;
   }
 
   int adultCountForHousehold(String value) {
-    return value == 'single' ? 1 : 2;
+    return (value == 'single' || value == 'single_parent') ? 1 : 2;
   }
 
   double estimateLamalFromCanton(String cantonCode, {String? household}) {
@@ -330,6 +418,22 @@ class OnboardingProvider extends ChangeNotifier {
       snapshot['q_main_goal'] = mainGoal;
     }
 
+    // Partner data (couple / family only)
+    if (isHouseholdWithPartner) {
+      if (partnerIncome != null) {
+        snapshot['q_partner_net_income_chf'] = partnerIncome;
+      }
+      if (partnerBirthYear != null) {
+        snapshot['q_partner_birth_year'] = partnerBirthYear;
+      }
+      if (partnerEmploymentStatus != null) {
+        snapshot['q_partner_employment_status'] = partnerEmploymentStatus;
+      }
+      if (civilStatusChoice != null) {
+        snapshot['q_civil_status_choice'] = civilStatusChoice;
+      }
+    }
+
     if (employmentStatus == 'employee' &&
         (incomeMonthly ?? 0) * 12 > OnboardingConstants.lppAccessThreshold) {
       snapshot['q_has_pension_fund'] = 'yes';
@@ -349,6 +453,14 @@ class OnboardingProvider extends ChangeNotifier {
     }
     if ((draftOtherFixed ?? '').isNotEmpty) {
       snapshot['mini_draft_other_fixed'] = draftOtherFixed;
+    }
+    if (isHouseholdWithPartner) {
+      if ((draftPartnerIncome ?? '').isNotEmpty) {
+        snapshot['mini_draft_partner_income'] = draftPartnerIncome;
+      }
+      if ((draftPartnerBirthYear ?? '').isNotEmpty) {
+        snapshot['mini_draft_partner_birth_year'] = draftPartnerBirthYear;
+      }
     }
 
     return snapshot;

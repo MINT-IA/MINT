@@ -11,7 +11,6 @@ import 'package:mint_mobile/services/wizard_conditions_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/widgets/circle_transition_widget.dart';
 import 'package:mint_mobile/widgets/wizard/wizard_score_preview.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
@@ -20,7 +19,8 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 
 /// Wizard V2 avec ordre logique : Profil → Budget → Prévoyance → Patrimoine
 class AdvisorWizardScreenV2 extends StatefulWidget {
-  const AdvisorWizardScreenV2({super.key});
+  final String? initialSection;
+  const AdvisorWizardScreenV2({super.key, this.initialSection});
 
   @override
   State<AdvisorWizardScreenV2> createState() => _AdvisorWizardScreenV2State();
@@ -48,6 +48,23 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         });
       }
     }
+    // Jump to requested section if specified via route parameter
+    if (widget.initialSection != null && mounted) {
+      _jumpToSection(widget.initialSection!);
+    }
+  }
+
+  void _jumpToSection(String section) {
+    final sectionIndex = switch (section) {
+      'identity' || 'profil' => 0,
+      'income' || 'budget' => 7,
+      'pension' || 'prevoyance' => 16,
+      'property' || 'patrimoine' => 28,
+      _ => 0,
+    };
+    setState(() {
+      _currentQuestionIndex = sectionIndex;
+    });
   }
 
   void _recalculateCurrentStep() {
@@ -79,26 +96,26 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   }
 
   String get _currentSection {
-    if (_currentQuestionIndex < 6) return 'Profil';
-    if (_currentQuestionIndex < 12) return 'Budget & Protection';
-    if (_currentQuestionIndex < 18) return 'Prévoyance';
+    if (_currentQuestionIndex < 7) return 'Profil';
+    if (_currentQuestionIndex < 16) return 'Budget & Protection';
+    if (_currentQuestionIndex < 28) return 'Prévoyance';
     return 'Patrimoine';
   }
 
-  int get _sectionStart => _currentQuestionIndex < 6
+  int get _sectionStart => _currentQuestionIndex < 7
       ? 0
-      : _currentQuestionIndex < 12
-          ? 6
-          : _currentQuestionIndex < 18
-              ? 12
-              : 18;
+      : _currentQuestionIndex < 16
+          ? 7
+          : _currentQuestionIndex < 28
+              ? 16
+              : 28;
 
-  int get _sectionEnd => _currentQuestionIndex < 6
-      ? 6
-      : _currentQuestionIndex < 12
-          ? 12
-          : _currentQuestionIndex < 18
-              ? 18
+  int get _sectionEnd => _currentQuestionIndex < 7
+      ? 7
+      : _currentQuestionIndex < 16
+          ? 16
+          : _currentQuestionIndex < 28
+              ? 28
               : _questions.length;
 
   int get _sectionQuestionNumber {
@@ -184,12 +201,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         final nextSectionName = _getSectionForIndex(nextIndex);
 
         if (currentSectionBeforeUpdate != nextSectionName) {
-          // Transition Section
-          _showSectionTransition(nextSectionName, () {
-            setState(() {
-              _currentQuestionIndex = nextIndex;
-            });
-          });
+          _announceSectionChange(nextSectionName);
+          _currentQuestionIndex = nextIndex;
         } else {
           // Même section
           _currentQuestionIndex = nextIndex;
@@ -796,61 +809,28 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return const SizedBox.shrink(); // Pas d'insight pour le moment
   }
 
-  void _showSectionTransition(String nextSection, VoidCallback onComplete) {
-    String description = "";
-    IconData icon = Icons.star;
-    Color color = MintColors.primary;
-
-    switch (nextSection) {
-      case 'Budget & Protection':
-        description =
-            "Analysons ta stabilité financière: dettes, fonds d'urgence et reste à vivre.";
-        icon = Icons.shield_rounded;
-        color = Colors.green;
-        break;
-      case 'Prévoyance':
-        description =
-            "Optimisons prévoyance et fiscalité: AVS, LPP, pilier 3a.";
-        icon = Icons.savings_rounded;
-        color = Colors.blue;
-        break;
-      case 'Patrimoine':
-        description =
-            "Terminons avec l'investissement et tes projets long terme.";
-        icon = Icons.trending_up_rounded;
-        color = Colors.orange;
-        break;
-    }
-
-    String progressLabel = '';
-    if (nextSection == 'Budget & Protection') progressLabel = 'Cercle 1/3';
-    if (nextSection == 'Prévoyance') progressLabel = 'Cercle 2/3';
-    if (nextSection == 'Patrimoine') progressLabel = 'Cercle 3/3';
-
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, anim, secAnim) => CircleTransitionWidget(
-          nextSectionName: nextSection,
-          description: description,
-          progressLabel: progressLabel,
-          icon: icon,
-          color: color,
-          onComplete: () {
-            Navigator.of(context).pop();
-            onComplete();
-          },
+  void _announceSectionChange(String nextSection) {
+    final progressLabel = switch (nextSection) {
+      'Budget & Protection' => 'Étape 2/4',
+      'Prévoyance' => 'Étape 3/4',
+      'Patrimoine' => 'Étape 4/4',
+      _ => 'Étape suivante',
+    };
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(milliseconds: 1400),
+          content: Text('$progressLabel • $nextSection'),
         ),
-        transitionsBuilder: (context, anim, secAnim, child) {
-          return FadeTransition(opacity: anim, child: child);
-        },
-      ),
-    );
+      );
+    });
   }
 
   String _getSectionForIndex(int index) {
-    if (index < 6) return 'Profil';
-    if (index < 12) return 'Budget & Protection';
-    if (index < 18) return 'Prévoyance';
+    if (index < 7) return 'Profil';
+    if (index < 16) return 'Budget & Protection';
+    if (index < 28) return 'Prévoyance';
     return 'Patrimoine';
   }
 }

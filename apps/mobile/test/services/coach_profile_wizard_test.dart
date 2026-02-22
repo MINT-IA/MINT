@@ -290,7 +290,7 @@ void main() {
         'q_has_3a': 'yes',
         'q_3a_annual_contribution': 7258,
         'q_3a_accounts_count': 3,
-        'q_avs_gaps': 0,
+        'q_avs_lacunes_status': 'no_gaps',
         'q_savings_monthly': 1000,
         'q_has_investments': 'yes',
         'q_emergency_fund': 'yes_6months',
@@ -337,6 +337,104 @@ void main() {
       expect(profile.goalA.type, GoalAType.retraite);
     });
 
+    test('profil complet avec AVS no_gaps', () {
+      final answers = _baseAnswers();
+      answers['q_avs_lacunes_status'] = 'no_gaps';
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, isNull);
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  7. AVS lacunes status parsing (LAVS art. 29ter)
+  // ════════════════════════════════════════════════════════════
+
+  group('AVS lacunes status parsing', () {
+    test('"no_gaps" → lacunesAVS null (aucune lacune)', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_avs_lacunes_status'] = 'no_gaps';
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, isNull);
+    });
+
+    test('"arrived_late" sans arrival_year → default 5 ans de lacune', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_avs_lacunes_status'] = 'arrived_late';
+      // Pas de q_avs_arrival_year → fallback 5
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, 5);
+    });
+
+    test('"arrived_late" avec arrival_year → calcul depuis birthYear+21', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_birth_year'] = 1990;
+      answers['q_avs_lacunes_status'] = 'arrived_late';
+      answers['q_avs_arrival_year'] = 2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, 7);
+    });
+
+    test('"arrived_late" avec arrival_year precoce → clamp a 0', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_birth_year'] = 1990;
+      answers['q_avs_lacunes_status'] = 'arrived_late';
+      answers['q_avs_arrival_year'] = 2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, isNull); // 0 → null (pas de lacune)
+    });
+
+    test('"lived_abroad" sans years_abroad → default 3 ans', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_avs_lacunes_status'] = 'lived_abroad';
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, 3);
+    });
+
+    test('"lived_abroad" avec years_abroad → valeur exacte', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_avs_lacunes_status'] = 'lived_abroad';
+      answers['q_avs_years_abroad'] = 8;
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, 8);
+    });
+
+    test('"unknown" → estimation conservatrice 2 ans', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      answers['q_avs_lacunes_status'] = 'unknown';
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, 2);
+    });
+
+    test('null (pas de reponse) → aucune lacune', () {
+      final answers = Map<String, dynamic>.from(_baseAnswers());
+      // q_avs_lacunes_status absent
+      answers.remove('q_avs_lacunes_status');
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.prevoyance.lacunesAVS, isNull);
+    });
+
+    test('impact sur rente estimee: lacunes reduisent la rente', () {
+      final noGaps = Map<String, dynamic>.from(_baseAnswers());
+      noGaps['q_avs_lacunes_status'] = 'no_gaps';
+      final profileNoGaps = CoachProfile.fromWizardAnswers(noGaps);
+
+      final withGaps = Map<String, dynamic>.from(_baseAnswers());
+      withGaps['q_avs_lacunes_status'] = 'lived_abroad';
+      withGaps['q_avs_years_abroad'] = 10;
+      final profileWithGaps = CoachProfile.fromWizardAnswers(withGaps);
+
+      // Avec lacunes, la rente estimee devrait etre inferieure
+      // (ou les lacunes sont non-null)
+      expect(profileNoGaps.prevoyance.lacunesAVS, isNull);
+      expect(profileWithGaps.prevoyance.lacunesAVS, 10);
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  8. JSON round-trip
+  // ════════════════════════════════════════════════════════════
+
+  group('JSON round-trip', () {
     test('JSON round-trip preserve les nouveaux champs', () {
       final answers = _baseAnswers(
         housingStatus: 'owner',

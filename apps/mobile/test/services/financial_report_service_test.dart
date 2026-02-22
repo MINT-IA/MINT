@@ -47,7 +47,7 @@ void main() {
       'q_3a_annual_contribution': 7258.0,
       'q_lpp_buyback_available': 80000.0,
       'q_current_lpp_capital': 150000.0,
-      'q_avs_gaps': 'no',
+      'q_avs_lacunes_status': 'no',
       'q_avs_contribution_years': 20,
       'q_spouse_avs_contribution_years': 18,
       'q_emergency_fund': 'yes_6months',

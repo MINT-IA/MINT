@@ -36,7 +36,7 @@ class AuthProvider extends ChangeNotifier {
         _error = null;
       }
     } catch (e) {
-      _error = e.toString();
+      _error = _toUserFriendlyAuthError(e);
       _isLoggedIn = false;
     } finally {
       _isLoading = false;

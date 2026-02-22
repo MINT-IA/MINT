@@ -92,6 +92,11 @@ class _BudgetScreenState extends State<BudgetScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                _staggeredEntry(
+                  index: 0,
+                  child: _buildDataQualityBanner(widget.inputs),
+                ),
+                const SizedBox(height: 12),
                 _staggeredEntry(index: 0, child: _buildHeader(plan)),
                 const SizedBox(height: 24),
                 _staggeredEntry(
@@ -195,18 +200,25 @@ class _BudgetScreenState extends State<BudgetScreen>
             const SizedBox(height: 8),
             _breakdownRow('Remboursement dettes', debt),
           ],
-          if (taxes > 0) ...[
-            const SizedBox(height: 8),
-            _breakdownRow('Provision impôts', taxes),
-          ],
-          if (health > 0) ...[
-            const SizedBox(height: 8),
-            _breakdownRow('Primes maladie (LAMal)', health),
-          ],
-          if (otherFixed > 0) ...[
-            const SizedBox(height: 8),
-            _breakdownRow('Autres charges fixes', otherFixed),
-          ],
+          const SizedBox(height: 8),
+          _breakdownRow(
+            'Provision impôts${taxes > 0 ? "" : " (non renseigné)"}',
+            taxes,
+            qualityTag: widget.inputs.isTaxEstimated ? 'estimé' : 'saisi',
+          ),
+          const SizedBox(height: 8),
+          _breakdownRow(
+            'Primes maladie (LAMal)${health > 0 ? "" : " (non renseigné)"}',
+            health,
+            qualityTag: widget.inputs.isHealthEstimated ? 'estimé' : 'saisi',
+          ),
+          const SizedBox(height: 8),
+          _breakdownRow(
+            'Autres charges fixes${otherFixed > 0 ? "" : " (non renseigné)"}',
+            otherFixed,
+            qualityTag:
+                widget.inputs.isOtherFixedMissing ? 'manquant' : 'saisi',
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Divider(height: 1),
@@ -223,7 +235,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _breakdownRow(String label, double amount,
-      {bool isPositive = false, bool isBold = false}) {
+      {bool isPositive = false, bool isBold = false, String? qualityTag}) {
     final sign = isPositive ? '' : '– ';
     final displayAmount = isPositive ? amount : amount;
     return Row(
@@ -237,19 +249,86 @@ class _BudgetScreenState extends State<BudgetScreen>
             color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
           ),
         ),
-        Text(
-          '$sign CHF ${displayAmount.toStringAsFixed(0)}',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-            color: isBold
-                ? MintColors.primary
-                : isPositive
-                    ? MintColors.textPrimary
-                    : MintColors.error,
-          ),
+        Row(
+          children: [
+            if (qualityTag != null && !isBold) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: qualityTag == 'saisi'
+                      ? MintColors.success.withValues(alpha: 0.12)
+                      : qualityTag == 'estimé'
+                          ? MintColors.warning.withValues(alpha: 0.12)
+                          : MintColors.textMuted.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  qualityTag,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: qualityTag == 'saisi'
+                        ? MintColors.success
+                        : qualityTag == 'estimé'
+                            ? MintColors.warning
+                            : MintColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+            Text(
+              '$sign CHF ${displayAmount.toStringAsFixed(0)}',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+                color: isBold
+                    ? MintColors.primary
+                    : isPositive
+                        ? MintColors.textPrimary
+                        : MintColors.error,
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDataQualityBanner(BudgetInputs inputs) {
+    final hasEstimate = inputs.hasEstimatedValues;
+    final hasMissing = inputs.hasMissingValues;
+    if (!hasEstimate && !hasMissing) {
+      return const SizedBox.shrink();
+    }
+    final message = hasMissing
+        ? 'Certaines charges sont encore manquantes. Complète ton diagnostic pour fiabiliser ce budget.'
+        : 'Ce budget inclut des estimations (impôts/LAMal). Renseigne tes montants réels pour une projection plus fiable.';
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline_rounded,
+              size: 18, color: MintColors.warning),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -414,7 +493,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         const SizedBox(height: 8),
         Text("IMPORTANT:", style: style?.copyWith(fontWeight: FontWeight.bold)),
         Text(
-          "• Ceci est une aide à la décision, pas une garantie.",
+          "• Ceci est un outil éducatif, ne constitue pas un conseil financier (LSFin).",
           style: style,
         ),
         Text(
@@ -422,7 +501,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           style: style,
         ),
         Text(
-          "• 'Disponible' = Revenus - Logement - Dettes.",
+          "• 'Disponible' = Revenus - Logement - Dettes - Impôts - LAMal - Charges fixes.",
           style: style,
         ),
       ],

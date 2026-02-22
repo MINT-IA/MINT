@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
@@ -44,6 +45,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
+        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
       child: const MaterialApp(
         home: CoachDashboardScreen(),
@@ -140,6 +142,31 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining('Estimation'), findsWidgets);
+    });
+
+    testWidgets(
+        'uses persisted concise narrative mode for score attribution reason',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      SharedPreferences.setMockInitialValues({
+        'coach_narrative_mode_v1': 'concise',
+        'last_fitness_score_reason_v1':
+            'Hausse principale: versements confirmes. Deuxieme phrase a masquer.',
+        'last_fitness_score_delta_v1': 2,
+      });
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump(const Duration(seconds: 2));
+
+      expect(
+        find.textContaining('Hausse principale: versements confirmes'),
+        findsWidgets,
+      );
+      expect(find.textContaining('Deuxieme phrase a masquer.'), findsNothing);
     });
   });
 

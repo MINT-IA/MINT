@@ -66,4 +66,51 @@ void main() {
     expect(merged, isNotNull);
     expect(await ReportPersistenceService.isMiniOnboardingCompleted(), isTrue);
   });
+
+  test('couple household requires partner data to advance step 3', () {
+    final provider = OnboardingProvider()
+      ..incomeMonthly = 7000
+      ..employmentStatus = 'employee'
+      ..householdType = 'couple';
+
+    expect(provider.canAdvanceFromStep3, isFalse);
+
+    provider
+      ..civilStatusChoice = 'married'
+      ..partnerIncome = 5200
+      ..partnerBirthYear = 1992
+      ..partnerEmploymentStatus = 'employee';
+
+    expect(provider.canAdvanceFromStep3, isTrue);
+  });
+
+  test('switching to single clears partner fields from snapshot', () {
+    final provider = OnboardingProvider()
+      ..householdType = 'couple'
+      ..civilStatusChoice = 'concubinage'
+      ..partnerIncome = 4800
+      ..partnerBirthYear = 1993
+      ..partnerEmploymentStatus = 'self_employed'
+      ..draftPartnerIncome = '4800'
+      ..draftPartnerBirthYear = '1993';
+
+    provider.setHouseholdType('single');
+    final snapshot = provider.buildAnswersSnapshot();
+
+    expect(snapshot.containsKey('q_partner_net_income_chf'), isFalse);
+    expect(snapshot.containsKey('q_partner_birth_year'), isFalse);
+    expect(snapshot.containsKey('q_partner_employment_status'), isFalse);
+    expect(snapshot.containsKey('q_civil_status_choice'), isFalse);
+    expect(snapshot.containsKey('mini_draft_partner_income'), isFalse);
+    expect(snapshot.containsKey('mini_draft_partner_birth_year'), isFalse);
+  });
+
+  test('single_parent keeps single civil status with one child', () {
+    final provider = OnboardingProvider()..householdType = 'single_parent';
+    final snapshot = provider.buildAnswersSnapshot();
+
+    expect(provider.isHouseholdWithPartner, isFalse);
+    expect(snapshot['q_civil_status'], 'single');
+    expect(snapshot['q_children'], 1);
+  });
 }

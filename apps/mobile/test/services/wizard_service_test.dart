@@ -140,9 +140,9 @@ void main() {
       expect(WizardService.isSafeModeActive(answers), false);
     });
 
-    test('safe mode OFF with V1 emergency fund exists = yes', () {
+    test('safe mode OFF with 6-month emergency fund only', () {
       final answers = <String, dynamic>{
-        'q_emergency_fund_exists': 'yes',
+        'q_emergency_fund': 'yes_6months',
       };
       expect(WizardService.isSafeModeActive(answers), false);
     });
@@ -554,46 +554,46 @@ void main() {
       );
     });
 
-    test('skips AVS contribution years when no AVS gaps', () {
+    test('skips AVS arrival year when no AVS gaps', () {
       final answers = <String, dynamic>{
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
       };
       expect(
-        WizardConditionsService.shouldAskQuestion('q_avs_contribution_years', answers),
+        WizardConditionsService.shouldAskQuestion('q_avs_arrival_year', answers),
         false,
       );
     });
 
-    test('asks AVS contribution years when there are AVS gaps', () {
+    test('asks AVS arrival year when arrived late', () {
       final answers = <String, dynamic>{
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'arrived_late',
       };
       expect(
-        WizardConditionsService.shouldAskQuestion('q_avs_contribution_years', answers),
+        WizardConditionsService.shouldAskQuestion('q_avs_arrival_year', answers),
         true,
       );
     });
 
-    test('skips spouse AVS when not married', () {
+    test('skips spouse AVS arrival year when not married', () {
       final answers = <String, dynamic>{
         'q_civil_status': 'single',
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'arrived_late',
       };
       expect(
         WizardConditionsService.shouldAskQuestion(
-            'q_spouse_avs_contribution_years', answers),
+            'q_spouse_avs_arrival_year', answers),
         false,
       );
     });
 
-    test('asks spouse AVS when married with AVS gaps', () {
+    test('asks spouse AVS arrival year when married and arrived late', () {
       final answers = <String, dynamic>{
         'q_civil_status': 'married',
-        'q_avs_gaps': 'yes',
+        'q_spouse_avs_lacunes_status': 'arrived_late',
       };
       expect(
         WizardConditionsService.shouldAskQuestion(
-            'q_spouse_avs_contribution_years', answers),
+            'q_spouse_avs_arrival_year', answers),
         true,
       );
     });
@@ -621,7 +621,7 @@ void main() {
         'q_has_3a': 'no',
         'q_has_pension_fund': 'no',
         'q_has_consumer_debt': 'yes',
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
       });
 
       // With many "no" answers, fewer questions should be shown

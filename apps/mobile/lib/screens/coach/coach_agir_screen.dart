@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +8,10 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -59,6 +64,89 @@ class CoachAgirScreen extends StatefulWidget {
 enum _AgirResetAction { resetHistory, resetDiagnostic }
 
 class _CoachAgirScreenState extends State<CoachAgirScreen> {
+  List<String>? _scenarioNarrations;
+  bool _scenarioNarrationsFromLlm = false;
+  String? _scenarioNarrativeProfileKey;
+  int _scenarioNarrativeGeneration = 0;
+  CoachNarrativeMode _narrativeMode = CoachNarrativeMode.detailed;
+  bool _coachUxPrefsLoaded = false;
+  String? _lastScoreDeltaReason;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_coachUxPrefsLoaded) {
+      unawaited(_loadCoachUxPreferences());
+    }
+    final coachProvider = context.read<CoachProfileProvider>();
+    final profile = coachProvider.profile;
+    if (profile == null) return;
+    final key =
+        '${profile.birthYear}_${profile.canton}_${profile.updatedAt.toIso8601String()}_${coachProvider.scoreHistory.length}';
+    if (_scenarioNarrativeProfileKey != key) {
+      _scenarioNarrativeProfileKey = key;
+      final tips = CoachingService.generateTips(
+        profile: profile.toCoachingProfile(),
+      );
+      _loadScenarioNarratives(profile, coachProvider.scoreHistory, tips);
+    }
+  }
+
+  Future<void> _loadCoachUxPreferences() async {
+    final mode = await ReportPersistenceService.loadCoachNarrativeMode();
+    final attribution =
+        await ReportPersistenceService.loadLastScoreAttribution();
+    if (!mounted) return;
+    setState(() {
+      _coachUxPrefsLoaded = true;
+      _narrativeMode = mode == 'concise'
+          ? CoachNarrativeMode.concise
+          : CoachNarrativeMode.detailed;
+      _lastScoreDeltaReason = attribution?['reason'] as String?;
+    });
+  }
+
+  Future<void> _setNarrativeMode(CoachNarrativeMode mode) async {
+    if (_narrativeMode == mode) return;
+    setState(() => _narrativeMode = mode);
+    await ReportPersistenceService.saveCoachNarrativeMode(
+      mode == CoachNarrativeMode.concise ? 'concise' : 'detailed',
+    );
+  }
+
+  Future<void> _loadScenarioNarratives(
+    CoachProfile profile,
+    List<Map<String, dynamic>>? scoreHistory,
+    List<CoachingTip> tips,
+  ) async {
+    final gen = ++_scenarioNarrativeGeneration;
+    LlmConfig? byokConfig;
+    ByokProvider? byok;
+    try {
+      byok = context.read<ByokProvider>();
+    } catch (_) {
+      byok = null;
+    }
+    if (byok != null && byok.isConfigured && byok.apiKey != null) {
+      final provider = switch (byok.provider) {
+        'claude' || 'anthropic' => LlmProvider.anthropic,
+        'mistral' => LlmProvider.mistral,
+        _ => LlmProvider.openai,
+      };
+      byokConfig = LlmConfig(apiKey: byok.apiKey!, provider: provider);
+    }
+    final narrative = await CoachNarrativeService.generate(
+      profile: profile,
+      scoreHistory: scoreHistory,
+      tips: tips,
+      byokConfig: byokConfig,
+    );
+    if (!mounted || gen != _scenarioNarrativeGeneration) return;
+    setState(() {
+      _scenarioNarrations = narrative.scenarioNarrations;
+      _scenarioNarrationsFromLlm = narrative.isLlmGenerated;
+    });
+  }
 
   Widget _buildResetMenuButton() {
     return PopupMenuButton<_AgirResetAction>(
@@ -79,6 +167,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   }
 
   Future<void> _handleResetAction(_AgirResetAction action) async {
+    final coachProvider = context.read<CoachProfileProvider>();
+    final activityProvider = context.read<UserActivityProvider>();
     if (action == _AgirResetAction.resetHistory) {
       final confirmed = await _confirmResetDialog(
         title: 'Réinitialiser ton historique coach ?',
@@ -90,8 +180,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
       await ReportPersistenceService.clearCoachHistory();
       if (!mounted) return;
-      await context.read<CoachProfileProvider>().loadFromWizard();
-      await context.read<UserActivityProvider>().clearAll();
+      await coachProvider.loadFromWizard();
+      await activityProvider.clearAll();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Historique coach réinitialisé.')),
@@ -110,7 +200,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     await ReportPersistenceService.clearDiagnostic();
     await ReportPersistenceService.clearCoachHistory();
     if (!mounted) return;
-    context.read<CoachProfileProvider>().clear();
+    coachProvider.clear();
     context.go('/advisor');
   }
 
@@ -212,6 +302,21 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       );
     }
 
+    if (coachProvider.isPartialProfile) {
+      return Scaffold(
+        backgroundColor: MintColors.background,
+        body: CustomScrollView(
+          slivers: [
+            _buildAppBar(context),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildPartialProfile(context, s, coachProvider),
+            ),
+          ],
+        ),
+      );
+    }
+
     // Check if current month's check-in is done
     final hasCurrentCheckIn = profile.checkIns.any(
       (ci) => ci.month.year == now.year && ci.month.month == now.month,
@@ -250,12 +355,21 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
                 // ── Streak badge ──────────────────────────────
                 _buildStreakSection(profile),
+                const SizedBox(height: 12),
+                _buildCoachPulseCard(profile, tips),
+                const SizedBox(height: 8),
+                _buildNarrativeModeControl(),
+                const SizedBox(height: 12),
+                _buildScenarioBriefCard(profile),
+                const SizedBox(height: 20),
 
                 // ── Section: Actions recommandees (priority roadmap) ──
                 if (tips.isNotEmpty) ...[
                   _buildSectionHeader(
-                    title: 'Actions recommandees',
-                    subtitle: 'Triees par priorite',
+                    title: s?.agirActionsRecommendedTitle ??
+                        'Actions recommandees',
+                    subtitle: s?.agirActionsRecommendedSubtitle ??
+                        'Triees par priorite',
                     icon: Icons.bolt,
                     color: MintColors.coachAccent,
                   ),
@@ -263,6 +377,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   ..._buildPriorityRoadmap(
                     priorityGroups,
                     hasDebtInImmediate,
+                    _narrativeMode,
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -361,6 +476,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
   List<Widget> _buildPriorityRoadmap(
     Map<String, List<CoachingTip>> groups,
     bool hasDebtInImmediate,
+    CoachNarrativeMode narrativeMode,
   ) {
     const groupMeta = <String, ({String label, Color color})>{
       'immediate': (label: 'Priorite immediate', color: Color(0xFFFF453A)),
@@ -499,6 +615,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 dependencyHint:
                     showDependency ? 'Apres : remboursement dette' : null,
                 isExplored: isExplored,
+                narrativeMode: narrativeMode,
               ),
             ),
           ),
@@ -753,6 +870,105 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     );
   }
 
+  Widget _buildPartialProfile(
+    BuildContext context,
+    S? s,
+    CoachProfileProvider provider,
+  ) {
+    final quality = (provider.onboardingQualityScore * 100).round();
+    final section = provider.recommendedWizardSection;
+    final sectionLabel = switch (section) {
+      'identity' => s?.coachWizardSectionIdentity ?? 'Identite & foyer',
+      'income' => s?.coachWizardSectionIncome ?? 'Revenu & foyer',
+      'pension' => s?.coachWizardSectionPension ?? 'Prevoyance',
+      'property' => s?.coachWizardSectionProperty ?? 'Immobilier & dettes',
+      _ => s?.advisorMiniFullDiagnostic ?? 'Diagnostic',
+    };
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: MintColors.warning.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.track_changes,
+                color: MintColors.warning,
+                size: 44,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              s?.coachAgirPartialTitle('$quality') ??
+                  'Plan en construction ($quality%)',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: 21,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              s?.coachAgirPartialBody(sectionLabel) ??
+                  'Pour activer tes actions prioritaires, complete maintenant la section $sectionLabel.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: MintColors.textSecondary,
+                height: 1.45,
+              ),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () => context.push(
+                  '/advisor/wizard',
+                  extra: {'section': section},
+                ),
+                icon: const Icon(Icons.auto_awesome, size: 20),
+                label: Text(
+                  s?.coachAgirPartialAction(sectionLabel) ??
+                      'Completer $sectionLabel',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => context.push('/coach/chat'),
+                child: Text(
+                  s?.askMintTitle ?? 'Demander a MINT',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── No contributions state ──────────────────────────────
   // ── Contribution annual progress ─────────────────────────
   List<Widget> _buildContributionProgress(CoachProfile profile) {
@@ -944,9 +1160,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       subtitle: s?.agirTimeline3aSub ??
           'Vérifie que ton plafond est atteint avant fin décembre.',
       icon: Icons.savings,
-      color: isImminent(dec31)
-          ? const Color(0xFFF59E0B)
-          : const Color(0xFF4F46E5),
+      color:
+          isImminent(dec31) ? const Color(0xFFF59E0B) : const Color(0xFF4F46E5),
       cta: s?.agirTimeline3aCta ?? 'Vérifier mon 3a',
       isPast: isPastDate(dec31),
       isCompleted: false, // would need 3a max check
@@ -999,9 +1214,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       icon: hasCurrentCheckIn
           ? Icons.check_circle
           : Icons.calendar_today_outlined,
-      color: hasCurrentCheckIn
-          ? const Color(0xFF10B981)
-          : const Color(0xFFF59E0B),
+      color:
+          hasCurrentCheckIn ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
       cta: hasCurrentCheckIn ? null : 'Faire mon check-in',
       isCompleted: hasCurrentCheckIn,
     ));
@@ -1079,6 +1293,257 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildCoachPulseCard(CoachProfile profile, List<CoachingTip> tips) {
+    final s = S.of(context);
+    final byok = context.watch<ByokProvider>();
+    final hasCheckInThisMonth = profile.checkIns.any(
+      (ci) =>
+          ci.month.year == DateTime.now().year &&
+          ci.month.month == DateTime.now().month,
+    );
+    final topTip = tips.isNotEmpty ? tips.first : null;
+    final pulse = hasCheckInThisMonth
+        ? (s?.agirCoachPulseDone ??
+            'Tu es a jour ce mois-ci. Priorise maintenant l action la plus impactante.')
+        : (s?.agirCoachPulsePending ??
+            'Ton check-in mensuel est la prochaine action critique pour garder ta trajectoire fiable.');
+
+    final whyNowRaw = topTip == null
+        ? 'Commence par une action simple pour enclencher ta dynamique.'
+        : (topTip.narrativeMessage ?? topTip.message);
+    final whyNow =
+        CoachNarrativeService.applyDetailMode(whyNowRaw, _narrativeMode);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome_rounded,
+                size: 16,
+                color: MintColors.coachAccent,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                s?.coachPulseTitle ?? 'Coach Pulse',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  byok.isConfigured
+                      ? (s?.coachIaBadge ?? 'Coach IA')
+                      : (s?.coachBadgeStatic ?? 'Coach'),
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            pulse,
+            style: GoogleFonts.inter(
+              fontSize: 12.5,
+              color: MintColors.textPrimary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            s?.agirCoachPulseWhyNow(whyNow) ?? 'Pourquoi maintenant: $whyNow',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          if (_lastScoreDeltaReason != null &&
+              _lastScoreDeltaReason!.trim().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: MintColors.surface,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: MintColors.lightBorder),
+              ),
+              child: Text(
+                CoachNarrativeService.applyDetailMode(
+                  _lastScoreDeltaReason!,
+                  _narrativeMode,
+                ),
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  color: MintColors.textSecondary,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNarrativeModeControl() {
+    final s = S.of(context);
+    return Align(
+      alignment: Alignment.centerRight,
+      child: SegmentedButton<CoachNarrativeMode>(
+        segments: [
+          ButtonSegment<CoachNarrativeMode>(
+            value: CoachNarrativeMode.concise,
+            label: Text(s?.coachNarrativeModeConcise ?? 'Court'),
+            icon: Icon(Icons.short_text, size: 16),
+          ),
+          ButtonSegment<CoachNarrativeMode>(
+            value: CoachNarrativeMode.detailed,
+            label: Text(s?.coachNarrativeModeDetailed ?? 'Détail'),
+            icon: Icon(Icons.subject, size: 16),
+          ),
+        ],
+        selected: {_narrativeMode},
+        onSelectionChanged: (selection) {
+          if (selection.isEmpty) return;
+          unawaited(_setNarrativeMode(selection.first));
+        },
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          textStyle: WidgetStatePropertyAll(
+            GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScenarioBriefCard(CoachProfile profile) {
+    final s = S.of(context);
+    try {
+      final projection = ForecasterService.project(profile: profile);
+      final base = projection.base;
+      final prudent = projection.prudent;
+      final optimiste = projection.optimiste;
+
+      final gap = optimiste.capitalFinal - prudent.capitalFinal;
+      final replacement = projection.tauxRemplacementBase.round();
+      final years = profile.anneesAvantRetraite;
+      final narration =
+          (_scenarioNarrations != null && _scenarioNarrations!.isNotEmpty)
+              ? _scenarioNarrations!.first
+              : null;
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: MintColors.card,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.auto_stories_outlined,
+                  size: 16,
+                  color: MintColors.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  s?.agirScenarioBriefTitle ?? 'Scenarios de retraite en bref',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                if (_scenarioNarrationsFromLlm)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: MintColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      s?.coachIaBadge ?? 'Coach IA',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              CoachNarrativeService.applyDetailMode(
+                narration ??
+                    (s?.agirScenarioBriefSummary(
+                          '$years',
+                          ForecasterService.formatChf(base.capitalFinal),
+                          '$replacement',
+                          ForecasterService.formatChf(gap),
+                        ) ??
+                        'Dans ~$years ans, ton scenario Base vise ${ForecasterService.formatChf(base.capitalFinal)} '
+                            '(~$replacement% de remplacement). L ecart Prudent vs Optimiste est '
+                            '${ForecasterService.formatChf(gap)}.'),
+                _narrativeMode,
+              ),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textSecondary,
+                height: 1.35,
+              ),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => context.push('/retirement/projection'),
+              child: Text(
+                s?.agirScenarioBriefCta ?? 'Ouvrir la simulation complete',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
   }
 }
 
@@ -1442,9 +1907,7 @@ class _TimelineItem extends StatelessWidget {
           ),
         ],
       ),
-      child: dotChild != null
-          ? Center(child: dotChild)
-          : null,
+      child: dotChild != null ? Center(child: dotChild) : null,
     );
   }
 
@@ -1578,16 +2041,21 @@ class _CoachingTipCard extends StatelessWidget {
   final CoachingTip tip;
   final String? dependencyHint;
   final bool isExplored;
+  final CoachNarrativeMode narrativeMode;
 
   const _CoachingTipCard({
     required this.tip,
     this.dependencyHint,
     this.isExplored = false,
+    this.narrativeMode = CoachNarrativeMode.detailed,
   });
 
   @override
   Widget build(BuildContext context) {
     final categoryColor = _colorForTipCategory(tip.category);
+    final rawMessage = tip.narrativeMessage ?? tip.message;
+    final message =
+        CoachNarrativeService.applyDetailMode(rawMessage, narrativeMode);
 
     return GestureDetector(
       onTap: () => context.push(tipRoute(tip)),
@@ -1640,7 +2108,7 @@ class _CoachingTipCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            tip.message,
+                            message,
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: MintColors.textSecondary,
@@ -1895,9 +2363,7 @@ class _ContributionProgressCard extends StatelessWidget {
               value: progress,
               backgroundColor: MintColors.lightBorder,
               valueColor: AlwaysStoppedAnimation<Color>(
-                isOnTrack
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFF59E0B),
+                isOnTrack ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
               ),
               minHeight: 6,
             ),

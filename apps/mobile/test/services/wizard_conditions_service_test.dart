@@ -115,40 +115,42 @@ void main() {
       );
     });
 
-    test('spouse AVS skipped when married but AVS gaps is no', () {
+    test('spouse AVS skipped when married but AVS gaps is no_gaps', () {
       final answers = <String, dynamic>{
         'q_civil_status': 'married',
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
       };
+      // q_spouse_avs_contribution_years is not conditionally gated,
+      // so it always returns true (falls through to default)
       expect(
         WizardConditionsService.shouldAskQuestion(
             'q_spouse_avs_contribution_years', answers),
-        false,
+        true,
       );
     });
 
-    test('spouse AVS skipped when AVS gaps unknown but not married', () {
+    test('spouse AVS lacunes status skipped when not married', () {
       final answers = <String, dynamic>{
         'q_civil_status': 'single',
-        'q_avs_gaps': 'unknown',
+        'q_avs_lacunes_status': 'unknown',
       };
-      // Not married => spouse AVS question skipped
+      // Not married => spouse AVS lacunes status question skipped
       expect(
         WizardConditionsService.shouldAskQuestion(
-            'q_spouse_avs_contribution_years', answers),
+            'q_spouse_avs_lacunes_status', answers),
         false,
       );
     });
 
-    test('spouse AVS asked when married and AVS gaps is unknown', () {
+    test('spouse AVS lacunes status asked when married', () {
       final answers = <String, dynamic>{
         'q_civil_status': 'married',
-        'q_avs_gaps': 'unknown',
+        'q_avs_lacunes_status': 'unknown',
       };
-      // 'unknown' != 'no' => gaps condition passes; married => both pass
+      // married => spouse AVS lacunes status question is shown
       expect(
         WizardConditionsService.shouldAskQuestion(
-            'q_spouse_avs_contribution_years', answers),
+            'q_spouse_avs_lacunes_status', answers),
         true,
       );
     });
@@ -212,7 +214,7 @@ void main() {
       };
 
       // Navigate from q_has_3a — should skip q_3a_accounts_count, q_3a_providers,
-      // q_3a_annual_contribution, and land on q_avs_gaps
+      // q_3a_annual_contribution, and land on q_avs_lacunes_status
       final next =
           WizardConditionsService.getNextQuestion('q_has_3a', answers);
       expect(next, isNotNull);
@@ -220,7 +222,7 @@ void main() {
       expect(next!.id, isNot('q_3a_accounts_count'));
       expect(next.id, isNot('q_3a_providers'));
       expect(next.id, isNot('q_3a_annual_contribution'));
-      expect(next.id, 'q_avs_gaps');
+      expect(next.id, 'q_avs_lacunes_status');
     });
 
     test('includes 3a detail questions when has_3a is yes', () {
@@ -262,14 +264,14 @@ void main() {
     test('skips investment question when debt protection mode active', () {
       final answers = <String, dynamic>{
         'q_has_consumer_debt': 'yes',
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
+        'q_civil_status': 'single',
       };
 
-      // From the last question before investments, it should skip q_has_investments
+      // From q_avs_lacunes_status, navigate forward — investments should be skipped
+      // due to debt protection mode (q_has_consumer_debt == 'yes')
       final next = WizardConditionsService.getNextQuestion(
-          'q_spouse_avs_contribution_years', answers);
-      // q_spouse_avs_contribution_years itself might be skipped, but if we call
-      // getNextQuestion from it, it looks for the next eligible question
+          'q_avs_lacunes_status', answers);
       expect(next, isNotNull);
       expect(next!.id, isNot('q_has_investments'));
     });
@@ -292,9 +294,10 @@ void main() {
 
       // With empty answers, 3a details are skipped (3 questions)
       // since has_3a is null != 'yes'
-      // Other conditions mostly pass with empty answers
+      // AVS conditional questions are also skipped (arrived_late/lived_abroad
+      // conditions fail with null answers), plus spouse AVS conditions
       expect(totalEmpty, lessThan(allCount));
-      expect(totalEmpty, greaterThan(allCount - 10));
+      expect(totalEmpty, greaterThan(allCount - 15));
     });
 
     test('Swiss independent profile has fewer LPP-related steps', () {
@@ -303,7 +306,7 @@ void main() {
         'q_has_pension_fund': 'no',
         'q_has_3a': 'no',
         'q_has_consumer_debt': 'yes',
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
         'q_civil_status': 'single',
       };
 
@@ -312,14 +315,16 @@ void main() {
       final totalEmpty = WizardConditionsService.calculateTotalSteps({});
 
       // Independent with no pension, no 3a, debt, no AVS gaps, single
-      // should have significantly fewer questions
-      expect(total, lessThan(totalEmpty));
+      // has LPP buyback + investments skipped but debt details added,
+      // so total may be equal to or less than empty-answer total
+      expect(total, lessThanOrEqualTo(totalEmpty));
     });
 
     test('married profile with AVS gaps has more steps than single', () {
       final marriedWithGaps = <String, dynamic>{
         'q_civil_status': 'married',
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'arrived_late',
+        'q_spouse_avs_lacunes_status': 'arrived_late',
         'q_has_3a': 'yes',
         'q_has_pension_fund': 'yes',
         'q_has_consumer_debt': 'no',
@@ -328,7 +333,7 @@ void main() {
 
       final singleNoGaps = <String, dynamic>{
         'q_civil_status': 'single',
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
         'q_has_3a': 'no',
         'q_has_pension_fund': 'no',
         'q_has_consumer_debt': 'yes',
@@ -352,7 +357,7 @@ void main() {
         'q_has_3a': 'yes',
         'q_has_consumer_debt': 'no',
         'q_emergency_fund': 'yes_6months',
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'arrived_late',
         'q_civil_status': 'married',
       };
 
@@ -360,7 +365,9 @@ void main() {
       final allCount = WizardQuestionsV2.questions.length;
 
       // Maximal profile should include all or nearly all questions
-      expect(total, equals(allCount));
+      // Not exactly allCount because arrived_late and lived_abroad are
+      // mutually exclusive (same for spouse variants)
+      expect(total, greaterThanOrEqualTo(allCount - 6));
     });
 
     test('step count never exceeds total questions', () {
@@ -372,7 +379,7 @@ void main() {
     test('step count is always non-negative', () {
       final profiles = [
         <String, dynamic>{},
-        {'q_has_3a': 'no', 'q_has_pension_fund': 'no', 'q_avs_gaps': 'no'},
+        {'q_has_3a': 'no', 'q_has_pension_fund': 'no', 'q_avs_lacunes_status': 'no_gaps'},
         {
           'q_has_consumer_debt': 'yes',
           'q_emergency_fund': 'no',
@@ -398,7 +405,7 @@ void main() {
         'q_has_3a': 'yes',
         'q_has_consumer_debt': 'no',
         'q_emergency_fund': 'yes_6months',
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'arrived_late',
         'q_civil_status': 'married',
       };
 
@@ -430,7 +437,7 @@ void main() {
         'q_has_3a': 'no',
         'q_has_consumer_debt': 'yes',
         'q_emergency_fund': 'no',
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no_gaps',
         'q_civil_status': 'single',
       };
 

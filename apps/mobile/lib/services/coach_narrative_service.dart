@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,6 +111,9 @@ class CoachNarrative {
   }
 }
 
+/// Mode de rendu des narrations coach dans l'UI.
+enum CoachNarrativeMode { concise, detailed }
+
 /// Le Coach Layer central. Genere tout le contenu narratif du dashboard
 /// en un seul appel LLM (ou via templates statiques si pas de BYOK).
 ///
@@ -149,6 +153,26 @@ class CoachNarrativeService {
     'meilleur',
     'parfait',
   ];
+
+  /// Applique un mode de rendu a un texte narratif.
+  /// - detailed: texte complet
+  /// - concise: premiere phrase utile (ou coupe a ~120 chars)
+  static String applyDetailMode(
+    String text,
+    CoachNarrativeMode mode,
+  ) {
+    final clean = text.trim();
+    if (mode == CoachNarrativeMode.detailed || clean.isEmpty) {
+      return clean;
+    }
+    final parts = clean.split(RegExp(r'(?<=[.!?])\s+'));
+    if (parts.isNotEmpty && parts.first.trim().isNotEmpty) {
+      final first = parts.first.trim();
+      if (first.length <= 140) return first;
+    }
+    if (clean.length <= 120) return clean;
+    return '${clean.substring(0, 117).trim()}...';
+  }
 
   // ════════════════════════════════════════════════════════════════
   //  PUBLIC API
@@ -264,6 +288,18 @@ class CoachNarrativeService {
       topTipNarrative = null;
     }
 
+    // Scenario narrations — fallback statique (T7 sans BYOK)
+    List<String>? scenarioNarrations;
+    try {
+      final projection = ForecasterService.project(profile: profile);
+      scenarioNarrations = _buildStaticScenarioNarrations(
+        projection: projection,
+      );
+    } catch (_) {
+      // Optional block: keep null if projection cannot be built
+      scenarioNarrations = null;
+    }
+
     return CoachNarrative(
       greeting: greeting,
       scoreSummary: scoreSummary,
@@ -271,10 +307,28 @@ class CoachNarrativeService {
       topTipNarrative: topTipNarrative,
       urgentAlert: null, // Pas d'alerte dans le mode statique actuel
       milestoneMessage: null, // Pas de milestone dans le mode statique actuel
-      scenarioNarrations: null, // Pas de narration de scenarios sans BYOK
+      scenarioNarrations: scenarioNarrations,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),
     );
+  }
+
+  static List<String> _buildStaticScenarioNarrations({
+    required ProjectionResult projection,
+  }) {
+    String buildLine(ProjectionScenario s) {
+      final monthly = (s.revenuAnnuelRetraite / 12).isFinite
+          ? (s.revenuAnnuelRetraite / 12)
+          : 0.0;
+      return '${s.label}: capital projete ${ForecasterService.formatChf(s.capitalFinal)}. '
+          'Revenu retraite estime ${ForecasterService.formatChf(monthly)}/mois.';
+    }
+
+    return [
+      buildLine(projection.prudent),
+      buildLine(projection.base),
+      buildLine(projection.optimiste),
+    ];
   }
 
   /// Reproduit la logique exacte de _buildScoreTrendText() du dashboard.
@@ -288,9 +342,8 @@ class CoachNarrativeService {
     }
 
     final history = scoreHistory;
-    final recent = history.length >= 3
-        ? history.sublist(history.length - 3)
-        : history;
+    final recent =
+        history.length >= 3 ? history.sublist(history.length - 3) : history;
     final firstScore = (recent.first['score'] as num?)?.toDouble() ?? 0;
     final lastScore = (recent.last['score'] as num?)?.toDouble() ?? 0;
     final trend = lastScore - firstScore;
@@ -372,7 +425,8 @@ class CoachNarrativeService {
 
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
-    final plafond3a = profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+    final plafond3a =
+        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -403,19 +457,18 @@ class CoachNarrativeService {
     final buffer = StringBuffer();
     buffer.writeln(
         'Tu es le coach financier MINT. Tu parles a $firstName, $age ans, $etatCivil,');
-    buffer.writeln(
-        '$employmentStatus dans le canton de $canton.');
+    buffer.writeln('$employmentStatus dans le canton de $canton.');
     buffer.writeln();
     buffer.writeln('DONNEES FINANCIERES :');
-    buffer.writeln('- Score Financial Fitness : $scoreValue/100 (tendance : $trendText)');
+    buffer.writeln(
+        '- Score Financial Fitness : $scoreValue/100 (tendance : $trendText)');
     buffer.writeln(
         '- Revenu brut annuel : CHF ${profile.revenuBrutAnnuel.toStringAsFixed(0)}');
     buffer.writeln(
         '- 3a : ${montant3a.toStringAsFixed(0)}/${plafond3a.toStringAsFixed(0)} CHF (nombre comptes : $nombre3a)');
     buffer.writeln(
         '- LPP : avoir CHF ${avoirLpp.toStringAsFixed(0)}, lacune rachat CHF ${lacuneLpp.toStringAsFixed(0)}');
-    buffer.writeln(
-        '- Patrimoine total : CHF ${patrimoine.toStringAsFixed(0)}');
+    buffer.writeln('- Patrimoine total : CHF ${patrimoine.toStringAsFixed(0)}');
     buffer.writeln(
         '- Fonds urgence : ${moisCouverts.toStringAsFixed(1)} mois (objectif : 3-6 mois)');
     buffer.writeln('- Dettes : CHF ${dettes.toStringAsFixed(0)}');
@@ -428,7 +481,7 @@ class CoachNarrativeService {
     buffer.writeln();
     buffer.writeln('INSTRUCTIONS :');
     buffer.writeln(
-        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone)');
+        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste)');
     buffer.writeln(
         '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)');
     buffer.writeln(
@@ -478,8 +531,8 @@ class CoachNarrativeService {
       parts.add('Patrimoine : ${pat.totalPatrimoine.toStringAsFixed(0)} CHF');
     }
     if (profile.dettes.totalDettes > 0) {
-      parts.add(
-          'Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+      parts
+          .add('Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
     }
 
     // Score fitness

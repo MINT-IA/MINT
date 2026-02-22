@@ -145,7 +145,8 @@ void main() {
       expect(narrative.greeting, equals('Bonjour Julien'));
       expect(narrative.urgentAlert, isNull); // Pas d'alerte en mode statique
       expect(narrative.milestoneMessage, isNull); // Pas de milestone en mode statique
-      expect(narrative.scenarioNarrations, isNull); // Pas de scenarios sans BYOK
+      expect(narrative.scenarioNarrations, isNotNull);
+      expect(narrative.scenarioNarrations!.length, 3);
     });
   });
 

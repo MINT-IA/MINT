@@ -76,7 +76,7 @@ void main() {
         'q_civil_status': 'single',
         'q_employment_status': 'employee',
         'q_net_income_period_chf': 5000,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 40,
         'q_current_lpp_capital': 100000,
       };
@@ -97,7 +97,7 @@ void main() {
         'q_civil_status': 'married',
         'q_employment_status': 'employee',
         'q_net_income_period_chf': 8000,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 40,
         'q_spouse_avs_contribution_years': 42,
         'q_current_lpp_capital': 150000,

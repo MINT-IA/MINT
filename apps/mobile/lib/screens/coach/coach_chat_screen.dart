@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -44,7 +45,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
-  late CoachProfile _profile;
+  CoachProfile? _profile;
+  bool _hasProfile = false;
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
   bool _isByokConfigured = false;
@@ -54,8 +56,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   @override
   void initState() {
     super.initState();
-    _profile = CoachProfile.buildDemo(); // Fallback until provider loads
-    _addInitialGreeting();
+    // Profile will be loaded in didChangeDependencies
   }
 
   @override
@@ -74,13 +75,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
-        // Re-generate greeting with real profile if it's the first message
-        if (_messages.length == 1 && _messages.first.isAssistant) {
-          _messages.clear();
-          _addInitialGreeting();
-          if (mounted) setState(() {});
-        }
+        _hasProfile = true;
+        _addInitialGreeting();
+        if (mounted) setState(() {});
       }
+      // If no profile, show empty state instead of fake data
     }
   }
 
@@ -93,13 +92,50 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   void _addInitialGreeting() {
-    final greeting = CoachLlmService.initialGreeting(_profile);
+    assert(_profile != null, '_addInitialGreeting called before profile loaded');
+    final p = _profile!;
+    final name = p.firstName ?? 'ami·e';
+
+    final String greeting;
+    if (_isByokConfigured) {
+      // BYOK active: use rich LLM-aware greeting from service
+      greeting = CoachLlmService.initialGreeting(p);
+    } else {
+      // No BYOK: provide context-aware static greeting
+      final scoreSuffix = _buildGreetingScoreContext(p);
+      greeting = 'Salut $name ! Je suis ton coach MINT. '
+          'Pose-moi tes questions sur la prevoyance, les impots, '
+          'le budget ou la retraite en Suisse.$scoreSuffix';
+    }
+
+    // Build contextual suggested actions from top coaching tips
+    final tips = CoachingService.generateTips(
+      profile: p.toCoachingProfile(),
+    );
+    final topTipActions = tips.take(3).map((t) => t.title).toList();
+    final suggestions = topTipActions.isNotEmpty
+        ? topTipActions
+        : CoachLlmService.initialSuggestions;
+
     _messages.add(ChatMessage(
       role: 'assistant',
       content: greeting,
       timestamp: DateTime.now(),
-      suggestedActions: CoachLlmService.initialSuggestions,
+      suggestedActions: suggestions,
     ));
+  }
+
+  /// Build a short score context line for the static greeting.
+  String _buildGreetingScoreContext(CoachProfile profile) {
+    try {
+      final score = FinancialFitnessService.calculate(profile: profile);
+      if (score.global > 0) {
+        return ' Ton score Fitness est de ${score.global}/100.';
+      }
+    } catch (_) {
+      // Silently ignore — no score context
+    }
+    return '';
   }
 
   /// Construit le LlmConfig a partir du ByokProvider.
@@ -149,7 +185,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final config = _buildConfig();
       final response = await CoachLlmService.chat(
         userMessage: text.trim(),
-        profile: _profile,
+        profile: _profile!,
         history: _messages,
         config: config,
       );
@@ -243,13 +279,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     int fitnessScore = 0;
     try {
       final score =
-          FinancialFitnessService.calculate(profile: _profile);
+          FinancialFitnessService.calculate(profile: _profile!);
       fitnessScore = score.global;
     } catch (_) {}
 
     await PdfService.generateDecisionReportPdf(
-      firstName: _profile.firstName ?? 'Utilisateur',
-      canton: _profile.canton,
+      firstName: _profile!.firstName ?? 'Utilisateur',
+      canton: _profile!.canton,
       fitnessScore: fitnessScore,
       conversationHighlights: limited,
       legalSources: sources.toList(),
@@ -258,6 +294,57 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasProfile) {
+      return Scaffold(
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          title: Text(
+            'Coach MINT',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: MintColors.primary,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text(
+                  'Complete ton diagnostic pour discuter avec ton coach',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: MintColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () => context.push('/advisor'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                  ),
+                  child: Text(
+                    'Faire mon diagnostic',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: Column(

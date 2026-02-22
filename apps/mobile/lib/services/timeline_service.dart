@@ -103,7 +103,7 @@ class TimelineService {
         category: 'housing',
         label: 'Renégociation hypothèque',
         description: 'Comparer les offres du marché 90-180 jours avant échéance',
-        actionUrl: '/advisor/mortgage-renewal',
+        actionUrl: '/mortgage/affordability',
         priority: ReminderPriority.high,
         sourceSessionId: sessionId,
       ));
@@ -120,7 +120,7 @@ class TimelineService {
         category: 'debt',
         label: 'Fin de leasing',
         description: 'Planifier la suite : renouvellement, achat, ou autre véhicule',
-        actionUrl: '/advisor/leasing-end',
+        actionUrl: '/check/debt',
         priority: ReminderPriority.medium,
         sourceSessionId: sessionId,
       ));
@@ -137,7 +137,7 @@ class TimelineService {
         category: 'debt',
         label: 'Fin de crédit',
         description: 'Libération de CHF ${answers['q_consumer_credit_monthly']}/mois dans ton budget',
-        actionUrl: '/advisor/credit-end',
+        actionUrl: '/check/debt',
         priority: ReminderPriority.medium,
         sourceSessionId: sessionId,
       ));
@@ -154,7 +154,7 @@ class TimelineService {
         category: 'housing',
         label: 'Planifier apport logement',
         description: 'Vérifier fonds disponibles (3a, épargne, apport familial)',
-        actionUrl: '/advisor/housing-purchase',
+        actionUrl: '/mortgage/affordability',
         priority: ReminderPriority.high,
         sourceSessionId: sessionId,
       ));
@@ -175,7 +175,7 @@ class TimelineService {
           category: 'pension',
           label: 'Plan retraite complet',
           description: 'Simuler scénarios retraite (60/62/65 ans, rente/capital)',
-          actionUrl: '/advisor/retirement-plan',
+          actionUrl: '/retirement/projection',
           priority: ReminderPriority.high,
           sourceSessionId: sessionId,
         ));
@@ -193,7 +193,7 @@ class TimelineService {
         category: 'pension',
         label: 'Optimiser versement 3a',
         description: 'Vérifier si tu as maximisé ton versement annuel',
-        actionUrl: '/advisor/3a-optimization',
+        actionUrl: '/simulator/3a',
         priority: ReminderPriority.medium,
         sourceSessionId: sessionId,
       ));
@@ -212,7 +212,7 @@ class TimelineService {
           category: 'pension',
           label: 'Vérifier bénéficiaires',
           description: 'Mettre à jour bénéficiaires LPP/3a/assurances',
-          actionUrl: '/advisor/beneficiaries',
+          actionUrl: '/advisor/wizard',
           priority: ReminderPriority.medium,
           sourceSessionId: sessionId,
         ));
@@ -268,7 +268,7 @@ class TimelineService {
           category: 'pension',
           label: 'Transfert LPP',
           description: 'Transférer ton avoir LPP vers ta nouvelle caisse',
-          actionUrl: '/advisor/lpp-transfer',
+          actionUrl: '/lpp-deep/rachat',
           priority: ReminderPriority.high,
           sourceSessionId: sessionId,
         ));
@@ -281,7 +281,7 @@ class TimelineService {
           category: 'insurance',
           label: 'Revue couverture',
           description: 'Vérifier assurances décès/invalidité',
-          actionUrl: '/advisor/insurance-review',
+          actionUrl: '/assurances/lamal',
           priority: ReminderPriority.critical,
           sourceSessionId: sessionId,
         ));

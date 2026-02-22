@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import '../../domain/budget/budget_inputs.dart';
 import '../../domain/budget/budget_plan.dart';
 import '../../domain/budget/budget_service.dart';
@@ -49,6 +50,18 @@ class BudgetProvider with ChangeNotifier {
     _recalculate();
     // Sauvegarde "fire and forget"
     _store.saveOverride(key, value);
+  }
+
+  /// Recalcule le budget a partir d'un CoachProfile mis a jour.
+  ///
+  /// Appele automatiquement quand le profil change (wizard, annual refresh).
+  /// Reconstruit les BudgetInputs depuis le profil et persiste.
+  Future<void> refreshFromProfile(CoachProfile profile) async {
+    final inputs = BudgetInputs.fromCoachProfile(profile);
+    _lastInputs = inputs;
+    _currentPlan = _service.computePlan(inputs, overrides: _overrides);
+    await _store.saveInputs(inputs);
+    notifyListeners();
   }
 
   /// Efface le budget (Reset / Supprimer mes données)

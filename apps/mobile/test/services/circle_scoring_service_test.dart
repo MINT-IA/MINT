@@ -27,7 +27,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'yes',
         'q_housing_status': 'owner',
       };
@@ -47,7 +47,7 @@ void main() {
         'q_net_income_period_chf': 5000,
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
       };
 
       final score = service.calculateScore(answers);
@@ -63,7 +63,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'yes',
         'q_housing_status': 'owner',
       };
@@ -78,7 +78,7 @@ void main() {
         'q_has_consumer_debt': 'yes',
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -96,7 +96,7 @@ void main() {
         'q_net_income_period_chf': 5000,
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -114,7 +114,7 @@ void main() {
         'q_has_consumer_debt': 'yes',
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -133,7 +133,7 @@ void main() {
         'q_net_income_period_chf': 5000,
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -152,7 +152,7 @@ void main() {
         // no q_net_income_period_chf
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -169,7 +169,7 @@ void main() {
         'q_has_consumer_debt': 'yes',
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -194,7 +194,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -213,7 +213,7 @@ void main() {
         'q_3a_annual_contribution': null,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': null,
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -232,7 +232,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 30,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
@@ -253,7 +253,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 44,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
@@ -273,7 +273,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 44,
         'q_civil_status': 'married',
         'q_spouse_avs_contribution_years': 30,
@@ -297,7 +297,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 50000.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -316,7 +316,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -335,7 +335,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -356,7 +356,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 60000.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -377,7 +377,7 @@ void main() {
         'q_has_consumer_debt': 'no',
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'yes',
         'q_housing_status': 'owner',
       };
@@ -395,7 +395,7 @@ void main() {
         'q_has_consumer_debt': 'no',
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -414,7 +414,7 @@ void main() {
         'q_has_consumer_debt': 'no',
         'q_3a_accounts_count': 0,
         'q_employment_status': 'employee',
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -437,7 +437,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'yes',
         'q_housing_status': 'owner',
       };
@@ -477,7 +477,7 @@ void main() {
         'q_3a_annual_contribution': 7000.0, // > 90% of 7258
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -496,7 +496,7 @@ void main() {
         'q_3a_annual_contribution': 5000.0, // ~69% of 7258
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -515,7 +515,7 @@ void main() {
         'q_3a_annual_contribution': 1000.0, // ~14% of 7258
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -534,7 +534,7 @@ void main() {
         'q_3a_annual_contribution': null,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'no',
+        'q_avs_lacunes_status': 'no',
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
@@ -555,7 +555,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 42, // gap = 2
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
@@ -575,7 +575,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': 'yes',
+        'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 35, // gap = 9
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
@@ -596,7 +596,7 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_gaps': null,
+        'q_avs_lacunes_status': null,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };

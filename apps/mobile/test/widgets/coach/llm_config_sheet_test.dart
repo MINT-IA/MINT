@@ -97,7 +97,7 @@ void main() {
     testWidgets('shows privacy notice', (tester) async {
       await openSheet(tester);
       expect(
-        find.textContaining('Ta cle API reste sur ton appareil'),
+        find.textContaining('chiffr'),
         findsOneWidget,
       );
     });

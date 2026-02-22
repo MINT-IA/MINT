@@ -5,12 +5,31 @@ import 'budget_plan.dart';
 class BudgetService {
   static const String disclaimer =
       'Outil éducatif — ne constitue pas un conseil financier '
-      'personnalisé au sens de la LSFin.';
+      'personnalisé au sens de la LSFin. Les montants sont des '
+      'estimations basées sur les données déclarées.';
 
   static const List<String> sources = [
     'LP art. 93 (minimum vital / calcul du budget)',
     'Directives CSIAS (Conférence suisse des institutions d\'action sociale)',
+    'LAMal art. 61 (primes d\'assurance-maladie obligatoire)',
+    'LIFD art. 33 (déductions fiscales fédérales)',
+    'CC art. 163 (contribution d\'entretien / charges du ménage)',
   ];
+
+  /// Chiffre-choc : pourcentage des charges fixes par rapport au revenu net.
+  ///
+  /// Permet a l'utilisateur de visualiser en un chiffre la part de son
+  /// revenu absorbee par les charges incompressibles.
+  static String chiffreChoc(BudgetInputs inputs) {
+    if (inputs.netIncome <= 0) return '0% de ton revenu part en charges fixes';
+    final totalCharges = inputs.housingCost +
+        inputs.debtPayments +
+        inputs.taxProvision +
+        inputs.healthInsurance +
+        inputs.otherFixedCosts;
+    final pct = (totalCharges / inputs.netIncome * 100).round();
+    return '$pct% de ton revenu part en charges fixes';
+  }
 
   /// Calcule le plan budgétaire en fonction des inputs et des overrides optionnels (sliders).
   /// [overrides] contient les valeurs forcées par l'utilisateur pour 'variables' ou 'future'.

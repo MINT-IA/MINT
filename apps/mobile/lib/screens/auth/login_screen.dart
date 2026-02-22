@@ -200,6 +200,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                 ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: authProvider.isLoading
+                      ? null
+                      : () {
+                          context.go('/advisor');
+                        },
+                  child: Text(
+                    'Continuer en mode local',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(

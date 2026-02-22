@@ -42,6 +42,8 @@
   "onboardingHouseholdCoupleDesc": "Wir teilen unsere finanziellen Ziele",
   "onboardingHouseholdFamily": "Familie",
   "onboardingHouseholdFamilyDesc": "Mit unterhaltspflichtigen Kindern",
+  "onboardingHouseholdSingleParent": "Alleinerziehend",
+  "onboardingHouseholdSingleParentDesc": "Ich manage allein mit unterhaltspflichtigen Kindern",
   "onboardingStep2Title": "Sehr gut.",
   "onboardingStep2Subtitle": "Welche finanzielle Reise möchten Sie als Erstes unternehmen?",
   "onboardingGoalHouse": "Wohneigentum erwerben",
@@ -100,6 +102,26 @@
   "advisorMiniStep3Title": "Dein Einkommen",
   "advisorMiniStep3Subtitle": "Um dein Sparpotenzial zu berechnen",
   "advisorMiniIncomeLabel": "Monatliches Nettoeinkommen (CHF)",
+  "advisorMiniCivilStatusMarried": "Verheiratet",
+  "advisorMiniCivilStatusConcubinage": "Konkubinat",
+  "advisorMiniPartnerIncomeLabel": "Monatliches Nettoeinkommen des Partners",
+  "advisorMiniPartnerBirthYearLabel": "Geburtsjahr des Partners",
+  "advisorMiniPartnerStatusHint": "Partner",
+  "advisorMiniPartnerStatusInactive": "Ohne Erwerbstätigkeit",
+  "advisorMiniPartnerRequiredTitle": "Partnerinfos erforderlich",
+  "advisorMiniPartnerRequiredBody": "Füge Zivilstand, Einkommen, Geburtsjahr und Status des Partners hinzu für eine verlässliche Haushaltsprojektion.",
+  "advisorMiniCoachIntroTitle": "Dein MINT-Coach",
+  "advisorMiniCoachIntroControl": "Du hast jetzt einen konkreten Plan. Wir starten mit 3 Prioritäten in 7 Tagen und passen dann mit deinem Coach an.",
+  "advisorMiniCoachPriorityBaseline": "Bestätige deinen Start-Score und deine Ausgangstrajektorie",
+  "advisorMiniCoachPriorityCouple": "Haushaltsstrategie abstimmen, um Paar-Blindspots zu vermeiden",
+  "advisorMiniCoachPrioritySingleParent": "Schutz des Haushalts und Notgroschen priorisieren",
+  "advisorMiniCoachPriorityBudget": "Budget und Fixkosten zuerst stabilisieren",
+  "advisorMiniCoachPriorityTax": "Prioritäre Steueroptimierungen identifizieren",
+  "advisorMiniCoachPriorityRetirement": "Ruhestandstrajektorie mit konkreten Aktionen stärken",
+  "advisorMiniCoachPriorityRealEstate": "Tragbarkeit deines Immobilienprojekts prüfen",
+  "advisorMiniCoachPriorityDebtFree": "Entschuldung beschleunigen ohne Liquidität zu gefährden",
+  "advisorMiniCoachPriorityWealth": "Robusten Vermögensaufbauplan erstellen",
+  "advisorMiniCoachPriorityPension": "3a/BVG und Renteneinkommensniveau optimieren",
   "advisorMiniQuickPickLabel": "Schnellauswahl",
   "advisorMiniQuickPickIncomeLabel": "Häufige Beträge",
   "advisorMiniFixedCostsTitle": "Fixkosten (optional)",
@@ -1573,9 +1595,9 @@
   "soaDebtRepayment": "Schuldenrückzahlung",
   "soaAvailable": "Verfügbar",
   "soaImportant": "WICHTIG:",
-  "soaDisclaimer1": "Dies ist eine Entscheidungshilfe, keine Garantie.",
+  "soaDisclaimer1": "Dies ist ein Bildungstool, keine Finanzberatung (FIDLEG).",
   "soaDisclaimer2": "Die Beträge basieren auf den angegebenen Informationen.",
-  "soaDisclaimer3": "'Verfügbar' = Einkommen - Wohnen - Schulden.",
+  "soaDisclaimer3": "'Verfügbar' = Einkommen - Wohnen - Schulden - Steuern - Krankenkasse - Fixkosten.",
   "commonCancel": "Abbrechen",
   "profileDangerZoneTitle": "Gefahrenbereich",
   "profileDangerZoneSubtitle": "Setze deine lokale Finanzhistorie zurück, ohne dein Konto zu löschen.",
@@ -1585,5 +1607,215 @@
   "profileResetDialogInvalid": "Ungültiges Schlüsselwort.",
   "profileResetDialogAction": "Zurücksetzen",
   "profileResetSuccess": "Lokale Finanzhistorie wurde zurückgesetzt.",
-  "profileResetScopeNote": "Login und BYOK-Schlüssel bleiben erhalten. Backend-Dokumente werden nicht gelöscht."
+  "profileResetScopeNote": "Login und BYOK-Schlüssel bleiben erhalten. Backend-Dokumente werden nicht gelöscht.",
+  "coachPulseTitle": "Coach Pulse",
+  "coachIaBadge": "Coach IA",
+  "agirCoachPulseDone": "Tu es à jour ce mois-ci. Priorise maintenant l'action la plus impactante.",
+  "agirCoachPulsePending": "Ton check-in mensuel est la prochaine action critique pour garder ta trajectoire fiable.",
+  "agirCoachPulseWhyNow": "Pourquoi maintenant: {reason}",
+  "@agirCoachPulseWhyNow": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "agirScenarioBriefTitle": "Scénarios de retraite en bref",
+  "agirScenarioBriefSummary": "Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}% de remplacement). L'écart Prudent vs Optimiste est {gapCapital}.",
+  "@agirScenarioBriefSummary": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "baseCapital": { "type": "String" },
+      "replacement": { "type": "String" },
+      "gapCapital": { "type": "String" }
+    }
+  },
+  "agirScenarioBriefCta": "Ouvrir la simulation complète",
+  "advisorMiniWeekOneCta": "Lancer ma semaine 1",
+  "advisorMiniStartWithDashboard": "Commencer avec le dashboard",
+  "advisorMiniCoachIntroChallenge": "Objectif: passer de l'analyse à l'action cette semaine. On commence maintenant avec 3 priorités.",
+  "checkinScoreReasonStable": "Score stable ce mois: continue la régularité de tes actions.",
+  "checkinScoreReasonPositiveContrib": "Hausse principale: versements confirmés ({amount}) ce mois.",
+  "@checkinScoreReasonPositiveContrib": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinScoreReasonPositiveIncome": "Hausse principale: revenu exceptionnel ajouté ce mois.",
+  "checkinScoreReasonPositiveGeneral": "Hausse principale: progression globale de ta discipline financière.",
+  "checkinScoreReasonNegativeExpense": "Baisse principale: dépenses exceptionnelles ce mois ({amount}).",
+  "@checkinScoreReasonNegativeExpense": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinScoreReasonNegativeContrib": "Baisse principale: réduction de tes versements planifiés ({amount}/mois).",
+  "@checkinScoreReasonNegativeContrib": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "checkinScoreReasonNegativeGeneral": "Baisse temporaire ce mois. On ajuste le plan au prochain check-in.",
+  "checkinImpactPending": "Impact en cours de calcul",
+  "coachDataQualityTitle": "Qualite des donnees",
+  "coachDataQualityBody": "Calcul actuel: {dataPoints} donnees saisies ({percentage}%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.",
+  "@coachDataQualityBody": {
+    "placeholders": {
+      "dataPoints": { "type": "String" },
+      "percentage": { "type": "String" }
+    }
+  },
+  "coachShockTitle": "Tes chiffres-chocs",
+  "coachShockSubtitle": "Des montants personnalises pour eclairer tes decisions",
+  "coachScenarioDecodedTitle": "Tes scenarios decryptes",
+  "coachBadgeStatic": "Coach",
+  "agirActionsRecommendedTitle": "Actions recommandees",
+  "agirActionsRecommendedSubtitle": "Triees par priorite",
+  "profileCoachKnowledgeTitle": "Ce que MINT sait de toi",
+  "profileStateFull": "Profil complet",
+  "profileStatePartial": "Profil partiel",
+  "profileStateMissing": "Profil non renseigne",
+  "profileCoachKnowledgeSummary": "{profileState} • Precision {precision}% • Check-ins: {checkins}{scorePart}",
+  "@profileCoachKnowledgeSummary": {
+    "placeholders": {
+      "profileState": { "type": "String" },
+      "precision": { "type": "String" },
+      "checkins": { "type": "String" },
+      "scorePart": { "type": "String" }
+    }
+  },
+  "profileChipEntered": "saisi",
+  "profileChipEstimated": "estime",
+  "profileChipToComplete": "a completer",
+  "coachNarrativeModeConcise": "Kurz",
+  "coachNarrativeModeDetailed": "Detail",
+  "advisorMiniMetricsWinnerLive": "Live-Sieger",
+  "advisorMiniMetricsUplift": "Uplift Challenge vs. Control",
+  "advisorMiniMetricsSignal": "Signal",
+  "advisorMiniMetricsSignalInsufficient": "Warte auf >=10 Starts pro Variante",
+  "profileCoachMonthlyTitle": "Coach-Monatsuebersicht",
+  "profileCoachMonthlyTrendInsufficient": "Noch nicht genug Check-ins fuer einen monatlichen Trend.",
+  "profileCoachMonthlyTrendUp": "+{delta} Punkte diesen Monat, gute Dynamik.",
+  "@profileCoachMonthlyTrendUp": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "profileCoachMonthlyTrendDown": "-{delta} Punkte diesen Monat, wir passen deine Prioritaeten an.",
+  "@profileCoachMonthlyTrendDown": {
+    "placeholders": {
+      "delta": { "type": "String" }
+    }
+  },
+  "profileCoachMonthlyTrendFlat": "Stabiler Score diesen Monat, halte den Rhythmus.",
+  "profileCoachMonthlyByokPrefix": "Coach-KI-Lesung: {trend}",
+  "@profileCoachMonthlyByokPrefix": {
+    "placeholders": {
+      "trend": { "type": "String" }
+    }
+  },
+  "profileCoachMonthlyActionComplete": "Naechster Schritt: Vervollstaendige deine Diagnose, um Empfehlungen zu praezisieren.",
+  "profileCoachMonthlyActionCheckin": "Naechster Schritt: Fuehre deinen monatlichen Check-in aus, um den Plan neu zu kalibrieren.",
+  "profileCoachMonthlyActionAgir": "Naechster Schritt: Setze eine prioritaere Aktion in Agir um.",
+  "profileGuidanceTitle": "Empfohlener Abschnitt",
+  "profileGuidanceBody": "Vervollstaendige jetzt {section}, um deinen Plan zu praezisieren.",
+  "@profileGuidanceBody": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "profileGuidanceCta": "{section} vervollstaendigen",
+  "@profileGuidanceCta": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "advisorMiniMetricsLiveTitle": "Onboarding-Qualitaet live",
+  "advisorMiniMetricsLiveStep": "Aktueller Schritt",
+  "advisorMiniMetricsLiveQuality": "Qualitaets-Score",
+  "advisorMiniMetricsLiveNext": "Empfohlener Abschnitt",
+  "coachPersonaPriorityCouple": "Paar-Prioritaet",
+  "coachPersonaPriorityFamily": "Familien-Prioritaet",
+  "coachPersonaPrioritySingleParent": "Prioritaet Alleinerziehend",
+  "coachPersonaPrioritySingle": "Persoenliche Prioritaet",
+  "coachWizardSectionIdentity": "Identitaet & Haushalt",
+  "coachWizardSectionIncome": "Einkommen & Haushalt",
+  "coachWizardSectionPension": "Vorsorge",
+  "coachWizardSectionProperty": "Immobilien & Schulden",
+  "coachPersonaGuidanceCouple": "Um Haushaltsprojektionen zu stabilisieren, vervollstaendige jetzt {section}.",
+  "@coachPersonaGuidanceCouple": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "coachPersonaGuidanceSingleParent": "Dein Plan haengt vom Schutz des Haushalts ab. Vervollstaendige jetzt {section}.",
+  "@coachPersonaGuidanceSingleParent": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "coachPersonaGuidanceSingle": "Um deinen Coach-Plan zu personalisieren, vervollstaendige jetzt {section}.",
+  "@coachPersonaGuidanceSingle": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "coachEnrichTargetTitle": "Von {current}% auf {target}% Praezision",
+  "@coachEnrichTargetTitle": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "target": { "type": "String" }
+    }
+  },
+  "coachEnrichBodyIdentity": "Ergaenze Identitaet/Haushalt, um heute verlaessliche Berechnungen zu aktivieren.",
+  "coachEnrichBodyIncome": "Vervollstaendige Einkommen und Haushaltsstruktur fuer wirklich personalisierte Empfehlungen.",
+  "coachEnrichBodyPension": "Ergaenze AHV/BVG/3a fuer eine umsetzbare Ruhestandsprojektion.",
+  "coachEnrichBodyProperty": "Ergaenze Immobilien und Schulden zur Kalibrierung von Budget und Risiko.",
+  "coachEnrichBodyDefault": "Die vollstaendige Diagnose dauert 10 Minuten und schaltet deine personalisierte Trajektorie frei.",
+  "coachEnrichActionIdentity": "Identitaet & Haushalt vervollstaendigen",
+  "coachEnrichActionIncome": "Einkommen & Haushalt vervollstaendigen",
+  "coachEnrichActionPension": "Vorsorge vervollstaendigen",
+  "coachEnrichActionProperty": "Immobilien & Schulden vervollstaendigen",
+  "coachEnrichActionDefault": "Meine Diagnose vervollstaendigen",
+  "coachAgirPartialTitle": "Plan im Aufbau ({quality}%)",
+  "@coachAgirPartialTitle": {
+    "placeholders": {
+      "quality": { "type": "String" }
+    }
+  },
+  "coachAgirPartialBody": "Um deine prioritaeren Aktionen zu aktivieren, vervollstaendige jetzt {section}.",
+  "@coachAgirPartialBody": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "coachAgirPartialAction": "{section} vervollstaendigen",
+  "@coachAgirPartialAction": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "authForgotTitle": "Passwort zuruecksetzen",
+  "authForgotSteps": "1) Link anfordern  2) Token einfuegen  3) Neues Passwort waehlen",
+  "authForgotSendLink": "Link zum Zuruecksetzen senden",
+  "authForgotResetTokenLabel": "Reset-Token",
+  "authForgotNewPasswordLabel": "Neues Passwort",
+  "authForgotSubmitNewPassword": "Neues Passwort bestaetigen",
+  "authForgotRequestAccepted": "Wenn ein Konto existiert, wurde ein Reset-Link gesendet.",
+  "authForgotResetSuccess": "Passwort aktualisiert. Du kannst dich nun anmelden.",
+  "authVerifyTitle": "E-Mail verifizieren",
+  "authVerifyInstructions": "Fordere einen neuen Link an und fuege dann den Verifizierungs-Token ein.",
+  "authVerifySendLink": "Verifizierungslink senden",
+  "authVerifyTokenLabel": "Verifizierungs-Token",
+  "authVerifySubmit": "Verifizierung bestaetigen",
+  "authVerifyRequestAccepted": "Verifizierungslink gesendet (falls Konto vorhanden).",
+  "authVerifySuccess": "E-Mail verifiziert. Du kannst dich anmelden.",
+  "authTokenRequired": "Token erforderlich.",
+  "authEmailInvalidPrompt": "Gib eine gueltige E-Mail-Adresse ein.",
+  "authDebugTokenLabel": "Debug-Token (Tests)",
+  "adminObsTitle": "Admin-Observability",
+  "adminObsExportCsv": "Kohorten-CSV exportieren",
+  "adminObsCsvCopied": "Kohorten-CSV in die Zwischenablage kopiert",
+  "adminObsExportFailed": "Export fehlgeschlagen",
+  "adminObsWindowLabel": "Fenster",
+  "commonRetry": "Erneut versuchen",
+  "commonDays": "Tage"
 }

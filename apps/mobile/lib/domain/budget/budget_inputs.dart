@@ -1,3 +1,4 @@
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 enum PayFrequency {
@@ -19,6 +20,9 @@ class BudgetInputs {
   final double taxProvision; // Mensuel (provision impots)
   final double healthInsurance; // Mensuel (LAMal)
   final double otherFixedCosts; // Mensuel (assurances/autres charges fixes)
+  final bool isTaxEstimated;
+  final bool isHealthEstimated;
+  final bool isOtherFixedMissing;
   final BudgetStyle style;
   final double
       emergencyFundMonths; // Mois de dépenses couverts par l'épargne liquide
@@ -31,9 +35,60 @@ class BudgetInputs {
     this.taxProvision = 0,
     this.healthInsurance = 0,
     this.otherFixedCosts = 0,
+    this.isTaxEstimated = false,
+    this.isHealthEstimated = false,
+    this.isOtherFixedMissing = false,
     this.style = BudgetStyle.envelopes3,
     this.emergencyFundMonths = 0,
   });
+
+  bool get hasEstimatedValues => isTaxEstimated || isHealthEstimated;
+  bool get hasMissingValues => isOtherFixedMissing;
+
+  /// Construit des BudgetInputs a partir d'un CoachProfile.
+  ///
+  /// Utilise pour synchroniser le budget quand le profil change
+  /// (wizard, annual refresh, mini-onboarding).
+  /// Le revenu net est estime a 87% du brut (charges sociales).
+  /// Les dettes sont reparties sur 36 mois de remboursement.
+  static BudgetInputs fromCoachProfile(CoachProfile profile) {
+    final monthlyNet = profile.salaireBrutMensuel * 0.87;
+    final monthlyDebt =
+        profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
+    // Charges fixes hors loyer et assurance maladie
+    final otherFixed = profile.depenses.totalMensuel -
+        profile.depenses.loyer -
+        profile.depenses.assuranceMaladie;
+
+    // Civilite mapping pour TaxEstimatorService
+    final civilStatusStr = switch (profile.etatCivil) {
+      CoachCivilStatus.marie => 'married',
+      CoachCivilStatus.concubinage => 'single',
+      _ => 'single',
+    };
+
+    return BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: monthlyNet,
+      housingCost: profile.depenses.loyer,
+      debtPayments: monthlyDebt,
+      taxProvision: TaxEstimatorService.estimateMonthlyProvision(
+        TaxEstimatorService.estimateAnnualTax(
+          netMonthlyIncome: monthlyNet,
+          cantonCode: profile.canton,
+          civilStatus: civilStatusStr,
+          childrenCount: profile.nombreEnfants,
+          age: profile.age,
+          isSourceTaxed: false,
+        ),
+      ),
+      healthInsurance: profile.depenses.assuranceMaladie,
+      otherFixedCosts: otherFixed > 0 ? otherFixed : 0,
+      isTaxEstimated: true,
+      isHealthEstimated: false,
+      isOtherFixedMissing: otherFixed <= 0,
+    );
+  }
 
   // Factory depuis une map (pour deserialization depuis Session.answers)
   factory BudgetInputs.fromMap(Map<String, dynamic> map) {
@@ -91,6 +146,10 @@ class BudgetInputs {
     final estimatedLamal = lamalRaw ??
         _estimateLamalPremium(canton, map['q_household_type'] as String?);
 
+    final metaTaxEstimated = map['meta_tax_estimated'];
+    final metaHealthEstimated = map['meta_health_estimated'];
+    final metaOtherFixedMissing = map['meta_other_fixed_missing'];
+
     return BudgetInputs(
       payFrequency: payFrequency,
       netIncome: netIncome,
@@ -99,6 +158,13 @@ class BudgetInputs {
       taxProvision: estimatedTax,
       healthInsurance: estimatedLamal,
       otherFixedCosts: otherFixedRaw ?? 0.0,
+      isTaxEstimated:
+          metaTaxEstimated is bool ? metaTaxEstimated : taxProvisionRaw == null,
+      isHealthEstimated:
+          metaHealthEstimated is bool ? metaHealthEstimated : lamalRaw == null,
+      isOtherFixedMissing: metaOtherFixedMissing is bool
+          ? metaOtherFixedMissing
+          : otherFixedRaw == null,
       style: BudgetStyle.values.firstWhere(
         (e) => e.name == map['q_budget_style'],
         orElse: () => BudgetStyle.envelopes3,
@@ -116,6 +182,9 @@ class BudgetInputs {
       'q_tax_provision_monthly_chf': taxProvision,
       'q_lamal_premium_monthly_chf': healthInsurance,
       'q_other_fixed_costs_monthly_chf': otherFixedCosts,
+      'meta_tax_estimated': isTaxEstimated,
+      'meta_health_estimated': isHealthEstimated,
+      'meta_other_fixed_missing': isOtherFixedMissing,
       'q_budget_style': style.name,
       'emergency_fund_months': emergencyFundMonths,
     };

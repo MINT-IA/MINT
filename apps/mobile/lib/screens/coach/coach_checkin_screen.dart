@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
+import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
 import 'package:mint_mobile/services/notification_service.dart';
@@ -51,6 +56,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   double _impactCapital = 0;
   int _streak = 0;
   String _coachTip = '';
+  String _scoreDeltaReason = '';
   int _scoreBefore = 0;
   int _scoreAfter = 0;
 
@@ -184,6 +190,17 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       previousScore: _scoreBefore,
     );
     _scoreAfter = scoreAfter.global;
+    _scoreDeltaReason = _deriveScoreDeltaReason(
+      scoreBefore: _scoreBefore,
+      scoreAfter: _scoreAfter,
+      totalVersements: _totalVersements,
+      depensesExceptionnelles: double.tryParse(_depensesController.text) ?? 0.0,
+      revenusExceptionnels: double.tryParse(_revenusController.text) ?? 0.0,
+      contributionsChanged: contributionsChanged,
+      initialContributions: _profile.plannedContributions,
+      updatedContributions: updatedContributions,
+    );
+    _coachTip = scoreAfter.coachMessage;
 
     // Projection-based impact (more accurate than simple sum)
     final projectionBefore = ForecasterService.project(
@@ -214,6 +231,12 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
     // Persist score for trend tracking
     coachProvider.saveCurrentScore(_scoreAfter);
+    unawaited(
+      ReportPersistenceService.saveLastScoreAttribution(
+        reason: _scoreDeltaReason,
+        delta: _scoreAfter - _scoreBefore,
+      ),
+    );
 
     // Re-schedule notifications with updated profile (new check-in resets reminders)
     NotificationService().scheduleCoachingReminders(profile: updatedProfile);
@@ -228,13 +251,15 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   }
 
   /// Detect newly achieved milestones and show celebration sheets.
-  Future<void> _detectAndCelebrateMilestones(CoachProfile updatedProfile) async {
+  Future<void> _detectAndCelebrateMilestones(
+      CoachProfile updatedProfile) async {
     final streakResult = StreakService.compute(updatedProfile);
     final milestones = await MilestoneDetectionService.detectNew(
       profile: updatedProfile,
       currentScore: _scoreAfter,
       streak: streakResult,
     );
+    await _enrichMilestonesIfByok(milestones, updatedProfile);
     for (final milestone in milestones) {
       if (!mounted) break;
       try {
@@ -248,6 +273,73 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
         break; // Widget disposed, arreter les celebrations
       }
     }
+  }
+
+  Future<void> _enrichMilestonesIfByok(
+    List<MilestoneEvent> milestones,
+    CoachProfile profile,
+  ) async {
+    if (milestones.isEmpty || !mounted) return;
+    ByokProvider? byok;
+    try {
+      byok = context.read<ByokProvider>();
+    } catch (_) {
+      byok = null;
+    }
+    if (byok == null || !byok.isConfigured || byok.apiKey == null) return;
+
+    final ragService = RagService();
+    for (final milestone in milestones) {
+      if (!mounted) return;
+      try {
+        final response = await ragService.query(
+          question: '''
+Tu es le coach financier MINT. Ecris une celebration courte (1-2 phrases) pour ce milestone.
+Profil: ${profile.firstName ?? 'utilisateur'}, ${profile.age} ans, canton ${profile.canton}.
+Milestone: ${milestone.title}
+Description: ${milestone.description}
+Contraintes: ton positif, tutoiement, concret, sans promesse.
+Interdits: garanti, certain, assure, sans risque, optimal, meilleur, parfait.
+Reponds uniquement avec le texte final.
+''',
+          apiKey: byok.apiKey!,
+          provider: byok.provider ?? 'openai',
+          profileContext: {
+            'financial_summary':
+                '${profile.firstName ?? 'utilisateur'}, ${profile.age} ans, score $_scoreAfter/100',
+          },
+        );
+        final narrative = _sanitizeNarrative(response.answer);
+        if (narrative.isNotEmpty) {
+          milestone.narrativeMessage = narrative;
+        }
+      } catch (_) {
+        // Fallback: keep static description
+      }
+    }
+  }
+
+  String _sanitizeNarrative(String raw) {
+    var text = raw.trim();
+    if (text.startsWith('```')) {
+      text = text.replaceFirst(RegExp(r'^```[a-zA-Z]*'), '').trim();
+      text = text.replaceFirst(RegExp(r'```$'), '').trim();
+    }
+    const bannedTerms = [
+      'garanti',
+      'certain',
+      'assuré',
+      'assure',
+      'sans risque',
+      'optimal',
+      'meilleur',
+      'parfait',
+    ];
+    for (final term in bannedTerms) {
+      text =
+          text.replaceAll(RegExp(term, caseSensitive: false), '[terme retire]');
+    }
+    return text;
   }
 
   int _calculateStreak(List<MonthlyCheckIn> checkIns) {
@@ -266,6 +358,64 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       }
     }
     return count;
+  }
+
+  String _deriveScoreDeltaReason({
+    required int scoreBefore,
+    required int scoreAfter,
+    required double totalVersements,
+    required double depensesExceptionnelles,
+    required double revenusExceptionnels,
+    required bool contributionsChanged,
+    required List<PlannedMonthlyContribution> initialContributions,
+    required List<PlannedMonthlyContribution> updatedContributions,
+  }) {
+    final s = S.of(context);
+    final delta = scoreAfter - scoreBefore;
+    if (delta == 0) {
+      return s?.checkinScoreReasonStable ??
+          'Score stable ce mois: continue la regularite de tes actions.';
+    }
+
+    if (delta > 0) {
+      if (totalVersements > 0) {
+        return s?.checkinScoreReasonPositiveContrib(
+              ForecasterService.formatChf(totalVersements),
+            ) ??
+            'Hausse principale: versements confirmes (${ForecasterService.formatChf(totalVersements)}) ce mois.';
+      }
+      if (revenusExceptionnels > 0) {
+        return s?.checkinScoreReasonPositiveIncome ??
+            'Hausse principale: revenu exceptionnel ajoute ce mois.';
+      }
+      return s?.checkinScoreReasonPositiveGeneral ??
+          'Hausse principale: progression globale de ta discipline financiere.';
+    }
+
+    if (depensesExceptionnelles > 0) {
+      return s?.checkinScoreReasonNegativeExpense(
+            ForecasterService.formatChf(depensesExceptionnelles),
+          ) ??
+          'Baisse principale: depenses exceptionnelles ce mois (${ForecasterService.formatChf(depensesExceptionnelles)}).';
+    }
+
+    if (contributionsChanged &&
+        initialContributions.length == updatedContributions.length) {
+      var deltaPlanned = 0.0;
+      for (var i = 0; i < initialContributions.length; i++) {
+        deltaPlanned +=
+            (updatedContributions[i].amount - initialContributions[i].amount);
+      }
+      if (deltaPlanned < 0) {
+        return s?.checkinScoreReasonNegativeContrib(
+              ForecasterService.formatChf(deltaPlanned.abs()),
+            ) ??
+            'Baisse principale: reduction de tes versements planifies (${ForecasterService.formatChf(deltaPlanned.abs())}/mois).';
+      }
+    }
+
+    return s?.checkinScoreReasonNegativeGeneral ??
+        'Baisse temporaire ce mois. On ajuste le plan au prochain check-in.';
   }
 
   // ── Build ──────────────────────────────────────────────────
@@ -1098,10 +1248,19 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 Text(
                   isPositive
                       ? '+$delta pts — tes actions portent leurs fruits !'
-                      : '${delta} pts — continue, chaque mois compte',
+                      : '$delta pts — continue, chaque mois compte',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _scoreDeltaReason,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.35,
                   ),
                 ),
               ],
@@ -1116,6 +1275,10 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     final s = S.of(context);
     final impactFormatted = ForecasterService.formatChf(_impactCapital);
     final totalFormatted = ForecasterService.formatChf(_totalVersements);
+    final impactLabel = _impactCapital.abs() < 1
+        ? (s?.checkinImpactPending ?? 'Impact en cours de calcul')
+        : (s?.checkinImpactCapital(impactFormatted) ??
+            'Capital projeté +$impactFormatted ce mois');
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1154,8 +1317,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  s?.checkinImpactCapital(impactFormatted) ??
-                      'Capital projeté +$impactFormatted ce mois',
+                  impactLabel,
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1465,8 +1627,9 @@ class _ContributionRow extends StatelessWidget {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) return null; // optional
-                    if (double.tryParse(value) == null)
+                    if (double.tryParse(value) == null) {
                       return s?.checkinInvalidAmount ?? 'Montant invalide';
+                    }
                     return null;
                   },
                 ),

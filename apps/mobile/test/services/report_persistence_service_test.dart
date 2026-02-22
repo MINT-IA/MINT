@@ -489,7 +489,8 @@ void main() {
       expect(await ReportPersistenceService.loadCheckIns(), isNotEmpty);
       expect(await ReportPersistenceService.loadLastScore(), isNotNull);
       expect(await ReportPersistenceService.loadScoreHistory(), isNotEmpty);
-      expect(await ReportPersistenceService.loadExploredSimulators(), isNotEmpty);
+      expect(
+          await ReportPersistenceService.loadExploredSimulators(), isNotEmpty);
 
       // Clear coach history
       await ReportPersistenceService.clearCoachHistory();
@@ -618,6 +619,28 @@ void main() {
       ]);
       final has = await ReportPersistenceService.hasCustomContributions();
       expect(has, isTrue);
+    });
+
+    test('score attribution save/load roundtrip', () async {
+      await ReportPersistenceService.saveLastScoreAttribution(
+        reason: 'Hausse principale: versements confirmes',
+        delta: 3,
+      );
+      final attribution =
+          await ReportPersistenceService.loadLastScoreAttribution();
+      expect(attribution, isNotNull);
+      expect(attribution!['reason'], contains('Hausse principale'));
+      expect(attribution['delta'], 3);
+    });
+
+    test('coach narrative mode persists and defaults to detailed', () async {
+      final defaultMode =
+          await ReportPersistenceService.loadCoachNarrativeMode();
+      expect(defaultMode, 'detailed');
+
+      await ReportPersistenceService.saveCoachNarrativeMode('concise');
+      final loaded = await ReportPersistenceService.loadCoachNarrativeMode();
+      expect(loaded, 'concise');
     });
   });
 

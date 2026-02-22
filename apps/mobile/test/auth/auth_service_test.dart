@@ -1,14 +1,53 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  group('AuthService', () {
-    setUp(() async {
-      // Clear SharedPreferences before each test
-      SharedPreferences.setMockInitialValues({});
-    });
+  TestWidgetsFlutterBinding.ensureInitialized();
 
+  // In-memory mock for flutter_secure_storage platform channel
+  final Map<String, String> mockStorage = {};
+
+  setUp(() {
+    mockStorage.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        switch (call.method) {
+          case 'write':
+            final key = call.arguments['key'] as String;
+            final value = call.arguments['value'] as String?;
+            if (value != null) {
+              mockStorage[key] = value;
+            }
+            return null;
+          case 'read':
+            final key = call.arguments['key'] as String;
+            return mockStorage[key];
+          case 'delete':
+            final key = call.arguments['key'] as String;
+            mockStorage.remove(key);
+            return null;
+          case 'deleteAll':
+            mockStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      null,
+    );
+  });
+
+  group('AuthService', () {
     test('saveToken and getToken roundtrip', () async {
       const token = 'test_jwt_token_xyz123';
       const userId = 'user_123';

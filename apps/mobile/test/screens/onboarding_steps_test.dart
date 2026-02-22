@@ -55,6 +55,8 @@ void main() {
           taxController: TextEditingController(),
           lamalController: TextEditingController(),
           otherFixedController: TextEditingController(),
+          partnerIncomeController: TextEditingController(),
+          partnerBirthYearController: TextEditingController(),
           onIncomeQuickPick: (_) {},
           onContinue: () {},
         ),

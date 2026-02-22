@@ -1,5 +1,5 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
 /// Unit tests for AuthService
@@ -16,9 +16,47 @@ import 'package:mint_mobile/services/auth_service.dart';
 /// - Logout clears all data
 /// - Edge cases: empty tokens, missing fields, multiple saves
 void main() {
-  // Initialize SharedPreferences mock before each test
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final Map<String, String> mockStorage = {};
+
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    mockStorage.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        switch (call.method) {
+          case 'write':
+            final key = call.arguments['key'] as String;
+            final value = call.arguments['value'] as String?;
+            if (value != null) {
+              mockStorage[key] = value;
+            }
+            return null;
+          case 'read':
+            final key = call.arguments['key'] as String;
+            return mockStorage[key];
+          case 'delete':
+            final key = call.arguments['key'] as String;
+            mockStorage.remove(key);
+            return null;
+          case 'deleteAll':
+            mockStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      null,
+    );
   });
 
   // ═══════════════════════════════════════════════════════════════════════

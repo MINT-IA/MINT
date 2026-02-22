@@ -12,6 +12,7 @@ import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 // Providers
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 void main() {
   // ── Helpers ──────────────────────────────────────────────────
@@ -20,6 +21,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
+        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
       child: MaterialApp(home: child),
     );
@@ -49,6 +51,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: provider),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
+        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
       child: MaterialApp(home: child),
     );
@@ -166,14 +169,14 @@ void main() {
 
       // The initial greeting contains "coach financier MINT"
       expect(
-        find.textContaining('coach financier MINT'),
+        find.textContaining('coach MINT'),
         findsOneWidget,
       );
     });
 
     testWidgets('shows input bar with hint text', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const CoachChatScreen()),
+        buildWithProfile(const CoachChatScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -186,7 +189,7 @@ void main() {
 
     testWidgets('shows send button', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const CoachChatScreen()),
+        buildWithProfile(const CoachChatScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -195,7 +198,7 @@ void main() {
 
     testWidgets('shows Coach MINT app bar title', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const CoachChatScreen()),
+        buildWithProfile(const CoachChatScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -211,7 +214,7 @@ void main() {
 
     testWidgets('shows disclaimer banner', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const CoachChatScreen()),
+        buildWithProfile(const CoachChatScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -223,7 +226,7 @@ void main() {
 
     testWidgets('shows BYOK CTA when key not configured', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const CoachChatScreen()),
+        buildWithProfile(const CoachChatScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 

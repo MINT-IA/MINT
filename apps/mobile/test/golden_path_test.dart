@@ -91,11 +91,11 @@ void main() {
       final next = WizardConditionsService.getNextQuestion(
           'q_3a_annual_contribution', answers);
       expect(next, isNotNull);
-      expect(next?.id, 'q_avs_gaps'); // Prévoyance continue
+      expect(next?.id, 'q_avs_lacunes_status'); // Prévoyance continue
 
       // Et après AVS ?
       final afterAvs =
-          WizardConditionsService.getNextQuestion('q_avs_gaps', answers);
+          WizardConditionsService.getNextQuestion('q_avs_lacunes_status', answers);
       expect(afterAvs, isNotNull);
       // After AVS, next question continues (prevoyance or patrimoine section)
       expect(afterAvs, isNotNull);

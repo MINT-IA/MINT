@@ -16,6 +16,8 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _isPartialProfile = false;
   int? _previousScore;
   List<Map<String, dynamic>> _scoreHistory = [];
+  bool _profileUpdatedSinceBudget = false;
+  Map<String, dynamic> _lastAnswers = const {};
 
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
@@ -58,6 +60,134 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Historique des scores mensuels (max 24 mois).
   List<Map<String, dynamic>> get scoreHistory => _scoreHistory;
 
+  /// True si le profil a ete mis a jour depuis la derniere synchro budget.
+  bool get profileUpdatedSinceBudget => _profileUpdatedSinceBudget;
+
+  String get personaKey {
+    final p = _profile;
+    if (p == null) return 'unknown';
+    if (p.nombreEnfants > 0 && p.etatCivil == CoachCivilStatus.celibataire) {
+      return 'single_parent';
+    }
+    if (p.nombreEnfants > 0) return 'family';
+    if (p.etatCivil == CoachCivilStatus.marie ||
+        p.etatCivil == CoachCivilStatus.concubinage) {
+      return 'couple';
+    }
+    return 'single';
+  }
+
+  List<String> get _qualityKeys {
+    final keys = <String>[
+      'q_birth_year',
+      'q_canton',
+      'q_net_income_period_chf',
+      'q_employment_status',
+      'q_household_type',
+      'q_housing_cost_period_chf',
+      'q_tax_provision_monthly_chf',
+      'q_lamal_premium_monthly_chf',
+      'q_has_pension_fund',
+      'q_avs_lacunes_status',
+      'q_has_3a',
+      'q_3a_annual_contribution',
+      'q_has_investments',
+      'q_savings_monthly',
+      'q_has_consumer_debt',
+    ];
+    if (personaKey == 'couple' || personaKey == 'family') {
+      keys.addAll([
+        'q_civil_status_choice',
+        'q_partner_net_income_chf',
+        'q_partner_birth_year',
+        'q_partner_employment_status',
+      ]);
+    }
+    if (personaKey == 'single_parent') {
+      keys.add('q_children');
+    }
+    return keys;
+  }
+
+  bool _isAnswered(dynamic value) {
+    if (value == null) return false;
+    if (value is String) return value.trim().isNotEmpty;
+    if (value is num) return value > 0;
+    if (value is bool) return true;
+    if (value is List) return value.isNotEmpty;
+    if (value is Map) return value.isNotEmpty;
+    return true;
+  }
+
+  int get onboardingAnsweredSignals {
+    if (_profile == null) return 0;
+    return _qualityKeys.where((k) => _isAnswered(_lastAnswers[k])).length;
+  }
+
+  int get onboardingTotalSignals {
+    if (_profile == null) return 0;
+    return _qualityKeys.length;
+  }
+
+  /// Dynamic onboarding quality score, independent from legacy precision badge.
+  /// Preserves floor by profile mode:
+  /// - mini profile: 15%..55%
+  /// - full profile: 60%..95%
+  double get onboardingQualityScore {
+    if (_profile == null) return 0.0;
+    final total = onboardingTotalSignals;
+    if (total == 0) return _isPartialProfile ? 0.15 : 0.60;
+    final raw = onboardingAnsweredSignals / total;
+    if (_isPartialProfile) return raw.clamp(0.15, 0.55);
+    return raw.clamp(0.60, 0.95);
+  }
+
+  String get recommendedWizardSection {
+    if (_profile == null) return 'identity';
+
+    final identityComplete = _isAnswered(_lastAnswers['q_birth_year']) &&
+        _isAnswered(_lastAnswers['q_canton']);
+    if (!identityComplete) return 'identity';
+
+    final hasHousehold = _isAnswered(_lastAnswers['q_household_type']);
+    final household =
+        (_lastAnswers['q_household_type'] as String?) ?? personaKey;
+    final baseIncomeComplete =
+        _isAnswered(_lastAnswers['q_net_income_period_chf']) &&
+            _isAnswered(_lastAnswers['q_employment_status']) &&
+            hasHousehold;
+    if (!baseIncomeComplete) return 'income';
+
+    if (household == 'couple' || household == 'family') {
+      final partnerComplete =
+          _isAnswered(_lastAnswers['q_civil_status_choice']) &&
+              _isAnswered(_lastAnswers['q_partner_net_income_chf']) &&
+              _isAnswered(_lastAnswers['q_partner_birth_year']) &&
+              _isAnswered(_lastAnswers['q_partner_employment_status']);
+      if (!partnerComplete) return 'income';
+    }
+
+    final pensionComplete = _isAnswered(_lastAnswers['q_has_pension_fund']) &&
+        (_isAnswered(_lastAnswers['q_has_3a']) ||
+            _isAnswered(_lastAnswers['q_3a_annual_contribution']) ||
+            _isAnswered(_lastAnswers['q_lpp_buyback_available']) ||
+            _isAnswered(_lastAnswers['q_avs_lacunes_status']));
+    if (!pensionComplete) return 'pension';
+
+    final propertyComplete = _isAnswered(_lastAnswers['q_housing_status']) ||
+        _isAnswered(_lastAnswers['q_real_estate_value']) ||
+        _isAnswered(_lastAnswers['q_has_mortgage']) ||
+        _isAnswered(_lastAnswers['q_total_consumer_debt']);
+    if (!propertyComplete) return 'property';
+
+    return 'income';
+  }
+
+  /// Marque le budget comme synchronise avec le profil actuel.
+  void markBudgetSynced() {
+    _profileUpdatedSinceBudget = false;
+  }
+
   /// Charge le profil depuis les reponses wizard stockees.
   ///
   /// Appele automatiquement au demarrage de l'app et apres
@@ -70,6 +200,7 @@ class CoachProfileProvider extends ChangeNotifier {
       // Check full wizard first
       final isFullCompleted = await ReportPersistenceService.isCompleted();
       final answers = await ReportPersistenceService.loadAnswers();
+      _lastAnswers = answers;
 
       if (isFullCompleted && answers.isNotEmpty) {
         _profile = CoachProfile.fromWizardAnswers(answers);
@@ -77,18 +208,21 @@ class CoachProfileProvider extends ChangeNotifier {
         await _mergePersistedData();
         _isLoading = false;
         _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
         notifyListeners();
         return;
       }
 
       // Check mini-onboarding
-      final isMiniCompleted = await ReportPersistenceService.isMiniOnboardingCompleted();
+      final isMiniCompleted =
+          await ReportPersistenceService.isMiniOnboardingCompleted();
       if (isMiniCompleted && answers.isNotEmpty) {
         _profile = CoachProfile.fromWizardAnswers(answers);
         _isPartialProfile = true;
         await _mergePersistedData();
         _isLoading = false;
         _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
         notifyListeners();
         return;
       }
@@ -117,14 +251,14 @@ class CoachProfileProvider extends ChangeNotifier {
     // Merge check-ins
     final persistedCheckIns = await ReportPersistenceService.loadCheckIns();
     if (persistedCheckIns.isNotEmpty) {
-      final checkIns = persistedCheckIns
-          .map((ci) => MonthlyCheckIn.fromJson(ci))
-          .toList();
+      final checkIns =
+          persistedCheckIns.map((ci) => MonthlyCheckIn.fromJson(ci)).toList();
       _profile = _profile!.copyWithCheckIns(checkIns);
     }
 
     // Merge contributions (si l'utilisateur les a modifies via check-in)
-    final persistedContribs = await ReportPersistenceService.loadContributions();
+    final persistedContribs =
+        await ReportPersistenceService.loadContributions();
     if (persistedContribs.isNotEmpty) {
       final contribs = persistedContribs
           .map((c) => PlannedMonthlyContribution.fromJson(c))
@@ -143,9 +277,11 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Utilise apres la completion du wizard pour eviter un rechargement async.
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
+    _lastAnswers = answers;
     _profile = CoachProfile.fromWizardAnswers(answers);
     _isPartialProfile = false;
     _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
     notifyListeners();
   }
 
@@ -153,9 +289,11 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Cree un profil partiel immediatement utilisable par le dashboard.
   void updateFromMiniOnboarding(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
+    _lastAnswers = answers;
     _profile = CoachProfile.fromWizardAnswers(answers);
     _isPartialProfile = true;
     _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
     notifyListeners();
   }
 
@@ -192,7 +330,8 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Supprime une contribution par index.
   void removeContribution(int index) {
     if (_profile == null) return;
-    final updated = List<PlannedMonthlyContribution>.from(_profile!.plannedContributions);
+    final updated =
+        List<PlannedMonthlyContribution>.from(_profile!.plannedContributions);
     if (index >= 0 && index < updated.length) {
       updated.removeAt(index);
       _profile = _profile!.copyWithContributions(updated);
@@ -311,6 +450,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     await ReportPersistenceService.saveAnswers(answers);
 
+    _profileUpdatedSinceBudget = true;
     notifyListeners();
   }
 
@@ -321,6 +461,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _isLoaded = false;
     _previousScore = null;
     _scoreHistory = [];
+    _lastAnswers = const {};
     notifyListeners();
   }
 }

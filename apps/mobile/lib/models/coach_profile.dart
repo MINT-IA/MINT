@@ -34,6 +34,7 @@ class ConjointProfile {
   final double? salaireBrutMensuel;
   final int nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
+  final String? employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
   final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
   final bool isFatcaResident; // US citizen/green card → FATCA restrictions
   final bool canContribute3a; // false si FATCA resident (certains providers)
@@ -45,6 +46,7 @@ class ConjointProfile {
     this.salaireBrutMensuel,
     this.nombreDeMois = 12,
     this.bonusPourcentage,
+    this.employmentStatus,
     this.nationality,
     this.isFatcaResident = false,
     this.canContribute3a = true,
@@ -79,6 +81,7 @@ class ConjointProfile {
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
       nombreDeMois: json['nombreDeMois'] ?? 12,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
+      employmentStatus: json['employmentStatus'] as String?,
       nationality: json['nationality'] as String?,
       isFatcaResident: json['isFatcaResident'] ?? false,
       canContribute3a: json['canContribute3a'] ?? true,
@@ -94,6 +97,7 @@ class ConjointProfile {
     'salaireBrutMensuel': salaireBrutMensuel,
     'nombreDeMois': nombreDeMois,
     'bonusPourcentage': bonusPourcentage,
+    'employmentStatus': employmentStatus,
     'nationality': nationality,
     'isFatcaResident': isFatcaResident,
     'canContribute3a': canContribute3a,
@@ -106,6 +110,7 @@ class ConjointProfile {
     double? salaireBrutMensuel,
     int? nombreDeMois,
     double? bonusPourcentage,
+    String? employmentStatus,
     String? nationality,
     bool? isFatcaResident,
     bool? canContribute3a,
@@ -117,6 +122,7 @@ class ConjointProfile {
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
+      employmentStatus: employmentStatus ?? this.employmentStatus,
       nationality: nationality ?? this.nationality,
       isFatcaResident: isFatcaResident ?? this.isFatcaResident,
       canContribute3a: canContribute3a ?? this.canContribute3a,
@@ -1076,7 +1082,22 @@ class CoachProfile {
     final has3a = _parseBool(answers['q_has_3a']);
     final contribution3a = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
     final nombre3a = _parseInt(answers['q_3a_accounts_count']) ?? (has3a ? 1 : 0);
-    final avsGaps = _parseInt(answers['q_avs_gaps']) ?? 0;
+    final avsLacunesStatus = answers['q_avs_lacunes_status'] as String?;
+    final int avsGaps;
+    switch (avsLacunesStatus) {
+      case 'arrived_late':
+        final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
+        avsGaps = arrivalYear != null
+            ? (arrivalYear - (birthYear + 21)).clamp(0, 44)
+            : 5;
+      case 'lived_abroad':
+        final yearsAbroad = _parseInt(answers['q_avs_years_abroad']);
+        avsGaps = yearsAbroad ?? 3;
+      case 'unknown':
+        avsGaps = 2; // Estimation conservatrice
+      default: // 'no_gaps' ou null
+        avsGaps = 0;
+    }
     final avsYears = _parseInt(answers['q_avs_contribution_years']);
 
     // Estimate LPP total based on age and salary (rough Swiss average)
@@ -1240,6 +1261,20 @@ class CoachProfile {
       }
     }
 
+    // ── Conjoint (partner) data from onboarding ────────────
+    ConjointProfile? conjoint;
+    final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
+    if (partnerIncome != null && partnerIncome > 0) {
+      // Net -> Brut estimation: same social charges rate as main user
+      final partnerBrut = partnerIncome / (1 - socialChargesRate);
+      conjoint = ConjointProfile(
+        firstName: answers['q_partner_firstname'] as String?,
+        birthYear: _parseInt(answers['q_partner_birth_year']),
+        salaireBrutMensuel: partnerBrut,
+        employmentStatus: answers['q_partner_employment_status'] as String?,
+      );
+    }
+
     // ── Timestamps persistes par annual refresh ─────────────
     final savedUpdatedAt = answers['_coach_updated_at'] as String?;
     final savedCreatedAt = answers['_coach_created_at'] as String?;
@@ -1255,6 +1290,7 @@ class CoachProfile {
       canton: canton,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
+      conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,
       employmentStatus: employmentStatus,
       depenses: depenses,
@@ -1473,6 +1509,7 @@ class CoachProfile {
   // ════════════════════════════════════════════════════════════════
 
   /// Profil demo base sur le scenario Julien+Lauren (fondateur)
+  @Deprecated('Use CoachProfileProvider.profile instead. buildDemo() returns fake data.')
   static CoachProfile buildDemo() {
     return CoachProfile(
       firstName: 'Julien',

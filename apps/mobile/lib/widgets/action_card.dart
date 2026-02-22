@@ -11,7 +11,7 @@ import 'package:mint_mobile/theme/colors.dart';
 /// - Accessibilité complète (Semantics)
 ///
 /// Utilisé dans :
-/// - NowTab (actions recommandées)
+/// - CoachDashboardScreen (actions recommandées)
 /// - ExploreTab (objectifs)
 /// - Mentor modal (actions rapides)
 class ActionCard extends StatelessWidget {

@@ -9,7 +9,6 @@ import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/models/clarity_state.dart';
 import 'package:mint_mobile/widgets/wizard_question_widget.dart';
 import 'package:mint_mobile/widgets/report_preview_widget.dart';
-import 'package:mint_mobile/screens/advisor/advisor_report_screen.dart';
 
 class AdvisorSessionWizardScreen extends StatefulWidget {
   const AdvisorSessionWizardScreen({super.key});
@@ -80,12 +79,8 @@ class _AdvisorSessionWizardScreenState
   }
 
   void _viewPartialReport() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AdvisorReportScreen(answers: _answers),
-      ),
-    );
+    // Archive: AdvisorReportScreen removed — navigate to wizard instead
+    context.go('/advisor/wizard');
   }
 
   void _showReportPreview() {
@@ -176,12 +171,10 @@ class _AdvisorSessionWizardScreenState
         body: ReportPreviewWidget(
           state: _clarityState,
           onComplete: _generatePDF,
-          onViewPartialReport: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdvisorReportScreen(answers: _answers),
-            ),
-          ),
+          onViewPartialReport: () {
+            // Archive: AdvisorReportScreen removed — navigate to wizard instead
+            context.go('/advisor/wizard');
+          },
         ),
       );
     }
