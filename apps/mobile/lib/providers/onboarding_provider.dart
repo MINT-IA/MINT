@@ -57,7 +57,7 @@ class OnboardingProvider extends ChangeNotifier {
   bool get canAdvanceFromStep2 => _isBirthYearValid && canton != null;
 
   bool get canAdvanceFromStep3 {
-    final hasCoreIncomeData = (incomeMonthly ?? 0) > 0 &&
+    final hasCoreIncomeData = _effectiveIncome > 0 &&
         employmentStatus != null &&
         householdType != null;
     if (!hasCoreIncomeData) return false;
@@ -83,17 +83,24 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   bool get _isPartnerBirthYearValid {
-    if (partnerBirthYear == null) return false;
+    final value = _effectivePartnerBirthYear;
+    if (value == null) return false;
     final maxYear = DateTime.now().year - 16;
-    return partnerBirthYear! >= 1940 && partnerBirthYear! <= maxYear;
+    return value >= 1940 && value <= maxYear;
   }
 
   bool get hasPartnerRequiredData {
     return civilStatusChoice != null &&
-        (partnerIncome ?? 0) > 0 &&
+        _effectivePartnerIncome > 0 &&
         _isPartnerBirthYearValid &&
         partnerEmploymentStatus != null;
   }
+
+  double get _effectiveIncome => incomeMonthly ?? _toDouble(draftIncome) ?? 0;
+  double get _effectivePartnerIncome =>
+      partnerIncome ?? _toDouble(draftPartnerIncome) ?? 0;
+  int? get _effectivePartnerBirthYear =>
+      partnerBirthYear ?? _toInt(draftPartnerBirthYear);
 
   Future<void> init() async {
     await Future.wait([initExperimentContext(), initFromPersistence()]);
@@ -393,8 +400,8 @@ class OnboardingProvider extends ChangeNotifier {
     if (canton != null) {
       snapshot['q_canton'] = canton;
     }
-    if ((incomeMonthly ?? 0) > 0) {
-      snapshot['q_net_income_period_chf'] = incomeMonthly;
+    if (_effectiveIncome > 0) {
+      snapshot['q_net_income_period_chf'] = _effectiveIncome;
     }
     if (employmentStatus != null) {
       snapshot['q_employment_status'] = employmentStatus;
@@ -420,11 +427,11 @@ class OnboardingProvider extends ChangeNotifier {
 
     // Partner data (couple / family only)
     if (isHouseholdWithPartner) {
-      if (partnerIncome != null) {
-        snapshot['q_partner_net_income_chf'] = partnerIncome;
+      if (_effectivePartnerIncome > 0) {
+        snapshot['q_partner_net_income_chf'] = _effectivePartnerIncome;
       }
-      if (partnerBirthYear != null) {
-        snapshot['q_partner_birth_year'] = partnerBirthYear;
+      if (_effectivePartnerBirthYear != null) {
+        snapshot['q_partner_birth_year'] = _effectivePartnerBirthYear;
       }
       if (partnerEmploymentStatus != null) {
         snapshot['q_partner_employment_status'] = partnerEmploymentStatus;

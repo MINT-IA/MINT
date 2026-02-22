@@ -323,7 +323,7 @@ class OnboardingStepIncome extends StatelessWidget {
           const SizedBox(height: 20),
           OnboardingContinueButton(
             enabled: canContinue,
-            label: l10n?.advisorMiniSeeProjection ?? 'Voir ma projection',
+            label: 'Continuer',
             icon: Icons.auto_awesome,
             onPressed: onContinue,
           ),
