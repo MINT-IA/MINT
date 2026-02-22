@@ -149,7 +149,7 @@
   "advisorMiniQuickPickLabel": "Seleccion rapida",
   "advisorMiniQuickPickIncomeLabel": "Importes frecuentes",
   "advisorMiniFixedCostsTitle": "Costes fijos (opcional)",
-  "advisorMiniFixedCostsHint": "Incluir: vivienda, internet/movil, seguros hogar/RC/auto, transporte, suscripciones y gastos recurrentes.",
+  "advisorMiniFixedCostsHint": "Incluir: internet/movil, seguros hogar/RC/auto, transporte, suscripciones y gastos recurrentes.",
   "advisorMiniFixedCostsSubtitle": "Añade impuestos, LAMal y otros costes fijos para un presupuesto realista desde el inicio.",
   "advisorMiniPrefillEstimates": "Rellenar estimaciones",
   "advisorMiniPrefillHint": "Estimado según tu cantón — ajusta si es diferente.",

@@ -421,7 +421,7 @@ class OnboardingStepIncome extends StatelessWidget {
                   children: [
                     Text(
                       l10n?.advisorMiniFixedCostsHint ??
-                          'Inclure: logement, internet/mobile, assurances ménage/RC/auto, transport, abonnements et frais récurrents.',
+                          'Inclure: internet/mobile, assurances ménage/RC/auto, transport, abonnements et frais récurrents.',
                       style: const TextStyle(
                         fontSize: 12,
                         color: MintColors.textSecondary,

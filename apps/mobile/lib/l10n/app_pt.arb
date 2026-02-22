@@ -149,7 +149,7 @@
   "advisorMiniQuickPickLabel": "Escolha rapida",
   "advisorMiniQuickPickIncomeLabel": "Montantes frequentes",
   "advisorMiniFixedCostsTitle": "Custos fixos (opcional)",
-  "advisorMiniFixedCostsHint": "Inclui: habitacao, internet/movel, seguros casa/RC/auto, transportes, subscricoes e encargos recorrentes.",
+  "advisorMiniFixedCostsHint": "Inclui: internet/movel, seguros casa/RC/auto, transportes, subscricoes e encargos recorrentes.",
   "advisorMiniFixedCostsSubtitle": "Adiciona impostos, LAMal e outros custos fixos para um orcamento realista desde o inicio.",
   "advisorMiniPrefillEstimates": "Preencher estimativas",
   "advisorMiniPrefillHint": "Estimado com base no teu cantão — ajusta se diferente.",

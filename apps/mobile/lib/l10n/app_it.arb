@@ -149,7 +149,7 @@
   "advisorMiniQuickPickLabel": "Scelta rapida",
   "advisorMiniQuickPickIncomeLabel": "Importi frequenti",
   "advisorMiniFixedCostsTitle": "Costi fissi (opzionale)",
-  "advisorMiniFixedCostsHint": "Includi: alloggio, internet/mobile, assicurazioni casa/RC/auto, trasporti, abbonamenti e costi ricorrenti.",
+  "advisorMiniFixedCostsHint": "Includi: internet/mobile, assicurazioni casa/RC/auto, trasporti, abbonamenti e costi ricorrenti.",
   "advisorMiniFixedCostsSubtitle": "Aggiungi imposte, LAMal e altri costi fissi per un budget realistico fin da subito.",
   "advisorMiniPrefillEstimates": "Precompila stime",
   "advisorMiniPrefillHint": "Stimato in base al tuo cantone — modifica se diverso.",

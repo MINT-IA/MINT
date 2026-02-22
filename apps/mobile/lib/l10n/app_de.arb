@@ -149,7 +149,7 @@
   "advisorMiniQuickPickLabel": "Schnellauswahl",
   "advisorMiniQuickPickIncomeLabel": "Häufige Beträge",
   "advisorMiniFixedCostsTitle": "Fixkosten (optional)",
-  "advisorMiniFixedCostsHint": "Enthalten: Wohnen, Internet/Mobil, Haushalt/Haftpflicht/Auto-Versicherung, Transport, Abos und wiederkehrende Gebühren.",
+  "advisorMiniFixedCostsHint": "Enthalten: Internet/Mobil, Haushalt/Haftpflicht/Auto-Versicherung, Transport, Abos und wiederkehrende Gebühren.",
   "advisorMiniFixedCostsSubtitle": "Erfasse Steuern, LAMal und weitere Fixkosten für ein realistisches Budget ab Start.",
   "advisorMiniPrefillEstimates": "Schätzwerte vorausfüllen",
   "advisorMiniPrefillHint": "Geschätzt nach deinem Kanton — passe an, wenn abweichend.",

@@ -149,7 +149,7 @@
   "advisorMiniQuickPickLabel": "Choix rapide",
   "advisorMiniQuickPickIncomeLabel": "Montants fréquents",
   "advisorMiniFixedCostsTitle": "Charges fixes (optionnel)",
-  "advisorMiniFixedCostsHint": "Inclure: logement, internet/mobile, assurances ménage/RC/auto, transport, abonnements et frais récurrents.",
+  "advisorMiniFixedCostsHint": "Inclure: internet/mobile, assurances ménage/RC/auto, transport, abonnements et frais récurrents.",
   "advisorMiniFixedCostsSubtitle": "Ajoute impôts, LAMal et autres fixes pour un budget réaliste dès le dashboard.",
   "advisorMiniPrefillEstimates": "Préremplir estimations",
   "advisorMiniPrefillHint": "Estimé selon ton canton — ajuste si différent.",

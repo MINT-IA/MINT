@@ -498,11 +498,11 @@ class OnboardingProvider extends ChangeNotifier {
     taxProvisionMonthly ??= monthlyTax;
     lamalPremiumMonthly ??= estimateLamalFromCanton(canton!);
     otherFixedCostsMonthly ??= switch (householdType ?? 'single') {
-      'single' => 250,
-      'couple' => 450,
-      'family' => 700,
-      'single_parent' => 550,
-      _ => 300,
+      'single' => 350,
+      'couple' => 550,
+      'family' => 750,
+      'single_parent' => 600,
+      _ => 400,
     };
     draftTaxProvision ??= monthlyTax.round().toString();
     draftLamal ??= lamalPremiumMonthly?.round().toString();
@@ -523,7 +523,7 @@ class OnboardingProvider extends ChangeNotifier {
       'family' => 0.27,
       _ => 0.28,
     };
-    final estimated = (income * ratio).clamp(700, 4500).roundToDouble();
+    final estimated = (income * ratio).clamp(1000, 4500).roundToDouble();
     housingCostMonthly = estimated;
     draftHousingCost ??= estimated.round().toString();
   }
