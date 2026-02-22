@@ -2276,6 +2276,14 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
         ) ??
         0;
+    final partnerIncome = double.tryParse(
+          _partnerIncomeController.text.replaceAll("'", '').replaceAll(' ', ''),
+        ) ??
+        0;
+    final householdIncome = income + partnerIncome;
+    final showPartnerIncome =
+        (_householdType == 'couple' || _householdType == 'family') &&
+            partnerIncome > 0;
     final fixedCount = [
       _parseChfController(_taxProvisionController),
       _parseChfController(_lamalController),
@@ -2322,6 +2330,14 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             l10n?.advisorMiniReadyIncome(income.round().toString()) ??
                 'Revenu net: CHF ${income.round()}/mois',
           ),
+          if (showPartnerIncome)
+            _mintUnderstoodRow(
+              'Revenu partenaire: CHF ${partnerIncome.round()}/mois',
+            ),
+          if (showPartnerIncome)
+            _mintUnderstoodRow(
+              'Revenu foyer total: CHF ${householdIncome.round()}/mois',
+            ),
           _mintUnderstoodRow(
             l10n?.advisorMiniReadyFixed('$fixedCount') ??
                 'Charges fixes captées: $fixedCount/3',
