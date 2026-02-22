@@ -188,7 +188,7 @@
   "advisorMiniReadyLabel": "Was MINT verstanden hat",
   "advisorMiniReadyStep1": "Priorität erfasst. Wir personalisieren deine Trajektorie.",
   "advisorMiniReadyStep2": "Steuerbasis bereit. Der kantonale Kontext ist kalibriert.",
-  "advisorMiniReadyStep3": "Mindestprofil bereit. Verlässliche Projektion aktiviert.",
+  "advisorMiniReadyStep3": "Mindestprofil bereit. Indikative Projektion verfügbar.",
   "advisorMiniReadyStress": "Priorität: {label}",
   "@advisorMiniReadyStress": {
     "placeholders": {

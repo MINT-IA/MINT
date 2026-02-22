@@ -151,10 +151,10 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
         await ReportPersistenceService.loadOnboarding30PlanState();
     if (!mounted) return;
     setState(() {
-      _openedRoutes = Set<String>.from(
-        (refreshed['opened_routes'] as List?) ?? const [],
-      );
-      _lastRoute = refreshed['last_route'] as String?;
+      final openedRaw = (refreshed['opened_routes'] as List?) ?? const [];
+      _openedRoutes = openedRaw.map((e) => e.toString()).toSet();
+      final lastRaw = refreshed['last_route'];
+      _lastRoute = lastRaw == null ? null : lastRaw.toString();
       _isCompleted = refreshed['completed'] == true;
       _isHydrating = false;
     });

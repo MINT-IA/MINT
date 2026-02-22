@@ -1739,7 +1739,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             child: _buildStepReadyHint(
               title: S.of(context)?.advisorMiniReadyTitle ?? 'Validation',
               body: S.of(context)?.advisorMiniReadyStep3 ??
-                  'Profil minimum prêt. Projection fiable activée.',
+                  'Profil minimum prêt. Projection indicative disponible.',
             ),
           ),
       ],
@@ -2163,9 +2163,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
 
   Widget _buildProjectionPreviewCard(Map<String, dynamic> preview) {
     final l10n = S.of(context);
-    final prudent = preview['prudent'] as double;
     final base = preview['base'] as double;
-    final optimiste = preview['optimiste'] as double;
     final targetLabel = preview['targetLabel'] as String;
     final yearsLeft = preview['yearsLeft'] as int;
 
@@ -2186,8 +2184,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  l10n?.advisorMiniPreviewTitle(targetLabel) ??
-                      'Preview trajectoire: $targetLabel',
+                  'Aperçu provisoire: $targetLabel',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -2208,26 +2205,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           const SizedBox(height: 12),
           _buildProjectionRow(
-            l10n?.advisorMiniPreviewPrudent ?? 'Prudent',
-            prudent,
-            const Color(0xFF6B7280),
-          ),
-          const SizedBox(height: 6),
-          _buildProjectionRow(
             l10n?.advisorMiniPreviewBase ?? 'Base',
             base,
             MintColors.primary,
           ),
-          const SizedBox(height: 6),
-          _buildProjectionRow(
-            l10n?.advisorMiniPreviewOptimistic ?? 'Optimiste',
-            optimiste,
-            const Color(0xFF10B981),
-          ),
           const SizedBox(height: 10),
           Text(
-            l10n?.advisorMiniProjectionDisclaimer ??
-                'Outil educatif — ne constitue pas un conseil financier (LAVS/LPP).',
+            'Estimation préliminaire sur âge + revenu + canton. Le diagnostic complet ajoute patrimoine, prévoyance et dettes.',
             style: GoogleFonts.inter(
               fontSize: 10,
               color: MintColors.textMuted,
@@ -2272,18 +2256,21 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
 
   Widget _buildMintUnderstoodCard(Map<String, dynamic> preview) {
     final l10n = S.of(context);
-    final income = double.tryParse(
-          _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
-        ) ??
-        0;
-    final partnerIncome = double.tryParse(
-          _partnerIncomeController.text.replaceAll("'", '').replaceAll(' ', ''),
-        ) ??
-        0;
+    final income = _provider.incomeMonthly ??
+        (double.tryParse(
+              _incomeController.text.replaceAll("'", '').replaceAll(' ', ''),
+            ) ??
+            0);
+    final partnerIncome = _provider.partnerIncome ??
+        (double.tryParse(
+              _partnerIncomeController.text
+                  .replaceAll("'", '')
+                  .replaceAll(' ', ''),
+            ) ??
+            0);
     final householdIncome = income + partnerIncome;
-    final showPartnerIncome =
-        (_householdType == 'couple' || _householdType == 'family') &&
-            partnerIncome > 0;
+    final householdType = _provider.householdType ?? _householdType;
+    final showPartnerIncome = partnerIncome > 0;
     final fixedCount = [
       _parseChfController(_taxProvisionController),
       _parseChfController(_lamalController),
@@ -2292,7 +2279,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final horizon = '~${preview['yearsLeft']} ans';
     final goalLabel = _labelForGoal(_mainGoal ?? 'retirement', l10n);
     final employmentLabel = _labelForEmployment(_employmentStatus, l10n);
-    final householdLabel = _labelForHousehold(_householdType, l10n);
+    final householdLabel = _labelForHousehold(householdType, l10n);
     final cantonLabel = _canton ?? '--';
 
     return Container(

@@ -188,7 +188,7 @@
   "advisorMiniReadyLabel": "Ce que MINT a compris",
   "advisorMiniReadyStep1": "Priorité enregistrée. On personnalise la trajectoire.",
   "advisorMiniReadyStep2": "Base fiscale prête. Le contexte cantonal est calibré.",
-  "advisorMiniReadyStep3": "Profil minimum prêt. Projection fiable activée.",
+  "advisorMiniReadyStep3": "Profil minimum prêt. Projection indicative disponible.",
   "advisorMiniReadyStress": "Priorité: {label}",
   "@advisorMiniReadyStress": {
     "placeholders": {

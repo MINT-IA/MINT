@@ -188,7 +188,7 @@
   "advisorMiniReadyLabel": "O que a MINT entendeu",
   "advisorMiniReadyStep1": "Prioridade registada. Personalizamos a tua trajetoria.",
   "advisorMiniReadyStep2": "Base fiscal pronta. Contexto cantonal calibrado.",
-  "advisorMiniReadyStep3": "Perfil minimo pronto. Projecao fiavel ativada.",
+  "advisorMiniReadyStep3": "Perfil minimo pronto. Projecao indicativa disponivel.",
   "advisorMiniReadyStress": "Prioridade: {label}",
   "@advisorMiniReadyStress": {
     "placeholders": {

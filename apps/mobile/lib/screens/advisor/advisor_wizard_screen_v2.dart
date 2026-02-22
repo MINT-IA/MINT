@@ -587,8 +587,13 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       final birthYear = (_answers['q_birth_year'] as num).toInt();
       final age = DateTime.now().year - birthYear;
       final status = _answers['q_civil_status'] as String? ?? 'single';
-      final children =
-          int.tryParse(_answers['q_children'] as String? ?? '0') ?? 0;
+      final childrenRaw = _answers['q_children'];
+      final children = switch (childrenRaw) {
+        int v => v,
+        num v => v.toInt(),
+        String v => int.tryParse(v) ?? 0,
+        _ => 0,
+      };
 
       // Afficher cet insight surtout quand on parle d'épargne ou prévoyance
       if (_currentSection == 'Budget & Protection' ||

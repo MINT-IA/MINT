@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/data/cantonal_data.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/onboarding/onboarding_widgets.dart';
 
 class OnboardingStepEssentials extends StatelessWidget {
@@ -54,8 +55,25 @@ class OnboardingStepEssentials extends StatelessWidget {
             onTapOutside: (_) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
               labelText:
-                  l10n?.advisorMiniBirthYearLabel ?? 'Annee de naissance',
+                  l10n?.advisorMiniBirthYearLabel ?? 'Année de naissance',
               hintText: '1990',
+              filled: true,
+              fillColor: MintColors.surface,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: MintColors.primary, width: 1.8),
+              ),
             ),
           ),
           if (birthYearError != null) ...[
@@ -70,7 +88,24 @@ class OnboardingStepEssentials extends StatelessWidget {
             value: canton,
             isExpanded: true,
             decoration: InputDecoration(
-              labelText: l10n?.advisorMiniCantonLabel ?? 'Canton',
+              labelText: l10n?.advisorMiniCantonLabel ?? 'Canton de résidence',
+              filled: true,
+              fillColor: MintColors.surface,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.lightBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: MintColors.primary, width: 1.8),
+              ),
             ),
             items: sortedCantons
                 .map(

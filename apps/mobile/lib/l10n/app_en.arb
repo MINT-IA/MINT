@@ -188,7 +188,7 @@
   "advisorMiniReadyLabel": "What MINT understood",
   "advisorMiniReadyStep1": "Priority captured. We personalize your trajectory.",
   "advisorMiniReadyStep2": "Tax base is ready. Cantonal context is calibrated.",
-  "advisorMiniReadyStep3": "Minimum profile ready. Reliable projection enabled.",
+  "advisorMiniReadyStep3": "Minimum profile ready. Indicative projection available.",
   "advisorMiniReadyStress": "Priority: {label}",
   "@advisorMiniReadyStress": {
     "placeholders": {
