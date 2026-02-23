@@ -14,6 +14,7 @@ import 'package:mint_mobile/widgets/retirement/budget_gap_chart.dart';
 import 'package:mint_mobile/widgets/retirement/confidence_banner.dart';
 import 'package:mint_mobile/widgets/retirement/tornado_chart.dart';
 import 'package:mint_mobile/widgets/retirement/monte_carlo_chart.dart';
+import 'package:mint_mobile/widgets/retirement/withdrawal_sequence_chart.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:provider/provider.dart';
 
@@ -273,6 +274,26 @@ class _RetirementProjectionScreenState
                     ),
                   ),
                   const SizedBox(height: 32),
+
+                  // 7c. Fiscal withdrawal sequencing
+                  if (_lppCapitalPct > 0 ||
+                      (profile.prevoyance.nombre3a > 0 &&
+                          profile.prevoyance.totalEpargne3a > 0))
+                    FullscreenChartWrapper(
+                      title: 'Sequence de retrait optimale',
+                      disclaimer: result.disclaimer,
+                      child: WithdrawalSequenceChart(
+                        result: WithdrawalSequencingService.optimize(
+                          profile: profile,
+                          retirementAge: _retirementAgeUser,
+                          lppCapitalPct: _lppCapitalPct,
+                        ),
+                      ),
+                    ),
+                  if (_lppCapitalPct > 0 ||
+                      (profile.prevoyance.nombre3a > 0 &&
+                          profile.prevoyance.totalEpargne3a > 0))
+                    const SizedBox(height: 32),
 
                   // 8. Educational cards
                   _buildEducationalCards(result),
