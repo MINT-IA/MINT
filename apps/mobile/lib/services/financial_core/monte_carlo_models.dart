@@ -50,16 +50,16 @@ class MonteCarloResult {
   /// Year-by-year projection with percentile bands.
   final List<MonteCarloPoint> projection;
 
-  /// Median monthly income at age 65 (CHF/mois).
+  /// Median monthly income at retirement start (CHF/mois).
   final double medianAt65;
 
-  /// 10th percentile monthly income at age 65 (CHF/mois).
+  /// 10th percentile monthly income at retirement start (CHF/mois).
   final double p10At65;
 
-  /// 90th percentile monthly income at age 65 (CHF/mois).
+  /// 90th percentile monthly income at retirement start (CHF/mois).
   final double p90At65;
 
-  /// Probability (0.0–1.0) of capital exhaustion before age 90.
+  /// Probability (0.0-1.0) of capital exhaustion before age 90.
   final double ruinProbability;
 
   /// Number of simulations run.
@@ -67,6 +67,15 @@ class MonteCarloResult {
 
   /// Legal disclaimer text.
   final String disclaimer;
+
+  /// Age de depart a la retraite utilise pour la simulation.
+  final int retirementAge;
+
+  /// References legales (LPP, LAVS, LIFD, OPP3).
+  final List<String> sources;
+
+  /// Alertes contextuelles basees sur les resultats.
+  final List<String> alertes;
 
   const MonteCarloResult({
     required this.projection,
@@ -76,5 +85,8 @@ class MonteCarloResult {
     required this.ruinProbability,
     required this.numSimulations,
     required this.disclaimer,
+    required this.retirementAge,
+    this.sources = const [],
+    this.alertes = const [],
   });
 }

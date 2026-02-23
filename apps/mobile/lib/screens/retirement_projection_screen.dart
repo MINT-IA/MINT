@@ -47,6 +47,16 @@ class _RetirementProjectionScreenState
   int _lppStrategy = 0; // 0 = 100% rente, 1 = mixte 50/50, 2 = 100% capital
   bool _parametersExpanded = false;
 
+  // Cached expensive analytics (recomputed only on parameter change)
+  List<TornadoVariable>? _cachedTornado;
+  MonteCarloResult? _cachedMonteCarlo;
+  WithdrawalSequencingResult? _cachedWithdrawal;
+  int? _lastProfileHash;
+  int? _lastRetirementAge;
+  int? _lastRetirementAgeConjoint;
+  double? _lastDepenses;
+  double? _lastLppCapitalPct;
+
   double get _lppCapitalPct {
     switch (_lppStrategy) {
       case 1: return 0.5;
@@ -79,6 +89,58 @@ class _RetirementProjectionScreenState
     super.dispose();
   }
 
+  /// Recompute tornado, Monte Carlo and withdrawal only when inputs change.
+  void _recomputeAnalytics(CoachProfile profile) {
+    final profileHash = Object.hash(
+      profile.birthYear,
+      profile.salaireBrutMensuel,
+      profile.prevoyance.avoirLppTotal,
+      profile.prevoyance.totalEpargne3a,
+      profile.prevoyance.nombre3a,
+      profile.prevoyance.tauxConversion,
+      profile.canton,
+      profile.etatCivil,
+      profile.conjoint?.salaireBrutMensuel,
+    );
+
+    if (profileHash == _lastProfileHash &&
+        _retirementAgeUser == _lastRetirementAge &&
+        _retirementAgeConjoint == _lastRetirementAgeConjoint &&
+        _depensesMensuelles == _lastDepenses &&
+        _lppCapitalPct == _lastLppCapitalPct) {
+      return; // No change, use cached values
+    }
+
+    _lastProfileHash = profileHash;
+    _lastRetirementAge = _retirementAgeUser;
+    _lastRetirementAgeConjoint = _retirementAgeConjoint;
+    _lastDepenses = _depensesMensuelles;
+    _lastLppCapitalPct = _lppCapitalPct;
+
+    _cachedTornado = TornadoSensitivityService.compute(
+      profile: profile,
+      retirementAgeUser: _retirementAgeUser,
+      retirementAgeConjoint: _retirementAgeConjoint,
+      depensesMensuelles: _depensesMensuelles,
+      lppCapitalPct: _lppCapitalPct,
+    );
+
+    _cachedMonteCarlo = MonteCarloProjectionService.simulate(
+      profile: profile,
+      retirementAgeUser: _retirementAgeUser,
+      lppCapitalPct: _lppCapitalPct,
+      depensesMensuelles: _depensesMensuelles,
+      numSimulations: 500,
+      seed: profileHash,
+    );
+
+    _cachedWithdrawal = WithdrawalSequencingService.optimize(
+      profile: profile,
+      retirementAge: _retirementAgeUser,
+      lppCapitalPct: _lppCapitalPct,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
@@ -97,6 +159,12 @@ class _RetirementProjectionScreenState
       depensesMensuelles: _depensesMensuelles,
       lppCapitalPct: _lppCapitalPct,
     );
+
+    _recomputeAnalytics(profile);
+
+    final showWithdrawalSequence = _lppCapitalPct > 0 ||
+        (profile.prevoyance.nombre3a > 0 &&
+            profile.prevoyance.totalEpargne3a > 0);
 
     return Scaffold(
       body: CustomScrollView(
@@ -152,13 +220,7 @@ class _RetirementProjectionScreenState
                     disclaimer: result.disclaimer,
                     child: TornadoChart(
                       baseCase: result.revenuMensuelAt65,
-                      variables: TornadoSensitivityService.compute(
-                        profile: profile,
-                        retirementAgeUser: _retirementAgeUser,
-                        retirementAgeConjoint: _retirementAgeConjoint,
-                        depensesMensuelles: _depensesMensuelles,
-                        lppCapitalPct: _lppCapitalPct,
-                      ),
+                      variables: _cachedTornado!,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -262,37 +324,22 @@ class _RetirementProjectionScreenState
                     title: 'Projection stochastique',
                     disclaimer: result.disclaimer,
                     child: MonteCarloChart(
-                      result: MonteCarloProjectionService.simulate(
-                        profile: profile,
-                        retirementAgeUser: _retirementAgeUser,
-                        lppCapitalPct: _lppCapitalPct,
-                        depensesMensuelles: _depensesMensuelles,
-                        numSimulations: 500,
-                        seed: profile.hashCode,
-                      ),
+                      result: _cachedMonteCarlo!,
                       currentMonthlyIncome: result.revenuPreRetraiteMensuel,
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // 7c. Fiscal withdrawal sequencing
-                  if (_lppCapitalPct > 0 ||
-                      (profile.prevoyance.nombre3a > 0 &&
-                          profile.prevoyance.totalEpargne3a > 0))
+                  if (showWithdrawalSequence)
                     FullscreenChartWrapper(
                       title: 'Sequence de retrait optimale',
                       disclaimer: result.disclaimer,
                       child: WithdrawalSequenceChart(
-                        result: WithdrawalSequencingService.optimize(
-                          profile: profile,
-                          retirementAge: _retirementAgeUser,
-                          lppCapitalPct: _lppCapitalPct,
-                        ),
+                        result: _cachedWithdrawal!,
                       ),
                     ),
-                  if (_lppCapitalPct > 0 ||
-                      (profile.prevoyance.nombre3a > 0 &&
-                          profile.prevoyance.totalEpargne3a > 0))
+                  if (showWithdrawalSequence)
                     const SizedBox(height: 32),
 
                   // 8. Educational cards

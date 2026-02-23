@@ -49,10 +49,11 @@ class WithdrawalSequenceChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Guard: nothing to show
-    if (result.taxSavings <= 0 ||
-        result.optimizedSequence.isEmpty ||
-        result.naiveSequence.isEmpty) {
-      return _buildEmptyState();
+    if (result.optimizedSequence.isEmpty || result.naiveSequence.isEmpty) {
+      return _buildEmptyState(hasCapital: false);
+    }
+    if (result.taxSavings <= 0) {
+      return _buildEmptyState(hasCapital: true);
     }
 
     return Column(
@@ -105,7 +106,13 @@ class WithdrawalSequenceChart extends StatelessWidget {
   //  EMPTY STATE
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState({required bool hasCapital}) {
+    final message = hasCapital
+        ? "Avec un seul compte, l'echelonnement n'apporte pas d'economie "
+            "supplementaire. Ouvrir un 2e compte 3a permet de repartir les "
+            "retraits sur plusieurs annees fiscales."
+        : "Aucun capital a retirer \u2014 pas d'optimisation possible.";
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
@@ -115,7 +122,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Text(
-        "Aucun capital a retirer \u2014 pas d'optimisation possible.",
+        message,
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 14,
@@ -178,7 +185,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "soit ${result.savingsPercent.toStringAsFixed(0)}% d'impots en moins",
+              "soit ${(result.savingsPercent * 100).toStringAsFixed(0)}% d'impots en moins",
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -366,12 +373,23 @@ class WithdrawalSequenceChart extends StatelessWidget {
             builder: (context, constraints) {
               final availableWidth = constraints.maxWidth;
 
+              final eventsByYear = <int, List<WithdrawalEvent>>{};
+              for (final event in events) {
+                eventsByYear.putIfAbsent(event.year, () => []).add(event);
+              }
+              final maxPerYear = eventsByYear.values
+                  .fold<int>(1, (m, list) => max(m, list.length));
+              const blockHeight = 36.0;
+              const blockGap = 2.0;
+              final totalHeight = maxPerYear * (blockHeight + blockGap) + 20;
+
+              final yearIndex = <int, int>{};
+
               return SizedBox(
-                height: 56,
+                height: totalHeight,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // Thin connecting line
                     Positioned(
                       top: 18,
                       left: 0,
@@ -381,18 +399,20 @@ class WithdrawalSequenceChart extends StatelessWidget {
                         color: MintColors.lightBorder,
                       ),
                     ),
-                    // Event blocks
                     ...events.map((event) {
                       final yearFraction = (event.year - minYear) / span;
                       final x = yearFraction * (availableWidth - 40);
-                      // Width proportional to amount relative to total
                       final widthFraction = event.amount / naiveTotal;
                       final blockWidth =
                           (widthFraction * (availableWidth - 40)).clamp(48.0, availableWidth * 0.8);
 
+                      final idx = yearIndex[event.year] ?? 0;
+                      yearIndex[event.year] = idx + 1;
+                      final top = idx * (blockHeight + blockGap);
+
                       return Positioned(
                         left: x,
-                        top: 0,
+                        top: top,
                         child: _buildEventBlock(event, blockWidth),
                       );
                     }),
@@ -455,7 +475,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
         const SizedBox(height: 2),
         // Effective rate below
         Text(
-          'taux: ${event.effectiveRate.toStringAsFixed(1)}%',
+          'taux: ${(event.effectiveRate * 100).toStringAsFixed(1)}%',
           style: GoogleFonts.inter(
             fontSize: 9,
             color: MintColors.textMuted,
@@ -593,7 +613,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
               const Spacer(),
               Text(
                 'impot: ${_formatChf(event.tax)} '
-                '(${event.effectiveRate.toStringAsFixed(1)}%)',
+                '(${(event.effectiveRate * 100).toStringAsFixed(1)}%)',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.textMuted,

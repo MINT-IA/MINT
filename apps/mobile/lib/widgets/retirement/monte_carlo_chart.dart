@@ -202,9 +202,9 @@ class MonteCarloChart extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           children: [
-            // ── Mediane a 65 ans ────────────────────────────
+            // ── Mediane a l'age de retraite ────────────────
             _summaryRow(
-              'Mediane a 65 ans',
+              'Mediane a ${result.retirementAge} ans',
               '${_formatChf(result.medianAt65)}/mois',
             ),
             const SizedBox(height: 10),

@@ -107,7 +107,8 @@ class WithdrawalSequencingService {
       'Simulation pedagogique de la sequence de retrait en capital. '
       "L'optimisation fiscale depend de la legislation cantonale et "
       'de la situation personnelle. Base legale : LIFD art. 38, OPP3 art. 3. '
-      'Consulte un ou une specialiste avant toute decision.';
+      'Consulte un ou une specialiste avant toute decision. '
+      'Cette simulation ne constitue pas un conseil financier au sens de la LSFin.';
 
   static const List<String> _sources = [
     'LIFD art. 38 (imposition separee capital prevoyance)',
@@ -127,6 +128,23 @@ class WithdrawalSequencingService {
   }) {
     final currentYear = DateTime.now().year;
     final currentAge = profile.age;
+
+    // Guard: si la personne est deja a l'age de retraite ou au-dela,
+    // aucune optimisation de sequencage n'est possible.
+    if (currentAge >= retirementAge) {
+      // Personne deja a l'age de retraite ou au-dela
+      return const WithdrawalSequencingResult(
+        optimizedSequence: [],
+        naiveSequence: [],
+        totalTaxOptimized: 0,
+        totalTaxNaive: 0,
+        taxSavings: 0,
+        savingsPercent: 0,
+        disclaimer: _disclaimer,
+        sources: _sources,
+      );
+    }
+
     final canton = profile.canton.isNotEmpty
         ? profile.canton.toUpperCase()
         : 'ZH';
@@ -362,22 +380,43 @@ class WithdrawalSequencingService {
     final sources3a = capitalSources
         .where((s) => s.type == _SourceType.pilier3a)
         .toList();
+    // Trier les comptes 3a par solde decroissant: le plus gros compte
+    // est isole dans sa propre annee fiscale pour minimiser l'impact
+    // des tranches progressives.
+    sources3a.sort((a, b) => b.currentBalance.compareTo(a.currentBalance));
     final sourcesOther = capitalSources
         .where((s) => s.type != _SourceType.pilier3a)
         .toList();
 
     // --- Planifier les retraits 3a ---
-    // Retrait anticipe 3a: possible 5 ans avant l'age AVS de reference.
-    // Age minimum de retrait: retirementAge - 5 (mais pas avant currentAge).
-    final earliestWithdrawalAge = (retirementAge - 5).clamp(currentAge, 99);
+    // OPP3 art. 3: retrait anticipe 3a possible 5 ans avant l'age AVS
+    // de reference (65), soit au plus tot a 60 ans. La fenetre ne depend
+    // PAS de l'age de retraite choisi par l'utilisateur.
+    const int avsReferenceAge = 65;
+    final earliestWithdrawalAge =
+        (avsReferenceAge - 5).clamp(currentAge, 99); // = max(currentAge, 60)
+    final latestWithdrawalAge =
+        retirementAge.clamp(earliestWithdrawalAge, 70);
 
     // Echelonner les comptes 3a: un par annee, en commencant le plus tot.
     // Strategie: repartir uniformement dans la fenetre disponible.
     final withdrawalAges3a = _scheduleWithdrawals(
       count: sources3a.length,
       earliestAge: earliestWithdrawalAge,
-      latestAge: retirementAge,
+      latestAge: latestWithdrawalAge,
     );
+
+    // Eviter la cumulation du dernier retrait 3a avec le capital LPP
+    // dans la meme annee fiscale (annee de retraite). Si le dernier 3a
+    // tombe sur retirementAge et qu'il y a aussi du LPP, on le decale
+    // d'un an en arriere pour reduire l'impact des tranches progressives.
+    if (sources3a.isNotEmpty && sourcesOther.isNotEmpty) {
+      final lastIdx = withdrawalAges3a.length - 1;
+      if (withdrawalAges3a[lastIdx] == retirementAge &&
+          withdrawalAges3a[lastIdx] > earliestWithdrawalAge) {
+        withdrawalAges3a[lastIdx] = withdrawalAges3a[lastIdx] - 1;
+      }
+    }
 
     // Construire les evenements par annee fiscale pour calculer
     // l'imposition progressive correctement.

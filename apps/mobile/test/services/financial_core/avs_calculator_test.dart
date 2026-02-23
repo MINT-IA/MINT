@@ -23,13 +23,13 @@ void main() {
       expect(rente, lessThan(avsRenteMaxMensuelle));
     });
 
-    test('zero income → assume max (no data assumption)', () {
+    test('zero income → zero rente (no salary data)', () {
       final rente = AvsCalculator.computeMonthlyRente(
         currentAge: 45,
         retirementAge: 65,
         grossAnnualSalary: 0,
       );
-      expect(rente, closeTo(avsRenteMaxMensuelle, 1));
+      expect(rente, equals(0.0));
     });
 
     test('expat arrivalAge 35 → fewer contribution years', () {

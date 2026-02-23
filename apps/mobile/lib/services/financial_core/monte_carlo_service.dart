@@ -40,6 +40,13 @@ class MonteCarloProjectionService {
       '(LPP, marche, inflation). '
       'Ne constitue pas un conseil en placement (LSFin).';
 
+  static const List<String> _sources = [
+    'LPP art. 14, 16 (taux de conversion)',
+    'LAVS art. 34-40 (rentes AVS)',
+    'LIFD art. 38 (imposition capital)',
+    'OPP3 art. 3 (retrait 3e pilier)',
+  ];
+
   // ════════════════════════════════════════════════════════════
   //  PUBLIC API
   // ════════════════════════════════════════════════════════════
@@ -72,6 +79,20 @@ class MonteCarloProjectionService {
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final yearsTo90 = (90 - retirementAgeUser).clamp(0, _projectionYears);
 
+    // ── Conjoint context ────────────────────────────────────
+    final hasConjoint = profile.isCouple && profile.conjoint != null;
+    final conjoint = profile.conjoint;
+    final conjointAge = conjoint?.age;
+    // Default conjoint retirement age: 65 (could differ but we simplify)
+    const conjointRetirementAge = 65;
+
+    // ── Early retirement: AVS deferred start (LAVS art. 40) ─
+    // AVS anticipation only possible from age 63. If retirement < 63,
+    // we compute AVS as if drawn at 63 (with 2 years penalty = 13.6%),
+    // and only add it to income starting at year (63 - retirementAge).
+    final yearsUntilAvsUser = max(0, 63 - retirementAgeUser);
+    final effectiveAvsAgeUser = max(retirementAgeUser, 63);
+
     for (int sim = 0; sim < numSimulations; sim++) {
       final yearlyIncome = <double>[];
       bool simRuined = false;
@@ -87,17 +108,46 @@ class MonteCarloProjectionService {
       final avsIndexation =
           _normalRandom(random, mean: 0.01, sd: 0.005).clamp(0.0, 0.03);
 
-      // ── AVS mensuelle de base ──────────────────────────
-      final avsMonthly = AvsCalculator.computeMonthlyRente(
+      // ── AVS mensuelle utilisateur ─────────────────────────
+      final avsUserRaw = AvsCalculator.computeMonthlyRente(
         currentAge: profile.age,
-        retirementAge: retirementAgeUser,
+        retirementAge: effectiveAvsAgeUser,
         lacunes: profile.prevoyance.lacunesAVS ?? 0,
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
       );
 
-      // ── LPP : projection simplifiee jusqu'a la retraite ─
+      // ── AVS conjoint ──────────────────────────────────────
+      double avsConjointRaw = 0;
+      if (hasConjoint && conjointAge != null) {
+        avsConjointRaw = AvsCalculator.computeMonthlyRente(
+          currentAge: conjointAge,
+          retirementAge: conjointRetirementAge,
+          lacunes: conjoint!.prevoyance?.lacunesAVS ?? 0,
+          anneesContribuees: conjoint.prevoyance?.anneesContribuees,
+          arrivalAge: conjoint.arrivalAge,
+          grossAnnualSalary: conjoint.revenuBrutAnnuel,
+        );
+      }
+
+      // ── AVS couple cap (LAVS art. 35) ─────────────────────
+      double avsUserMonthly;
+      double avsConjointMonthly;
+      if (hasConjoint) {
+        final couple = AvsCalculator.computeCouple(
+          avsUser: avsUserRaw,
+          avsConjoint: avsConjointRaw,
+          isMarried: isMarried,
+        );
+        avsUserMonthly = couple.user;
+        avsConjointMonthly = couple.conjoint;
+      } else {
+        avsUserMonthly = avsUserRaw;
+        avsConjointMonthly = 0;
+      }
+
+      // ── LPP utilisateur : projection simplifiee jusqu'a la retraite ─
       double lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
       final userHasLpp =
           lppBalance > 0 || profile.employmentStatus != 'independant';
@@ -111,7 +161,7 @@ class MonteCarloProjectionService {
         }
       }
 
-      // ── LPP : rente et/ou capital ──────────────────────
+      // ── LPP utilisateur : rente et/ou capital ─────────────
       double lppMonthly;
       double lppCapitalNet = 0;
       final conversionRate = profile.prevoyance.tauxConversion;
@@ -130,7 +180,31 @@ class MonteCarloProjectionService {
         lppMonthly = lppBalance * conversionRate / 12;
       }
 
-      // ── 3a : projection simplifiee jusqu'a la retraite ─
+      // ── LPP conjoint : projection simplifiee ──────────────
+      double conjointLppMonthly = 0;
+      if (hasConjoint && conjointAge != null) {
+        double conjLppBalance = conjoint!.prevoyance?.avoirLppTotal ?? 0;
+        final conjHasLpp = conjLppBalance > 0 ||
+            conjoint.employmentStatus != 'independant';
+        final conjSalary = conjoint.revenuBrutAnnuel;
+        final conjConvRate = conjoint.prevoyance?.tauxConversion ?? 0.068;
+
+        for (int a = conjointAge; a < conjointRetirementAge && a < 70; a++) {
+          conjLppBalance *= (1 + lppReturn);
+          if (conjHasLpp && conjSalary > 0) {
+            final salary = conjSalary *
+                pow(1 + salaryGrowth, (a - conjointAge).toDouble());
+            final salaireCoord =
+                LppCalculator.computeSalaireCoordonne(salary);
+            conjLppBalance += salaireCoord * getLppBonificationRate(a);
+          }
+        }
+
+        // Conjoint LPP: 100% rente (simplification)
+        conjointLppMonthly = conjLppBalance * conjConvRate / 12;
+      }
+
+      // ── 3a utilisateur : projection simplifiee ────────────
       double threeABalance = profile.prevoyance.totalEpargne3a;
       final monthly3a = profile.total3aMensuel;
       for (int a = profile.age; a < retirementAgeUser; a++) {
@@ -147,6 +221,28 @@ class MonteCarloProjectionService {
       final threeAMonthly =
           threeANet > 0 ? threeANet / _3aDrawdownYears / 12 : 0.0;
 
+      // ── 3a conjoint : projection simplifiee ───────────────
+      double conjointThreeAMonthly = 0;
+      if (hasConjoint && conjointAge != null) {
+        final conjPrev = conjoint!.prevoyance;
+        double conj3aBalance = conjPrev?.totalEpargne3a ?? 0;
+        if (conj3aBalance > 0) {
+          for (int a = conjointAge; a < conjointRetirementAge; a++) {
+            conj3aBalance *= (1 + lppReturn.clamp(0.0, 0.04));
+            // Conjoint 3a contributions: check canContribute3a
+            // (simplified — no monthly contribution data on conjoint)
+          }
+          final conj3aTax = RetirementTaxCalculator.capitalWithdrawalTax(
+            capitalBrut: conj3aBalance,
+            canton: canton,
+            isMarried: isMarried,
+          );
+          final conj3aNet = conj3aBalance - conj3aTax;
+          conjointThreeAMonthly =
+              conj3aNet > 0 ? conj3aNet / _3aDrawdownYears / 12 : 0.0;
+        }
+      }
+
       // ── Patrimoine libre : projection simplifiee ───────
       double libreBalance = profile.patrimoine.investissements +
           profile.patrimoine.epargneLiquide;
@@ -160,28 +256,35 @@ class MonteCarloProjectionService {
       for (int y = 0; y < _projectionYears; y++) {
         final currentAge = retirementAgeUser + y;
 
-        // AVS indexee chaque annee
-        final avsThisYear =
-            avsMonthly * pow(1 + avsIndexation, y.toDouble());
+        // AVS indexee chaque annee — seulement apres le delai d'anticipation
+        final avsUserThisYear = y >= yearsUntilAvsUser
+            ? avsUserMonthly * pow(1 + avsIndexation, y.toDouble())
+            : 0.0;
+        // Conjoint AVS: starts immediately (conjoint retires at 65)
+        final avsConjointThisYear = hasConjoint
+            ? avsConjointMonthly * pow(1 + avsIndexation, y.toDouble())
+            : 0.0;
 
         // LPP rente : fixe (pas d'indexation legale en Suisse)
         final lppRenteThisYear = lppMonthly;
 
         // LPP capital SWR (si strategie capital)
-        double lppCapitalThisYear = 0;
+        double lppCapitalMonthly = 0;
         if (lppCapitalPct > 0 && lppCapitalNet > 0) {
-          lppCapitalThisYear = lppCapitalNet * _safeWithdrawalRate / 12;
+          lppCapitalMonthly = lppCapitalNet * _safeWithdrawalRate / 12;
           lppCapitalNet *= (1 + libreReturn - _safeWithdrawalRate);
           if (lppCapitalNet < 0) lppCapitalNet = 0;
         }
 
         // 3a : versement fixe sur 20 ans, puis 0
         final threeAThisYear = y < _3aDrawdownYears ? threeAMonthly : 0.0;
+        final conjThreeAThisYear =
+            y < _3aDrawdownYears ? conjointThreeAMonthly : 0.0;
 
         // Patrimoine libre : SWR 4%
-        double libreThisYear = 0;
+        double libreMonthly = 0;
         if (libreBalance > 0) {
-          libreThisYear = libreBalance * _safeWithdrawalRate / 12;
+          libreMonthly = libreBalance * _safeWithdrawalRate / 12;
           libreBalance *= (1 + libreReturn - _safeWithdrawalRate);
           if (libreBalance < 0) libreBalance = 0;
         }
@@ -191,17 +294,21 @@ class MonteCarloProjectionService {
         final isAlive = currentAge <= lifeExpectancy;
 
         final totalMonthly = isAlive
-            ? (avsThisYear +
+            ? (avsUserThisYear +
+                avsConjointThisYear +
                 lppRenteThisYear +
-                lppCapitalThisYear +
+                conjointLppMonthly +
+                lppCapitalMonthly +
                 threeAThisYear +
-                libreThisYear)
+                conjThreeAThisYear +
+                libreMonthly)
             : 0.0;
 
         yearlyIncome.add(totalMonthly);
 
         // Ruine : revenu < 50% des depenses indexees, avant 90 ans
-        if (!simRuined && y < yearsTo90) {
+        // Bug fix: ne pas compter les simulations ou la personne est decedee
+        if (!simRuined && y < yearsTo90 && isAlive) {
           final inflatedExpense =
               expenses * pow(1 + inflationRate, y.toDouble());
           if (totalMonthly < inflatedExpense * 0.5) {
@@ -233,17 +340,41 @@ class MonteCarloProjectionService {
     final ruinProbability =
         numSimulations > 0 ? ruinCount / numSimulations : 0.0;
 
-    // ── Mediane et extremes a 65 ─────────────────────────
-    final valuesAt65 = results.map((sim) => sim[0]).toList()..sort();
+    // ── Mediane et extremes au depart de la retraite ─────
+    final valuesAtRetirement = results.map((sim) => sim[0]).toList()..sort();
+
+    // ── Alertes contextuelles ────────────────────────────
+    final alertes = <String>[];
+    if (ruinProbability > 0.30) {
+      alertes.add(
+        'Probabilite de deficit elevee (>30%). '
+        'Envisage d\'augmenter ton epargne ou de repousser ta retraite.',
+      );
+    }
+    if (retirementAgeUser < 63) {
+      alertes.add(
+        'Retraite anticipee avant 63 ans : aucune rente AVS durant '
+        '${63 - retirementAgeUser} an(s). Prevois une epargne-relais.',
+      );
+    }
+    if (ruinProbability > 0.15 && ruinProbability <= 0.30) {
+      alertes.add(
+        'Risque d\'epuisement modere (${(ruinProbability * 100).round()}%). '
+        'Un rachat LPP ou un versement 3a supplementaire pourrait aider.',
+      );
+    }
 
     return MonteCarloResult(
       projection: projection,
-      medianAt65: _percentile(valuesAt65, 0.50),
-      p10At65: _percentile(valuesAt65, 0.10),
-      p90At65: _percentile(valuesAt65, 0.90),
+      medianAt65: _percentile(valuesAtRetirement, 0.50),
+      p10At65: _percentile(valuesAtRetirement, 0.10),
+      p90At65: _percentile(valuesAtRetirement, 0.90),
       ruinProbability: ruinProbability,
       numSimulations: numSimulations,
       disclaimer: _disclaimer,
+      retirementAge: retirementAgeUser,
+      sources: _sources,
+      alertes: alertes,
     );
   }
 

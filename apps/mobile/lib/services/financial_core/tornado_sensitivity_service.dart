@@ -14,6 +14,9 @@
 ///   - LIFD art. 38 (imposition prestations en capital)
 library;
 
+import 'dart:math' show min, max;
+
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 
@@ -89,31 +92,34 @@ class TornadoSensitivityService {
 
     // ── 1. Age de depart (strategy) ──────────────────────
     {
-      final lowAge = retirementAgeUser - 2;
-      final highAge = retirementAgeUser + 2;
-      final low = _project(
-        profile: profile,
-        retirementAgeUser: lowAge,
-        retirementAgeConjoint: retirementAgeConjoint,
-        depensesMensuelles: depensesMensuelles,
-        lppCapitalPct: lppCapitalPct,
-      );
-      final high = _project(
-        profile: profile,
-        retirementAgeUser: highAge,
-        retirementAgeConjoint: retirementAgeConjoint,
-        depensesMensuelles: depensesMensuelles,
-        lppCapitalPct: lppCapitalPct,
-      );
-      variables.add(_buildVariable(
-        label: 'Age de depart',
-        category: 'strategy',
-        base: base,
-        low: low,
-        high: high,
-        lowLabel: '$lowAge ans',
-        highLabel: '$highAge ans',
-      ));
+      final lowAge = max(58, retirementAgeUser - 2);
+      final highAge = min(70, retirementAgeUser + 2);
+      // Skip if collapsed range (user already at boundary).
+      if (lowAge < highAge) {
+        final low = _project(
+          profile: profile,
+          retirementAgeUser: lowAge,
+          retirementAgeConjoint: retirementAgeConjoint,
+          depensesMensuelles: depensesMensuelles,
+          lppCapitalPct: lppCapitalPct,
+        );
+        final high = _project(
+          profile: profile,
+          retirementAgeUser: highAge,
+          retirementAgeConjoint: retirementAgeConjoint,
+          depensesMensuelles: depensesMensuelles,
+          lppCapitalPct: lppCapitalPct,
+        );
+        variables.add(_buildVariable(
+          label: 'Age de depart',
+          category: 'strategy',
+          base: base,
+          low: low,
+          high: high,
+          lowLabel: '$lowAge ans',
+          highLabel: '$highAge ans',
+        ));
+      }
     }
 
     // ── 2. Strategie LPP rente vs capital (strategy) ─────
@@ -310,40 +316,49 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 8. Epargne 3a mensuelle (0 vs 2x) ──────────────
+    // ── 8. Epargne 3a mensuelle (0 vs capped 2x) ────────
     {
       final base3aMensuel = profile.total3aMensuel;
       if (base3aMensuel > 0) {
-        // Zero contributions
-        final contribsNo3a = profile.plannedContributions
-            .where((c) => c.category != '3a')
-            .toList();
-        final contribs2x = profile.plannedContributions.map((c) {
-          if (c.category == '3a') {
-            return c.copyWith(amount: c.amount * 2);
-          }
-          return c;
-        }).toList();
+        // Cap high scenario at OPP3 legal max (pilier3aPlafondAvecLpp).
+        final plafond3aMensuel = pilier3aPlafondAvecLpp / 12;
+        final cappedHigh = min(base3aMensuel * 2, plafond3aMensuel);
 
-        final low = _projectWithProfile(
-          profile.copyWith(plannedContributions: contribsNo3a),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
-        );
-        final high = _projectWithProfile(
-          profile.copyWith(plannedContributions: contribs2x),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
-        );
-        variables.add(_buildVariable(
-          label: 'Epargne 3a mensuelle',
-          category: '3a',
-          base: base,
-          low: low,
-          high: high,
-          lowLabel: 'CHF 0/mois',
-          highLabel: 'CHF ${(base3aMensuel * 2).round()}/mois',
-        ));
+        // Skip if already at max (cappedHigh would equal base, zero swing).
+        if (cappedHigh > base3aMensuel) {
+          // Zero contributions
+          final contribsNo3a = profile.plannedContributions
+              .where((c) => c.category != '3a')
+              .toList();
+          // Scale each 3a contribution proportionally to reach cappedHigh.
+          final scaleFactor = cappedHigh / base3aMensuel;
+          final contribsCapped = profile.plannedContributions.map((c) {
+            if (c.category == '3a') {
+              return c.copyWith(amount: c.amount * scaleFactor);
+            }
+            return c;
+          }).toList();
+
+          final low = _projectWithProfile(
+            profile.copyWith(plannedContributions: contribsNo3a),
+            retirementAgeUser, retirementAgeConjoint,
+            depensesMensuelles, lppCapitalPct,
+          );
+          final high = _projectWithProfile(
+            profile.copyWith(plannedContributions: contribsCapped),
+            retirementAgeUser, retirementAgeConjoint,
+            depensesMensuelles, lppCapitalPct,
+          );
+          variables.add(_buildVariable(
+            label: 'Epargne 3a mensuelle',
+            category: '3a',
+            base: base,
+            low: low,
+            high: high,
+            lowLabel: 'CHF 0/mois',
+            highLabel: 'CHF ${cappedHigh.round()}/mois',
+          ));
+        }
       }
     }
 
@@ -351,8 +366,8 @@ class TornadoSensitivityService {
     {
       final baseYears = profile.prevoyance.anneesContribuees;
       if (baseYears != null && baseYears > 0) {
-        final lowYears = (baseYears - 5).clamp(0, 44);
-        final highYears = (baseYears + 5).clamp(0, 44);
+        final lowYears = (baseYears - 5).clamp(0, avsDureeCotisationComplete);
+        final highYears = (baseYears + 5).clamp(0, avsDureeCotisationComplete);
         final low = _projectWithPrevoyance(
           profile,
           _clonePrevoyanceWith(profile.prevoyance,
@@ -530,42 +545,7 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 14. Depenses mensuelles (±25%) ──────────────────
-    {
-      final baseDep = depensesMensuelles ?? _estimateExpenses(profile);
-      if (baseDep > 0) {
-        // Note: depensesMensuelles affects budgetGap but NOT revenuMensuelAt65.
-        // However we still test it because the user is interested in the
-        // disposable income perspective. For the tornado we use the projection
-        // directly — the hero metric doesn't change, but we include it for
-        // completeness of the sensitivity display.
-        final low = _project(
-          profile: profile,
-          retirementAgeUser: retirementAgeUser,
-          retirementAgeConjoint: retirementAgeConjoint,
-          depensesMensuelles: baseDep * 1.25,
-          lppCapitalPct: lppCapitalPct,
-        );
-        final high = _project(
-          profile: profile,
-          retirementAgeUser: retirementAgeUser,
-          retirementAgeConjoint: retirementAgeConjoint,
-          depensesMensuelles: baseDep * 0.75,
-          lppCapitalPct: lppCapitalPct,
-        );
-        variables.add(_buildVariable(
-          label: 'Depenses mensuelles',
-          category: 'depenses',
-          base: base,
-          low: low,
-          high: high,
-          lowLabel: '+25%',
-          highLabel: '-25%',
-        ));
-      }
-    }
-
-    // ── 15. Salaire conjoint·e (±20%) — couples only ────
+    // ── 14. Salaire conjoint·e (±20%) — couples only ────
     if (profile.isCouple && profile.conjoint != null) {
       final conjSalaire = profile.conjoint!.salaireBrutMensuel;
       if (conjSalaire != null && conjSalaire > 0) {
@@ -612,6 +592,8 @@ class TornadoSensitivityService {
   // ════════════════════════════════════════════════════════════════
 
   /// Run projection and return revenuMensuelAt65.
+  /// Returns 0.0 on failure to prevent one bad scenario from crashing the
+  /// entire tornado computation.
   static double _project({
     required CoachProfile profile,
     required int retirementAgeUser,
@@ -619,14 +601,18 @@ class TornadoSensitivityService {
     double? depensesMensuelles,
     double lppCapitalPct = 0.0,
   }) {
-    final result = RetirementProjectionService.project(
-      profile: profile,
-      retirementAgeUser: retirementAgeUser,
-      retirementAgeConjoint: retirementAgeConjoint,
-      depensesMensuelles: depensesMensuelles,
-      lppCapitalPct: lppCapitalPct,
-    );
-    return result.revenuMensuelAt65;
+    try {
+      final result = RetirementProjectionService.project(
+        profile: profile,
+        retirementAgeUser: retirementAgeUser,
+        retirementAgeConjoint: retirementAgeConjoint,
+        depensesMensuelles: depensesMensuelles,
+        lppCapitalPct: lppCapitalPct,
+      );
+      return result.revenuMensuelAt65;
+    } catch (_) {
+      return 0.0;
+    }
   }
 
   /// Shorthand: project with a modified profile.
@@ -736,14 +722,5 @@ class TornadoSensitivityService {
       lowLabel: lowLabel,
       highLabel: highLabel,
     );
-  }
-
-  /// Estimate monthly expenses at retirement (fallback).
-  static double _estimateExpenses(CoachProfile profile) {
-    final householdNet = profile.salaireBrutMensuel * 0.87 +
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
-    final current = profile.depenses.totalMensuel;
-    if (current > 0) return current * 0.85;
-    return householdNet > 0 ? householdNet * 0.75 : 5000;
   }
 }
