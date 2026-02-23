@@ -11,6 +11,8 @@ import 'package:mint_mobile/widgets/retirement/income_stacked_bar_chart.dart';
 import 'package:mint_mobile/widgets/retirement/early_retirement_chart.dart';
 import 'package:mint_mobile/widgets/retirement/couple_timeline_chart.dart';
 import 'package:mint_mobile/widgets/retirement/budget_gap_chart.dart';
+import 'package:mint_mobile/widgets/retirement/confidence_banner.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:provider/provider.dart';
 
 /// Unified retirement projection screen — scrollable narrative.
@@ -109,6 +111,12 @@ class _RetirementProjectionScreenState
 
                   // 1. Hero number
                   _buildHero(result),
+                  const SizedBox(height: 16),
+
+                  // 1b. Confidence score banner
+                  ConfidenceBanner(
+                    confidence: ConfidenceScorer.score(profile),
+                  ),
                   const SizedBox(height: 24),
 
                   // 2. Parameters
