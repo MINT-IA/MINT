@@ -12,7 +12,8 @@ import 'package:mint_mobile/widgets/retirement/early_retirement_chart.dart';
 import 'package:mint_mobile/widgets/retirement/couple_timeline_chart.dart';
 import 'package:mint_mobile/widgets/retirement/budget_gap_chart.dart';
 import 'package:mint_mobile/widgets/retirement/confidence_banner.dart';
-import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/widgets/retirement/tornado_chart.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:provider/provider.dart';
 
 /// Unified retirement projection screen — scrollable narrative.
@@ -139,6 +140,23 @@ class _RetirementProjectionScreenState
                       currentIncome: result.revenuPreRetraiteMensuel,
                       monthlyExpenses: _depensesMensuelles ??
                           result.budgetGap.depensesMensuelles,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // 3b. Tornado sensitivity analysis
+                  FullscreenChartWrapper(
+                    title: 'Analyse de sensibilite',
+                    disclaimer: result.disclaimer,
+                    child: TornadoChart(
+                      baseCase: result.revenuMensuelAt65,
+                      variables: TornadoSensitivityService.compute(
+                        profile: profile,
+                        retirementAgeUser: _retirementAgeUser,
+                        retirementAgeConjoint: _retirementAgeConjoint,
+                        depensesMensuelles: _depensesMensuelles,
+                        lppCapitalPct: _lppCapitalPct,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
