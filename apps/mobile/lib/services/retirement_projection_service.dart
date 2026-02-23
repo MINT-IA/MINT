@@ -446,6 +446,7 @@ class RetirementProjectionService {
         RetirementTaxCalculator.capitalWithdrawalTax(
           capitalBrut: threeACapitalBrut,
           canton: canton,
+          isMarried: isMarriedForTax,
         );
     if (threeACapital > 0) {
       sources.add(RetirementIncomeSource(
@@ -802,10 +803,13 @@ class RetirementProjectionService {
     );
     // Apply capital withdrawal tax (LIFD art. 38) before annualizing
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final isMarriedForCapitalTax =
+        profile.etatCivil == CoachCivilStatus.marie;
     final threeACapital = threeACapitalBrut -
         RetirementTaxCalculator.capitalWithdrawalTax(
           capitalBrut: threeACapitalBrut,
           canton: canton,
+          isMarried: isMarriedForCapitalTax,
         );
     if (threeACapital > 0) {
       sources.add(RetirementIncomeSource(
