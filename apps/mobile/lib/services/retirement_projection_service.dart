@@ -499,8 +499,8 @@ class RetirementProjectionService {
     final annual3a = (monthly3a * 12).clamp(0.0, plafondMenage);
 
     for (int y = 0; y < yearsToRetirement; y++) {
-      // Horizon dampening: contributions may not be sustained for 30+ years
-      // (career changes, family expenses, etc.)
+      // Horizon dampening: starting year 21, contributions taper by 2.5%/yr
+      // (career changes, family expenses, etc.). Floor 50%.
       final contributionFactor = y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
       balance *= (1 + averageReturn);
       balance += annual3a * contributionFactor;
@@ -531,11 +531,11 @@ class RetirementProjectionService {
     double savings = currentSavings;
 
     for (int y = 0; y < yearsToRetirement; y++) {
-      // Horizon dampening: assume contributions taper by 1% per year
+      // Horizon dampening: starting year 21, contributions taper by 2.5%/yr
       // (career interruptions, life events, inflation eroding real capacity).
-      // Investment return also tapers slightly over very long horizons.
+      // Floor 50%. Investment return drops 5%→4% after year 15.
       final contributionFactor = y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
-      final investReturn = y < 15 ? 0.05 : 0.04; // more conservative after 15yr
+      final investReturn = y < 15 ? 0.05 : 0.04;
       invest *= (1 + investReturn);
       invest += monthlyInvestment * 12 * contributionFactor;
       savings *= 1.01;

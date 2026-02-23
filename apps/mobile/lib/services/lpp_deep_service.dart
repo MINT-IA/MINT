@@ -111,10 +111,14 @@ class RachatEchelonneSimulator {
     );
   }
 
-  /// Estimation de l'economie fiscale via un modele progressif simplifie.
+  /// Estimation de l'economie fiscale via un modele de taux moyen lineaire.
   ///
-  /// Le taux marginal effectif diminue a mesure que la deduction augmente,
-  /// car les tranches inferieures sont taxees a un taux plus bas.
+  /// Aligne sur le backend (source de verite) qui utilise :
+  ///   taux_effectif = (taux_avant + taux_apres) / 2
+  /// Ici on approxime taux_apres par interpolation lineaire, car on n'a pas
+  /// les bareme cantonaux dans cette fonction.
+  ///
+  /// LIFD art. 33 al. 1 let. d — deduction fiscale du rachat.
   static double _estimateTaxSaving(
     double income,
     double deduction,
@@ -123,26 +127,19 @@ class RachatEchelonneSimulator {
     if (deduction <= 0 || income <= 0) return 0.0;
 
     // Une deduction ne peut pas reduire la base imposable en dessous de 0.
-    // Sans ce cap, la simulation surestime les economies sur gros rachats en bloc.
     final taxableDeduction = deduction.clamp(0.0, income);
     if (taxableDeduction <= 0) return 0.0;
 
-    // Modele progressif simplifie:
-    // le taux effectif diminue fortement quand on descend les tranches.
-    const steps = 12;
-    final stepSize = taxableDeduction / steps;
-    var currentIncome = income;
-    var totalSaved = 0.0;
+    // Backend model: taux_effectif = (taux_avant + taux_apres) / 2
+    // taux_avant = marginalRate (given).
+    // taux_apres ≈ marginalRate × (income - deduction) / income
+    //   (linear approximation of progressive bracket descent).
+    final incomeAfter = income - taxableDeduction;
+    final rateAfter =
+        (marginalRate * incomeAfter / income).clamp(0.0, marginalRate);
+    final effectiveRate = (marginalRate + rateAfter) / 2;
 
-    for (var i = 0; i < steps; i++) {
-      final midIncome = (currentIncome - stepSize / 2).clamp(0.0, income);
-      final ratio = (midIncome / income).clamp(0.0, 1.0);
-      final rate = (marginalRate * pow(ratio, 1.3)).clamp(0.0, marginalRate);
-      totalSaved += stepSize * rate;
-      currentIncome -= stepSize;
-    }
-
-    return totalSaved;
+    return taxableDeduction * effectiveRate;
   }
 }
 

@@ -599,8 +599,17 @@ class ForecasterService {
       totalRendement += partner3aReturn;
 
       // --- Apply contributions ---
+      // Horizon dampening: after year 20, recurring contributions taper by
+      // 2.5%/year (career changes, family expenses, inflation eroding real
+      // capacity). Floor 50%. Aligned with RetirementProjectionService.
+      // LPP buybacks are NOT dampened — they are capped by lacune, not recurring.
+      final yearsSinceStart = m ~/ 12;
+      final contributionFactor = yearsSinceStart < 20
+          ? 1.0
+          : max(0.5, 1.0 - (yearsSinceStart - 20) * 0.025);
+
       // 3a (capped at annual plafond)
-      double effective3a = monthly3a;
+      double effective3a = monthly3a * contributionFactor;
       if (threeAYearContrib + effective3a > plafond3a) {
         effective3a = (plafond3a - threeAYearContrib).clamp(0, plafond3a);
       }
@@ -608,7 +617,7 @@ class ForecasterService {
       threeAYearContrib += effective3a;
 
       // Partner 3a (capped at annual plafond independently)
-      double effectivePartner3a = partner3aMonthly;
+      double effectivePartner3a = partner3aMonthly * contributionFactor;
       if (partner3aYearContrib + effectivePartner3a > plafond3a) {
         effectivePartner3a =
             (plafond3a - partner3aYearContrib).clamp(0, plafond3a);
@@ -616,7 +625,7 @@ class ForecasterService {
       partner3aBalance += effectivePartner3a;
       partner3aYearContrib += effectivePartner3a;
 
-      // LPP buyback (capped at remaining lacune)
+      // LPP buyback (capped at remaining lacune — no dampening)
       double effectiveLppBuyback = monthlyLppBuyback;
       if (lppBuybackDone + effectiveLppBuyback > lppBuybackCap) {
         effectiveLppBuyback =
@@ -625,7 +634,7 @@ class ForecasterService {
       lppBalance += effectiveLppBuyback;
       lppBuybackDone += effectiveLppBuyback;
 
-      // Conjoint LPP buyback
+      // Conjoint LPP buyback (no dampening)
       double effectiveConjBuyback = conjMonthlyLppBuyback;
       if (conjLppBuybackDone + effectiveConjBuyback > conjLppBuybackCap) {
         effectiveConjBuyback = (conjLppBuybackCap - conjLppBuybackDone)
@@ -634,9 +643,9 @@ class ForecasterService {
       conjLppBalance += effectiveConjBuyback;
       conjLppBuybackDone += effectiveConjBuyback;
 
-      // Investment + savings
-      investmentBalance += monthlyInvestment;
-      savingsBalance += monthlySavings;
+      // Investment + savings (dampened)
+      investmentBalance += monthlyInvestment * contributionFactor;
+      savingsBalance += monthlySavings * contributionFactor;
 
       // Conjoint free savings — only add conjoint-specific contributions
       // (monthlySavings already counted in savingsBalance above)
