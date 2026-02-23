@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -78,8 +79,8 @@ class ConfidenceBanner extends StatelessWidget {
             ),
           ),
 
-          // Top enrichment prompts (max 2)
-          if (confidence.prompts.isNotEmpty) ...[
+          // Bayesian EVI prompts (preferred) or fallback to static prompts
+          if (_hasPrompts) ...[
             const SizedBox(height: 14),
             Text(
               'Ameliore ta projection :',
@@ -90,9 +91,101 @@ class ConfidenceBanner extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            ...confidence.prompts.take(2).map(_buildPromptChip),
+            ..._buildPromptsList(),
           ],
         ],
+      ),
+    );
+  }
+
+  bool get _hasPrompts {
+    final bayesian = confidence.bayesianResult;
+    if (bayesian != null && bayesian.rankedPrompts.isNotEmpty) return true;
+    return confidence.prompts.isNotEmpty;
+  }
+
+  List<Widget> _buildPromptsList() {
+    final bayesian = confidence.bayesianResult;
+    // Prefer Bayesian EVI prompts (richer, better ranked)
+    if (bayesian != null && bayesian.rankedPrompts.isNotEmpty) {
+      return bayesian.rankedPrompts
+          .take(2)
+          .map(_buildEviPromptChip)
+          .toList();
+    }
+    // Fallback to static prompts
+    return confidence.prompts.take(2).map(_buildPromptChip).toList();
+  }
+
+  Widget _buildEviPromptChip(EviPrompt prompt) {
+    // Convert EVI to a human-readable impact score (0-20 scale)
+    final impactPct = (prompt.evi * 100).round().clamp(1, 20);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: InkWell(
+        onTap: () {
+          // Placeholder — enrichment action to be connected later
+        },
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE0E0E0)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _categoryIcon(prompt.category),
+                size: 16,
+                color: MintColors.textSecondary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      prompt.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      prompt.action,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: MintColors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withAlpha(20),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '+$impactPct%',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -213,6 +306,10 @@ class ConfidenceBanner extends StatelessWidget {
         return Icons.public;
       case 'income':
         return Icons.monetization_on_outlined;
+      case 'depenses':
+        return Icons.receipt_long;
+      case 'conjoint':
+        return Icons.people_outline;
       default:
         return Icons.info_outline;
     }

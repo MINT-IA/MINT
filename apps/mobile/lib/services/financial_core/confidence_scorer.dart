@@ -1,4 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 
 /// Enrichment action to improve confidence.
 class EnrichmentPrompt {
@@ -22,11 +23,16 @@ class ProjectionConfidence {
   final List<EnrichmentPrompt> prompts;
   final List<String> assumptions;
 
+  /// Bayesian enrichment result with posterior estimates, credibility
+  /// intervals, and EVI-ranked prompts. Null only on error.
+  final BayesianEnrichmentResult? bayesianResult;
+
   const ProjectionConfidence({
     required this.score,
     required this.level,
     required this.prompts,
     required this.assumptions,
+    this.bayesianResult,
   });
 }
 
@@ -184,8 +190,21 @@ class ConfidenceScorer {
     // Clamp to 0-100
     total = total.clamp(0, 100);
 
-    // Sort prompts by impact (highest first)
-    prompts.sort((a, b) => b.impact.compareTo(a.impact));
+    // Compute Bayesian enrichment for EVI-ranked prompts
+    final bayesianResult = BayesianProfileEnricher.enrich(profile);
+
+    // Re-rank prompts using Bayesian EVI ordering:
+    // Map each existing prompt's category to the Bayesian EVI ranking
+    final eviOrder = <String, double>{};
+    for (final eviPrompt in bayesianResult.rankedPrompts) {
+      eviOrder[eviPrompt.category] = eviPrompt.evi;
+    }
+    prompts.sort((a, b) {
+      final eviA = eviOrder[a.category] ?? 0;
+      final eviB = eviOrder[b.category] ?? 0;
+      if (eviA != eviB) return eviB.compareTo(eviA); // EVI descending
+      return b.impact.compareTo(a.impact); // fallback: impact
+    });
 
     // Determine level
     final level = total >= 70
@@ -199,6 +218,7 @@ class ConfidenceScorer {
       level: level,
       prompts: prompts,
       assumptions: assumptions,
+      bayesianResult: bayesianResult,
     );
   }
 

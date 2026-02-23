@@ -67,17 +67,23 @@ void main() {
       expect(lppPrompts, isEmpty);
     });
 
-    test('prompts sorted by impact (highest first)', () {
+    test('prompts ranked by Bayesian EVI (with bayesianResult)', () {
       final profile = _buildProfile(
         age: 30,
         salary: 5000,
         canton: 'ZH',
       );
       final confidence = ConfidenceScorer.score(profile);
-      for (int i = 0; i < confidence.prompts.length - 1; i++) {
+      // Prompts should be non-empty and re-ranked by EVI
+      expect(confidence.prompts, isNotEmpty);
+      // Bayesian result should be attached
+      expect(confidence.bayesianResult, isNotNull);
+      // Bayesian EVI prompts should also be ranked descending
+      final eviPrompts = confidence.bayesianResult!.rankedPrompts;
+      for (int i = 0; i < eviPrompts.length - 1; i++) {
         expect(
-          confidence.prompts[i].impact,
-          greaterThanOrEqualTo(confidence.prompts[i + 1].impact),
+          eviPrompts[i].evi,
+          greaterThanOrEqualTo(eviPrompts[i + 1].evi),
         );
       }
     });

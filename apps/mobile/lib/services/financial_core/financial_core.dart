@@ -8,6 +8,7 @@
 library;
 
 export 'avs_calculator.dart';
+export 'bayesian_enricher.dart';
 export 'confidence_scorer.dart';
 export 'lpp_calculator.dart';
 export 'monte_carlo_models.dart';
