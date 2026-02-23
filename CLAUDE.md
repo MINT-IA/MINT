@@ -227,6 +227,39 @@ Crise:         debtCrisis
 
 ---
 
+## FINANCIAL ARCHETYPES (retirement projections)
+
+> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md` — READ THIS for full context.
+
+Every retirement/prevoyance calculation MUST account for the user's archetype.
+Do NOT assume "Swiss native salarié" for all profiles.
+
+| Archetype | Detection | LPP | AVS | Key difference |
+|-----------|-----------|-----|-----|----------------|
+| `swiss_native` | CH + arrivé < 22 | Bonif. depuis 25 ans | Plein | Modèle par défaut |
+| `expat_eu` | EU + arrivé > 20 | Bonif. depuis `arrivalAge` | Partiel + convention bilat. | Totalisation périodes EU |
+| `expat_non_eu` | Hors EU + arrivé > 20 | Bonif. depuis `arrivalAge` | Partiel | Pas de convention |
+| `expat_us` | US citizen/green card | Bonif. depuis `arrivalAge` | Partiel + Social Security | FATCA, PFIC, double taxation |
+| `independent_with_lpp` | Indép. + LPP déclarée | Facultative (solde réel) | Standard | Rachat possible |
+| `independent_no_lpp` | Indép. + pas de LPP | **0** | Standard | 3a max 36'288 |
+| `cross_border` | Permis G / frontalier | LPP suisse standard | Convention bilat. | Impôt source |
+| `returning_swiss` | CH + séjour étranger | Libre passage + bonif. retour | Avec lacunes | Rachat avantageux |
+
+### Confidence Score (mandatory on all projections)
+
+Every projection MUST include:
+- `confidenceScore` (0-100%) based on data completeness for the detected archetype
+- `enrichmentPrompts` — actions the user can take to improve accuracy
+- Uncertainty band (min/max) when confidence < 70%
+
+### Capital vs Rente taxation (CRITICAL)
+
+- **Rente LPP** = revenu imposable annuel (LIFD art. 22)
+- **Capital LPP retiré** = taxé séparément au retrait (LIFD art. 38), retraits SWR = consommation de patrimoine, PAS un revenu imposable
+- NEVER double-tax capital: retrait tax + income tax on SWR withdrawals
+
+---
+
 ## VISION DOCUMENTS (read for strategic context)
 
 - `visions/vision_product.md` — Core promise, acquisition strategy, North Star metric
@@ -262,3 +295,6 @@ In case of conflict, priority order:
 6. **Promise returns** — Use scenarios (Bas/Moyen/Haut) + disclaimers
 7. **Ignore audit findings** — Fix all CRIT divergences before committing
 8. **Commit non-sprint files** — Surgical git add, only relevant files
+9. **Assume Swiss native for all profiles** — Always check archetype (see ADR-20260223)
+10. **Show projection without confidence score** — Always include uncertainty band + enrichment prompts
+11. **Double-tax capital withdrawals** — Capital taxed at withdrawal (LIFD art. 38), SWR = not income
