@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FORECASTER SERVICE — Sprint C3 / MINT Coach
@@ -414,7 +415,7 @@ class ForecasterService {
 
     // Conjoint balances
     double conjLppBalance = profile.conjoint?.prevoyance?.avoirLppTotal ?? 0;
-    double conjSavingsBalance = 0; // Lauren's savings go to libre
+    double conjSavingsBalance = 0; // Conjoint savings → libre
 
     // --- Monthly contributions (from planned) ---
     double monthly3a = profile.total3aMensuel;
@@ -432,6 +433,10 @@ class ForecasterService {
     }
 
     // --- Couple adjustments ---
+    // Detect conjoint contributions by matching their firstName in the ID.
+    final conjFirstName =
+        profile.conjoint?.firstName?.toLowerCase() ?? '';
+
     // Partner 3a contribution potential: if conjoint exists and has income,
     // add 604.83 CHF/month (7258/12) as potential 3a contribution
     // (only if not already captured in planned contributions)
@@ -443,8 +448,10 @@ class ForecasterService {
       // Partner is salaried with LPP if their salary exceeds the LPP threshold
       if (conjAnnualSalary > lppSeuilEntree) {
         // Check if partner 3a is already in planned contributions
-        final hasPartner3a = profile.plannedContributions
-            .any((c) => c.category == '3a' && c.id.contains('partner'));
+        final hasPartner3a = profile.plannedContributions.any((c) =>
+            c.category == '3a' &&
+            conjFirstName.isNotEmpty &&
+            c.id.toLowerCase().contains(conjFirstName));
         if (!hasPartner3a) {
           partner3aMonthly = pilier3aPlafondAvecLpp / 12; // 604.83
         }
@@ -454,7 +461,9 @@ class ForecasterService {
     // Conjoint LPP buyback — split before smart check-in adjustment
     double conjMonthlyLppBuyback = 0;
     for (final c in profile.plannedContributions) {
-      if (c.id.contains('lauren') && c.category == 'lpp_buyback') {
+      final isConjointContrib = conjFirstName.isNotEmpty &&
+          c.id.toLowerCase().contains(conjFirstName);
+      if (isConjointContrib && c.category == 'lpp_buyback') {
         conjMonthlyLppBuyback += c.amount;
         // Remove from main person's total
         monthlyLppBuyback -= c.amount;
@@ -546,8 +555,16 @@ class ForecasterService {
       }
 
       // --- Apply returns FIRST (compound on existing balance) ---
-      final lppReturn = lppBalance * lppMonthlyRate;
-      lppBalance += lppReturn;
+      // LPP: bonifications by age (LPP art. 16) via financial_core
+      final lppBefore = lppBalance;
+      final userAge = profile.age + (m ~/ 12);
+      lppBalance = LppCalculator.projectOneMonth(
+        currentBalance: lppBalance,
+        age: userAge,
+        grossAnnualSalary: profile.salaireBrutMensuel * 12,
+        monthlyReturn: lppMonthlyRate,
+      );
+      final lppReturn = lppBalance - lppBefore;
 
       final threeAReturn = threeABalance * threeAMonthlyRate;
       threeABalance += threeAReturn;
@@ -558,8 +575,17 @@ class ForecasterService {
       final savingsReturn = savingsBalance * savingsMonthlyRate;
       savingsBalance += savingsReturn;
 
-      final conjLppReturn = conjLppBalance * conjLppMonthlyRate;
-      conjLppBalance += conjLppReturn;
+      // Conjoint LPP: bonifications by age (LPP art. 16)
+      final conjLppBefore = conjLppBalance;
+      final conjAge = (profile.conjoint?.age ?? profile.age) + (m ~/ 12);
+      final conjAnnualSalary = (profile.conjoint?.salaireBrutMensuel ?? 0) * 12;
+      conjLppBalance = LppCalculator.projectOneMonth(
+        currentBalance: conjLppBalance,
+        age: conjAge,
+        grossAnnualSalary: conjAnnualSalary,
+        monthlyReturn: conjLppMonthlyRate,
+      );
+      final conjLppReturn = conjLppBalance - conjLppBefore;
 
       totalRendement += lppReturn +
           threeAReturn +
@@ -639,22 +665,65 @@ class ForecasterService {
     }
 
     // --- Calculate retirement income ---
-    final avsResult = _estimateAvsCouple(profile);
-    final renteAvsAnnuelle = avsResult['renteAnnuelleCouple'] as double;
+    final retirementAge = targetDate.year - profile.birthYear;
+    final grossAnnualSalary = profile.salaireBrutMensuel * 12;
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
 
-    final renteLppJulien = lppBalance * (lppTauxConversionMin / 100);
-    final renteLppLauren = conjLppBalance * (lppTauxConversionMin / 100);
+    // AVS user — RAMD-based, with arrivalAge/lacunes (LAVS art. 34)
+    final avsUserMonthly = AvsCalculator.computeMonthlyRente(
+      currentAge: profile.age,
+      retirementAge: retirementAge,
+      arrivalAge: profile.arrivalAge,
+      anneesContribuees: profile.prevoyance.anneesContribuees,
+      lacunes: profile.prevoyance.lacunesAVS ?? 0,
+      grossAnnualSalary: grossAnnualSalary,
+    );
 
-    // 3a: annualize over 20 years (both user + partner)
-    final retrait3aAnnualise = (threeABalance + partner3aBalance) / 20;
+    // AVS conjoint
+    double avsConjointMonthly = 0;
+    if (profile.conjoint != null) {
+      final conjAge = profile.conjoint!.age ?? profile.age;
+      final conjSalary = (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
+      avsConjointMonthly = AvsCalculator.computeMonthlyRente(
+        currentAge: conjAge,
+        retirementAge: retirementAge,
+        arrivalAge: profile.conjoint!.arrivalAge,
+        lacunes: profile.conjoint!.prevoyance?.lacunesAVS ?? 0,
+        grossAnnualSalary: conjSalary,
+      );
+    }
+
+    // Couple cap: married only (LAVS art. 35)
+    final coupleAvs = AvsCalculator.computeCouple(
+      avsUser: avsUserMonthly,
+      avsConjoint: avsConjointMonthly,
+      isMarried: isMarried,
+    );
+    final renteAvsAnnuelle = coupleAvs.total * 12;
+
+    // LPP rente (use profile taux conversion if available)
+    final userConvRate = profile.prevoyance.tauxConversion;
+    final renteLppUser = lppBalance * userConvRate;
+    final conjConvRate =
+        profile.conjoint?.prevoyance?.tauxConversion ?? 0.068;
+    final renteLppConjoint = conjLppBalance * conjConvRate;
+
+    // 3a: annualize over 20 years AFTER capital withdrawal tax (LIFD art. 38)
+    final threeATotal = threeABalance + partner3aBalance;
+    final threeATax = RetirementTaxCalculator.capitalWithdrawalTax(
+      capitalBrut: threeATotal,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      isMarried: isMarried,
+    );
+    final retrait3aAnnualise = (threeATotal - threeATax) / 20;
 
     // Free: 4% safe withdrawal rate
     final rendementLibreAnnuel =
         (investmentBalance + savingsBalance + conjSavingsBalance) * 0.04;
 
     final revenuRetraiteAnnuel = renteAvsAnnuelle +
-        renteLppJulien +
-        renteLppLauren +
+        renteLppUser +
+        renteLppConjoint +
         retrait3aAnnualise +
         rendementLibreAnnuel;
 
@@ -667,55 +736,12 @@ class ForecasterService {
       revenuAnnuelRetraite: revenuRetraiteAnnuel,
       decomposition: {
         'avs': renteAvsAnnuelle,
-        'lpp_julien': renteLppJulien,
-        'lpp_conjoint': renteLppLauren,
+        'lpp_user': renteLppUser,
+        'lpp_conjoint': renteLppConjoint,
         '3a': retrait3aAnnualise,
         'libre': rendementLibreAnnuel,
       },
     );
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  AVS ESTIMATION
-  // ════════════════════════════════════════════════════════════════
-
-  static Map<String, double> _estimateAvsCouple(CoachProfile profile) {
-    // Julien
-    final ageJulien = profile.age;
-    final anneesContribJulien = profile.prevoyance.anneesContribuees ??
-        (ageJulien - 20).clamp(0, avsDureeCotisationComplete);
-    final gapFactorJulien = anneesContribJulien / avsDureeCotisationComplete;
-    final renteJulienMensuelle = avsRenteMaxMensuelle * gapFactorJulien;
-
-    // Conjoint
-    double renteConjointMensuelle = 0;
-    if (profile.conjoint != null) {
-      final conjAge = profile.conjoint!.age ?? 45;
-      final lacunes = profile.conjoint?.prevoyance?.lacunesAVS ?? 0;
-      final anneesContribConj =
-          ((conjAge - 20).clamp(0, avsDureeCotisationComplete) - lacunes)
-              .clamp(0, avsDureeCotisationComplete);
-      final gapFactorConj = anneesContribConj / avsDureeCotisationComplete;
-      renteConjointMensuelle = avsRenteMaxMensuelle * gapFactorConj;
-    }
-
-    // Plafonnement couple (150% de la rente max individuelle)
-    double renteTotaleMensuelle;
-    if (profile.isCouple) {
-      renteTotaleMensuelle = min(
-        renteJulienMensuelle + renteConjointMensuelle,
-        avsRenteCoupleMaxMensuelle,
-      );
-    } else {
-      renteTotaleMensuelle = renteJulienMensuelle;
-    }
-
-    return {
-      'renteJulienMensuelle': renteJulienMensuelle,
-      'renteConjointMensuelle': renteConjointMensuelle,
-      'renteTotaleMensuelle': renteTotaleMensuelle,
-      'renteAnnuelleCouple': renteTotaleMensuelle * 12,
-    };
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -773,10 +799,6 @@ class ForecasterService {
     final raw = annualRetirementIncome / annualCurrentIncome * 100;
     if (!raw.isFinite) return 0.0;
     return raw.clamp(0.0, 200.0);
-  }
-
-  static double _monthlyRate(double annualRate) {
-    return pow(1 + annualRate, 1 / 12) - 1;
   }
 
   static String _formatNumber(double value) {

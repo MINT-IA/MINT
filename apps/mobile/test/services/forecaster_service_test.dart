@@ -66,7 +66,7 @@ void main() {
     test('decomposition has required keys', () {
       final decomp = result.base.decomposition;
       expect(decomp.containsKey('avs'), true);
-      expect(decomp.containsKey('lpp_julien'), true);
+      expect(decomp.containsKey('lpp_user'), true);
       expect(decomp.containsKey('lpp_conjoint'), true);
       expect(decomp.containsKey('3a'), true);
       expect(decomp.containsKey('libre'), true);
