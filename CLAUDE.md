@@ -21,6 +21,7 @@ apps/mobile/          # Flutter (Dart) — iOS/Android/Web
   lib/
     screens/          # Screens organized by module (advisor/, budget/, mortgage/, independants/, etc.)
     services/         # Pure Dart calculators (mirror backend logic)
+      financial_core/ # ★ SHARED CALCULATORS — single source of truth (see below)
     widgets/          # Reusable widgets + educational inserts
     models/           # Data models (age_band_policy, session, etc.)
     theme/colors.dart # MintColors palette
@@ -38,6 +39,29 @@ visions/              # Product vision documents (7 files)
 education/inserts/    # Educational content by wizard question
 decisions/            # ADR (Architecture Decision Records)
 ```
+
+### Financial Core Library (`services/financial_core/`)
+
+> **ADR**: `decisions/ADR-20260223-unified-financial-engine.md`
+
+**All AVS, LPP, and tax calculations MUST use these centralized calculators.**
+Never duplicate calculation logic in service-specific files.
+
+| File | Methods | Source |
+|------|---------|--------|
+| `avs_calculator.dart` | `computeMonthlyRente()`, `renteFromRAMD()`, `computeCouple()` | LAVS art. 21-40 |
+| `lpp_calculator.dart` | `projectToRetirement()`, `projectOneMonth()`, `blendedMonthly()` | LPP art. 14-16 |
+| `tax_calculator.dart` | `capitalWithdrawalTax()`, `progressiveTax()`, `estimateMonthlyIncomeTax()` | LIFD art. 38 |
+| `confidence_scorer.dart` | `ConfidenceScorer.score(profile)` | Profile completeness |
+| `financial_core.dart` | Barrel export | — |
+
+**Consumers** (all must import `financial_core.dart`, never reimplement):
+- `retirement_projection_service.dart` — main retirement engine
+- `forecaster_service.dart` — dashboard 3-scenario projections
+- `lpp_deep_service.dart` — EPL simulator, LPP comparison
+- `rente_vs_capital_calculator.dart` — rente vs capital breakeven
+- `expat_service.dart` — AVS gap analysis
+- `financial_report_service.dart` — comprehensive financial report
 
 ---
 
@@ -141,10 +165,11 @@ flutter run                           # Run app
 | S29 | Smoke Test Coverage (26 screens) | done | done | 52 Flutter tests | `968f972` |
 | S30 | Disability Gap Service (Chantier 3) | done | done | 1629 tests | `4d6f317` |
 
-**Backend test baseline**: 1629 passed, 0 failed, 80 skipped
+**Backend test baseline**: 1965 passed, 0 failed, 80 skipped
 **Flutter analyze**: 0 errors (~896 info/warnings)
 **i18n**: 6 locales (fr, de, en, es, it, pt) — `2fc39a1`
 **QA fix**: LPP 3780 + AVS 2520 aligned — `750286b`
+**Financial Core**: unified AVS/LPP/Tax calculators + confidence scorer — `656e620`
 
 ---
 
@@ -311,3 +336,6 @@ In case of conflict, priority order:
 9. **Assume Swiss native for all profiles** — Always check archetype (see ADR-20260223)
 10. **Show projection without confidence score** — Always include uncertainty band + enrichment prompts
 11. **Double-tax capital withdrawals** — Capital taxed at withdrawal (LIFD art. 38), SWR = not income
+12. **Duplicate calculation logic** — NEVER create private `_calculateTax()`, `_estimateAvs()`, etc. in service files. Always use `financial_core/` calculators. If a method doesn't exist, add it to the appropriate calculator class.
+13. **Ignore future AVS contribution years** — `AvsCalculator.computeMonthlyRente()` correctly adds future years until retirement. Don't use raw `contributionYears / 44` as reduction factor.
+14. **Apply married couple AVS cap to concubins** — LAVS art. 35 cap (150% = 3780 CHF) applies ONLY to married couples. Always pass `isMarried: true/false` to `AvsCalculator.computeCouple()`.

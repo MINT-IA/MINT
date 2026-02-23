@@ -1,9 +1,24 @@
 # ADR-20260223 — Unified Financial Engine
 
-**Status**: Accepted
+**Status**: Implemented
 **Date**: 2026-02-23
 **Authors**: Julien + Claude (dream team audit)
 **Supersedes**: Partial content in ADR-20260223-archetype-driven-retirement.md
+
+### Implementation Status (2026-02-23)
+
+| Phase | Status | Commit |
+|-------|--------|--------|
+| 0a. Data plumbing (spouse AVS, residence_permit) | DONE (was already mapped) | `d7cf2c4` |
+| 0b. Fix _estimateLppAvoir (arrivalAge) | DONE | `bfa8e86` |
+| 1a-d. Extract financial_core (AVS, LPP, Tax, Confidence) | DONE (29 tests) | `e914dfe` |
+| 2. Migrate RetirementProjectionService | DONE (zero behavior change) | `6e8f86e` |
+| 3. Migrate ForecasterService | DONE (bonifications, capital tax, RAMD AVS) | `ab7653d` |
+| 4. Confidence Score UI | DONE (banner + enrichment prompts) | `cb5c898` |
+| 5. Cleanup duplicates (lpp_deep, rente_vs_capital, expat, financial_report) | DONE | `656e620` |
+| Fix: isMarried on 3a capital withdrawal tax | DONE | `7b392ff` |
+
+**All services now import `financial_core/` — zero duplicate calculation logic remains.**
 
 ---
 
@@ -11,33 +26,35 @@
 
 ### Audit exhaustif (2026-02-23)
 
-Deux moteurs de calcul independants produisent des resultats **divergents** pour le meme profil :
+Deux moteurs de calcul independants produisaient des resultats **divergents** pour le meme profil :
 
-| Aspect | RetirementProjectionService | ForecasterService |
-|--------|---------------------------|-------------------|
-| LPP bonifications (7/10/15/18%) | OUI | **NON** (rendement seul) |
-| Capital withdrawal tax (LIFD art. 38) | OUI | **NON** |
-| 3a capital tax | OUI | **NON** (brut) |
-| AVS lacunes user | OUI | **NON** (ignore) |
-| arrivalAge pour expats | OUI (fixe recemment) | **NON** |
-| Couple phases (retraite decalee) | OUI | NON |
-| Scenarios (prudent/base/optimiste) | NON | OUI |
-| Monthly projection points | NON | OUI |
-| "Et si..." sliders | NON | OUI |
+| Aspect | RetirementProjectionService | ForecasterService | Status |
+|--------|---------------------------|-------------------|--------|
+| LPP bonifications (7/10/15/18%) | OUI | ~~NON~~ → OUI via `LppCalculator.projectOneMonth()` | FIXED |
+| Capital withdrawal tax (LIFD art. 38) | OUI | ~~NON~~ → OUI via `RetirementTaxCalculator` | FIXED |
+| 3a capital tax | OUI | ~~NON~~ → OUI via `RetirementTaxCalculator` | FIXED |
+| AVS lacunes user | OUI | ~~NON~~ → OUI via `AvsCalculator` | FIXED |
+| arrivalAge pour expats | OUI | ~~NON~~ → OUI via `AvsCalculator` | FIXED |
+| Married-only couple cap | OUI | ~~NON~~ → OUI via `AvsCalculator.computeCouple()` | FIXED |
+| RAMD-based AVS rente | OUI | ~~NON~~ → OUI via `AvsCalculator.renteFromRAMD()` | FIXED |
+| Couple phases (retraite decalee) | OUI | NON | FUTURE |
+| Scenarios (prudent/base/optimiste) | NON | OUI | By design |
+| Monthly projection points | NON | OUI | By design |
+| "Et si..." sliders | NON | OUI | By design |
 
-**Resultat** : l'utilisateur voit ~13.5k/mois sur l'ecran retraite et ~10.2k/mois
-sur le dashboard. Cela **detruit la confiance**.
+**Status (2026-02-23)** : Both engines now use `financial_core/` for all shared calculations.
+The remaining differences (couple phases, scenarios, monthly points) are **by design** — each engine serves a different purpose.
 
-### Donnees collectees mais gaspillees
+### Donnees collectees mais gaspillees (CORRIGE 2026-02-23)
 
-| Donnee | Collectee dans | Mappee dans CoachProfile | Utilisee |
-|--------|---------------|--------------------------|----------|
-| `q_spouse_avs_lacunes_status` | Wizard V2 | **NON** | NON |
-| `q_spouse_avs_arrival_year` | Wizard V2 | **NON** | NON |
-| `q_spouse_avs_years_abroad` | Wizard V2 | **NON** | NON |
-| `residence_permit` | Mini step 1 | **PAS DE CHAMP** | NON |
-| `partner_employment_status` | Mini step 2 | OUI | **Jamais lu par projections** |
-| Conjoint LPP avoir | Nulle part | toujours null | Estime from salary |
+| Donnee | Collectee dans | Mappee dans CoachProfile | Utilisee | Status |
+|--------|---------------|--------------------------|----------|--------|
+| `q_spouse_avs_lacunes_status` | Wizard V2 | OUI → conjoint.prevoyance.lacunesAVS | OUI (both engines) | FIXED |
+| `q_spouse_avs_arrival_year` | Wizard V2 | OUI → conjoint.arrivalAge | OUI (both engines) | FIXED |
+| `q_spouse_avs_years_abroad` | Wizard V2 | OUI → conjoint.prevoyance.lacunesAVS | OUI (both engines) | FIXED |
+| `residence_permit` | Mini step 1 | OUI → residencePermit | Mapped, used by archetype | FIXED |
+| `partner_employment_status` | Mini step 2 | OUI | Read by conjoint LPP estimation | FIXED |
+| Conjoint LPP avoir | Estimated from salary + arrivalAge | OUI | OUI (both engines) | ESTIMATED |
 
 ---
 
