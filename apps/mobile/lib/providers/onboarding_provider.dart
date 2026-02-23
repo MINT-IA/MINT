@@ -33,6 +33,11 @@ class OnboardingProvider extends ChangeNotifier {
   bool _userEditedLamal = false;
   bool _userEditedOtherFixed = false;
 
+  /// Exposed so the UI can skip controller sync for user-edited fields.
+  bool get userEditedTax => _userEditedTax;
+  bool get userEditedLamal => _userEditedLamal;
+  bool get userEditedOtherFixed => _userEditedOtherFixed;
+
   // Partner data (couple / family)
   double? partnerIncome;
   int? partnerBirthYear;
@@ -382,24 +387,29 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   void setTaxProvisionDraft(String value) {
-    _userEditedTax = true;
-    draftTaxProvision = value.trim();
+    final trimmed = value.trim();
+    // Only mark user-edited when the value genuinely differs from the current
+    // draft (avoids false-positive when controller is synced programmatically).
+    if (trimmed != draftTaxProvision) _userEditedTax = true;
+    draftTaxProvision = trimmed;
     taxProvisionMonthly = _toDouble(value);
     scheduleAutoSave('fixed_cost_changed');
     _safeNotify();
   }
 
   void setLamalDraft(String value) {
-    _userEditedLamal = true;
-    draftLamal = value.trim();
+    final trimmed = value.trim();
+    if (trimmed != draftLamal) _userEditedLamal = true;
+    draftLamal = trimmed;
     lamalPremiumMonthly = _toDouble(value);
     scheduleAutoSave('fixed_cost_changed');
     _safeNotify();
   }
 
   void setOtherFixedDraft(String value) {
-    _userEditedOtherFixed = true;
-    draftOtherFixed = value.trim();
+    final trimmed = value.trim();
+    if (trimmed != draftOtherFixed) _userEditedOtherFixed = true;
+    draftOtherFixed = trimmed;
     otherFixedCostsMonthly = _toDouble(value);
     scheduleAutoSave('fixed_cost_changed');
     _safeNotify();

@@ -128,7 +128,32 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     super.didChangeDependencies();
     if (!_providerBound) {
       _onboardingProvider = context.read<OnboardingProvider>();
+      _onboardingProvider.addListener(_syncFixedCostControllers);
       _providerBound = true;
+    }
+  }
+
+  /// Keeps fixed-cost TextEditingControllers in sync with provider prefill
+  /// values. Only syncs fields the user hasn't manually edited.
+  void _syncFixedCostControllers() {
+    final p = _provider;
+    if (!p.userEditedTax) {
+      final val = p.draftTaxProvision ?? '';
+      if (_taxProvisionController.text != val) {
+        _taxProvisionController.text = val;
+      }
+    }
+    if (!p.userEditedLamal) {
+      final val = p.draftLamal ?? '';
+      if (_lamalController.text != val) {
+        _lamalController.text = val;
+      }
+    }
+    if (!p.userEditedOtherFixed) {
+      final val = p.draftOtherFixed ?? '';
+      if (_otherFixedController.text != val) {
+        _otherFixedController.text = val;
+      }
     }
   }
 
@@ -191,6 +216,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
 
   @override
   void dispose() {
+    if (_providerBound) {
+      _onboardingProvider.removeListener(_syncFixedCostControllers);
+    }
     _autoSaveDebounce?.cancel();
     if (!_isOnboardingCompleted && _providerBound) {
       unawaited(_saveMiniProgressSnapshot(reason: 'dispose_abandon'));
