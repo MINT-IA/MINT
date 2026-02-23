@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SERVICE — Sprint S23 / Expatriation + Frontaliers
@@ -563,8 +564,10 @@ class ExpatService {
     final completeness = min(1.0, yearsInCh / fullContributionYears);
     final reductionPercent = (missingYears * reductionPerMissingYear * 100).clamp(0.0, 100.0);
 
-    // Max monthly AVS rente (2025/2026)
-    const maxRenteMensuelle = avsRenteMaxMensuelle;
+    // Max monthly AVS rente via centralized calculator (LAVS art. 34)
+    // TODO: Accept grossAnnualSalary parameter to use AvsCalculator.renteFromRAMD(salary)
+    // for income-based rente estimation instead of assuming max rente.
+    final maxRenteMensuelle = AvsCalculator.renteFromRAMD(0); // 0 = unknown salary → max rente
     final estimatedRente = maxRenteMensuelle * completeness;
     final monthlyLoss = maxRenteMensuelle - estimatedRente;
 

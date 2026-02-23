@@ -1,6 +1,7 @@
 import 'dart:math' show pow;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 import '../models/financial_report.dart';
 import '../models/circle_score.dart';
@@ -623,18 +624,38 @@ class FinancialReportService {
   }
 
   double _estimateAvsRent(UserProfile profile) {
-    // Rendement maximal AVS 2025/2026 :
-    // - Individuel (max) : 2'520 CHF / mois
-    // - Couple (max plafonné à 150%) : 3'780 CHF / mois (1890 CHF par personne)
+    // Delegate to AvsCalculator for centralized AVS rente logic (LAVS art. 29, 34, 35).
+    // Approximate gross salary from net income (inverse of social charges deduction).
+    final grossAnnualSalary = profile.monthlyNetIncome * 12 / 0.87;
+
+    final userRente = AvsCalculator.computeMonthlyRente(
+      currentAge: profile.age,
+      retirementAge: 65,
+      lacunes: profile.avsGapYears ?? 0,
+      anneesContribuees: profile.contributionYears,
+      grossAnnualSalary: grossAnnualSalary,
+    );
 
     if (profile.isMarried) {
-      // Pour les couples, le split se fait 50/50 sur les revenus.
-      // Mais chaque lacune (année manquante) réduit la part individuelle de 1/44.
-      final part1 = 1890.0 * profile.avsReductionFactor;
-      final part2 = 1890.0 * profile.spouseAvsReductionFactor;
-      return part1 + part2;
+      // Spouse rente: use same gross salary assumption (no spouse salary available)
+      // TODO: Accept spouse income for more accurate couple AVS computation.
+      final spouseRente = AvsCalculator.computeMonthlyRente(
+        currentAge: profile.age, // Approximate: same age assumed for spouse
+        retirementAge: 65,
+        lacunes: profile.spouseAvsGapYears ?? 0,
+        anneesContribuees: profile.spouseContributionYears,
+        grossAnnualSalary: grossAnnualSalary,
+      );
+
+      // Apply married couple cap (LAVS art. 35 — 150% of individual max)
+      final couple = AvsCalculator.computeCouple(
+        avsUser: userRente,
+        avsConjoint: spouseRente,
+        isMarried: true,
+      );
+      return couple.total;
     } else {
-      return avsRenteMaxMensuelle * profile.avsReductionFactor;
+      return userRente;
     }
   }
 

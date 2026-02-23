@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ============================================================================
 // LPP Deep Service — Sprint S15 (Chantier 4)
@@ -448,7 +448,10 @@ class EplSimulator {
 
     // --- Estimation de l'impot sur le retrait EPL ---
     // Utilise les tranches progressives cantonales (LIFD art. 38)
-    final impot = _calculateProgressiveTax(applicable, canton);
+    final impot = RetirementTaxCalculator.capitalWithdrawalTax(
+      capitalBrut: applicable,
+      canton: canton,
+    );
 
     // --- Impact sur les prestations de risque ---
     // Estimation simplifiee : reduction proportionnelle
@@ -497,28 +500,6 @@ class EplSimulator {
     );
   }
 
-  /// Calcule l'impot sur retrait de capital avec tranches progressives.
-  ///
-  /// Utilise les taux cantonaux de [tauxImpotRetraitCapital] et les
-  /// multiplicateurs progressifs de [retraitCapitalTranches].
-  /// Miroir exact de _calculate_progressive_tax() dans le backend.
-  static double _calculateProgressiveTax(double montant, String canton) {
-    if (montant <= 0) return 0.0;
-    final baseRate = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    double totalTax = 0.0;
-    double remaining = montant;
-    for (final tranche in retraitCapitalTranches) {
-      final low = tranche[0];
-      final high = tranche[1];
-      final multiplier = tranche[2];
-      final trancheSize = high - low;
-      final taxable = min(remaining, trancheSize);
-      if (taxable <= 0) break;
-      totalTax += taxable * baseRate * multiplier;
-      remaining -= taxable;
-    }
-    return totalTax;
-  }
 }
 
 /// Formate un montant en CHF avec separateur de milliers (apostrophe suisse).

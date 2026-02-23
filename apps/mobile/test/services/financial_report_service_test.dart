@@ -274,18 +274,26 @@ void main() {
       answers['q_avs_contribution_years'] = 44; // Full contribution
       final report = service.generateReport(answers);
       expect(report.profile.avsReductionFactor, equals(1.0));
-      // Monthly AVS rent should be at or near max for single
+      // Monthly AVS rent uses RAMD interpolation (LAVS art. 34, echelle 44).
+      // For 6000 CHF/mo net (~82k gross), rente is sub-max but close.
       expect(report.retirementProjection!.monthlyAvsRent,
-          closeTo(avsRenteMaxMensuelle, 1.0));
+          greaterThan(avsRenteMaxMensuelle * 0.9));
+      expect(report.retirementProjection!.monthlyAvsRent,
+          lessThanOrEqualTo(avsRenteMaxMensuelle));
     });
 
     test('AVS rent reduced for partial contribution years', () {
+      // Use older age so future contribution years don't fully compensate.
+      // AvsCalculator adds future years: at age 36, 22+29=44 → full rente.
+      // At age 62, 22+3=25 → gapFactor ≈ 0.57 → genuinely reduced.
       final answers = _minimalAnswers();
-      answers['q_avs_contribution_years'] = 22; // 50% of 44
+      answers['q_birth_year'] = 1964; // age 62
+      answers['q_avs_contribution_years'] = 22;
       final report = service.generateReport(answers);
-      expect(report.profile.avsReductionFactor, closeTo(0.5, 0.01));
+      // Reduced rente: well below max (gapFactor ~0.57 × RAMD-based rente)
       expect(report.retirementProjection!.monthlyAvsRent,
-          closeTo(avsRenteMaxMensuelle * 0.5, 1.0));
+          lessThan(avsRenteMaxMensuelle * 0.7));
+      expect(report.retirementProjection!.monthlyAvsRent, greaterThan(0));
     });
 
     test('married couple AVS rent includes both spouse parts', () {

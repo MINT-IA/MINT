@@ -8,28 +8,12 @@
 // - LIFD art. 38 (imposition du capital de prevoyance)
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 const double _lppConversionRate = 0.068;
 
 /// All 26 supported Swiss cantons.
 List<String> get supportedCantons => sortedCantonCodes;
-
-/// Calculate progressive capital withdrawal tax.
-///
-/// Mirrors backend `_calculate_progressive_tax()` in social_insurance.py.
-double _calculateProgressiveTax(double montant, double baseRate) {
-  if (montant <= 0) return 0.0;
-  double totalTax = 0.0;
-  double remaining = montant;
-  for (final bracket in retraitCapitalTranches) {
-    final trancheSize = bracket[1] - bracket[0];
-    final taxable = remaining < trancheSize ? remaining : trancheSize;
-    if (taxable <= 0) break;
-    totalTax += taxable * baseRate * bracket[2];
-    remaining -= taxable;
-  }
-  return double.parse(totalTax.toStringAsFixed(2));
-}
 
 /// Internal result of a drawdown simulation.
 class _DrawdownResult {
@@ -142,7 +126,9 @@ RenteVsCapitalResult computeRenteVsCapital({
       : baseRate;
 
   // Progressive tax calculation (mirrors backend)
-  final impotRetrait = _calculateProgressiveTax(capitalTotal, effectiveBaseRate);
+  final impotRetrait = double.parse(
+      RetirementTaxCalculator.progressiveTax(capitalTotal, effectiveBaseRate)
+          .toStringAsFixed(2));
   final tauxEffectif = capitalTotal > 0 ? impotRetrait / capitalTotal : 0.0;
   final capitalNet = capitalTotal - impotRetrait;
 
