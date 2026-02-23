@@ -166,6 +166,19 @@ flutter run                           # Run app
 7. Surgical git commit (only sprint-specific files)
 ```
 
+### Financial Core (shared calculation engine)
+> **ADR**: `decisions/ADR-20260223-unified-financial-engine.md` — READ THIS before touching any calculator.
+
+All financial calculations MUST use the shared core in `lib/services/financial_core/`:
+- `AvsCalculator` — AVS rente (LAVS art. 21-29, 34, 35, 40)
+- `LppCalculator` — LPP projection + bonifications (LPP art. 15-16)
+- `TaxCalculator` — Capital withdrawal + income tax (LIFD art. 38)
+- `ThreeACalculator` — 3a projection (OPP3 art. 7)
+- `ConfidenceScorer` — Projection confidence score
+
+**NEVER duplicate formulas** in RetirementProjectionService or ForecasterService.
+Both services are thin adapters over the shared core.
+
 ### Agent specs template (for spawning)
 When launching agents, always specify:
 - Swiss law sources and article references
