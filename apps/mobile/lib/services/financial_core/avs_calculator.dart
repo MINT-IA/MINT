@@ -67,9 +67,10 @@ class AvsCalculator {
   /// Linear interpolation between min and max rente.
   /// RAMD <= 14'700 → 1'260/mois (minimum)
   /// RAMD >= 88'200 → 2'520/mois (maximum)
-  /// No data (0) → assume max (conservative for projection)
+  /// No data (0) → return 0 (cannot estimate rente without salary data).
+  /// gapFactor in computeMonthlyRente already handles contribution years.
   static double renteFromRAMD(double grossAnnualSalary) {
-    if (grossAnnualSalary <= 0) return avsRenteMaxMensuelle;
+    if (grossAnnualSalary <= 0) return 0.0;
     if (grossAnnualSalary >= avsRAMDMax) return avsRenteMaxMensuelle;
     if (grossAnnualSalary <= avsRAMDMin) return avsRenteMinMensuelle;
     final fraction =

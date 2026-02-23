@@ -439,6 +439,7 @@ class RetirementProjectionService {
       yearsToRetirement: (ageUser - profile.age).clamp(0, 50),
       averageReturn: _average3aReturn(profile),
       isIndependantSansLpp: isIndepSansLpp,
+      isCouple: hasConjoint,
     );
     // Apply capital withdrawal tax (LIFD art. 38) before annualizing
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
@@ -486,19 +487,23 @@ class RetirementProjectionService {
     required int yearsToRetirement,
     required double averageReturn,
     bool isIndependantSansLpp = false,
+    bool isCouple = false,
   }) {
     double balance = currentBalance;
     // Plafond legal: 7'258 CHF/an si affilie LPP, 36'288 CHF/an si
-    // independant sans LPP (OPP3 art. 7). Pour un couple on cumule les deux.
+    // independant sans LPP (OPP3 art. 7). Couple = 2× plafond.
     final plafondIndividuel = isIndependantSansLpp
         ? pilier3aPlafondSansLpp
         : pilier3aPlafondAvecLpp;
-    // Max 2 personnes dans le menage
-    final annual3a = (monthly3a * 12).clamp(0.0, plafondIndividuel * 2);
+    final plafondMenage = isCouple ? plafondIndividuel * 2 : plafondIndividuel;
+    final annual3a = (monthly3a * 12).clamp(0.0, plafondMenage);
 
     for (int y = 0; y < yearsToRetirement; y++) {
+      // Horizon dampening: contributions may not be sustained for 30+ years
+      // (career changes, family expenses, etc.)
+      final contributionFactor = y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
       balance *= (1 + averageReturn);
-      balance += annual3a;
+      balance += annual3a * contributionFactor;
     }
     return balance;
   }
@@ -526,8 +531,13 @@ class RetirementProjectionService {
     double savings = currentSavings;
 
     for (int y = 0; y < yearsToRetirement; y++) {
-      invest *= 1.05;
-      invest += monthlyInvestment * 12;
+      // Horizon dampening: assume contributions taper by 1% per year
+      // (career interruptions, life events, inflation eroding real capacity).
+      // Investment return also tapers slightly over very long horizons.
+      final contributionFactor = y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
+      final investReturn = y < 15 ? 0.05 : 0.04; // more conservative after 15yr
+      invest *= (1 + investReturn);
+      invest += monthlyInvestment * 12 * contributionFactor;
       savings *= 1.01;
     }
     return invest + savings;
@@ -800,6 +810,7 @@ class RetirementProjectionService {
       yearsToRetirement: yearsToFirstRetirement,
       averageReturn: _average3aReturn(profile),
       isIndependantSansLpp: isIndepSansLpp,
+      isCouple: true, // transition phase = always couple
     );
     // Apply capital withdrawal tax (LIFD art. 38) before annualizing
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
@@ -970,6 +981,14 @@ class RetirementProjectionService {
       alertes.add(
         'Taux de remplacement de ${tauxRemplacement.toStringAsFixed(0)}% — '
         'en dessous du seuil de confort habituel (60-80%).',
+      );
+    }
+    if (tauxRemplacement > 120) {
+      alertes.add(
+        'Taux de remplacement de ${tauxRemplacement.toStringAsFixed(0)}% — '
+        'ce chiffre semble eleve et repose sur des hypotheses de rendement '
+        'a long terme. Les projections sur ${(profile.anneesAvantRetraite)} ans '
+        'sont necessairement imprecises.',
       );
     }
     final pcSeuil = profile.isCouple ? 4500.0 : 3000.0;
