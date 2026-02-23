@@ -10,5 +10,7 @@ library;
 export 'avs_calculator.dart';
 export 'confidence_scorer.dart';
 export 'lpp_calculator.dart';
+export 'monte_carlo_models.dart';
+export 'monte_carlo_service.dart';
 export 'tax_calculator.dart';
 export 'tornado_sensitivity_service.dart';

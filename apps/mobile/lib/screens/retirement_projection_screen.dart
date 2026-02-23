@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/retirement/couple_timeline_chart.dart';
 import 'package:mint_mobile/widgets/retirement/budget_gap_chart.dart';
 import 'package:mint_mobile/widgets/retirement/confidence_banner.dart';
 import 'package:mint_mobile/widgets/retirement/tornado_chart.dart';
+import 'package:mint_mobile/widgets/retirement/monte_carlo_chart.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:provider/provider.dart';
 
@@ -253,6 +254,24 @@ class _RetirementProjectionScreenState
                   ),
                   const SizedBox(height: 12),
                   _buildIndexedProjection(result),
+                  const SizedBox(height: 32),
+
+                  // 7b. Monte Carlo stochastic projection
+                  FullscreenChartWrapper(
+                    title: 'Projection stochastique',
+                    disclaimer: result.disclaimer,
+                    child: MonteCarloChart(
+                      result: MonteCarloProjectionService.simulate(
+                        profile: profile,
+                        retirementAgeUser: _retirementAgeUser,
+                        lppCapitalPct: _lppCapitalPct,
+                        depensesMensuelles: _depensesMensuelles,
+                        numSimulations: 500,
+                        seed: profile.hashCode,
+                      ),
+                      currentMonthlyIncome: result.revenuPreRetraiteMensuel,
+                    ),
+                  ),
                   const SizedBox(height: 32),
 
                   // 8. Educational cards
