@@ -87,6 +87,12 @@ const int avsAgeReferenceFemme = 65;
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 
+/// RAMD minimum pour rente minimale (LAVS art. 34, echelle 44).
+const double avsRAMDMin = 14700.0;
+
+/// RAMD maximum pour rente maximale (LAVS art. 34, echelle 44).
+const double avsRAMDMax = 88200.0;
+
 /// Franchise AVS pour retraites actifs, mensuelle.
 const double avsFranchiseRetraiteMensuelle = 1400.0;
 

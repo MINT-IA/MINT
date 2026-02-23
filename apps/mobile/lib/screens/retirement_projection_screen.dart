@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -38,7 +39,16 @@ class _RetirementProjectionScreenState
   int _retirementAgeUser = 65;
   int? _retirementAgeConjoint;
   double? _depensesMensuelles;
+  int _lppStrategy = 0; // 0 = 100% rente, 1 = mixte 50/50, 2 = 100% capital
   bool _parametersExpanded = false;
+
+  double get _lppCapitalPct {
+    switch (_lppStrategy) {
+      case 1: return 0.5;
+      case 2: return 1.0;
+      default: return 0.0;
+    }
+  }
 
   late AnimationController _heroController;
   late Animation<double> _heroAnimation;
@@ -80,6 +90,7 @@ class _RetirementProjectionScreenState
       retirementAgeUser: _retirementAgeUser,
       retirementAgeConjoint: _retirementAgeConjoint,
       depensesMensuelles: _depensesMensuelles,
+      lppCapitalPct: _lppCapitalPct,
     );
 
     return Scaffold(
@@ -109,6 +120,8 @@ class _RetirementProjectionScreenState
                     'Decomposition des revenus',
                     Icons.stacked_bar_chart,
                   ),
+                  const SizedBox(height: 12),
+                  _buildLppStrategyToggle(profile),
                   const SizedBox(height: 12),
                   FullscreenChartWrapper(
                     title: 'Decomposition des revenus',
@@ -411,18 +424,18 @@ class _RetirementProjectionScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Retirement age user
+                  // Retirement age user (58 = early via LPP caisses, 63 = AVS anticipée)
                   _sliderRow(
                     label: 'Age de depart',
                     value: _retirementAgeUser.toDouble(),
-                    min: 63,
+                    min: 58,
                     max: 70,
                     suffix: 'ans',
                     onChanged: (v) => setState(
                         () => _retirementAgeUser = v.round()),
                   ),
 
-                  // Retirement age conjoint
+                  // Retirement age conjoint — same range as user
                   if (profile.isCouple &&
                       profile.conjoint != null) ...[
                     const SizedBox(height: 16),
@@ -431,7 +444,7 @@ class _RetirementProjectionScreenState
                           'Age depart ${profile.conjoint!.firstName ?? "conjoint·e"}',
                       value:
                           (_retirementAgeConjoint ?? 65).toDouble(),
-                      min: 63,
+                      min: 58,
                       max: 70,
                       suffix: 'ans',
                       onChanged: (v) => setState(
@@ -446,9 +459,9 @@ class _RetirementProjectionScreenState
                     value: _depensesMensuelles ??
                         result.budgetGap.depensesMensuelles,
                     min: 2000,
-                    max: 10000,
+                    max: 15000,
                     suffix: 'CHF',
-                    divisions: 80,
+                    divisions: 130,
                     onChanged: (v) => setState(() =>
                         _depensesMensuelles = (v / 100).round() * 100.0),
                   ),
@@ -504,6 +517,128 @@ class _RetirementProjectionScreenState
           onChanged: onChanged,
         ),
       ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  LPP STRATEGY TOGGLE (Rente vs Capital)
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildLppStrategyToggle(CoachProfile profile) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.compare_arrows, size: 16, color: MintColors.success),
+              const SizedBox(width: 8),
+              Text(
+                'Strategie LPP (2e pilier)',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _strategyChip(0, '100% Rente', Icons.all_inclusive),
+              const SizedBox(width: 6),
+              _strategyChip(1, 'Mixte 50/50', Icons.pie_chart_outline),
+              const SizedBox(width: 6),
+              _strategyChip(2, '100% Capital', Icons.account_balance),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _lppStrategy == 0
+                ? 'Rente viagere LPP (LPP art. 14, taux 6.8% min.)'
+                : _lppStrategy == 2
+                    ? 'Capital retire, impot LIFD art. 38 + retrait 4%/an (Trinity Study)'
+                    : '50% rente viagere + 50% capital (mixte)',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+              height: 1.3,
+            ),
+          ),
+          if (profile.isCouple) ...[
+            const SizedBox(height: 4),
+            Text(
+              'S\'applique aux deux partenaires.',
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+                color: MintColors.textMuted,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _strategyChip(int index, String label, IconData icon) {
+    final isSelected = _lppStrategy == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          setState(() => _lppStrategy = index);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? MintColors.success.withValues(alpha: 0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? MintColors.success : MintColors.lightBorder,
+              width: isSelected ? 1.5 : 1.0,
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(icon,
+                  size: 18,
+                  color: isSelected
+                      ? MintColors.success
+                      : MintColors.textMuted),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    label,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected
+                          ? MintColors.success
+                          : MintColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

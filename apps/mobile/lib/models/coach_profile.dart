@@ -40,6 +40,10 @@ class ConjointProfile {
   final bool canContribute3a; // false si FATCA resident (certains providers)
   final PrevoyanceProfile? prevoyance;
 
+  /// Age at which the conjoint arrived in Switzerland.
+  /// If null, assumes contributions since age 20 (Swiss native).
+  final int? arrivalAge;
+
   const ConjointProfile({
     this.firstName,
     this.birthYear,
@@ -51,6 +55,7 @@ class ConjointProfile {
     this.isFatcaResident = false,
     this.canContribute3a = true,
     this.prevoyance,
+    this.arrivalAge,
   });
 
   /// Revenu brut annuel estime
@@ -88,6 +93,7 @@ class ConjointProfile {
       prevoyance: json['prevoyance'] != null
           ? PrevoyanceProfile.fromJson(json['prevoyance'])
           : null,
+      arrivalAge: json['arrivalAge'] as int?,
     );
   }
 
@@ -102,6 +108,7 @@ class ConjointProfile {
     'isFatcaResident': isFatcaResident,
     'canContribute3a': canContribute3a,
     'prevoyance': prevoyance?.toJson(),
+    'arrivalAge': arrivalAge,
   };
 
   ConjointProfile copyWith({
@@ -115,6 +122,7 @@ class ConjointProfile {
     bool? isFatcaResident,
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
+    int? arrivalAge,
   }) {
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
@@ -127,6 +135,7 @@ class ConjointProfile {
       isFatcaResident: isFatcaResident ?? this.isFatcaResident,
       canContribute3a: canContribute3a ?? this.canContribute3a,
       prevoyance: prevoyance ?? this.prevoyance,
+      arrivalAge: arrivalAge ?? this.arrivalAge,
     );
   }
 }
@@ -599,6 +608,17 @@ class CoachProfile {
   final String? realEstateProject;
   final List<String> providers3a;
 
+  /// Age at which the person arrived in Switzerland.
+  /// Derived from q_avs_arrival_year in the wizard. Used by
+  /// _estimateLppAvoir() to avoid overestimating LPP for expats
+  /// who did not contribute from age 25.
+  final int? arrivalAge;
+
+  /// Residence permit type (e.g. 'B', 'C', 'L', 'G', 'Swiss').
+  /// Mapped from q_residence_permit in the wizard.
+  /// Relevant for cross-border workers (permis G) and expats.
+  final String? residencePermit;
+
   // === META ===
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -627,6 +647,8 @@ class CoachProfile {
     this.riskTolerance,
     this.realEstateProject,
     this.providers3a = const [],
+    this.arrivalAge,
+    this.residencePermit,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -735,6 +757,8 @@ class CoachProfile {
     String? riskTolerance,
     String? realEstateProject,
     List<String>? providers3a,
+    int? arrivalAge,
+    String? residencePermit,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -762,6 +786,8 @@ class CoachProfile {
       riskTolerance: riskTolerance ?? this.riskTolerance,
       realEstateProject: realEstateProject ?? this.realEstateProject,
       providers3a: providers3a ?? this.providers3a,
+      arrivalAge: arrivalAge ?? this.arrivalAge,
+      residencePermit: residencePermit ?? this.residencePermit,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -793,6 +819,8 @@ class CoachProfile {
       riskTolerance: riskTolerance,
       realEstateProject: realEstateProject,
       providers3a: providers3a,
+      arrivalAge: arrivalAge,
+      residencePermit: residencePermit,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -824,6 +852,8 @@ class CoachProfile {
       riskTolerance: riskTolerance,
       realEstateProject: realEstateProject,
       providers3a: providers3a,
+      arrivalAge: arrivalAge,
+      residencePermit: residencePermit,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -976,6 +1006,8 @@ class CoachProfile {
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      arrivalAge: json['arrivalAge'] as int?,
+      residencePermit: json['residencePermit'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -1009,6 +1041,8 @@ class CoachProfile {
     'riskTolerance': riskTolerance,
     'realEstateProject': realEstateProject,
     'providers3a': providers3a,
+    'arrivalAge': arrivalAge,
+    'residencePermit': residencePermit,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
   };
@@ -1068,12 +1102,23 @@ class CoachProfile {
       monthlyHousing = housingCost;
     }
 
-    // Estimate assurance maladie by canton (average ~400 CHF/month)
-    final assuranceMaladie = _estimateAssuranceMaladie(canton);
+    // Use actual LAMal from onboarding if available, otherwise estimate
+    final lamalFromOnboarding = _parseDouble(answers['q_lamal_premium_monthly_chf']);
+    final assuranceMaladie = lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
+
+    // Tax provision and other fixed costs from onboarding
+    final taxProvision = _parseDouble(answers['q_tax_provision_monthly_chf']);
+    final otherFixed = _parseDouble(answers['q_other_fixed_costs_monthly_chf']);
+    final debtPayments = _parseDouble(answers['q_debt_payments_period_chf']);
 
     final depenses = DepensesProfile(
       loyer: monthlyHousing,
       assuranceMaladie: assuranceMaladie,
+      autresDepensesFixes: (taxProvision ?? 0) +
+          (otherFixed ?? 0) +
+          (debtPayments ?? 0) > 0
+        ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
+        : null,
     );
 
     // ── Prevoyance ──────────────────────────────────────────
@@ -1083,13 +1128,20 @@ class CoachProfile {
     final contribution3a = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
     final nombre3a = _parseInt(answers['q_3a_accounts_count']) ?? (has3a ? 1 : 0);
     final avsLacunesStatus = answers['q_avs_lacunes_status'] as String?;
+    // Compute arrivalAge for expats who arrived late in Switzerland.
+    // Used by _estimateLppAvoir() to start LPP bonification loop at
+    // max(25, arrivalAge) instead of always 25.
+    int? computedArrivalAge;
     final int avsGaps;
     switch (avsLacunesStatus) {
       case 'arrived_late':
         final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
-        avsGaps = arrivalYear != null
-            ? (arrivalYear - (birthYear + 21)).clamp(0, 44)
-            : 5;
+        if (arrivalYear != null) {
+          computedArrivalAge = arrivalYear - birthYear;
+          avsGaps = (arrivalYear - (birthYear + 21)).clamp(0, 44);
+        } else {
+          avsGaps = 5;
+        }
       case 'lived_abroad':
         final yearsAbroad = _parseInt(answers['q_avs_years_abroad']);
         avsGaps = yearsAbroad ?? 3;
@@ -1100,11 +1152,21 @@ class CoachProfile {
     }
     final avsYears = _parseInt(answers['q_avs_contribution_years']);
 
-    // Estimate LPP total based on age and salary (rough Swiss average)
-    // Si une valeur reelle a ete saisie via annual refresh, on la prefere
+    // Estimate LPP total based on age and salary (rough Swiss average).
+    // Si une valeur reelle a ete saisie via annual refresh, on la prefere.
+    // For independants without LPP (LPP art. 4): no bonifications estimated.
+    // For expats: start bonifications at arrivalAge, not age 25.
     final coachAvoirLpp = _parseDouble(answers['_coach_avoir_lpp']);
-    final estimatedLpp = coachAvoirLpp
-        ?? (hasPensionFund ? _estimateLppAvoir(age, salaireBrutMensuel) : 0.0);
+    final double estimatedLpp;
+    if (coachAvoirLpp != null) {
+      estimatedLpp = coachAvoirLpp;
+    } else if (!hasPensionFund) {
+      // Independant sans LPP ou declaration explicite "pas de caisse"
+      estimatedLpp = 0.0;
+    } else {
+      estimatedLpp = _estimateLppAvoir(
+        age, salaireBrutMensuel, arrivalAge: computedArrivalAge);
+    }
 
     // Estimate 3a total from contribution and age
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere
@@ -1281,11 +1343,62 @@ class CoachProfile {
     if (partnerIncome != null && partnerIncome > 0) {
       // Net -> Brut estimation: same social charges rate as main user
       final partnerBrut = partnerIncome / (1 - socialChargesRate);
+      final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
+      final conjEmployment = answers['q_partner_employment_status'] as String?;
+
+      // === Conjoint arrivalAge ===
+      // First check for spouse-specific AVS arrival data, then fall back
+      // to inferring from user's arrival (common for couples relocating together).
+      int? conjointArrivalAge;
+      final spouseAvsStatus = answers['q_spouse_avs_lacunes_status'] as String?;
+      int spouseAvsGaps = 0;
+
+      // Parse spouse AVS lacunes — same logic as user AVS (LAVS art. 29bis)
+      switch (spouseAvsStatus) {
+        case 'arrived_late':
+          final spouseArrivalYear = _parseInt(answers['q_spouse_avs_arrival_year']);
+          final spouseBirthYear = partnerBirthYear;
+          if (spouseArrivalYear != null && spouseBirthYear != null) {
+            conjointArrivalAge = spouseArrivalYear - spouseBirthYear;
+            spouseAvsGaps = (spouseArrivalYear - (spouseBirthYear + 21)).clamp(0, 44);
+          }
+        case 'lived_abroad':
+          spouseAvsGaps = _parseInt(answers['q_spouse_avs_years_abroad']) ?? 0;
+        case 'unknown':
+          spouseAvsGaps = 2; // Estimation conservatrice
+        default: // 'no_gaps' or null
+          spouseAvsGaps = 0;
+      }
+
+      // Fall back to user arrivalAge if no spouse-specific data
+      if (conjointArrivalAge == null && computedArrivalAge != null && partnerBirthYear != null) {
+        final arrivalYear = birthYear + computedArrivalAge;
+        conjointArrivalAge = (arrivalYear - partnerBirthYear).clamp(0, 65);
+      }
+
+      // === Conjoint LPP estimation ===
+      // Independant sans LPP or inactive: no bonifications (LPP art. 4)
+      final conjAge = partnerBirthYear != null
+          ? DateTime.now().year - partnerBirthYear
+          : 35;
+      final conjHasLpp = conjEmployment != 'independant' && conjEmployment != 'inactive';
+      final conjLppEstimate = conjHasLpp
+          ? _estimateLppAvoir(conjAge, partnerBrut, arrivalAge: conjointArrivalAge)
+          : 0.0;
+
+      // === Conjoint prevoyance profile ===
+      final conjointPrevoyance = PrevoyanceProfile(
+        lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
+        avoirLppTotal: conjLppEstimate,
+      );
+
       conjoint = ConjointProfile(
         firstName: answers['q_partner_firstname'] as String?,
-        birthYear: _parseInt(answers['q_partner_birth_year']),
+        birthYear: partnerBirthYear,
         salaireBrutMensuel: partnerBrut,
-        employmentStatus: answers['q_partner_employment_status'] as String?,
+        employmentStatus: conjEmployment,
+        arrivalAge: conjointArrivalAge,
+        prevoyance: conjointPrevoyance,
       );
     }
 
@@ -1319,6 +1432,8 @@ class CoachProfile {
       providers3a: (answers['q_3a_providers'] is List)
           ? (answers['q_3a_providers'] as List).cast<String>()
           : <String>[],
+      arrivalAge: computedArrivalAge,
+      residencePermit: answers['q_residence_permit'] as String?,
       updatedAt: savedUpdatedAt != null
           ? DateTime.tryParse(savedUpdatedAt)
           : null,
@@ -1472,11 +1587,18 @@ class CoachProfile {
 
   /// Estime l'avoir LPP total selon l'age et le salaire brut mensuel.
   /// Approximation basee sur les taux de bonification LPP par age.
-  static double _estimateLppAvoir(int age, double salaireBrutMensuel) {
+  /// [arrivalAge]: age d'arrivee en Suisse (si expat). La boucle de
+  /// bonification demarre a max(25, arrivalAge) au lieu de toujours 25,
+  /// pour ne pas surestimer le LPP des personnes arrivees tardivement.
+  static double _estimateLppAvoir(int age, double salaireBrutMensuel,
+      {int? arrivalAge}) {
     final salaireBrut = salaireBrutMensuel * 12;
     final salaireCoordonne = (salaireBrut - 26460).clamp(3780, double.infinity);
+    // LPP bonifications start at 25 (LPP art. 7), but only if the person
+    // was contributing in Switzerland. Expats start at their arrival age.
+    final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;
     double total = 0;
-    for (int a = 25; a < age && a < 65; a++) {
+    for (int a = startAge; a < age && a < 65; a++) {
       double taux;
       if (a < 35) {
         taux = 0.07;
