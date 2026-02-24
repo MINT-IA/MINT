@@ -119,6 +119,10 @@ import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dar
 // Arbitrage Phase 1 (Sprint S32)
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
+// Arbitrage Phase 2 (Sprint S33)
+import 'package:mint_mobile/screens/arbitrage/location_vs_propriete_screen.dart';
+import 'package:mint_mobile/screens/arbitrage/rachat_vs_marche_screen.dart';
+import 'package:mint_mobile/screens/arbitrage/calendrier_retraits_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -614,6 +618,22 @@ final _router = GoRouter(
       path: '/arbitrage/allocation-annuelle',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AllocationAnnuelleScreen(),
+    ),
+    // Arbitrage Phase 2 (Sprint S33)
+    GoRoute(
+      path: '/arbitrage/location-vs-propriete',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LocationVsProprieteScreen(),
+    ),
+    GoRoute(
+      path: '/arbitrage/rachat-vs-marche',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RachatVsMarcheScreen(),
+    ),
+    GoRoute(
+      path: '/arbitrage/calendrier-retraits',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CalendrierRetraitsScreen(),
     ),
   ],
 );

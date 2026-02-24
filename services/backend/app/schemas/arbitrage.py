@@ -1,11 +1,14 @@
 """
-Pydantic v2 schemas for the Arbitrage module (Sprint S32).
+Pydantic v2 schemas for the Arbitrage module (Sprint S32-S33).
 
 API convention: camelCase field names via alias_generator, ConfigDict.
 
 Covers:
     - RenteVsCapitalRequest / RenteVsCapitalResponse
     - AllocationAnnuelleRequest / AllocationAnnuelleResponse
+    - LocationVsProprieteRequest / LocationVsProprieteResponse (Sprint S33)
+    - RachatVsMarcheRequest / RachatVsMarcheResponse (Sprint S33)
+    - CalendrierRetraitsRequest / CalendrierRetraitsResponse (Sprint S33)
     - Shared: YearlySnapshotSchema, TrajectoireOptionSchema, ArbitrageResultSchema
 
 Sources:
@@ -15,6 +18,8 @@ Sources:
     - LIFD art. 22 (imposition des rentes)
     - LIFD art. 38 (imposition du capital de prevoyance)
     - OPP3 art. 7 (plafond 3a)
+    - CO art. 253ss (bail)
+    - FINMA Tragbarkeitsrechnung
 """
 
 from typing import Dict, List, Optional
@@ -215,4 +220,149 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
 
 class AllocationAnnuelleResponse(ArbitrageResultSchema):
     """Resultat de la comparaison d'allocation annuelle."""
+    pass
+
+
+# ===========================================================================
+# Location vs Propriete (Sprint S33)
+# ===========================================================================
+
+class LocationVsProprieteRequest(ArbitrageBaseModel):
+    """Requete pour la comparaison location vs achat immobilier."""
+
+    capital_disponible: float = Field(
+        ..., ge=0,
+        description="Capital disponible pour l'apport (CHF)",
+    )
+    loyer_mensuel_actuel: float = Field(
+        ..., ge=0,
+        description="Loyer mensuel actuel (CHF)",
+    )
+    prix_bien: float = Field(
+        ..., ge=0,
+        description="Prix du bien immobilier (CHF)",
+    )
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Canton de domicile fiscal (defaut: VD)",
+    )
+    horizon_annees: Optional[int] = Field(
+        default=None, ge=1, le=50,
+        description="Horizon de simulation en annees (defaut: 20)",
+    )
+    rendement_marche: Optional[float] = Field(
+        default=None,
+        description="Rendement marche si location + investissement (defaut: 4%)",
+    )
+    appreciation_immo: Optional[float] = Field(
+        default=None,
+        description="Appreciation immobiliere annuelle (defaut: 1.5%)",
+    )
+    taux_hypotheque: Optional[float] = Field(
+        default=None,
+        description="Taux hypothecaire reel (defaut: 2%)",
+    )
+    taux_entretien: Optional[float] = Field(
+        default=None,
+        description="Frais d'entretien en % du prix (defaut: 1%)",
+    )
+    is_married: Optional[bool] = Field(
+        default=None,
+        description="Marie·e (splitting fiscal, defaut: False)",
+    )
+
+
+class LocationVsProprieteResponse(ArbitrageResultSchema):
+    """Resultat de la comparaison location vs achat."""
+    pass
+
+
+# ===========================================================================
+# Rachat LPP vs Marche (Sprint S33)
+# ===========================================================================
+
+class RachatVsMarcheRequest(ArbitrageBaseModel):
+    """Requete pour la comparaison rachat LPP vs investissement libre."""
+
+    montant: float = Field(
+        ..., ge=0,
+        description="Montant a investir ou racheter (CHF)",
+    )
+    taux_marginal: float = Field(
+        ..., ge=0, le=0.50,
+        description="Taux marginal d'imposition (0.0 - 0.50)",
+    )
+    annees_avant_retraite: Optional[int] = Field(
+        default=None, ge=1, le=50,
+        description="Annees avant la retraite (defaut: 20)",
+    )
+    rendement_lpp: Optional[float] = Field(
+        default=None,
+        description="Rendement LPP en caisse (defaut: 1.25%)",
+    )
+    rendement_marche: Optional[float] = Field(
+        default=None,
+        description="Rendement marche libre (defaut: 4%)",
+    )
+    taux_conversion: Optional[float] = Field(
+        default=None,
+        description="Taux de conversion LPP (defaut: 6.8%)",
+    )
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Canton de domicile fiscal (defaut: VD)",
+    )
+    is_married: Optional[bool] = Field(
+        default=None,
+        description="Marie·e (splitting fiscal, defaut: False)",
+    )
+
+
+class RachatVsMarcheResponse(ArbitrageResultSchema):
+    """Resultat de la comparaison rachat LPP vs investissement libre."""
+    pass
+
+
+# ===========================================================================
+# Calendrier de Retraits (Sprint S33)
+# ===========================================================================
+
+class RetirementAssetSchema(ArbitrageBaseModel):
+    """Un avoir de prevoyance eligible au retrait."""
+
+    type: str = Field(
+        ..., description="Type d'avoir: '3a', 'lpp', 'libre_passage'"
+    )
+    amount: float = Field(
+        ..., ge=0, description="Montant actuel (CHF)"
+    )
+    earliest_withdrawal_age: int = Field(
+        ..., ge=55, le=70,
+        description="Age minimum de retrait (3a: 59/60, LPP: 58-65)",
+    )
+
+
+class CalendrierRetraitsRequest(ArbitrageBaseModel):
+    """Requete pour la comparaison de calendrier de retraits."""
+
+    assets: List[RetirementAssetSchema] = Field(
+        ..., min_length=1,
+        description="Liste des avoirs de prevoyance",
+    )
+    age_retraite: Optional[int] = Field(
+        default=None, ge=58, le=70,
+        description="Age de retraite (defaut: 65)",
+    )
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Canton de domicile fiscal (defaut: VD)",
+    )
+    is_married: Optional[bool] = Field(
+        default=None,
+        description="Marie·e (splitting fiscal, defaut: False)",
+    )
+
+
+class CalendrierRetraitsResponse(ArbitrageResultSchema):
+    """Resultat de la comparaison de calendrier de retraits."""
     pass

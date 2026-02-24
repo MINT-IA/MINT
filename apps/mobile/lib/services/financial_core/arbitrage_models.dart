@@ -47,6 +47,27 @@ class TrajectoireOption {
   });
 }
 
+/// A retirement asset for withdrawal calendar optimization.
+///
+/// Sprint S33 — Arbitrage Phase 2.
+/// Represents a single LPP, 3a, or libre passage account to be withdrawn.
+class RetirementAsset {
+  /// Type identifier: "3a", "lpp", "libre_passage".
+  final String type;
+
+  /// Amount in CHF.
+  final double amount;
+
+  /// Earliest age at which this asset can be withdrawn.
+  final int earliestWithdrawalAge;
+
+  const RetirementAsset({
+    required this.type,
+    required this.amount,
+    required this.earliestWithdrawalAge,
+  });
+}
+
 /// Full result of an arbitrage comparison.
 class ArbitrageResult {
   /// Available options (2-4 trajectories).
