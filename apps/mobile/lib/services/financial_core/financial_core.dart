@@ -17,4 +17,5 @@ export 'monte_carlo_models.dart';
 export 'monte_carlo_service.dart';
 export 'tax_calculator.dart';
 export 'tornado_sensitivity_service.dart';
+export 'fri_calculator.dart';
 export 'withdrawal_sequencing_service.dart';
