@@ -314,12 +314,15 @@ Every projection MUST include:
 
 In case of conflict, priority order:
 1. `rules.md` — Non-negotiable technical + ethical rules
-2. `CLAUDE.md` (this file) — Project context + constants
-3. `AGENTS.md` — Team workflow + roles
-4. `visions/` — Product vision + limits
-5. `LEGAL_RELEASE_CHECK.md` — Wording compliance
-6. `decisions/` (ADR) — Architecture decisions
-7. Code — Implementation follows documents, not the reverse
+2. `.claude/CLAUDE.md` (this file) — Project context, constants, compliance, anti-patterns
+3. `AGENTS.md` — Team workflow, roles, sprint tracker
+4. `.claude/skills/` — Agent-specific conventions and patterns
+5. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
+6. `visions/` — Product vision + limits
+7. `docs/` (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
+8. `decisions/` (ADR) — Architecture decisions
+9. `SOT.md` + OpenAPI — Data contracts
+10. Code — Implementation follows documents
 
 ---
 

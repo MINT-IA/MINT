@@ -3,11 +3,19 @@
 Objectif: coder vite (“vibe coding”) sans casser la cohérence.
 
 ## 0) Hiérarchie de vérité
-1) visions/* (intention produit + limites)
-2) tools/openapi/mint.openapi.yaml + SOT.md (contrats)
-3) rules.md + AGENTS.md (workflow)
-4) code (implémentation)
-Si le code contredit 1–3: corriger le code OU écrire une ADR.
+1. rules.md — Non-negotiable technical + ethical rules
+2. .claude/CLAUDE.md — Project context, constants, compliance, anti-patterns
+3. AGENTS.md — Team workflow, roles, sprint tracker
+4. .claude/skills/ — Agent-specific conventions and patterns
+5. LEGAL_RELEASE_CHECK.md — Wording compliance checklist
+6. visions/ — Product vision + limits
+7. docs/ (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
+8. decisions/ (ADR) — Architecture decisions
+9. SOT.md + OpenAPI — Data contracts
+10. Code — Implementation follows documents
+
+Si le code contredit 1–9: corriger le code OU écrire une ADR.
+docs/ evolution specs sit below visions/ but above ADRs.
 
 ## 1) Commandes standards
 
@@ -31,14 +39,20 @@ Si le code contredit 1–3: corriger le code OU écrire une ADR.
 - Décision structurante => ADR obligatoire.
 
 ## 3) Fintech-grade (MVP)
-- Read-only by design: aucune feature ne doit permettre d’initier un virement/paiement.
+- Read-only by design: aucune feature ne doit permettre d'initier un virement/paiement.
 - Transparence: afficher hypothèses + limites + période (mensuel/annuel/unique) pour chaque chiffre.
-- Pas de dark patterns: pas d’upsell trompeur, pas de pub intrusive.
+- Pas de dark patterns: pas d'upsell trompeur, pas de pub intrusive.
+- Arbitrage = comparaison, jamais classement. Montrer côte à côte avec hypothèses modifiables.
+- LLM = narrateur, jamais conseiller. Tout output LLM passe par ComplianceGuard.
+- Data = traçabilité source. Chaque champ financier tracé (document, manuel, estimé).
 
 ## 4) UX
-- Progressive disclosure: on n’impose pas la connexion bancaire au début.
+- Progressive disclosure: on n'impose pas la connexion bancaire au début.
 - 1 écran = 1 intention.
 - Chaque recommandation se termine par 1–3 actions concrètes (next actions).
+- Onboarding minimal : 3 questions max avant le premier chiffre choc.
+- Précision progressive : demander les données au moment où elles comptent, pas pendant l'onboarding.
+- Score FRI : jamais "bon/mauvais", toujours "progression personnelle".
 
 ## 5) Dépendances
 - Pas de dépendance lourde sans ADR.

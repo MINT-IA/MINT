@@ -323,3 +323,19 @@ Impact : BS et GE sur-estiment l'impôt (~30% trop haut). Toléré MVP avec disc
 | `apps/mobile/test/tax_estimator_test.dart` | 30 tests (dont 15 ESTV validation, 2 canton code resolution) |
 | `services/backend/app/services/rules_engine.py` | IFD brackets, canton multipliers, _create_3a_optimizer dynamique |
 | `services/backend/tests/test_rules_engine.py` | +9 tests (TestMarginalTaxRate) |
+
+---
+
+### 2026-02-XX — S30.5 Financial Core Unification (PLANNED)
+- **Date:** [date]
+- **Sujet:** Audit et nettoyage des doublons de calcul à travers le codebase
+- **Symptôme:** Calculs financiers dupliqués dans N services, constantes divergentes backend/Flutter
+- **Cause racine:** Croissance organique sur 30 sprints sans enforcement strict du financial_core
+- **Fix:** [à documenter après exécution]
+  - Doublons supprimés: N
+  - Constantes alignées: N
+  - Méthodes ajoutées à financial_core: N
+  - Parity check backend/Flutter: N profils validés
+- **Test ajouté:** Parity tests + regression tests
+- **Doc/règle mise à jour:** CLAUDE.md (anti-patterns), ADR-20260223
+- **Lien PR/commit:** [commit hash]

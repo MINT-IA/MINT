@@ -26,3 +26,31 @@ This checklist must pass before any major release or merging features related to
 - [x] App remains strictly "Read-Only" (no payment buttons).
 - [x] All automated Backend Compliance Tests are passing.
 - [x] SOT.md and OpenAPI contracts are perfectly synchronized.
+
+## 6. Arbitrage Engine Compliance
+- [ ] No option is presented as "better", "optimal", or "recommended".
+- [ ] All comparisons show options side by side, never ranked.
+- [ ] Hypotheses are visible and modifiable on every arbitrage screen.
+- [ ] Sensitivity analysis is shown ("Si X change de Y%, le résultat s'inverse").
+- [ ] Crossover point is displayed when trajectories intersect.
+- [ ] Conditional language used throughout ("Dans ce scénario simulé...").
+- [ ] Rente vs Capital ALWAYS shows mixed scenario (oblig/suroblig split).
+
+## 7. Coach Layer Compliance (from S35+)
+- [ ] ComplianceGuard validates ALL LLM output before display.
+- [ ] HallucinationDetector verifies ALL numbers against financial_core.
+- [ ] Banned terms check catches ALL terms from CLAUDE.md banned list.
+- [ ] Prescriptive language check catches ALL imperative financial instructions.
+- [ ] Disclaimer auto-injected when LLM discusses projections.
+- [ ] No social comparison in milestones or coaching ("top X%" → BANNED).
+- [ ] BYOK consent screen shows exactly which data is sent to which provider.
+- [ ] Fallback templates produce compliant output without LLM.
+
+## 8. Data Acquisition Compliance (from S42+)
+- [ ] Document images NEVER stored (deleted after OCR extraction).
+- [ ] On-device OCR by default (document never leaves phone).
+- [ ] Cloud OCR requires explicit consent + data deleted after processing.
+- [ ] Extracted values require user confirmation before profile injection.
+- [ ] Source quality tracked per field (document vs manual vs estimated).
+- [ ] Longitudinal snapshots require explicit opt-in consent (nLPD art. 5).
+- [ ] User can delete all snapshots and extracted data at any time.

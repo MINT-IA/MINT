@@ -87,6 +87,69 @@ Tu ne codes PAS. Tu produis :
 Tu es le garde-fou. Si un calcul est faux ou un wording non conforme, tu bloques."
 ```
 
+**For S30.5 (Financial Core Unification):**
+```
+Spawn a teammate named "audit-agent" with model opus.
+Prompt: "Tu es un auditeur senior de code financier.
+Lis ces fichiers DANS CET ORDRE avant de faire quoi que ce soit :
+1. .claude/CLAUDE.md (constants, financial_core spec, anti-patterns 12-14)
+2. decisions/ADR-20260223-unified-financial-engine.md
+3. .claude/AGENT_FINANCIAL_CORE_UNIFICATION.md (ta mission complète)
+4. .claude/skills/mint-backend-dev/SKILL.md
+5. .claude/skills/mint-test-suite/SKILL.md
+
+Tu exécutes les 6 phases du document d'unification.
+Phase 1 (Discovery) : tu NE MODIFIES AUCUN CODE. Tu produis un rapport d'audit.
+Phase 2 (Plan) : tu proposes un plan de nettoyage. Tu attends validation.
+Phases 3-6 : tu exécutes un doublon à la fois, test avant et après chaque changement.
+Backend = source de vérité. Si backend et Flutter divergent, backend gagne."
+```
+
+**For S31-S33 (Onboarding + Arbitrage):**
+
+Spawn backend:
+```
+"Tu es le backend engineer pour l'évolution Coach Vivant de MINT.
+Lis DANS CET ORDRE :
+1. .claude/CLAUDE.md
+2. docs/ONBOARDING_ARBITRAGE_ENGINE.md (specs complètes)
+3. .claude/AGENT_COACH_VIVANT_MASTER_PROMPT.md (ton sprint précis)
+4. .claude/skills/mint-backend-dev/SKILL.md
+5. .claude/skills/mint-swiss-compliance/SKILL.md
+Backend = source de vérité. Fonctions pures. Tests min 15 par module.
+MUST use financial_core/ calculators. ZERO duplication."
+```
+
+Spawn flutter:
+```
+"Tu es le Flutter engineer pour l'évolution Coach Vivant de MINT.
+Lis DANS CET ORDRE :
+1. .claude/CLAUDE.md
+2. docs/ONBOARDING_ARBITRAGE_ENGINE.md (specs complètes)
+3. .claude/AGENT_COACH_VIVANT_MASTER_PROMPT.md (ton sprint précis)
+4. .claude/skills/mint-flutter-dev/SKILL.md
+5. .claude/skills/mint-test-suite/SKILL.md
+MUST import financial_core.dart. NEVER duplicate calculations.
+Design: MintColors, Montserrat/Inter, GoRouter, Provider, Material 3."
+```
+
+**For S34 (Compliance Guard — BLOCKER):**
+```
+Spawn a teammate named "compliance-guard-agent" with model opus.
+Prompt: "Tu es un ingénieur sécurité/compliance construisant le système de garde-fou
+pour l'intégration LLM dans MINT.
+Lis DANS CET ORDRE :
+1. .claude/CLAUDE.md (banned terms, compliance rules)
+2. LEGAL_RELEASE_CHECK.md (existing compliance checklist)
+3. .claude/skills/mint-swiss-compliance/SKILL.md
+4. docs/MINT_COACH_VIVANT_ROADMAP.md § S34 (ton spec complet)
+5. .claude/AGENT_COACH_VIVANT_MASTER_PROMPT.md § S34
+
+Tu construis ComplianceGuard + HallucinationDetector + PromptRegistry.
+25 tests adversariaux minimum. Aucune sortie LLM ne doit atteindre un utilisateur
+sans passer par ton guard. C'est le sprint le plus critique de toute la roadmap."
+```
+
 ### Étape 3 — Assigner les tâches via TaskCreate
 
 Le Team Lead crée les tâches, les assigne, et les teammates les exécutent :
@@ -275,6 +338,27 @@ Chaque teammate prefixe ses commits :
 | S21 | Retraite complète | `retirement` → L4 | AVS+LPP+3a: rente vs capital, planification |
 | S22 | Mariage + Naissance + Concubinage | famille → L3+ | Splitting, allocations, testament |
 
+### Sprints à venir — Coach Vivant Evolution
+
+| Sprint | Module | Prerequisite | Spec Document |
+|--------|--------|-------------|---------------|
+| **S30.5** | Financial Core Unification (audit + cleanup) | None | AGENT_FINANCIAL_CORE_UNIFICATION.md |
+| S31 | Onboarding Redesign + MinimalProfileService | S30.5 | ONBOARDING_ARBITRAGE_ENGINE.md § II |
+| S32 | Arbitrage Phase 1 (Rente vs Capital + Allocation) | S31 | ONBOARDING_ARBITRAGE_ENGINE.md § III |
+| S33 | Arbitrage Phase 2 + Longitudinal Snapshots | S32 | ONBOARDING_ARBITRAGE_ENGINE.md § III + VI |
+| S34 | Compliance Guard (BLOCKER for all LLM) | S30.5 | MINT_COACH_VIVANT_ROADMAP.md § S34 |
+| S35 | Coach Narrative Service (T1+T2+T3) | S34 | MINT_COACH_VIVANT_ROADMAP.md § S35 |
+| S36 | Notifications + Milestones (T4+T5) | S35 | MINT_COACH_VIVANT_ROADMAP.md § S36 |
+| S37 | Scenario Narration + Annual Refresh (T6+T7) | S36 | MINT_COACH_VIVANT_ROADMAP.md § S37 |
+| S38 | FRI Shadow Mode | S33 | ONBOARDING_ARBITRAGE_ENGINE.md § V |
+| S39 | FRI Beta + Longitudinal Charts | S38 | ONBOARDING_ARBITRAGE_ENGINE.md § V |
+| S40 | Reengagement Engine + Consent | S39 | MINT_COACH_VIVANT_ROADMAP.md § S40 |
+| S41 | Guided Precision Entry | S40 | DATA_ACQUISITION_STRATEGY.md § Channel 2 |
+| S42-43 | LPP Certificate Parsing (OCR) | S41 | DATA_ACQUISITION_STRATEGY.md § Channel 1 |
+| S44 | Tax Declaration Parsing | S42 | DATA_ACQUISITION_STRATEGY.md § Channel 1 |
+| S45 | AVS Extract Guidance + Parsing | S43 | DATA_ACQUISITION_STRATEGY.md § Channel 1 |
+| S46 | Enhanced Confidence Scoring | S45 | DATA_ACQUISITION_STRATEGY.md § Confidence |
+
 ### Dream Team workflow actuel
 
 Le pattern éprouvé depuis S10 :
@@ -318,14 +402,16 @@ Les skills contiennent :
 ## HIÉRARCHIE DE VÉRITÉ (Immutable)
 
 En cas de conflit, l'ordre de priorité est :
-1. **rules.md** — Règles techniques et éthiques non-négociables
-2. **AGENTS.md** (ce fichier) — Mode opératoire obligatoire
-3. **`.claude/skills/`** — Conventions et patterns techniques
-4. **LEGAL_RELEASE_CHECK.md** — Wording compliance
-5. **visions/** — Intention produit + limites
-6. **decisions/** (ADR) — Décisions d'architecture validées
-7. **SOT.md** — Source of Truth des modèles de données
-8. **Code** — L'implémentation se plie aux documents, pas l'inverse
+1. **rules.md** — Non-negotiable technical + ethical rules
+2. **.claude/CLAUDE.md** — Project context, constants, compliance, anti-patterns
+3. **AGENTS.md** (ce fichier) — Team workflow, roles, sprint tracker
+4. **.claude/skills/** — Agent-specific conventions and patterns
+5. **LEGAL_RELEASE_CHECK.md** — Wording compliance checklist
+6. **visions/** — Product vision + limits
+7. **docs/** (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
+8. **decisions/** (ADR) — Architecture decisions
+9. **SOT.md + OpenAPI** — Data contracts
+10. **Code** — Implementation follows documents
 
 ---
 
@@ -353,6 +439,14 @@ ces agents peuvent être lancés en parallèle des sprints pour accélérer MINT
 | **Content Agent** | Générer articles éducatifs à partir de `education/inserts/` | 10-15 articles blog, FAQ structurée | En parallèle de S18+ |
 | **i18n Agent** | Compléter la localisation DE (commencée S5) | Fichiers .arb, audit traductions | En parallèle de S19+ |
 | **Accessibility Agent** | Audit WCAG 2.1 AA sur tous les écrans | Rapport a11y, fixes contrast/VoiceOver | Avant beta |
+
+### Coach Vivant — Additional Agents
+
+| Agent | Mission | Model | When |
+|-------|---------|-------|------|
+| **Compliance Guard Agent** | Build + test ComplianceGuard and HallucinationDetector | Opus | S34 (BLOCKER) |
+| **Arbitrage Agent** | Implement arbitrage engine (5 modules) | Sonnet | S32-S33 |
+| **OCR Agent** | Document parsing pipeline (LPP cert, tax, AVS) | Sonnet | S42-S45 |
 
 ### Phase pré-lancement — à planifier
 
