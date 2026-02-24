@@ -1,5 +1,5 @@
 """
-Consent Manager — Sprint S40.
+Consent Manager — Sprint S40 + audit fix.
 
 Manages granular consent for data flows (nLPD compliant).
 
@@ -9,6 +9,7 @@ Manages granular consent for data flows (nLPD compliant).
     3. Notifications — personalized push notifications
 
 Each consent: independent, revocable immediately, OFF by default.
+Includes in-memory persistence (will be replaced by DB in production).
 
 Sources:
     - LPD art. 6 (principes de traitement)
@@ -16,11 +17,22 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
+from typing import Dict
+
 from app.services.reengagement.reengagement_models import (
     ConsentDashboard,
     ConsentState,
     ConsentType,
 )
+
+# In-memory consent store (will be replaced by DB in production)
+# Key: (user_id, consent_type) -> bool
+_consent_store: Dict[tuple, bool] = {}
+
+
+def _clear_consent_store() -> None:
+    """Clear all in-memory consent state (for testing only)."""
+    _consent_store.clear()
 
 
 class ConsentManager:
@@ -60,6 +72,35 @@ class ConsentManager:
         "NPA/address",
         "family names",
     ]
+
+    @staticmethod
+    def is_consent_given(user_id: str, consent_type: ConsentType) -> bool:
+        """Check if a specific consent is enabled for a user.
+
+        Returns False by default (nLPD opt-in model).
+        """
+        return _consent_store.get((user_id, consent_type), False)
+
+    @staticmethod
+    def update_consent(user_id: str, consent_type: ConsentType, enabled: bool) -> None:
+        """Update a specific consent for a user.
+
+        Each consent is independent — toggling one does not affect others.
+        """
+        _consent_store[(user_id, consent_type)] = enabled
+
+    @staticmethod
+    def revoke_all(user_id: str) -> None:
+        """Revoke all consents for a user (nLPD art. 6)."""
+        for ct in ConsentType:
+            _consent_store[(user_id, ct)] = False
+
+    def get_user_dashboard(self, user_id: str) -> ConsentDashboard:
+        """Return consent dashboard with actual user consent state."""
+        dashboard = self.get_default_dashboard()
+        for consent in dashboard.consents:
+            consent.enabled = self.is_consent_given(user_id, consent.consent_type)
+        return dashboard
 
     def get_default_dashboard(self) -> ConsentDashboard:
         """Return consent dashboard with all consents OFF by default.

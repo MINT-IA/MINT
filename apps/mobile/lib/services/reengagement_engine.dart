@@ -166,7 +166,7 @@ class ReengagementEngine {
         body: 'Deadline canton de $canton : '
             'il reste $daysLeft jours.',
         deeplink: '/home',
-        personalNumber: canton,
+        personalNumber: 'CHF $savingStr',
         timeConstraint: '$daysLeft jours',
         month: 3,
       ));
@@ -214,8 +214,8 @@ class ReengagementEngine {
       ));
     }
 
-    // ── Quarterly FRI (months 3, 6, 9, 12) ───────────────────
-    if (month % 3 == 0) {
+    // ── Quarterly FRI (January, April, July, October — aligned with backend)
+    if ([1, 4, 7, 10].contains(month)) {
       final friStr = friTotal.toStringAsFixed(0);
       final deltaSign = friDelta >= 0 ? '+' : '';
       final deltaStr = '$deltaSign${friDelta.toStringAsFixed(0)}';

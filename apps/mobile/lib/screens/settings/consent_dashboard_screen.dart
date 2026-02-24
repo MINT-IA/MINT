@@ -34,24 +34,34 @@ class _ConsentDashboardSettingsScreenState
   void initState() {
     super.initState();
     _dashboard = ConsentManager.getDefaultDashboard();
+    _loadPersistedConsents();
   }
 
-  void _toggleConsent(ConsentType type, bool enabled) {
+  Future<void> _loadPersistedConsents() async {
+    final dashboard = await ConsentManager.loadDashboard();
+    if (mounted) setState(() => _dashboard = dashboard);
+  }
+
+  Future<void> _toggleConsent(ConsentType type, bool enabled) async {
     setState(() {
       _dashboard = _dashboard.copyWithToggled(type, enabled);
     });
+    await ConsentManager.updateConsent(type, enabled);
   }
 
-  void _revokeAll() {
+  Future<void> _revokeAll() async {
     setState(() {
       _dashboard = _dashboard.copyWithAllRevoked();
       _byokExpanded = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tous les consentements ont ete revoques.'),
-      ),
-    );
+    await ConsentManager.revokeAll();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tous les consentements ont ete revoques.'),
+        ),
+      );
+    }
   }
 
   // ════════════════════════════════════════════════════════════════

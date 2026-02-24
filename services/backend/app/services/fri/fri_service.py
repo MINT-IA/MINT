@@ -135,21 +135,23 @@ class FriService:
     def compute_fiscal(inp: FriInput) -> float:
         """F — Fiscal efficiency component (0-25).
 
-        Weighted average:
+        Weighted average (when rachat applicable):
             - 60% utilisation 3a
             - 25% utilisation rachat LPP (only if taux marginal > 25%)
             - 15% utilisation amort indirect
 
-        Important: Rachat LPP only penalizes if taux marginal > 25%.
-        Below that, not buying back is rational — no penalty.
+        When rachat is NOT applicable (taux marginal <= 25% or no potential):
+            - Weights redistribute: 80% 3a, 20% amort indirect
+            - This avoids penalizing users for rationally skipping rachat.
         """
         # 3a utilization (0-1)
         max_3a = max(inp.max_3a, 1.0)
         utilisation_3a = min(1.0, inp.actual_3a / max_3a)
 
         # Rachat LPP utilization (conditional on marginal rate)
+        rachat_applicable = (inp.potentiel_rachat_lpp > 0 and inp.taux_marginal > 0.25)
         utilisation_rachat = 0.0
-        if inp.potentiel_rachat_lpp > 0 and inp.taux_marginal > 0.25:
+        if rachat_applicable:
             utilisation_rachat = min(1.0, inp.rachat_effectue / inp.potentiel_rachat_lpp)
 
         # Amort indirect utilization
@@ -158,11 +160,18 @@ class FriService:
         else:
             utilisation_amort = 1.0  # No property → no penalty
 
-        f_score = 25.0 * (
-            0.60 * utilisation_3a
-            + 0.25 * utilisation_rachat
-            + 0.15 * utilisation_amort
-        )
+        if rachat_applicable:
+            f_score = 25.0 * (
+                0.60 * utilisation_3a
+                + 0.25 * utilisation_rachat
+                + 0.15 * utilisation_amort
+            )
+        else:
+            # Redistribute rachat weight to 3a (80%) and amort (20%)
+            f_score = 25.0 * (
+                0.80 * utilisation_3a
+                + 0.20 * utilisation_amort
+            )
 
         return _clamp(f_score)
 

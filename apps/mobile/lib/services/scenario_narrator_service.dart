@@ -174,7 +174,7 @@ class ScenarioNarratorService {
         'Ce scenario suppose des conditions de marche favorables '
         'sur une longue periode. Les projections restent des estimations '
         '— aucun rendement futur ne peut etre predit avec exactitude. '
-        'Diversification et discipline restent les meilleurs leviers.';
+        'Diversification et discipline restent des leviers importants.';
   }
 
   // ════════════════════════════════════════════════════════════════

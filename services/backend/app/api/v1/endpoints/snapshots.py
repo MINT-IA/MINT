@@ -22,6 +22,8 @@ from app.schemas.snapshots import (
     EvolutionPointSchema,
     EvolutionResponse,
 )
+from app.services.reengagement.consent_manager import ConsentManager
+from app.services.reengagement.reengagement_models import ConsentType
 from app.services.snapshots import (
     create_snapshot,
     get_snapshots,
@@ -69,6 +71,16 @@ def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotRespons
     Returns:
         SnapshotResponse avec l'identifiant unique du snapshot.
     """
+    # Consent guard: snapshot_storage consent required (nLPD)
+    if not ConsentManager.is_consent_given(request.user_id, ConsentType.snapshot_storage):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Consentement 'snapshot_storage' requis pour sauvegarder "
+                "un snapshot. Active-le dans Profil > Consentements."
+            ),
+        )
+
     try:
         snapshot = create_snapshot(
             user_id=request.user_id,

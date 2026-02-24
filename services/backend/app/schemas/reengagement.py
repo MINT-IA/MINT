@@ -69,6 +69,17 @@ class ReengagementRequest(ReengagementBaseModel):
     )
 
 
+class ConsentUpdateRequest(ReengagementBaseModel):
+    """Request body for PATCH /reengagement/consent/{user_id}."""
+
+    consent_type: str = Field(
+        ..., description="Type de consentement (byok_data_sharing, snapshot_storage, notifications)",
+    )
+    enabled: bool = Field(
+        ..., description="Activer (true) ou desactiver (false)",
+    )
+
+
 # ===========================================================================
 # Response schemas
 # ===========================================================================

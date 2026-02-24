@@ -14,18 +14,20 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.schemas.reengagement import (
     ByokDetailResponse,
     ConsentDashboardResponse,
     ConsentStateResponse,
+    ConsentUpdateRequest,
     ReengagementMessageResponse,
     ReengagementRequest,
     ReengagementResponse,
 )
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_engine import ReengagementEngine
+from app.services.reengagement.reengagement_models import ConsentType
 
 router = APIRouter()
 
@@ -107,6 +109,76 @@ async def get_consent_dashboard() -> ConsentDashboardResponse:
         consents=consent_responses,
         disclaimer=dashboard.disclaimer,
         sources=dashboard.sources,
+    )
+
+
+@router.get(
+    "/consent/{user_id}",
+    response_model=ConsentDashboardResponse,
+    summary="Consentements d'un utilisateur",
+    description=(
+        "Retourne les 3 consentements avec l'etat reel de l'utilisateur "
+        "(pas les valeurs par defaut). nLPD art. 6."
+    ),
+)
+async def get_user_consent(user_id: str) -> ConsentDashboardResponse:
+    """Return consent dashboard with actual user state."""
+    manager = ConsentManager()
+    dashboard = manager.get_user_dashboard(user_id)
+
+    consent_responses = [
+        ConsentStateResponse(
+            consent_type=cs.consent_type.value,
+            enabled=cs.enabled,
+            label=cs.label,
+            detail=cs.detail,
+            never_sent=cs.never_sent,
+            revocable=cs.revocable,
+        )
+        for cs in dashboard.consents
+    ]
+
+    return ConsentDashboardResponse(
+        consents=consent_responses,
+        disclaimer=dashboard.disclaimer,
+        sources=dashboard.sources,
+    )
+
+
+@router.patch(
+    "/consent/{user_id}",
+    response_model=ConsentStateResponse,
+    summary="Modifier un consentement",
+    description=(
+        "Activer ou desactiver un consentement specifique. "
+        "Chaque consentement est independant (nLPD art. 6)."
+    ),
+)
+async def update_user_consent(
+    user_id: str, request: ConsentUpdateRequest,
+) -> ConsentStateResponse:
+    """Update a single consent for a user."""
+    try:
+        consent_type = ConsentType(request.consent_type)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Type de consentement invalide: {request.consent_type}. "
+            f"Valeurs: byok_data_sharing, snapshot_storage, notifications",
+        )
+
+    manager = ConsentManager()
+    manager.update_consent(user_id, consent_type, request.enabled)
+
+    dashboard = manager.get_user_dashboard(user_id)
+    consent = next(c for c in dashboard.consents if c.consent_type == consent_type)
+    return ConsentStateResponse(
+        consent_type=consent.consent_type.value,
+        enabled=consent.enabled,
+        label=consent.label,
+        detail=consent.detail,
+        never_sent=consent.never_sent,
+        revocable=consent.revocable,
     )
 
 

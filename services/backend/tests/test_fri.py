@@ -175,14 +175,15 @@ class TestFiscal:
     def test_full_3a_no_other(self):
         inp = FriInput(actual_3a=7258, max_3a=7258)
         f = FriService.compute_fiscal(inp)
-        # 25 * (0.6 * 1.0 + 0.25 * 0 + 0.15 * 1.0) = 25 * 0.75 = 18.75
-        assert abs(f - 18.75) < 0.01
+        # Rachat not applicable (no potential) → redistributed weights:
+        # 25 * (0.80 * 1.0 + 0.20 * 1.0) = 25.0
+        assert abs(f - 25.0) < 0.01
 
     def test_zero_3a(self):
         inp = FriInput(actual_3a=0, max_3a=7258)
         f = FriService.compute_fiscal(inp)
-        # 25 * (0.6 * 0 + 0.25 * 0 + 0.15 * 1.0) = 25 * 0.15 = 3.75
-        assert abs(f - 3.75) < 0.01
+        # Rachat not applicable → 25 * (0.80 * 0 + 0.20 * 1.0) = 5.0
+        assert abs(f - 5.0) < 0.01
 
     def test_rachat_ignored_if_low_marginal(self):
         """Rachat LPP not penalized if taux marginal <= 25%."""
@@ -192,8 +193,8 @@ class TestFiscal:
             taux_marginal=0.20,  # Below 25% threshold
         )
         f = FriService.compute_fiscal(inp)
-        # Rachat component = 0 (not penalized because taux marginal low)
-        assert abs(f - 3.75) < 0.01
+        # Rachat not applicable → weights redistribute: 25 * (0.80 * 0 + 0.20 * 1.0) = 5.0
+        assert abs(f - 5.0) < 0.01
 
     def test_rachat_penalized_if_high_marginal(self):
         """Rachat LPP penalized if taux marginal > 25% and no buyback."""
@@ -215,14 +216,14 @@ class TestFiscal:
         assert abs(f_full - 25.0) < 0.01
 
     def test_property_owner_no_amort(self):
-        """Property owner without indirect amortization loses 15% weight."""
+        """Property owner without indirect amortization loses amort weight."""
         inp = FriInput(
             actual_3a=7258, max_3a=7258,
             is_property_owner=True, amort_indirect=0,
         )
         f = FriService.compute_fiscal(inp)
-        # 25 * (0.6 * 1 + 0.25 * 0 + 0.15 * 0) = 15.0
-        assert abs(f - 15.0) < 0.01
+        # Rachat not applicable → 25 * (0.80 * 1 + 0.20 * 0) = 20.0
+        assert abs(f - 20.0) < 0.01
 
     def test_property_owner_with_amort(self):
         inp = FriInput(
@@ -230,14 +231,15 @@ class TestFiscal:
             is_property_owner=True, amort_indirect=3000,
         )
         f = FriService.compute_fiscal(inp)
-        # 25 * (0.6 * 1 + 0.25 * 0 + 0.15 * 1) = 18.75
-        assert abs(f - 18.75) < 0.01
+        # Rachat not applicable → 25 * (0.80 * 1 + 0.20 * 1) = 25.0
+        assert abs(f - 25.0) < 0.01
 
     def test_independant_max_3a(self):
         """Independant has higher 3a max."""
         inp = FriInput(actual_3a=36288, max_3a=36288)
         f = FriService.compute_fiscal(inp)
-        assert abs(f - 18.75) < 0.01  # Same formula, different max
+        # Rachat not applicable → 25 * (0.80 * 1 + 0.20 * 1) = 25.0
+        assert abs(f - 25.0) < 0.01
 
 
 # ===========================================================================
@@ -442,5 +444,6 @@ class TestArchetypeVariations:
         )
         f = FriService.compute_fiscal(inp)
         utilisation_3a = 7258 / 36288  # ≈ 0.20
-        expected = 25 * (0.6 * utilisation_3a + 0.15)
+        # Rachat not applicable → redistributed: 25 * (0.80 * util_3a + 0.20 * 1.0)
+        expected = 25 * (0.80 * utilisation_3a + 0.20)
         assert abs(f - expected) < 0.1

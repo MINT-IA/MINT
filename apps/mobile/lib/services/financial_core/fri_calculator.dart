@@ -149,13 +149,16 @@ class FriCalculator {
   // ═══════════════════════════════════════════════════════════════
 
   /// Weighted: 60% 3a + 25% rachat LPP + 15% amort indirect.
-  /// Rachat only penalized if taux marginal > 25%.
+  /// When rachat is NOT applicable (taux marginal <= 25% or no potential):
+  /// weights redistribute to 80% 3a + 20% amort to avoid dead weight.
   static double computeFiscal(FriInput inp) {
     final max3a = inp.max3a < 1 ? 1.0 : inp.max3a;
     final utilisation3a = min(1.0, inp.actual3a / max3a);
 
+    final rachatApplicable =
+        inp.potentielRachatLpp > 0 && inp.tauxMarginal > 0.25;
     var utilisationRachat = 0.0;
-    if (inp.potentielRachatLpp > 0 && inp.tauxMarginal > 0.25) {
+    if (rachatApplicable) {
       utilisationRachat = min(1.0, inp.rachatEffectue / inp.potentielRachatLpp);
     }
 
@@ -163,11 +166,20 @@ class FriCalculator {
         ? (inp.amortIndirect > 0 ? 1.0 : 0.0)
         : 1.0;
 
-    final f = 25.0 * (
-      0.60 * utilisation3a +
-      0.25 * utilisationRachat +
-      0.15 * utilisationAmort
-    );
+    final double f;
+    if (rachatApplicable) {
+      f = 25.0 * (
+        0.60 * utilisation3a +
+        0.25 * utilisationRachat +
+        0.15 * utilisationAmort
+      );
+    } else {
+      // Redistribute rachat weight to 3a (80%) and amort (20%)
+      f = 25.0 * (
+        0.80 * utilisation3a +
+        0.20 * utilisationAmort
+      );
+    }
 
     return _clamp(f);
   }

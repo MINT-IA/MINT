@@ -49,8 +49,8 @@ class ChiffreChocSelector {
       );
     }
 
-    // Priority 3: Tax saving 3a (> 500 CHF/year)
-    if (profile.taxSaving3a > 500) {
+    // Priority 3: Tax saving 3a (> 1500 CHF/year — aligned with backend)
+    if (profile.taxSaving3a > 1500) {
       final savingFormatted = _formatChf(profile.taxSaving3a);
       return ChiffreChoc(
         type: ChiffreChocType.taxSaving3a,

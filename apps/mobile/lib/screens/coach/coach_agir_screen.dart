@@ -1419,12 +1419,10 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           ButtonSegment<CoachNarrativeMode>(
             value: CoachNarrativeMode.concise,
             label: Text(s?.coachNarrativeModeConcise ?? 'Court'),
-            icon: Icon(Icons.short_text, size: 16),
           ),
           ButtonSegment<CoachNarrativeMode>(
             value: CoachNarrativeMode.detailed,
             label: Text(s?.coachNarrativeModeDetailed ?? 'Détail'),
-            icon: Icon(Icons.subject, size: 16),
           ),
         ],
         selected: {_narrativeMode},
@@ -1432,10 +1430,17 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           if (selection.isEmpty) return;
           unawaited(_setNarrativeMode(selection.first));
         },
+        showSelectedIcon: false,
+        emptySelectionAllowed: false,
+        multiSelectionEnabled: false,
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: WidgetStatePropertyAll(
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          ),
           textStyle: WidgetStatePropertyAll(
-            GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600),
+            GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ),
       ),
