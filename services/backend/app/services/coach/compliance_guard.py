@@ -1,0 +1,307 @@
+"""
+Compliance Guard — Sprint S34 (BLOCKER).
+
+Validates ALL LLM output before display. No LLM text reaches the user
+without passing through this 5-layer validation pipeline.
+
+Layers:
+    1. Banned terms detection + sanitization
+    2. Prescriptive language detection (imperative financial instructions)
+    3. Hallucination detection (numbers verified against financial_core)
+    4. Disclaimer auto-injection (if discussing projections/simulations)
+    5. Length constraints per component type
+
+References:
+    - LSFin art. 3/8 (quality of financial information)
+    - FINMA circular 2008/21 (operational risk)
+    - LPD art. 6 (data processing principles)
+"""
+
+import re
+from typing import Optional
+
+from app.services.coach.coach_models import (
+    ComplianceResult,
+    CoachContext,
+    ComponentType,
+    COMPONENT_WORD_LIMITS,
+)
+from app.services.coach.hallucination_detector import HallucinationDetector
+
+
+class ComplianceGuard:
+    """Validates LLM output before user display."""
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Layer 1: Banned terms
+    # ═══════════════════════════════════════════════════════════════════
+
+    BANNED_TERMS = [
+        "garanti",
+        "certain",
+        "assuré",
+        "sans risque",
+        "optimal",
+        "meilleur",
+        "parfait",
+        "conseiller",          # → use "spécialiste"
+        "tu devrais",
+        "tu dois",
+        "il faut que tu",
+        "la meilleure option",
+        "nous recommandons",
+        "nous te conseillons",
+        "il est optimal",
+        "la solution idéale",
+    ]
+
+    # Replacement map for salvageable terms
+    TERM_REPLACEMENTS = {
+        "garanti": "possible dans ce scénario",
+        "certain": "probable",
+        "assuré": "envisageable",
+        "sans risque": "à risque modéré",
+        "optimal": "adapté",
+        "meilleur": "pertinent",
+        "parfait": "adapté",
+        "conseiller": "spécialiste",
+        "tu devrais": "tu pourrais envisager de",
+        "tu dois": "il serait utile de",
+        "il faut que tu": "tu pourrais",
+        "la meilleure option": "une option à considérer",
+        "nous recommandons": "une piste possible serait",
+        "nous te conseillons": "une approche envisageable serait",
+        "il est optimal": "il pourrait être pertinent",
+        "la solution idéale": "une approche adaptée",
+    }
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Layer 2: Prescriptive patterns
+    # ═══════════════════════════════════════════════════════════════════
+
+    PRESCRIPTIVE_PATTERNS = [
+        re.compile(r"fais\s+un\s+rachat", re.IGNORECASE),
+        re.compile(r"verse\s+sur\s+ton", re.IGNORECASE),
+        re.compile(r"ach[eè]te", re.IGNORECASE),
+        re.compile(r"vends\b", re.IGNORECASE),
+        re.compile(r"choisis\s+la\s+rente", re.IGNORECASE),
+        re.compile(r"prends?\s+le\s+capital", re.IGNORECASE),
+        re.compile(r"investis?\s+dans", re.IGNORECASE),
+        re.compile(r"priorit[ée]\s+absolue", re.IGNORECASE),
+        re.compile(r"c['']est\s+plus\s+important\s+que", re.IGNORECASE),
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Layer 4: Disclaimer keywords (trigger disclaimer injection)
+    # ═══════════════════════════════════════════════════════════════════
+
+    PROJECTION_KEYWORDS = [
+        "projection", "simulation", "scénario", "scenario",
+        "estimé", "estimée", "estimation", "prévision",
+        "retraite", "rente", "capital", "rendement",
+    ]
+
+    STANDARD_DISCLAIMER = (
+        "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). "
+        "Consulte un·e spécialiste pour une analyse personnalisée."
+    )
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Main validation
+    # ═══════════════════════════════════════════════════════════════════
+
+    def __init__(self):
+        self._detector = HallucinationDetector()
+
+    def validate(
+        self,
+        llm_output: str,
+        context: Optional[CoachContext] = None,
+        component_type: ComponentType = ComponentType.general,
+    ) -> ComplianceResult:
+        """Validate LLM output through 5 compliance layers.
+
+        Args:
+            llm_output: Raw LLM-generated text.
+            context: CoachContext with known values for hallucination detection.
+            component_type: Type of component (for length limits).
+
+        Returns:
+            ComplianceResult with compliance status and sanitized text.
+        """
+        violations = []
+        text = llm_output
+        use_fallback = False
+
+        # ── Pre-check: empty output ──
+        if not text or not text.strip():
+            return ComplianceResult(
+                is_compliant=False,
+                sanitized_text="",
+                violations=["Sortie vide"],
+                use_fallback=True,
+            )
+
+        # ── Pre-check: wrong language (basic heuristic) ──
+        language_violations = self._check_language(text)
+        if language_violations:
+            violations.extend(language_violations)
+            use_fallback = True
+
+        # ── Layer 1: Banned terms ──
+        banned_found = self._check_banned_terms(text)
+        if banned_found:
+            violations.extend(
+                [f"Terme interdit: '{term}'" for term in banned_found]
+            )
+            if len(banned_found) > 2:
+                use_fallback = True
+            else:
+                # Attempt sanitization
+                text = self._sanitize_banned_terms(text)
+
+        # ── Layer 2: Prescriptive patterns ──
+        prescriptive_found = self._check_prescriptive(text)
+        if prescriptive_found:
+            violations.extend(
+                [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
+            )
+            use_fallback = True  # Prescriptive = always fallback
+
+        # ── Layer 3: Hallucination detection ──
+        if context and context.known_values:
+            hallucinations = self._detector.detect(text, context.known_values)
+            if hallucinations:
+                for h in hallucinations:
+                    violations.append(
+                        f"Hallucination: '{h.found_text}' "
+                        f"(attendu ~{h.closest_value}, trouvé {h.found_value}, "
+                        f"déviation {h.deviation_pct:.1f}%)"
+                    )
+                use_fallback = True  # Hallucinated numbers = always fallback
+
+        # ── Layer 4: Disclaimer injection ──
+        if not use_fallback:
+            text = self._inject_disclaimer_if_needed(text)
+
+        # ── Layer 5: Length check ──
+        if not use_fallback:
+            word_limit = COMPONENT_WORD_LIMITS.get(
+                component_type, COMPONENT_WORD_LIMITS[ComponentType.general]
+            )
+            text, length_violation = self._enforce_length(text, word_limit)
+            if length_violation:
+                violations.append(length_violation)
+
+        is_compliant = len(violations) == 0
+        return ComplianceResult(
+            is_compliant=is_compliant,
+            sanitized_text=text if not use_fallback else "",
+            violations=violations,
+            use_fallback=use_fallback,
+        )
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Layer implementations
+    # ═══════════════════════════════════════════════════════════════════
+
+    def _check_language(self, text: str) -> list:
+        """Basic check for non-French text (Layer 0)."""
+        violations = []
+        # Simple heuristic: check for common English-only words
+        english_markers = [
+            r"\byour\b", r"\byou\b", r"\bshould\b", r"\bwould\b",
+            r"\bcould\b", r"\bthe\b", r"\bwith\b", r"\bthis\b",
+        ]
+        english_count = 0
+        for pattern in english_markers:
+            if re.search(pattern, text, re.IGNORECASE):
+                english_count += 1
+
+        # If 3+ English markers, likely wrong language
+        if english_count >= 3:
+            violations.append(
+                f"Langue incorrecte: texte semble être en anglais "
+                f"({english_count} marqueurs détectés)"
+            )
+        return violations
+
+    # Regex patterns for fuzzy banned term matching (catches variants)
+    BANNED_PATTERNS = [
+        (re.compile(r"sans\s+(?:\w+\s+)*risque", re.IGNORECASE), "sans risque"),
+    ]
+
+    def _check_banned_terms(self, text: str) -> list:
+        """Layer 1: Check for banned terms (exact + fuzzy variants)."""
+        found = []
+        text_lower = text.lower()
+        for term in self.BANNED_TERMS:
+            if term.lower() in text_lower:
+                found.append(term)
+        # Also check regex patterns for fuzzy variants
+        for pattern, label in self.BANNED_PATTERNS:
+            if label not in found and pattern.search(text):
+                found.append(label)
+        return found
+
+    def _sanitize_banned_terms(self, text: str) -> str:
+        """Attempt to replace banned terms with compliant alternatives."""
+        result = text
+        for term, replacement in self.TERM_REPLACEMENTS.items():
+            # Case-insensitive replacement preserving surrounding text
+            pattern = re.compile(re.escape(term), re.IGNORECASE)
+            result = pattern.sub(replacement, result)
+        return result
+
+    def _check_prescriptive(self, text: str) -> list:
+        """Layer 2: Check for prescriptive financial language."""
+        found = []
+        for pattern in self.PRESCRIPTIVE_PATTERNS:
+            match = pattern.search(text)
+            if match:
+                found.append(match.group(0))
+        return found
+
+    def _inject_disclaimer_if_needed(self, text: str) -> str:
+        """Layer 4: Auto-inject disclaimer if text discusses projections."""
+        text_lower = text.lower()
+        discusses_projection = any(
+            kw in text_lower for kw in self.PROJECTION_KEYWORDS
+        )
+        has_disclaimer = any(
+            kw in text_lower
+            for kw in ["outil éducatif", "outil educatif", "lsfin", "spécialiste"]
+        )
+
+        if discusses_projection and not has_disclaimer:
+            text = text.rstrip()
+            if not text.endswith("."):
+                text += "."
+            text += f"\n\n_{self.STANDARD_DISCLAIMER}_"
+
+        return text
+
+    def _enforce_length(self, text: str, max_words: int) -> tuple:
+        """Layer 5: Truncate at last complete sentence if too long."""
+        words = text.split()
+        if len(words) <= max_words:
+            return text, None
+
+        # Truncate at last complete sentence within limit
+        truncated_words = words[:max_words]
+        truncated = " ".join(truncated_words)
+
+        # Find last sentence boundary
+        last_period = truncated.rfind(".")
+        last_exclaim = truncated.rfind("!")
+        last_question = truncated.rfind("?")
+        last_boundary = max(last_period, last_exclaim, last_question)
+
+        if last_boundary > 0:
+            truncated = truncated[: last_boundary + 1]
+
+        violation = (
+            f"Texte trop long: {len(words)} mots "
+            f"(limite: {max_words} pour {ComponentType.general})"
+        )
+        return truncated, violation
