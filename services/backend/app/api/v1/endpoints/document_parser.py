@@ -1,9 +1,11 @@
 """
-Document Parser endpoints — Sprint S42-S43: LPP Certificate Parsing.
+Document Parser endpoints — Sprint S42-S45.
 
 POST /api/v1/document-parser/parse            — parse un texte OCR et extrait les champs
 POST /api/v1/document-parser/confidence-delta  — estime le gain en confiance
 GET  /api/v1/document-parser/field-impact/{document_type} — classement des champs par impact
+
+Supporte: certificat LPP, declaration fiscale, extrait AVS.
 
 Tous les endpoints sont stateless (pas de stockage de donnees).
 Pure computation sur le texte fourni.
@@ -15,7 +17,8 @@ Sources:
     - LPP art. 7-8, 14-16 (prevoyance professionnelle)
     - LAVS art. 21-40 (AVS)
     - OPP3 art. 7 (3e pilier)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 25-33, 38 (imposition du revenu et du capital)
+    - LHID art. 7-9 (harmonisation fiscale cantonale)
 """
 
 from __future__ import annotations
@@ -35,6 +38,14 @@ from app.services.document_parser.document_models import DocumentType
 from app.services.document_parser.lpp_certificate_parser import (
     parse_lpp_certificate,
     estimate_confidence_delta,
+)
+from app.services.document_parser.tax_declaration_parser import (
+    parse_tax_declaration,
+    estimate_tax_confidence_delta,
+)
+from app.services.document_parser.avs_extract_parser import (
+    parse_avs_extract,
+    estimate_avs_confidence_delta,
 )
 from app.services.document_parser.extraction_confidence_scorer import (
     score_extraction,
@@ -102,20 +113,24 @@ def parse_document(request: ParseDocumentRequest) -> ExtractionResultResponse:
                    f"Types supportes: {', '.join(sorted(_VALID_DOCUMENT_TYPES))}",
         )
 
-    # Currently only LPP certificate parsing is implemented
-    if request.document_type != "lpp_certificate":
+    # Route to the appropriate parser
+    current_profile = request.current_profile or {}
+
+    if request.document_type == "lpp_certificate":
+        result = parse_lpp_certificate(request.text)
+        delta = estimate_confidence_delta(result, current_profile)
+    elif request.document_type == "tax_declaration":
+        result = parse_tax_declaration(request.text)
+        delta = estimate_tax_confidence_delta(result, current_profile)
+    elif request.document_type == "avs_extract":
+        result = parse_avs_extract(request.text)
+        delta = estimate_avs_confidence_delta(result, current_profile)
+    else:
         raise HTTPException(
             status_code=501,
             detail=f"Le parsing de '{request.document_type}' n'est pas encore "
-                   "implemente. Seul 'lpp_certificate' est disponible.",
+                   "implemente. Types supportes: lpp_certificate, tax_declaration, avs_extract.",
         )
-
-    # Parse the text
-    result = parse_lpp_certificate(request.text)
-
-    # Calculate confidence delta if profile provided
-    current_profile = request.current_profile or {}
-    delta = estimate_confidence_delta(result, current_profile)
     result.confidence_delta = delta
 
     # Calculate extraction quality score
@@ -137,8 +152,8 @@ def parse_document(request: ParseDocumentRequest) -> ExtractionResultResponse:
         confidence_delta=delta,
         extraction_score=ext_score,
         warnings=result.warnings,
-        disclaimer=_DISCLAIMER,
-        sources=_SOURCES,
+        disclaimer=result.disclaimer,
+        sources=result.sources,
     )
 
 
@@ -160,19 +175,24 @@ def get_confidence_delta(request: ConfidenceDeltaRequest) -> ConfidenceDeltaResp
     Returns:
         ConfidenceDeltaResponse avec delta, nombre de champs nouveaux/ameliores.
     """
-    if request.document_type != "lpp_certificate":
+    current_profile = request.current_profile or {}
+
+    # Route to the appropriate parser
+    if request.document_type == "lpp_certificate":
+        result = parse_lpp_certificate(request.text)
+        delta = estimate_confidence_delta(result, current_profile)
+    elif request.document_type == "tax_declaration":
+        result = parse_tax_declaration(request.text)
+        delta = estimate_tax_confidence_delta(result, current_profile)
+    elif request.document_type == "avs_extract":
+        result = parse_avs_extract(request.text)
+        delta = estimate_avs_confidence_delta(result, current_profile)
+    else:
         raise HTTPException(
             status_code=501,
             detail=f"Le parsing de '{request.document_type}' n'est pas encore "
-                   "implemente. Seul 'lpp_certificate' est disponible.",
+                   "implemente. Types supportes: lpp_certificate, tax_declaration, avs_extract.",
         )
-
-    # Parse the text
-    result = parse_lpp_certificate(request.text)
-    current_profile = request.current_profile or {}
-
-    # Calculate delta
-    delta = estimate_confidence_delta(result, current_profile)
 
     # Count new vs improved fields
     fields_new = 0
@@ -190,8 +210,8 @@ def get_confidence_delta(request: ConfidenceDeltaRequest) -> ConfidenceDeltaResp
         fields_extracted=len(result.fields),
         fields_new=fields_new,
         fields_improved=fields_improved,
-        disclaimer=_DISCLAIMER,
-        sources=_SOURCES,
+        disclaimer=result.disclaimer,
+        sources=result.sources,
     )
 
 
@@ -260,6 +280,7 @@ def get_field_impact(document_type: str) -> FieldImpactResponse:
 def _field_to_profile_key(field_name: str) -> str | None:
     """Mappe un nom de champ extraction vers le champ profil correspondant."""
     mapping = {
+        # LPP certificate fields
         "avoir_total": "lpp_total",
         "part_obligatoire": "lpp_obligatoire",
         "part_surobligatoire": "lpp_surobligatoire",
@@ -273,5 +294,17 @@ def _field_to_profile_key(field_name: str) -> str | None:
         "cotisation_employe": "employee_lpp_contribution",
         "cotisation_employeur": "employer_lpp_contribution",
         "salaire_assure": "lpp_insured_salary",
+        # Tax declaration fields
+        "revenu_imposable": "actual_taxable_income",
+        "fortune_imposable": "actual_taxable_wealth",
+        "deductions_effectuees": "actual_deductions",
+        "impot_cantonal": "actual_cantonal_tax",
+        "impot_federal": "actual_federal_tax",
+        "taux_marginal_effectif": "actual_marginal_rate",
+        # AVS extract fields
+        "annees_cotisation": "avs_contribution_years",
+        "ramd": "avs_ramd",
+        "lacunes_cotisation": "avs_gaps",
+        "bonifications_educatives": "avs_education_credits",
     }
     return mapping.get(field_name)

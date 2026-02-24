@@ -626,7 +626,7 @@ class TestAPIEndpoints:
             "/api/v1/document-parser/parse",
             json={
                 "text": "some text",
-                "documentType": "tax_declaration",
+                "documentType": "three_a_attestation",
             },
         )
         assert response.status_code == 501
