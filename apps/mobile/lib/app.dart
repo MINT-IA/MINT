@@ -112,6 +112,10 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+// Onboarding Redesign (Sprint S31)
+import 'package:mint_mobile/screens/onboarding/onboarding_minimal_screen.dart';
+import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
+import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -574,6 +578,22 @@ final _router = GoRouter(
       path: '/debt/repayment',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RepaymentScreen(),
+    ),
+    // Onboarding Redesign (Sprint S31)
+    GoRoute(
+      path: '/onboarding/minimal',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OnboardingMinimalScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/chiffre-choc',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ChiffreChocScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/enrichment',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ProgressiveEnrichmentScreen(),
     ),
     // Timeline
     GoRoute(
