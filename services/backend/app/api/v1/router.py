@@ -43,6 +43,7 @@ from app.api.v1.endpoints import (
     scenario_narration,
     fri,
     reengagement,
+    precision,
 )
 
 api_router = APIRouter()
@@ -157,4 +158,7 @@ api_router.include_router(
 )
 api_router.include_router(
     reengagement.router, prefix="/reengagement", tags=["Reengagement S40"]
+)
+api_router.include_router(
+    precision.router, prefix="/precision", tags=["precision"]
 )
