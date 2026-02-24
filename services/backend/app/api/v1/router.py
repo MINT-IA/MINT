@@ -39,6 +39,7 @@ from app.api.v1.endpoints import (
     arbitrage,
     snapshots,
     coach,
+    notifications,
 )
 
 api_router = APIRouter()
@@ -141,4 +142,7 @@ api_router.include_router(
 )
 api_router.include_router(
     coach.router, prefix="/coach", tags=["Coach Narrative S35"]
+)
+api_router.include_router(
+    notifications.router, prefix="/notifications", tags=["Notifications S36"]
 )
