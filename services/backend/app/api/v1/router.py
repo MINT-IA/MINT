@@ -44,6 +44,7 @@ from app.api.v1.endpoints import (
     fri,
     reengagement,
     precision,
+    document_parser,
 )
 
 api_router = APIRouter()
@@ -161,4 +162,7 @@ api_router.include_router(
 )
 api_router.include_router(
     precision.router, prefix="/precision", tags=["precision"]
+)
+api_router.include_router(
+    document_parser.router, prefix="/document-parser", tags=["Document Parser S42-S43"]
 )
