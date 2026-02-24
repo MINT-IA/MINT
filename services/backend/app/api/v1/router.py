@@ -40,6 +40,7 @@ from app.api.v1.endpoints import (
     snapshots,
     coach,
     notifications,
+    scenario_narration,
 )
 
 api_router = APIRouter()
@@ -145,4 +146,7 @@ api_router.include_router(
 )
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["Notifications S36"]
+)
+api_router.include_router(
+    scenario_narration.router, prefix="/scenario", tags=["Scenario Narration S37"]
 )
