@@ -5,6 +5,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 
 /// Calendrier de retraits screen — compare withdrawing everything at once
 /// vs staggering withdrawals over multiple years.
@@ -148,6 +149,13 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
 
                   // ── Timeline visualization ──
                   _buildTimelineVisualization(),
+                  const SizedBox(height: 24),
+
+                  ArbitrageTornadoSection(
+                    result: _result!,
+                    subtitle:
+                        'Impact des hypotheses sur l\'ecart fiscal entre retrait unique et retraits etales.',
+                  ),
                   const SizedBox(height: 24),
 
                   // ── Hypotheses list ──

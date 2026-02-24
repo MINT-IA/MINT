@@ -863,18 +863,18 @@ Every notification must contain:
 | **Phase 1** | S31 | `MinimalProfileService` + `ChiffreChocSelector` + onboarding flow | `financial_core/` (exists) |
 | **Phase 2** | S32 | `ArbitrageEngine` — Rente vs Capital (enriched with mixed scenario) | `TaxCalculator`, `LppCalculator` |
 | **Phase 3** | S33 | `ArbitrageEngine` — Allocation annuelle + Calendrier retraits | `TaxCalculator` |
-| **Phase 4** | S34 | `ArbitrageEngine` — Location vs Propriété + Rachat vs Marché | Mortgage module (S17) |
-| **Phase 5** | S35 | `AdaptivePriorityService` + archetype×priority matrix | Onboarding + Archetypes |
-| **Phase 6** | S36 | FRI (shadow mode — computed but not displayed) | All above |
-| **Phase 7** | S37 | FRI (beta — displayed, collecting feedback) | Phase 6 validated |
-| **Phase 8** | S38 | Longitudinal snapshots + FRI history | FRI stable |
-| **Phase 9** | S39 | Reengagement engine + calendar notifications | Snapshots + Coaching (S11) |
+| **Phase 4** | S34 | Compliance Guard (blocker LLM) | Coach layer S35+ |
+| **Phase 5** | S35 | `AdaptivePriorityService` + Coach Narrative scaffolding | Onboarding + Archetypes + S34 |
+| **Phase 6** | S36 | Notifications + milestones | S35 |
+| **Phase 7** | S37 | Scenario narration + annual refresh | S36 |
+| **Phase 8** | S38 | FRI shadow mode (computed, not displayed) + snapshot feed | Phases 1-7 |
+| **Phase 9** | S39 | FRI beta display + longitudinal charts | Phase 8 validated |
 
 ### Test Requirements per Phase
 
 - Phase 1: Min 20 backend tests + 10 Flutter smoke tests
 - Phases 2-4: Min 15 tests per arbitrage module (edge cases + compliance wording checks)
-- Phase 6-7: FRI calibration tests against known profiles
+- Phases 8-9: FRI calibration tests against known profiles
 - All phases: `flutter analyze` = 0 errors, all existing tests still pass
 
 ---

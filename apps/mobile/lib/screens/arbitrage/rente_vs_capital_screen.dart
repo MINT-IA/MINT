@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
+import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 
@@ -39,6 +41,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     'inflation': 2.0,
   };
 
+  bool _isLoading = false;
+  int _requestCounter = 0;
   ArbitrageResult? _result;
 
   @override
@@ -56,6 +60,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   void _recalculate() {
+    _recalculateAsync();
+  }
+
+  Future<void> _recalculateAsync() async {
+    final requestId = ++_requestCounter;
     final capitalOblig =
         double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 200000;
     final capitalSurob =
@@ -64,23 +73,51 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         double.tryParse(_renteCtrl.text.replaceAll("'", '')) ?? 20400;
     final capitalTotal = capitalOblig + capitalSurob;
 
-    final result = ArbitrageEngine.compareRenteVsCapital(
-      capitalLppTotal: capitalTotal,
-      capitalObligatoire: capitalOblig,
-      capitalSurobligatoire: capitalSurob,
-      renteAnnuelleProposee: renteAnnuelle,
-      tauxConversionObligatoire: lppTauxConversionMin / 100,
-      tauxConversionSurobligatoire: 0.05,
-      canton: _canton,
-      ageRetraite: 65,
-      tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
-      rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
-      inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
-      horizon: 25,
-      isMarried: _isMarried,
-    );
+    setState(() => _isLoading = true);
+    try {
+      final result = await ApiService.compareRenteVsCapital(
+        capitalLppTotal: capitalTotal,
+        capitalObligatoire: capitalOblig,
+        capitalSurobligatoire: capitalSurob,
+        renteAnnuelleProposee: renteAnnuelle,
+        tauxConversionObligatoire: lppTauxConversionMin / 100,
+        tauxConversionSurobligatoire: 0.05,
+        canton: _canton,
+        ageRetraite: 65,
+        tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
+        rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
+        inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
+        horizon: 25,
+        isMarried: _isMarried,
+      );
 
-    setState(() => _result = result);
+      if (!mounted || requestId != _requestCounter) return;
+      setState(() => _result = result);
+      return;
+    } catch (_) {
+      final fallback = ArbitrageEngine.compareRenteVsCapital(
+        capitalLppTotal: capitalTotal,
+        capitalObligatoire: capitalOblig,
+        capitalSurobligatoire: capitalSurob,
+        renteAnnuelleProposee: renteAnnuelle,
+        tauxConversionObligatoire: lppTauxConversionMin / 100,
+        tauxConversionSurobligatoire: 0.05,
+        canton: _canton,
+        ageRetraite: 65,
+        tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
+        rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
+        inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
+        horizon: 25,
+        isMarried: _isMarried,
+      );
+
+      if (!mounted || requestId != _requestCounter) return;
+      setState(() => _result = fallback);
+    } finally {
+      if (mounted && requestId == _requestCounter) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -125,6 +162,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 const SizedBox(height: 24),
 
                 // ── Chart ──
+                if (_isLoading && _result == null)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
                 if (_result != null) ...[
                   Text(
                     'Trajectoires comparees',
@@ -156,6 +198,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     horizon: 25,
                     sensitivity: _result!.sensitivity,
                   ),
+                  const SizedBox(height: 20),
+
+                  ArbitrageTornadoSection(result: _result!),
                   const SizedBox(height: 20),
 
                   // ── Chiffre choc ──

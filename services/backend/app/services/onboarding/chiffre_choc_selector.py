@@ -183,7 +183,7 @@ def select_chiffre_choc(profile: MinimalProfileResult) -> ChiffreChoc:
 
     # Priority 3: Tax saving opportunity
     # Check if user has no 3a AND the tax saving is significant
-    has_no_3a = "existing_3a" in profile.estimated_fields
+    has_no_3a = profile.existing_3a <= 0.0
     if has_no_3a and profile.tax_saving_3a > 1500:
         return _build_tax_saving_choc(profile)
 

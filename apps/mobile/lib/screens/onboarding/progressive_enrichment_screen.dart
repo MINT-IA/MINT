@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -26,6 +27,8 @@ class ProgressiveEnrichmentScreen extends StatefulWidget {
 class _ProgressiveEnrichmentScreenState
     extends State<ProgressiveEnrichmentScreen>
     with SingleTickerProviderStateMixin {
+  bool _didInit = false;
+
   // Base data from previous screen
   int _age = 35;
   double _grossSalary = 80000;
@@ -44,7 +47,6 @@ class _ProgressiveEnrichmentScreenState
   double? _debtAmount;
 
   // Computed result
-  MinimalProfileResult? _profile;
   ChiffreChoc? _chiffreChoc;
 
   late AnimationController _numberAnimController;
@@ -92,7 +94,8 @@ class _ProgressiveEnrichmentScreenState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_profile == null) {
+    if (!_didInit) {
+      _didInit = true;
       _initFromRouteExtra();
     }
   }
@@ -142,27 +145,48 @@ class _ProgressiveEnrichmentScreenState
   }
 
   void _recompute() {
+    _recomputeAsync();
+  }
+
+  Future<void> _recomputeAsync() async {
     final savings = _savingsRangeIndex >= 0
         ? _savingsRangeValues[_savingsRangeIndex]
         : null;
+    final existing3a = (_has3a == true) ? (_existing3a ?? 0) : null;
 
-    final profile = MinimalProfileService.compute(
-      age: _age,
-      grossSalary: _grossSalary,
-      canton: _canton,
-      householdType: _householdType,
-      currentSavings: savings,
-      isPropertyOwner: _isPropertyOwner,
-      existing3a: (_has3a == true) ? (_existing3a ?? 0) : null,
-      existingLpp: null, // Let service estimate unless user provides
-    );
+    try {
+      final choc = await ApiService.computeOnboardingChiffreChoc(
+        age: _age,
+        grossSalary: _grossSalary,
+        canton: _canton,
+        householdType: _householdType,
+        currentSavings: savings,
+        isPropertyOwner: _isPropertyOwner,
+        existing3a: existing3a,
+        existingLpp: null,
+      );
 
-    final choc = ChiffreChocSelector.select(profile);
+      if (!mounted) return;
+      setState(() {
+        _chiffreChoc = choc;
+      });
+    } catch (_) {
+      final profile = MinimalProfileService.compute(
+        age: _age,
+        grossSalary: _grossSalary,
+        canton: _canton,
+        householdType: _householdType,
+        currentSavings: savings,
+        isPropertyOwner: _isPropertyOwner,
+        existing3a: existing3a,
+        existingLpp: null, // Let service estimate unless user provides
+      );
 
-    setState(() {
-      _profile = profile;
-      _chiffreChoc = choc;
-    });
+      if (!mounted) return;
+      setState(() {
+        _chiffreChoc = ChiffreChocSelector.select(profile);
+      });
+    }
 
     // Animate number update
     _numberAnimController.forward(from: 0);

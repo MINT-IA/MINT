@@ -33,6 +33,8 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
+    compute_terminal_spread,
+    add_tornado_sensitivity,
 )
 
 
@@ -360,25 +362,82 @@ def compare_location_vs_propriete(
         "Frais de notaire et droits de mutation non inclus",
     ]
 
-    # Sensitivity: impact of rendement_marche +/- 1%
-    option_a_plus = _build_location_option(
-        capital_disponible=capital_disponible,
-        loyer_mensuel=loyer_mensuel_actuel,
-        rendement_marche=rendement_marche + 0.01,
-        horizon=horizon_annees,
-    )
-    option_a_minus = _build_location_option(
-        capital_disponible=capital_disponible,
-        loyer_mensuel=loyer_mensuel_actuel,
-        rendement_marche=rendement_marche - 0.01,
-        horizon=horizon_annees,
+    base_spread = compute_terminal_spread(options)
+
+    def _spread_variant(
+        *,
+        variant_loyer_mensuel: float = loyer_mensuel_actuel,
+        variant_rendement_marche: float = rendement_marche,
+        variant_appreciation_immo: float = appreciation_immo,
+        variant_taux_hypotheque: float = taux_hypotheque,
+    ) -> float:
+        variant_a = _build_location_option(
+            capital_disponible=capital_disponible,
+            loyer_mensuel=variant_loyer_mensuel,
+            rendement_marche=variant_rendement_marche,
+            horizon=horizon_annees,
+        )
+        variant_b = _build_propriete_option(
+            capital_disponible=capital_disponible,
+            prix_bien=prix_bien,
+            taux_hypotheque=variant_taux_hypotheque,
+            taux_entretien=taux_entretien,
+            appreciation_immo=variant_appreciation_immo,
+            canton=canton,
+            is_married=is_married,
+            horizon=horizon_annees,
+        )
+        return compute_terminal_spread([variant_a, variant_b])
+
+    sensitivity: Dict[str, float] = {}
+
+    rendement_low = max(0.0, rendement_marche - 0.01)
+    rendement_high = rendement_marche + 0.01
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_marche",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_marche=rendement_low),
+        high_value=_spread_variant(variant_rendement_marche=rendement_high),
+        assumption_low=rendement_low,
+        assumption_high=rendement_high,
     )
 
-    sensitivity = {
-        "rendement_marche": round(
-            option_a_plus.terminal_value - option_a_minus.terminal_value, 2
-        ),
-    }
+    taux_hypo_low = max(0.0, taux_hypotheque - 0.005)
+    taux_hypo_high = taux_hypotheque + 0.005
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_hypothecaire",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_taux_hypotheque=taux_hypo_low),
+        high_value=_spread_variant(variant_taux_hypotheque=taux_hypo_high),
+        assumption_low=taux_hypo_low,
+        assumption_high=taux_hypo_high,
+    )
+
+    appreciation_low = max(0.0, appreciation_immo - 0.005)
+    appreciation_high = appreciation_immo + 0.005
+    add_tornado_sensitivity(
+        sensitivity,
+        "appreciation_immo",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_appreciation_immo=appreciation_low),
+        high_value=_spread_variant(variant_appreciation_immo=appreciation_high),
+        assumption_low=appreciation_low,
+        assumption_high=appreciation_high,
+    )
+
+    loyer_low = max(0.0, loyer_mensuel_actuel * 0.90)
+    loyer_high = loyer_mensuel_actuel * 1.10
+    add_tornado_sensitivity(
+        sensitivity,
+        "loyer_mensuel",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_loyer_mensuel=loyer_low),
+        high_value=_spread_variant(variant_loyer_mensuel=loyer_high),
+        assumption_low=loyer_low,
+        assumption_high=loyer_high,
+    )
 
     # Confidence score
     confidence_score = 65.0  # Medium — many assumptions in rent vs buy

@@ -85,7 +85,7 @@ class SubscriptionService {
   static const double monthlyPriceCHF = 4.90;
 
   static SubscriptionState _state = const SubscriptionState(
-    tier: kReleaseMode ? SubscriptionTier.free : SubscriptionTier.coach,
+    tier: SubscriptionTier.coach, // TODO: restore paywall gate before production launch
     source: SubscriptionSource.mock,
   );
 

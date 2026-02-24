@@ -123,6 +123,8 @@ import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/location_vs_propriete_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rachat_vs_marche_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/calendrier_retraits_screen.dart';
+import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
+import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -601,6 +603,20 @@ final _router = GoRouter(
       path: '/onboarding/enrichment',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ProgressiveEnrichmentScreen(),
+    ),
+    GoRoute(
+      path: '/confidence',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra;
+        final result = extra is ConfidenceResult
+            ? extra
+            : EnhancedConfidenceService.computeConfidence(
+                const <String, dynamic>{},
+                const <FieldSource>[],
+              );
+        return ConfidenceDashboardScreen(result: result);
+      },
     ),
     // Timeline
     GoRoute(

@@ -17,8 +17,8 @@ Sources:
     - OPP3 art. 7 (plafond 3a)
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -68,3 +68,43 @@ class ArbitrageResult:
     sources: List[str]           # Legal references
     confidence_score: float      # 0-100
     sensitivity: Dict[str, float]  # Key: parameter name, Value: impact of +/-1%
+
+
+def compute_terminal_spread(options: List[TrajectoireOption]) -> float:
+    """Compute the spread between best and worst terminal values.
+
+    Used as the Tornado hero metric for arbitrage modules so each variable
+    impact is measured against the same target.
+    """
+    if len(options) < 2:
+        return 0.0
+    terminal_values = [o.terminal_value for o in options]
+    return max(terminal_values) - min(terminal_values)
+
+
+def add_tornado_sensitivity(
+    sensitivity: Dict[str, float],
+    key: str,
+    *,
+    base_value: float,
+    low_value: float,
+    high_value: float,
+    assumption_low: Optional[float] = None,
+    assumption_high: Optional[float] = None,
+) -> None:
+    """Add standardized Tornado entries into the sensitivity map.
+
+    Keeps backward compatibility via `sensitivity[key]` while adding explicit
+    low/high/base/swing values for chart reconstruction on mobile.
+    """
+    swing = abs(high_value - low_value)
+    sensitivity[key] = round(swing, 2)
+    sensitivity[f"tornado_{key}_base"] = round(base_value, 2)
+    sensitivity[f"tornado_{key}_low"] = round(low_value, 2)
+    sensitivity[f"tornado_{key}_high"] = round(high_value, 2)
+    sensitivity[f"tornado_{key}_swing"] = round(swing, 2)
+
+    if assumption_low is not None:
+        sensitivity[f"tornado_{key}_assumption_low"] = round(assumption_low, 6)
+    if assumption_high is not None:
+        sensitivity[f"tornado_{key}_assumption_high"] = round(assumption_high, 6)

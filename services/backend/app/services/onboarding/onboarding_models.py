@@ -15,7 +15,7 @@ Sources:
     - OPP3 art. 7 (plafond 3a)
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
 
 
@@ -53,6 +53,7 @@ class MinimalProfileResult:
     estimated_monthly_retirement: float
     estimated_monthly_expenses: float
     tax_saving_3a: float
+    existing_3a: float
     marginal_tax_rate: float
     months_liquidity: float
     confidence_score: float

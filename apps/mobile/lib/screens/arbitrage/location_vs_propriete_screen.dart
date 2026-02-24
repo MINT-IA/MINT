@@ -5,6 +5,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
@@ -158,6 +159,9 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                     horizon: (_hypotheses['horizon'] ?? 20).round(),
                     sensitivity: _result!.sensitivity,
                   ),
+                  const SizedBox(height: 20),
+
+                  ArbitrageTornadoSection(result: _result!),
                   const SizedBox(height: 20),
 
                   // ── Affordability warning ──

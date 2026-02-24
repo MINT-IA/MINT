@@ -50,15 +50,14 @@ class ChiffreChocSelector {
     }
 
     // Priority 3: Tax saving 3a (> 1500 CHF/year — aligned with backend)
-    if (profile.taxSaving3a > 1500) {
+    if (profile.existing3a <= 0 && profile.taxSaving3a > 1500) {
       final savingFormatted = _formatChf(profile.taxSaving3a);
       return ChiffreChoc(
         type: ChiffreChocType.taxSaving3a,
         value: '$savingFormatted/an',
         rawValue: profile.taxSaving3a,
         title: 'Ton economie d\'impot potentielle',
-        subtitle:
-            'En cotisant au 3e pilier (max CHF\u00A07\'258/an), '
+        subtitle: 'En cotisant au 3e pilier (max CHF\u00A07\'258/an), '
             'tu pourrais economiser environ $savingFormatted d\'impots chaque annee. '
             'Et tu prepares ta retraite en meme temps.',
         iconName: 'savings',
@@ -74,8 +73,7 @@ class ChiffreChocSelector {
       value: '$retirementFormatted/mois',
       rawValue: profile.totalMonthlyRetirement,
       title: 'Ton revenu estime a la retraite',
-      subtitle:
-          'Avec l\'AVS et la LPP, tu pourrais recevoir environ '
+      subtitle: 'Avec l\'AVS et la LPP, tu pourrais recevoir environ '
           '$retirementFormatted par mois, soit $pct% de ton salaire actuel.',
       iconName: 'account_balance',
       colorKey: 'info',

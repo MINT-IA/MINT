@@ -27,7 +27,7 @@ Rules:
     - Disclaimer mandatory on every result
 """
 
-from typing import List, Optional
+from typing import List
 
 from app.constants.social_insurance import (
     AVS_RENTE_MAX_MENSUELLE,
@@ -40,7 +40,6 @@ from app.constants.social_insurance import (
     LPP_SALAIRE_COORDONNE_MAX,
     LPP_TAUX_CONVERSION_MIN,
     LPP_TAUX_INTERET_MIN,
-    LPP_BONIFICATIONS_VIEILLESSE,
     PILIER_3A_PLAFOND_AVEC_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     get_lpp_bonification_rate,
@@ -445,6 +444,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         estimated_monthly_retirement=estimated_monthly_retirement,
         estimated_monthly_expenses=estimated_monthly_expenses,
         tax_saving_3a=tax_saving_3a,
+        existing_3a=existing_3a,
         marginal_tax_rate=marginal_tax_rate,
         months_liquidity=months_liquidity,
         confidence_score=confidence_score,

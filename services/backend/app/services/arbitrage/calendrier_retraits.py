@@ -27,7 +27,7 @@ Rules:
 """
 
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
@@ -39,6 +39,8 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
+    compute_terminal_spread,
+    add_tornado_sensitivity,
 )
 
 
@@ -98,6 +100,7 @@ def _build_same_year_option(
     age_retraite: int,
     canton: str,
     is_married: bool,
+    base_rate_override: Optional[float] = None,
 ) -> TrajectoireOption:
     """Build Option A: Everything withdrawn the same year.
 
@@ -105,7 +108,11 @@ def _build_same_year_option(
     Total capital is taxed as a single lump sum (progressive brackets hit hard).
     """
     total_capital = sum(a.amount for a in assets)
-    base_rate = _get_base_rate(canton, is_married)
+    base_rate = (
+        base_rate_override
+        if base_rate_override is not None
+        else _get_base_rate(canton, is_married)
+    )
     total_tax = calculate_progressive_capital_tax(total_capital, base_rate)
     net_after_tax = total_capital - total_tax
 
@@ -133,6 +140,7 @@ def _build_staggered_option(
     age_retraite: int,
     canton: str,
     is_married: bool,
+    base_rate_override: Optional[float] = None,
 ) -> TrajectoireOption:
     """Build Option B: Optimally staggered withdrawals.
 
@@ -153,7 +161,11 @@ def _build_staggered_option(
 
     # Assign withdrawal years: spread across available years
     # If multiple assets have the same earliest_withdrawal_age, spread them
-    base_rate = _get_base_rate(canton, is_married)
+    base_rate = (
+        base_rate_override
+        if base_rate_override is not None
+        else _get_base_rate(canton, is_married)
+    )
     trajectory: List[YearlySnapshot] = []
     cumulative_net = 0.0
     cumulative_tax = 0.0
@@ -319,14 +331,84 @@ def compare_calendrier_retraits(
         "Les montants sont en valeur actuelle (pas d'indexation)",
     ]
 
-    # Sensitivity: impact of canton change (VD vs ZG)
+    # Sensitivity
+    base_spread = compute_terminal_spread(options)
+    sensitivity: Dict[str, float] = {}
+
+    base_rate_current = _get_base_rate(canton, is_married)
+
+    def _spread_variant(
+        *,
+        capital_scale: float = 1.0,
+        age_variant: int = age_retraite,
+        base_rate_variant: float = base_rate_current,
+    ) -> float:
+        scaled_assets = [
+            RetirementAsset(
+                type=a.type,
+                amount=max(0.0, a.amount * capital_scale),
+                earliest_withdrawal_age=a.earliest_withdrawal_age,
+            )
+            for a in assets
+        ]
+        variant_same_year = _build_same_year_option(
+            scaled_assets,
+            age_variant,
+            canton,
+            is_married,
+            base_rate_override=base_rate_variant,
+        )
+        variant_staggered = _build_staggered_option(
+            scaled_assets,
+            age_variant,
+            canton,
+            is_married,
+            base_rate_override=base_rate_variant,
+        )
+        return compute_terminal_spread([variant_same_year, variant_staggered])
+
+    # Keep legacy key expected by tests and reporting.
     base_rate_vd = TAUX_IMPOT_RETRAIT_CAPITAL.get("VD", 0.08)
     base_rate_zg = TAUX_IMPOT_RETRAIT_CAPITAL.get("ZG", 0.035)
     tax_vd = calculate_progressive_capital_tax(total_capital, base_rate_vd)
     tax_zg = calculate_progressive_capital_tax(total_capital, base_rate_zg)
-    sensitivity = {
-        "canton_impact_VD_vs_ZG": round(tax_vd - tax_zg, 2),
-    }
+    sensitivity["canton_impact_VD_vs_ZG"] = round(tax_vd - tax_zg, 2)
+
+    rate_low = max(0.0, base_rate_current - 0.01)
+    rate_high = base_rate_current + 0.01
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_impot_capital",
+        base_value=base_spread,
+        low_value=_spread_variant(base_rate_variant=rate_low),
+        high_value=_spread_variant(base_rate_variant=rate_high),
+        assumption_low=rate_low,
+        assumption_high=rate_high,
+    )
+
+    age_low = max(58, age_retraite - 2)
+    age_high = min(70, age_retraite + 2)
+    add_tornado_sensitivity(
+        sensitivity,
+        "age_retraite",
+        base_value=base_spread,
+        low_value=_spread_variant(age_variant=age_low),
+        high_value=_spread_variant(age_variant=age_high),
+        assumption_low=float(age_low),
+        assumption_high=float(age_high),
+    )
+
+    cap_low = total_capital * 0.90
+    cap_high = total_capital * 1.10
+    add_tornado_sensitivity(
+        sensitivity,
+        "capital_total",
+        base_value=base_spread,
+        low_value=_spread_variant(capital_scale=0.90),
+        high_value=_spread_variant(capital_scale=1.10),
+        assumption_low=cap_low,
+        assumption_high=cap_high,
+    )
 
     # Confidence score: high when concrete amounts provided
     confidence_score = 80.0 if valid_assets else 0.0

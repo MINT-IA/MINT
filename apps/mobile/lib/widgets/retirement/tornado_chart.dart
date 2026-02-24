@@ -34,11 +34,28 @@ class TornadoChart extends StatelessWidget {
   /// Nombre maximum de variables affichees (defaut 10).
   final int maxVariables;
 
+  /// Titre du composant.
+  final String title;
+
+  /// Sous-titre du composant.
+  final String subtitle;
+
+  /// Suffixe affiche apres la valeur de base (ex: "/mois").
+  final String baseCaseSuffix;
+
+  /// Ligne de disclaimer en bas du composant.
+  final String disclaimerText;
+
   const TornadoChart({
     super.key,
     required this.baseCase,
     required this.variables,
     this.maxVariables = 10,
+    this.title = 'Analyse de sensibilite',
+    this.subtitle = 'Quels parametres impactent le plus ton revenu de retraite ?',
+    this.baseCaseSuffix = '/mois',
+    this.disclaimerText =
+        'Simulation pedagogique — chaque variable est testee independamment (LIFD, LPP, LAVS).',
   });
 
   @override
@@ -53,7 +70,7 @@ class TornadoChart extends StatelessWidget {
       children: [
         // ── Titre ─────────────────────────────────────────────
         Text(
-          'Analyse de sensibilite',
+          title,
           style: GoogleFonts.montserrat(
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -62,7 +79,7 @@ class TornadoChart extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Quels parametres impactent le plus ton revenu de retraite ?',
+          subtitle,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -81,6 +98,7 @@ class TornadoChart extends StatelessWidget {
                 painter: _TornadoPainter(
                   baseCase: baseCase,
                   variables: displayVars,
+                  baseCaseSuffix: baseCaseSuffix,
                 ),
               );
             },
@@ -94,8 +112,7 @@ class TornadoChart extends StatelessWidget {
 
         // ── Disclaimer ────────────────────────────────────────
         Text(
-          'Simulation pedagogique \u2014 chaque variable est testee '
-          'independamment (LIFD, LPP, LAVS).',
+          disclaimerText,
           style: GoogleFonts.inter(
             fontSize: 10,
             color: MintColors.textMuted,
@@ -188,10 +205,12 @@ class TornadoChart extends StatelessWidget {
 class _TornadoPainter extends CustomPainter {
   final double baseCase;
   final List<TornadoVariable> variables;
+  final String baseCaseSuffix;
 
   _TornadoPainter({
     required this.baseCase,
     required this.variables,
+    required this.baseCaseSuffix,
   });
 
   // ── Layout constants ─────────────────────────────────────────
@@ -310,7 +329,8 @@ class _TornadoPainter extends CustomPainter {
   // ── Header ──────────────────────────────────────────────────
 
   void _drawBaseCaseHeader(Canvas canvas, Size size, double centerX) {
-    final text = '${_formatChf(baseCase)}/mois (base)';
+    final suffix = baseCaseSuffix.isEmpty ? '' : baseCaseSuffix;
+    final text = '${_formatChf(baseCase)}$suffix (base)';
     final tp = TextPainter(
       text: TextSpan(
         text: text,

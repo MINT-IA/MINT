@@ -115,32 +115,134 @@ class ArbitrageEngine {
     // Breakeven: year where capital cumulative cashflow exceeds rente
     final breakevenYear = _findBreakevenYear(renteTrajectory, capitalTrajectory);
 
-    // Sensitivity: rendement +/- 1%
-    final sensitivityUp = _buildCapitalTrajectory(
-      capitalBrut: capitalLppTotal,
-      canton: canton,
-      horizon: horizon,
-      startYear: startYear,
-      tauxRetrait: tauxRetrait,
-      rendement: rendementCapital + 0.01,
-      inflation: inflation,
-      isMarried: isMarried,
+    final sensitivity = <String, double>{};
+    final baseSpread = _terminalSpreadFromOptions(options);
+
+    double spreadVariant({
+      double variantTauxRetrait = 0.04,
+      double variantRendement = 0.03,
+      double variantTcOblig = 0.068,
+      double variantTcSurob = 0.05,
+    }) {
+      final variantCapital = _buildCapitalTrajectory(
+        capitalBrut: capitalLppTotal,
+        canton: canton,
+        horizon: horizon,
+        startYear: startYear,
+        tauxRetrait: variantTauxRetrait,
+        rendement: variantRendement,
+        inflation: inflation,
+        isMarried: isMarried,
+      );
+      final variantRenteMixte =
+          (capitalObligatoire * variantTcOblig) + (capitalSurobligatoire * variantTcSurob);
+      final variantMixed = _buildMixedTrajectory(
+        renteObligatoire: variantRenteMixte,
+        capitalSurobligatoire: capitalSurobligatoire,
+        canton: canton,
+        horizon: horizon,
+        startYear: startYear,
+        tauxRetrait: variantTauxRetrait,
+        rendement: variantRendement,
+        inflation: inflation,
+        isMarried: isMarried,
+      );
+      return _terminalSpreadFromValues([
+        optionA.terminalValue,
+        variantCapital.last.netPatrimony,
+        variantMixed.last.netPatrimony,
+      ]);
+    }
+
+    final rendementLow = math.max(0.0, rendementCapital - 0.01);
+    final rendementHigh = rendementCapital + 0.01;
+    final rendementSpreadLow = spreadVariant(
+      variantTauxRetrait: tauxRetrait,
+      variantRendement: rendementLow,
+      variantTcOblig: tauxConversionObligatoire,
+      variantTcSurob: tauxConversionSurobligatoire,
     );
-    final sensitivityDown = _buildCapitalTrajectory(
-      capitalBrut: capitalLppTotal,
-      canton: canton,
-      horizon: horizon,
-      startYear: startYear,
-      tauxRetrait: tauxRetrait,
-      rendement: math.max(0, rendementCapital - 0.01),
-      inflation: inflation,
-      isMarried: isMarried,
+    final rendementSpreadHigh = spreadVariant(
+      variantTauxRetrait: tauxRetrait,
+      variantRendement: rendementHigh,
+      variantTcOblig: tauxConversionObligatoire,
+      variantTcSurob: tauxConversionSurobligatoire,
+    );
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_capital',
+      baseValue: baseSpread,
+      lowValue: rendementSpreadLow,
+      highValue: rendementSpreadHigh,
+      assumptionLow: rendementLow,
+      assumptionHigh: rendementHigh,
     );
 
-    final sensitivity = <String, double>{
-      'rendement_plus_1': sensitivityUp.last.netPatrimony,
-      'rendement_moins_1': sensitivityDown.last.netPatrimony,
-    };
+    final retraitLow = math.max(0.01, tauxRetrait - 0.005);
+    final retraitHigh = math.min(0.08, tauxRetrait + 0.005);
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'taux_retrait',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxRetrait: retraitLow,
+        variantRendement: rendementCapital,
+        variantTcOblig: tauxConversionObligatoire,
+        variantTcSurob: tauxConversionSurobligatoire,
+      ),
+      highValue: spreadVariant(
+        variantTauxRetrait: retraitHigh,
+        variantRendement: rendementCapital,
+        variantTcOblig: tauxConversionObligatoire,
+        variantTcSurob: tauxConversionSurobligatoire,
+      ),
+      assumptionLow: retraitLow,
+      assumptionHigh: retraitHigh,
+    );
+
+    final tcObligLow = math.max(0.068, tauxConversionObligatoire - 0.005);
+    final tcObligHigh = tauxConversionObligatoire + 0.005;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'taux_conversion_obligatoire',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxRetrait: tauxRetrait,
+        variantRendement: rendementCapital,
+        variantTcOblig: tcObligLow,
+        variantTcSurob: tauxConversionSurobligatoire,
+      ),
+      highValue: spreadVariant(
+        variantTauxRetrait: tauxRetrait,
+        variantRendement: rendementCapital,
+        variantTcOblig: tcObligHigh,
+        variantTcSurob: tauxConversionSurobligatoire,
+      ),
+      assumptionLow: tcObligLow,
+      assumptionHigh: tcObligHigh,
+    );
+
+    final tcSurobLow = math.max(0.035, tauxConversionSurobligatoire - 0.005);
+    final tcSurobHigh = math.min(0.10, tauxConversionSurobligatoire + 0.005);
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'taux_conversion_surobligatoire',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxRetrait: tauxRetrait,
+        variantRendement: rendementCapital,
+        variantTcOblig: tauxConversionObligatoire,
+        variantTcSurob: tcSurobLow,
+      ),
+      highValue: spreadVariant(
+        variantTauxRetrait: tauxRetrait,
+        variantRendement: rendementCapital,
+        variantTcOblig: tauxConversionObligatoire,
+        variantTcSurob: tcSurobHigh,
+      ),
+      assumptionLow: tcSurobLow,
+      assumptionHigh: tcSurobHigh,
+    );
 
     // Chiffre choc: cumulative cashflow difference at horizon
     final renteCashflow = renteTrajectory.last.netPatrimony;
@@ -152,8 +254,8 @@ class ArbitrageEngine {
         '~${_formatChf(delta)} de patrimoine net supplementaire sur $horizon ans.';
 
     final displaySummary = breakevenYear != null
-        ? 'Les trajectoires se croisent vers ${startYear + breakevenYear!} '
-            '(age ${ageRetraite + breakevenYear!}). '
+        ? 'Les trajectoires se croisent vers ${startYear + breakevenYear} '
+            '(age ${ageRetraite + breakevenYear}). '
             'Avant ce point, la rente procure un revenu regulier. '
             'Apres, le capital retire peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
@@ -214,7 +316,7 @@ class ArbitrageEngine {
 
     // ── Option 1: Pilier 3a ──
     if (!a3aMaxed) {
-      final max3a = pilier3aPlafondAvecLpp;
+      const max3a = pilier3aPlafondAvecLpp;
       final montant3a = math.min(montantDisponible, max3a);
       final trajectory3a = _buildAllocationTrajectory(
         montantAnnuel: montant3a,
@@ -238,7 +340,7 @@ class ArbitrageEngine {
     // ── Option 2: Rachat LPP ──
     if (potentielRachatLpp > 0) {
       final montantRachat = math.min(montantDisponible, potentielRachatLpp);
-      final anneesBlocage = 3;
+      const anneesBlocage = 3;
       final trajectoryLpp = _buildAllocationTrajectory(
         montantAnnuel: montantRachat,
         rendement: rendementLpp,
@@ -299,16 +401,12 @@ class ArbitrageEngine {
     // Find best and worst terminal values for chiffre choc
     double maxTerminal = double.negativeInfinity;
     double minTerminal = double.infinity;
-    String maxLabel = '';
-    String minLabel = '';
     for (final o in options) {
       if (o.terminalValue > maxTerminal) {
         maxTerminal = o.terminalValue;
-        maxLabel = o.label;
       }
       if (o.terminalValue < minTerminal) {
         minTerminal = o.terminalValue;
-        minLabel = o.label;
       }
     }
     final ecart = maxTerminal - minTerminal;
@@ -321,27 +419,238 @@ class ArbitrageEngine {
         'Comparaison de ${options.length} strategies pour un versement annuel '
         'de ${_formatChf(montantDisponible)} sur $anneesAvantRetraite ans.';
 
-    // Sensitivity: rendement marche +/- 1%
-    final senUp = _buildAllocationTrajectory(
-      montantAnnuel: montantDisponible,
-      rendement: rendementMarche + 0.01,
-      tauxMarginal: tauxMarginal,
-      deductible: false,
-      horizon: anneesAvantRetraite,
-      startYear: startYear,
-      canton: canton,
-      label: 'invest_libre',
+    final sensitivity = <String, double>{};
+    final baseSpread = _terminalSpreadFromOptions(options);
+
+    List<TrajectoireOption> buildVariantOptions({
+      required double variantTauxMarginal,
+      required double variantRendement3a,
+      required double variantRendementLpp,
+      required double variantRendementMarche,
+      required double variantTauxHypothecaire,
+    }) {
+      final variantOptions = <TrajectoireOption>[];
+
+      if (!a3aMaxed) {
+        const max3a = pilier3aPlafondAvecLpp;
+        final montant3a = math.min(montantDisponible, max3a);
+        final trajectory3a = _buildAllocationTrajectory(
+          montantAnnuel: montant3a,
+          rendement: variantRendement3a,
+          tauxMarginal: variantTauxMarginal,
+          deductible: true,
+          horizon: anneesAvantRetraite,
+          startYear: startYear,
+          canton: canton,
+          label: '3a',
+        );
+        variantOptions.add(TrajectoireOption(
+          id: '3a',
+          label: 'Pilier 3a (max ${_formatChf(max3a)}/an)',
+          trajectory: trajectory3a,
+          terminalValue: trajectory3a.last.netPatrimony,
+          cumulativeTaxImpact: trajectory3a.last.cumulativeTaxDelta,
+        ));
+      }
+
+      if (potentielRachatLpp > 0) {
+        final montantRachat = math.min(montantDisponible, potentielRachatLpp);
+        final trajectoryLpp = _buildAllocationTrajectory(
+          montantAnnuel: montantRachat,
+          rendement: variantRendementLpp,
+          tauxMarginal: variantTauxMarginal,
+          deductible: true,
+          horizon: anneesAvantRetraite,
+          startYear: startYear,
+          canton: canton,
+          label: 'rachat_lpp',
+          blocageYears: 3,
+        );
+        variantOptions.add(TrajectoireOption(
+          id: 'rachat_lpp',
+          label: 'Rachat LPP (blocage 3 ans)',
+          trajectory: trajectoryLpp,
+          terminalValue: trajectoryLpp.last.netPatrimony,
+          cumulativeTaxImpact: trajectoryLpp.last.cumulativeTaxDelta,
+        ));
+      }
+
+      if (isPropertyOwner) {
+        final trajectoryAmort = _buildAmortIndirectTrajectory(
+          montantAnnuel: montantDisponible,
+          tauxHypothecaire: variantTauxHypothecaire,
+          tauxMarginal: variantTauxMarginal,
+          horizon: anneesAvantRetraite,
+          startYear: startYear,
+        );
+        variantOptions.add(TrajectoireOption(
+          id: 'amort_indirect',
+          label: 'Amortissement indirect',
+          trajectory: trajectoryAmort,
+          terminalValue: trajectoryAmort.last.netPatrimony,
+          cumulativeTaxImpact: trajectoryAmort.last.cumulativeTaxDelta,
+        ));
+      }
+
+      final trajectoryLibre = _buildAllocationTrajectory(
+        montantAnnuel: montantDisponible,
+        rendement: variantRendementMarche,
+        tauxMarginal: variantTauxMarginal,
+        deductible: false,
+        horizon: anneesAvantRetraite,
+        startYear: startYear,
+        canton: canton,
+        label: 'invest_libre',
+      );
+      variantOptions.add(TrajectoireOption(
+        id: 'invest_libre',
+        label: 'Investissement libre',
+        trajectory: trajectoryLibre,
+        terminalValue: trajectoryLibre.last.netPatrimony,
+        cumulativeTaxImpact: trajectoryLibre.last.cumulativeTaxDelta,
+      ));
+
+      return variantOptions;
+    }
+
+    double spreadVariant({
+      required double variantTauxMarginal,
+      required double variantRendement3a,
+      required double variantRendementLpp,
+      required double variantRendementMarche,
+      required double variantTauxHypothecaire,
+    }) {
+      final variantOptions = buildVariantOptions(
+        variantTauxMarginal: variantTauxMarginal,
+        variantRendement3a: variantRendement3a,
+        variantRendementLpp: variantRendementLpp,
+        variantRendementMarche: variantRendementMarche,
+        variantTauxHypothecaire: variantTauxHypothecaire,
+      );
+      return _terminalSpreadFromOptions(variantOptions);
+    }
+
+    final rendementMarcheLow = math.max(0.0, rendementMarche - 0.01);
+    final rendementMarcheHigh = rendementMarche + 0.01;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_marche',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendement3a: rendement3a,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarcheLow,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendement3a: rendement3a,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarcheHigh,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      assumptionLow: rendementMarcheLow,
+      assumptionHigh: rendementMarcheHigh,
     );
-    final senDown = _buildAllocationTrajectory(
-      montantAnnuel: montantDisponible,
-      rendement: math.max(0, rendementMarche - 0.01),
-      tauxMarginal: tauxMarginal,
-      deductible: false,
-      horizon: anneesAvantRetraite,
-      startYear: startYear,
-      canton: canton,
-      label: 'invest_libre',
+
+    final tauxMarginalLow = math.max(0.0, tauxMarginal - 0.02);
+    final tauxMarginalHigh = math.min(0.50, tauxMarginal + 0.02);
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'taux_marginal',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginalLow,
+        variantRendement3a: rendement3a,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginalHigh,
+        variantRendement3a: rendement3a,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      assumptionLow: tauxMarginalLow,
+      assumptionHigh: tauxMarginalHigh,
     );
+
+    final rendement3aLow = math.max(0.0, rendement3a - 0.005);
+    final rendement3aHigh = rendement3a + 0.005;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_3a',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendement3a: rendement3aLow,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendement3a: rendement3aHigh,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      assumptionLow: rendement3aLow,
+      assumptionHigh: rendement3aHigh,
+    );
+
+    final rendementLppLow = math.max(0.0, rendementLpp - 0.005);
+    final rendementLppHigh = rendementLpp + 0.005;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_lpp',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendement3a: rendement3a,
+        variantRendementLpp: rendementLppLow,
+        variantRendementMarche: rendementMarche,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendement3a: rendement3a,
+        variantRendementLpp: rendementLppHigh,
+        variantRendementMarche: rendementMarche,
+        variantTauxHypothecaire: tauxHypothecaire,
+      ),
+      assumptionLow: rendementLppLow,
+      assumptionHigh: rendementLppHigh,
+    );
+
+    if (isPropertyOwner) {
+      final tauxHypoLow = math.max(0.0, tauxHypothecaire - 0.005);
+      final tauxHypoHigh = tauxHypothecaire + 0.005;
+      _addTornadoSensitivity(
+        sensitivity,
+        key: 'taux_hypothecaire',
+        baseValue: baseSpread,
+        lowValue: spreadVariant(
+          variantTauxMarginal: tauxMarginal,
+          variantRendement3a: rendement3a,
+          variantRendementLpp: rendementLpp,
+          variantRendementMarche: rendementMarche,
+          variantTauxHypothecaire: tauxHypoLow,
+        ),
+        highValue: spreadVariant(
+          variantTauxMarginal: tauxMarginal,
+          variantRendement3a: rendement3a,
+          variantRendementLpp: rendementLpp,
+          variantRendementMarche: rendementMarche,
+          variantTauxHypothecaire: tauxHypoHigh,
+        ),
+        assumptionLow: tauxHypoLow,
+        assumptionHigh: tauxHypoHigh,
+      );
+    }
 
     return ArbitrageResult(
       options: options,
@@ -370,10 +679,7 @@ class ArbitrageEngine {
         'LIFD art. 33 (deductions)',
       ],
       confidenceScore: 60.0,
-      sensitivity: {
-        'rendement_marche_plus_1': senUp.last.netPatrimony,
-        'rendement_marche_moins_1': senDown.last.netPatrimony,
-      },
+      sensitivity: sensitivity,
     );
   }
 
@@ -525,25 +831,65 @@ class ArbitrageEngine {
     );
 
     final displaySummary = breakevenYear != null
-        ? 'Les trajectoires se croisent vers ${startYear + breakevenYear!}. '
+        ? 'Les trajectoires se croisent vers ${startYear + breakevenYear}. '
             'Avant ce point, une option domine ; apres, l\'autre prend le relais.'
         : 'Sur l\'horizon de $horizonAnnees ans, les trajectoires ne se croisent pas. '
             'L\'ecart final est de ${_formatChf(delta)}.';
 
-    // Sensitivity
-    final senUp = _buildLocationInvestTrajectory(
-      capital: capitalDisponible,
-      loyerAnnuel: loyerAnnuel,
-      rendement: rendementMarche + 0.01,
-      horizon: horizonAnnees,
-      startYear: startYear,
+    final sensitivity = <String, double>{};
+    final baseSpread = _terminalSpreadFromOptions(options);
+
+    double spreadVariantLocation({
+      required double variantLoyerMensuel,
+      required double variantRendementMarche,
+    }) {
+      final variantLocation = _buildLocationInvestTrajectory(
+        capital: capitalDisponible,
+        loyerAnnuel: variantLoyerMensuel * 12,
+        rendement: variantRendementMarche,
+        horizon: horizonAnnees,
+        startYear: startYear,
+      );
+      return _terminalSpreadFromValues([
+        variantLocation.last.netPatrimony,
+        optionB.terminalValue,
+      ]);
+    }
+
+    final rendementLow = math.max(0.0, rendementMarche - 0.01);
+    final rendementHigh = rendementMarche + 0.01;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_marche',
+      baseValue: baseSpread,
+      lowValue: spreadVariantLocation(
+        variantLoyerMensuel: loyerMensuelActuel,
+        variantRendementMarche: rendementLow,
+      ),
+      highValue: spreadVariantLocation(
+        variantLoyerMensuel: loyerMensuelActuel,
+        variantRendementMarche: rendementHigh,
+      ),
+      assumptionLow: rendementLow,
+      assumptionHigh: rendementHigh,
     );
-    final senDown = _buildLocationInvestTrajectory(
-      capital: capitalDisponible,
-      loyerAnnuel: loyerAnnuel,
-      rendement: math.max(0, rendementMarche - 0.01),
-      horizon: horizonAnnees,
-      startYear: startYear,
+
+    final loyerLow = loyerMensuelActuel * 0.90;
+    final loyerHigh = loyerMensuelActuel * 1.10;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'loyer_mensuel',
+      baseValue: baseSpread,
+      lowValue: spreadVariantLocation(
+        variantLoyerMensuel: loyerLow,
+        variantRendementMarche: rendementMarche,
+      ),
+      highValue: spreadVariantLocation(
+        variantLoyerMensuel: loyerHigh,
+        variantRendementMarche: rendementMarche,
+      ),
+      assumptionLow: loyerLow,
+      assumptionHigh: loyerHigh,
     );
 
     return ArbitrageResult(
@@ -572,10 +918,7 @@ class ArbitrageEngine {
         'LIFD art. 33 (deduction des interets hypothecaires)',
       ],
       confidenceScore: 55.0,
-      sensitivity: {
-        'rendement_marche_plus_1': senUp.last.netPatrimony,
-        'rendement_marche_moins_1': senDown.last.netPatrimony,
-      },
+      sensitivity: sensitivity,
     );
   }
 
@@ -697,9 +1040,124 @@ class ArbitrageEngine {
         '${_formatChf(taxSavingRachat)}, mais le capital est bloque (LPP art. 79b al. 3). '
         'L\'investissement libre est accessible a tout moment.';
 
-    // Sensitivity
-    final senUpLpp = montant * math.pow(1 + rendementLpp + 0.005, anneesAvantRetraite);
-    final senDownLpp = montant * math.pow(1 + math.max(0, rendementLpp - 0.005), anneesAvantRetraite);
+    final sensitivity = <String, double>{};
+    final baseSpread = _terminalSpreadFromOptions(options);
+
+    double spreadVariant({
+      required double variantTauxMarginal,
+      required double variantRendementLpp,
+      required double variantRendementMarche,
+      required int variantAnnees,
+    }) {
+      final taxSavingVariant = montant * variantTauxMarginal;
+
+      double balanceLppVariant = montant;
+      for (int i = 0; i < variantAnnees; i++) {
+        balanceLppVariant *= (1 + variantRendementLpp);
+      }
+      final withdrawalTaxVariant = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: balanceLppVariant,
+        canton: canton,
+        isMarried: isMarried,
+      );
+      final netLppVariant = balanceLppVariant - withdrawalTaxVariant + taxSavingVariant;
+
+      double balanceMarcheVariant = montant;
+      for (int i = 0; i < variantAnnees; i++) {
+        balanceMarcheVariant *= (1 + variantRendementMarche);
+        balanceMarcheVariant -= balanceMarcheVariant * 0.003;
+      }
+
+      return (netLppVariant - balanceMarcheVariant).abs();
+    }
+
+    final rendementMarcheLow = math.max(0.0, rendementMarche - 0.01);
+    final rendementMarcheHigh = rendementMarche + 0.01;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_marche',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarcheLow,
+        variantAnnees: anneesAvantRetraite,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarcheHigh,
+        variantAnnees: anneesAvantRetraite,
+      ),
+      assumptionLow: rendementMarcheLow,
+      assumptionHigh: rendementMarcheHigh,
+    );
+
+    final tauxMarginalLow = math.max(0.0, tauxMarginal - 0.02);
+    final tauxMarginalHigh = math.min(0.50, tauxMarginal + 0.02);
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'taux_marginal',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginalLow,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantAnnees: anneesAvantRetraite,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginalHigh,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantAnnees: anneesAvantRetraite,
+      ),
+      assumptionLow: tauxMarginalLow,
+      assumptionHigh: tauxMarginalHigh,
+    );
+
+    final rendementLppLow = math.max(0.0, rendementLpp - 0.005);
+    final rendementLppHigh = rendementLpp + 0.005;
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'rendement_lpp',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendementLpp: rendementLppLow,
+        variantRendementMarche: rendementMarche,
+        variantAnnees: anneesAvantRetraite,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendementLpp: rendementLppHigh,
+        variantRendementMarche: rendementMarche,
+        variantAnnees: anneesAvantRetraite,
+      ),
+      assumptionLow: rendementLppLow,
+      assumptionHigh: rendementLppHigh,
+    );
+
+    final anneesLow = math.max(1, anneesAvantRetraite - 2);
+    final anneesHigh = math.min(40, anneesAvantRetraite + 2);
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'annees_avant_retraite',
+      baseValue: baseSpread,
+      lowValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantAnnees: anneesLow,
+      ),
+      highValue: spreadVariant(
+        variantTauxMarginal: tauxMarginal,
+        variantRendementLpp: rendementLpp,
+        variantRendementMarche: rendementMarche,
+        variantAnnees: anneesHigh,
+      ),
+      assumptionLow: anneesLow.toDouble(),
+      assumptionHigh: anneesHigh.toDouble(),
+    );
 
     return ArbitrageResult(
       options: options,
@@ -729,10 +1187,7 @@ class ArbitrageEngine {
         'LIFD art. 38 (impot retrait capital)',
       ],
       confidenceScore: 60.0,
-      sensitivity: {
-        'rendement_lpp_plus_0_5': senUpLpp + taxSavingRachat,
-        'rendement_lpp_moins_0_5': senDownLpp + taxSavingRachat,
-      },
+      sensitivity: sensitivity,
     );
   }
 
@@ -754,7 +1209,7 @@ class ArbitrageEngine {
     bool isMarried = false,
   }) {
     if (assets.isEmpty) {
-      return ArbitrageResult(
+      return const ArbitrageResult(
         options: [],
         breakevenYear: null,
         chiffreChoc: 'Ajoute au moins un avoir pour voir la comparaison.',
@@ -893,6 +1348,39 @@ class ArbitrageEngine {
             '(impot : ${_formatChf(w.tax)})')
         .toList();
 
+    final sensitivity = <String, double>{};
+    final baseSpread = _terminalSpreadFromOptions(options);
+
+    double spreadForCapitalScale(double scale) {
+      final scaledTotal = totalCapital * scale;
+      final scaledTaxToutEnUn = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: scaledTotal,
+        canton: canton,
+        isMarried: isMarried,
+      );
+      var scaledTaxEtale = 0.0;
+      for (final asset in sortedAssets) {
+        scaledTaxEtale += RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: asset.amount * scale,
+          canton: canton,
+          isMarried: isMarried,
+        );
+      }
+      final scaledNetToutEnUn = scaledTotal - scaledTaxToutEnUn;
+      final scaledNetEtale = scaledTotal - scaledTaxEtale;
+      return (scaledNetEtale - scaledNetToutEnUn).abs();
+    }
+
+    _addTornadoSensitivity(
+      sensitivity,
+      key: 'capital_total',
+      baseValue: baseSpread,
+      lowValue: spreadForCapitalScale(0.90),
+      highValue: spreadForCapitalScale(1.10),
+      assumptionLow: totalCapital * 0.90,
+      assumptionHigh: totalCapital * 1.10,
+    );
+
     return ArbitrageResult(
       options: options,
       breakevenYear: null,
@@ -914,13 +1402,51 @@ class ArbitrageEngine {
         'Legislations fiscales cantonales',
       ],
       confidenceScore: 70.0,
-      sensitivity: {},
+      sensitivity: sensitivity,
     );
   }
 
   // ════════════════════════════════════════════════════════════
   //  PRIVATE HELPERS — Trajectory builders
   // ════════════════════════════════════════════════════════════
+
+  static double _terminalSpreadFromOptions(List<TrajectoireOption> options) {
+    if (options.length < 2) return 0;
+    final terminals = options.map((o) => o.terminalValue);
+    final minVal = terminals.reduce(math.min);
+    final maxVal = terminals.reduce(math.max);
+    return maxVal - minVal;
+  }
+
+  static double _terminalSpreadFromValues(List<double> values) {
+    if (values.length < 2) return 0;
+    final minVal = values.reduce(math.min);
+    final maxVal = values.reduce(math.max);
+    return maxVal - minVal;
+  }
+
+  static void _addTornadoSensitivity(
+    Map<String, double> sensitivity, {
+    required String key,
+    required double baseValue,
+    required double lowValue,
+    required double highValue,
+    double? assumptionLow,
+    double? assumptionHigh,
+  }) {
+    final swing = (highValue - lowValue).abs();
+    sensitivity[key] = swing;
+    sensitivity['tornado_${key}_base'] = baseValue;
+    sensitivity['tornado_${key}_low'] = lowValue;
+    sensitivity['tornado_${key}_high'] = highValue;
+    sensitivity['tornado_${key}_swing'] = swing;
+    if (assumptionLow != null) {
+      sensitivity['tornado_${key}_assumption_low'] = assumptionLow;
+    }
+    if (assumptionHigh != null) {
+      sensitivity['tornado_${key}_assumption_high'] = assumptionHigh;
+    }
+  }
 
   /// Build year-by-year trajectory for full rente option.
   ///
@@ -1162,7 +1688,7 @@ class ArbitrageEngine {
     final snapshots = <YearlySnapshot>[];
     double balance3a = 0;
     double cumulativeSaving = 0;
-    final rendement3a = 0.02; // Conservative 3a return
+    const rendement3a = 0.02; // Conservative 3a return
 
     for (int y = 0; y <= horizon; y++) {
       if (y == 0) {

@@ -109,3 +109,203 @@ class ArbitrageResult {
     required this.sensitivity,
   });
 }
+
+/// A normalized Tornado variable parsed from `ArbitrageResult.sensitivity`.
+class ArbitrageTornadoVariable {
+  final String key;
+  final String label;
+  final String category;
+  final double baseValue;
+  final double lowValue;
+  final double highValue;
+  final double swing;
+  final String lowLabel;
+  final String highLabel;
+
+  const ArbitrageTornadoVariable({
+    required this.key,
+    required this.label,
+    required this.category,
+    required this.baseValue,
+    required this.lowValue,
+    required this.highValue,
+    required this.swing,
+    required this.lowLabel,
+    required this.highLabel,
+  });
+}
+
+extension ArbitrageTornadoParsing on ArbitrageResult {
+  List<ArbitrageTornadoVariable> get tornadoVariables =>
+      parseArbitrageTornado(sensitivity);
+}
+
+class _TornadoMeta {
+  final String label;
+  final String category;
+  final String Function(double)? assumptionFormatter;
+
+  const _TornadoMeta({
+    required this.label,
+    required this.category,
+    this.assumptionFormatter,
+  });
+}
+
+List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input) {
+  final grouped = <String, Map<String, double>>{};
+
+  for (final entry in input.entries) {
+    if (!entry.key.startsWith('tornado_')) continue;
+    final raw = entry.key.substring('tornado_'.length);
+    final metric = _metricSuffix(raw);
+    if (metric == null) continue;
+    final variableKey = raw.substring(0, raw.length - metric.length - 1);
+    grouped.putIfAbsent(variableKey, () => <String, double>{})[metric] =
+        entry.value;
+  }
+
+  final result = <ArbitrageTornadoVariable>[];
+
+  for (final entry in grouped.entries) {
+    final key = entry.key;
+    final values = entry.value;
+    final base = values['base'];
+    final low = values['low'];
+    final high = values['high'];
+    if (base == null || low == null || high == null) continue;
+
+    final meta = _tornadoMetadata[key] ??
+        const _TornadoMeta(label: 'Variable', category: 'strategy');
+
+    final lowAssumption = values['assumption_low'];
+    final highAssumption = values['assumption_high'];
+    final lowLabel = lowAssumption != null
+        ? (meta.assumptionFormatter?.call(lowAssumption) ?? 'Bas')
+        : 'Bas';
+    final highLabel = highAssumption != null
+        ? (meta.assumptionFormatter?.call(highAssumption) ?? 'Haut')
+        : 'Haut';
+
+    result.add(ArbitrageTornadoVariable(
+      key: key,
+      label: meta.label,
+      category: meta.category,
+      baseValue: base,
+      lowValue: low,
+      highValue: high,
+      swing: values['swing'] ?? (high - low).abs(),
+      lowLabel: lowLabel,
+      highLabel: highLabel,
+    ));
+  }
+
+  result.sort((a, b) => b.swing.compareTo(a.swing));
+  return result;
+}
+
+String? _metricSuffix(String raw) {
+  const metrics = <String>[
+    'assumption_low',
+    'assumption_high',
+    'base',
+    'low',
+    'high',
+    'swing',
+  ];
+  for (final metric in metrics) {
+    if (raw.endsWith('_$metric')) return metric;
+  }
+  return null;
+}
+
+String _formatPercent(double value) => '${(value * 100).toStringAsFixed(1)}%';
+String _formatAge(double value) => '${value.round()} ans';
+String _formatChf(double value) {
+  final intVal = value.round().abs();
+  final str = intVal.toString();
+  final buffer = StringBuffer();
+  for (int i = 0; i < str.length; i++) {
+    if (i > 0 && (str.length - i) % 3 == 0) buffer.write("'");
+    buffer.write(str[i]);
+  }
+  return 'CHF ${value < 0 ? '-' : ''}${buffer.toString()}';
+}
+
+const Map<String, _TornadoMeta> _tornadoMetadata = {
+  'rendement_capital': _TornadoMeta(
+    label: 'Rendement du capital',
+    category: 'libre',
+    assumptionFormatter: _formatPercent,
+  ),
+  'taux_retrait': _TornadoMeta(
+    label: 'Taux de retrait (SWR)',
+    category: 'strategy',
+    assumptionFormatter: _formatPercent,
+  ),
+  'taux_conversion_obligatoire': _TornadoMeta(
+    label: 'Conversion LPP obligatoire',
+    category: 'lpp',
+    assumptionFormatter: _formatPercent,
+  ),
+  'taux_conversion_surobligatoire': _TornadoMeta(
+    label: 'Conversion LPP suroblig.',
+    category: 'lpp',
+    assumptionFormatter: _formatPercent,
+  ),
+  'rendement_marche': _TornadoMeta(
+    label: 'Rendement marche',
+    category: 'libre',
+    assumptionFormatter: _formatPercent,
+  ),
+  'taux_marginal': _TornadoMeta(
+    label: 'Taux marginal',
+    category: 'strategy',
+    assumptionFormatter: _formatPercent,
+  ),
+  'rendement_3a': _TornadoMeta(
+    label: 'Rendement 3a',
+    category: '3a',
+    assumptionFormatter: _formatPercent,
+  ),
+  'rendement_lpp': _TornadoMeta(
+    label: 'Rendement LPP',
+    category: 'lpp',
+    assumptionFormatter: _formatPercent,
+  ),
+  'taux_hypothecaire': _TornadoMeta(
+    label: 'Taux hypothecaire',
+    category: 'depenses',
+    assumptionFormatter: _formatPercent,
+  ),
+  'appreciation_immo': _TornadoMeta(
+    label: 'Appreciation immo',
+    category: 'strategy',
+    assumptionFormatter: _formatPercent,
+  ),
+  'loyer_mensuel': _TornadoMeta(
+    label: 'Loyer mensuel',
+    category: 'depenses',
+    assumptionFormatter: _formatChf,
+  ),
+  'taux_impot_capital': _TornadoMeta(
+    label: 'Taux impot capital',
+    category: 'strategy',
+    assumptionFormatter: _formatPercent,
+  ),
+  'age_retraite': _TornadoMeta(
+    label: 'Age de retraite',
+    category: 'strategy',
+    assumptionFormatter: _formatAge,
+  ),
+  'capital_total': _TornadoMeta(
+    label: 'Capital total',
+    category: 'strategy',
+    assumptionFormatter: _formatChf,
+  ),
+  'annees_avant_retraite': _TornadoMeta(
+    label: 'Annees avant retraite',
+    category: 'strategy',
+    assumptionFormatter: _formatAge,
+  ),
+};

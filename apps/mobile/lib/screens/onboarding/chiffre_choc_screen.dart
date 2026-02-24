@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -24,6 +25,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
   late Animation<double> _scaleAnim;
   late Animation<double> _fadeAnim;
 
+  bool _didStartLoad = false;
   MinimalProfileResult? _profile;
   ChiffreChoc? _chiffreChoc;
 
@@ -45,12 +47,13 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_profile == null) {
+    if (!_didStartLoad) {
+      _didStartLoad = true;
       _computeFromRouteExtra();
     }
   }
 
-  void _computeFromRouteExtra() {
+  Future<void> _computeFromRouteExtra() async {
     final extra = GoRouterState.of(context).extra;
     if (extra is! Map<String, dynamic>) return;
 
@@ -65,23 +68,53 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final existing3a = (extra['existing3a'] as num?)?.toDouble();
     final existingLpp = (extra['existingLpp'] as num?)?.toDouble();
 
-    final profile = MinimalProfileService.compute(
-      age: age,
-      grossSalary: grossSalary,
-      canton: canton,
-      householdType: householdType,
-      currentSavings: currentSavings,
-      isPropertyOwner: isPropertyOwner,
-      existing3a: existing3a,
-      existingLpp: existingLpp,
-    );
+    try {
+      final profile = await ApiService.computeMinimalProfile(
+        age: age,
+        grossSalary: grossSalary,
+        canton: canton,
+        householdType: householdType,
+        currentSavings: currentSavings,
+        isPropertyOwner: isPropertyOwner,
+        existing3a: existing3a,
+        existingLpp: existingLpp,
+      );
+      final choc = await ApiService.computeOnboardingChiffreChoc(
+        age: age,
+        grossSalary: grossSalary,
+        canton: canton,
+        householdType: householdType,
+        currentSavings: currentSavings,
+        isPropertyOwner: isPropertyOwner,
+        existing3a: existing3a,
+        existingLpp: existingLpp,
+      );
 
-    setState(() {
-      _profile = profile;
-      _chiffreChoc = ChiffreChocSelector.select(profile);
-    });
+      if (!mounted) return;
+      setState(() {
+        _profile = profile;
+        _chiffreChoc = choc;
+      });
+    } catch (_) {
+      final profile = MinimalProfileService.compute(
+        age: age,
+        grossSalary: grossSalary,
+        canton: canton,
+        householdType: householdType,
+        currentSavings: currentSavings,
+        isPropertyOwner: isPropertyOwner,
+        existing3a: existing3a,
+        existingLpp: existingLpp,
+      );
 
-    _animController.forward();
+      if (!mounted) return;
+      setState(() {
+        _profile = profile;
+        _chiffreChoc = ChiffreChocSelector.select(profile);
+      });
+    }
+
+    _animController.forward(from: 0);
   }
 
   Color _colorForKey(String key) {
@@ -269,8 +302,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     // Navigate to relevant simulation based on chiffre choc type
                     final route = switch (choc.type) {
                       ChiffreChocType.liquidityAlert => '/home',
-                      ChiffreChocType.retirementGap =>
-                        '/retirement/projection',
+                      ChiffreChocType.retirementGap => '/retirement/projection',
                       ChiffreChocType.taxSaving3a => '/simulator/3a',
                       ChiffreChocType.retirementIncome =>
                         '/retirement/projection',
@@ -309,7 +341,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                   style: OutlinedButton.styleFrom(
                     foregroundColor: MintColors.textPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    side: const BorderSide(color: MintColors.border, width: 1.5),
+                    side:
+                        const BorderSide(color: MintColors.border, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -352,7 +385,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
   }
 
   Map<String, dynamic> _buildEnrichmentExtra() {
-    final extra = GoRouterState.of(context).extra as Map<String, dynamic>? ?? {};
+    final extra =
+        GoRouterState.of(context).extra as Map<String, dynamic>? ?? {};
     return {
       ...extra,
       'age': _profile!.age,

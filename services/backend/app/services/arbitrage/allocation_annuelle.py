@@ -29,9 +29,7 @@ from typing import List, Dict
 
 from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_AVEC_LPP,
-    LPP_TAUX_INTERET_MIN,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
     calculate_progressive_capital_tax,
 )
 
@@ -39,6 +37,8 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
+    compute_terminal_spread,
+    add_tornado_sensitivity,
 )
 
 
@@ -468,24 +468,121 @@ def compare_allocation_annuelle(
         is_property_owner=is_property_owner,
     )
 
-    # Sensitivity: impact of rendement_marche +/- 1%
-    option_libre_plus = _build_investissement_libre_option(
-        montant=montant_disponible,
-        annees=annees_avant_retraite,
-        rendement_marche=rendement_marche + 0.01,
-        canton=canton,
+    base_spread = compute_terminal_spread(options)
+
+    def _build_variant_options(
+        *,
+        variant_taux_marginal: float = taux_marginal,
+        variant_rendement_3a: float = rendement_3a,
+        variant_rendement_lpp: float = rendement_lpp,
+        variant_rendement_marche: float = rendement_marche,
+        variant_taux_hypothecaire: float = taux_hypothecaire,
+    ) -> List[TrajectoireOption]:
+        variant_options: List[TrajectoireOption] = []
+
+        if not a3a_maxed and montant_disponible > 0:
+            variant_options.append(_build_3a_option(
+                montant=montant_disponible,
+                taux_marginal=variant_taux_marginal,
+                annees=annees_avant_retraite,
+                rendement_3a=variant_rendement_3a,
+                canton=canton,
+            ))
+
+        if potentiel_rachat_lpp > 0 and montant_disponible > 0:
+            variant_options.append(_build_rachat_lpp_option(
+                montant=montant_disponible,
+                potentiel_rachat=potentiel_rachat_lpp,
+                taux_marginal=variant_taux_marginal,
+                annees=annees_avant_retraite,
+                rendement_lpp=variant_rendement_lpp,
+                canton=canton,
+            ))
+
+        if is_property_owner and montant_disponible > 0:
+            variant_options.append(_build_amortissement_indirect_option(
+                montant=montant_disponible,
+                taux_marginal=variant_taux_marginal,
+                annees=annees_avant_retraite,
+                taux_hypothecaire=variant_taux_hypothecaire,
+                rendement_3a=variant_rendement_3a,
+                canton=canton,
+            ))
+
+        variant_options.append(_build_investissement_libre_option(
+            montant=montant_disponible,
+            annees=annees_avant_retraite,
+            rendement_marche=variant_rendement_marche,
+            canton=canton,
+        ))
+
+        return variant_options
+
+    def _spread_variant(**kwargs) -> float:
+        return compute_terminal_spread(_build_variant_options(**kwargs))
+
+    sensitivity: Dict[str, float] = {}
+
+    rendement_marche_low = max(0.0, rendement_marche - 0.01)
+    rendement_marche_high = rendement_marche + 0.01
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_marche",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_marche=rendement_marche_low),
+        high_value=_spread_variant(variant_rendement_marche=rendement_marche_high),
+        assumption_low=rendement_marche_low,
+        assumption_high=rendement_marche_high,
     )
-    option_libre_minus = _build_investissement_libre_option(
-        montant=montant_disponible,
-        annees=annees_avant_retraite,
-        rendement_marche=rendement_marche - 0.01,
-        canton=canton,
+
+    taux_marginal_low = max(0.0, taux_marginal - 0.02)
+    taux_marginal_high = min(0.50, taux_marginal + 0.02)
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_marginal",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_taux_marginal=taux_marginal_low),
+        high_value=_spread_variant(variant_taux_marginal=taux_marginal_high),
+        assumption_low=taux_marginal_low,
+        assumption_high=taux_marginal_high,
     )
-    sensitivity = {
-        "rendement_marche": round(
-            option_libre_plus.terminal_value - option_libre_minus.terminal_value, 2
-        ),
-    }
+
+    rendement_3a_low = max(0.0, rendement_3a - 0.005)
+    rendement_3a_high = rendement_3a + 0.005
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_3a",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_3a=rendement_3a_low),
+        high_value=_spread_variant(variant_rendement_3a=rendement_3a_high),
+        assumption_low=rendement_3a_low,
+        assumption_high=rendement_3a_high,
+    )
+
+    rendement_lpp_low = max(0.0, rendement_lpp - 0.005)
+    rendement_lpp_high = rendement_lpp + 0.005
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_lpp",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_lpp=rendement_lpp_low),
+        high_value=_spread_variant(variant_rendement_lpp=rendement_lpp_high),
+        assumption_low=rendement_lpp_low,
+        assumption_high=rendement_lpp_high,
+    )
+
+    if is_property_owner:
+        taux_hypo_low = max(0.0, taux_hypothecaire - 0.005)
+        taux_hypo_high = taux_hypothecaire + 0.005
+        add_tornado_sensitivity(
+            sensitivity,
+            "taux_hypothecaire",
+            base_value=base_spread,
+            low_value=_spread_variant(variant_taux_hypothecaire=taux_hypo_low),
+            high_value=_spread_variant(variant_taux_hypothecaire=taux_hypo_high),
+            assumption_low=taux_hypo_low,
+            assumption_high=taux_hypo_high,
+        )
 
     # Confidence score
     confidence_score = 65.0  # Default with standard inputs

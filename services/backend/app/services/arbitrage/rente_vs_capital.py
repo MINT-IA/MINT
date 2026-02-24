@@ -30,7 +30,6 @@ from typing import List, Dict
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    RETRAIT_CAPITAL_TRANCHES,
     MARRIED_CAPITAL_TAX_DISCOUNT,
     LPP_TAUX_CONVERSION_MIN,
     calculate_progressive_capital_tax,
@@ -40,6 +39,8 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
+    compute_terminal_spread,
+    add_tornado_sensitivity,
 )
 
 
@@ -449,31 +450,87 @@ def compare_rente_vs_capital(
         is_married=is_married,
     )
 
-    # Sensitivity: impact of rendement +/- 1%
-    option_b_plus = _build_full_capital_option(
-        capital_total=capital_lpp_total,
-        canton=canton,
-        is_married=is_married,
-        taux_retrait=taux_retrait,
-        rendement_capital=rendement_capital + 0.01,
-        horizon=horizon,
-        age_retraite=age_retraite,
-    )
-    option_b_minus = _build_full_capital_option(
-        capital_total=capital_lpp_total,
-        canton=canton,
-        is_married=is_married,
-        taux_retrait=taux_retrait,
-        rendement_capital=rendement_capital - 0.01,
-        horizon=horizon,
-        age_retraite=age_retraite,
+    base_spread = compute_terminal_spread(options)
+    sensitivity: Dict[str, float] = {}
+
+    def _spread_variant(
+        *,
+        variant_taux_retrait: float = taux_retrait,
+        variant_rendement_capital: float = rendement_capital,
+        variant_taux_conv_oblig: float = taux_conversion_obligatoire,
+        variant_taux_conv_surob: float = taux_conversion_surobligatoire,
+    ) -> float:
+        variant_b = _build_full_capital_option(
+            capital_total=capital_lpp_total,
+            canton=canton,
+            is_married=is_married,
+            taux_retrait=variant_taux_retrait,
+            rendement_capital=variant_rendement_capital,
+            horizon=horizon,
+            age_retraite=age_retraite,
+        )
+        variant_c = _build_mixed_option(
+            capital_obligatoire=capital_obligatoire,
+            capital_surobligatoire=capital_surobligatoire,
+            taux_conversion_obligatoire=variant_taux_conv_oblig,
+            taux_conversion_surobligatoire=variant_taux_conv_surob,
+            canton=canton,
+            is_married=is_married,
+            taux_retrait=variant_taux_retrait,
+            rendement_capital=variant_rendement_capital,
+            horizon=horizon,
+            age_retraite=age_retraite,
+        )
+        return compute_terminal_spread([option_a, variant_b, variant_c])
+
+    # ── Tornado variables ──────────────────────────────────────────────
+    rendement_low = max(0.0, rendement_capital - 0.01)
+    rendement_high = rendement_capital + 0.01
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_capital",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_capital=rendement_low),
+        high_value=_spread_variant(variant_rendement_capital=rendement_high),
+        assumption_low=rendement_low,
+        assumption_high=rendement_high,
     )
 
-    sensitivity = {
-        "rendement_capital": round(
-            option_b_plus.terminal_value - option_b_minus.terminal_value, 2
-        ),
-    }
+    retrait_low = max(0.01, taux_retrait - 0.005)
+    retrait_high = min(0.08, taux_retrait + 0.005)
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_retrait",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_taux_retrait=retrait_low),
+        high_value=_spread_variant(variant_taux_retrait=retrait_high),
+        assumption_low=retrait_low,
+        assumption_high=retrait_high,
+    )
+
+    conv_oblig_low = max(LPP_TAUX_CONVERSION_MIN, taux_conversion_obligatoire - 0.005)
+    conv_oblig_high = taux_conversion_obligatoire + 0.005
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_conversion_obligatoire",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_taux_conv_oblig=conv_oblig_low),
+        high_value=_spread_variant(variant_taux_conv_oblig=conv_oblig_high),
+        assumption_low=conv_oblig_low,
+        assumption_high=conv_oblig_high,
+    )
+
+    conv_surob_low = max(0.035, taux_conversion_surobligatoire - 0.005)
+    conv_surob_high = min(0.10, taux_conversion_surobligatoire + 0.005)
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_conversion_surobligatoire",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_taux_conv_surob=conv_surob_low),
+        high_value=_spread_variant(variant_taux_conv_surob=conv_surob_high),
+        assumption_low=conv_surob_low,
+        assumption_high=conv_surob_high,
+    )
 
     # Confidence score: high when all inputs are explicit
     confidence_score = 70.0  # Default when all inputs provided

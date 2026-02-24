@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
 class ApiException implements Exception {
@@ -355,6 +358,378 @@ class ApiService {
     int days = 30,
   }) async {
     return getText('/auth/admin/cohorts/export.csv?days=$days');
+  }
+
+  // ========== ONBOARDING / ARBITRAGE (S31-S32) ==========
+
+  static Future<MinimalProfileResult> computeMinimalProfile({
+    required int age,
+    required double grossSalary,
+    required String canton,
+    String? householdType,
+    double? currentSavings,
+    bool? isPropertyOwner,
+    double? existing3a,
+    double? existingLpp,
+  }) async {
+    final response = await post('/onboarding/minimal-profile', {
+      'age': age,
+      'gross_salary': grossSalary,
+      'canton': canton,
+      if (householdType != null) 'household_type': householdType,
+      if (currentSavings != null) 'current_savings': currentSavings,
+      if (isPropertyOwner != null) 'is_property_owner': isPropertyOwner,
+      if (existing3a != null) 'existing_3a': existing3a,
+      if (existingLpp != null) 'existing_lpp': existingLpp,
+    });
+
+    final estimatedMonthlyExpenses = _readDouble(
+      response,
+      const ['estimatedMonthlyExpenses', 'estimated_monthly_expenses'],
+    );
+    final estimatedMonthlyRetirement = _readDouble(
+      response,
+      const ['estimatedMonthlyRetirement', 'estimated_monthly_retirement'],
+    );
+    final monthsLiquidity = _readDouble(
+      response,
+      const ['monthsLiquidity', 'months_liquidity'],
+    );
+    final currentSavingsValue =
+        currentSavings ?? (monthsLiquidity * estimatedMonthlyExpenses);
+    final projectedLppMonthly = _readDouble(
+      response,
+      const ['projectedLppMonthly', 'projected_lpp_monthly'],
+    );
+
+    return MinimalProfileResult(
+      avsMonthlyRente: _readDouble(
+        response,
+        const ['projectedAvsMonthly', 'projected_avs_monthly'],
+      ),
+      lppAnnualRente: projectedLppMonthly * 12,
+      lppMonthlyRente: projectedLppMonthly,
+      totalMonthlyRetirement: estimatedMonthlyRetirement,
+      grossMonthlySalary: grossSalary / 12,
+      replacementRate: _readDouble(
+        response,
+        const ['estimatedReplacementRatio', 'estimated_replacement_ratio'],
+      ),
+      retirementGapMonthly:
+          math.max(0, estimatedMonthlyExpenses - estimatedMonthlyRetirement),
+      taxSaving3a: _readDouble(
+        response,
+        const ['taxSaving3a', 'tax_saving_3a'],
+      ),
+      marginalTaxRate: _readDouble(
+        response,
+        const ['marginalTaxRate', 'marginal_tax_rate'],
+      ),
+      currentSavings: currentSavingsValue,
+      estimatedMonthlyExpenses: estimatedMonthlyExpenses,
+      liquidityMonths: monthsLiquidity,
+      canton: canton,
+      age: age,
+      grossAnnualSalary: grossSalary,
+      householdType: householdType ?? 'single',
+      isPropertyOwner: isPropertyOwner ?? false,
+      existing3a: existing3a ?? 0,
+      existingLpp: existingLpp ?? 0,
+      estimatedFields: _readStringList(
+        response,
+        const ['estimatedFields', 'estimated_fields'],
+      ),
+    );
+  }
+
+  static Future<ChiffreChoc> computeOnboardingChiffreChoc({
+    required int age,
+    required double grossSalary,
+    required String canton,
+    String? householdType,
+    double? currentSavings,
+    bool? isPropertyOwner,
+    double? existing3a,
+    double? existingLpp,
+  }) async {
+    final response = await post('/onboarding/chiffre-choc', {
+      'age': age,
+      'gross_salary': grossSalary,
+      'canton': canton,
+      if (householdType != null) 'household_type': householdType,
+      if (currentSavings != null) 'current_savings': currentSavings,
+      if (isPropertyOwner != null) 'is_property_owner': isPropertyOwner,
+      if (existing3a != null) 'existing_3a': existing3a,
+      if (existingLpp != null) 'existing_lpp': existingLpp,
+    });
+
+    final category = _readString(
+      response,
+      const ['category'],
+      fallback: 'retirement_gap',
+    );
+    final primaryNumber = _readDouble(
+      response,
+      const ['primaryNumber', 'primary_number'],
+    );
+    final displayText = _readString(
+      response,
+      const ['displayText', 'display_text'],
+    );
+    final explanationText = _readString(
+      response,
+      const ['explanationText', 'explanation_text'],
+    );
+
+    final type = switch (category) {
+      'liquidity' => ChiffreChocType.liquidityAlert,
+      'tax_saving' => ChiffreChocType.taxSaving3a,
+      'retirement_gap' => ChiffreChocType.retirementGap,
+      _ => ChiffreChocType.retirementIncome,
+    };
+
+    final (title, iconName, colorKey, value) = switch (type) {
+      ChiffreChocType.liquidityAlert => (
+          'Ta reserve de liquidite',
+          'warning_amber',
+          'error',
+          '${primaryNumber.toStringAsFixed(1)} mois',
+        ),
+      ChiffreChocType.taxSaving3a => (
+          'Ton economie d\'impot potentielle',
+          'savings',
+          'success',
+          '${_formatChf(primaryNumber)}/an',
+        ),
+      ChiffreChocType.retirementGap => (
+          'Ton ecart de retraite',
+          'trending_down',
+          'warning',
+          '${_formatChf(primaryNumber)}/mois',
+        ),
+      ChiffreChocType.retirementIncome => (
+          'Ton revenu estime a la retraite',
+          'account_balance',
+          'info',
+          '${_formatChf(primaryNumber)}/mois',
+        ),
+    };
+
+    return ChiffreChoc(
+      type: type,
+      value: value,
+      rawValue: primaryNumber,
+      title: title,
+      subtitle: explanationText.isNotEmpty
+          ? '$displayText $explanationText'
+          : displayText,
+      iconName: iconName,
+      colorKey: colorKey,
+    );
+  }
+
+  static Future<ArbitrageResult> compareRenteVsCapital({
+    required double capitalLppTotal,
+    required double capitalObligatoire,
+    required double capitalSurobligatoire,
+    required double renteAnnuelleProposee,
+    required String canton,
+    double tauxConversionObligatoire = 0.068,
+    double tauxConversionSurobligatoire = 0.05,
+    int ageRetraite = 65,
+    double tauxRetrait = 0.04,
+    double rendementCapital = 0.03,
+    double inflation = 0.02,
+    int horizon = 25,
+    bool isMarried = false,
+  }) async {
+    final response = await post('/arbitrage/rente-vs-capital', {
+      'capital_lpp_total': capitalLppTotal,
+      'capital_obligatoire': capitalObligatoire,
+      'capital_surobligatoire': capitalSurobligatoire,
+      'rente_annuelle_proposee': renteAnnuelleProposee,
+      'taux_conversion_obligatoire': tauxConversionObligatoire,
+      'taux_conversion_surobligatoire': tauxConversionSurobligatoire,
+      'canton': canton,
+      'age_retraite': ageRetraite,
+      'taux_retrait': tauxRetrait,
+      'rendement_capital': rendementCapital,
+      'inflation': inflation,
+      'horizon': horizon,
+      'is_married': isMarried,
+    });
+
+    final rawOptions = response['options'];
+    final options = <TrajectoireOption>[];
+    if (rawOptions is List) {
+      for (final item in rawOptions) {
+        if (item is Map) {
+          options.add(_parseTrajectoireOption(Map<String, dynamic>.from(item)));
+        }
+      }
+    }
+
+    final rawSensitivity = response['sensitivity'];
+    final sensitivity = <String, double>{};
+    if (rawSensitivity is Map) {
+      for (final entry in rawSensitivity.entries) {
+        sensitivity[entry.key.toString()] =
+            (entry.value as num?)?.toDouble() ?? 0;
+      }
+    }
+
+    final breakeven = _readNullableInt(
+      response,
+      const ['breakevenYear', 'breakeven_year'],
+    );
+
+    return ArbitrageResult(
+      options: options,
+      breakevenYear: breakeven != null && breakeven >= 0 ? breakeven : null,
+      chiffreChoc: _readString(
+        response,
+        const ['chiffreChoc', 'chiffre_choc'],
+      ),
+      displaySummary: _readString(
+        response,
+        const ['displaySummary', 'display_summary'],
+      ),
+      hypotheses: _readStringList(
+        response,
+        const ['hypotheses'],
+      ),
+      disclaimer: _readString(
+        response,
+        const ['disclaimer'],
+      ),
+      sources: _readStringList(
+        response,
+        const ['sources'],
+      ),
+      confidenceScore: _readDouble(
+        response,
+        const ['confidenceScore', 'confidence_score'],
+      ),
+      sensitivity: sensitivity,
+    );
+  }
+
+  static TrajectoireOption _parseTrajectoireOption(Map<String, dynamic> item) {
+    final rawTrajectory = item['trajectory'];
+    final trajectory = <YearlySnapshot>[];
+    if (rawTrajectory is List) {
+      for (final point in rawTrajectory) {
+        if (point is! Map) continue;
+        final map = Map<String, dynamic>.from(point);
+        trajectory.add(
+          YearlySnapshot(
+            year: _readInt(map, const ['year']),
+            netPatrimony: _readDouble(
+              map,
+              const ['netPatrimony', 'net_patrimony'],
+            ),
+            annualCashflow: _readDouble(
+              map,
+              const ['annualCashflow', 'annual_cashflow'],
+            ),
+            cumulativeTaxDelta: _readDouble(
+              map,
+              const ['cumulativeTaxDelta', 'cumulative_tax_delta'],
+            ),
+          ),
+        );
+      }
+    }
+
+    return TrajectoireOption(
+      id: _readString(item, const ['id']),
+      label: _readString(item, const ['label']),
+      trajectory: trajectory,
+      terminalValue: _readDouble(
+        item,
+        const ['terminalValue', 'terminal_value'],
+      ),
+      cumulativeTaxImpact: _readDouble(
+        item,
+        const ['cumulativeTaxImpact', 'cumulative_tax_impact'],
+      ),
+    );
+  }
+
+  static String _readString(
+    Map<String, dynamic> data,
+    List<String> keys, {
+    String fallback = '',
+  }) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is String) return value;
+    }
+    return fallback;
+  }
+
+  static double _readDouble(
+    Map<String, dynamic> data,
+    List<String> keys, {
+    double fallback = 0.0,
+  }) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is num) return value.toDouble();
+    }
+    return fallback;
+  }
+
+  static int _readInt(
+    Map<String, dynamic> data,
+    List<String> keys, {
+    int fallback = 0,
+  }) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is int) return value;
+      if (value is num) return value.round();
+    }
+    return fallback;
+  }
+
+  static int? _readNullableInt(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value == null) return null;
+      if (value is int) return value;
+      if (value is num) return value.round();
+    }
+    return null;
+  }
+
+  static List<String> _readStringList(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is List) {
+        return value.whereType<String>().toList();
+      }
+    }
+    return const [];
+  }
+
+  static String _formatChf(double value) {
+    final intVal = value.round();
+    final str = intVal.abs().toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write("'");
+      }
+      buffer.write(str[i]);
+    }
+    return 'CHF ${intVal < 0 ? '-' : ''}${buffer.toString()}';
   }
 
   static Future<Map<String, dynamic>> claimLocalData({

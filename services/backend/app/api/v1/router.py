@@ -45,6 +45,7 @@ from app.api.v1.endpoints import (
     reengagement,
     precision,
     document_parser,
+    confidence,
 )
 
 api_router = APIRouter()
@@ -165,4 +166,7 @@ api_router.include_router(
 )
 api_router.include_router(
     document_parser.router, prefix="/document-parser", tags=["Document Parser S42-S43"]
+)
+api_router.include_router(
+    confidence.router, prefix="/confidence", tags=["Confidence S46"]
 )

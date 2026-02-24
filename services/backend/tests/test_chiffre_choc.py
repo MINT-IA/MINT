@@ -48,6 +48,7 @@ def _make_profile(**overrides) -> MinimalProfileResult:
         estimated_monthly_retirement=3_700.0,
         estimated_monthly_expenses=5_800.0,
         tax_saving_3a=1_800.0,
+        existing_3a=0.0,
         marginal_tax_rate=0.25,
         months_liquidity=5.0,
         confidence_score=30.0,
@@ -216,6 +217,18 @@ class TestTaxSavingChoc:
         )
         choc = select_chiffre_choc(profile)
         # Should fall to default (retirement_gap), not tax_saving
+        assert choc.category == "retirement_gap"
+
+    def test_tax_saving_not_triggered_when_existing_3a_positive(self):
+        """Tax saving should NOT trigger when user already has 3a capital."""
+        profile = _make_profile(
+            months_liquidity=6.0,
+            estimated_replacement_ratio=0.65,
+            tax_saving_3a=2_000.0,
+            existing_3a=8_000.0,
+            estimated_fields=[],
+        )
+        choc = select_chiffre_choc(profile)
         assert choc.category == "retirement_gap"
 
 

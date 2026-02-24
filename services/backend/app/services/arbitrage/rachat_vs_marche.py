@@ -28,8 +28,6 @@ from typing import List, Dict
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
     MARRIED_CAPITAL_TAX_DISCOUNT,
-    LPP_TAUX_INTERET_MIN,
-    LPP_TAUX_CONVERSION_MIN,
     calculate_progressive_capital_tax,
 )
 
@@ -37,6 +35,8 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
+    compute_terminal_spread,
+    add_tornado_sensitivity,
 )
 
 
@@ -303,23 +303,80 @@ def compare_rachat_vs_marche(
         "Les rendements passes ne presagent pas des rendements futurs",
     ]
 
-    # Sensitivity: impact of rendement_marche +/- 1%
-    option_b_plus = _build_marche_option(
-        montant=montant,
-        annees_avant_retraite=annees_avant_retraite,
-        rendement_marche=rendement_marche + 0.01,
-    )
-    option_b_minus = _build_marche_option(
-        montant=montant,
-        annees_avant_retraite=annees_avant_retraite,
-        rendement_marche=rendement_marche - 0.01,
+    base_spread = compute_terminal_spread(options)
+
+    def _spread_variant(
+        *,
+        variant_taux_marginal: float = taux_marginal,
+        variant_annees: int = annees_avant_retraite,
+        variant_rendement_lpp: float = rendement_lpp,
+        variant_rendement_marche: float = rendement_marche,
+    ) -> float:
+        variant_a = _build_rachat_option(
+            montant=montant,
+            taux_marginal=variant_taux_marginal,
+            annees_avant_retraite=variant_annees,
+            rendement_lpp=variant_rendement_lpp,
+            taux_conversion=taux_conversion,
+            canton=canton,
+            is_married=is_married,
+        )
+        variant_b = _build_marche_option(
+            montant=montant,
+            annees_avant_retraite=variant_annees,
+            rendement_marche=variant_rendement_marche,
+        )
+        return compute_terminal_spread([variant_a, variant_b])
+
+    sensitivity: Dict[str, float] = {}
+
+    rendement_marche_low = max(0.0, rendement_marche - 0.01)
+    rendement_marche_high = rendement_marche + 0.01
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_marche",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_marche=rendement_marche_low),
+        high_value=_spread_variant(variant_rendement_marche=rendement_marche_high),
+        assumption_low=rendement_marche_low,
+        assumption_high=rendement_marche_high,
     )
 
-    sensitivity = {
-        "rendement_marche": round(
-            option_b_plus.terminal_value - option_b_minus.terminal_value, 2
-        ),
-    }
+    taux_marginal_low = max(0.0, taux_marginal - 0.02)
+    taux_marginal_high = min(0.50, taux_marginal + 0.02)
+    add_tornado_sensitivity(
+        sensitivity,
+        "taux_marginal",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_taux_marginal=taux_marginal_low),
+        high_value=_spread_variant(variant_taux_marginal=taux_marginal_high),
+        assumption_low=taux_marginal_low,
+        assumption_high=taux_marginal_high,
+    )
+
+    rendement_lpp_low = max(0.0, rendement_lpp - 0.005)
+    rendement_lpp_high = rendement_lpp + 0.005
+    add_tornado_sensitivity(
+        sensitivity,
+        "rendement_lpp",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_rendement_lpp=rendement_lpp_low),
+        high_value=_spread_variant(variant_rendement_lpp=rendement_lpp_high),
+        assumption_low=rendement_lpp_low,
+        assumption_high=rendement_lpp_high,
+    )
+
+    annees_low = max(1, annees_avant_retraite - 2)
+    annees_high = min(40, annees_avant_retraite + 2)
+    add_tornado_sensitivity(
+        sensitivity,
+        "annees_avant_retraite",
+        base_value=base_spread,
+        low_value=_spread_variant(variant_annees=annees_low),
+        high_value=_spread_variant(variant_annees=annees_high),
+        assumption_low=float(annees_low),
+        assumption_high=float(annees_high),
+    )
 
     # Confidence score
     confidence_score = 70.0
