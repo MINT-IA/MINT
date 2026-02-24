@@ -38,6 +38,7 @@ from app.api.v1.endpoints import (
     onboarding,
     arbitrage,
     snapshots,
+    coach,
 )
 
 api_router = APIRouter()
@@ -137,4 +138,7 @@ api_router.include_router(
 )
 api_router.include_router(
     snapshots.router, prefix="/snapshots", tags=["Snapshots S33"]
+)
+api_router.include_router(
+    coach.router, prefix="/coach", tags=["Coach Narrative S35"]
 )
