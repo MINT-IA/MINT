@@ -36,6 +36,7 @@ from app.api.v1.endpoints import (
     sync,
     billing,
     onboarding,
+    arbitrage,
 )
 
 api_router = APIRouter()
@@ -129,4 +130,7 @@ api_router.include_router(
 )
 api_router.include_router(
     onboarding.router, prefix="/onboarding", tags=["Onboarding S31"]
+)
+api_router.include_router(
+    arbitrage.router, prefix="/arbitrage", tags=["Arbitrage S32"]
 )

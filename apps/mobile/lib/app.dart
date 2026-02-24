@@ -116,6 +116,9 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/onboarding_minimal_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
+// Arbitrage Phase 1 (Sprint S32)
+import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
+import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -600,6 +603,17 @@ final _router = GoRouter(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const TimelineScreen(),
+    ),
+    // Arbitrage Phase 1 (Sprint S32)
+    GoRoute(
+      path: '/arbitrage/rente-vs-capital',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RenteVsCapitalScreen(),
+    ),
+    GoRoute(
+      path: '/arbitrage/allocation-annuelle',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AllocationAnnuelleScreen(),
     ),
   ],
 );

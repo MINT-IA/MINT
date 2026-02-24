@@ -7,6 +7,8 @@
 /// Reference: ADR-20260223-unified-financial-engine.md
 library;
 
+export 'arbitrage_engine.dart';
+export 'arbitrage_models.dart';
 export 'avs_calculator.dart';
 export 'bayesian_enricher.dart';
 export 'confidence_scorer.dart';
