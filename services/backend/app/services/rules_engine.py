@@ -15,6 +15,8 @@ from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_AVEC_LPP,
     RETRAIT_CAPITAL_TRANCHES,
     TAUX_IMPOT_RETRAIT_CAPITAL,
+    calculate_progressive_capital_tax,
+    get_ai_rente_monthly,
 )
 
 from app.schemas.common import Impact, Period
@@ -53,15 +55,6 @@ CANTON_SALARY_SCALE_MAP = {
     "TI": "bern",  "UR": "bern",  "VD": "bern",  "VS": "bern",
     "ZG": "bern",  "ZH": "zurich",
 }
-
-# AI rente mensuelle maximale by disability degree (2025/2026 values, OAVS).
-AI_RENTE_BY_DEGREE = {
-    40: AVS_RENTE_MAX_MENSUELLE * 0.25,    # 1/4 rente (40-49%)
-    50: AVS_RENTE_MIN_MENSUELLE,           # 1/2 rente (50-59%)
-    60: AVS_RENTE_MAX_MENSUELLE * 0.75,    # 3/4 rente (60-69%)
-    70: AVS_RENTE_MAX_MENSUELLE,           # full rente (70-100%)
-}
-
 
 def _bern_scale_weeks(years: int) -> int:
     """Échelle bernoise (BE, VD, GE, LU). Source: ATF 4C.346/2005."""
@@ -132,22 +125,6 @@ def get_employer_coverage_weeks(canton: str, years_of_service: int) -> int:
         return _zurich_scale_weeks(years_of_service)
     else:
         return _basel_scale_weeks(years_of_service)
-
-
-def get_ai_rente_monthly(disability_degree: int) -> float:
-    """Return monthly AI rente based on disability degree.
-
-    Source: LAI art. 28 al. 1, OAVS 2025 amounts.
-    """
-    if disability_degree < 40:
-        return 0.0
-    if disability_degree < 50:
-        return AI_RENTE_BY_DEGREE[40]
-    if disability_degree < 60:
-        return AI_RENTE_BY_DEGREE[50]
-    if disability_degree < 70:
-        return AI_RENTE_BY_DEGREE[60]
-    return AI_RENTE_BY_DEGREE[70]
 
 
 def compute_disability_gap(
@@ -411,26 +388,6 @@ def calculate_tax_potential(
     return f"~{low}-{high} CHF"
 
 
-def _calculate_progressive_capital_tax(montant: float, base_rate: float) -> float:
-    """Calculate progressive capital withdrawal tax (26 cantons).
-
-    Source: LIFD art. 38, cantonal tax laws.
-    Mirrors Flutter `_calculateProgressiveTax()` in rente_vs_capital_calculator.dart.
-    """
-    if montant <= 0:
-        return 0.0
-    total_tax = 0.0
-    remaining = montant
-    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
-        tranche_size = high - low
-        taxable = min(remaining, tranche_size)
-        if taxable <= 0:
-            break
-        total_tax += taxable * base_rate * multiplier
-        remaining -= taxable
-    return round(total_tax, 2)
-
-
 def _simulate_capital_drawdown(
     capital_net: float,
     retrait_mensuel: float,
@@ -496,7 +453,7 @@ def compute_rente_vs_capital(
         raise ValueError(f"Canton non supporté: {canton}")
 
     effective_rate = base_rate * MARRIED_CAPITAL_TAX_DISCOUNT if statut_civil == "married" else base_rate
-    impot_retrait = _calculate_progressive_capital_tax(capital_total, effective_rate)
+    impot_retrait = calculate_progressive_capital_tax(capital_total, effective_rate)
     capital_net = capital_total - impot_retrait
 
     nb_mois_85 = (85 - age_retraite) * 12

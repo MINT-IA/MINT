@@ -191,11 +191,11 @@ class IndependantsService {
     (60500, double.infinity, 0.10600),
   ];
 
-  /// Cotisation minimale AVS/AI/APG for self-employed.
-  static const double _cotisationMinimale = 530.0;
+  /// Cotisation minimale AVS/AI/APG for self-employed — use centralized constant.
+  static const double _cotisationMinimale = avsCotisationMinIndependant;
 
-  /// AVS employee share rate (for comparison).
-  static const double _tauxAvsSalarie = 0.0530;
+  /// AVS employee share rate (for comparison) — use centralized constant.
+  static const double _tauxAvsSalarie = avsCotisationSalarie;
 
   /// IJM premium rates: {ageMin-ageMax: {delaiCarence: primeFor1000}}.
   static const Map<String, Map<int, double>> _ijmRates = {
@@ -232,8 +232,8 @@ class IndependantsService {
   /// AVS combined employer+employee rate for salary calculations.
   static const double _avsCombinedRate = 0.1250;
 
-  /// LPP conversion rate at retirement.
-  static const double _tauxConversion = 0.068;
+  /// LPP conversion rate at retirement — use centralized constant.
+  static const double _tauxConversion = lppTauxConversionMin / 100;
 
   /// LPP maximum coordinated salary (LPP art. 8).
   static const double _maxSalaireCoordonne = 63540;
@@ -556,20 +556,16 @@ class IndependantsService {
       salaireCoordonne = min(salaireCoordonne, _maxSalaireCoordonne);
     }
 
-    // Age bracket
-    double tauxBonification = 0;
+    // Age bracket — use centralized getLppBonificationRate()
+    final tauxBonification = getLppBonificationRate(age);
     String ageBracketLabel = '';
-    if (age >= 55 && age <= 65) {
-      tauxBonification = 0.18;
+    if (age >= 55) {
       ageBracketLabel = '55-65 ans';
     } else if (age >= 45) {
-      tauxBonification = 0.15;
       ageBracketLabel = '45-54 ans';
     } else if (age >= 35) {
-      tauxBonification = 0.10;
       ageBracketLabel = '35-44 ans';
     } else if (age >= 25) {
-      tauxBonification = 0.07;
       ageBracketLabel = '25-34 ans';
     } else {
       ageBracketLabel = 'Moins de 25 ans';
@@ -584,9 +580,9 @@ class IndependantsService {
     // Retirement projection
     final anneesRestantes = max(65 - age, 0);
 
-    // Without LPP: AVS only (~CHF 29'400 max annual pension)
-    const renteAvsMax = 29400.0;
-    const projectionSansLpp = renteAvsMax;
+    // Without LPP: AVS only (LAVS art. 34, max rente = 2520 × 12)
+    final renteAvsMax = avsRenteMaxMensuelle * 12; // 30240 CHF
+    final projectionSansLpp = renteAvsMax;
 
     // With LPP: project capital at retirement
     double capitalLpp = 0;

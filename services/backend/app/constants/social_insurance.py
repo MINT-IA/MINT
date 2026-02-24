@@ -161,6 +161,29 @@ AI_BAREME: Dict[int, float] = {
 """Bareme AI: degre d'invalidite -> fraction de rente."""
 
 
+def get_ai_rente_monthly(disability_degree: int) -> float:
+    """Return monthly AI rente based on disability degree (LAI art. 28 al. 1).
+
+    ALL backend services MUST use this single function.
+    Do NOT create local get_ai_rente_*() copies.
+
+    Args:
+        disability_degree: Disability degree in % (0-100).
+
+    Returns:
+        Monthly AI rente in CHF.
+    """
+    if disability_degree < 40:
+        return 0.0
+    if disability_degree < 50:
+        return AI_RENTE_ENTIERE * AI_BAREME[40]   # 0.25 -> 630 CHF
+    if disability_degree < 60:
+        return AI_RENTE_ENTIERE * AI_BAREME[50]   # 0.50 -> 1260 CHF
+    if disability_degree < 70:
+        return AI_RENTE_ENTIERE * AI_BAREME[60]   # 0.75 -> 1890 CHF
+    return AI_RENTE_ENTIERE * AI_BAREME[70]        # 1.00 -> 2520 CHF
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # APG — Allocations pour perte de gain
 # Base legale: LAPG
@@ -251,6 +274,33 @@ RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = [
 
 MARRIED_CAPITAL_TAX_DISCOUNT: float = 0.85
 """Reduction d'impot pour les couples maries (splitting cantonal ~15%)."""
+
+
+def calculate_progressive_capital_tax(montant: float, base_rate: float) -> float:
+    """Progressive capital withdrawal tax (LIFD art. 38).
+
+    ALL backend services MUST use this single function.
+    Do NOT create local _calculate_progressive_tax() copies.
+
+    Args:
+        montant: Capital amount being withdrawn (CHF).
+        base_rate: Base cantonal tax rate from TAUX_IMPOT_RETRAIT_CAPITAL.
+
+    Returns:
+        Estimated tax amount (CHF), rounded to 2 decimals.
+    """
+    if montant <= 0:
+        return 0.0
+    total_tax = 0.0
+    remaining = montant
+    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
+        tranche_size = high - low
+        taxable = min(remaining, tranche_size)
+        if taxable <= 0:
+            break
+        total_tax += taxable * base_rate * multiplier
+        remaining -= taxable
+    return round(total_tax, 2)
 
 AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""

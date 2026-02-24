@@ -904,7 +904,7 @@ class RetirementProjectionService {
         adjustmentPct = -(avsReductionAnticipation * (65 - age) * 100);
       } else if (age > 65) {
         final bonus =
-            RetirementService.avsDeferralBonus[(age - 65).clamp(1, 5)];
+            avsDeferralBonus[(age - 65).clamp(1, 5)];
         adjustmentPct = (bonus ?? 0) * 100;
       }
 

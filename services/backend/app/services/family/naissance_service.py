@@ -19,6 +19,8 @@ Sprint S22 — Evenements de vie : Famille.
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from app.constants.social_insurance import get_lpp_bonification_rate
+
 
 
 DISCLAIMER = (
@@ -164,11 +166,9 @@ def _get_lpp_bonification_rate(age: int) -> float:
     """Retourne le taux de bonification LPP pour un age donne.
 
     Source: LPP art. 16.
+    Delegates to centralized get_lpp_bonification_rate() from social_insurance.
     """
-    for (age_min, age_max), rate in LPP_BONIFICATION_TAUX.items():
-        if age_min <= age <= age_max:
-            return rate
-    return 0.0
+    return get_lpp_bonification_rate(age)
 
 
 class NaissanceService:

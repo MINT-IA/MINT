@@ -1,5 +1,9 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/retirement_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+
+// ALL LPP calculations MUST use LppCalculator from financial_core.
+// See ADR-20260223-unified-financial-engine.md
+// Do NOT create local _calculateLpp() or similar methods.
 
 /// LPP (2nd pillar) projection calculator — pure static functions.
 ///
@@ -94,7 +98,7 @@ class LppCalculator {
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
     final effectiveBaseRate =
         isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
-    final tax = RetirementService.calculateProgressiveTax(
+    final tax = RetirementTaxCalculator.progressiveTax(
         capitalBrut, effectiveBaseRate);
     final capitalNet = capitalBrut - tax;
     final capitalMonthly = capitalNet * safeWithdrawalRate / 12;

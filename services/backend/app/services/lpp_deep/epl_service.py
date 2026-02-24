@@ -15,7 +15,11 @@ Sprint S15 — Chantier 4: LPP approfondi.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from app.constants.social_insurance import TAUX_IMPOT_RETRAIT_CAPITAL, RETRAIT_CAPITAL_TRANCHES
+from app.constants.social_insurance import (
+    TAUX_IMPOT_RETRAIT_CAPITAL,
+    RETRAIT_CAPITAL_TRANCHES,
+    calculate_progressive_capital_tax,
+)
 
 
 DISCLAIMER = (
@@ -26,22 +30,6 @@ DISCLAIMER = (
 )
 
 _DEFAULT_TAUX_RETRAIT = 0.065
-
-
-def _calculate_progressive_tax(montant: float, base_rate: float) -> float:
-    """Calculate capital withdrawal tax using progressive brackets."""
-    if montant <= 0:
-        return 0.0
-    total_tax = 0.0
-    remaining = montant
-    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
-        tranche_size = high - low
-        taxable = min(remaining, tranche_size)
-        if taxable <= 0:
-            break
-        total_tax += taxable * base_rate * multiplier
-        remaining -= taxable
-    return round(total_tax, 2)
 
 
 @dataclass
@@ -176,7 +164,7 @@ class EPLService:
 
         # 5. Tax estimate (progressive brackets — aligned with Flutter + pillar_3a_deep)
         taux_impot = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
-        impot_estime = _calculate_progressive_tax(montant_effectif, taux_impot)
+        impot_estime = calculate_progressive_capital_tax(montant_effectif, taux_impot)
 
         # 6. Impact on death and disability benefits
         impact = self._calc_impact_prestations(

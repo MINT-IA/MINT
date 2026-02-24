@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SERVICE — Sprint S21 / Retraite complete
@@ -34,14 +35,7 @@ class RetirementService {
   /// Anticipation penalty per year (6.8%/yr).
   static const double avsAnticipationPenaltyPerYear = 0.068;
 
-  /// Deferral bonus by number of years (1-5). LAVS art. 39.
-  static const Map<int, double> avsDeferralBonus = {
-    1: 0.052,   // +5.2%
-    2: 0.106,   // +10.6%
-    3: 0.164,   // +16.4%
-    4: 0.227,   // +22.7%
-    5: 0.315,   // +31.5%
-  };
+  // avsDeferralBonus moved to social_insurance.dart (LAVS art. 39)
 
   /// Maximum contribution years for full AVS pension.
   static const int maxContributionYears = 44;
@@ -53,38 +47,7 @@ class RetirementService {
   /// Minimum legal conversion rate (6.8%).
   static const double lppConversionRate = 0.068;
 
-  // ════════════════════════════════════════════════════════════
-  //  CAPITAL WITHDRAWAL TAX BY CANTON
-  // ════════════════════════════════════════════════════════════
-
-  static const Map<String, double> tauxImpotRetraitCapital = {
-    'ZH': 0.065,
-    'BE': 0.075,
-    'LU': 0.055,
-    'UR': 0.050,
-    'SZ': 0.040,
-    'OW': 0.045,
-    'NW': 0.040,
-    'GL': 0.055,
-    'ZG': 0.035,
-    'FR': 0.070,
-    'SO': 0.065,
-    'BS': 0.075,
-    'BL': 0.065,
-    'SH': 0.060,
-    'AR': 0.055,
-    'AI': 0.045,
-    'SG': 0.060,
-    'GR': 0.055,
-    'AG': 0.060,
-    'TG': 0.055,
-    'TI': 0.065,
-    'VD': 0.080,
-    'VS': 0.060,
-    'NE': 0.070,
-    'GE': 0.075,
-    'JU': 0.065,
-  };
+  // tauxImpotRetraitCapital moved to social_insurance.dart
 
   /// Canton full names (French).
   static const Map<String, String> cantonNames = {
@@ -129,6 +92,12 @@ class RetirementService {
   /// Estimate AVS retirement pension.
   ///
   /// Returns a map with scenario, rente, adjustment factor, etc.
+  ///
+  /// **DEPRECATED**: Use `AvsCalculator.computeMonthlyRente()` from financial_core
+  /// for accurate RAMD-scaled rente estimation. This simplified method uses
+  /// `avsRenteMaxMensuelle * gapFactor` which does not account for RAMD scaling.
+  /// TODO: Migrate retirement_screen.dart consumers then delete this method.
+  @Deprecated('Use AvsCalculator.computeMonthlyRente() from financial_core')
   static Map<String, dynamic> estimateAvs({
     required int ageActuel,
     int ageRetraite = 65,
@@ -211,7 +180,7 @@ class RetirementService {
 
     // Capital tax
     final taux = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    final impot = calculateProgressiveTax(capitalLpp, taux);
+    final impot = RetirementTaxCalculator.progressiveTax(capitalLpp, taux);
     final capitalNet = capitalLpp - impot;
 
     // Breakeven
@@ -291,37 +260,6 @@ class RetirementService {
       'duree3aAns': duree3a,
       'alertes': alertes,
     };
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  PROGRESSIVE TAX CALCULATION
-  // ════════════════════════════════════════════════════════════
-
-  /// Progressive capital withdrawal tax (LIFD art. 38).
-  /// Exposed for use by RetirementProjectionService.
-  static double calculateProgressiveTax(double montant, double baseRate) {
-    if (montant <= 0) return 0.0;
-    const brackets = [
-      [0, 100000, 1.0],
-      [100000, 200000, 1.15],
-      [200000, 500000, 1.30],
-      [500000, 1000000, 1.50],
-    ];
-    const lastMultiplier = 1.70;
-
-    double totalTax = 0;
-    double remaining = montant;
-    for (final bracket in brackets) {
-      final tranche = bracket[1] - bracket[0];
-      final taxable = remaining < tranche ? remaining : tranche;
-      if (taxable <= 0) break;
-      totalTax += taxable * baseRate * bracket[2];
-      remaining -= taxable;
-    }
-    if (remaining > 0) {
-      totalTax += remaining * baseRate * lastMultiplier;
-    }
-    return totalTax;
   }
 
   // ════════════════════════════════════════════════════════════

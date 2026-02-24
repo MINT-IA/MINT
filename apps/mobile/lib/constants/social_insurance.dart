@@ -87,6 +87,21 @@ const int avsAgeReferenceFemme = 65;
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 
+/// Rente AVS maximale individuelle annuelle (= avsRenteMaxMensuelle x 12).
+const double avsRenteMaxAnnuelle = 30240.0;
+
+/// Cotisation AVS minimale annuelle pour independants (LAVS art. 8).
+const double avsCotisationMinIndependant = 530.0;
+
+/// Bonus par annee d'ajournement de la rente AVS (LAVS art. 39).
+const Map<int, double> avsDeferralBonus = {
+  1: 0.052, // +5.2%
+  2: 0.106, // +10.6%
+  3: 0.164, // +16.4%
+  4: 0.227, // +22.7%
+  5: 0.315, // +31.5%
+};
+
 /// RAMD minimum pour rente minimale (LAVS art. 34, echelle 44).
 const double avsRAMDMin = 14700.0;
 

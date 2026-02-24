@@ -30,6 +30,7 @@ from app.constants.social_insurance import (
     AI_RENTE_ENTIERE,
     AI_RENTE_DEMI,
     AI_BAREME,
+    get_ai_rente_monthly,
 )
 
 
@@ -195,30 +196,8 @@ def get_employer_coverage_weeks(canton: str, annees_anciennete: int) -> int:
 
 
 def get_ai_rente_mensuelle(degre_invalidite: int) -> float:
-    """Retourne la rente AI mensuelle selon le degre d'invalidite.
-
-    Bareme LAI art. 28 al. 1:
-    - < 40%: pas de rente
-    - 40-49%: 1/4 de rente (630 CHF)
-    - 50-59%: 1/2 rente (1'260 CHF)
-    - 60-69%: 3/4 de rente (1'890 CHF)
-    - >= 70%: rente entiere (2'520 CHF)
-
-    Args:
-        degre_invalidite: Degre d'invalidite en % (0-100).
-
-    Returns:
-        Rente AI mensuelle en CHF.
-    """
-    if degre_invalidite < 40:
-        return 0.0
-    if degre_invalidite < 50:
-        return AI_RENTE_ENTIERE * AI_BAREME[40]   # 0.25 -> 630 CHF
-    if degre_invalidite < 60:
-        return AI_RENTE_ENTIERE * AI_BAREME[50]   # 0.50 -> 1260 CHF
-    if degre_invalidite < 70:
-        return AI_RENTE_ENTIERE * AI_BAREME[60]   # 0.75 -> 1890 CHF
-    return AI_RENTE_ENTIERE * AI_BAREME[70]        # 1.00 -> 2520 CHF
+    """Delegates to centralized get_ai_rente_monthly() from social_insurance."""
+    return get_ai_rente_monthly(degre_invalidite)
 
 
 def _format_chf(amount: float) -> str:

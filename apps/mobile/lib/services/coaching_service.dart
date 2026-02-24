@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -617,11 +618,11 @@ Reecris le message en 3-4 phrases max. Personnalise en croisant la situation fam
     final reductionPct = (100 - profile.tauxActivite).toStringAsFixed(0);
 
     // Rough estimate: LPP contribution gap
-    final salaireCoordonne = (profile.revenuAnnuel - 26460).clamp(0, 64260);
+    final salaireCoordonne = (profile.revenuAnnuel - lppDeductionCoordination).clamp(0, lppSalaireCoordMax.toDouble());
     final cotisLppAnnuelle = salaireCoordonne * 0.15; // ~15% average
     final cotisPleinTemps =
-        (profile.revenuAnnuel / (profile.tauxActivite / 100) - 26460)
-                .clamp(0, 64260) *
+        (profile.revenuAnnuel / (profile.tauxActivite / 100) - lppDeductionCoordination)
+                .clamp(0, lppSalaireCoordMax.toDouble()) *
             0.15;
     final gap = cotisPleinTemps - cotisLppAnnuelle;
 

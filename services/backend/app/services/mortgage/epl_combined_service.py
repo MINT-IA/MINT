@@ -25,30 +25,12 @@ from typing import List, Optional
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
     RETRAIT_CAPITAL_TRANCHES,
+    calculate_progressive_capital_tax,
 )
 from app.services.lpp_deep.epl_service import (
     EPLService,
     _DEFAULT_TAUX_RETRAIT,
 )
-
-
-def _calculate_progressive_tax(montant: float, base_rate: float) -> float:
-    """Calculate capital withdrawal tax using progressive brackets.
-
-    Uses centralized RETRAIT_CAPITAL_TRANCHES from social_insurance.py.
-    """
-    if montant <= 0:
-        return 0.0
-    total_tax = 0.0
-    remaining = montant
-    for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
-        tranche_size = high - low
-        taxable = min(remaining, tranche_size)
-        if taxable <= 0:
-            break
-        total_tax += taxable * base_rate * multiplier
-        remaining -= taxable
-    return round(total_tax, 2)
 
 
 DISCLAIMER = (
@@ -176,7 +158,7 @@ class EplCombinedService:
         # Full withdrawal allowed for primary residence (OPP3 art. 1)
         # Progressive bracket taxation (matches Flutter + pillar_3a_deep)
         retrait_3a = avoir_3a
-        impot_3a = _calculate_progressive_tax(retrait_3a, taux_impot)
+        impot_3a = calculate_progressive_capital_tax(retrait_3a, taux_impot)
         net_3a = round(retrait_3a - impot_3a, 2)
 
         # ---- LPP EPL ----

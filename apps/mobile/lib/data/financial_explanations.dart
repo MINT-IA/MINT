@@ -1,4 +1,5 @@
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'dart:math' as math;
 
 /// Librairie d'explications pédagogiques pour le rapport financier
@@ -211,7 +212,7 @@ class FinancialExplanations {
     int? spouseYears,
   ) {
     final gap = 44 - contributionYears;
-    final reductionPct = (gap / 44 * 100).toStringAsFixed(1);
+    final reductionPct = AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1);
 
     final sections = [
       ExplanationSection(
@@ -252,7 +253,7 @@ class FinancialExplanations {
     if (isMarried && spouseYears != null) {
       final spouseGap = 44 - spouseYears;
       if (spouseGap > 0) {
-        final spouseReduction = (spouseGap / 44 * 100).toStringAsFixed(1);
+        final spouseReduction = AvsCalculator.reductionPercentageFromGap(spouseGap).toStringAsFixed(1);
         sections.add(ExplanationSection(
           title: '💍 Impact sur le couple',
           content:

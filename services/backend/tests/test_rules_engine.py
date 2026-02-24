@@ -14,9 +14,9 @@ from app.services.rules_engine import (
     compute_rente_vs_capital,
     compute_disability_gap,
     get_employer_coverage_weeks,
-    get_ai_rente_monthly,
     MAX_RATE_CASH_CREDIT,
 )
+from app.constants.social_insurance import get_ai_rente_monthly
 
 
 class TestCompoundInterest:

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
@@ -427,8 +428,7 @@ Si une categorie ne s'applique pas, omets-la.
     // AVS gap
     final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
-      const reductionParAnnee = 1.0 / avsDureeCotisationComplete;
-      final perteTotaleAnnuelle = lacunesAVS * reductionParAnnee * 30240;
+      final perteTotaleAnnuelle = AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
       buffer.writeln(
           'AVS: CHF ${perteTotaleRetraite.toStringAsFixed(0)} de rente AVS perdue sur 20 ans de retraite avec $lacunesAVS annee(s) de cotisation manquante(s).');
@@ -3641,9 +3641,7 @@ Si une categorie ne s'applique pas, omets-la.
     // 3. AVS gap cost — each missing year = -1/44 of max rente (LAVS art. 29ter)
     final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
-      // 30'240 CHF/an = rente AVS max (LAVS art. 34)
-      const reductionParAnnee = 1.0 / avsDureeCotisationComplete;
-      final perteTotaleAnnuelle = lacunesAVS * reductionParAnnee * 30240;
+      final perteTotaleAnnuelle = AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
       // Over ~20 years of retirement
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
 

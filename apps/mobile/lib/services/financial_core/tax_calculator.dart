@@ -1,6 +1,9 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
-import 'package:mint_mobile/services/retirement_service.dart';
+
+// ALL tax calculations MUST use RetirementTaxCalculator from financial_core.
+// See ADR-20260223-unified-financial-engine.md
+// Do NOT create local _calculateTax() or similar methods.
 
 /// Retirement tax calculator — pure static functions.
 ///
@@ -24,15 +27,36 @@ class RetirementTaxCalculator {
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
     final effectiveRate =
         isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
-    return RetirementService.calculateProgressiveTax(
-        capitalBrut, effectiveRate);
+    return progressiveTax(capitalBrut, effectiveRate);
   }
 
-  /// Raw progressive tax on a given amount.
+  /// Progressive tax on a given amount (LIFD art. 38).
   ///
-  /// Delegates to RetirementService.calculateProgressiveTax.
+  /// Brackets: 0-100k (1.0×), 100k-200k (1.15×), 200k-500k (1.30×),
+  /// 500k-1M (1.50×), 1M+ (1.70×).
   static double progressiveTax(double montant, double baseRate) {
-    return RetirementService.calculateProgressiveTax(montant, baseRate);
+    if (montant <= 0) return 0.0;
+    const brackets = [
+      [0, 100000, 1.0],
+      [100000, 200000, 1.15],
+      [200000, 500000, 1.30],
+      [500000, 1000000, 1.50],
+    ];
+    const lastMultiplier = 1.70;
+
+    double totalTax = 0;
+    double remaining = montant;
+    for (final bracket in brackets) {
+      final tranche = bracket[1] - bracket[0];
+      final taxable = remaining < tranche ? remaining : tranche;
+      if (taxable <= 0) break;
+      totalTax += taxable * baseRate * bracket[2];
+      remaining -= taxable;
+    }
+    if (remaining > 0) {
+      totalTax += remaining * baseRate * lastMultiplier;
+    }
+    return totalTax;
   }
 
   /// Estimate retirement income tax (annual → monthly).

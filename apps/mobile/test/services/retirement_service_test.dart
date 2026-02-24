@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
 /// Tests unitaires pour RetirementService (Sprint S21).
@@ -303,7 +304,7 @@ void main() {
     });
 
     test('26 cantons definis pour impot retrait capital', () {
-      expect(RetirementService.tauxImpotRetraitCapital.length, 26);
+      expect(tauxImpotRetraitCapital.length, 26);
     });
 
     test('cantons tries alphabetiquement', () {

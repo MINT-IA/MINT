@@ -304,9 +304,8 @@ class TestLppConversion:
 
     def test_zero_capital_tax(self, lpp_service):
         """Zero capital (edge: service handles max(0, input)) should give 0 tax."""
-        # Service clamps to 0 internally
-        service = LppConversionService()
-        tax = service._calculate_progressive_tax(0, 0.065)
+        from app.constants.social_insurance import calculate_progressive_capital_tax
+        tax = calculate_progressive_capital_tax(0, 0.065)
         assert tax == 0.0
 
     def test_high_capital_2m(self, lpp_service):

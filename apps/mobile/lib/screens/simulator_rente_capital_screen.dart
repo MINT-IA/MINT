@@ -612,7 +612,7 @@ class _SimulatorRenteCapitalScreenState
     final capitalPartSurob = _avoirSurobligatoire * (1 - _partRente);
 
     // Rente mensuelle from rente portion
-    final renteObl = rentePartObl * 0.068 / 12; // 6.8% LPP conversion rate
+    final renteObl = rentePartObl * lppTauxConversionMin / 100 / 12;
     final renteSurob = rentePartSurob * (_tauxConversionSurob / 100) / 12;
     final renteMensuelle = renteObl + renteSurob;
 

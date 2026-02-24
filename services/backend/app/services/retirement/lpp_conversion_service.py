@@ -17,7 +17,12 @@ Sprint S21 — Retraite complete.
 from dataclasses import dataclass, field
 from typing import List
 
-from app.constants.social_insurance import TAUX_IMPOT_RETRAIT_CAPITAL, RETRAIT_CAPITAL_TRANCHES
+from app.constants.social_insurance import (
+    LPP_TAUX_CONVERSION_MIN,
+    TAUX_IMPOT_RETRAIT_CAPITAL,
+    RETRAIT_CAPITAL_TRANCHES,
+    calculate_progressive_capital_tax,
+)
 
 
 DISCLAIMER = (
@@ -27,8 +32,8 @@ DISCLAIMER = (
     "(LSFin). Consulte un ou une specialiste."
 )
 
-# LPP minimum conversion rate (mandatory portion)
-LPP_CONVERSION_RATE = 0.068  # 6.8%
+# LPP minimum conversion rate (mandatory portion) — from centralized constants
+LPP_CONVERSION_RATE = LPP_TAUX_CONVERSION_MIN / 100  # 6.8% -> 0.068
 
 _DEFAULT_TAUX_RETRAIT = 0.065
 
@@ -89,7 +94,7 @@ class LppConversionService:
 
         # Capital option
         taux = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
-        impot = self._calculate_progressive_tax(capital_lpp, taux)
+        impot = calculate_progressive_capital_tax(capital_lpp, taux)
         capital_net = round(capital_lpp - impot, 2)
 
         # Breakeven
@@ -133,28 +138,3 @@ class LppConversionService:
             ],
         )
 
-    def _calculate_progressive_tax(self, montant: float, base_rate: float) -> float:
-        """Calculate capital withdrawal tax using progressive brackets.
-
-        Uses centralized RETRAIT_CAPITAL_TRANCHES from constants for consistency
-        with lpp_deep/epl_service.py and pillar_3a_deep/multi_account_service.py.
-
-        Args:
-            montant: Amount being withdrawn (CHF).
-            base_rate: Base cantonal rate.
-
-        Returns:
-            Estimated tax amount (CHF).
-        """
-        if montant <= 0:
-            return 0.0
-        total_tax = 0.0
-        remaining = montant
-        for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
-            tranche = high - low
-            taxable = min(remaining, tranche)
-            if taxable <= 0:
-                break
-            total_tax += taxable * base_rate * multiplier
-            remaining -= taxable
-        return round(total_tax, 2)

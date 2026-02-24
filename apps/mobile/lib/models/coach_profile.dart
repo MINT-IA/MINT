@@ -7,6 +7,7 @@
 /// Sprint C1 — MINT Coach Redesign
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 
@@ -1593,7 +1594,7 @@ class CoachProfile {
   static double _estimateLppAvoir(int age, double salaireBrutMensuel,
       {int? arrivalAge}) {
     final salaireBrut = salaireBrutMensuel * 12;
-    final salaireCoordonne = (salaireBrut - 26460).clamp(3780, double.infinity);
+    final salaireCoordonne = (salaireBrut - lppDeductionCoordination).clamp(lppSalaireCoordMin.toDouble(), double.infinity);
     // LPP bonifications start at 25 (LPP art. 7), but only if the person
     // was contributing in Switzerland. Expats start at their arrival age.
     final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;

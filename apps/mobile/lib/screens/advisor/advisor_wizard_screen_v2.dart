@@ -6,6 +6,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/data/wizard_questions_v2.dart';
 import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/widgets/wizard_question_widget.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/fiscal_intelligence_service.dart';
 import 'package:mint_mobile/services/wizard_conditions_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
@@ -964,7 +966,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           final capital = (_answers['q_lpp_current_capital'] as num).toDouble();
           final age = _currentAge;
           final yearsToRetirement = (65 - age).clamp(0, 40);
-          final projectedPension = capital * 0.068; // Taux de conversion minimum
+          final projectedPension = capital * lppTauxConversionMin / 100;
           final monthlyPension = projectedPension / 12;
           return _buildMindBlowingInsight(
             icon: Icons.account_balance,
@@ -1037,8 +1039,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           final birthYear = (_answers['q_birth_year'] as num).toInt();
           final startAge = 21;
           final gapYears = (arrivalYear - (birthYear + startAge)).clamp(0, 44);
-          final renteLoss = (gapYears * 2.3).clamp(0, 100);
-          final monthlyLoss = (30240 * renteLoss / 100 / 12);
+          final renteLoss = AvsCalculator.reductionPercentageFromGap(gapYears);
+          final monthlyLoss = AvsCalculator.monthlyLossFromGap(gapYears);
           return _buildMindBlowingInsight(
             icon: Icons.flight_land,
             title: 'TES LACUNES AVS',

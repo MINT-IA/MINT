@@ -1,4 +1,5 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
 import '../models/circle_score.dart';
 
@@ -217,10 +218,10 @@ class CircleScoringService {
         avsDetail = 'Cotisation complète ($contributionYears ans)';
       } else if (gap <= 2) {
         avsStatus = ItemStatus.good;
-        avsDetail = 'Lacune mineure ($gap ans — rente -${(gap / 44 * 100).toStringAsFixed(1)}%)';
+        avsDetail = 'Lacune mineure ($gap ans — rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
       } else {
         avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans (rente -${(gap / 44 * 100).toStringAsFixed(1)}%)';
+        avsDetail = 'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
       }
     } else if (legacyFirstEmployment != null) {
       // Fallback legacy : q_first_employment_year
@@ -235,7 +236,7 @@ class CircleScoringService {
         avsDetail = 'Lacune mineure ($gap ans)';
       } else {
         avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans (rente -${(gap / 44 * 100).toStringAsFixed(1)}%)';
+        avsDetail = 'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
       }
     } else if (legacyAvsYears != null) {
       final gap = 44 - legacyAvsYears;

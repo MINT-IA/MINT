@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/financial_report.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
 class RetirementProjectionCard extends StatelessWidget {
   final RetirementProjection projection;
@@ -81,8 +82,8 @@ class RetirementProjectionCard extends StatelessWidget {
   }
 
   Widget _buildAvsGapWarning(int years, int gap) {
-    final reductionPct = (gap / 44 * 100).toStringAsFixed(1);
-    final monthlyLoss = (2520 * gap / 44).toStringAsFixed(0);
+    final reductionPct = AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1);
+    final monthlyLoss = AvsCalculator.monthlyLossFromGap(gap).toStringAsFixed(0);
 
     final tips = <String>[
       '$years ans cotisés sur 44 requis \u2014 rente réduite de $reductionPct% (\u2212CHF $monthlyLoss/mois)',

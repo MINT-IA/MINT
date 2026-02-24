@@ -1,5 +1,8 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/retirement_service.dart';
+
+// ALL AVS calculations MUST use AvsCalculator from financial_core.
+// See ADR-20260223-unified-financial-engine.md
+// Do NOT create local _calculateAvs() or similar methods.
 
 /// AVS pension calculator — pure static functions.
 ///
@@ -54,8 +57,7 @@ class AvsCalculator {
       rente *= (1.0 - avsReductionAnticipation * yearsEarly);
     } else if (retirementAge > 65) {
       final yearsLate = (retirementAge - 65).clamp(1, 5);
-      final bonus = RetirementService.avsDeferralBonus[yearsLate] ??
-          RetirementService.avsDeferralBonus[5]!;
+      final bonus = avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!;
       rente *= (1.0 + bonus);
     }
 
@@ -98,5 +100,23 @@ class AvsCalculator {
       );
     }
     return (user: avsUser, conjoint: avsConjoint, total: total);
+  }
+
+  /// Returns the AVS rente reduction percentage for a given gap in contribution years.
+  ///
+  /// Example: gap=4 → 9.09% reduction (4/44 × 100).
+  /// Use this instead of inline `gap / 44 * 100` calculations.
+  static double reductionPercentageFromGap(int gap) {
+    if (gap <= 0) return 0.0;
+    return (gap / avsDureeCotisationComplete * 100);
+  }
+
+  /// Returns the estimated monthly AVS rente loss for a given gap.
+  ///
+  /// Example: gap=4 → ~229 CHF/mois (2520 × 4/44).
+  /// Use this instead of inline `2520 * gap / 44` calculations.
+  static double monthlyLossFromGap(int gap) {
+    if (gap <= 0) return 0.0;
+    return avsRenteMaxMensuelle * gap / avsDureeCotisationComplete;
   }
 }
