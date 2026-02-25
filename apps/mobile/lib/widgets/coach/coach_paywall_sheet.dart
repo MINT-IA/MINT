@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
 
 /// Beautiful bottom sheet displayed when a free user taps a Coach-locked feature.
@@ -22,6 +23,11 @@ class CoachPaywallSheet extends StatelessWidget {
 
   /// Show the paywall as a modal bottom sheet.
   static Future<void> show(BuildContext context) {
+    AnalyticsService().trackEvent(
+      'paywall_shown',
+      category: 'conversion',
+      screenName: 'coach_paywall',
+    );
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -145,7 +151,14 @@ class CoachPaywallSheet extends StatelessWidget {
               ),
               // Close button
               GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () {
+                  AnalyticsService().trackEvent(
+                    'paywall_dismissed',
+                    category: 'conversion',
+                    screenName: 'coach_paywall',
+                  );
+                  Navigator.of(context).pop();
+                },
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -297,11 +310,21 @@ class CoachPaywallSheet extends StatelessWidget {
       height: 52,
       child: ElevatedButton(
         onPressed: () async {
+          AnalyticsService().trackCTAClick(
+            isIosIap ? 'paywall_upgrade' : 'paywall_trial_start',
+            screenName: 'coach_paywall',
+          );
           final provider = context.read<SubscriptionProvider>();
           final success = isIosIap
               ? await provider.upgrade()
               : await provider.startTrial();
           if (success && context.mounted) {
+            AnalyticsService().trackEvent(
+              'paywall_conversion',
+              category: 'conversion',
+              data: {'method': isIosIap ? 'iap' : 'trial'},
+              screenName: 'coach_paywall',
+            );
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -336,6 +359,10 @@ class CoachPaywallSheet extends StatelessWidget {
   Widget _buildRestoreButton(BuildContext context) {
     return TextButton(
       onPressed: () async {
+        AnalyticsService().trackCTAClick(
+          'paywall_restore',
+          screenName: 'coach_paywall',
+        );
         final provider = context.read<SubscriptionProvider>();
         await provider.restore();
         if (context.mounted) {

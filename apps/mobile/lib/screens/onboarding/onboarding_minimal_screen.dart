@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Minimal onboarding screen — 3 inputs only (Sprint S31).
@@ -38,11 +39,33 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
   double _selectedSalary = 80000;
   int _selectedAge = 35;
   String? _selectedCanton;
+  bool _didTrackStart = false;
 
   bool get _canSubmit => _selectedCanton != null;
 
   void _onSubmit() {
     if (!_canSubmit) return;
+    // Analytics: onboarding submitted (no PII — salary bracket, age bracket only)
+    final salaryBracket = _selectedSalary <= 60000
+        ? '<=60k'
+        : _selectedSalary <= 100000
+            ? '60k-100k'
+            : '>100k';
+    final ageBracket = _selectedAge < 30
+        ? '<30'
+        : _selectedAge < 45
+            ? '30-44'
+            : '45+';
+    AnalyticsService().trackEvent(
+      'onboarding_minimal_submitted',
+      category: 'conversion',
+      data: {
+        'salary_bracket': salaryBracket,
+        'age_bracket': ageBracket,
+        'canton': _selectedCanton,
+      },
+      screenName: 'onboarding_minimal',
+    );
     context.push(
       '/onboarding/chiffre-choc',
       extra: {
@@ -55,6 +78,14 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_didTrackStart) {
+      _didTrackStart = true;
+      AnalyticsService().trackEvent(
+        'onboarding_minimal_started',
+        category: 'engagement',
+        screenName: 'onboarding_minimal',
+      );
+    }
     return Scaffold(
       body: CustomScrollView(
         slivers: [
