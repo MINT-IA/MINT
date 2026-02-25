@@ -171,13 +171,13 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.success.withValues(alpha: 0.2)),
       ),
       child: const Row(
         children: [
           Icon(Icons.lock_person_outlined, color: MintColors.success),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Tes donnees restent sur ton appareil. Tu gardes le controle '
@@ -221,7 +221,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const Borderconst Radius.circular(20),
           border: Border.all(color: MintColors.border),
         ),
         child: Column(
@@ -247,7 +247,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: MintColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                     child: const Text(
                       'Requis',
@@ -294,7 +294,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: MintColors.background,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const Borderconst Radius.circular(8),
       ),
       child: Text(
         text,
@@ -323,7 +323,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: const Text(

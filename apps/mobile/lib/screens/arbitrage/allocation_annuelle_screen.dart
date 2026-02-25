@@ -242,7 +242,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -397,7 +397,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -442,7 +442,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             filled: true,
             fillColor: MintColors.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -502,7 +502,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -576,7 +576,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -681,7 +681,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

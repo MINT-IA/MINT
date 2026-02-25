@@ -92,7 +92,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +100,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
           Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 24),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Points d\'attention du Mentor',
@@ -109,7 +109,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             'En Suisse, un crédit coûte entre 4% et 10%. Cet argent "perdu" en intérêts pourrait être investi pour ton avenir.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
@@ -238,7 +238,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: rateWarning ? MintColors.error.withValues(alpha: 0.05) : MintColors.appleSurface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(
           color: rateWarning ? MintColors.error.withValues(alpha: 0.2) : MintColors.primary.withValues(alpha: 0.1),
         ),
@@ -270,12 +270,12 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: MintColors.error.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
               ),
               child: const Row(
                 children: [
                   Icon(Icons.error_outline, color: MintColors.error, size: 20),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Attention : Ce taux dépasse le max légal suisse de 10%.',
@@ -314,7 +314,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
@@ -337,7 +337,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
   Widget _buildDisclaimer() {
     return const Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
           'Information à but préventif. Ne constitue pas un conseil juridique ou financier. '
           'Loi suisse sur le crédit à la consommation (LCC) appliquée.',

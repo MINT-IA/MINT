@@ -142,7 +142,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.amber.shade50,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
           ),
           child: Icon(
             Icons.tips_and_updates,
@@ -183,7 +183,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -238,7 +238,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
                 color: isActive ? MintColors.primary : MintColors.border,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: const Borderconst Radius.circular(20),
               ),
               showCheckmark: false,
               padding:
@@ -268,7 +268,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -298,7 +298,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.blue.shade200),
       ),
       child: Row(
@@ -326,7 +326,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(
@@ -371,7 +371,7 @@ class _CoachingTipCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -404,7 +404,7 @@ class _CoachingTipCard extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: _getCategoryColor(tip.category).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Icon(
                     tip.icon,
@@ -464,7 +464,7 @@ class _CoachingTipCard extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: MintColors.success.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -494,7 +494,7 @@ class _CoachingTipCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: MintColors.surface.withValues(alpha: 0.5),
               borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(20)),
+                  const BorderRadius.vertical(bottom: const Radius.circular(20)),
             ),
             child: Row(
               children: [
@@ -519,7 +519,7 @@ class _CoachingTipCard extends StatelessWidget {
                         horizontal: 16, vertical: 8),
                     backgroundColor: MintColors.primary.withValues(alpha: 0.05),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: const Borderconst Radius.circular(10),
                     ),
                   ),
                   child: Text(
@@ -604,7 +604,7 @@ class _PriorityBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: const Borderconst Radius.circular(6),
       ),
       child: Text(
         label,

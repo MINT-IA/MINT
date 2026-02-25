@@ -167,7 +167,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: Row(
         children: [
@@ -175,7 +175,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.amber.shade700.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Icon(Icons.house_outlined,
                 color: Colors.amber.shade700, size: 24),
@@ -215,7 +215,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.amber.shade700.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
           color: Colors.amber.shade700.withValues(alpha: 0.15),
         ),
@@ -423,7 +423,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
           ),
         ),
       ),
@@ -439,7 +439,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       decoration: BoxDecoration(
         color: (isGain ? MintColors.success : MintColors.error)
             .withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
           color: (isGain ? MintColors.success : MintColors.error)
               .withValues(alpha: 0.15),
@@ -486,7 +486,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.amber.shade700.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
           color: Colors.amber.shade700.withValues(alpha: 0.15),
         ),
@@ -543,7 +543,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.success.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -603,7 +603,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -663,7 +663,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       decoration: BoxDecoration(
         color: (isPositive ? MintColors.primary : MintColors.error)
             .withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
           color: (isPositive ? MintColors.primary : MintColors.error)
               .withValues(alpha: 0.15),
@@ -737,7 +737,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: MintColors.warning.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                   border: Border.all(
                     color: MintColors.warning.withValues(alpha: 0.15),
                   ),
@@ -784,7 +784,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                   _checklistState[index] = !_checklistState[index];
                 });
               },
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -794,7 +794,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                   color: _checklistState[index]
                       ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                   border: Border.all(
                     color: _checklistState[index]
                         ? MintColors.success.withValues(alpha: 0.3)
@@ -889,7 +889,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Theme(
@@ -927,7 +927,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(
@@ -971,7 +971,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
             border: Border.all(color: MintColors.border),
           ),
           child: DropdownButtonHideUnderline(

@@ -103,7 +103,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: MintColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(20)),
       ),
       child: SafeArea(
         child: Padding(
@@ -125,7 +125,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
                     height: 4,
                     decoration: BoxDecoration(
                       color: MintColors.border,
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: const Borderconst Radius.circular(2),
                     ),
                   ),
                 ),
@@ -209,7 +209,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -239,7 +239,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? MintColors.coachAccent : Colors.transparent,
-            borderRadius: BorderRadius.circular(11),
+            borderRadius: const Borderconst Radius.circular(11),
           ),
           child: Text(
             label,
@@ -278,15 +278,15 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
           vertical: 14,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           borderSide: BorderSide(color: MintColors.lightBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           borderSide: BorderSide(color: MintColors.lightBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           borderSide: const BorderSide(
             color: MintColors.coachAccent,
             width: 1.5,
@@ -306,7 +306,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: DropdownButtonHideUnderline(
@@ -364,7 +364,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: MintColors.coachAccent.withValues(alpha: 0.3)),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
       ),
@@ -376,7 +376,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const Borderconst Radius.circular(8),
       ),
       child: Text(
         _testResult!,
@@ -396,7 +396,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
         backgroundColor: MintColors.coachAccent,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
         ),
         padding: const EdgeInsets.symmetric(vertical: 14),
         elevation: 0,
@@ -416,7 +416,7 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const Borderconst Radius.circular(8),
         border: Border.all(
           color: MintColors.lightBorder,
         ),

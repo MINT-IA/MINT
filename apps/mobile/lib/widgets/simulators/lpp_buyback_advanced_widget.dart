@@ -132,7 +132,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         boxShadow: [
           BoxShadow(
             color: MintColors.primary.withValues(alpha: 0.3),
@@ -165,7 +165,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
             ),
             child: Text(
               "Rendement Réel : ${(result.realAnnualReturn * 100).toStringAsFixed(1)}% / an",
@@ -209,7 +209,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.05),
           border: Border.all(color: color.withValues(alpha: 0.2)),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +239,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -301,7 +301,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.accentPastel,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           border: Border.all(color: MintColors.border.withValues(alpha: 0.3)),
         ),
         child: ExpansionTile(

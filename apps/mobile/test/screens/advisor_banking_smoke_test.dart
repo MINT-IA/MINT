@@ -200,7 +200,7 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+      expect(find.byconst Icon(Icons.arrow_back_ios_new), findsOneWidget);
     });
   });
 

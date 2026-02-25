@@ -115,7 +115,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: const Borderconst Radius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -225,7 +225,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                                     ? MintColors.success
                                         .withValues(alpha: 0.1)
                                     : MintColors.surface,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: const Borderconst Radius.circular(16),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

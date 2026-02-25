@@ -121,7 +121,7 @@ class _SimulatorDisabilityGapScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: Row(
         children: [
@@ -129,7 +129,7 @@ class _SimulatorDisabilityGapScreenState
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: const Icon(Icons.shield_outlined,
                 color: MintColors.primary, size: 24),
@@ -297,7 +297,7 @@ class _SimulatorDisabilityGapScreenState
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
             border: Border.all(color: MintColors.border),
           ),
           child: DropdownButtonHideUnderline(
@@ -466,7 +466,7 @@ class _SimulatorDisabilityGapScreenState
                     height: 32,
                     decoration: BoxDecoration(
                       color: MintColors.border.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                   ),
                   // Benefit bar
@@ -476,7 +476,7 @@ class _SimulatorDisabilityGapScreenState
                       height: 32,
                       decoration: BoxDecoration(
                         color: color,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: const Borderconst Radius.circular(8),
                       ),
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(left: 8),
@@ -529,7 +529,7 @@ class _SimulatorDisabilityGapScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: riskColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: riskColor.withValues(alpha: 0.15), width: 1.5),
       ),
       child: Column(
@@ -541,7 +541,7 @@ class _SimulatorDisabilityGapScreenState
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: riskColor,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: const Borderconst Radius.circular(20),
                 ),
                 child: Text(
                   riskLabel.toUpperCase(),
@@ -660,7 +660,7 @@ class _SimulatorDisabilityGapScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -775,7 +775,7 @@ class _SimulatorDisabilityGapScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Row(
@@ -784,7 +784,7 @@ class _SimulatorDisabilityGapScreenState
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Icon(icon, color: color, size: 22),
           ),
@@ -856,7 +856,7 @@ class _SimulatorDisabilityGapScreenState
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Theme(
@@ -893,7 +893,7 @@ class _SimulatorDisabilityGapScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

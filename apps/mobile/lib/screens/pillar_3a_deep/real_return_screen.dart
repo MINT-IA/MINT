@@ -101,7 +101,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         gradient: LinearGradient(
           colors: [Colors.green.shade50, Colors.green.shade100],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.green.shade300, width: 2),
       ),
       child: Column(
@@ -151,7 +151,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -294,7 +294,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -358,7 +358,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -397,7 +397,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: Row(
               children: [
@@ -449,7 +449,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: const Borderconst Radius.circular(6),
           child: LinearProgressIndicator(
             value: ratio.clamp(0.0, 1.0),
             minHeight: 12,
@@ -466,7 +466,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -542,7 +542,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

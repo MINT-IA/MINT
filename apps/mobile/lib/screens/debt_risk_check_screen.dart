@@ -159,7 +159,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,11 +167,11 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           Row(
             children: [
               Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text('Le mot du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             'Ce check-up de 60 secondes nous permet de détecter les signaux d\'alerte avant qu\'ils ne deviennent critiques.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
@@ -201,7 +201,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -227,12 +227,12 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     return Expanded(
       child: InkWell(
         onTap: onSelected,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? MintColors.primary : MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
           alignment: Alignment.center,
           child: Text(
@@ -268,7 +268,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: const Borderconst Radius.circular(24),
             border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Column(
@@ -341,7 +341,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.purple.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.purple.withValues(alpha: 0.1)),
       ),
       child: Column(
@@ -350,7 +350,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           const Row(
             children: [
               Icon(Icons.support_agent_outlined, color: Colors.purple),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text('Soutien Jeux & Paris', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.purple)),
             ],
           ),

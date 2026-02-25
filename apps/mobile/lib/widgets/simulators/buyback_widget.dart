@@ -100,7 +100,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -128,7 +128,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: MintColors.info.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
                 border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
               ),
               child: Row(
@@ -171,7 +171,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       builder: (context) {
         return Padding(
@@ -186,7 +186,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                   height: 4,
                   decoration: BoxDecoration(
                     color: MintColors.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: const Borderconst Radius.circular(2),
                   ),
                 ),
               ),
@@ -214,7 +214,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: MintColors.accentPastel,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Row(
                   children: [
@@ -256,7 +256,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: highlight ? MintColors.primary : MintColors.surface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               boxShadow: highlight
                   ? [
                       BoxShadow(

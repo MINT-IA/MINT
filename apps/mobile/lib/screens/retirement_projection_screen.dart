@@ -148,7 +148,7 @@ class _RetirementProjectionScreenState
 
     if (profile == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: const CircularProgressIndicator()),
       );
     }
 
@@ -405,7 +405,7 @@ class _RetirementProjectionScreenState
             MintColors.purple.withValues(alpha: 0.04),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -492,7 +492,7 @@ class _RetirementProjectionScreenState
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -501,7 +501,7 @@ class _RetirementProjectionScreenState
           InkWell(
             onTap: () => setState(
                 () => _parametersExpanded = !_parametersExpanded),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -642,7 +642,7 @@ class _RetirementProjectionScreenState
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -716,7 +716,7 @@ class _RetirementProjectionScreenState
             color: isSelected
                 ? MintColors.success.withValues(alpha: 0.1)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: const Borderconst Radius.circular(8),
             border: Border.all(
               color: isSelected ? MintColors.success : MintColors.lightBorder,
               width: isSelected ? 1.5 : 1.0,
@@ -769,7 +769,7 @@ class _RetirementProjectionScreenState
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -935,7 +935,7 @@ class _RetirementProjectionScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.12)),
       ),
       child: Row(
@@ -981,7 +981,7 @@ class _RetirementProjectionScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(

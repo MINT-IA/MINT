@@ -62,7 +62,7 @@ class CoachGate extends StatelessWidget {
 
   Widget _buildLockedOverlay(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: const Borderconst Radius.circular(16),
       child: Stack(
         children: [
           // Blurred child preview
@@ -81,7 +81,7 @@ class CoachGate extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: MintColors.primary.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 border: Border.all(color: MintColors.border),
               ),
               child: Center(
@@ -140,7 +140,7 @@ class CoachGate extends StatelessWidget {
                         backgroundColor: MintColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: const Borderconst Radius.circular(12),
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,

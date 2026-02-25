@@ -79,15 +79,15 @@ class OnboardingStepEssentials extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide:
                     const BorderSide(color: MintColors.primary, width: 1.8),
               ),
@@ -111,15 +111,15 @@ class OnboardingStepEssentials extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide:
                     const BorderSide(color: MintColors.primary, width: 1.8),
               ),
@@ -145,15 +145,15 @@ class OnboardingStepEssentials extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide: const BorderSide(color: MintColors.lightBorder),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 borderSide:
                     const BorderSide(color: MintColors.primary, width: 1.8),
               ),

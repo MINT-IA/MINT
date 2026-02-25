@@ -10,7 +10,7 @@ class OnboardingConstants {
   static const Set<String> highLamalCantons = {'GE', 'VD', 'BS', 'NE', 'TI'};
   static const Set<String> lowLamalCantons = {'ZG', 'AI', 'UR', 'OW', 'NW', 'GL', 'AR'};
 
-  static const Duration autoSaveDebounce = Duration(milliseconds: 500);
+  static const Duration autoSaveDebounce = const Duration(milliseconds: 500);
 
   static const List<int> incomeQuickPicks = [4000, 6000, 8000, 10000];
 

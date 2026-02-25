@@ -41,13 +41,13 @@ class SmartDefaultIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => _showDetail(context),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: const Borderconst Radius.circular(8),
       child: Container(
         margin: const EdgeInsets.only(left: 6),
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
         decoration: BoxDecoration(
           color: MintColors.textMuted.withAlpha(20),
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: const Borderconst Radius.circular(6),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -82,7 +82,7 @@ class SmartDefaultIndicator extends StatelessWidget {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(20)),
       ),
       builder: (ctx) {
         return Padding(
@@ -98,7 +98,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: MintColors.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: const Borderconst Radius.circular(2),
                   ),
                 ),
               ),
@@ -111,7 +111,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: MintColors.textMuted.withAlpha(25),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                     child: const Icon(
                       Icons.auto_fix_high,
@@ -150,7 +150,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +191,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: const Borderconst Radius.circular(3),
                       child: LinearProgressIndicator(
                         value: confidence,
                         minHeight: 4,
@@ -227,7 +227,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: const Borderconst Radius.circular(10),
                       ),
                     ),
                   ),

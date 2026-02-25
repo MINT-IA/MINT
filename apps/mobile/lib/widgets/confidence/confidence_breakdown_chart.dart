@@ -88,7 +88,7 @@ class _AxisRow extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: const Borderconst Radius.circular(999),
           child: LinearProgressIndicator(
             minHeight: 8,
             value: pct / 100.0,

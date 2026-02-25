@@ -20,7 +20,7 @@ class OnboardingMetricsPanel extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       child: SafeArea(
         child: SingleChildScrollView(
@@ -67,7 +67,7 @@ class OnboardingMetricsPanel extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(

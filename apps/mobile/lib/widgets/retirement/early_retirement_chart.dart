@@ -121,7 +121,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
       decoration: BoxDecoration(
         color: (isNeg ? MintColors.error : MintColors.success)
             .withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         border: Border.all(
           color: (isNeg ? MintColors.error : MintColors.success)
               .withValues(alpha: 0.15),
@@ -160,7 +160,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -185,7 +185,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
                       height: 10,
                       decoration: BoxDecoration(
                         color: s.color,
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: const Borderconst Radius.circular(2),
                       ),
                     ),
                     const SizedBox(width: 8),

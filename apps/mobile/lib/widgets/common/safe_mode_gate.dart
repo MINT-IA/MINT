@@ -36,7 +36,7 @@ class SafeModeGate extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.background,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Row(
@@ -75,7 +75,7 @@ class SafeModeGate extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Padding(
-                                padding: EdgeInsets.only(top: 4),
+                                padding: const EdgeInsets.only(top: 4),
                                 child: Icon(Icons.circle,
                                     size: 6, color: MintColors.textMuted),
                               ),
@@ -102,7 +102,7 @@ class SafeModeGate extends StatelessWidget {
                       backgroundColor: Colors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(18)),
+                            BorderRadius.vertical(top: const Radius.circular(18)),
                       ),
                       builder: (ctx) => Padding(
                         padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
@@ -169,7 +169,7 @@ class SafeModeGate extends StatelessWidget {
                       foregroundColor: MintColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: const Borderconst Radius.circular(10),
                       ),
                     ),
                     child: Text(

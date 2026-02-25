@@ -87,7 +87,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,11 +95,11 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           Row(
             children: [
               Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text('Réflexion du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             'Le leasing est souvent une "fuite" de capital. Cet argent pourrait servir à construire ton patrimoine plutôt qu\'à financer la dépréciation d\'un véhicule.',
             style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
@@ -219,7 +219,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.1)),
       ),
       child: Column(
@@ -241,7 +241,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               children: [
@@ -284,7 +284,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
@@ -307,7 +307,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   Widget _buildDisclaimer() {
     return const Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
           'Le leasing reste une option pour certains professionnels. Cette analyse vise à sensibiliser le particulier sur le coût à long terme.',
           style: TextStyle(color: MintColors.textMuted, fontSize: 11),

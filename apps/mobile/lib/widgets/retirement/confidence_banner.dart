@@ -22,7 +22,7 @@ class ConfidenceBanner extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withAlpha(20),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: color.withAlpha(60)),
       ),
       child: Column(
@@ -52,7 +52,7 @@ class ConfidenceBanner extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: color.withAlpha(30),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Text(
                   '${confidence.score.round()}% — $label',
@@ -70,7 +70,7 @@ class ConfidenceBanner extends StatelessWidget {
 
           // Progress bar
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: const Borderconst Radius.circular(4),
             child: LinearProgressIndicator(
               value: confidence.score / 100,
               minHeight: 6,
@@ -126,12 +126,12 @@ class ConfidenceBanner extends StatelessWidget {
         onTap: () {
           // Placeholder — enrichment action to be connected later
         },
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: const Borderconst Radius.circular(10),
             border: Border.all(color: const Color(0xFFE0E0E0)),
           ),
           child: Row(
@@ -172,7 +172,7 @@ class ConfidenceBanner extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withAlpha(20),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: Text(
                   '+$impactPct%',
@@ -197,12 +197,12 @@ class ConfidenceBanner extends StatelessWidget {
         onTap: () {
           // Placeholder — enrichment action to be connected later
         },
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: const Borderconst Radius.circular(10),
             border: Border.all(color: const Color(0xFFE0E0E0)),
           ),
           child: Row(
@@ -241,7 +241,7 @@ class ConfidenceBanner extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withAlpha(20),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: Text(
                   '+${prompt.impact}%',

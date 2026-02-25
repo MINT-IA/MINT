@@ -164,8 +164,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 // ── Chart ──
                 if (_isLoading && _result == null)
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Center(child: CircularProgressIndicator()),
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: const CircularProgressIndicator()),
                   ),
                 if (_result != null) ...[
                   Text(
@@ -268,7 +268,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -319,7 +319,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                       child: DropdownButton<String>(
                         value: _canton,
@@ -382,7 +382,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -427,7 +427,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             filled: true,
             fillColor: MintColors.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -452,7 +452,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -557,7 +557,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

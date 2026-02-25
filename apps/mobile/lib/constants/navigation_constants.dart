@@ -17,9 +17,9 @@ class NavigationConstants {
   static const double bottomNavLabelSize = 10.0;
 
   // Animations
-  static const Duration tabSwitchDuration = Duration(milliseconds: 300);
-  static const Duration modalAnimationDuration = Duration(milliseconds: 250);
-  static const Duration fabAnimationDuration = Duration(milliseconds: 200);
+  static const Duration tabSwitchDuration = const Duration(milliseconds: 300);
+  static const Duration modalAnimationDuration = const Duration(milliseconds: 250);
+  static const Duration fabAnimationDuration = const Duration(milliseconds: 200);
 
   // Breakpoints (responsive design)
   static const double phoneBreakpoint = 600.0;

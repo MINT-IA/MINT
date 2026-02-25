@@ -135,7 +135,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         gradient: LinearGradient(
           colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.2)],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
       ),
       child: Column(
@@ -176,7 +176,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -211,7 +211,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
           if (_dettes.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Center(
                 child: Text(
                   'Ajoutez vos dettes pour generer un plan de remboursement.',
@@ -235,7 +235,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +377,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -498,7 +498,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
           child: Column(
             children: [
@@ -543,7 +543,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: isWinner ? MintColors.success : MintColors.border,
           width: isWinner ? 2 : 1,
@@ -646,7 +646,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -741,7 +741,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -768,7 +768,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

@@ -249,7 +249,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Bank import card with bank icon
-      expect(find.byIcon(Icons.account_balance_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.account_balance_outlined), findsOneWidget);
       expect(find.textContaining('transactions'), findsWidgets);
     });
 
@@ -257,7 +257,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const DocumentsScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.lock_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.lock_outline), findsWidgets);
       expect(find.textContaining('localement'), findsOneWidget);
     });
   });
@@ -293,7 +293,7 @@ void main() {
 
       // When no document found, shows placeholder text
       expect(find.textContaining('Aucun document'), findsOneWidget);
-      expect(find.byIcon(Icons.description_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.description_outlined), findsOneWidget);
     });
   });
 
@@ -321,7 +321,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining('Choisir un fichier'), findsOneWidget);
-      expect(find.byIcon(Icons.attach_file_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.attach_file_rounded), findsOneWidget);
     });
 
     testWidgets('shows bank format info (CSV/PDF)', (tester) async {
@@ -335,7 +335,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const BankImportScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_outline), findsOneWidget);
       expect(find.textContaining('localement'), findsOneWidget);
     });
   });
@@ -370,9 +370,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.speed_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.show_chart_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.speed_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.show_chart_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_rounded), findsOneWidget);
     });
 
     testWidgets('shows diagnostic CTA button', (tester) async {
@@ -423,7 +423,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining('localement'), findsWidgets);
-      expect(find.byIcon(Icons.lock_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.lock_outline), findsWidgets);
     });
   });
 
@@ -549,10 +549,10 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       // Active tab shows filled icon (Dashboard = home), others show outlined
-      expect(find.byIcon(Icons.home), findsOneWidget); // Active (Dashboard)
-      expect(find.byIcon(Icons.flash_on_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.home), findsOneWidget); // Active (Dashboard)
+      expect(find.byconst Icon(Icons.flash_on_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.explore_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.person_outline), findsOneWidget);
     });
 
     testWidgets('shows floating mentor FAB', (tester) async {
@@ -560,7 +560,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.auto_awesome), findsWidgets);
+      expect(find.byconst Icon(Icons.auto_awesome), findsWidgets);
     });
   });
 }

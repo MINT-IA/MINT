@@ -160,7 +160,7 @@ class _ConsentDashboardSettingsScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
           color: consent.enabled
               ? color.withValues(alpha: 0.4)
@@ -187,7 +187,7 @@ class _ConsentDashboardSettingsScreenState
                 height: 40,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
@@ -225,7 +225,7 @@ class _ConsentDashboardSettingsScreenState
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +288,7 @@ class _ConsentDashboardSettingsScreenState
       children: [
         InkWell(
           onTap: () => setState(() => _byokExpanded = !_byokExpanded),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: const Borderconst Radius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
@@ -320,7 +320,7 @@ class _ConsentDashboardSettingsScreenState
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.purple.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               border: Border.all(
                 color: MintColors.purple.withValues(alpha: 0.15),
               ),
@@ -354,7 +354,7 @@ class _ConsentDashboardSettingsScreenState
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               border: Border.all(
                 color: MintColors.success.withValues(alpha: 0.15),
               ),
@@ -402,7 +402,7 @@ class _ConsentDashboardSettingsScreenState
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const Borderconst Radius.circular(8),
       ),
       child: Text(
         field,
@@ -436,7 +436,7 @@ class _ConsentDashboardSettingsScreenState
           ),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
         ),
       ),
@@ -452,7 +452,7 @@ class _ConsentDashboardSettingsScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(

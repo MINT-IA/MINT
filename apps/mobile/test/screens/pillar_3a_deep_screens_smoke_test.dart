@@ -152,7 +152,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
   });
 
@@ -292,7 +292,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
   });
 
@@ -412,7 +412,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
       await tester.pump();
 
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
 
     testWidgets('risk profile selection changes state', (tester) async {

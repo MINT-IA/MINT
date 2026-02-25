@@ -182,7 +182,7 @@ class _PropertySaleWaterfallState extends State<PropertySaleWaterfall>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -217,7 +217,7 @@ class _PropertySaleWaterfallState extends State<PropertySaleWaterfall>
             height: 40,
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: const Icon(
               Icons.real_estate_agent,
@@ -307,7 +307,7 @@ class _PropertySaleWaterfallState extends State<PropertySaleWaterfall>
                     badgeColor.withValues(alpha: 0.06),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 border: Border.all(
                   color: badgeColor.withValues(alpha: 0.3),
                 ),

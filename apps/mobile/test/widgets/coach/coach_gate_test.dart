@@ -82,7 +82,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_rounded), findsOneWidget);
     });
 
     testWidgets('locked state shows "Fonctionnalite Coach" label',

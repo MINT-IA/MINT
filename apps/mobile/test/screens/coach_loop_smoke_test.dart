@@ -193,7 +193,7 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.byIcon(Icons.send), findsOneWidget);
+      expect(find.byconst Icon(Icons.send), findsOneWidget);
     });
 
     testWidgets('shows Coach MINT app bar title', (tester) async {

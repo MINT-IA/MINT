@@ -88,7 +88,7 @@ class _AdvisorSessionWizardScreenState
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(24)),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           height: MediaQuery.of(context).size.height * 0.8,
@@ -218,7 +218,7 @@ class _AdvisorSessionWizardScreenState
           // Question actuelle
           Expanded(
             child: _isSubmitting
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: const CircularProgressIndicator())
                 : WizardQuestionWidget(
                     question: currentQuestion,
                     currentAnswer: _answers[currentQuestion.id],

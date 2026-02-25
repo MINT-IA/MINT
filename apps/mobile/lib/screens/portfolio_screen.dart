@@ -64,13 +64,13 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
       ),
       child: const Row(
         children: [
           Icon(Icons.warning_amber_rounded, color: Colors.red),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Alerte Dettes : Ta priorité absolue est le désendettement avant tout réinvestissement.',
@@ -87,7 +87,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -121,7 +121,7 @@ class PortfolioScreen extends StatelessWidget {
           backgroundColor: MintColors.background,
           valueColor: AlwaysStoppedAnimation<Color>(value < 0.5 ? MintColors.warning : MintColors.success),
           minHeight: 4,
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: const Borderconst Radius.circular(2),
         ),
       ],
     );
@@ -132,7 +132,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
@@ -155,7 +155,7 @@ class PortfolioScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.trending_up, color: MintColors.success, size: 16),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 '509.30 (0.50%) aujourd\'hui',
                 style: TextStyle(color: MintColors.success, fontWeight: FontWeight.w600, fontSize: 13),
@@ -185,7 +185,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
@@ -194,7 +194,7 @@ class PortfolioScreen extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
@@ -219,13 +219,13 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
       child: const Row(
         children: [
           Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Ton allocation est saine. Pense à rééquilibrer ton 3a prochainement.',

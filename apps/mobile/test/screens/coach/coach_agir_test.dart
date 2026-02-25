@@ -108,7 +108,7 @@ void main() {
       final scrollable = find.byType(Scrollable).first;
       await tester.drag(scrollable, const Offset(0, -900));
       await tester.pump(const Duration(seconds: 1));
-      expect(find.byIcon(Icons.timeline), findsWidgets);
+      expect(find.byconst Icon(Icons.timeline), findsWidgets);
     });
 
     testWidgets('shows planned contributions', (tester) async {

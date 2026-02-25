@@ -213,7 +213,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -346,7 +346,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                       child: DropdownButton<String>(
                         value: _canton,
@@ -408,7 +408,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -453,7 +453,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
             filled: true,
             fillColor: MintColors.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -477,7 +477,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withAlpha(15),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.info.withAlpha(60)),
       ),
       child: Row(
@@ -531,7 +531,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -636,7 +636,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

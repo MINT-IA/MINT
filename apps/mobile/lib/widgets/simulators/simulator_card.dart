@@ -28,7 +28,7 @@ class SimulatorCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         // Premium glass-like shadow "Float" effect
         boxShadow: [
           BoxShadow(
@@ -63,7 +63,7 @@ class SimulatorCard extends StatelessWidget {
                 end: Alignment.centerRight,
               ),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
+                top: const Radius.circular(24),
               ),
             ),
           ),
@@ -76,7 +76,7 @@ class SimulatorCard extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Icon(icon, color: color, size: 22),
                 ),
@@ -126,7 +126,7 @@ class SimulatorCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: MintColors.surface.withValues(alpha: 0.5),
                 borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(20)),
+                    const BorderRadius.vertical(bottom: const Radius.circular(20)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,

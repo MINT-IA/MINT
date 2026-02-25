@@ -58,7 +58,7 @@ class MoveSavingsCard extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: _accentColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
           ),
           child: Column(
             children: [
@@ -94,7 +94,7 @@ class MoveSavingsCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -176,7 +176,7 @@ class MoveSavingsCard extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Text(

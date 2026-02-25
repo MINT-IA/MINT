@@ -143,7 +143,7 @@ void main() {
       await tester.pumpWidget(buildApp());
       await tester.pump();
 
-      expect(find.byIcon(Icons.lock_person_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_person_outlined), findsOneWidget);
     });
   });
 

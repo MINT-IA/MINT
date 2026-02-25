@@ -117,7 +117,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -149,7 +149,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
         boxShadow: [
           BoxShadow(
@@ -221,7 +221,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: Column(
         children: [
@@ -306,7 +306,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -351,7 +351,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -397,7 +397,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               children: [
@@ -449,7 +449,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: const Borderconst Radius.circular(4),
           child: LinearProgressIndicator(
             value: ratio.clamp(0.0, 1.0),
             minHeight: 12,
@@ -472,7 +472,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -501,7 +501,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
               Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                   gradient: const LinearGradient(
                     colors: [
                       Color(0xFF4CAF50),
@@ -608,7 +608,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -617,7 +617,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: const Borderconst Radius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -659,7 +659,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

@@ -19,7 +19,7 @@ class LetterGeneratorSheet extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -95,7 +95,7 @@ class LetterGeneratorSheet extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
               ),
               child: Icon(icon, color: MintColors.primary),
             ),
@@ -133,12 +133,12 @@ class LetterGeneratorSheet extends StatelessWidget {
               pw.Text(letter.title,
                   style: pw.TextStyle(
                       fontSize: 24, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 20), // Spacer
-              pw.SizedBox(height: 40),
+              pw.const SizedBox(height: 20), // Spacer
+              pw.const SizedBox(height: 40),
               pw.Text(letter.content,
                   style: const pw.TextStyle(fontSize: 12, lineSpacing: 5)),
-              pw.Spacer(),
-              pw.Divider(),
+              pw.const Spacer(),
+              pw.const Divider(),
               pw.Text(letter.disclaimer,
                   style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
             ],

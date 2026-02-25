@@ -205,7 +205,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: const Icon(
                   Icons.timeline,
@@ -254,12 +254,12 @@ class LifeEventSuggestionsSection extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => context.push(suggestion.route),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: const Borderconst Radius.circular(14),
             border: Border.all(
               color: suggestion.color.withValues(alpha: 0.20),
             ),
@@ -278,7 +278,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: suggestion.color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: Icon(suggestion.icon,
                     color: suggestion.color, size: 20),
@@ -315,7 +315,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: suggestion.color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: Text(
                   'Simuler',

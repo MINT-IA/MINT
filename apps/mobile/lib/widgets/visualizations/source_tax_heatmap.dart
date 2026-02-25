@@ -170,7 +170,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -207,7 +207,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
           height: 40,
           decoration: BoxDecoration(
             color: MintColors.warning.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
           child: const Icon(
             Icons.grid_view_rounded,
@@ -285,7 +285,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                       decoration: BoxDecoration(
                         color: _colorForRate(canton.rate)
                             .withValues(alpha: 0.15 + 0.7 * cellProgress),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: const Borderconst Radius.circular(8),
                         border: Border.all(
                           color: isSelected
                               ? MintColors.primary
@@ -335,7 +335,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
         Container(
           height: 10,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: const Borderconst Radius.circular(5),
             gradient: LinearGradient(
               colors: [
                 MintColors.success,
@@ -387,7 +387,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: _colorForRate(canton.rate).withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(
           color: _colorForRate(canton.rate).withValues(alpha: 0.25),
         ),
@@ -399,7 +399,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             height: 36,
             decoration: BoxDecoration(
               color: _colorForRate(canton.rate).withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: Center(
               child: Text(

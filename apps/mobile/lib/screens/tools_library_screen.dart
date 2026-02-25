@@ -536,7 +536,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: MintColors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                     child: Text(
                       '$_totalToolCount outils',
@@ -553,7 +553,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                     child: Text(
                       '${_categories.length} categories',
@@ -606,7 +606,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
 
           // Bottom padding
           const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
+            child: const SizedBox(height: 100),
           ),
         ],
       ),
@@ -617,7 +617,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: TextField(
@@ -704,7 +704,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                 }
               });
             },
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
@@ -713,7 +713,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: category.color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: const Borderconst Radius.circular(10),
                     ),
                     child: Icon(category.icon,
                         color: category.color, size: 18),
@@ -735,7 +735,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                         horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                     child: Text(
                       '${category.tools.length}',
@@ -786,12 +786,12 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => context.push(tool.route),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
@@ -807,7 +807,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: tool.color.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Icon(tool.icon, color: tool.color, size: 20),
               ),

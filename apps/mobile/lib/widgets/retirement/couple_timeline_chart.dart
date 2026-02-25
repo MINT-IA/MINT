@@ -105,7 +105,7 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -116,7 +116,7 @@ class _CoupleTimelineChartState extends State<CoupleTimelineChart>
             height: 40,
             decoration: BoxDecoration(
               color: phase.endYear != null ? MintColors.amber : MintColors.info,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: const Borderconst Radius.circular(2),
             ),
           ),
           const SizedBox(width: 12),

@@ -20,14 +20,14 @@ class CircleScoreCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(20)),
       child: InkWell(
         onTap: onTapDetails,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -110,7 +110,7 @@ class CircleScoreCard extends StatelessWidget {
 
               // Barre de progression
               ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
                 child: LinearProgressIndicator(
                   value: score.percentage / 100,
                   minHeight: 12,
@@ -164,7 +164,7 @@ class CircleScoreCard extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                     border: Border.all(color: Colors.amber.shade200),
                   ),
                   child: Column(

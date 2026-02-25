@@ -431,7 +431,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: MintColors.coachAccent.withValues(alpha: 0.2),
         ),
@@ -445,7 +445,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: MintColors.coachAccent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: const Borderconst Radius.circular(20),
                 ),
                 child: const Icon(
                   Icons.smart_toy_outlined,
@@ -488,7 +488,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 backgroundColor: MintColors.coachAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -555,7 +555,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: MintColors.primary,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
               ),
               child: Text(
                 msg.content,
@@ -587,7 +587,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 height: 32,
                 decoration: BoxDecoration(
                   color: MintColors.coachAccent,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: const Borderconst Radius.circular(16),
                 ),
                 child: const Icon(
                   Icons.psychology,
@@ -602,7 +602,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: MintColors.coachBubble,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: const Borderconst Radius.circular(16),
                   ),
                   child: Text(
                     msg.content,
@@ -657,7 +657,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       color: MintColors.coachAccent.withValues(alpha: 0.3),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: const Borderconst Radius.circular(20),
                     ),
                     onPressed: () => _sendMessage(action),
                   );
@@ -698,7 +698,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             height: 32,
             decoration: BoxDecoration(
               color: MintColors.coachAccent,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
             ),
             child: const Icon(
               Icons.psychology,
@@ -711,7 +711,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: MintColors.coachBubble,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -746,7 +746,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -797,7 +797,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -879,19 +879,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                       vertical: 10,
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: const Borderconst Radius.circular(24),
                       borderSide: BorderSide(
                         color: MintColors.border.withValues(alpha: 0.3),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: const Borderconst Radius.circular(24),
                       borderSide: BorderSide(
                         color: MintColors.border.withValues(alpha: 0.3),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: const Borderconst Radius.circular(24),
                       borderSide: const BorderSide(
                         color: MintColors.coachAccent,
                         width: 1.5,
@@ -905,7 +905,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               Container(
                 decoration: BoxDecoration(
                   color: MintColors.coachAccent,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: const Borderconst Radius.circular(24),
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.send, color: Colors.white, size: 20),

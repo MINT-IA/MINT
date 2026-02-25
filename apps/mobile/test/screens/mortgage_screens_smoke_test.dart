@@ -145,7 +145,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
 
     testWidgets('displays legal source reference', (tester) async {
@@ -195,7 +195,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('CHF'), findsWidgets);
-      expect(find.byIcon(Icons.compare_arrows), findsOneWidget);
+      expect(find.byconst Icon(Icons.compare_arrows), findsOneWidget);
     });
 
     testWidgets('displays chart section with legend', (tester) async {

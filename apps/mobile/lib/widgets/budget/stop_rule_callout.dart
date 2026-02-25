@@ -9,7 +9,7 @@ class StopRuleCallout extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.amber.shade200),
       ),
       child: Row(

@@ -72,7 +72,7 @@ class _ExpandButton extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: MintColors.surface.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: const Borderconst Radius.circular(8),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: const Icon(

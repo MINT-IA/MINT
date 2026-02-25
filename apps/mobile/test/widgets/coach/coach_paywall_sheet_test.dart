@@ -87,7 +87,7 @@ void main() {
       expect(find.textContaining('Coach LLM'), findsOneWidget);
       expect(find.textContaining('Export PDF'), findsOneWidget);
       // Check icons
-      expect(find.byIcon(Icons.check_circle_rounded), findsWidgets);
+      expect(find.byconst Icon(Icons.check_circle_rounded), findsWidgets);
     });
 
     testWidgets('shows CTA button', (tester) async {
@@ -113,14 +113,14 @@ void main() {
 
     testWidgets('has close button', (tester) async {
       await openPaywall(tester);
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byconst Icon(Icons.close), findsOneWidget);
     });
 
     testWidgets('close button dismisses sheet', (tester) async {
       await openPaywall(tester);
       expect(find.byType(CoachPaywallSheet), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byconst Icon(Icons.close));
       await tester.pumpAndSettle();
 
       expect(find.byType(CoachPaywallSheet), findsNothing);

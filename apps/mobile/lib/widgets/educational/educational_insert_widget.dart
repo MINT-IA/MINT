@@ -30,7 +30,7 @@ class EducationalInsertWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(
           color: MintColors.lightBorder,
           width: 1,
@@ -146,7 +146,7 @@ class EducationalInsertWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: const BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(23)),
+              borderRadius: BorderRadius.vertical(bottom: const Radius.circular(23)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

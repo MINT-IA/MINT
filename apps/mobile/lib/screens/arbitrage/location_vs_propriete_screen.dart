@@ -242,7 +242,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -293,7 +293,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                       child: DropdownButton<String>(
                         value: _canton,
@@ -355,7 +355,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -400,7 +400,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             filled: true,
             fillColor: MintColors.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -429,7 +429,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.warning.withAlpha(15),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.warning.withAlpha(60)),
       ),
       child: Row(
@@ -493,7 +493,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -598,7 +598,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

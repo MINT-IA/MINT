@@ -100,7 +100,7 @@ class _FriDashboardCardState extends State<FriDashboardCard>
     );
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.08),
-      end: Offset.zero,
+      end: const Offset.zero,
     ).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
     );
@@ -152,7 +152,7 @@ class _FriDashboardCardState extends State<FriDashboardCard>
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -173,7 +173,7 @@ class _FriDashboardCardState extends State<FriDashboardCard>
                       height: 40,
                       decoration: BoxDecoration(
                         color: MintColors.info.withAlpha(20),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                       child: const Icon(
                         Icons.insights_rounded,
@@ -215,7 +215,7 @@ class _FriDashboardCardState extends State<FriDashboardCard>
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: const Borderconst Radius.circular(4),
                         child: SizedBox(
                           height: 6,
                           child: LinearProgressIndicator(
@@ -274,7 +274,7 @@ class _FriDashboardCardState extends State<FriDashboardCard>
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(

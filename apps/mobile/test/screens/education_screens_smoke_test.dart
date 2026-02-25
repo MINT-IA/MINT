@@ -87,7 +87,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byIcon(Icons.chevron_right), findsWidgets);
+      expect(find.byconst Icon(Icons.chevron_right), findsWidgets);
     });
 
     testWidgets('uses ListView.builder for scrollable content', (tester) async {
@@ -110,9 +110,9 @@ void main() {
       await tester.pump();
 
       // First theme uses savings_outlined
-      expect(find.byIcon(Icons.savings_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.savings_outlined), findsOneWidget);
       // Second theme uses work_outline
-      expect(find.byIcon(Icons.work_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.work_outline), findsOneWidget);
     });
 
     testWidgets('renders all themes count matches data', (tester) async {
@@ -209,7 +209,7 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+      expect(find.byconst Icon(Icons.arrow_back_ios_new), findsOneWidget);
     });
 
     testWidgets('shows theme icon', (tester) async {
@@ -221,7 +221,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       // 3a theme uses savings_outlined
-      expect(find.byIcon(Icons.savings_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.savings_outlined), findsOneWidget);
     });
 
     testWidgets('shows reminder text with notification icon', (tester) async {
@@ -232,7 +232,7 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.byIcon(Icons.notifications_active_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.notifications_active_outlined), findsOneWidget);
       expect(
         find.textContaining('Décembre'),
         findsOneWidget,
