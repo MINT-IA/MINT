@@ -103,9 +103,15 @@ class ClarityState {
   });
 
   String get precisionLabel {
-    if (precisionIndex < 40) return 'Basique';
-    if (precisionIndex < 70) return 'Bon';
-    if (precisionIndex < 90) return 'Excellent';
+    if (precisionIndex < 40) {
+      return 'Basique';
+    }
+    if (precisionIndex < 70) {
+      return 'Bon';
+    }
+    if (precisionIndex < 90) {
+      return 'Excellent';
+    }
     return 'Parfait';
   }
 
@@ -221,14 +227,15 @@ class ClarityState {
           (answers['q_net_income_period_chf'] as num?)?.toDouble();
       if (periodIncome != null) {
         final freq = answers['q_pay_frequency'];
-        if (freq == 'monthly')
+        if (freq == 'monthly') {
           income = periodIncome;
-        else if (freq == 'weekly')
+        } else if (freq == 'weekly') {
           income = periodIncome * 4.33;
-        else if (freq == 'biweekly')
+        } else if (freq == 'biweekly') {
           income = periodIncome * 2.16;
-        else
+        } else {
           income = periodIncome;
+        }
       }
     }
 
@@ -367,36 +374,48 @@ class ClarityState {
   static String? _getNextMostValuableInfo(
       Map<String, dynamic> answers, double currentPrecision) {
     // V2 Priority
-    if (answers['q_canton'] == null && answers['canton'] == null)
+    if (answers['q_canton'] == null && answers['canton'] == null) {
       return 'Canton de résidence';
-    if (answers['q_birth_year'] == null && answers['birthYear'] == null)
+    }
+    if (answers['q_birth_year'] == null && answers['birthYear'] == null) {
       return 'Année de naissance';
+    }
     if (answers['q_civil_status'] == null &&
         answers['household'] == null &&
-        answers['q_household_type'] == null) return 'Situation familiale';
+        answers['q_household_type'] == null) {
+      return 'Situation familiale';
+    }
 
     // Cashflow
     if (answers['q_net_income_period_chf'] == null &&
         answers['q_net_income_monthly'] == null &&
-        answers['income_net_monthly'] == null)
+        answers['income_net_monthly'] == null) {
       return 'Revenu net mensuel/périodique';
+    }
     if (answers['q_savings_monthly'] == null &&
-        answers['savings_monthly'] == null) return 'Épargne mensuelle';
+        answers['savings_monthly'] == null) {
+      return 'Épargne mensuelle';
+    }
 
     // Dettes
     // If debt exists, we want details
     // If unknown, we want to know if it exists
     if (answers['q_has_consumer_debt'] == null &&
-        answers['has_leasing'] == null) return 'Dettes';
+        answers['has_leasing'] == null) {
+      return 'Dettes';
+    }
 
     // Prévoyance
     if (answers['q_has_3a'] == null &&
         answers['has_3a'] == null &&
-        answers['q_3a_accounts_count'] == null) return 'Compte 3a';
+        answers['q_3a_accounts_count'] == null) {
+      return 'Compte 3a';
+    }
 
     // Objectif
-    if (answers['q_main_goal'] == null && answers['primary_goal'] == null)
+    if (answers['q_main_goal'] == null && answers['primary_goal'] == null) {
       return 'Objectif principal';
+    }
 
     return null;
   }
