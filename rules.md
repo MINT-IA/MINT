@@ -34,7 +34,7 @@ docs/ evolution specs sit below visions/ but above ADRs.
 ## 2) Workflow
 - Toujours proposer un plan avant de modifier beaucoup de fichiers.
 - Toujours lancer lint/analyze/tests après une série de changements.
-- Fix bug => ajouter un test + entrée dans AGENTS_LOG.md.
+- Fix bug => ajouter un test.
 - Changement de contrat => mise à jour OpenAPI + SOT.md.
 - Décision structurante => ADR obligatoire.
 

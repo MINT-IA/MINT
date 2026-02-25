@@ -18,7 +18,7 @@ Read:
 - `rules.md` — Project-wide rules
 - `LEGAL_RELEASE_CHECK.md` — Legal compliance checklist
 - `AGENT_SYSTEM_PROMPT.md` — System behavior rules
-- `visions/vision_trust_privacy.md` — Privacy and trust principles
+- `PRIVACY.md` — Privacy and trust principles
 
 ## Forbidden Words (NEVER use in user-facing text)
 

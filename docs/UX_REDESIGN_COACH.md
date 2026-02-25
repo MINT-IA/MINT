@@ -1,5 +1,8 @@
 # UX REDESIGN — MINT Coach: Du Catalogue au Coach Financier
 
+> **Scope**: Design UX et experience utilisateur pour la transformation Coach.
+> **Companions**: BLUEPRINT_COACH_AI_LAYER.md (architecture technique), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint).
+
 **Date** : 19 fevrier 2026 (mise a jour)
 **Auteur** : Equipe UX Creative MINT
 **Statut** : Spec V2 — Plan consolide Phase 1-4
@@ -1058,7 +1061,7 @@ MintPaywallSheet    — Bottom sheet pour upgrade Coach
 - Contrats de donnees et schemas: `SOT.md`.
 - Exigences qualite: `DefinitionOfDone.md`.
 - Guardrails wording: `LEGAL_RELEASE_CHECK.md`.
-- Vision produit/UX: `visions/vision_product.md`, `visions/vision_features.md`, `visions/vision_user_journeys.md`.
+- Vision produit/UX: `visions/vision_product.md`, `visions/vision_features.md`.
 - Couverture evenements: `docs/ROADMAP_EVENEMENTS_VIE.md`.
 
 ### Flux reponse coach (resume)

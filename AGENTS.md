@@ -94,7 +94,7 @@ Prompt: "Tu es un auditeur senior de code financier.
 Lis ces fichiers DANS CET ORDRE avant de faire quoi que ce soit :
 1. .claude/CLAUDE.md (constants, financial_core spec, anti-patterns 12-14)
 2. decisions/ADR-20260223-unified-financial-engine.md
-3. .claude/AGENT_FINANCIAL_CORE_UNIFICATION.md (ta mission complète)
+3. .claude/archive/AGENT_FINANCIAL_CORE_UNIFICATION.md (mission completee)
 4. .claude/skills/mint-backend-dev/SKILL.md
 5. .claude/skills/mint-test-suite/SKILL.md
 
@@ -342,7 +342,7 @@ Chaque teammate prefixe ses commits :
 
 | Sprint | Module | Prerequisite | Spec Document |
 |--------|--------|-------------|---------------|
-| **S30.5** | Financial Core Unification (audit + cleanup) | None | AGENT_FINANCIAL_CORE_UNIFICATION.md |
+| **S30.5** | Financial Core Unification (audit + cleanup) | None | .claude/archive/AGENT_FINANCIAL_CORE_UNIFICATION.md (done) |
 | S31 | Onboarding Redesign + MinimalProfileService | S30.5 | ONBOARDING_ARBITRAGE_ENGINE.md § II |
 | S32 | Arbitrage Phase 1 (Rente vs Capital + Allocation) | S31 | ONBOARDING_ARBITRAGE_ENGINE.md § III |
 | S33 | Arbitrage Phase 2 + Longitudinal Snapshots | S32 | ONBOARDING_ARBITRAGE_ENGINE.md § III + VI |
@@ -401,17 +401,7 @@ Les skills contiennent :
 
 ## HIÉRARCHIE DE VÉRITÉ (Immutable)
 
-En cas de conflit, l'ordre de priorité est :
-1. **rules.md** — Non-negotiable technical + ethical rules
-2. **.claude/CLAUDE.md** — Project context, constants, compliance, anti-patterns
-3. **AGENTS.md** (ce fichier) — Team workflow, roles, sprint tracker
-4. **.claude/skills/** — Agent-specific conventions and patterns
-5. **LEGAL_RELEASE_CHECK.md** — Wording compliance checklist
-6. **visions/** — Product vision + limits
-7. **docs/** (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
-8. **decisions/** (ADR) — Architecture decisions
-9. **SOT.md + OpenAPI** — Data contracts
-10. **Code** — Implementation follows documents
+See CLAUDE.md § HIERARCHY OF TRUTH for the canonical version.
 
 ---
 

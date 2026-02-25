@@ -1,5 +1,8 @@
 # BLUEPRINT : MINT Coach AI Layer — Mission Document
 
+> **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
+> **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint).
+
 > **Objectif** : Transformer MINT d'un conseiller financier reactif en un coach IA proactif et emotionnel.
 > **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions — il EST le coach. Chaque texte statique de l'app devient dynamique. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
 

@@ -925,21 +925,9 @@ Extends the anti-patterns list in CLAUDE.md:
 
 ---
 
-## HIERARCHY OF TRUTH (updated)
+## HIERARCHY OF TRUTH
 
-In case of conflict, priority order:
-
-```
-1. rules.md                              — Non-negotiable ethical rules
-2. CLAUDE.md                             — Project context + constants
-3. ONBOARDING_ARBITRAGE_ENGINE.md        — THIS FILE (evolution spec)
-4. AGENTS.md                             — Team workflow
-5. visions/                              — Product vision
-6. LEGAL_RELEASE_CHECK.md                — Wording compliance
-7. decisions/ (ADR)                      — Architecture decisions
-8. Code                                  — Implementation follows documents
-```
-
+See CLAUDE.md § HIERARCHY OF TRUTH for the canonical priority order.
 This file sits below CLAUDE.md. If anything here contradicts CLAUDE.md, CLAUDE.md wins.
 
 ---
