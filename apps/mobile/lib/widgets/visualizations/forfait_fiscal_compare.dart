@@ -585,7 +585,7 @@ class _ForfaitBarPainter extends CustomPainter {
   }
 
   void _drawSwissCross(Canvas canvas, Size size) {
-    final crossSize = 50.0;
+    const crossSize = 50.0;
     final center = Offset(size.width / 2, size.height / 2);
     final paint = Paint()
       ..color = MintColors.error.withValues(alpha: 0.04);

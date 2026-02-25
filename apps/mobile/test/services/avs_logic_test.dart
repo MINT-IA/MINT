@@ -82,7 +82,7 @@ void main() {
       };
 
       final report = service.generateReport(answersSingleGap);
-      final expectedRent = 2520 * (40 / 44); // 30'240/12 = 2520 CHF/mois (LAVS)
+      const expectedRent = 2520 * (40 / 44); // 30'240/12 = 2520 CHF/mois (LAVS)
 
       expect(report.retirementProjection?.monthlyAvsRent,
           closeTo(expectedRent, 0.1));
@@ -108,7 +108,7 @@ void main() {
       // Couple max = 3780 (1890 each)
       // Part 1: 1890 * (40/44)
       // Part 2: 1890 * (42/44)
-      final expectedRent = (1890.0 * 40 / 44) + (1890.0 * 42 / 44);
+      const expectedRent = (1890.0 * 40 / 44) + (1890.0 * 42 / 44);
 
       expect(report.retirementProjection?.monthlyAvsRent,
           closeTo(expectedRent, 0.1));

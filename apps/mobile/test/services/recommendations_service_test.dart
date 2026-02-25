@@ -255,7 +255,7 @@ void main() {
       // Formula: monthlySavings * 12 * ((pow(1 + rate, years) - 1) / rate) * (1 + rate)
       // with rate=0.05, years=20, monthlySavings=500
       final futureValue = 500 * 12 * ((pow(1 + 0.05, 20) - 1) / 0.05) * (1 + 0.05);
-      final totalInvested = 500.0 * 12 * 20;
+      const totalInvested = 500.0 * 12 * 20;
       final expectedInterest = futureValue - totalInvested;
 
       expect(compRec.impact.amountCHF, closeTo(expectedInterest, 1.0));

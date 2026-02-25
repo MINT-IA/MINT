@@ -92,7 +92,7 @@ class RecommendationsService {
   /// Recommandation : Fonds d'urgence
   static Recommendation _buildEmergencyFundRecommendation(Profile profile) {
     final currentSavings = profile.totalSavings ?? 0;
-    final target = 3000.0;
+    const target = 3000.0;
     final remaining = target - currentSavings;
 
     return Recommendation(
@@ -123,7 +123,7 @@ class RecommendationsService {
   /// Recommandation : Pilier 3a
   static Recommendation _build3aRecommendation(Profile profile) {
     // Estimation économie fiscale (taux marginal ~25%)
-    final limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
+    const limit = pilier3aPlafondAvecLpp; // Limite 2025 avec LPP
     final taxSavings = limit * 0.25;
 
     return Recommendation(
@@ -156,7 +156,7 @@ class RecommendationsService {
 
   /// Recommandation : Rachat LPP
   static Recommendation _buildLppBuybackRecommendation(Profile profile) {
-    final estimatedSavings = 850.0; // Estimation conservative
+    const estimatedSavings = 850.0; // Estimation conservative
 
     return Recommendation(
       id: 'lpp_buyback',
@@ -192,8 +192,8 @@ class RecommendationsService {
   /// Recommandation : Intérêts composés
   static Recommendation _buildCompoundInterestRecommendation(Profile profile) {
     final monthlySavings = profile.savingsMonthly ?? 500;
-    final years = 20;
-    final rate = 0.05; // 5% annuel
+    const years = 20;
+    const rate = 0.05; // 5% annuel
 
     // Calcul intérêts composés
     final futureValue =

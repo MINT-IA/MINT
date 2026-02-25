@@ -103,7 +103,7 @@ void main() {
         annualInterestRate: 0.02,
       );
 
-      final expectedAnnual = 150000 / 5;
+      const expectedAnnual = 150000 / 5;
       for (int i = 0; i < 5; i++) {
         expect(result.breakdown[i].contribution, closeTo(expectedAnnual, 0.01));
       }

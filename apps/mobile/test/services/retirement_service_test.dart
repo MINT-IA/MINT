@@ -81,7 +81,7 @@ void main() {
       );
 
       // gapFactor = (44 - 4) / 44 = 40/44
-      final expectedMensuel = 2520.0 * 40 / 44;
+      const expectedMensuel = 2520.0 * 40 / 44;
       expect((r['renteMensuelle'] as double), closeTo(expectedMensuel, 1));
     });
 

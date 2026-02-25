@@ -999,7 +999,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       case 'q_3a_annual_contribution':
         if (_answers['q_3a_annual_contribution'] != null) {
           final contribution = (_answers['q_3a_annual_contribution'] as num).toDouble();
-          final max3a = 7258.0;
+          const max3a = 7258.0;
           final gap = (max3a - contribution).clamp(0, max3a);
           if (gap > 500 && _answers['q_canton'] != null) {
             final canton = _answers['q_canton'] as String;
@@ -1037,7 +1037,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         if (_answers['q_avs_arrival_year'] != null && _answers['q_birth_year'] != null) {
           final arrivalYear = (_answers['q_avs_arrival_year'] as num).toInt();
           final birthYear = (_answers['q_birth_year'] as num).toInt();
-          final startAge = 21;
+          const startAge = 21;
           final gapYears = (arrivalYear - (birthYear + startAge)).clamp(0, 44);
           final renteLoss = AvsCalculator.reductionPercentageFromGap(gapYears);
           final monthlyLoss = AvsCalculator.monthlyLossFromGap(gapYears);

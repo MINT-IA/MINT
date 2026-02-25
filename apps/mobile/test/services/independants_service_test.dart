@@ -128,14 +128,14 @@ void main() {
 
     test('perte carence = revenu journalier * delai', () {
       final result = IndependantsService.calculateIjm(6000, 30, 90);
-      final revenuJournalier = 6000 / 21.75;
+      const revenuJournalier = 6000 / 21.75;
       expect(result.perteCarence, closeTo(revenuJournalier * 90, 0.01));
     });
 
     test('prime basee sur 80% du revenu assure', () {
       final result = IndependantsService.calculateIjm(10000, 40, 30);
       // Prime = (revenu * 0.80 / 1000) * rate
-      final expectedPrime = (10000 * 0.80 / 1000) * 5.0; // 31-40, 30j
+      const expectedPrime = (10000 * 0.80 / 1000) * 5.0; // 31-40, 30j
       expect(result.primeMensuelle, closeTo(expectedPrime, 0.01));
       expect(result.primeAnnuelle, closeTo(expectedPrime * 12, 0.01));
     });
@@ -289,7 +289,7 @@ void main() {
         0.30,
       );
       // Charge = 200000 * 0.30 (impot) + 200000 * 0.125 (AVS)
-      final expectedCharge = 200000 * 0.30 + 200000 * 0.125;
+      const expectedCharge = 200000 * 0.30 + 200000 * 0.125;
       expect(result.chargeSalaire, closeTo(expectedCharge, 0.01));
     });
 

@@ -653,7 +653,7 @@ Reecris le message en 3-4 phrases max. Personnalise en croisant la situation fam
   ) {
     if (profile.employmentStatus != EmploymentStatus.independant) return;
 
-    final plafond3a = _plafond3aIndependant;
+    const plafond3a = _plafond3aIndependant;
     final tauxMarginal = _getTauxMarginal(profile.canton);
     final impact = plafond3a * tauxMarginal;
 

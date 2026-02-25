@@ -91,7 +91,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
     final size = box.size;
     final pos = details.localPosition;
     final count = widget.scenarios.length;
-    final chartLeft = 50.0;
+    const chartLeft = 50.0;
     final chartWidth = size.width - 60;
     final spacing = chartWidth / count;
 
@@ -230,10 +230,10 @@ class _EarlyRetirementPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (scenarios.isEmpty) return;
 
-    final chartTop = 30.0;
+    const chartTop = 30.0;
     final chartBottom = size.height - 50;
     final chartHeight = chartBottom - chartTop;
-    final chartLeft = 50.0;
+    const chartLeft = 50.0;
     final chartRight = size.width - 10;
     final chartWidth = chartRight - chartLeft;
 
@@ -246,7 +246,7 @@ class _EarlyRetirementPainter extends CustomPainter {
     maxVal *= 1.15;
 
     // Y-axis
-    final ySteps = 4;
+    const ySteps = 4;
     for (int i = 0; i <= ySteps; i++) {
       final val = maxVal * i / ySteps;
       final y = chartBottom - (chartHeight * i / ySteps);

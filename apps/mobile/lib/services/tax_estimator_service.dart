@@ -53,7 +53,7 @@ class TaxEstimatorService {
     // Simplification: déduction forfaitaire identique de 15% (LIFD art. 26, 33, 33a).
     // L'avantage marié vient des barèmes séparés ou du splitting (cantons "All").
     final double netAnnual = netMonthlyIncome * 12;
-    final double deductionRate = 0.15;
+    const double deductionRate = 0.15;
     final double taxableIncomeApprox = netAnnual * (1 - deductionRate);
 
     // TENTATIVE DE CALCUL PRÉCIS (DATA RÉELLE)
@@ -115,7 +115,7 @@ class TaxEstimatorService {
     String? communeName, // Commune pour multiplicateur précis
   }) {
     // Apply same deductions as estimateAnnualTax (LIFD art. 26, 33, 33a)
-    final double deductionRate = 0.15;
+    const double deductionRate = 0.15;
     final double taxableIncome = netMonthlyIncome * 12 * (1 - deductionRate);
 
     // Mapping statut

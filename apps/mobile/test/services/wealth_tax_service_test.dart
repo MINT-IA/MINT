@@ -33,14 +33,14 @@ void main() {
     });
 
     test('NW is the cheapest canton (0.75 per mille)', () {
-      final rates = WealthTaxService.effectiveWealthTaxRates500k;
+      const rates = WealthTaxService.effectiveWealthTaxRates500k;
       final minRate = rates.values.reduce((a, b) => a < b ? a : b);
       expect(minRate, 0.75);
       expect(rates['NW'], 0.75);
     });
 
     test('BS is the most expensive canton (5.10 per mille)', () {
-      final rates = WealthTaxService.effectiveWealthTaxRates500k;
+      const rates = WealthTaxService.effectiveWealthTaxRates500k;
       final maxRate = rates.values.reduce((a, b) => a > b ? a : b);
       expect(maxRate, 5.10);
       expect(rates['BS'], 5.10);

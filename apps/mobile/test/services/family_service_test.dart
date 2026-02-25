@@ -126,7 +126,7 @@ void main() {
         nbEnfants: 1,
       );
 
-      final expectedTotal = FamilyService.deductionMarie +
+      const expectedTotal = FamilyService.deductionMarie +
           FamilyService.deductionAssuranceMarie +
           FamilyService.deductionDoubleRevenu +
           1 * FamilyService.deductionParEnfant;
@@ -170,7 +170,7 @@ void main() {
         isMother: true,
       );
 
-      final dailySalary = 6000.0 * 12 / 360;
+      const dailySalary = 6000.0 * 12 / 360;
       final expectedApg = dailySalary * 0.80;
 
       expect(result['apgJournalier'], closeTo(expectedApg, 0.01));

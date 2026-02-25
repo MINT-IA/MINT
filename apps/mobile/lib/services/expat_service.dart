@@ -518,11 +518,11 @@ class ExpatService {
 
     // Forfait tax: apply a simplified effective rate (~25% on forfait base)
     // This is an approximation; actual rates vary by canton
-    final forfaitTaxRate = 0.25;
+    const forfaitTaxRate = 0.25;
     final forfaitTax = forfaitBase * forfaitTaxRate;
 
     // Ordinary tax on actual income
-    final ordinaryTaxRate = 0.35; // High earner marginal rate estimate
+    const ordinaryTaxRate = 0.35; // High earner marginal rate estimate
     final ordinaryTax = actualIncome * ordinaryTaxRate;
 
     final savings = ordinaryTax - forfaitTax;
@@ -723,7 +723,7 @@ class ExpatService {
 
     // CH effective rate (simplified)
     final chSourceRate = sourceTaxRates[canton] ?? 0.13;
-    final chSocialRate = avsAiApgRate + acRate; // ~6.4%
+    const chSocialRate = avsAiApgRate + acRate; // ~6.4%
     final chTotalRate = chSourceRate + chSocialRate;
     final chTotalTax = annualSalary * chTotalRate;
 

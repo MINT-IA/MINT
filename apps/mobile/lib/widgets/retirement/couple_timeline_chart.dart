@@ -177,9 +177,9 @@ class _CoupleTimelinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final laneHeight = 40.0;
-    final laneGap = 30.0;
-    final chartLeft = 10.0;
+    const laneHeight = 40.0;
+    const laneGap = 30.0;
+    const chartLeft = 10.0;
     final chartRight = size.width - 10;
     final chartWidth = (chartRight - chartLeft) * progress;
 
@@ -195,7 +195,7 @@ class _CoupleTimelinePainter extends CustomPainter {
     }
 
     // ── Lane 1: User ────────────────────────────────────
-    final lane1Y = 50.0;
+    const lane1Y = 50.0;
     _drawLane(
       canvas: canvas,
       name: userName,
