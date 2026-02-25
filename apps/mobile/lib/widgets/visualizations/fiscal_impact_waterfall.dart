@@ -129,7 +129,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -164,7 +164,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
             height: 40,
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: const Icon(
               Icons.waterfall_chart,
@@ -276,7 +276,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Row(
@@ -287,7 +287,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
               height: 32,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: const Borderconst Radius.circular(2),
               ),
             ),
             const SizedBox(width: 12),
@@ -367,7 +367,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
                     MintColors.success.withValues(alpha: 0.06),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 border: Border.all(
                   color: MintColors.success.withValues(alpha: 0.3),
                 ),

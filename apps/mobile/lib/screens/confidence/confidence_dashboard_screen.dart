@@ -216,7 +216,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: scoreColor.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
                 border: Border.all(
                   color: scoreColor.withValues(alpha: 0.30),
                 ),
@@ -297,7 +297,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
               color: gate.unlocked
                   ? MintColors.success.withValues(alpha: 0.10)
                   : MintColors.surface,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: Icon(
               gate.unlocked ? Icons.check_circle : Icons.lock_outline,
@@ -327,7 +327,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: const Borderconst Radius.circular(6),
               ),
               child: Text(
                 '${gate.minConfidence.round()} % requis',
@@ -372,16 +372,16 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           onTap: () {
             // Navigation will be wired per method in a future sprint.
           },
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: const Borderconst Radius.circular(14),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Row(
@@ -392,7 +392,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                   height: 40,
                   decoration: BoxDecoration(
                     color: MintColors.info.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: const Borderconst Radius.circular(10),
                   ),
                   child: Icon(
                     _iconForMethod(prompt.method),
@@ -420,7 +420,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: MintColors.success.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: const Borderconst Radius.circular(8),
                   ),
                   child: Text(
                     '+${prompt.impactPoints} pts',
@@ -449,7 +449,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Text(
         widget.result.disclaimer,

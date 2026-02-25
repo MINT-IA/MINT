@@ -86,7 +86,7 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.email_outlined), findsOneWidget);
       expect(find.byType(TextFormField), findsWidgets);
     });
 
@@ -94,14 +94,14 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_outline), findsOneWidget);
     });
 
     testWidgets('shows password visibility toggle', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.visibility_outlined), findsOneWidget);
     });
 
     testWidgets('shows Se connecter button', (tester) async {
@@ -144,7 +144,7 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.token_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.token_rounded), findsOneWidget);
     });
 
     testWidgets('has Form widget for validation', (tester) async {
@@ -172,9 +172,9 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const ForgotPasswordScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.key_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline), findsNWidgets(2));
+      expect(find.byconst Icon(Icons.email_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.key_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_outline), findsNWidgets(2));
       expect(find.textContaining('Envoyer le lien'), findsOneWidget);
     });
   });
@@ -192,8 +192,8 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const VerifyEmailScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.key_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.email_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.key_outlined), findsOneWidget);
       expect(find.textContaining('Envoyer le lien'), findsOneWidget);
     });
   });
@@ -233,14 +233,14 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.email_outlined), findsOneWidget);
     });
 
     testWidgets('shows display name field', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.person_outline), findsOneWidget);
     });
 
     testWidgets('shows password and confirm password fields', (tester) async {
@@ -248,7 +248,7 @@ void main() {
       await tester.pump();
 
       // Two lock_outline icons (password + confirm)
-      expect(find.byIcon(Icons.lock_outline), findsNWidgets(2));
+      expect(find.byconst Icon(Icons.lock_outline), findsNWidgets(2));
     });
 
     testWidgets('shows password requirement info box', (tester) async {
@@ -300,7 +300,7 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.token_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.token_rounded), findsOneWidget);
     });
 
     testWidgets('has Form widget for validation', (tester) async {
@@ -347,7 +347,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('donn\u00e9es'), findsWidgets);
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_outline), findsOneWidget);
     });
 
     testWidgets('shows provider selector with 3 options', (tester) async {
@@ -409,7 +409,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('Obtenir une cl'), findsOneWidget);
-      expect(find.byIcon(Icons.open_in_new), findsOneWidget);
+      expect(find.byconst Icon(Icons.open_in_new), findsOneWidget);
     });
 
     testWidgets('can switch provider to OpenAI', (tester) async {
@@ -432,7 +432,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.visibility_off_outlined), findsOneWidget);
     });
 
     testWidgets('shows subtitle about LLM connection', (tester) async {

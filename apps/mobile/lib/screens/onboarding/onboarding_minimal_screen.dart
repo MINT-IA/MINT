@@ -149,7 +149,7 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
                         disabledBackgroundColor: MintColors.border,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: const Borderconst Radius.circular(16),
                         ),
                       ),
                       child: Text(
@@ -309,7 +309,7 @@ class _AgePicker extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -387,7 +387,7 @@ class _CantonDropdown extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: DropdownButtonFormField<String>(
@@ -396,7 +396,7 @@ class _CantonDropdown extends StatelessWidget {
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(vertical: 4),
         ),
         hint: Text(
           'Choisis ton canton',

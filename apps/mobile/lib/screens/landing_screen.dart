@@ -139,7 +139,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 24, vertical: 12),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: const Borderconst Radius.circular(24),
                                 ),
                               ),
                             ),
@@ -178,7 +178,7 @@ class _LandingScreenState extends State<LandingScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: const Borderconst Radius.circular(20),
                 border: Border.all(color: Colors.white),
               ),
               child: Text(
@@ -201,7 +201,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 backgroundColor: Colors.white.withValues(alpha: 0.7),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: const Borderconst Radius.circular(20),
                 ),
               ),
               child: Text(
@@ -224,7 +224,7 @@ class _LandingScreenState extends State<LandingScreen> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(36),
+        borderRadius: const Borderconst Radius.circular(36),
         border:
             Border.all(color: MintColors.lightBorder.withValues(alpha: 0.5)),
         boxShadow: [
@@ -320,7 +320,7 @@ class _LandingScreenState extends State<LandingScreen> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: const Borderconst Radius.circular(18),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -342,7 +342,7 @@ class _LandingScreenState extends State<LandingScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
           ),
           child: Icon(icon, color: color, size: 26),
         ),

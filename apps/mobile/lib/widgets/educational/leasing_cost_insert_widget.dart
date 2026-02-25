@@ -121,7 +121,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Column(
@@ -137,15 +137,15 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                 ),
                 
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Row(
                     children: [
-                      Expanded(child: Divider()),
+                      Expanded(child: const Divider()),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text('VS', style: TextStyle(color: Colors.grey)),
                       ),
-                      Expanded(child: Divider()),
+                      Expanded(child: const Divider()),
                     ],
                   ),
                 ),
@@ -167,7 +167,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: const Borderconst Radius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -195,7 +195,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.amber.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -121,7 +121,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.add_circle_outline), findsOneWidget);
     });
 
     testWidgets('has delete buttons for debts', (tester) async {
@@ -132,7 +132,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byIcon(Icons.delete_outline), findsNWidgets(2));
+      expect(find.byconst Icon(Icons.delete_outline), findsNWidgets(2));
     });
 
     testWidgets('shows debt mini sliders', (tester) async {
@@ -290,7 +290,7 @@ void main() {
       await tester.pump();
 
       // Disclaimer comes from the service, check for icon
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
 
     testWidgets('shows ratio percentage display', (tester) async {

@@ -381,7 +381,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -540,7 +540,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: Column(
         children: [
@@ -572,7 +572,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -638,7 +638,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -761,7 +761,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -844,7 +844,7 @@ class _RetirementScreenState extends State<RetirementScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -883,7 +883,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -892,7 +892,7 @@ class _RetirementScreenState extends State<RetirementScreen>
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child:
                 const Icon(Icons.balance, size: 18, color: MintColors.primary),
@@ -1019,7 +1019,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -1222,7 +1222,7 @@ class _RetirementScreenState extends State<RetirementScreen>
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: MintColors.warning.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 border: Border.all(
                     color: MintColors.warning.withValues(alpha: 0.3)),
               ),
@@ -1255,7 +1255,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1290,7 +1290,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1356,7 +1356,7 @@ class _RetirementScreenState extends State<RetirementScreen>
                   MintColors.purple.withValues(alpha: 0.05),
                 ],
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
             ),
             child: Row(
@@ -1365,7 +1365,7 @@ class _RetirementScreenState extends State<RetirementScreen>
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: MintColors.info.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: const Icon(Icons.show_chart, color: MintColors.info, size: 22),
                 ),
@@ -1405,7 +1405,7 @@ class _RetirementScreenState extends State<RetirementScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -1500,7 +1500,7 @@ class _RetirementScreenState extends State<RetirementScreen>
                           color: m.age == 65
                               ? MintColors.primary
                               : MintColors.appleSurface,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: const Borderconst Radius.circular(8),
                           border: Border.all(
                             color: m.age == 65
                                 ? MintColors.primary
@@ -1584,7 +1584,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1662,7 +1662,7 @@ class _RetirementScreenState extends State<RetirementScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1671,7 +1671,7 @@ class _RetirementScreenState extends State<RetirementScreen>
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: const Borderconst Radius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -1719,7 +1719,7 @@ class _RetirementScreenState extends State<RetirementScreen>
               height: 22,
               decoration: BoxDecoration(
                 color: checked ? MintColors.success : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: const Borderconst Radius.circular(6),
                 border: Border.all(
                   color: checked ? MintColors.success : MintColors.border,
                   width: 1.5,
@@ -1753,7 +1753,7 @@ class _RetirementScreenState extends State<RetirementScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

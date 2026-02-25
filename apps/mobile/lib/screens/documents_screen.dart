@@ -155,7 +155,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -191,7 +191,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.glassBackground,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(color: MintColors.glassBorder),
         boxShadow: [
           BoxShadow(
@@ -210,7 +210,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: MintColors.accent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
                 child: const Icon(Icons.lock_outline,
                     color: MintColors.accent, size: 28),
@@ -248,7 +248,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -308,12 +308,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   ) {
     return InkWell(
       onTap: () => _pickAndUpload(type),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: const Borderconst Radius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const Borderconst Radius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
           boxShadow: [
             BoxShadow(
@@ -331,7 +331,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
               ),
               child: Icon(icon, color: color, size: 22),
             ),
@@ -460,7 +460,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -472,7 +472,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: Icon(icon, color: MintColors.accent, size: 20),
               ),
@@ -617,7 +617,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: MintColors.error.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
         ),
         child: const Icon(Icons.delete_outline, color: MintColors.error),
       ),
@@ -625,12 +625,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         child: InkWell(
           onTap: () => context.push('/documents/${doc.id}'),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               border: Border.all(color: MintColors.border),
             ),
             child: Row(
@@ -639,7 +639,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: typeColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Icon(typeIcon, color: typeColor, size: 22),
                 ),
@@ -673,7 +673,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                             decoration: BoxDecoration(
                               color: _confidenceColor(confidence)
                                   .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: const Borderconst Radius.circular(8),
                             ),
                             child: Text(
                               s?.vaultConfidence(
@@ -710,7 +710,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -746,7 +746,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: const Borderconst Radius.circular(14),
               ),
             ),
             icon: const Icon(Icons.add_rounded, size: 20),
@@ -772,7 +772,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         boxShadow: [
           BoxShadow(
             color: MintColors.primary.withValues(alpha: 0.3),
@@ -790,7 +790,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: const Icon(Icons.lock_open_rounded,
                     color: Colors.white, size: 24),
@@ -833,7 +833,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -856,7 +856,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Row(
@@ -892,7 +892,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -959,7 +959,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -1002,7 +1002,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 : 0,
             backgroundColor: color.withValues(alpha: 0.15),
             valueColor: AlwaysStoppedAnimation<Color>(color),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: const Borderconst Radius.circular(4),
             minHeight: 6,
           ),
         ],
@@ -1038,7 +1038,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1072,7 +1072,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -1128,12 +1128,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   Widget _buildBankImportCard(S? s) {
     return InkWell(
       onTap: () => context.push('/bank-import'),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: const Borderconst Radius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const Borderconst Radius.circular(20),
           border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
         ),
         child: Row(
@@ -1142,7 +1142,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: MintColors.info.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: const Borderconst Radius.circular(14),
               ),
               child: const Icon(Icons.account_balance_outlined,
                   color: MintColors.info, size: 24),
@@ -1189,7 +1189,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1199,7 +1199,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: MintColors.accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: const Icon(Icons.lock_outline,
                 color: MintColors.accent, size: 20),
@@ -1232,7 +1232,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1275,7 +1275,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
         ),
         builder: (ctx) => Padding(
           padding: const EdgeInsets.all(24),
@@ -1287,7 +1287,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: MintColors.border,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: const Borderconst Radius.circular(2),
                 ),
               ),
               const SizedBox(height: 24),
@@ -1303,7 +1303,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       builder: (ctx) => _buildUploadTypeSheet(ctx, s),
     );
@@ -1324,7 +1324,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               height: 4,
               decoration: BoxDecoration(
                 color: MintColors.border,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: const Borderconst Radius.circular(2),
               ),
             ),
             const SizedBox(height: 20),
@@ -1349,7 +1349,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: cat.color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: const Borderconst Radius.circular(10),
                   ),
                   child: Icon(cat.icon, color: cat.color, size: 22),
                 ),
@@ -1375,7 +1375,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.textMuted.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: const Icon(Icons.description_outlined,
                     color: MintColors.textMuted, size: 22),
@@ -1437,7 +1437,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(20)),
         title: Text(s?.vaultDeleteTitle ?? 'Supprimer le document ?'),
         content: Text(
             s?.vaultDeleteMessage ?? 'Cette action est irr\u00e9versible.'),
@@ -1463,7 +1463,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(20)),
         title: Text(
           s?.vaultTitle ?? 'Coffre-fort',
           style: GoogleFonts.outfit(

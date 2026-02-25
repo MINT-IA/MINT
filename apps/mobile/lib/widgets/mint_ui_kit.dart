@@ -23,17 +23,17 @@ class MintGlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: const Borderconst Radius.circular(24),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: const Borderconst Radius.circular(24),
           child: Container(
             padding: padding ?? const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: (color ?? Colors.white).withValues(alpha: 0.65),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: const Borderconst Radius.circular(24),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.4),
                 width: 1.0,
@@ -200,7 +200,7 @@ class MintPremiumButton extends StatelessWidget {
       child: Container(
         height: 72, // Fixed height for consistency with the design
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const Borderconst Radius.circular(20),
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -235,7 +235,7 @@ class MintPremiumButton extends StatelessWidget {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: const Borderconst Radius.circular(20),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -306,7 +306,7 @@ class MintPremiumButton extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                      color: Colors.black.withValues(alpha: 0.3),
-                     borderRadius: BorderRadius.circular(20),
+                     borderRadius: const Borderconst Radius.circular(20),
                   ),
                   child: const Center(
                     child: SizedBox(

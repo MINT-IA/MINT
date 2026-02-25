@@ -183,7 +183,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -230,7 +230,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                     side: const BorderSide(color: MintColors.border),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                     ),
                   ),
                 ),
@@ -247,7 +247,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -272,7 +272,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
       ),
       child: Column(
         children: [
@@ -295,7 +295,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: MintColors.card,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: const Borderconst Radius.circular(10),
                   ),
                   child: DropdownButton<String>(
                     value: asset.type,
@@ -351,7 +351,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                     filled: true,
                     fillColor: MintColors.card,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: const Borderconst Radius.circular(10),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
@@ -375,7 +375,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: MintColors.card,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: const Borderconst Radius.circular(10),
                   ),
                   child: DropdownButton<int>(
                     value: asset.age,
@@ -431,7 +431,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: DropdownButton<String>(
                   value: _canton,
@@ -513,7 +513,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             MintColors.accent,
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         boxShadow: [
           BoxShadow(
             color: MintColors.primary.withAlpha(40),
@@ -558,7 +558,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(25),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Text(
               _result!.displaySummary,
@@ -623,7 +623,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -697,7 +697,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -793,7 +793,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: typeColor.withAlpha(12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                   border: Border.all(color: typeColor.withAlpha(40)),
                 ),
                 child: Row(
@@ -891,7 +891,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

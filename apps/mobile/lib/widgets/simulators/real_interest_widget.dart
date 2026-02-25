@@ -97,7 +97,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
             ),
             child: Column(
@@ -177,7 +177,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
         decoration: BoxDecoration(
           color: isMain ? color.withValues(alpha: 0.1) : Colors.transparent,
           border: Border.all(color: isMain ? color : MintColors.border),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
         ),
         child: Column(
           children: [

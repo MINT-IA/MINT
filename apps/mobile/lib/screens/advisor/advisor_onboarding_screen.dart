@@ -649,7 +649,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
           ),
           child: SafeArea(
             top: false,
@@ -665,7 +665,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: MintColors.success.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: const Borderconst Radius.circular(10),
                       ),
                       child: const Icon(Icons.celebration_outlined,
                           color: MintColors.success, size: 20),
@@ -701,7 +701,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: MintColors.primary.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: const Borderconst Radius.circular(10),
                       ),
                       child: const Icon(Icons.rocket_launch_outlined,
                           color: MintColors.primary, size: 20),
@@ -736,7 +736,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: MintColors.coachBubble,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                       border: Border.all(color: MintColors.lightBorder),
                     ),
                     child: Row(
@@ -817,7 +817,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1027,7 +1027,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: Text(
               l10n?.onboardingProgress('${_currentStep + 1}',
@@ -1087,7 +1087,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
           ),
           child: SafeArea(
             child: SingleChildScrollView(
@@ -1289,7 +1289,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1379,7 +1379,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1424,7 +1424,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Column(
@@ -1459,7 +1459,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: Row(
               children: [
@@ -1490,7 +1490,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: MintColors.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: const Borderconst Radius.circular(8),
                   ),
                   child: Text(
                     qualityLabel,
@@ -1570,7 +1570,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1672,7 +1672,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Row(
@@ -1727,7 +1727,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                   : isActive
                       ? MintColors.primary
                       : MintColors.lightBorder,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: const Borderconst Radius.circular(4),
             ),
           );
         }),
@@ -1842,7 +1842,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: MintColors.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.25)),
       ),
       child: Row(
@@ -1937,7 +1937,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
           ),
           child: SafeArea(
             child: Padding(
@@ -1951,7 +1951,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     height: 4,
                     decoration: BoxDecoration(
                       color: MintColors.border,
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: const Borderconst Radius.circular(2),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -2014,7 +2014,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.primary.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.25)),
       ),
       child: Column(
@@ -2096,7 +2096,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: chipColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: const Borderconst Radius.circular(999),
         border: Border.all(color: chipColor.withValues(alpha: 0.3)),
       ),
       child: Text(
@@ -2151,7 +2151,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.coachBubble,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Text(
@@ -2216,7 +2216,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                     MintColors.textMuted.withValues(alpha: 0.15),
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: const Borderconst Radius.circular(16),
                 ),
               ),
               child: Row(
@@ -2348,7 +2348,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Column(
@@ -2405,7 +2405,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           color: isSelected
               ? MintColors.primary.withValues(alpha: 0.08)
               : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.lightBorder,
             width: isSelected ? 2 : 1,
@@ -2469,7 +2469,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -2594,7 +2594,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -2671,7 +2671,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 4),
             child: Icon(Icons.circle, size: 6, color: MintColors.primary),
           ),
           const SizedBox(width: 8),

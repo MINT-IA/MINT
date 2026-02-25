@@ -75,7 +75,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Bienvenue ! Tes donnees sont a jour.'),
-                  duration: Duration(seconds: 3),
+                  duration: const Duration(seconds: 3),
                 ),
               );
             }
@@ -229,7 +229,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Recommandations mises a jour'),
-                        duration: Duration(seconds: 2),
+                        duration: const Duration(seconds: 2),
                       ),
                     );
                   }
@@ -241,7 +241,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             setState(() => _currentIndex = index);
           }
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: isCompact ? 4 : 6),
           child: Column(

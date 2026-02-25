@@ -197,7 +197,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -248,7 +248,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   ? [MintColors.primary, MintColors.primary.withAlpha(180)]
                   : [MintColors.textSecondary, MintColors.textMuted],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: MintColors.primary.withAlpha(40),
@@ -304,7 +304,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -316,7 +316,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.accentPastel,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: const Icon(Icons.account_balance, size: 18,
                     color: MintColors.primary),
@@ -376,7 +376,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -388,7 +388,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.accentPastel,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: const Icon(Icons.receipt_long, size: 18,
                     color: MintColors.primary),
@@ -423,7 +423,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                   border: Border.all(color: MintColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -469,7 +469,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               Container(
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                   border: Border.all(color: MintColors.border),
                 ),
                 child: Row(
@@ -504,7 +504,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               border: Border.all(color: MintColors.border),
             ),
             child: Column(
@@ -562,7 +562,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color: MintColors.primary,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: const Borderconst Radius.circular(20),
                       ),
                       child: Text(
                         '${(displayRate * 100).toStringAsFixed(1)}%',
@@ -653,7 +653,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? MintColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(7),
+          borderRadius: const Borderconst Radius.circular(7),
         ),
         child: Text(
           label,
@@ -672,7 +672,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       builder: (context) {
         return Padding(
@@ -687,7 +687,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   height: 4,
                   decoration: BoxDecoration(
                     color: MintColors.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: const Borderconst Radius.circular(2),
                   ),
                 ),
               ),
@@ -717,7 +717,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: MintColors.accentPastel,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Row(
                   children: [
@@ -755,7 +755,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -767,7 +767,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.accentPastel,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: const Icon(Icons.timeline, size: 18,
                     color: MintColors.primary),
@@ -907,7 +907,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: isWinner ? color : MintColors.border,
           width: isWinner ? 2 : 1,
@@ -922,7 +922,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: color.withAlpha(30),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: const Borderconst Radius.circular(6),
               ),
               child: Text(
                 'MEILLEUR',
@@ -982,7 +982,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -1043,7 +1043,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           height: 12,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: const Borderconst Radius.circular(3),
           ),
         ),
         const SizedBox(width: 6),
@@ -1075,7 +1075,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -1107,7 +1107,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1209,7 +1209,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                             )!,
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: const Borderconst Radius.circular(2),
                       ),
                     ),
                   ),
@@ -1225,7 +1225,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 border: Border.all(color: MintColors.border),
               ),
               child: Column(
@@ -1288,7 +1288,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: lineColor.withAlpha(25),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: const Borderconst Radius.circular(8),
                         ),
                         child: Text(
                           'Lacune comblee : ${lacunePercent.toStringAsFixed(0)}%',
@@ -1319,7 +1319,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.red.shade200),
       ),
       child: Row(
@@ -1367,7 +1367,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

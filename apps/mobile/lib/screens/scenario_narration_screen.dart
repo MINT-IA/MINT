@@ -143,7 +143,7 @@ class ScenarioNarrationScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -230,7 +230,7 @@ class _ScenarioCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -249,8 +249,8 @@ class _ScenarioCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                bottomLeft: Radius.circular(16),
+                topLeft: const Radius.circular(16),
+                bottomLeft: const Radius.circular(16),
               ),
             ),
           ),
@@ -269,7 +269,7 @@ class _ScenarioCard extends StatelessWidget {
                         height: 36,
                         decoration: BoxDecoration(
                           color: color.withAlpha(25),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: const Borderconst Radius.circular(10),
                         ),
                         child: Icon(icon, color: color, size: 20),
                       ),

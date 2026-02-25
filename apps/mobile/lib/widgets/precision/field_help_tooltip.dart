@@ -44,9 +44,9 @@ class FieldHelpTooltip extends StatelessWidget {
 
     return InkWell(
       onTap: () => _showHelpSheet(context, help),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: const Borderconst Radius.circular(20),
       child: const Padding(
-        padding: EdgeInsets.all(4),
+        padding: const EdgeInsets.all(4),
         child: Icon(
           Icons.info_outline,
           size: 18,
@@ -62,7 +62,7 @@ class FieldHelpTooltip extends StatelessWidget {
       backgroundColor: Colors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       builder: (ctx) {
         return Padding(
@@ -83,7 +83,7 @@ class FieldHelpTooltip extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: MintColors.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: const Borderconst Radius.circular(2),
                   ),
                 ),
               ),
@@ -131,7 +131,7 @@ class FieldHelpTooltip extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: MintColors.info.withAlpha(15),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                     border: Border.all(color: MintColors.info.withAlpha(40)),
                   ),
                   child: Column(
@@ -167,7 +167,7 @@ class FieldHelpTooltip extends StatelessWidget {
                               foregroundColor: MintColors.info,
                               side: const BorderSide(color: MintColors.info),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: const Borderconst Radius.circular(10),
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 10),
                             ),

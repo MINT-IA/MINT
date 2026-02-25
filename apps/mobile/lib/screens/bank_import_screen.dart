@@ -178,7 +178,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         boxShadow: [
           BoxShadow(
             color: MintColors.info.withValues(alpha: 0.3),
@@ -196,7 +196,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: const Icon(Icons.account_balance_outlined,
                     color: Colors.white, size: 24),
@@ -236,7 +236,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               icon: const Icon(Icons.attach_file_rounded, size: 20),
@@ -260,7 +260,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Row(
@@ -296,7 +296,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -332,7 +332,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -370,7 +370,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -459,7 +459,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -522,7 +522,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: const Borderconst Radius.circular(4),
           child: LinearProgressIndicator(
             value: pct,
             backgroundColor: color.withValues(alpha: 0.12),
@@ -543,7 +543,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -579,7 +579,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: const Borderconst Radius.circular(10),
           ),
           child: const Icon(Icons.autorenew_rounded,
               color: MintColors.textMuted, size: 18),
@@ -630,7 +630,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -693,7 +693,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Row(
         children: [
@@ -722,7 +722,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: const Borderconst Radius.circular(6),
             ),
             child: Text(
               tx.category,
@@ -753,7 +753,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -851,7 +851,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -882,7 +882,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -892,7 +892,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: MintColors.accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: const Icon(Icons.lock_outline,
                 color: MintColors.accent, size: 20),
@@ -994,7 +994,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         ),
         backgroundColor: MintColors.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(12)),
       ),
     );
   }

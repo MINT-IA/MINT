@@ -29,7 +29,7 @@ class StreakBadgeWidget extends StatelessWidget {
             _streakColor.withValues(alpha: 0.02),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: _streakColor.withValues(alpha: 0.15)),
       ),
       child: Row(
@@ -40,7 +40,7 @@ class StreakBadgeWidget extends StatelessWidget {
             height: 52,
             decoration: BoxDecoration(
               color: _streakColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: const Borderconst Radius.circular(14),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -92,7 +92,7 @@ class StreakBadgeWidget extends StatelessWidget {
                   const SizedBox(height: 8),
                   // Progress bar toward next badge
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: const Borderconst Radius.circular(4),
                     child: LinearProgressIndicator(
                       value: streak.nextBadge!.requiredStreak > 0
                           ? streak.currentStreak /
@@ -200,7 +200,7 @@ class EarnedBadgesRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: MintColors.warning.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: const Borderconst Radius.circular(10),
                 border: Border.all(
                   color: MintColors.warning.withValues(alpha: 0.2),
                 ),

@@ -421,7 +421,7 @@ class _ExploreTabState extends State<ExploreTab>
           activity.markLifeEventExplored(event.id);
           context.push(event.route);
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -431,7 +431,7 @@ class _ExploreTabState extends State<ExploreTab>
                 MintColors.accentPastel.withValues(alpha: 0.3),
               ],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(color: event.color.withValues(alpha: 0.2)),
           ),
           child: Row(
@@ -440,7 +440,7 @@ class _ExploreTabState extends State<ExploreTab>
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: event.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Icon(event.icon, color: event.color, size: 22),
               ),
@@ -496,7 +496,7 @@ class _ExploreTabState extends State<ExploreTab>
         Expanded(
           child: InkWell(
             onTap: () => context.push('/ask-mint'),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -508,7 +508,7 @@ class _ExploreTabState extends State<ExploreTab>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: MintColors.accent.withValues(alpha: 0.2),
@@ -555,7 +555,7 @@ class _ExploreTabState extends State<ExploreTab>
         Expanded(
           child: InkWell(
             onTap: () => context.push('/documents'),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -567,7 +567,7 @@ class _ExploreTabState extends State<ExploreTab>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 border:
                     Border.all(color: MintColors.info.withValues(alpha: 0.2)),
               ),
@@ -627,7 +627,7 @@ class _ExploreTabState extends State<ExploreTab>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(color: pillarColor.withValues(alpha: 0.18)),
       ),
       child: Column(
@@ -687,14 +687,14 @@ class _ExploreTabState extends State<ExploreTab>
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
               child: InkWell(
                 onTap: onCtaTap,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
                 child: Container(
                   width: double.infinity,
                   padding:
                       const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
                     color: pillarColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -732,12 +732,12 @@ class _ExploreTabState extends State<ExploreTab>
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: const Borderconst Radius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Row(
@@ -746,7 +746,7 @@ class _ExploreTabState extends State<ExploreTab>
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: tint.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: const Borderconst Radius.circular(10),
               ),
               child: Icon(icon, color: tint, size: 22),
             ),
@@ -791,12 +791,12 @@ class _ExploreTabState extends State<ExploreTab>
   }) {
     return InkWell(
       onTap: () => context.push('/education/theme/$themeId'),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: const Borderconst Radius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Row(
@@ -846,14 +846,14 @@ class _ExploreTabState extends State<ExploreTab>
         }
         context.push(route);
       },
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: const Borderconst Radius.circular(14),
       child: Stack(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: const Borderconst Radius.circular(14),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Column(
@@ -864,7 +864,7 @@ class _ExploreTabState extends State<ExploreTab>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: const Borderconst Radius.circular(10),
                   ),
                   child: Icon(icon, color: color, size: 20),
                 ),

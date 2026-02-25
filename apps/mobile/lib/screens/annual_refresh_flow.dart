@@ -159,7 +159,7 @@ class _AnnualRefreshFlowState extends State<AnnualRefreshFlow> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: const Borderconst Radius.circular(4),
         child: LinearProgressIndicator(
           value: (_currentPage + 1) / _totalPages,
           backgroundColor: MintColors.lightBorder,
@@ -187,7 +187,7 @@ class _AnnualRefreshFlowState extends State<AnnualRefreshFlow> {
             height: 36,
             decoration: BoxDecoration(
               color: MintColors.coachAccent.withAlpha(20),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: Center(
               child: Text(
@@ -355,7 +355,7 @@ class _AnnualRefreshFlowState extends State<AnnualRefreshFlow> {
                 : MintColors.textSecondary,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
             side: BorderSide(
               color:
                   isSelected ? MintColors.coachAccent : MintColors.border,
@@ -382,11 +382,11 @@ class _AnnualRefreshFlowState extends State<AnnualRefreshFlow> {
           color: MintColors.textSecondary,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           borderSide: const BorderSide(color: MintColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           borderSide: const BorderSide(
             color: MintColors.coachAccent,
             width: 2,
@@ -436,7 +436,7 @@ class _AnnualRefreshFlowState extends State<AnnualRefreshFlow> {
                 backgroundColor: MintColors.coachAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
                 elevation: 0,
               ),
@@ -515,7 +515,7 @@ class _ToggleButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           color: isSelected ? color.withAlpha(15) : MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(
             color: isSelected ? color : MintColors.border,
             width: isSelected ? 2 : 1,

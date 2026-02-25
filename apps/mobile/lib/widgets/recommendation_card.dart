@@ -45,7 +45,7 @@ class RecommendationCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: MintColors.primary,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: const Borderconst Radius.circular(8),
                   ),
                   child: Text(
                     recommendation.kind.toUpperCase(),

@@ -114,7 +114,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: const Borderconst Radius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -230,7 +230,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           height: 40,
           decoration: BoxDecoration(
             color: MintColors.trajectoryBase.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
           child: const Icon(
             Icons.show_chart,
@@ -266,7 +266,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: MintColors.trajectoryBase.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: const Borderconst Radius.circular(8),
           ),
           child: Text(
             _formatChf(widget.result.base.capitalFinal),
@@ -363,7 +363,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: MintColors.primary,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: const Borderconst Radius.circular(10),
           boxShadow: [
             BoxShadow(
               color: MintColors.primary.withValues(alpha: 0.25),
@@ -539,7 +539,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
               border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
             child: Row(

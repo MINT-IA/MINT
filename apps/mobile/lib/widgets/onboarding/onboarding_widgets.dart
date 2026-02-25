@@ -31,7 +31,7 @@ class MintSelectableCard extends StatelessWidget {
         decoration: BoxDecoration(
           color:
               isSelected ? selectedColor.withValues(alpha: 0.08) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(
             color: isSelected ? selectedColor : MintColors.lightBorder,
             width: isSelected ? 2 : 1,
@@ -110,7 +110,7 @@ class MintQuickPickChips<T> extends StatelessWidget {
               color: isSelected
                   ? MintColors.primary.withValues(alpha: 0.10)
                   : Colors.white,
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: const Borderconst Radius.circular(999),
               border: Border.all(
                 color: isSelected ? MintColors.primary : MintColors.lightBorder,
                 width: isSelected ? 1.5 : 1,
@@ -181,15 +181,15 @@ class MintChfInputField extends StatelessWidget {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide: const BorderSide(color: MintColors.lightBorder),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide: const BorderSide(color: MintColors.lightBorder),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               borderSide:
                   const BorderSide(color: MintColors.primary, width: 1.8),
             ),
@@ -226,7 +226,7 @@ class OnboardingInsightCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -333,7 +333,7 @@ class OnboardingContinueButton extends StatelessWidget {
           disabledBackgroundColor: MintColors.textMuted.withValues(alpha: 0.15),
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(16)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -375,7 +375,7 @@ class CoachDeductionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.20)),
       ),
       child: Column(
@@ -450,7 +450,7 @@ class CoachDeductionCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                     ),
                     side: const BorderSide(color: MintColors.lightBorder),
                   ),
@@ -473,7 +473,7 @@ class CoachDeductionCard extends StatelessWidget {
                     backgroundColor: MintColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                     ),
                   ),
                   child: Text(

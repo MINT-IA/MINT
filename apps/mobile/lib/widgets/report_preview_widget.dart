@@ -50,7 +50,7 @@ class ReportPreviewWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: state.precisionColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: const Borderconst Radius.circular(16),
                     border: Border.all(color: state.precisionColor),
                   ),
                   child: Row(
@@ -107,7 +107,7 @@ class ReportPreviewWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                       border: Border.all(color: Colors.orange),
                     ),
                     child: Row(
@@ -180,7 +180,7 @@ class ReportPreviewWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: MintColors.accentPastel,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                       border: Border.all(
                           color: MintColors.primary.withValues(alpha: 0.3)),
                     ),
@@ -237,7 +237,7 @@ class ReportPreviewWidget extends StatelessWidget {
                             horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: MintColors.surface,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: const Borderconst Radius.circular(20),
                           border: Border.all(color: MintColors.border),
                         ),
                         child: Row(
@@ -280,7 +280,7 @@ class ReportPreviewWidget extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                     ),
                   ),
                   child: Text(
@@ -306,7 +306,7 @@ class ReportPreviewWidget extends StatelessWidget {
                       foregroundColor: MintColors.primary,
                       side: const BorderSide(color: MintColors.primary),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                     ),
                     child: const Text('Voir mon plan provisoire (Beta)'),
@@ -344,7 +344,7 @@ class ReportPreviewWidget extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           border: Border.all(color: MintColors.border),
         ),
         child: Row(

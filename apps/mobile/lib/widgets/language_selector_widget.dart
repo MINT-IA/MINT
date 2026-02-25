@@ -32,7 +32,7 @@ class LanguageSelectorSheet extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       padding: const EdgeInsets.only(top: 12, bottom: 32),
       child: SafeArea(
@@ -46,7 +46,7 @@ class LanguageSelectorSheet extends StatelessWidget {
               height: 4,
               decoration: BoxDecoration(
                 color: MintColors.border,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: const Borderconst Radius.circular(2),
               ),
             ),
             const SizedBox(height: 20),

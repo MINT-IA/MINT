@@ -425,7 +425,7 @@ void main() {
       expect(find.text('Faire mon diagnostic'), findsOneWidget);
       // FilledButton.icon creates a widget that may not match find.byType(FilledButton)
       // in all Flutter versions, so we check for the button text + icon instead
-      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+      expect(find.byconst Icon(Icons.play_arrow_rounded), findsOneWidget);
     });
 
     testWidgets('shows wallet icon in empty state', (tester) async {
@@ -435,7 +435,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.byIcon(Icons.account_balance_wallet_outlined),
+        find.byconst Icon(Icons.account_balance_wallet_outlined),
         findsOneWidget,
       );
     });

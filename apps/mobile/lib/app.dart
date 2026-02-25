@@ -803,7 +803,7 @@ ThemeData _buildPremiumTheme() {
       color: MintColors.card,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         side: const BorderSide(color: MintColors.lightBorder, width: 1),
       ),
       margin: EdgeInsets.zero,
@@ -814,7 +814,7 @@ ThemeData _buildPremiumTheme() {
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
         ),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w600,
@@ -829,7 +829,7 @@ ThemeData _buildPremiumTheme() {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
         side: const BorderSide(color: MintColors.border, width: 1.5),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
         ),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w600,
@@ -841,15 +841,15 @@ ThemeData _buildPremiumTheme() {
       filled: true,
       fillColor: MintColors.appleSurface,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         borderSide: const BorderSide(color: MintColors.primary, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),

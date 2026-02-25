@@ -142,7 +142,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -152,7 +152,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             height: 44,
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: const Icon(Icons.trending_up,
                 color: MintColors.info, size: 24),
@@ -249,7 +249,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
             height: 32,
             decoration: BoxDecoration(
               color: MintColors.primary,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: Center(
               child: Text(
@@ -314,7 +314,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           backgroundColor: MintColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: const Borderconst Radius.circular(14),
           ),
         ),
       ),
@@ -341,7 +341,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           foregroundColor: MintColors.textPrimary,
           side: const BorderSide(color: MintColors.border),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: const Borderconst Radius.circular(14),
           ),
         ),
       ),
@@ -356,7 +356,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.purple.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.purple.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -410,7 +410,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                       backgroundColor: MintColors.purple,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                     ),
                   ),
@@ -428,7 +428,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.success.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -461,7 +461,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,7 +504,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           backgroundColor: MintColors.warning,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: const Borderconst Radius.circular(10),
           ),
         ),
       );

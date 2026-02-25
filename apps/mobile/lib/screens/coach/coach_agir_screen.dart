@@ -543,13 +543,13 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 padding: const EdgeInsets.only(left: 24),
                 decoration: BoxDecoration(
                   color: MintColors.success,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: const Borderconst Radius.circular(16),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.check_circle, color: Colors.white, size: 24),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Fait',
                       style: TextStyle(
@@ -567,7 +567,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 padding: const EdgeInsets.only(right: 24),
                 decoration: BoxDecoration(
                   color: MintColors.warning,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: const Borderconst Radius.circular(16),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -580,7 +580,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Icon(Icons.schedule, color: Colors.white, size: 24),
                   ],
                 ),
@@ -680,7 +680,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
           child: Icon(icon, color: color, size: 22),
         ),
@@ -724,7 +724,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: MintColors.success.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           border: Border.all(
             color: MintColors.success.withValues(alpha: 0.2),
           ),
@@ -755,7 +755,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
               ),
               decoration: BoxDecoration(
                 color: MintColors.success.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
               ),
               child: Text(
                 s?.agirDone ?? 'Fait',
@@ -791,7 +791,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           backgroundColor: MintColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: const Borderconst Radius.circular(14),
           ),
           elevation: 0,
         ),
@@ -858,7 +858,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   backgroundColor: MintColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: const Borderconst Radius.circular(14),
                   ),
                   elevation: 0,
                 ),
@@ -946,7 +946,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   backgroundColor: MintColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: const Borderconst Radius.circular(14),
                   ),
                   elevation: 0,
                 ),
@@ -1043,7 +1043,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1082,7 +1082,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 backgroundColor: MintColors.coachAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 elevation: 0,
               ),
@@ -1106,7 +1106,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1265,7 +1265,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1321,7 +1321,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1348,7 +1348,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: Text(
                   byok.isConfigured
@@ -1389,7 +1389,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
                 border: Border.all(color: MintColors.lightBorder),
               ),
               child: Text(
@@ -1468,7 +1468,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: MintColors.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Column(
@@ -1497,7 +1497,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: MintColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: const Borderconst Radius.circular(8),
                     ),
                     child: Text(
                       s?.coachIaBadge ?? 'Coach IA',
@@ -1575,7 +1575,7 @@ class _MonthlyContributionRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -1595,7 +1595,7 @@ class _MonthlyContributionRow extends StatelessWidget {
               color: isDone
                   ? MintColors.success.withValues(alpha: 0.12)
                   : MintColors.surface,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               border: Border.all(
                 color: isDone ? MintColors.success : MintColors.border,
                 width: isDone ? 1.5 : 1,
@@ -1616,7 +1616,7 @@ class _MonthlyContributionRow extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: Icon(icon, color: color, size: 18),
           ),
@@ -1654,7 +1654,7 @@ class _MonthlyContributionRow extends StatelessWidget {
               color: contribution.isAutomatic
                   ? MintColors.success.withValues(alpha: 0.1)
                   : MintColors.surface,
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: const Borderconst Radius.circular(6),
             ),
             child: Text(
               contribution.isAutomatic
@@ -1742,7 +1742,7 @@ class _TimelineItem extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: const Borderconst Radius.circular(16),
                   border: Border.all(color: MintColors.lightBorder),
                   boxShadow: [
                     BoxShadow(
@@ -1765,7 +1765,7 @@ class _TimelineItem extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: event.color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: const Borderconst Radius.circular(8),
                           ),
                           child: Text(
                             _formatDate(event.date),
@@ -1851,7 +1851,7 @@ class _TimelineItem extends StatelessWidget {
                           ),
                           backgroundColor: event.color.withValues(alpha: 0.08),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: const Borderconst Radius.circular(10),
                           ),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -1954,7 +1954,7 @@ class _HistoryRow extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1965,7 +1965,7 @@ class _HistoryRow extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: const Icon(
               Icons.check_circle,
@@ -2070,7 +2070,7 @@ class _CoachingTipCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -2090,7 +2090,7 @@ class _CoachingTipCard extends StatelessWidget {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: categoryColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                       child: Icon(tip.icon, color: categoryColor, size: 22),
                     ),
@@ -2130,7 +2130,7 @@ class _CoachingTipCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: MintColors.surface,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: const Borderconst Radius.circular(4),
                             ),
                             child: Text(
                               tip.source,
@@ -2155,7 +2155,7 @@ class _CoachingTipCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: MintColors.success.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: const Borderconst Radius.circular(10),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -2294,7 +2294,7 @@ class _ContributionProgressCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -2313,7 +2313,7 @@ class _ContributionProgressCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 18),
               ),
@@ -2336,7 +2336,7 @@ class _ContributionProgressCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: const Borderconst Radius.circular(6),
                   ),
                   child: Text(
                     'A confirmer',
@@ -2363,7 +2363,7 @@ class _ContributionProgressCard extends StatelessWidget {
           const SizedBox(height: 12),
           // Progress bar
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: const Borderconst Radius.circular(4),
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: MintColors.lightBorder,

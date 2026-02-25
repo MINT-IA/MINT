@@ -91,7 +91,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: MintColors.appleSurface,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 border: Border.all(color: MintColors.border),
               ),
               child: Column(
@@ -277,7 +277,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
         HapticFeedbackService.light();
         widget.onAnswer(option.value);
       },
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: const Borderconst Radius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
         decoration: BoxDecoration(
@@ -285,7 +285,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             color: isSelected ? MintColors.primary : MintColors.lightBorder,
             width: isSelected ? 1.5 : 1,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const Borderconst Radius.circular(20),
           color: isSelected ? MintColors.selectionBg : Colors.white,
           boxShadow: isSelected
               ? [
@@ -367,14 +367,14 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                   }
                   widget.onAnswer(newSelection);
                 },
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const Borderconst Radius.circular(16),
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? MintColors.primary.withValues(alpha: 0.1)
                         : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: const Borderconst Radius.circular(16),
                     border: Border.all(
                       color:
                           isSelected ? MintColors.primary : Colors.grey.shade300,
@@ -389,7 +389,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                         height: 24,
                         decoration: BoxDecoration(
                           color: isSelected ? MintColors.primary : Colors.white,
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: const Borderconst Radius.circular(6),
                           border: Border.all(
                             color: isSelected
                                 ? MintColors.primary
@@ -435,7 +435,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                 backgroundColor: MintColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: const Borderconst Radius.circular(14),
                 ),
               ),
               child: Text(
@@ -501,7 +501,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             hintText: widget.question.hint,
             filled: true,
             fillColor: MintColors.surface,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: const Borderconst Radius.circular(12)),
             errorText: _inputError,
           ),
           onChanged: (_) {
@@ -570,14 +570,14 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             HapticFeedbackService.light();
             widget.onAnswer(canton);
           },
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
                 color: isSelected ? MintColors.primary : MintColors.border,
                 width: isSelected ? 2 : 1,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               color: isSelected ? MintColors.accentPastel : Colors.white,
             ),
             alignment: Alignment.center,

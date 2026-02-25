@@ -389,7 +389,7 @@ class TimelineScreen extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           border: Border.all(color: action.color.withValues(alpha: 0.25)),
           boxShadow: [
             BoxShadow(
@@ -407,7 +407,7 @@ class TimelineScreen extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: action.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
               ),
               child: Icon(action.icon, color: action.color, size: 18),
             ),
@@ -453,7 +453,7 @@ class TimelineScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(child: Divider()),
+        const Expanded(child: const Divider()),
       ],
     );
   }
@@ -468,7 +468,7 @@ class TimelineScreen extends StatelessWidget {
           height: 28,
           decoration: BoxDecoration(
             color: category.color.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: const Borderconst Radius.circular(8),
           ),
           child: Icon(category.icon, color: category.color, size: 16),
         ),
@@ -497,12 +497,12 @@ class TimelineScreen extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => context.push(event.route),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: const Borderconst Radius.circular(14),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -512,7 +512,7 @@ class TimelineScreen extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   color: event.accentColor.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child:
                     Icon(event.icon, color: event.accentColor, size: 18),

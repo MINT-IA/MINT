@@ -128,7 +128,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.amber.shade300),
       ),
       child: Row(
@@ -175,7 +175,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.blue.shade50,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: const Borderconst Radius.circular(8),
           border: Border.all(color: Colors.blue.shade200),
         ),
         child: Text(
@@ -200,7 +200,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.teal.shade50,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
           ),
           child: Icon(
             Icons.account_balance,
@@ -265,7 +265,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -285,7 +285,7 @@ class OpenBankingHubScreen extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: avatarColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Center(
               child: Text(
@@ -393,7 +393,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.4), width: 0.8),
           ),
@@ -435,7 +435,7 @@ class OpenBankingHubScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border:
             Border.all(color: MintColors.border.withValues(alpha: 0.4), width: 0.8),
       ),
@@ -481,7 +481,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border:
             Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -566,7 +566,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: const Borderconst Radius.circular(4),
           child: LinearProgressIndicator(
             value: fraction,
             minHeight: 6,
@@ -587,7 +587,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border:
             Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -629,7 +629,7 @@ class OpenBankingHubScreen extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: const Borderconst Radius.circular(6),
                   ),
                   child: Text(
                     '${cat.percentage.toStringAsFixed(0)}%',
@@ -660,12 +660,12 @@ class OpenBankingHubScreen extends StatelessWidget {
   }) {
     return InkWell(
       onTap: () => context.push(route),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: const Borderconst Radius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           border:
               Border.all(color: MintColors.border.withValues(alpha: 0.5), width: 0.8),
         ),
@@ -675,7 +675,7 @@ class OpenBankingHubScreen extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.teal.shade50,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
               ),
               child: Icon(icon, color: Colors.teal.shade700, size: 22),
             ),
@@ -719,7 +719,7 @@ class OpenBankingHubScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: const Borderconst Radius.circular(10),
         ),
         child: Text(
           'Propulse par bLink (SIX)',
@@ -740,7 +740,7 @@ class OpenBankingHubScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

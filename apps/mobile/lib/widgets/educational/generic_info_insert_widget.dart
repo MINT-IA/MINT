@@ -92,7 +92,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: MintColors.info.withValues(alpha: 0.15),
           width: 1,
@@ -186,7 +186,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
           foregroundColor: MintColors.primary,
           side: const BorderSide(color: MintColors.primary, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const Borderconst Radius.circular(12),
           ),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
         ),

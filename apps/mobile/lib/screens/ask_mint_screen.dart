@@ -351,7 +351,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const Borderconst Radius.circular(20),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -410,12 +410,12 @@ class _AskMintScreenState extends State<AskMintScreen> {
       width: double.infinity,
       child: InkWell(
         onTap: () => _sendMessage(text),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(color: MintColors.border),
           ),
           child: Row(
@@ -455,10 +455,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
           decoration: BoxDecoration(
             color: MintColors.primary,
             borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(4),
+              topLeft: const Radius.circular(20),
+              topRight: const Radius.circular(20),
+              bottomLeft: const Radius.circular(20),
+              bottomRight: const Radius.circular(4),
             ),
           ),
           child: Text(
@@ -489,7 +489,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     color: MintColors.accentPastel,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: const Borderconst Radius.circular(6),
                   ),
                   child: const Icon(Icons.auto_awesome,
                       color: MintColors.accent, size: 12),
@@ -514,10 +514,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
             decoration: BoxDecoration(
               color: MintColors.surface,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(4),
-                topRight: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+                topLeft: const Radius.circular(4),
+                topRight: const Radius.circular(20),
+                bottomLeft: const Radius.circular(20),
+                bottomRight: const Radius.circular(20),
               ),
               border: Border.all(color: MintColors.border),
             ),
@@ -552,7 +552,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -603,7 +603,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -641,7 +641,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     color: MintColors.accentPastel,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: const Borderconst Radius.circular(6),
                   ),
                   child: const Icon(Icons.auto_awesome,
                       color: MintColors.accent, size: 12),
@@ -664,10 +664,10 @@ class _AskMintScreenState extends State<AskMintScreen> {
             decoration: BoxDecoration(
               color: MintColors.surface,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(4),
-                topRight: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+                topLeft: const Radius.circular(4),
+                topRight: const Radius.circular(20),
+                bottomLeft: const Radius.circular(20),
+                bottomRight: const Radius.circular(20),
               ),
               border: Border.all(color: MintColors.border),
             ),
@@ -722,15 +722,15 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: const Borderconst Radius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: const Borderconst Radius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: const Borderconst Radius.circular(24),
                   borderSide:
                       const BorderSide(color: MintColors.primary, width: 1.5),
                 ),

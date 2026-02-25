@@ -37,7 +37,7 @@ class InfoTooltip extends StatelessWidget {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       builder: (context) {
         return Padding(
@@ -52,7 +52,7 @@ class InfoTooltip extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: MintColors.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: const Borderconst Radius.circular(2),
                   ),
                 ),
               ),
@@ -79,7 +79,7 @@ class InfoTooltip extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.accentPastel,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Row(
                     children: [

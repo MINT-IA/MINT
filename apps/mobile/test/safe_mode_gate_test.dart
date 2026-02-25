@@ -121,7 +121,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.lock_person), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_person), findsOneWidget);
     });
 
     testWidgets('child is not rendered when gated', (tester) async {
@@ -133,7 +133,7 @@ void main() {
               child: Column(
                 children: [
                   Text('Secret optimization'),
-                  Icon(Icons.trending_up),
+                  const Icon(Icons.trending_up),
                 ],
               ),
             ),
@@ -142,7 +142,7 @@ void main() {
       );
 
       expect(find.text('Secret optimization'), findsNothing);
-      expect(find.byIcon(Icons.trending_up), findsNothing);
+      expect(find.byconst Icon(Icons.trending_up), findsNothing);
     });
   });
 

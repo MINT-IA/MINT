@@ -177,7 +177,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('nLPD'), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_outline), findsOneWidget);
     });
 
     testWidgets('displays disclaimer after scrolling', (tester) async {
@@ -189,7 +189,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
 
   });
@@ -326,7 +326,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.byconst Icon(Icons.info_outline), findsWidgets);
     });
 
     testWidgets('displays risk impact icons (accessible, heart)', (tester) async {
@@ -336,8 +336,8 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -700));
       await tester.pump();
 
-      expect(find.byIcon(Icons.accessible), findsOneWidget);
-      expect(find.byIcon(Icons.heart_broken_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.accessible), findsOneWidget);
+      expect(find.byconst Icon(Icons.heart_broken_outlined), findsOneWidget);
     });
   });
 }

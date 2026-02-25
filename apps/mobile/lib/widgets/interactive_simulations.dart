@@ -66,7 +66,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -124,7 +124,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
               ),
               child: Row(
                 children: [
@@ -243,13 +243,13 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: const Row(
               children: [
                 Icon(Icons.info_outline, size: 16, color: Colors.orange),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.',
@@ -373,7 +373,7 @@ class _InteractiveLppBuybackSimulationState
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -500,7 +500,7 @@ class _InteractiveLppBuybackSimulationState
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: const Column(
@@ -509,7 +509,7 @@ class _InteractiveLppBuybackSimulationState
                 Row(
                   children: [
                     Icon(Icons.info_outline, size: 16, color: Colors.orange),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Hypothèses et limites :',
                       style: TextStyle(
@@ -519,7 +519,7 @@ class _InteractiveLppBuybackSimulationState
                     ),
                   ],
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '• Déduction fiscale selon règles applicables\n'
                   '• Taux de conversion : hypothèse actuelle, peut baisser\n'

@@ -61,7 +61,7 @@ class LppComparisonCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -75,7 +75,7 @@ class LppComparisonCard extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: MintColors.info.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: const Icon(
                   Icons.autorenew,
@@ -130,7 +130,7 @@ class LppComparisonCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: const Borderconst Radius.circular(6),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -159,7 +159,7 @@ class LppComparisonCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -173,7 +173,7 @@ class LppComparisonCard extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: MintColors.success.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: const Icon(
                   Icons.account_balance_wallet_outlined,
@@ -237,7 +237,7 @@ class LppComparisonCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: const Borderconst Radius.circular(6),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -265,7 +265,7 @@ class LppComparisonCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
       ),
       child: Row(
         children: [
@@ -274,7 +274,7 @@ class LppComparisonCard extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: const Icon(
               Icons.balance,
@@ -312,7 +312,7 @@ class LppComparisonCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: MintColors.primary,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: Text(
               '$breakevenAge',

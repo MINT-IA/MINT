@@ -158,7 +158,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     isSelected ? MintColors.primary : MintColors.lightBorder,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: const Borderconst Radius.circular(20),
               ),
               onSelected: (_) {
                 setState(() => _selectedType = type);
@@ -178,7 +178,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -252,7 +252,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               backgroundColor: MintColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: const Borderconst Radius.circular(14),
               ),
             ),
           ),
@@ -276,7 +276,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               foregroundColor: MintColors.textPrimary,
               side: const BorderSide(color: MintColors.border),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: const Borderconst Radius.circular(14),
               ),
             ),
           ),
@@ -293,7 +293,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.purple.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const Borderconst Radius.circular(14),
         border: Border.all(color: MintColors.purple.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -347,7 +347,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                       backgroundColor: MintColors.purple,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                     ),
                   ),
@@ -365,7 +365,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

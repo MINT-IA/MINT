@@ -90,7 +90,7 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: color.withAlpha(isError ? 18 : 22),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: const Borderconst Radius.circular(14),
           border: Border.all(color: color.withAlpha(50)),
         ),
         child: Column(
@@ -115,9 +115,9 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
                 ),
                 InkWell(
                   onTap: _dismiss,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                   child: const Padding(
-                    padding: EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(2),
                     child: Icon(
                       Icons.close,
                       size: 16,
@@ -133,7 +133,7 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
             // Suggestion
             InkWell(
               onTap: widget.onAction,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               child: Row(
                 children: [
                   Icon(

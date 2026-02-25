@@ -125,7 +125,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -155,7 +155,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: Text(
               label,
@@ -216,7 +216,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -368,7 +368,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isMenace ? Colors.red.shade50 : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: isMenace ? Colors.red.shade300 : MintColors.border,
           width: isMenace ? 2 : 1,
@@ -406,7 +406,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.red.shade100,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const Borderconst Radius.circular(8),
               ),
               child: Row(
                 children: [
@@ -465,7 +465,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -514,7 +514,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         gradient: LinearGradient(
           colors: [Colors.red.shade50, Colors.orange.shade50],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.red.shade200, width: 2),
       ),
       child: Column(
@@ -565,12 +565,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   }) {
     return InkWell(
       onTap: () => _launchUrl(url),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: const Borderconst Radius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const Borderconst Radius.circular(12),
           border: Border.all(color: MintColors.border),
         ),
         child: Row(
@@ -621,7 +621,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

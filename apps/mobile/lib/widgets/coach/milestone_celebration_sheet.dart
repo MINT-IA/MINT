@@ -100,7 +100,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
           decoration: BoxDecoration(
             borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
+                const BorderRadius.vertical(top: const Radius.circular(28)),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -124,7 +124,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                     height: 4,
                     decoration: BoxDecoration(
                       color: MintColors.border,
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: const Borderconst Radius.circular(2),
                     ),
                   ),
                 ),
@@ -196,7 +196,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                       backgroundColor: milestoneColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: const Borderconst Radius.circular(16),
                       ),
                       elevation: 0,
                     ),

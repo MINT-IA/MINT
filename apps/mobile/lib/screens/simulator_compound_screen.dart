@@ -90,7 +90,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +98,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
           const Row(
             children: [
               Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text('L\'avis du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             ],
           ),
@@ -243,7 +243,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.appleSurface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
@@ -259,12 +259,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             children: [
               Expanded(
                 flex: (100 - gainPercentage).toInt(),
-                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.border, borderRadius: BorderRadius.circular(3))),
+                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.border, borderRadius: const Borderconst Radius.circular(3))),
               ),
               const SizedBox(width: 4),
               Expanded(
                 flex: gainPercentage.toInt(),
-                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.success, borderRadius: BorderRadius.circular(3))),
+                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.success, borderRadius: const Borderconst Radius.circular(3))),
               ),
             ],
           ),
@@ -302,7 +302,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
@@ -325,7 +325,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
   Widget _buildDisclaimer() {
     return const Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
           'Calcul théorique basé sur un rendement constant. Les performances passées ne garantissent pas les résultats futurs.',
           style: TextStyle(color: MintColors.textMuted, fontSize: 11),

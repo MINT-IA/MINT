@@ -81,7 +81,7 @@ class CompoundInterestChart extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -110,7 +110,7 @@ class CompoundInterestChart extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: Row(
@@ -193,7 +193,7 @@ class CompoundInterestChart extends StatelessWidget {
                         toY: data['futureValue'] as double,
                         color: scenario.color,
                         width: 40,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                        borderRadius: const BorderRadius.vertical(top: const Radius.circular(8)),
                       ),
                     ],
                   );
@@ -265,7 +265,7 @@ class LppBuybackSimulation extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -289,7 +289,7 @@ class LppBuybackSimulation extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: Column(
@@ -298,7 +298,7 @@ class LppBuybackSimulation extends StatelessWidget {
                 const Row(
                   children: [
                     Icon(Icons.info_outline, size: 16, color: Colors.orange),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Hypothèses :',
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange),

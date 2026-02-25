@@ -51,7 +51,7 @@ class FriActionSuggestion extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.info.withAlpha(10),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: const Borderconst Radius.circular(14),
             border: Border.all(color: MintColors.info.withAlpha(30)),
           ),
           child: Row(
@@ -63,7 +63,7 @@ class FriActionSuggestion extends StatelessWidget {
                 height: 34,
                 decoration: BoxDecoration(
                   color: MintColors.info.withAlpha(25),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: const Icon(
                   Icons.lightbulb_outline_rounded,
@@ -122,7 +122,7 @@ class _DeltaBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: MintColors.success.withAlpha(20),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const Borderconst Radius.circular(8),
       ),
       child: Text(
         '+${delta.toStringAsFixed(0)} pts',

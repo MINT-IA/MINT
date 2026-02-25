@@ -89,20 +89,20 @@ void main() {
     testWidgets('shows send button', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byIcon(Icons.send), findsOneWidget);
+      expect(find.byconst Icon(Icons.send), findsOneWidget);
     });
 
     testWidgets('shows key icon when BYOK not configured', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // Without BYOK configured, shows key icon instead of settings
-      expect(find.byIcon(Icons.key), findsOneWidget);
+      expect(find.byconst Icon(Icons.key), findsOneWidget);
     });
 
     testWidgets('shows back button', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      expect(find.byconst Icon(Icons.arrow_back), findsOneWidget);
     });
 
     testWidgets('shows suggested action chips', (tester) async {
@@ -129,7 +129,7 @@ void main() {
       await tester.pump();
 
       // Tap send and settle (scroll animation + async response)
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byconst Icon(Icons.send));
       await tester.pumpAndSettle();
 
       // User message should appear as a bubble
@@ -145,7 +145,7 @@ void main() {
       await tester.pump();
 
       // Tap send
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byconst Icon(Icons.send));
       await tester.pumpAndSettle();
 
       // Coach response about 3a should appear
@@ -156,7 +156,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // Coach avatar uses the psychology icon
-      expect(find.byIcon(Icons.psychology), findsOneWidget);
+      expect(find.byconst Icon(Icons.psychology), findsOneWidget);
     });
 
     testWidgets('disclaimer mentions LSFin', (tester) async {
@@ -172,7 +172,7 @@ void main() {
       // Send a 3a message
       await tester.enterText(find.byType(TextField), 'Mon 3a');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byconst Icon(Icons.send));
       await tester.pumpAndSettle();
 
       // Sources section should appear with legal reference
@@ -188,11 +188,11 @@ void main() {
       // Send a LPP message
       await tester.enterText(find.byType(TextField), 'Ma LPP');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byconst Icon(Icons.send));
       await tester.pumpAndSettle();
 
       // Source section should have description icon
-      expect(find.byIcon(Icons.description_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.description_outlined), findsOneWidget);
       // LPP art. 79b appears in both response text and source section
       expect(find.textContaining('LPP art. 79b'), findsWidgets);
     });
@@ -212,7 +212,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byIcon(Icons.smart_toy_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.smart_toy_outlined), findsOneWidget);
     });
 
     testWidgets('BYOK CTA subtitle mentions API key', (tester) async {
@@ -233,7 +233,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // No user messages yet, so share button should not be shown
-      expect(find.byIcon(Icons.share), findsNothing);
+      expect(find.byconst Icon(Icons.share), findsNothing);
     });
 
     testWidgets('export button appears after sending a message',
@@ -244,11 +244,11 @@ void main() {
       // Send a message
       await tester.enterText(find.byType(TextField), 'Mon 3a');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byconst Icon(Icons.send));
       await tester.pumpAndSettle();
 
       // Now the share/export button should appear
-      expect(find.byIcon(Icons.share), findsOneWidget);
+      expect(find.byconst Icon(Icons.share), findsOneWidget);
     });
   });
 }

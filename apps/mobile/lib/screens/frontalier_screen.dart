@@ -212,7 +212,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -236,7 +236,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -305,7 +305,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                           ? MintColors.primary
                           : MintColors.appleSurface,
                       borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(12)),
+                          left: const Radius.circular(12)),
                       border: Border.all(
                         color: _taxMaritalStatus == 0
                             ? MintColors.primary
@@ -341,7 +341,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                           ? MintColors.primary
                           : MintColors.appleSurface,
                       borderRadius: const BorderRadius.horizontal(
-                          right: Radius.circular(12)),
+                          right: const Radius.circular(12)),
                       border: Border.all(
                         color: _taxMaritalStatus == 1
                             ? MintColors.primary
@@ -411,7 +411,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -489,7 +489,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
           const SizedBox(height: 8),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: const Borderconst Radius.circular(4),
             child: LinearProgressIndicator(
               value: min(1.0, effectiveRate / 0.20),
               backgroundColor: MintColors.border.withValues(alpha: 0.3),
@@ -505,7 +505,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -540,7 +540,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -550,7 +550,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const Borderconst Radius.circular(10),
             ),
             child: const Icon(Icons.gavel, size: 18, color: MintColors.info),
           ),
@@ -593,7 +593,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -673,7 +673,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -746,7 +746,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
@@ -815,7 +815,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: gaugeColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
             ),
             child: Row(
@@ -878,7 +878,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     decoration: BoxDecoration(
                       color: MintColors.success.withValues(alpha: 0.3),
                       borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(4)),
+                          left: const Radius.circular(4)),
                     ),
                   ),
                   Container(
@@ -892,7 +892,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     decoration: BoxDecoration(
                       color: MintColors.error.withValues(alpha: 0.3),
                       borderRadius: const BorderRadius.horizontal(
-                          right: Radius.circular(4)),
+                          right: const Radius.circular(4)),
                     ),
                   ),
                 ],
@@ -906,9 +906,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     decoration: BoxDecoration(
                       color: MintColors.success,
                       borderRadius: indicatorPos <= greenWidth
-                          ? BorderRadius.circular(4)
+                          ? const Borderconst Radius.circular(4)
                           : const BorderRadius.horizontal(
-                              left: Radius.circular(4)),
+                              left: const Radius.circular(4)),
                     ),
                   ),
                   if (indicatorPos > greenWidth)
@@ -925,7 +925,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                       decoration: const BoxDecoration(
                         color: MintColors.error,
                         borderRadius: BorderRadius.horizontal(
-                            right: Radius.circular(4)),
+                            right: const Radius.circular(4)),
                       ),
                     ),
                 ],
@@ -960,7 +960,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1003,7 +1003,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1062,7 +1062,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -1111,7 +1111,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                         color: isSelected
                             ? MintColors.primary
                             : MintColors.appleSurface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? MintColors.primary
@@ -1154,7 +1154,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Column(
@@ -1193,7 +1193,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Column(
@@ -1289,7 +1289,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         color: chLessCostly
             ? MintColors.success.withValues(alpha: 0.1)
             : MintColors.warning.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: chLessCostly
               ? MintColors.success.withValues(alpha: 0.3)
@@ -1327,7 +1327,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1382,7 +1382,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: const Borderconst Radius.circular(8),
           ),
           child: Icon(icon, size: 16, color: MintColors.textSecondary),
         ),
@@ -1536,7 +1536,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1546,7 +1546,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: const Icon(Icons.lightbulb_outline,
                 size: 18, color: MintColors.info),
@@ -1586,7 +1586,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

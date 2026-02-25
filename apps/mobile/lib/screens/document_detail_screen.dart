@@ -286,7 +286,7 @@ class DocumentDetailScreen extends StatelessWidget {
                   backgroundColor: MintColors.success,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: const Borderconst Radius.circular(12)),
                 ),
               );
               context.pop();
@@ -330,7 +330,7 @@ class DocumentDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -406,7 +406,7 @@ class DocumentDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: const Borderconst Radius.circular(10),
               ),
               child: Icon(icon, color: color, size: 18),
             ),
@@ -434,7 +434,7 @@ class DocumentDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -487,7 +487,7 @@ class DocumentDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -545,7 +545,7 @@ class DocumentDetailScreen extends StatelessWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(20)),
         title: Text(s?.documentsDeleteTitle ?? 'Supprimer le document ?'),
         content: Text(s?.documentsDeleteMessage ??
             'Cette action est irr\u00e9versible.'),

@@ -156,7 +156,7 @@ class MonteCarloChart extends StatelessWidget {
             height: 10,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: const Borderconst Radius.circular(2),
               border: border != null
                   ? Border.all(color: border, width: 0.5)
                   : null,
@@ -194,7 +194,7 @@ class MonteCarloChart extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         side: const BorderSide(color: MintColors.lightBorder, width: 1),
       ),
       color: MintColors.cardGround,
@@ -295,7 +295,7 @@ class MonteCarloChart extends StatelessWidget {
   /// Mini horizontal bar for ruin probability visualization.
   Widget _buildRuinBar(int pct, Color color) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(3),
+      borderRadius: const Borderconst Radius.circular(3),
       child: SizedBox(
         height: 8,
         child: Stack(
@@ -304,7 +304,7 @@ class MonteCarloChart extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: MintColors.lightBorder,
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: const Borderconst Radius.circular(3),
               ),
             ),
             // Filled portion
@@ -313,7 +313,7 @@ class MonteCarloChart extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: const Borderconst Radius.circular(3),
                 ),
               ),
             ),

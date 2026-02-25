@@ -215,7 +215,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -239,7 +239,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -307,7 +307,7 @@ class _ExpatScreenState extends State<ExpatScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.error.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
         ),
         child: Row(
@@ -342,7 +342,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -380,7 +380,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: const Borderconst Radius.circular(16),
                   ),
                   child: Column(
                     children: [
@@ -425,7 +425,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: const Borderconst Radius.circular(16),
                   ),
                   child: Column(
                     children: [
@@ -476,7 +476,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               color: isFavorable
                   ? MintColors.success.withValues(alpha: 0.1)
                   : MintColors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               border: Border.all(
                 color: isFavorable
                     ? MintColors.success.withValues(alpha: 0.3)
@@ -524,7 +524,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -598,7 +598,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -646,7 +646,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: const Borderconst Radius.circular(10),
                     border: Border.all(color: MintColors.border),
                   ),
                   child: Row(
@@ -689,7 +689,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -754,7 +754,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -820,7 +820,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -936,7 +936,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1028,7 +1028,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               color: isCompleted
                   ? MintColors.success
                   : Colors.white,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
               border: Border.all(
                 color: isCompleted
                     ? MintColors.success
@@ -1124,7 +1124,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -1182,7 +1182,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -1259,7 +1259,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1300,7 +1300,7 @@ class _ExpatScreenState extends State<ExpatScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.success.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
         ),
         child: Row(
@@ -1327,7 +1327,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1377,7 +1377,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
             ),
             child: Text(
               'Chaque annee manquante reduit ta rente d\'environ '
@@ -1400,7 +1400,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1426,7 +1426,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const Borderconst Radius.circular(16),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1476,7 +1476,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1616,7 +1616,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1626,7 +1626,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: const Borderconst Radius.circular(8),
             ),
             child: const Icon(Icons.lightbulb_outline,
                 size: 18, color: MintColors.info),
@@ -1666,7 +1666,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

@@ -107,7 +107,7 @@ class MentorModal extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -118,7 +118,7 @@ class MentorModal extends StatelessWidget {
             height: 4,
             decoration: BoxDecoration(
               color: MintColors.border,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: const Borderconst Radius.circular(2),
             ),
           ),
 
@@ -151,7 +151,7 @@ class MentorModal extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'Que puis-je faire pour toi ?',
                         style: TextStyle(
@@ -207,12 +207,12 @@ class MentorModal extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: const Borderconst Radius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: const Borderconst Radius.circular(16),
           border: Border.all(color: MintColors.border),
         ),
         child: Row(
@@ -221,7 +221,7 @@ class MentorModal extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: const Borderconst Radius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
             ),

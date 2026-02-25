@@ -104,12 +104,12 @@ void main() {
 
     testWidgets('shows lock icon for privacy', (tester) async {
       await openSheet(tester);
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byconst Icon(Icons.lock_outline), findsOneWidget);
     });
 
     testWidgets('shows key icon in API field', (tester) async {
       await openSheet(tester);
-      expect(find.byIcon(Icons.key), findsOneWidget);
+      expect(find.byconst Icon(Icons.key), findsOneWidget);
     });
 
     testWidgets('test connection shows result message', (tester) async {
@@ -152,7 +152,7 @@ void main() {
 
     testWidgets('shows wifi tethering icon for test button', (tester) async {
       await openSheet(tester);
-      expect(find.byIcon(Icons.wifi_tethering), findsOneWidget);
+      expect(find.byconst Icon(Icons.wifi_tethering), findsOneWidget);
     });
   });
 }

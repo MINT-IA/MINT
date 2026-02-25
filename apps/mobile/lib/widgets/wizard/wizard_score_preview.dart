@@ -277,7 +277,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
                 child: SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(0, 0.3),
-                    end: Offset.zero,
+                    end: const Offset.zero,
                   ).animate(animation),
                   child: child,
                 ),
@@ -392,7 +392,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
         color: _currentScore > 0
             ? _scoreColor.withValues(alpha: 0.10)
             : MintColors.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const Borderconst Radius.circular(10),
         border: Border.all(
           color: _currentScore > 0
               ? _scoreColor.withValues(alpha: 0.20)
@@ -452,7 +452,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
               Container(
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: const Borderconst Radius.circular(3),
                 ),
               ),
 
@@ -462,7 +462,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
                   duration: const Duration(milliseconds: 200),
                   width: filledWidth,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: const Borderconst Radius.circular(3),
                     gradient: LinearGradient(
                       colors: [
                         _scoreColor.withValues(alpha: 0.6),

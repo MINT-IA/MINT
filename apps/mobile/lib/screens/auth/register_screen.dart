@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: const Borderconst Radius.circular(24),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.06),
@@ -115,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: const Borderconst Radius.circular(14),
                     border: Border.all(
                       color: MintColors.primary.withValues(alpha: 0.18),
                     ),
@@ -249,7 +249,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Row(
                     children: [
@@ -278,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: MintColors.error.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: const Borderconst Radius.circular(12),
                     ),
                     child: Row(
                       children: [
@@ -402,7 +402,7 @@ class _RegisterBenefitRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.only(top: 2),
             child: Icon(
               Icons.check_circle_outline,
               size: 16,

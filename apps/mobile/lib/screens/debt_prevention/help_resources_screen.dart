@@ -117,7 +117,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -176,7 +176,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
@@ -188,7 +188,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
@@ -210,7 +210,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.green.shade100,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: const Borderconst Radius.circular(4),
                       ),
                       child: const Text(
                         'GRATUIT',
@@ -272,7 +272,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -305,7 +305,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   border: Border.all(color: MintColors.border),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const Borderconst Radius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -332,12 +332,12 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           if (cantonalResource != null) ...[
             InkWell(
               onTap: () => _launchUrl(cantonalResource.url),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const Borderconst Radius.circular(12),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const Borderconst Radius.circular(12),
                 ),
                 child: Row(
                   children: [
@@ -345,7 +345,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: MintColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: const Borderconst Radius.circular(8),
                       ),
                       child: const Icon(Icons.location_city,
                           color: MintColors.primary, size: 20),
@@ -381,7 +381,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             ),
           ] else
             const Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Text(
                 'Aucun service cantonal reference pour ce canton. '
                 'Contactez Dettes Conseils Suisse pour etre oriente.',
@@ -401,7 +401,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.blue.shade200),
       ),
       child: Row(
@@ -446,7 +446,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

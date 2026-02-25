@@ -58,7 +58,7 @@ class UnemploymentTimelineWidget extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -182,7 +182,7 @@ class UnemploymentTimelineWidget extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: const Borderconst Radius.circular(14),
                 border: Border(
                   left: BorderSide(color: color, width: 3),
                 ),
@@ -207,7 +207,7 @@ class UnemploymentTimelineWidget extends StatelessWidget {
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: const Borderconst Radius.circular(6),
                         ),
                         child: Text(
                           urgencyLabel,

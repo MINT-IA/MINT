@@ -56,7 +56,7 @@ class CoachPaywallSheet extends StatelessWidget {
       ),
       decoration: const BoxDecoration(
         color: MintColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -123,7 +123,7 @@ class CoachPaywallSheet extends StatelessWidget {
             MintColors.primary.withValues(alpha: 0.85),
           ],
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: const Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +139,7 @@ class CoachPaywallSheet extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: const Borderconst Radius.circular(2),
                   ),
                 ),
               ),
@@ -189,7 +189,7 @@ class CoachPaywallSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(
           color: MintColors.coachAccent.withValues(alpha: 0.2),
         ),
@@ -267,7 +267,7 @@ class CoachPaywallSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       decoration: BoxDecoration(
         color: MintColors.scoreExcellent.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const Borderconst Radius.circular(12),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -318,7 +318,7 @@ class CoachPaywallSheet extends StatelessWidget {
           backgroundColor: MintColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
           ),
           elevation: 0,
         ),

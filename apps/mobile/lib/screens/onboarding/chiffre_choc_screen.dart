@@ -150,7 +150,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
     if (choc == null || profile == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: const CircularProgressIndicator()),
       );
     }
 
@@ -186,7 +186,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
                       color: MintColors.card,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: const Borderconst Radius.circular(24),
                       border: Border.all(color: MintColors.lightBorder),
                       boxShadow: [
                         BoxShadow(
@@ -266,7 +266,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: const Borderconst Radius.circular(12),
                   ),
                   child: Row(
                     children: [
@@ -314,7 +314,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: const Borderconst Radius.circular(16),
                     ),
                   ),
                   child: Text(
@@ -344,7 +344,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     side:
                         const BorderSide(color: MintColors.border, width: 1.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: const Borderconst Radius.circular(16),
                     ),
                   ),
                   child: Row(

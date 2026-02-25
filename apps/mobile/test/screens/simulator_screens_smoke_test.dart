@@ -118,7 +118,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.byIcon(Icons.picture_as_pdf_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.picture_as_pdf_outlined), findsOneWidget);
       expect(find.byTooltip('Exporter mon bilan'), findsOneWidget);
     });
 
@@ -210,7 +210,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.byIcon(Icons.picture_as_pdf_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.picture_as_pdf_outlined), findsOneWidget);
     });
 
     testWidgets('has three Slider widgets for inputs', (tester) async {
@@ -300,7 +300,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.byIcon(Icons.picture_as_pdf_outlined), findsOneWidget);
+      expect(find.byconst Icon(Icons.picture_as_pdf_outlined), findsOneWidget);
     });
 
     testWidgets('has four Slider widgets for inputs', (tester) async {

@@ -62,7 +62,7 @@ void main() {
     expect(find.text('Apprendre'), findsOneWidget, reason: "Bottom Nav visible");
 
     // 3. Navigate to APPRENDRE Tab (formerly EXPLORER)
-    await tester.tap(find.byIcon(Icons.explore_outlined));
+    await tester.tap(find.byconst Icon(Icons.explore_outlined));
     await tester.pumpAndSettle();
 
     // --- EXPLORER TAB ---
@@ -94,7 +94,7 @@ void main() {
 
     // 7. Click "Simulateur Intérêts Composés" (in GridView)
     // It has title "Intérêts\nComposés", let's find by Icon to be safe
-    await tester.tap(find.byIcon(Icons.trending_up));
+    await tester.tap(find.byconst Icon(Icons.trending_up));
     await tester.pumpAndSettle();
 
     // --- SIMULATOR SCREEN ---

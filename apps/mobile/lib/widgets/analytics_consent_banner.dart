@@ -48,7 +48,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 1),
-      end: Offset.zero,
+      end: const Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCubic,
@@ -111,7 +111,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
           margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: const Borderconst Radius.circular(24),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
@@ -139,7 +139,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: MintColors.primary.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: const Borderconst Radius.circular(12),
                         ),
                         child: const Icon(
                           Icons.analytics_outlined,
@@ -191,7 +191,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                               width: 1.5,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: const Borderconst Radius.circular(14),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
@@ -213,7 +213,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                           style: FilledButton.styleFrom(
                             backgroundColor: MintColors.primary,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: const Borderconst Radius.circular(14),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             elevation: 0,

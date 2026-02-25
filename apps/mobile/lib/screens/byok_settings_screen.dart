@@ -149,7 +149,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const Borderconst Radius.circular(20),
         border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -161,7 +161,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: const Borderconst Radius.circular(10),
                 ),
                 child: const Icon(Icons.lock_outline,
                     color: MintColors.accent, size: 20),
@@ -212,12 +212,12 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
     return Expanded(
       child: InkWell(
         onTap: () => setState(() => _selectedProvider = value),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: isSelected ? MintColors.primary : MintColors.surface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(
               color: isSelected ? MintColors.primary : MintColors.border,
               width: isSelected ? 2 : 1,
@@ -365,7 +365,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                       backgroundColor: MintColors.success,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: const Borderconst Radius.circular(12)),
                     ),
                   );
                 }
@@ -383,7 +383,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.success.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: const Borderconst Radius.circular(16),
             border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
           ),
           child: Row(
@@ -416,7 +416,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                 Color(0xFF2D2D30),
               ],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: MintColors.primary.withValues(alpha: 0.15),
@@ -474,7 +474,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                     foregroundColor: MintColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: const Borderconst Radius.circular(14),
                     ),
                     textStyle: GoogleFonts.inter(
                       fontSize: 15,
@@ -495,7 +495,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const Borderconst Radius.circular(16),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -522,7 +522,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             context: context,
             builder: (ctx) => AlertDialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
+                  borderRadius: const Borderconst Radius.circular(20)),
               title: Text(s?.byokClearTitle ?? 'Supprimer la cl\u00e9 ?'),
               content: Text(
                 s?.byokClearMessage ??
@@ -567,7 +567,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const Borderconst Radius.circular(20),
             border: Border.all(color: MintColors.border),
           ),
           child: Column(

@@ -72,7 +72,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const Borderconst Radius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -94,7 +94,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 end: Alignment.bottomCenter,
               ),
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
+                  const BorderRadius.vertical(top: const Radius.circular(24)),
             ),
             child: Row(
               children: [
@@ -167,7 +167,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                         height: 48,
                         decoration: BoxDecoration(
                           color: MintColors.surface,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: const Borderconst Radius.circular(12),
                         ),
                         child: SliderTheme(
                           data: SliderTheme.of(context).copyWith(
@@ -201,7 +201,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(color: MintColors.border),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: const Borderconst Radius.circular(12),
                       ),
                       child: Text(
                         _currencyFormat.format(_monthlyIncome),
@@ -220,7 +220,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: const Borderconst Radius.circular(20),
                     border: Border.all(color: MintColors.border),
                     boxShadow: [
                       BoxShadow(
@@ -243,7 +243,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: MintColors.surface,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: const Borderconst Radius.circular(8),
                             ),
                             child: Text(
                                 _currencyFormat.format(_max3aContribution),

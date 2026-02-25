@@ -12,7 +12,7 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.const EdgeInsets.all(40),
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
@@ -29,7 +29,7 @@ class PdfService {
         ),
         footer: (pw.Context context) => pw.Column(children: [
           pw.Divider(thickness: 0.5, color: PdfColors.grey300),
-          pw.SizedBox(height: 5),
+          pw.const SizedBox(height: 5),
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
@@ -46,7 +46,7 @@ class PdfService {
         build: (pw.Context context) {
           final List<pw.Widget> children = [];
 
-          children.add(pw.SizedBox(height: 20));
+          children.add(pw.const SizedBox(height: 20));
 
           children.add(pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -58,7 +58,7 @@ class PdfService {
                       color: PdfColors.blue900)),
               pw.Container(
                 padding:
-                    const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    const pw.const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: pw.BoxDecoration(
                   color: report.precisionScore < 0.5
                       ? PdfColors.orange100
@@ -69,7 +69,7 @@ class PdfService {
                           : PdfColors.green,
                       width: 0.5),
                   borderRadius:
-                      const pw.BorderRadius.all(pw.Radius.circular(4)),
+                      const pw.BorderRadius.all(pw.const Radius.circular(4)),
                 ),
                 child: pw.Text(
                     'PRECISION: ${(report.precisionScore * 100).toInt()}%',
@@ -83,10 +83,10 @@ class PdfService {
             ],
           ));
 
-          children.add(pw.SizedBox(height: 12));
+          children.add(pw.const SizedBox(height: 12));
 
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const pw.const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             color: PdfColors.grey100,
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -134,7 +134,7 @@ class PdfService {
             ),
           ));
 
-          children.add(pw.SizedBox(height: 30));
+          children.add(pw.const SizedBox(height: 30));
 
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -149,16 +149,16 @@ class PdfService {
             ],
           ));
 
-          children.add(pw.SizedBox(height: 12));
+          children.add(pw.const SizedBox(height: 12));
 
           final List<pw.Widget> scoreboxes = [];
           for (var item in report.scoreboard) {
             scoreboxes.add(pw.Container(
               width: 140,
-              padding: const pw.EdgeInsets.all(10),
+              padding: const pw.const EdgeInsets.all(10),
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey300),
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.const Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -166,7 +166,7 @@ class PdfService {
                   pw.Text(item.label,
                       style: const pw.TextStyle(
                           fontSize: 8, color: PdfColors.grey600)),
-                  pw.SizedBox(height: 2),
+                  pw.const SizedBox(height: 2),
                   pw.Text(item.value,
                       style: pw.TextStyle(
                           fontSize: 14, fontWeight: pw.FontWeight.bold)),
@@ -183,7 +183,7 @@ class PdfService {
             children: scoreboxes,
           ));
 
-          children.add(pw.SizedBox(height: 40));
+          children.add(pw.const SizedBox(height: 40));
 
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -198,16 +198,16 @@ class PdfService {
             ],
           ));
 
-          children.add(pw.SizedBox(height: 12));
+          children.add(pw.const SizedBox(height: 12));
 
           for (var a in report.topActions) {
             children.add(pw.Container(
-              margin: const pw.EdgeInsets.only(bottom: 12),
-              padding: const pw.EdgeInsets.all(12),
+              margin: const pw.const EdgeInsets.only(bottom: 12),
+              padding: const pw.const EdgeInsets.all(12),
               decoration: pw.BoxDecoration(
                 color: PdfColors.blue50,
                 border: pw.Border.all(color: PdfColors.blue200, width: 0.5),
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                borderRadius: const pw.BorderRadius.all(pw.const Radius.circular(8)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -217,10 +217,10 @@ class PdfService {
                           fontSize: 12,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.blue900)),
-                  pw.SizedBox(height: 4),
+                  pw.const SizedBox(height: 4),
                   pw.Text('Pourquoi : ${a.why}',
                       style: const pw.TextStyle(fontSize: 9)),
-                  pw.SizedBox(height: 4),
+                  pw.const SizedBox(height: 4),
                   pw.Text('Action suivante : ${a.nextAction.label}',
                       style: pw.TextStyle(
                           fontSize: 9, fontWeight: pw.FontWeight.bold)),
@@ -229,7 +229,7 @@ class PdfService {
             ));
           }
 
-          children.add(pw.SizedBox(height: 40));
+          children.add(pw.const SizedBox(height: 40));
 
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -244,10 +244,10 @@ class PdfService {
             ],
           ));
 
-          children.add(pw.SizedBox(height: 12));
+          children.add(pw.const SizedBox(height: 12));
 
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.all(12),
+            padding: const pw.const EdgeInsets.all(12),
             color: PdfColors.blue50,
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -266,13 +266,13 @@ class PdfService {
                             color: PdfColors.blue900)),
                   ],
                 ),
-                pw.SizedBox(height: 8),
+                pw.const SizedBox(height: 8),
                 pw.Text('Hypothèses :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 for (var a in report.mintRoadmap.assumptions)
                   pw.Text('• $a', style: const pw.TextStyle(fontSize: 8)),
-                pw.SizedBox(height: 8),
+                pw.const SizedBox(height: 8),
                 pw.Text('Conflits d\'intérêts & Commissions :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
@@ -284,7 +284,7 @@ class PdfService {
             ),
           ));
 
-          children.add(pw.SizedBox(height: 40));
+          children.add(pw.const SizedBox(height: 40));
 
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -299,20 +299,20 @@ class PdfService {
             ],
           ));
 
-          children.add(pw.SizedBox(height: 12));
+          children.add(pw.const SizedBox(height: 12));
 
           for (var r in report.recommendations) {
             children.add(pw.Padding(
-              padding: const pw.EdgeInsets.only(bottom: 15),
+              padding: const pw.const EdgeInsets.only(bottom: 15),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(r.title,
                       style: pw.TextStyle(
                           fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 2),
+                  pw.const SizedBox(height: 2),
                   pw.Text(r.summary, style: const pw.TextStyle(fontSize: 9)),
-                  if (r.evidenceLinks.isNotEmpty) pw.SizedBox(height: 4),
+                  if (r.evidenceLinks.isNotEmpty) pw.const SizedBox(height: 4),
                   if (r.evidenceLinks.isNotEmpty)
                     pw.Text(
                         'Sources : ${r.evidenceLinks.map((l) => l.label).join(', ')}',
@@ -325,7 +325,7 @@ class PdfService {
             ));
           }
 
-          children.add(pw.SizedBox(height: 30));
+          children.add(pw.const SizedBox(height: 30));
 
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -340,11 +340,11 @@ class PdfService {
             ],
           ));
 
-          children.add(pw.SizedBox(height: 10));
+          children.add(pw.const SizedBox(height: 10));
 
           for (var d in report.disclaimers) {
             children.add(pw.Padding(
-              padding: const pw.EdgeInsets.only(bottom: 6),
+              padding: const pw.const EdgeInsets.only(bottom: 6),
               child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
@@ -379,7 +379,7 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.const EdgeInsets.all(40),
         // ── Header ──
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -398,7 +398,7 @@ class PdfService {
         // ── Footer ──
         footer: (pw.Context context) => pw.Column(children: [
           pw.Divider(thickness: 0.5, color: PdfColors.grey300),
-          pw.SizedBox(height: 4),
+          pw.const SizedBox(height: 4),
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
@@ -409,11 +409,11 @@ class PdfService {
                       fontSize: 6, color: PdfColors.grey500),
                 ),
               ),
-              pw.SizedBox(width: 10),
+              pw.const SizedBox(width: 10),
               pw.Text('Généré le $generatedDate',
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
-              pw.SizedBox(width: 10),
+              pw.const SizedBox(width: 10),
               pw.Text(
                   'Page ${context.pageNumber} sur ${context.pagesCount}',
                   style: const pw.TextStyle(
@@ -428,7 +428,7 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           // 1. TITRE PRINCIPAL
           // ═══════════════════════════════════════════════════════
-          children.add(pw.SizedBox(height: 10));
+          children.add(pw.const SizedBox(height: 10));
           children.add(pw.Text(
             'Ton Plan Mint — Rapport Financier',
             style: pw.TextStyle(
@@ -436,18 +436,18 @@ class PdfService {
                 fontWeight: pw.FontWeight.bold,
                 color: PdfColors.blue900),
           ));
-          children.add(pw.SizedBox(height: 4));
+          children.add(pw.const SizedBox(height: 4));
           children.add(pw.Text(
             'Bilan personnalisé pour ${report.profile.firstName ?? 'toi'} — ${report.profile.canton.toUpperCase()}',
             style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ));
-          children.add(pw.SizedBox(height: 4));
+          children.add(pw.const SizedBox(height: 4));
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const pw.const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: pw.BoxDecoration(
               color: PdfColors.green50,
               border: pw.Border.all(color: PdfColors.green200, width: 0.5),
-              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+              borderRadius: const pw.BorderRadius.all(pw.const Radius.circular(4)),
             ),
             child: pw.Text(
               'Score de santé financière : ${report.healthScore.overallScore.toInt()}/100 — ${report.healthScore.overallLevel.label}',
@@ -461,9 +461,9 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           // 2. SCOREBOARD (4 KPI)
           // ═══════════════════════════════════════════════════════
-          children.add(pw.SizedBox(height: 25));
+          children.add(pw.const SizedBox(height: 25));
           children.add(_pdfSectionTitle('Indicateurs Clés'));
-          children.add(pw.SizedBox(height: 10));
+          children.add(pw.const SizedBox(height: 10));
 
           final monthlyAvailable = report.profile.monthlyNetIncome -
               (report.taxSimulation.totalTax / 12);
@@ -505,11 +505,11 @@ class PdfService {
           for (final kpi in kpis) {
             kpiWidgets.add(pw.Container(
               width: 115,
-              padding: const pw.EdgeInsets.all(8),
+              padding: const pw.const EdgeInsets.all(8),
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey300),
                 borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                    const pw.BorderRadius.all(pw.const Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -517,7 +517,7 @@ class PdfService {
                   pw.Text(kpi['label']!,
                       style: const pw.TextStyle(
                           fontSize: 7, color: PdfColors.grey600)),
-                  pw.SizedBox(height: 2),
+                  pw.const SizedBox(height: 2),
                   pw.Text(kpi['value']!,
                       style: pw.TextStyle(
                           fontSize: 13, fontWeight: pw.FontWeight.bold)),
@@ -537,15 +537,15 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           // 3. TOP 3 ACTIONS PRIORITAIRES
           // ═══════════════════════════════════════════════════════
-          children.add(pw.SizedBox(height: 30));
+          children.add(pw.const SizedBox(height: 30));
           children.add(_pdfSectionTitle('Top 3 — Actions Prioritaires'));
-          children.add(pw.SizedBox(height: 10));
+          children.add(pw.const SizedBox(height: 10));
 
           for (int i = 0; i < report.priorityActions.length; i++) {
             final action = report.priorityActions[i];
             children.add(pw.Container(
-              margin: const pw.EdgeInsets.only(bottom: 10),
-              padding: const pw.EdgeInsets.all(10),
+              margin: const pw.const EdgeInsets.only(bottom: 10),
+              padding: const pw.const EdgeInsets.all(10),
               decoration: pw.BoxDecoration(
                 color: action.priority == ActionPriority.critical
                     ? PdfColors.red50
@@ -556,7 +556,7 @@ class PdfService {
                         : PdfColors.blue200,
                     width: 0.5),
                 borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                    const pw.BorderRadius.all(pw.const Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -579,7 +579,7 @@ class PdfService {
                           decoration: pw.BoxDecoration(
                             color: PdfColors.green100,
                             borderRadius: const pw.BorderRadius.all(
-                                pw.Radius.circular(4)),
+                                pw.const Radius.circular(4)),
                           ),
                           child: pw.Text(
                             '+CHF ${action.potentialGainChf!.toStringAsFixed(0)}',
@@ -591,11 +591,11 @@ class PdfService {
                         ),
                     ],
                   ),
-                  pw.SizedBox(height: 4),
+                  pw.const SizedBox(height: 4),
                   pw.Text('Pourquoi : ${action.description}',
                       style: const pw.TextStyle(fontSize: 9)),
                   if (action.steps.isNotEmpty) ...[
-                    pw.SizedBox(height: 4),
+                    pw.const SizedBox(height: 4),
                     for (final step in action.steps)
                       pw.Padding(
                         padding: const pw.EdgeInsets.only(left: 8, bottom: 1),
@@ -612,18 +612,18 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           // 4. SIMULATION FISCALE
           // ═══════════════════════════════════════════════════════
-          children.add(pw.SizedBox(height: 25));
+          children.add(pw.const SizedBox(height: 25));
           children.add(_pdfSectionTitle('Simulation Fiscale'));
-          children.add(pw.SizedBox(height: 10));
+          children.add(pw.const SizedBox(height: 10));
 
           final tax = report.taxSimulation;
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.all(12),
+            padding: const pw.const EdgeInsets.all(12),
             decoration: pw.BoxDecoration(
               color: PdfColors.grey50,
               border: pw.Border.all(color: PdfColors.grey200),
               borderRadius:
-                  const pw.BorderRadius.all(pw.Radius.circular(6)),
+                  const pw.BorderRadius.all(pw.const Radius.circular(6)),
             ),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -631,13 +631,13 @@ class PdfService {
                 _pdfKeyValue('Revenu imposable',
                     'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
                 if (tax.deductions.isNotEmpty) ...[
-                  pw.SizedBox(height: 6),
+                  pw.const SizedBox(height: 6),
                   pw.Text('Déductions appliquées :',
                       style: pw.TextStyle(
                           fontSize: 8, fontWeight: pw.FontWeight.bold)),
                   for (final entry in tax.deductions.entries)
                     pw.Padding(
-                      padding: const pw.EdgeInsets.only(left: 10),
+                      padding: const pw.const EdgeInsets.only(left: 10),
                       child: pw.Text(
                           '- ${entry.key} : CHF ${entry.value.toStringAsFixed(0)}',
                           style: const pw.TextStyle(fontSize: 8)),
@@ -649,14 +649,14 @@ class PdfService {
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.green800)),
                 ],
-                pw.SizedBox(height: 6),
+                pw.const SizedBox(height: 6),
                 pw.Divider(thickness: 0.5, color: PdfColors.grey300),
-                pw.SizedBox(height: 6),
+                pw.const SizedBox(height: 6),
                 _pdfKeyValue('Impôt cantonal + communal',
                     'CHF ${tax.cantonalTax.toStringAsFixed(0)}'),
                 _pdfKeyValue('Impôt fédéral direct',
                     'CHF ${tax.federalTax.toStringAsFixed(0)}'),
-                pw.SizedBox(height: 4),
+                pw.const SizedBox(height: 4),
                 _pdfKeyValue(
                     'TOTAL estimé',
                     'CHF ${tax.totalTax.toStringAsFixed(0)}',
@@ -665,9 +665,9 @@ class PdfService {
                     '${(tax.effectiveRate * 100).toStringAsFixed(1)}%'),
                 if (tax.taxSavingsFromBuyback != null &&
                     tax.taxSavingsFromBuyback! > 0) ...[
-                  pw.SizedBox(height: 6),
+                  pw.const SizedBox(height: 6),
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
-                  pw.SizedBox(height: 4),
+                  pw.const SizedBox(height: 4),
                   pw.Text(
                     'Avec rachat LPP : CHF ${tax.taxWithLppBuyback!.toStringAsFixed(0)} (économie : CHF ${tax.taxSavingsFromBuyback!.toStringAsFixed(0)})',
                     style: pw.TextStyle(
@@ -685,17 +685,17 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           if (report.retirementProjection != null) {
             final ret = report.retirementProjection!;
-            children.add(pw.SizedBox(height: 25));
+            children.add(pw.const SizedBox(height: 25));
             children.add(_pdfSectionTitle('Projection Retraite'));
-            children.add(pw.SizedBox(height: 10));
+            children.add(pw.const SizedBox(height: 10));
 
             children.add(pw.Container(
-              padding: const pw.EdgeInsets.all(12),
+              padding: const pw.const EdgeInsets.all(12),
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey50,
                 border: pw.Border.all(color: PdfColors.grey200),
                 borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                    const pw.BorderRadius.all(pw.const Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -705,7 +705,7 @@ class PdfService {
                     style: pw.TextStyle(
                         fontSize: 9, fontWeight: pw.FontWeight.bold),
                   ),
-                  pw.SizedBox(height: 8),
+                  pw.const SizedBox(height: 8),
                   pw.Text('Rentes mensuelles estimées',
                       style: pw.TextStyle(
                           fontSize: 8,
@@ -721,7 +721,7 @@ class PdfService {
                     'CHF ${ret.totalMonthlyIncome.toStringAsFixed(0)}/mois',
                     bold: true,
                   ),
-                  pw.SizedBox(height: 8),
+                  pw.const SizedBox(height: 8),
                   pw.Text('Capitaux estimés à 65 ans',
                       style: pw.TextStyle(
                           fontSize: 8,
@@ -741,7 +741,7 @@ class PdfService {
                     bold: true,
                   ),
                   if (ret.avsReductionFactor < 1.0) ...[
-                    pw.SizedBox(height: 6),
+                    pw.const SizedBox(height: 6),
                     pw.Text(
                       'Attention : facteur de réduction AVS ${(ret.avsReductionFactor * 100).toStringAsFixed(1)}% (lacunes de cotisation détectées)',
                       style: pw.TextStyle(
@@ -760,17 +760,17 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           if (report.lppBuybackStrategy != null) {
             final lpp = report.lppBuybackStrategy!;
-            children.add(pw.SizedBox(height: 25));
+            children.add(pw.const SizedBox(height: 25));
             children.add(_pdfSectionTitle('Stratégie Rachat LPP'));
-            children.add(pw.SizedBox(height: 10));
+            children.add(pw.const SizedBox(height: 10));
 
             children.add(pw.Container(
-              padding: const pw.EdgeInsets.all(12),
+              padding: const pw.const EdgeInsets.all(12),
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey50,
                 border: pw.Border.all(color: PdfColors.grey200),
                 borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                    const pw.BorderRadius.all(pw.const Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -780,13 +780,13 @@ class PdfService {
                   _pdfKeyValue('Économie fiscale totale estimée',
                       'CHF ${lpp.totalTaxSavings.toStringAsFixed(0)}',
                       bold: true),
-                  pw.SizedBox(height: 8),
+                  pw.const SizedBox(height: 8),
                   pw.Text('Plan annuel recommandé',
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
-                  pw.SizedBox(height: 4),
+                  pw.const SizedBox(height: 4),
                   // Table header
                   pw.Container(
                     padding: const pw.EdgeInsets.symmetric(
@@ -845,7 +845,7 @@ class PdfService {
                         ],
                       ),
                     ),
-                  pw.SizedBox(height: 6),
+                  pw.const SizedBox(height: 6),
                   pw.Text(
                     'Rappel : le rachat LPP est soumis à un blocage de 3 ans pour les retraits en capital (LPP art. 79b al. 3).',
                     style: pw.TextStyle(
@@ -861,12 +861,12 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           // 7. CONFORMITÉ (Statement of Advice)
           // ═══════════════════════════════════════════════════════
-          children.add(pw.SizedBox(height: 25));
+          children.add(pw.const SizedBox(height: 25));
           children.add(_pdfSectionTitle('Conformité — Statement of Advice'));
-          children.add(pw.SizedBox(height: 10));
+          children.add(pw.const SizedBox(height: 10));
 
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.all(12),
+            padding: const pw.const EdgeInsets.all(12),
             color: PdfColors.blue50,
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -874,7 +874,7 @@ class PdfService {
                 pw.Text('Nature du service : Éducation financière (non-régulée)',
                     style: pw.TextStyle(
                         fontSize: 9, fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(height: 6),
+                pw.const SizedBox(height: 6),
                 pw.Text('Hypothèses :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
@@ -890,7 +890,7 @@ class PdfService {
                 pw.Text(
                     '• Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).',
                     style: const pw.TextStyle(fontSize: 8)),
-                pw.SizedBox(height: 6),
+                pw.const SizedBox(height: 6),
                 pw.Text('Conflits d\'intérêts :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
@@ -908,13 +908,13 @@ class PdfService {
           // 8. DISCLAIMERS LÉGAUX
           // ═══════════════════════════════════════════════════════
           if (report.disclaimers.isNotEmpty) {
-            children.add(pw.SizedBox(height: 25));
+            children.add(pw.const SizedBox(height: 25));
             children.add(_pdfSectionTitle('Disclaimers Légaux'));
-            children.add(pw.SizedBox(height: 8));
+            children.add(pw.const SizedBox(height: 8));
 
             for (final d in report.disclaimers) {
               children.add(pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 4),
+                padding: const pw.const EdgeInsets.only(bottom: 4),
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -938,13 +938,13 @@ class PdfService {
           // 9. SOURCES JURIDIQUES
           // ═══════════════════════════════════════════════════════
           if (report.sources.isNotEmpty) {
-            children.add(pw.SizedBox(height: 20));
+            children.add(pw.const SizedBox(height: 20));
             children.add(_pdfSectionTitle('Sources Juridiques'));
-            children.add(pw.SizedBox(height: 8));
+            children.add(pw.const SizedBox(height: 8));
 
             for (final s in report.sources) {
               children.add(pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 3),
+                padding: const pw.const EdgeInsets.only(bottom: 3),
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -995,7 +995,7 @@ class PdfService {
   static pw.Widget _pdfKeyValue(String key, String value,
       {bool bold = false}) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 1),
+      padding: const pw.const EdgeInsets.symmetric(vertical: 1),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
@@ -1030,7 +1030,7 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.const EdgeInsets.all(40),
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
@@ -1047,7 +1047,7 @@ class PdfService {
         ),
         footer: (pw.Context context) => pw.Column(children: [
           pw.Divider(thickness: 0.5, color: PdfColors.grey300),
-          pw.SizedBox(height: 5),
+          pw.const SizedBox(height: 5),
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
@@ -1064,7 +1064,7 @@ class PdfService {
         build: (pw.Context context) {
           final List<pw.Widget> children = [];
 
-          children.add(pw.SizedBox(height: 20));
+          children.add(pw.const SizedBox(height: 20));
 
           // Title
           children.add(pw.Text(
@@ -1074,19 +1074,19 @@ class PdfService {
                 fontWeight: pw.FontWeight.bold,
                 color: PdfColors.blue900),
           ));
-          children.add(pw.SizedBox(height: 8));
+          children.add(pw.const SizedBox(height: 8));
           children.add(pw.Text(
             'Coach MINT — Conversation éducative',
             style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
           ));
-          children.add(pw.SizedBox(height: 20));
+          children.add(pw.const SizedBox(height: 20));
 
           // Profile snapshot
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.all(12),
+            padding: const pw.const EdgeInsets.all(12),
             decoration: pw.BoxDecoration(
               color: PdfColors.blue50,
-              borderRadius: pw.BorderRadius.circular(8),
+              borderRadius: pw.const Borderconst Radius.circular(8),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -1099,7 +1099,7 @@ class PdfService {
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.blue900)),
-                    pw.SizedBox(height: 4),
+                    pw.const SizedBox(height: 4),
                     pw.Text('$firstName — Canton $canton',
                         style: const pw.TextStyle(fontSize: 10)),
                   ],
@@ -1112,7 +1112,7 @@ class PdfService {
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.blue900)),
-                    pw.SizedBox(height: 4),
+                    pw.const SizedBox(height: 4),
                     pw.Text('$fitnessScore / 100',
                         style: pw.TextStyle(
                             fontSize: 14,
@@ -1125,7 +1125,7 @@ class PdfService {
               ],
             ),
           ));
-          children.add(pw.SizedBox(height: 20));
+          children.add(pw.const SizedBox(height: 20));
 
           // Conversation highlights
           if (conversationHighlights.isNotEmpty) {
@@ -1136,16 +1136,16 @@ class PdfService {
                   fontWeight: pw.FontWeight.bold,
                   color: PdfColors.blue900),
             ));
-            children.add(pw.SizedBox(height: 10));
+            children.add(pw.const SizedBox(height: 10));
 
             for (int i = 0; i < conversationHighlights.length; i++) {
               final highlight = conversationHighlights[i];
               children.add(pw.Container(
-                margin: const pw.EdgeInsets.only(bottom: 12),
-                padding: const pw.EdgeInsets.all(10),
+                margin: const pw.const EdgeInsets.only(bottom: 12),
+                padding: const pw.const EdgeInsets.all(10),
                 decoration: pw.BoxDecoration(
                   border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
-                  borderRadius: pw.BorderRadius.circular(6),
+                  borderRadius: pw.const Borderconst Radius.circular(6),
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1165,14 +1165,14 @@ class PdfService {
                         ),
                       ],
                     ),
-                    pw.SizedBox(height: 6),
+                    pw.const SizedBox(height: 6),
                     pw.Text(highlight['answer'] ?? '',
                         style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey800)),
                   ],
                 ),
               ));
             }
-            children.add(pw.SizedBox(height: 10));
+            children.add(pw.const SizedBox(height: 10));
           }
 
           // Legal sources
@@ -1184,10 +1184,10 @@ class PdfService {
                   fontWeight: pw.FontWeight.bold,
                   color: PdfColors.blue900),
             ));
-            children.add(pw.SizedBox(height: 8));
+            children.add(pw.const SizedBox(height: 8));
             for (final source in legalSources) {
               children.add(pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 4),
+                padding: const pw.const EdgeInsets.only(bottom: 4),
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -1201,17 +1201,17 @@ class PdfService {
                 ),
               ));
             }
-            children.add(pw.SizedBox(height: 16));
+            children.add(pw.const SizedBox(height: 16));
           }
 
           // Disclaimer
           children.add(pw.Divider(thickness: 0.5, color: PdfColors.grey300));
-          children.add(pw.SizedBox(height: 8));
+          children.add(pw.const SizedBox(height: 8));
           children.add(pw.Container(
-            padding: const pw.EdgeInsets.all(10),
+            padding: const pw.const EdgeInsets.all(10),
             decoration: pw.BoxDecoration(
               color: PdfColors.amber50,
-              borderRadius: pw.BorderRadius.circular(6),
+              borderRadius: pw.const Borderconst Radius.circular(6),
               border: pw.Border.all(color: PdfColors.amber200, width: 0.5),
             ),
             child: pw.Text(
