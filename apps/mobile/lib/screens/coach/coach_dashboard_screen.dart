@@ -873,8 +873,8 @@ Si une categorie ne s'applique pas, omets-la.
         category: 'engagement',
         data: {
           'state': 'full',
-          'score': _score!.overall,
-          'scenario_count': _projection!.scenarios.length,
+          'score': _score!.global,
+          'scenario_count': 3,
         },
         screenName: 'coach_dashboard',
       );

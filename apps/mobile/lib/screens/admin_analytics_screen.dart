@@ -449,6 +449,6 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   String _readableName(String name) {
     return name
         .replaceAll('_', ' ')
-        .replaceFirst(RegExp(r'^[a-z]'), (m) => m[0]!.toUpperCase());
+        .replaceFirstMapped(RegExp(r'^[a-z]'), (m) => m[0]!.toUpperCase());
   }
 }
