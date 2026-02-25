@@ -972,6 +972,15 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           TextButton.icon(
+            onPressed: () => context.push('/profile/admin-analytics'),
+            icon: const Icon(Icons.bar_chart_rounded, size: 18),
+            label: const Text('Analytics beta testeurs'),
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+          TextButton.icon(
             onPressed: authProvider.isLoading
                 ? null
                 : () => _confirmDeleteAccount(context, authProvider),
