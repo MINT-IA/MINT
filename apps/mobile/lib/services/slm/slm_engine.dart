@@ -1,23 +1,28 @@
 /// SLM Engine — On-device Small Language Model inference.
 ///
-/// Wraps Google MediaPipe LLM Inference API (Gemma 3n 4B E4B)
-/// for privacy-first, zero-network coach narratives.
+/// Wraps flutter_gemma package for Gemma 3n E4B on-device inference.
+/// Privacy-first: zero network traffic during inference.
 ///
 /// Architecture:
 ///   - Model stored locally (~2.3 GB on disk)
-///   - Inference runs on-device (CPU/GPU via MediaPipe)
+///   - Inference runs on-device (GPU preferred, CPU fallback)
 ///   - No data leaves the device
 ///   - ComplianceGuard validates ALL output before display
 ///
 /// Priority chain in CoachNarrativeService:
-///   1. SLM on-device (if model downloaded)
+///   1. SLM on-device (if model downloaded + initialized)
 ///   2. Static templates (always available)
 ///   3. BYOK cloud LLM (if API key configured)
+///
+/// References:
+///   - flutter_gemma 0.12.x (pub.dev/packages/flutter_gemma)
+///   - Gemma 3n E4B IT (ai.google.dev/edge/mediapipe)
 library;
 
 import 'dart:async';
 
-import 'package:mint_mobile/services/slm/slm_download_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
 
 /// Status of the SLM engine.
 enum SlmStatus {
@@ -55,11 +60,11 @@ class SlmResult {
   });
 }
 
-/// On-device SLM engine using MediaPipe LLM Inference.
+/// On-device SLM engine using flutter_gemma (MediaPipe GenAI).
 ///
 /// Usage:
 /// ```dart
-/// final engine = SlmEngine();
+/// final engine = SlmEngine.instance;
 /// await engine.initialize();
 /// final result = await engine.generate(
 ///   systemPrompt: PromptRegistry.baseSystemPrompt,
@@ -79,7 +84,7 @@ class SlmEngine {
   /// Whether the engine is ready for inference.
   bool get isAvailable => _status == SlmStatus.running;
 
-  /// Model identifier.
+  /// Model identifier (used by flutter_gemma internally).
   static const String modelId = 'gemma-3n-e4b-it';
 
   /// Model display name.
@@ -94,38 +99,57 @@ class SlmEngine {
   /// Temperature for generation (lower = more deterministic).
   static const double defaultTemperature = 0.3;
 
+  /// The active flutter_gemma model instance (null until initialized).
+  InferenceModel? _model;
+
+  /// Concurrency guard — prevents overlapping generate() calls
+  /// from creating multiple chat sessions and OOMing the device.
+  bool _isGenerating = false;
+
   /// Initialize the engine with the downloaded model.
   ///
-  /// Must be called after [SlmDownloadService] confirms download.
+  /// Checks model availability via [FlutterGemma.isModelInstalled],
+  /// then creates an [InferenceModel] with GPU preferred (CPU fallback).
   /// Returns true if initialization succeeded.
   Future<bool> initialize() async {
-    if (_status == SlmStatus.running) return true;
+    if (_status == SlmStatus.running && _model != null) return true;
 
-    final modelPath = await SlmDownloadService.instance.modelPath;
-    if (modelPath == null) {
+    // Use flutter_gemma's native check instead of SharedPreferences path.
+    final isInstalled = await FlutterGemma.isModelInstalled(modelId);
+    if (!isInstalled) {
       _status = SlmStatus.notDownloaded;
       return false;
     }
 
     try {
-      // MediaPipe LLM Inference initialization.
-      // In production, this calls:
-      //   LlmInference.createFromOptions(LlmInferenceOptions(
-      //     modelPath: modelPath,
-      //     maxTokens: maxContextTokens,
-      //     temperature: defaultTemperature,
-      //   ));
-      //
-      // For now, we use a stub that will be replaced when
-      // google_mediapipe_genai is added as a dependency.
       _status = SlmStatus.ready;
 
-      // Warm up with a short generation to load model weights into memory.
+      // Create the flutter_gemma model instance.
+      // GPU preferred for performance, CPU fallback below.
+      _model = await FlutterGemma.getActiveModel(
+        maxTokens: maxContextTokens,
+        preferredBackend: PreferredBackend.gpu,
+      );
+
       _status = SlmStatus.running;
+      debugPrint('[SLM] Engine initialized: $modelId (GPU preferred)');
       return true;
     } catch (e) {
-      _status = SlmStatus.error;
-      return false;
+      debugPrint('[SLM] Engine GPU init failed: $e');
+      // Retry with CPU backend for older devices.
+      try {
+        _model = await FlutterGemma.getActiveModel(
+          maxTokens: maxContextTokens,
+          preferredBackend: PreferredBackend.cpu,
+        );
+        _status = SlmStatus.running;
+        debugPrint('[SLM] Engine initialized: $modelId (CPU fallback)');
+        return true;
+      } catch (e2) {
+        debugPrint('[SLM] Engine CPU fallback failed: $e2');
+        _status = SlmStatus.error;
+        return false;
+      }
     }
   }
 
@@ -134,78 +158,155 @@ class SlmEngine {
   /// [systemPrompt] sets the model behavior (from PromptRegistry).
   /// [userPrompt] is the specific generation request.
   /// [maxTokens] limits output length (default 256).
+  /// [temperature] controls randomness (default 0.3, lower = more deterministic).
   ///
-  /// Returns null if engine is not available.
+  /// Returns null if engine is not available or another generation is in progress.
   Future<SlmResult?> generate({
     required String systemPrompt,
     required String userPrompt,
     int maxTokens = defaultMaxTokens,
     double temperature = defaultTemperature,
   }) async {
-    if (!isAvailable) return null;
+    if (!isAvailable || _model == null) return null;
+
+    // Concurrency guard: one generation at a time (device memory constraint).
+    if (_isGenerating) {
+      debugPrint('[SLM] Generation skipped: another call in progress');
+      return null;
+    }
+    _isGenerating = true;
 
     final stopwatch = Stopwatch()..start();
+    Chat? chat;
 
     try {
-      // Combine system + user prompt for single-turn generation.
-      // Gemma 3n uses <start_of_turn> format:
-      //   <start_of_turn>user\n{system}\n\n{user}<end_of_turn>
-      //   <start_of_turn>model\n
-      final fullPrompt = '<start_of_turn>user\n'
-          '$systemPrompt\n\n'
-          '$userPrompt<end_of_turn>\n'
-          '<start_of_turn>model\n';
+      // Create a chat session with caller-specified params.
+      // temperature and tokenBuffer map to our public API.
+      chat = await _model!.createChat(
+        temperature: temperature,
+        tokenBuffer: maxTokens,
+        topK: 1,
+      );
 
-      // MediaPipe LLM Inference call.
-      // In production: final response = await _inference.generateResponse(fullPrompt);
-      //
-      // Stub: returns empty to trigger fallback to static templates.
-      // This will be replaced with actual MediaPipe call.
-      final response = '';
+      // Combine system + user prompt.
+      // flutter_gemma handles <start_of_turn> formatting internally
+      // for ModelType.gemmaIt, so we send a single user message.
+      final combinedPrompt = '$systemPrompt\n\n$userPrompt';
+
+      await chat.addQueryChunk(Message.text(
+        text: combinedPrompt,
+        isUser: true,
+      ));
+
+      // Generate the response (blocking, full text).
+      // Returns ModelResponse — a TextResponse for text-only models.
+      final response = await chat.generateChatResponse();
 
       stopwatch.stop();
 
+      // Extract text from the ModelResponse.
+      final responseText = _extractText(response);
+
+      debugPrint(
+        '[SLM] Generated ${_estimateTokens(responseText)} tokens '
+        'in ${stopwatch.elapsedMilliseconds}ms',
+      );
+
       return SlmResult(
-        text: response,
+        text: responseText,
         durationMs: stopwatch.elapsedMilliseconds,
-        tokensGenerated: _estimateTokens(response),
+        tokensGenerated: _estimateTokens(responseText),
       );
     } catch (e) {
       stopwatch.stop();
+      debugPrint('[SLM] Generation failed: $e');
       return null;
+    } finally {
+      // Always release the chat session to free native resources.
+      await chat?.close();
+      _isGenerating = false;
     }
   }
 
   /// Generate text as a stream (token by token).
   ///
-  /// Useful for progressive UI display.
+  /// Useful for progressive UI display. Yields individual tokens
+  /// as they are generated.
+  ///
+  /// Returns empty stream if engine not available or busy.
   Stream<String> generateStream({
     required String systemPrompt,
     required String userPrompt,
     int maxTokens = defaultMaxTokens,
+    double temperature = defaultTemperature,
   }) async* {
-    if (!isAvailable) return;
+    if (!isAvailable || _model == null || _isGenerating) return;
 
-    final fullPrompt = '<start_of_turn>user\n'
-        '$systemPrompt\n\n'
-        '$userPrompt<end_of_turn>\n'
-        '<start_of_turn>model\n';
+    _isGenerating = true;
+    Chat? chat;
 
-    // MediaPipe streaming generation.
-    // In production: yield* _inference.generateResponseStream(fullPrompt);
-    //
-    // Stub: yields nothing.
-    return;
+    try {
+      chat = await _model!.createChat(
+        temperature: temperature,
+        tokenBuffer: maxTokens,
+        topK: 1,
+      );
+
+      final combinedPrompt = '$systemPrompt\n\n$userPrompt';
+      await chat.addQueryChunk(Message.text(
+        text: combinedPrompt,
+        isUser: true,
+      ));
+
+      // Stream the response token by token.
+      await for (final chunk in chat.generateChatResponseAsync()) {
+        if (chunk is TextResponse) {
+          yield chunk.token;
+        }
+      }
+    } catch (e) {
+      debugPrint('[SLM] Stream generation failed: $e');
+    } finally {
+      await chat?.close();
+      _isGenerating = false;
+    }
   }
 
   /// Release model resources from memory.
-  void dispose() {
-    // In production: _inference.close();
-    _status = SlmStatus.ready;
+  ///
+  /// Calls [InferenceModel.close()] to free native resources (~2 GB RAM).
+  /// Call this when the app goes to background for extended periods.
+  Future<void> dispose() async {
+    if (_model != null) {
+      try {
+        await _model!.close();
+      } catch (e) {
+        debugPrint('[SLM] Model close error: $e');
+      }
+      _model = null;
+    }
+    if (_status == SlmStatus.running) {
+      _status = SlmStatus.ready;
+    }
+    _isGenerating = false;
+    debugPrint('[SLM] Engine disposed');
+  }
+
+  /// Extract text from a flutter_gemma [ModelResponse].
+  ///
+  /// [generateChatResponse()] returns a single [ModelResponse].
+  /// For text-only models (Gemma 3n), this is always a [TextResponse].
+  static String _extractText(ModelResponse response) {
+    if (response is TextResponse) {
+      return response.token;
+    }
+    // Fallback for unexpected response types.
+    return response.toString();
   }
 
   /// Rough token count estimation (1 token ~= 4 chars for French).
   static int _estimateTokens(String text) {
+    if (text.isEmpty) return 0;
     return (text.length / 4).ceil();
   }
 }

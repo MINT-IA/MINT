@@ -34,6 +34,7 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/succession_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
+import 'package:mint_mobile/screens/slm_settings_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
@@ -242,6 +243,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'byok',
           builder: (context, state) => const ByokSettingsScreen(),
+        ),
+        GoRoute(
+          path: 'slm',
+          builder: (context, state) => const SlmSettingsScreen(),
         ),
       ],
     ),
