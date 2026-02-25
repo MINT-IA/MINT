@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,21 +16,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ────────────────────────────────────────────────────────────
 //
 // Le cerveau du Coach Layer. Genere tout le contenu narratif
-// du dashboard en un seul appel LLM (ou via templates statiques
-// si pas de BYOK).
+// du dashboard via 3 modes (par priorite) :
 //
-// DUAL MODE :
-//   - BYOK configure → appel LLM via RagService
-//   - Pas de BYOK  → templates statiques (zero regression)
+// TRIPLE MODE :
+//   1. SLM on-device (Gemma 3n) → zero reseau, privacy totale
+//   2. Templates statiques      → toujours disponible
+//   3. BYOK cloud LLM           → si API key configuree
 //
 // CACHE :
 //   - SharedPreferences, cle "coach_narrative_{yyyy-MM-dd}"
 //   - TTL 24h, invalide si nouveau check-in
 //
 // GUARDRAILS :
-//   - Filtrage des termes bannis (identique a coach_llm_service.dart)
+//   - ComplianceGuard (5 couches) sur TOUTE sortie LLM/SLM
+//   - Filtrage des termes bannis
+//   - Detection d'hallucinations
 //   - Disclaimer obligatoire
-//   - Fallback vers statique si le LLM echoue
+//   - Fallback vers statique si echec
 //
 // Aucun terme banni : garanti, certain, assure, sans risque,
 //                     optimal, meilleur, parfait.
@@ -180,8 +184,11 @@ class CoachNarrativeService {
 
   /// Genere le narratif complet du dashboard.
   ///
-  /// Si [byokConfig] != null et hasApiKey, utilise le LLM.
-  /// Sinon, retourne des templates statiques (comportement actuel).
+  /// Priorite de generation :
+  ///   1. SLM on-device (Gemma 3n) — si modele telecharge
+  ///   2. Templates statiques — toujours disponible
+  ///   3. BYOK cloud LLM — si API key configuree
+  ///
   /// Le resultat est cache 24h dans SharedPreferences.
   static Future<CoachNarrative> generate({
     required CoachProfile profile,
@@ -193,11 +200,27 @@ class CoachNarrativeService {
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
-    // 2. Generer le narratif
+    // 2. Generer le narratif (priorite : SLM > statique > BYOK)
     CoachNarrative narrative;
 
-    if (byokConfig != null && byokConfig.hasApiKey) {
-      // 3. BYOK configure → appel LLM
+    if (SlmEngine.instance.isAvailable) {
+      // 3a. SLM on-device disponible → inference locale (zero reseau)
+      try {
+        narrative = await _generateViaSlm(
+          profile: profile,
+          scoreHistory: scoreHistory,
+          tips: tips,
+        );
+      } catch (_) {
+        // Fallback vers statique si SLM echoue
+        narrative = _generateStatic(
+          profile: profile,
+          scoreHistory: scoreHistory,
+          tips: tips,
+        );
+      }
+    } else if (byokConfig != null && byokConfig.hasApiKey) {
+      // 3b. BYOK configure → appel LLM cloud
       try {
         narrative = await _generateViaLlm(
           profile: profile,
@@ -206,7 +229,7 @@ class CoachNarrativeService {
           config: byokConfig,
         );
       } catch (_) {
-        // 4. Fallback vers statique si LLM echoue (resilience)
+        // Fallback vers statique si LLM echoue (resilience)
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
@@ -214,7 +237,7 @@ class CoachNarrativeService {
         );
       }
     } else {
-      // 5. Pas de BYOK → templates statiques
+      // 3c. Aucun LLM → templates statiques
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
@@ -222,10 +245,10 @@ class CoachNarrativeService {
       );
     }
 
-    // 6. Appliquer les guardrails sur TOUS les modes (LLM et statique)
+    // 4. Appliquer les guardrails sur TOUS les modes (SLM, LLM et statique)
     narrative = _applyGuardrails(narrative);
 
-    // 7. Sauvegarder en cache
+    // 5. Sauvegarder en cache
     await _saveToCache(narrative, profile);
 
     return narrative;
@@ -384,6 +407,84 @@ class CoachNarrativeService {
       return 'Attention — ton score baisse. Verifie tes actions.';
     } else {
       return 'Stable — tes efforts maintiennent le cap.';
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  SLM ON-DEVICE GENERATION (Gemma 3n)
+  // ════════════════════════════════════════════════════════════════
+
+  /// Genere un narratif via le SLM on-device (Gemma 3n).
+  ///
+  /// Avantages :
+  ///   - Zero reseau → fonctionne hors-ligne
+  ///   - Zero donnees envoyees → privacy totale
+  ///   - Latence reduite (~2-4s sur device recent)
+  ///
+  /// Le ComplianceGuard valide la sortie avant affichage.
+  static Future<CoachNarrative> _generateViaSlm({
+    required CoachProfile profile,
+    required List<Map<String, dynamic>>? scoreHistory,
+    required List<CoachingTip> tips,
+  }) async {
+    final slm = SlmEngine.instance;
+    final systemPrompt = _buildSystemPrompt(
+      profile: profile,
+      scoreHistory: scoreHistory,
+      tips: tips,
+    );
+
+    final result = await slm.generate(
+      systemPrompt: systemPrompt,
+      userPrompt: 'Genere le JSON narratif complet du dashboard.',
+      maxTokens: 512,
+    );
+
+    if (result == null || result.text.trim().isEmpty) {
+      // SLM n'a pas genere de contenu → fallback
+      return _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
+    }
+
+    // Valider via ComplianceGuard (5 couches)
+    final compliance = ComplianceGuard.validate(result.text);
+    if (compliance.useFallback) {
+      // SLM output non conforme → fallback statique
+      return _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
+    }
+
+    // Parser la reponse JSON
+    try {
+      final narrative = _parseLlmResponse(
+        compliance.sanitizedText.isNotEmpty
+            ? compliance.sanitizedText
+            : result.text,
+      );
+      return CoachNarrative(
+        greeting: narrative.greeting,
+        scoreSummary: narrative.scoreSummary,
+        trendMessage: narrative.trendMessage,
+        topTipNarrative: narrative.topTipNarrative,
+        urgentAlert: narrative.urgentAlert,
+        milestoneMessage: narrative.milestoneMessage,
+        scenarioNarrations: narrative.scenarioNarrations,
+        isLlmGenerated: true, // SLM is a local LLM
+        generatedAt: DateTime.now(),
+      );
+    } catch (_) {
+      // Parsing JSON echoue → fallback statique
+      return _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
     }
   }
 

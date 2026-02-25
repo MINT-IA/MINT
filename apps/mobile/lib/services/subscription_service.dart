@@ -85,7 +85,7 @@ class SubscriptionService {
   static const double monthlyPriceCHF = 4.90;
 
   static SubscriptionState _state = const SubscriptionState(
-    tier: SubscriptionTier.coach, // TODO: restore paywall gate before production launch
+    tier: SubscriptionTier.free,
     source: SubscriptionSource.mock,
   );
 
@@ -232,11 +232,9 @@ class SubscriptionService {
 
   static void resetToDefault() {
     _state = const SubscriptionState(
-      tier: SubscriptionTier.coach,
+      tier: SubscriptionTier.free,
       source: SubscriptionSource.mock,
     );
-    _activeFeatures
-      ..clear()
-      ..addAll(CoachFeature.values.map((f) => f.name));
+    _activeFeatures.clear();
   }
 }

@@ -45,6 +45,22 @@ Archived: 2026-02-25
 |------|-------|-----------------|-----------------|
 | AGENT_FINANCIAL_CORE_UNIFICATION.md | 637 | Audit prompt for calculator dedup | Task completed, covered by ADR-20260223 |
 
+## Batch 2 — 2026-02-25 (Documentation Consolidation)
+
+| File | Original Purpose | Reason Archived |
+|------|-----------------|-----------------|
+| WIZARD_V2_REFONTE_COMPLETE.md | V1 bug list + refonte spec | All fixes implemented; superseded by WIZARD_IMPLEMENTATION_SUMMARY |
+| WIZARD_AUDIT.md | Hermeneutic circles audit (Jan 2026) | Merged into later wizard specs |
+| WIZARD_STRATEGY_CERCLES.md | Hermeneutic circles methodology | Redundant with WIZARD_AUDIT |
+| UX_STRATEGY_RADAR.md | Strategic UX radar | Superseded by UX_REDESIGN_COACH phases |
+| UX_BUDGET_ET_COMPTE_STRATEGY.md | Budget/accounts UX strategy | Feature fully implemented |
+| TESTING_THE_NEW_MINT.md | Manual testing guide | Superseded by 4678-test automated suite |
+| TESTFLIGHT_COACH_QA_CHECKLIST.md | One-time QA checklist | Execution document, completed |
+| FINANCIAL_CORE_AUDIT.md | Financial core audit summary | Covered by ADR-20260223-unified-financial-engine |
+| FINANCIAL_CORE_CLEANUP_PLAN.md | Cleanup plan for calculator dedup | Task completed |
+| FINANCIAL_CORE_COMPLETION.md | Completion report | Historical |
+| EMPLOYMENT_STATUS_INTEGRATION.md | Integration guide | Redundant with EMPLOYMENT_STATUS_SYNTHESIS |
+
 ---
 
-**Total archived**: 20 files, ~6,636 lines
+**Total archived**: 31 files
