@@ -1,5 +1,5 @@
 """
-Consent Manager — Sprint S40 + audit fix.
+Consent Manager — Sprint S40 + DB persistence.
 
 Manages granular consent for data flows (nLPD compliant).
 
@@ -9,7 +9,10 @@ Manages granular consent for data flows (nLPD compliant).
     3. Notifications — personalized push notifications
 
 Each consent: independent, revocable immediately, OFF by default.
-Includes in-memory persistence (will be replaced by DB in production).
+
+Supports:
+- DB persistence via SQLAlchemy session (production)
+- In-memory fallback when no DB session provided (testing)
 
 Sources:
     - LPD art. 6 (principes de traitement)
@@ -17,7 +20,7 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
-from typing import Dict
+from typing import Dict, Optional
 
 from app.services.reengagement.reengagement_models import (
     ConsentDashboard,
@@ -25,7 +28,7 @@ from app.services.reengagement.reengagement_models import (
     ConsentType,
 )
 
-# In-memory consent store (will be replaced by DB in production)
+# In-memory consent store (fallback when no DB session provided)
 # Key: (user_id, consent_type) -> bool
 _consent_store: Dict[tuple, bool] = {}
 
@@ -74,32 +77,78 @@ class ConsentManager:
     ]
 
     @staticmethod
-    def is_consent_given(user_id: str, consent_type: ConsentType) -> bool:
+    def is_consent_given(user_id: str, consent_type: ConsentType, db=None) -> bool:
         """Check if a specific consent is enabled for a user.
 
         Returns False by default (nLPD opt-in model).
         """
+        if db is not None:
+            from app.models.consent import ConsentModel
+            row = (
+                db.query(ConsentModel)
+                .filter(
+                    ConsentModel.user_id == user_id,
+                    ConsentModel.consent_type == consent_type.value,
+                )
+                .first()
+            )
+            return row.enabled if row else False
+
         return _consent_store.get((user_id, consent_type), False)
 
     @staticmethod
-    def update_consent(user_id: str, consent_type: ConsentType, enabled: bool) -> None:
+    def update_consent(user_id: str, consent_type: ConsentType, enabled: bool, db=None) -> None:
         """Update a specific consent for a user.
 
         Each consent is independent — toggling one does not affect others.
         """
+        if db is not None:
+            from app.models.consent import ConsentModel
+            row = (
+                db.query(ConsentModel)
+                .filter(
+                    ConsentModel.user_id == user_id,
+                    ConsentModel.consent_type == consent_type.value,
+                )
+                .first()
+            )
+            if row:
+                row.enabled = enabled
+            else:
+                row = ConsentModel(
+                    user_id=user_id,
+                    consent_type=consent_type.value,
+                    enabled=enabled,
+                )
+                db.add(row)
+            db.commit()
+            return
+
         _consent_store[(user_id, consent_type)] = enabled
 
     @staticmethod
-    def revoke_all(user_id: str) -> None:
+    def revoke_all(user_id: str, db=None) -> None:
         """Revoke all consents for a user (nLPD art. 6)."""
+        if db is not None:
+            from app.models.consent import ConsentModel
+            rows = (
+                db.query(ConsentModel)
+                .filter(ConsentModel.user_id == user_id)
+                .all()
+            )
+            for row in rows:
+                row.enabled = False
+            db.commit()
+            return
+
         for ct in ConsentType:
             _consent_store[(user_id, ct)] = False
 
-    def get_user_dashboard(self, user_id: str) -> ConsentDashboard:
+    def get_user_dashboard(self, user_id: str, db=None) -> ConsentDashboard:
         """Return consent dashboard with actual user consent state."""
         dashboard = self.get_default_dashboard()
         for consent in dashboard.consents:
-            consent.enabled = self.is_consent_given(user_id, consent.consent_type)
+            consent.enabled = self.is_consent_given(user_id, consent.consent_type, db=db)
         return dashboard
 
     def get_default_dashboard(self) -> ConsentDashboard:
@@ -156,13 +205,6 @@ class ConsentManager:
 
     def get_byok_detail(self) -> dict:
         """Return exactly which fields are sent to LLM provider.
-
-        Sent: firstName, archetype, age, canton, friTotal, friDelta,
-              replacementRatio, monthsLiquidity, taxSavingPotential,
-              confidenceScore, daysSinceLastVisit, fiscalSeason
-
-        NEVER sent: exact salary, exact savings, exact debt,
-                    bank names, employer name, NPA/address, family names
 
         Returns:
             dict with keys: sent_fields, never_sent_fields, disclaimer, sources

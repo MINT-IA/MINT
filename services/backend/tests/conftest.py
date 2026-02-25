@@ -68,6 +68,8 @@ def setup_test_database():
         EntitlementModel,
         BillingTransactionModel,
         BillingWebhookEventModel,
+        SnapshotModel,
+        ConsentModel,
     )
     Base.metadata.create_all(bind=engine)
     yield
@@ -91,9 +93,13 @@ def clean_database():
         BillingTransactionModel,
         BillingWebhookEventModel,
         AuditEventModel,
+        SnapshotModel,
+        ConsentModel,
     )
     db = TestingSessionLocal()
     try:
+        db.query(SnapshotModel).delete()
+        db.query(ConsentModel).delete()
         db.query(BillingWebhookEventModel).delete()
         db.query(EmailVerificationTokenModel).delete()
         db.query(PasswordResetTokenModel).delete()
