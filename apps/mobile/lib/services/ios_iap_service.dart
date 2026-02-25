@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform, visibleForTesting;
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:mint_mobile/services/api_service.dart';
 
@@ -77,7 +76,7 @@ class IosIapService {
   }
 
   static bool get isSupportedPlatform =>
-      _platformCheckOverride ? _platformCheckOverrideValue : Platform.isIOS;
+      _platformCheckOverride ? _platformCheckOverrideValue : defaultTargetPlatform == TargetPlatform.iOS;
 
   static Future<bool> purchaseCoachMonthly() async {
     if (!isSupportedPlatform) return false;

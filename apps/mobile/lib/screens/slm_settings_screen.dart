@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -153,18 +154,55 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildPrivacyBanner(),
-                const SizedBox(height: 16),
-                _buildModelCard(),
-                const SizedBox(height: 16),
-                _buildStatusCard(),
-                const SizedBox(height: 16),
-                _buildInfoCard(),
-              ]),
+              delegate: SliverChildListDelegate(
+                kIsWeb
+                    ? [_buildWebUnavailableBanner()]
+                    : [
+                        _buildPrivacyBanner(),
+                        const SizedBox(height: 16),
+                        _buildModelCard(),
+                        const SizedBox(height: 16),
+                        _buildStatusCard(),
+                        const SizedBox(height: 16),
+                        _buildInfoCard(),
+                      ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildWebUnavailableBanner() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(Icons.phone_android, size: 48, color: MintColors.primary),
+            const SizedBox(height: 16),
+            Text(
+              'Disponible sur mobile uniquement',
+              style: GoogleFonts.montserrat(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'L\'IA on-device utilise le processeur de ton telephone '
+              'pour generer des reponses 100% privees.\n\n'
+              'Cette fonctionnalite necessite iOS ou Android. '
+              'Le coach utilise des templates statiques en version web.',
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

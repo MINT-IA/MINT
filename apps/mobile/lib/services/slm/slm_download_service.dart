@@ -15,7 +15,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:mint_mobile/services/slm/gemma_interop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Download progress callback.
@@ -145,7 +145,9 @@ class SlmDownloadService {
   /// Check if model is installed via flutter_gemma's native check.
   ///
   /// This is the authoritative source of truth — not SharedPreferences.
+  /// Always returns false on web (native-only feature).
   Future<bool> get isModelReady async {
+    if (kIsWeb) return false;
     try {
       return await FlutterGemma.isModelInstalled(modelId);
     } catch (_) {
@@ -190,6 +192,10 @@ class SlmDownloadService {
     String? modelUrl,
     String? hfToken,
   }) async {
+    if (kIsWeb) {
+      debugPrint('[SLM] Download unavailable on web platform');
+      return false;
+    }
     if (_state == DownloadState.downloading) return false;
 
     _state = DownloadState.downloading;

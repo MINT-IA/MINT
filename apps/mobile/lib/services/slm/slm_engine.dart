@@ -22,7 +22,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:mint_mobile/services/slm/gemma_interop.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 
 /// Status of the SLM engine.
@@ -114,6 +114,13 @@ class SlmEngine {
   /// then creates an [InferenceModel] with GPU preferred (CPU fallback).
   /// Returns true if initialization succeeded.
   Future<bool> initialize() async {
+    // SLM requires native platform (iOS/Android) — not available on web.
+    if (kIsWeb) {
+      _status = SlmStatus.error;
+      debugPrint('[SLM] Engine unavailable on web platform');
+      return false;
+    }
+
     if (_status == SlmStatus.running && _model != null) return true;
 
     // Use flutter_gemma's native check instead of SharedPreferences path.

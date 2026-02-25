@@ -25,9 +25,10 @@ class ApiService {
     const defined = String.fromEnvironment('API_BASE_URL');
     if (defined.isNotEmpty) return defined;
     // Safe fallback: release builds must never point to localhost.
+    // Dev backend runs on port 8000 (uvicorn default).
     return kReleaseMode
         ? 'https://api.mint.ch/api/v1'
-        : 'http://localhost:8888/api/v1';
+        : 'http://localhost:8000/api/v1';
   })();
 
   // Helper method to get auth headers with JWT token
