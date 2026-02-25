@@ -309,7 +309,7 @@ class SlmDownloadService {
 
   /// Human-readable model size.
   static String get modelSizeFormatted {
-    final gb = _expectedSizeBytes / (1024 * 1024 * 1024);
+    const gb = _expectedSizeBytes / (1024 * 1024 * 1024);
     return '${gb.toStringAsFixed(1)} Go';
   }
 

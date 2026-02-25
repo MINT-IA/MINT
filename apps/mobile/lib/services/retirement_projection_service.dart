@@ -177,7 +177,7 @@ class RetirementProjectionService {
   static const double _inflationRate = 0.015;
   static const int _projectionYears = 25;
   static const int _lifeExpectancy = 87;
-  static const double _3aAnnualizationYears = 20.0;
+  static const double _threeAAnnualizationYears = 20.0;
   static const double _safeWithdrawalRate = 0.04;
 
   // ════════════════════════════════════════════════════════════
@@ -452,7 +452,7 @@ class RetirementProjectionService {
       sources.add(RetirementIncomeSource(
         id: '3a',
         label: '3e pilier',
-        monthlyAmount: threeACapital / _3aAnnualizationYears / 12,
+        monthlyAmount: threeACapital / _threeAAnnualizationYears / 12,
         color: color3a,
       ));
     }
@@ -617,12 +617,12 @@ class RetirementProjectionService {
           final consumed = phase1_3a * 12 * transitionYears;
           // Remaining 3a capital = original - consumed, re-annualized
           final original3aMonthly =
-              src.monthlyAmount * _3aAnnualizationYears * 12;
+              src.monthlyAmount * _threeAAnnualizationYears * 12;
           final remaining = (original3aMonthly - consumed).clamp(0.0, double.infinity);
           phase2Sources[i] = RetirementIncomeSource(
             id: src.id,
             label: src.label,
-            monthlyAmount: remaining / _3aAnnualizationYears / 12,
+            monthlyAmount: remaining / _threeAAnnualizationYears / 12,
             color: src.color,
             isIndexed: src.isIndexed,
           );
@@ -825,7 +825,7 @@ class RetirementProjectionService {
       sources.add(RetirementIncomeSource(
         id: '3a',
         label: '3e pilier',
-        monthlyAmount: threeACapital / _3aAnnualizationYears / 12,
+        monthlyAmount: threeACapital / _threeAAnnualizationYears / 12,
         color: color3a,
       ));
     }
@@ -909,7 +909,7 @@ class RetirementProjectionService {
 
       final yearsThis = _lifeExpectancy - age;
       final yearsRef = _lifeExpectancy - 65;
-      final cumulative =
+      const cumulative =
           (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
 
       scenarios.add(EarlyRetirementScenario(

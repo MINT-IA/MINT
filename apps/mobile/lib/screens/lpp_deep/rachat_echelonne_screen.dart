@@ -1416,9 +1416,9 @@ class _WaterfallPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double chartLeft = 70;
+    const double chartLeft = 70;
     final double chartRight = size.width - 16;
-    final double chartTop = 10;
+    const double chartTop = 10;
     final double chartBottom = size.height - 40;
     final double chartWidth = chartRight - chartLeft;
     final double chartHeight = chartBottom - chartTop;
@@ -1561,7 +1561,7 @@ class _WaterfallPainter extends CustomPainter {
 
   double _getBarHeight(double deduction, double chartHeight) {
     // Max deduction for scale = 200k (matches slider max)
-    final maxDeduction = 500000.0;
+    const maxDeduction = 500000.0;
     return (deduction / maxDeduction * chartHeight).clamp(8.0, chartHeight);
   }
 

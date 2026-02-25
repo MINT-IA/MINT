@@ -240,7 +240,7 @@ class FinancialReportService {
     double? savings;
 
     if (lppBuybackAvailable > 50000) {
-      final buybackAmount = 50000.0; // 1ère tranche recommandée
+      const buybackAmount = 50000.0; // 1ère tranche recommandée
       final taxableWithBuyback = taxableIncome - buybackAmount;
       final rateWithBuyback = _estimateEffectiveRate(
           taxableWithBuyback, profile.canton, profile.isMarried);
@@ -299,7 +299,7 @@ class FinancialReportService {
 
     // Rentes
     final monthlyAvsRent = _estimateAvsRent(profile);
-    final lppConversionRate = 0.06; // 6% taux conversion (hypothèse prudente)
+    const lppConversionRate = 0.06; // 6% taux conversion (hypothèse prudente)
     final monthlyLppRent = (lppCapital * lppConversionRate) / 12;
 
     return RetirementProjection(

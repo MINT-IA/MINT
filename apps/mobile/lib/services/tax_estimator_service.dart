@@ -53,7 +53,7 @@ class TaxEstimatorService {
     // Simplification: déduction forfaitaire de 15% pour célibataire, 12% pour marié
     // (le splitting réduit déjà l'impôt pour les mariés).
     final double netAnnual = netMonthlyIncome * 12;
-    final double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
+    const double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
     final double taxableIncomeApprox = netAnnual * (1 - deductionRate);
 
     // TENTATIVE DE CALCUL PRÉCIS (DATA RÉELLE)
@@ -115,7 +115,7 @@ class TaxEstimatorService {
     String? communeName, // Commune pour multiplicateur précis
   }) {
     // Apply same deductions as estimateAnnualTax (LIFD art. 26, 33, 33a)
-    final double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
+    const double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
     final double taxableIncome = netMonthlyIncome * 12 * (1 - deductionRate);
 
     // Mapping statut

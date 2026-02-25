@@ -190,9 +190,9 @@ class _FriChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (history.length < 2) return;
 
-    final chartLeft = _leftPadding;
+    const chartLeft = _leftPadding;
     final chartRight = size.width - _rightPadding;
-    final chartTop = _topPadding;
+    const chartTop = _topPadding;
     final chartBottom = size.height - _bottomPadding;
     final chartWidth = chartRight - chartLeft;
     final chartHeight = chartBottom - chartTop;

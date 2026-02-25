@@ -478,7 +478,7 @@ void main() {
     });
 
     test('copyWith creates new config with updated fields', () {
-      final original = LlmConfig.defaultOpenAI;
+      const original = LlmConfig.defaultOpenAI;
       final updated = original.copyWith(apiKey: 'new-key');
 
       expect(updated.apiKey, 'new-key');

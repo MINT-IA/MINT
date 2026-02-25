@@ -74,6 +74,7 @@ void main() {
       await tester.tap(find.byType(MintTrajectoryChart).first);
       await tester.pump();
       // No crash = success
+      expect(tapped, isTrue);
       expect(find.byType(MintTrajectoryChart), findsOneWidget);
     });
 

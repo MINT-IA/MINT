@@ -282,7 +282,7 @@ class FamilyService {
 
   static double _estimateSingleTax(double revenu, double baseRate) {
     if (revenu <= 0) return 0.0;
-    final deductions = deductionAssuranceCelibataire;
+    const deductions = deductionAssuranceCelibataire;
     final imposable = max(0.0, revenu - deductions);
     final adj = _incomeAdjustment(imposable);
     return imposable * baseRate * adj;
@@ -335,7 +335,7 @@ class FamilyService {
     final perteSalaire = max(0.0, salairePendant - totalApg);
 
     final isCapped = salaireJournalier * apgReplacementRate > apgDailyMax;
-    final plafondMensuel = apgDailyMax * 30;
+    const plafondMensuel = apgDailyMax * 30;
 
     return {
       'isMother': isMother,
@@ -484,7 +484,7 @@ class FamilyService {
     );
 
     // AVS survivor
-    final avsSurvivorRente = avsRenteMaxMensuelle * avsSurvivorFactor;
+    const avsSurvivorRente = avsRenteMaxMensuelle * avsSurvivorFactor;
 
     // Score comparison
     int scoreMariage = 0;

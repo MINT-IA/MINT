@@ -459,8 +459,8 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
   Widget _buildComparisonBars() {
     final r = _result!;
-    final petit = pilier3aPlafondAvecLpp;
-    final grand = pilier3aPlafondSansLpp;
+    const petit = pilier3aPlafondAvecLpp;
+    const grand = pilier3aPlafondSansLpp;
     final plafondIndep = r.plafond;
 
     return Container(

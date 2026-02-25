@@ -581,7 +581,7 @@ class IndependantsService {
     final anneesRestantes = max(65 - age, 0);
 
     // Without LPP: AVS only (LAVS art. 34, max rente = 2520 × 12)
-    final renteAvsMax = avsRenteMaxMensuelle * 12; // 30240 CHF
+    const renteAvsMax = avsRenteMaxMensuelle * 12; // 30240 CHF
     final projectionSansLpp = renteAvsMax;
 
     // With LPP: project capital at retirement

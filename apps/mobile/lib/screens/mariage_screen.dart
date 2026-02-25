@@ -942,7 +942,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab3Protection() {
-    final avsSurvivor = avsRenteMaxMensuelle *
+    const avsSurvivor = avsRenteMaxMensuelle *
         FamilyService.avsSurvivorFactor;
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
     final totalSurvivor = avsSurvivor + lppSurvivor;

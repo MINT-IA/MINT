@@ -20,8 +20,8 @@ class LibrePassageScreen extends StatefulWidget {
 class _LibrePassageScreenState extends State<LibrePassageScreen> {
   LibrePassageStatut _statut = LibrePassageStatut.changementEmploi;
   bool _hasNewEmployer = true;
-  double _avoir = 150000;
-  int _age = 35;
+  final double _avoir = 150000;
+  final int _age = 35;
 
   LibrePassageResult get _result => LibrePassageAdvisor.analyze(
         statut: _statut,

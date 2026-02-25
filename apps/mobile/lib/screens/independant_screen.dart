@@ -24,12 +24,12 @@ class IndependantScreen extends StatefulWidget {
 class _IndependantScreenState extends State<IndependantScreen> {
   // ── State ──────────────────────────────────────────────────
   double _revenuNet = 80000;
-  int _age = 42;
+  final int _age = 42;
   bool _hasLpp = false;
   bool _hasIjm = false;
   bool _hasLaa = false;
   bool _has3a = false;
-  String _canton = 'VD';
+  final String _canton = 'VD';
 
   IndependantResult? _result;
 
