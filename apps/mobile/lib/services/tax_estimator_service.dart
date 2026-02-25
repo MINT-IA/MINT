@@ -50,10 +50,10 @@ class TaxEstimatorService {
     //   - Frais professionnels forfaitaires: ~4'000 CHF
     //   - Assurances/prévoyance (LIFD art. 33): ~2'600 (célibataire) / ~5'200 (marié)
     //   - 3a éventuel: jusqu'à 7'258 CHF
-    // Simplification: déduction forfaitaire de 15% pour célibataire, 12% pour marié
-    // (le splitting réduit déjà l'impôt pour les mariés).
+    // Simplification: déduction forfaitaire identique de 15% (LIFD art. 26, 33, 33a).
+    // L'avantage marié vient des barèmes séparés ou du splitting (cantons "All").
     final double netAnnual = netMonthlyIncome * 12;
-    final double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
+    final double deductionRate = 0.15;
     final double taxableIncomeApprox = netAnnual * (1 - deductionRate);
 
     // TENTATIVE DE CALCUL PRÉCIS (DATA RÉELLE)
@@ -115,7 +115,7 @@ class TaxEstimatorService {
     String? communeName, // Commune pour multiplicateur précis
   }) {
     // Apply same deductions as estimateAnnualTax (LIFD art. 26, 33, 33a)
-    final double deductionRate = (civilStatus == 'married') ? 0.12 : 0.15;
+    final double deductionRate = 0.15;
     final double taxableIncome = netMonthlyIncome * 12 * (1 - deductionRate);
 
     // Mapping statut
