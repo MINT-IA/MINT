@@ -127,6 +127,8 @@ import 'package:mint_mobile/screens/arbitrage/rachat_vs_marche_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/calendrier_retraits_screen.dart';
 import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
+import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
+import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -218,7 +220,8 @@ final _router = GoRouter(
           contextData = extra;
         }
         final sectionFromQuery = state.uri.queryParameters['section'];
-        final section = (contextData?['section'] as String?) ?? sectionFromQuery;
+        final section =
+            (contextData?['section'] as String?) ?? sectionFromQuery;
         return AdvisorWizardScreenV2(
           initialSection: section,
         );
@@ -268,6 +271,16 @@ final _router = GoRouter(
         final id = state.pathParameters['id']!;
         return DocumentDetailScreen(documentId: id);
       },
+    ),
+    GoRoute(
+      path: '/document-scan',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DocumentScanScreen(),
+    ),
+    GoRoute(
+      path: '/document-scan/avs-guide',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AvsGuideScreen(),
     ),
     // Bank Import
     GoRoute(
@@ -885,7 +898,8 @@ class _MintErrorScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.explore_off_outlined, size: 64, color: Colors.grey),
+              const Icon(Icons.explore_off_outlined,
+                  size: 64, color: Colors.grey),
               const SizedBox(height: 24),
               const Text(
                 'Cette page n\'existe pas ou a ete deplacee.',

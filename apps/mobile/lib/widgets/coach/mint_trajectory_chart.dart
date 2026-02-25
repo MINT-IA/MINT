@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 
@@ -38,6 +39,12 @@ class MintTrajectoryChart extends StatefulWidget {
   /// Label du Goal A (ex: "Retraite")
   final String? goalALabel;
 
+  /// Type de Goal A pour adapter la metrique affichee.
+  final GoalAType? goalAType;
+
+  /// Dette totale actuelle (utilisee uniquement pour goal debtFree).
+  final double initialDebt;
+
   /// Callback au tap
   final VoidCallback? onTap;
 
@@ -45,6 +52,8 @@ class MintTrajectoryChart extends StatefulWidget {
     super.key,
     required this.result,
     this.goalALabel,
+    this.goalAType,
+    this.initialDebt = 0,
     this.onTap,
   });
 
@@ -62,6 +71,35 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   /// True while the user is dragging/scrubbing across the chart
   bool _isDragging = false;
+
+  bool get _isDebtGoal =>
+      widget.goalAType == GoalAType.debtFree && widget.initialDebt > 0;
+
+  List<ProjectionPoint> get _displayBasePoints =>
+      _toDisplayPoints(widget.result.base.points);
+  List<ProjectionPoint> get _displayPrudentPoints =>
+      _toDisplayPoints(widget.result.prudent.points);
+  List<ProjectionPoint> get _displayOptimistePoints =>
+      _toDisplayPoints(widget.result.optimiste.points);
+
+  double get _displayBaseFinal => _displayBasePoints.isNotEmpty
+      ? _displayBasePoints.last.capitalCumule
+      : 0.0;
+
+  List<ProjectionPoint> _toDisplayPoints(List<ProjectionPoint> source) {
+    if (!_isDebtGoal || source.isEmpty) return source;
+    final startCapital = source.first.capitalCumule;
+    return source.map((p) {
+      final repaid = max(0.0, p.capitalCumule - startCapital);
+      final remaining = max(0.0, widget.initialDebt - repaid);
+      return ProjectionPoint(
+        date: p.date,
+        capitalCumule: remaining,
+        contributionMensuelle: p.contributionMensuelle,
+        rendementCumule: p.rendementCumule,
+      );
+    }).toList(growable: false);
+  }
 
   @override
   void initState() {
@@ -94,13 +132,15 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
-    final hasPoints = widget.result.base.points.isNotEmpty;
+    final hasPoints = _displayBasePoints.isNotEmpty;
 
     return Semantics(
-      label: 'Graphique de trajectoire financière. '
-          'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}. '
-          'Taux de remplacement estimé : ${widget.result.tauxRemplacementBase.round()} pour cent.',
+      label: _isDebtGoal
+          ? 'Graphique de trajectoire de dette. '
+              'Dette restante estimée en fin de période : ${_formatChf(_displayBaseFinal)}.'
+          : 'Graphique de trajectoire financière. '
+              'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}. '
+              'Taux de remplacement estimé : ${widget.result.tauxRemplacementBase.round()} pour cent.',
       child: GestureDetector(
         onTap: hasPoints ? _handleTap : widget.onTap,
         onTapDown: hasPoints ? _handleTapDown : null,
@@ -135,7 +175,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                     _buildLegend(),
                     if (_selectedPointIndex == null) _buildScrubHint(),
                     const SizedBox(height: 12),
-                    _buildTauxRemplacement(),
+                    _isDebtGoal ? _buildDebtMetric() : _buildTauxRemplacement(),
                   ] else
                     _buildEmptyState(),
                   const SizedBox(height: 12),
@@ -165,8 +205,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
     if (chartWidth <= 0) return null;
 
-    final relativeX =
-        ((dx - chartLeft) / chartWidth).clamp(0.0, 1.0);
+    final relativeX = ((dx - chartLeft) / chartWidth).clamp(0.0, 1.0);
     final pointIndex = (relativeX * (points.length - 1)).round();
     return pointIndex.clamp(0, points.length - 1);
   }
@@ -223,6 +262,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   Widget _buildHeader() {
     final s = S.of(context);
     final yearsToTarget = _yearsToTarget();
+    final subtitle = _isDebtGoal
+        ? 'Dette restante · $yearsToTarget ans'
+        : (s?.trajectorySubtitle(yearsToTarget.toString()) ??
+            '3 scénarios · $yearsToTarget ans');
     return Row(
       children: [
         Container(
@@ -252,7 +295,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                 ),
               ),
               Text(
-                s?.trajectorySubtitle(yearsToTarget.toString()) ?? '3 scénarios · $yearsToTarget ans',
+                subtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -269,7 +312,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            _formatChf(widget.result.base.capitalFinal),
+            _formatChf(_isDebtGoal
+                ? _displayBaseFinal
+                : widget.result.base.capitalFinal),
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -299,16 +344,17 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
               // Main chart
               CustomPaint(
                 painter: _TrajectoryPainter(
-                  prudentPoints: widget.result.prudent.points,
-                  basePoints: widget.result.base.points,
-                  optimistePoints: widget.result.optimiste.points,
+                  prudentPoints: _displayPrudentPoints,
+                  basePoints: _displayBasePoints,
+                  optimistePoints: _displayOptimistePoints,
                   milestones: widget.result.milestones,
                   progress: _drawAnimation.value,
                   goalALabel: widget.goalALabel,
                   selectedIndex: _selectedPointIndex,
                   prudentLabel: S.of(context)?.trajectoryPrudent ?? 'Prudent',
                   baseLabel: S.of(context)?.trajectoryBase ?? 'Base',
-                  optimisteLabel: S.of(context)?.trajectoryOptimiste ?? 'Optimiste',
+                  optimisteLabel:
+                      S.of(context)?.trajectoryOptimiste ?? 'Optimiste',
                   goalLabel: S.of(context)?.trajectoryGoalLabel ?? 'Cible',
                 ),
                 size: Size(availableWidth, chartHeight),
@@ -325,14 +371,14 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   }
 
   Widget _buildTooltip(double chartWidth, double chartHeight) {
-    final points = widget.result.base.points;
+    final points = _displayBasePoints;
     final index = _selectedPointIndex!;
     final basePoint = points[index];
-    final prudentPoint = widget.result.prudent.points.length > index
-        ? widget.result.prudent.points[index]
+    final prudentPoint = _displayPrudentPoints.length > index
+        ? _displayPrudentPoints[index]
         : null;
-    final optimistePoint = widget.result.optimiste.points.length > index
-        ? widget.result.optimiste.points[index]
+    final optimistePoint = _displayOptimistePoints.length > index
+        ? _displayOptimistePoints[index]
         : null;
 
     // Compute approximate x position
@@ -526,7 +572,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
     final taux = widget.result.tauxRemplacementBase.clamp(0.0, 200.0);
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
-    final color = isGood ? MintColors.scoreExcellent : MintColors.scoreAttention;
+    final color =
+        isGood ? MintColors.scoreExcellent : MintColors.scoreAttention;
 
     return AnimatedBuilder(
       animation: _drawAnimation,
@@ -554,7 +601,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                         color: MintColors.textPrimary,
                       ),
                       children: [
-                        TextSpan(text: s?.trajectoryTauxRemplacement ?? 'Taux de remplacement estimé : '),
+                        TextSpan(
+                            text: s?.trajectoryTauxRemplacement ??
+                                'Taux de remplacement estimé : '),
                         TextSpan(
                           text: '${taux.round()}%',
                           style: GoogleFonts.montserrat(
@@ -572,6 +621,45 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildDebtMetric() {
+    final debtLeft = _displayBaseFinal.clamp(0.0, double.infinity);
+    final debtPaid =
+        (widget.initialDebt - debtLeft).clamp(0.0, widget.initialDebt);
+    final paidRatio =
+        widget.initialDebt > 0 ? (debtPaid / widget.initialDebt) : 0.0;
+    final isGood = debtLeft <= 1.0;
+    final icon = isGood ? Icons.check_circle_outline : Icons.info_outline;
+    final color =
+        isGood ? MintColors.scoreExcellent : MintColors.scoreAttention;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              isGood
+                  ? 'Objectif dette zéro atteint sur cet horizon.'
+                  : 'Dette restante estimée : ${_formatChf(debtLeft)} '
+                      '(${(paidRatio * 100).round()}% remboursée).',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -602,7 +690,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           ),
           const SizedBox(height: 4),
           Text(
-            s?.trajectoryEmptySub ?? 'Complète ton profil pour voir ta trajectoire',
+            s?.trajectoryEmptySub ??
+                'Complète ton profil pour voir ta trajectoire',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted.withValues(alpha: 0.7),
@@ -620,7 +709,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   Widget _buildDisclaimer() {
     final s = S.of(context);
     return Text(
-      s?.trajectoryDisclaimer ?? 'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
+      s?.trajectoryDisclaimer ??
+          'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,
@@ -657,8 +747,18 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   static String _formatDate(DateTime date) {
     const months = [
-      'janv.', 'fevr.', 'mars', 'avr.', 'mai', 'juin',
-      'juil.', 'aout', 'sept.', 'oct.', 'nov.', 'dec.',
+      'janv.',
+      'fevr.',
+      'mars',
+      'avr.',
+      'mai',
+      'juin',
+      'juil.',
+      'aout',
+      'sept.',
+      'oct.',
+      'nov.',
+      'dec.',
     ];
     return '${months[date.month - 1]} ${date.year}';
   }
@@ -740,18 +840,24 @@ class _TrajectoryPainter extends CustomPainter {
 
     // Total points (use base as reference)
     final totalPoints = basePoints.length;
-    final visiblePoints = (totalPoints * progress).round().clamp(1, totalPoints);
+    final visiblePoints =
+        (totalPoints * progress).round().clamp(1, totalPoints);
 
     // ── Draw axes ──
-    _drawAxes(canvas, size, chartLeft, chartTop, chartRight, chartBottom,
-        minY, maxY);
+    _drawAxes(
+        canvas, size, chartLeft, chartTop, chartRight, chartBottom, minY, maxY);
 
     // ── Draw filled region between optimiste and prudent ──
     if (optimistePoints.isNotEmpty && prudentPoints.isNotEmpty) {
       _drawFillRegion(
         canvas,
-        chartLeft, chartTop, chartWidth, chartHeight,
-        minY, maxY, visiblePoints,
+        chartLeft,
+        chartTop,
+        chartWidth,
+        chartHeight,
+        minY,
+        maxY,
+        visiblePoints,
       );
     }
 
@@ -762,8 +868,13 @@ class _TrajectoryPainter extends CustomPainter {
         canvas,
         prudentPoints,
         MintColors.trajectoryPrudent,
-        chartLeft, chartTop, chartWidth, chartHeight,
-        minY, maxY, visiblePoints,
+        chartLeft,
+        chartTop,
+        chartWidth,
+        chartHeight,
+        minY,
+        maxY,
+        visiblePoints,
         dashed: true,
         strokeWidth: 2.0,
       );
@@ -774,8 +885,13 @@ class _TrajectoryPainter extends CustomPainter {
       canvas,
       basePoints,
       MintColors.trajectoryBase,
-      chartLeft, chartTop, chartWidth, chartHeight,
-      minY, maxY, visiblePoints,
+      chartLeft,
+      chartTop,
+      chartWidth,
+      chartHeight,
+      minY,
+      maxY,
+      visiblePoints,
       dashed: false,
       strokeWidth: 3.0,
     );
@@ -786,8 +902,13 @@ class _TrajectoryPainter extends CustomPainter {
         canvas,
         optimistePoints,
         MintColors.trajectoryOptimiste,
-        chartLeft, chartTop, chartWidth, chartHeight,
-        minY, maxY, visiblePoints,
+        chartLeft,
+        chartTop,
+        chartWidth,
+        chartHeight,
+        minY,
+        maxY,
+        visiblePoints,
         dashed: true,
         strokeWidth: 2.0,
       );
@@ -796,8 +917,13 @@ class _TrajectoryPainter extends CustomPainter {
     // ── Milestone markers on base line ──
     _drawMilestones(
       canvas,
-      chartLeft, chartTop, chartWidth, chartHeight,
-      minY, maxY, visiblePoints,
+      chartLeft,
+      chartTop,
+      chartWidth,
+      chartHeight,
+      minY,
+      maxY,
+      visiblePoints,
     );
 
     // ── Goal A marker (vertical dashed line at end) ──
@@ -807,15 +933,25 @@ class _TrajectoryPainter extends CustomPainter {
 
     // ── Current position dot (animated pulse at x=0) ──
     _drawCurrentPositionDot(
-      canvas, chartLeft, chartTop, chartHeight, minY, maxY,
+      canvas,
+      chartLeft,
+      chartTop,
+      chartHeight,
+      minY,
+      maxY,
     );
 
     // ── Capital labels at end of each line ──
     if (visiblePoints >= totalPoints && progress > 0.9) {
       _drawEndLabels(
-        canvas, size,
-        chartLeft, chartTop, chartWidth, chartHeight,
-        minY, maxY,
+        canvas,
+        size,
+        chartLeft,
+        chartTop,
+        chartWidth,
+        chartHeight,
+        minY,
+        maxY,
       );
     }
 
@@ -825,8 +961,13 @@ class _TrajectoryPainter extends CustomPainter {
         selectedIndex! < basePoints.length) {
       _drawSelectedLine(
         canvas,
-        chartLeft, chartTop, chartWidth, chartHeight, chartBottom,
-        minY, maxY,
+        chartLeft,
+        chartTop,
+        chartWidth,
+        chartHeight,
+        chartBottom,
+        minY,
+        maxY,
       );
     }
   }
@@ -887,7 +1028,11 @@ class _TrajectoryPainter extends CustomPainter {
 
       // Show year labels at regular intervals
       final yearSpan = lastYear - firstYear;
-      final yearStep = yearSpan <= 10 ? 2 : yearSpan <= 20 ? 5 : 10;
+      final yearStep = yearSpan <= 10
+          ? 2
+          : yearSpan <= 20
+              ? 5
+              : 10;
 
       for (int year = firstYear; year <= lastYear; year += yearStep) {
         // Find the approximate index for this year
@@ -953,8 +1098,7 @@ class _TrajectoryPainter extends CustomPainter {
     // Top edge (optimiste, left to right)
     for (int i = 0; i < len; i++) {
       final x = chartLeft + (i / (basePoints.length - 1)) * chartWidth;
-      final yFrac =
-          (optimistePoints[i].capitalCumule - minY) / (maxY - minY);
+      final yFrac = (optimistePoints[i].capitalCumule - minY) / (maxY - minY);
       final y = chartTop + chartHeight - yFrac * chartHeight;
       if (i == 0) {
         path.moveTo(x, y);
@@ -966,8 +1110,7 @@ class _TrajectoryPainter extends CustomPainter {
     // Bottom edge (prudent, right to left)
     for (int i = len - 1; i >= 0; i--) {
       final x = chartLeft + (i / (basePoints.length - 1)) * chartWidth;
-      final yFrac =
-          (prudentPoints[i].capitalCumule - minY) / (maxY - minY);
+      final yFrac = (prudentPoints[i].capitalCumule - minY) / (maxY - minY);
       final y = chartTop + chartHeight - yFrac * chartHeight;
       path.lineTo(x, y);
     }
@@ -1077,8 +1220,7 @@ class _TrajectoryPainter extends CustomPainter {
 
     for (final milestone in milestones) {
       // Find the month index for this milestone
-      final monthsFromStart =
-          (milestone.date.year - firstDate.year) * 12 +
+      final monthsFromStart = (milestone.date.year - firstDate.year) * 12 +
           (milestone.date.month - firstDate.month);
 
       if (monthsFromStart < 0 || monthsFromStart >= visiblePoints) continue;

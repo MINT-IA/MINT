@@ -113,7 +113,8 @@ class ArbitrageEngine {
     final options = [optionA, optionB, optionC];
 
     // Breakeven: year where capital cumulative cashflow exceeds rente
-    final breakevenYear = _findBreakevenYear(renteTrajectory, capitalTrajectory);
+    final breakevenYear =
+        _findBreakevenYear(renteTrajectory, capitalTrajectory);
 
     final sensitivity = <String, double>{};
     final baseSpread = _terminalSpreadFromOptions(options);
@@ -134,8 +135,8 @@ class ArbitrageEngine {
         inflation: inflation,
         isMarried: isMarried,
       );
-      final variantRenteMixte =
-          (capitalObligatoire * variantTcOblig) + (capitalSurobligatoire * variantTcSurob);
+      final variantRenteMixte = (capitalObligatoire * variantTcOblig) +
+          (capitalSurobligatoire * variantTcSurob);
       final variantMixed = _buildMixedTrajectory(
         renteObligatoire: variantRenteMixte,
         capitalSurobligatoire: capitalSurobligatoire,
@@ -811,18 +812,17 @@ class ArbitrageEngine {
     final options = [optionA, optionB];
     final breakevenYear = _findBreakevenYear(rentSnapshots, buySnapshots);
 
-    final delta =
-        (optionA.terminalValue - optionB.terminalValue).abs();
+    final delta = (optionA.terminalValue - optionB.terminalValue).abs();
     final betterLabel =
         optionA.terminalValue > optionB.terminalValue ? 'louer' : 'acheter';
-    final chiffreChoc =
-        'Dans ce scenario simule, $betterLabel genere '
+    final chiffreChoc = 'Dans ce scenario simule, $betterLabel genere '
         '~${_formatChf(delta)} de patrimoine net supplementaire sur '
         '$horizonAnnees ans.';
 
     // FINMA affordability check
     final alertes = <String>[];
-    final chargesTheorique = prixBien * 0.05 + prixBien * 0.01 + prixBien * 0.01;
+    final chargesTheorique =
+        prixBien * 0.05 + prixBien * 0.01 + prixBien * 0.01;
     // We can't know gross income here, but flag the theoretical charge
     alertes.add(
       'Charge theorique FINMA : ${_formatChf(chargesTheorique)}/an '
@@ -1060,7 +1060,8 @@ class ArbitrageEngine {
         canton: canton,
         isMarried: isMarried,
       );
-      final netLppVariant = balanceLppVariant - withdrawalTaxVariant + taxSavingVariant;
+      final netLppVariant =
+          balanceLppVariant - withdrawalTaxVariant + taxSavingVariant;
 
       double balanceMarcheVariant = montant;
       for (int i = 0; i < variantAnnees; i++) {
@@ -1253,10 +1254,12 @@ class ArbitrageEngine {
     // ── Option B: Etale sur plusieurs annees ──
     // Sort assets by earliest withdrawal age (ascending)
     final sortedAssets = List<RetirementAsset>.from(assets)
-      ..sort((a, b) => a.earliestWithdrawalAge.compareTo(b.earliestWithdrawalAge));
+      ..sort(
+          (a, b) => a.earliestWithdrawalAge.compareTo(b.earliestWithdrawalAge));
 
     double totalTaxEtale = 0;
-    final withdrawalPlan = <({String type, double amount, int age, double tax})>[];
+    final withdrawalPlan =
+        <({String type, double amount, int age, double tax})>[];
 
     for (final asset in sortedAssets) {
       final tax = RetirementTaxCalculator.capitalWithdrawalTax(
@@ -1338,13 +1341,13 @@ class ArbitrageEngine {
         ? 'Tu economiserais ~${_formatChf(taxSaved)} d\'impot en etalant tes retraits.'
         : 'Dans ce cas, l\'ecart d\'impot est de ${_formatChf(taxSaved.abs())}.';
 
-    final displaySummary =
-        'Retrait total : ${_formatChf(totalCapital)}. '
+    final displaySummary = 'Retrait total : ${_formatChf(totalCapital)}. '
         'Impot "tout en un" : ${_formatChf(taxToutEnUn)} vs '
         'impot etale : ${_formatChf(totalTaxEtale)}.';
 
     final withdrawalDetails = withdrawalPlan
-        .map((w) => '${w.type.toUpperCase()} : ${_formatChf(w.amount)} a ${w.age} ans '
+        .map((w) =>
+            '${w.type.toUpperCase()} : ${_formatChf(w.amount)} a ${w.age} ans '
             '(impot : ${_formatChf(w.tax)})')
         .toList();
 
@@ -1756,28 +1759,28 @@ class ArbitrageEngine {
     return snapshots;
   }
 
-  /// Find the year where capital cumulative patrimony exceeds rente.
-  /// Returns null if they never cross.
+  /// Find the first year index where the ordering between trajectories changes.
+  /// Returns null if they never cross on the horizon.
   static int? _findBreakevenYear(
     List<YearlySnapshot> renteTrajectory,
     List<YearlySnapshot> capitalTrajectory,
   ) {
-    final maxLen =
-        math.min(renteTrajectory.length, capitalTrajectory.length);
-    // Check if capital starts below rente (typical case)
-    bool capitalStartsBelow = false;
-    for (int i = 1; i < maxLen; i++) {
-      if (capitalTrajectory[i].netPatrimony <
-          renteTrajectory[i].netPatrimony) {
-        capitalStartsBelow = true;
-        break;
-      }
-    }
-    if (!capitalStartsBelow) return null;
+    final maxLen = math.min(renteTrajectory.length, capitalTrajectory.length);
+    if (maxLen <= 1) return null;
 
     for (int i = 1; i < maxLen; i++) {
-      if (capitalTrajectory[i].netPatrimony >=
-          renteTrajectory[i].netPatrimony) {
+      final prevDelta = capitalTrajectory[i - 1].netPatrimony -
+          renteTrajectory[i - 1].netPatrimony;
+      final currDelta =
+          capitalTrajectory[i].netPatrimony - renteTrajectory[i].netPatrimony;
+
+      if (currDelta == 0) {
+        return i;
+      }
+
+      final hasSignChange =
+          (prevDelta < 0 && currDelta > 0) || (prevDelta > 0 && currDelta < 0);
+      if (hasSignChange) {
         return i;
       }
     }

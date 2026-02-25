@@ -13,6 +13,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
   final int ageRetraite;
   final int horizon;
   final Map<String, double>? sensitivity;
+  final bool showCalendarYear;
 
   const BreakevenIndicatorWidget({
     super.key,
@@ -20,6 +21,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
     this.ageRetraite = 65,
     this.horizon = 25,
     this.sensitivity,
+    this.showCalendarYear = true,
   });
 
   @override
@@ -28,6 +30,11 @@ class BreakevenIndicatorWidget extends StatelessWidget {
     final crossoverAge = hasCrossover ? ageRetraite + breakevenYear! : 0;
     final crossoverCalendarYear =
         hasCrossover ? DateTime.now().year + breakevenYear! : 0;
+    final crossoverText = _buildCrossoverText(
+      hasCrossover: hasCrossover,
+      crossoverAge: crossoverAge,
+      crossoverCalendarYear: crossoverCalendarYear,
+    );
 
     return Container(
       width: double.infinity,
@@ -61,9 +68,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
 
           // Main text
           Text(
-            hasCrossover
-                ? 'Les trajectoires se croisent a l\'age de $crossoverAge ans ($crossoverCalendarYear).'
-                : 'Les trajectoires ne se croisent pas sur cet horizon de $horizon ans.',
+            crossoverText,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -113,6 +118,23 @@ class BreakevenIndicatorWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _buildCrossoverText({
+    required bool hasCrossover,
+    required int crossoverAge,
+    required int crossoverCalendarYear,
+  }) {
+    if (!hasCrossover) {
+      return 'Les trajectoires ne se croisent pas sur cet horizon de $horizon ans.';
+    }
+    if (ageRetraite > 0 && showCalendarYear) {
+      return 'Les trajectoires se croisent a l\'age de $crossoverAge ans ($crossoverCalendarYear).';
+    }
+    if (ageRetraite > 0) {
+      return 'Les trajectoires se croisent a l\'age de $crossoverAge ans.';
+    }
+    return 'Les trajectoires se croisent vers $crossoverCalendarYear.';
   }
 
   static String _formatChf(double value) {

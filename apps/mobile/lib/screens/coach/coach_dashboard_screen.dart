@@ -91,6 +91,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   CoachNarrativeMode _narrativeMode = CoachNarrativeMode.detailed;
   String? _lastScoreDeltaReason;
   int? _lastScoreDeltaPersisted;
+  bool _compactMode = true;
 
   // Chiffre choc emotional narratives (LLM-generated via BYOK)
   Map<String, String> _chiffreChocNarratives = {};
@@ -430,7 +431,8 @@ Si une categorie ne s'applique pas, omets-la.
     // AVS gap
     final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
-      final perteTotaleAnnuelle = AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
+      final perteTotaleAnnuelle =
+          AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
       buffer.writeln(
           'AVS: CHF ${perteTotaleRetraite.toStringAsFixed(0)} de rente AVS perdue sur 20 ans de retraite avec $lacunesAVS annee(s) de cotisation manquante(s).');
@@ -900,25 +902,33 @@ Si une categorie ne s'applique pas, omets-la.
                 if (_showRefreshBanner) _buildRefreshBanner(),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
-                _buildScoreSection(),
-                _buildScoreAttribution(),
-                _buildStreakBadge(),
-                _buildScoreTrendText(),
-                _buildScoreHistorySection(),
+                _buildCoachVivantHubSection(),
                 const SizedBox(height: 24),
-                _buildNowVsWithCard(),
+                _buildScoreSection(),
+                const SizedBox(height: 24),
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
                 _buildTrajectorySection(),
-                _buildScenarioNarrations(),
-                const SizedBox(height: 12),
-                _buildEtSiPanel(),
-                const SizedBox(height: 24),
-                _buildBenchmarkSection(),
                 const SizedBox(height: 24),
                 _buildQuickActions(),
-                const SizedBox(height: 24),
-                _buildStreakMilestoneSection(),
+                const SizedBox(height: 12),
+                _buildDashboardDensityToggle(),
+                if (!_compactMode) ...[
+                  const SizedBox(height: 24),
+                  _buildScoreAttribution(),
+                  _buildStreakBadge(),
+                  _buildScoreTrendText(),
+                  _buildScoreHistorySection(),
+                  const SizedBox(height: 24),
+                  _buildNowVsWithCard(),
+                  _buildScenarioNarrations(),
+                  const SizedBox(height: 12),
+                  _buildEtSiPanel(),
+                  const SizedBox(height: 24),
+                  _buildBenchmarkSection(),
+                  const SizedBox(height: 24),
+                  _buildStreakMilestoneSection(),
+                ],
                 const SizedBox(height: 24),
                 _buildAskMintCard(),
                 const SizedBox(height: 32),
@@ -928,6 +938,160 @@ Si une categorie ne s'applique pas, omets-la.
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDashboardDensityToggle() {
+    final label = _compactMode
+        ? 'Afficher le dashboard complet'
+        : 'Revenir au mode focus';
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: () => setState(() => _compactMode = !_compactMode),
+        icon: Icon(
+          _compactMode ? Icons.unfold_more : Icons.unfold_less,
+          size: 18,
+        ),
+        label: Text(label),
+      ),
+    );
+  }
+
+  Widget _buildCoachVivantHubSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Coach Vivant — S30 a S46',
+            style: GoogleFonts.montserrat(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Acces direct aux modules visibles. Le reste tourne en backend/compliance.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildHubRow(
+            sprint: 'S31',
+            title: 'Onboarding minimal',
+            subtitle: 'Profil de base + enrichissement progressif',
+            route: '/onboarding/minimal',
+          ),
+          _buildHubRow(
+            sprint: 'S32-S33',
+            title: 'Arbitrages',
+            subtitle: 'Rente/capital, allocation, retraits, etc.',
+            route: '/arbitrage/rente-vs-capital',
+          ),
+          _buildHubRow(
+            sprint: 'S35-S37',
+            title: 'Coach chat + check-in',
+            subtitle: 'Narrative et suivi mensuel',
+            route: '/coach/checkin',
+          ),
+          _buildHubRow(
+            sprint: 'S42-S44',
+            title: 'Scan documents',
+            subtitle: 'LPP + fiscalite (OCR)',
+            route: '/document-scan',
+          ),
+          _buildHubRow(
+            sprint: 'S45',
+            title: 'Guide extrait AVS',
+            subtitle: 'Parcours CI AVS + scan',
+            route: '/document-scan/avs-guide',
+          ),
+          _buildHubRow(
+            sprint: 'S46',
+            title: 'Confidence dashboard',
+            subtitle: 'Completude + fiabilite + fraicheur',
+            route: '/confidence',
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'S34, S38-S41 et S40 sont majoritairement infrastructure/compliance et s’affichent indirectement.',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHubRow({
+    required String sprint,
+    required String title,
+    required String subtitle,
+    required String route,
+  }) {
+    return InkWell(
+      onTap: () => context.push(route),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                sprint,
+                style: GoogleFonts.montserrat(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.primary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: MintColors.textMuted),
+          ],
+        ),
       ),
     );
   }
@@ -1048,6 +1212,8 @@ Si une categorie ne s'applique pas, omets-la.
                 const SizedBox(height: 20),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 20),
+                _buildCoachVivantHubSection(),
+                const SizedBox(height: 20),
                 // Chiffre choc (main value proposition)
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
@@ -1688,6 +1854,8 @@ Si une categorie ne s'applique pas, omets-la.
                 const SizedBox(height: 24),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
+                _buildCoachVivantHubSection(),
+                const SizedBox(height: 24),
                 _buildTeaserTrajectory(),
                 const SizedBox(height: 24),
                 _buildQuickWinCards(),
@@ -2071,6 +2239,8 @@ Si une categorie ne s'applique pas, omets-la.
                 MintTrajectoryChart(
                   result: _projection!,
                   goalALabel: _profile!.goalA.label,
+                  goalAType: _profile!.goalA.type,
+                  initialDebt: _profile!.dettes.totalDettes,
                   onTap: () {
                     final provider = context.read<CoachProfileProvider>();
                     _openRecommendedWizardSection(provider);
@@ -2813,8 +2983,7 @@ Si une categorie ne s'applique pas, omets-la.
     double savingsLpp = 0;
     if (_profile != null) {
       final profile = _profile!;
-      final isMarriedForTax =
-          profile.etatCivil == CoachCivilStatus.marie;
+      final isMarriedForTax = profile.etatCivil == CoachCivilStatus.marie;
       // Married: combined household income (joint filing)
       // Single/Concubin: only main user's income (individual filing)
       final netMonthlyForTax = isMarriedForTax
@@ -3066,8 +3235,7 @@ Si une categorie ne s'applique pas, omets-la.
             ),
             const Spacer(),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: MintColors.success.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
@@ -3683,7 +3851,8 @@ Si une categorie ne s'applique pas, omets-la.
     // 3. AVS gap cost — each missing year = -1/44 of max rente (LAVS art. 29ter)
     final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
-      final perteTotaleAnnuelle = AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
+      final perteTotaleAnnuelle =
+          AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
       // Over ~20 years of retirement
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
 
@@ -3798,6 +3967,8 @@ Si une categorie ne s'applique pas, omets-la.
           child: MintTrajectoryChart(
             result: _etSiProjection ?? _projection!,
             goalALabel: _profile!.goalA.label,
+            goalAType: _profile!.goalA.type,
+            initialDebt: _profile!.dettes.totalDettes,
             onTap: () => context.push('/retirement/projection'),
           ),
         ),

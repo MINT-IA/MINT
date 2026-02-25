@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/colors.dart';
 class TrajectoryComparisonChart extends StatefulWidget {
   final List<TrajectoireOption> options;
   final int? breakevenYear;
+  final String selectedAxisLabel;
 
   /// Color palette for each option (indexed by order).
   final List<Color> colors;
@@ -21,6 +22,7 @@ class TrajectoryComparisonChart extends StatefulWidget {
     required this.options,
     this.breakevenYear,
     this.colors = const [],
+    this.selectedAxisLabel = 'Annee',
   });
 
   @override
@@ -103,7 +105,8 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
     _resolveSelection(details.localPosition.dx, chartWidth);
   }
 
-  void _onDrag(DragUpdateDetails details, double chartWidth, double chartHeight) {
+  void _onDrag(
+      DragUpdateDetails details, double chartWidth, double chartHeight) {
     _resolveSelection(details.localPosition.dx, chartWidth);
   }
 
@@ -135,7 +138,7 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Annee ${widget.options.first.trajectory[idx].year}',
+            '${widget.selectedAxisLabel} ${widget.options.first.trajectory[idx].year}',
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -170,7 +173,8 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
                       ),
                     ),
                     Text(
-                      _formatChf(widget.options[i].trajectory[idx].netPatrimony),
+                      _formatChf(
+                          widget.options[i].trajectory[idx].netPatrimony),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -259,9 +263,9 @@ class _TrajectoryPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (options.isEmpty) return;
 
-    final chartLeft = _leftPad;
+    const chartLeft = _leftPad;
     final chartRight = size.width - _rightPad;
-    final chartTop = _topPad;
+    const chartTop = _topPad;
     final chartBottom = size.height - _bottomPad;
     final chartWidth = chartRight - chartLeft;
     final chartHeight = chartBottom - chartTop;
@@ -289,8 +293,8 @@ class _TrajectoryPainter extends CustomPainter {
     final yMax = globalMax + yRange * 0.05;
 
     // Draw grid lines and Y-axis labels
-    _drawGrid(canvas, size, chartLeft, chartRight, chartTop, chartBottom,
-        yMin, yMax);
+    _drawGrid(
+        canvas, size, chartLeft, chartRight, chartTop, chartBottom, yMin, yMax);
 
     // Draw X-axis labels (every 5 years)
     _drawXLabels(canvas, chartLeft, chartWidth, chartBottom, maxLen);
@@ -489,7 +493,7 @@ class _TrajectoryPainter extends CustomPainter {
         if (s.netPatrimony > max) max = s.netPatrimony;
       }
     }
-    final min = double.infinity;
+    const min = double.infinity;
     double actualMin = min;
     for (final o in options) {
       for (final s in o.trajectory) {

@@ -44,6 +44,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   bool _isLoading = false;
   int _requestCounter = 0;
   ArbitrageResult? _result;
+  static const int _ageRetraiteReference = 65;
 
   @override
   void initState() {
@@ -120,8 +121,38 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     }
   }
 
+  List<TrajectoireOption> _optionsAsAgeTrajectories(
+    List<TrajectoireOption> options,
+  ) {
+    return options.map((option) {
+      final mappedTrajectory = <YearlySnapshot>[];
+      for (int i = 0; i < option.trajectory.length; i++) {
+        final snap = option.trajectory[i];
+        mappedTrajectory.add(
+          YearlySnapshot(
+            year: _ageRetraiteReference + i,
+            netPatrimony: snap.netPatrimony,
+            annualCashflow: snap.annualCashflow,
+            cumulativeTaxDelta: snap.cumulativeTaxDelta,
+          ),
+        );
+      }
+      return TrajectoireOption(
+        id: option.id,
+        label: option.label,
+        trajectory: mappedTrajectory,
+        terminalValue: option.terminalValue,
+        cumulativeTaxImpact: option.cumulativeTaxImpact,
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final chartOptions = _result == null
+        ? const <TrajectoireOption>[]
+        : _optionsAsAgeTrajectories(_result!.options);
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -178,7 +209,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Touche le graphique pour voir les valeurs a chaque annee.',
+                    'Axe horizontal = age (65 a 90). '
+                    'Valeurs = patrimoine net cumule (capital restant + flux encaisses).',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textSecondary,
@@ -186,17 +218,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ),
                   const SizedBox(height: 12),
                   TrajectoryComparisonChart(
-                    options: _result!.options,
+                    options: chartOptions,
                     breakevenYear: _result!.breakevenYear,
+                    selectedAxisLabel: 'Age',
                   ),
                   const SizedBox(height: 20),
 
                   // ── Breakeven ──
                   BreakevenIndicatorWidget(
                     breakevenYear: _result!.breakevenYear,
-                    ageRetraite: 65,
+                    ageRetraite: _ageRetraiteReference,
                     horizon: 25,
                     sensitivity: _result!.sensitivity,
+                    showCalendarYear: false,
                   ),
                   const SizedBox(height: 20),
 

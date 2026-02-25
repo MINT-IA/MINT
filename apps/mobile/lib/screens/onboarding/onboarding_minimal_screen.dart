@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -18,6 +19,9 @@ class OnboardingMinimalScreen extends StatefulWidget {
 }
 
 class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
+  static const int _minAge = 18;
+  static const int _maxAge = 70;
+
   // Salary presets (annual gross)
   static const List<double> _salaryPresets = [
     50000,
@@ -39,13 +43,44 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
   double _selectedSalary = 80000;
   int _selectedAge = 35;
   String? _selectedCanton;
+  late final TextEditingController _ageController;
   bool _didTrackStart = false;
 
   bool get _canSubmit => _selectedCanton != null;
 
+  @override
+  void initState() {
+    super.initState();
+    _ageController = TextEditingController(text: _selectedAge.toString());
+  }
+
+  @override
+  void dispose() {
+    _ageController.dispose();
+    super.dispose();
+  }
+
+  void _setAge(int value) {
+    final clamped = value.clamp(_minAge, _maxAge);
+    setState(() => _selectedAge = clamped);
+    final text = clamped.toString();
+    _ageController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  void _applyAgeFromInput() {
+    final parsed = int.tryParse(_ageController.text.trim());
+    if (parsed == null) {
+      _ageController.text = _selectedAge.toString();
+      return;
+    }
+    _setAge(parsed);
+  }
+
   void _onSubmit() {
     if (!_canSubmit) return;
-    // Analytics: onboarding submitted (no PII — salary bracket, age bracket only)
     final salaryBracket = _selectedSalary <= 60000
         ? '<=60k'
         : _selectedSalary <= 100000
@@ -130,7 +165,7 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
                   const SizedBox(height: 32),
 
                   // --- 1. SALARY ---
-                  _SectionTitle(label: 'Ton salaire brut annuel'),
+                  const _SectionTitle(label: 'Ton salaire brut annuel'),
                   const SizedBox(height: 12),
                   _SalarySelector(
                     presets: _salaryPresets,
@@ -152,16 +187,59 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
                   const SizedBox(height: 32),
 
                   // --- 2. AGE ---
-                  _SectionTitle(label: 'Ton age'),
+                  const _SectionTitle(label: 'Ton age'),
                   const SizedBox(height: 12),
                   _AgePicker(
                     value: _selectedAge,
-                    onChanged: (v) => setState(() => _selectedAge = v),
+                    onChanged: _setAge,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: 180,
+                    child: TextFormField(
+                      controller: _ageController,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(2),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Saisie directe',
+                        suffixText: 'ans',
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: MintColors.lightBorder,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: MintColors.lightBorder,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: MintColors.primary,
+                          ),
+                        ),
+                      ),
+                      onFieldSubmitted: (_) => _applyAgeFromInput(),
+                      onTapOutside: (_) => _applyAgeFromInput(),
+                    ),
                   ),
                   const SizedBox(height: 32),
 
                   // --- 3. CANTON ---
-                  _SectionTitle(label: 'Ton canton'),
+                  const _SectionTitle(label: 'Ton canton'),
                   const SizedBox(height: 12),
                   _CantonDropdown(
                     value: _selectedCanton,
@@ -326,7 +404,7 @@ class _SalarySelector extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  AGE PICKER — number selector with +/- buttons
+//  AGE PICKER — fast selector (slider + quick presets)
 // ════════════════════════════════════════════════════════════════════════════
 
 class _AgePicker extends StatelessWidget {
@@ -337,67 +415,113 @@ class _AgePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const minAge = 18;
+    const maxAge = 70;
+    const quickAges = [25, 30, 35, 40, 45, 50, 55, 60];
+
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CircleButton(
-            icon: Icons.remove,
-            onPressed: value > 18 ? () => onChanged(value - 1) : null,
-          ),
-          const SizedBox(width: 24),
-          SizedBox(
-            width: 80,
-            child: Center(
-              child: Text(
-                '$value ans',
-                style: GoogleFonts.montserrat(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
+          Center(
+            child: Text(
+              '$value ans',
+              style: GoogleFonts.montserrat(
+                fontSize: 30,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
               ),
             ),
           ),
-          const SizedBox(width: 24),
-          _CircleButton(
-            icon: Icons.add,
-            onPressed: value < 70 ? () => onChanged(value + 1) : null,
+          const SizedBox(height: 4),
+          Center(
+            child: Text(
+              'Glisse pour ajuster rapidement',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textMuted,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.lightBorder,
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withAlpha(28),
+              trackHeight: 5,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+            ),
+            child: Slider(
+              value: value.toDouble(),
+              min: minAge.toDouble(),
+              max: maxAge.toDouble(),
+              divisions: maxAge - minAge,
+              label: '$value ans',
+              onChanged: (v) => onChanged(v.round()),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('18',
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
+                Text('70',
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: quickAges.map((age) {
+              final isSelected = age == value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => onChanged(age),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? MintColors.primary.withAlpha(24)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? MintColors.primary
+                          : MintColors.lightBorder,
+                    ),
+                  ),
+                  child: Text(
+                    '$age ans',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected
+                          ? MintColors.primary
+                          : MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CircleButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  const _CircleButton({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final isEnabled = onPressed != null;
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isEnabled ? MintColors.primary : MintColors.border,
-        ),
-        child: Icon(
-          icon,
-          color: isEnabled ? Colors.white : MintColors.textMuted,
-          size: 22,
-        ),
       ),
     );
   }
@@ -413,42 +537,193 @@ class _CantonDropdown extends StatelessWidget {
 
   const _CantonDropdown({required this.value, required this.onChanged});
 
+  Future<void> _openCantonPicker(BuildContext context) async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        String query = '';
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final filtered = sortedCantonCodes.where((code) {
+              final name = cantonFullNames[code] ?? code;
+              final haystack = '$code $name'.toLowerCase();
+              return haystack.contains(query.toLowerCase());
+            }).toList();
+
+            return FractionallySizedBox(
+              heightFactor: 0.82,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  12,
+                  16,
+                  16 + MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: MintColors.border,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Choisis ton canton',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      autofocus: true,
+                      onChanged: (value) =>
+                          setModalState(() => query = value.trim()),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search),
+                        hintText: 'Rechercher (ex: VD, Vaud)',
+                        filled: true,
+                        fillColor: MintColors.surface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: MintColors.lightBorder,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: MintColors.lightBorder,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: MintColors.primary),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: filtered.isEmpty
+                          ? Center(
+                              child: Text(
+                                'Aucun canton trouve',
+                                style: GoogleFonts.inter(
+                                  color: MintColors.textMuted,
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: filtered.length,
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final code = filtered[index];
+                                final name = cantonFullNames[code] ?? code;
+                                final isSelected = code == value;
+                                return ListTile(
+                                  onTap: () => Navigator.of(context).pop(code),
+                                  title: Text(
+                                    '$code — $name',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: MintColors.textPrimary,
+                                    ),
+                                  ),
+                                  trailing: isSelected
+                                      ? const Icon(
+                                          Icons.check_circle,
+                                          color: MintColors.primary,
+                                          size: 20,
+                                        )
+                                      : null,
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected != null) {
+      onChanged(selected);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final selectedLabel = value == null
+        ? 'Choisis ton canton'
+        : '$value — ${cantonFullNames[value] ?? value}';
+
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 4),
-        ),
-        hint: Text(
-          'Choisis ton canton',
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textMuted,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => _openCantonPicker(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              const Icon(Icons.search, size: 18, color: MintColors.textMuted),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  selectedLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: value == null
+                        ? MintColors.textMuted
+                        : MintColors.textPrimary,
+                    fontWeight:
+                        value == null ? FontWeight.w400 : FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (value != null)
+                GestureDetector(
+                  onTap: () => onChanged(null),
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: Icon(
+                      Icons.close,
+                      size: 18,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ),
+              const Icon(
+                Icons.keyboard_arrow_down,
+                color: MintColors.textSecondary,
+              ),
+            ],
           ),
         ),
-        isExpanded: true,
-        icon: const Icon(Icons.keyboard_arrow_down, color: MintColors.textSecondary),
-        items: sortedCantonCodes.map((code) {
-          final name = cantonFullNames[code] ?? code;
-          return DropdownMenuItem<String>(
-            value: code,
-            child: Text(
-              '$code — $name',
-              style: GoogleFonts.inter(fontSize: 15),
-            ),
-          );
-        }).toList(),
-        onChanged: onChanged,
       ),
     );
   }

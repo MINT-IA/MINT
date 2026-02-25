@@ -595,7 +595,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           screenName: '/advisor',
           data: _onboardingContextData(),
         );
-        final recommended = context.read<CoachProfileProvider>().recommendedWizardSection;
+        final recommended =
+            context.read<CoachProfileProvider>().recommendedWizardSection;
         context.push('/advisor/wizard?section=$recommended');
       } else if (action == 'plan30') {
         _incMetric('completion_action_plan30');
@@ -623,7 +624,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           screenName: '/advisor',
           data: _onboardingContextData(),
         );
-        context.go('/home');
+        context.go('/coach/dashboard');
       }
     }
   }
@@ -657,147 +658,147 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                // Welcome header (Phase 2 — Coach Feel Uplift)
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: MintColors.success.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.celebration_outlined,
-                          color: MintColors.success, size: 20),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        l10n?.advisorMiniWelcomeTitle ?? 'Bienvenue !',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
+                  // Welcome header (Phase 2 — Coach Feel Uplift)
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: MintColors.success.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
                         ),
+                        child: const Icon(Icons.celebration_outlined,
+                            color: MintColors.success, size: 20),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n?.advisorMiniWelcomeBody ??
-                      'Ton espace financier est prêt. Découvre ce que ton coach a préparé.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Trajectory section
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: MintColors.primary.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.rocket_launch_outlined,
-                          color: MintColors.primary, size: 20),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        l10n?.coachTrajectory ?? 'Ta trajectoire',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (yearsLeft != null)
-                  Text(
-                    l10n?.advisorMiniPreviewSubtitle('$yearsLeft') ??
-                        'Projection indicative sur ~$yearsLeft ans',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                if (baseValue != null) ...[
-                  const SizedBox(height: 14),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: MintColors.coachBubble,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: MintColors.lightBorder),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            l10n?.advisorMiniPreviewBase ?? 'Base',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: MintColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          ForecasterService.formatChf(baseValue),
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n?.advisorMiniWelcomeTitle ?? 'Bienvenue !',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: MintColors.textPrimary,
                           ),
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n?.advisorMiniWelcomeBody ??
+                        'Ton espace financier est prêt. Découvre ce que ton coach a préparé.',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                      height: 1.4,
                     ),
                   ),
-                ],
-                const SizedBox(height: 14),
-                _buildCoachIntroBlock(),
-                const SizedBox(height: 18),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => Navigator.of(ctx).pop('plan30'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(
-                      isChallenge
-                          ? (l10n?.advisorMiniWeekOneCta ??
-                              'Lancer ma semaine 1')
-                          : 'Voir mon plan 30 jours',
+                  const SizedBox(height: 16),
+                  // Trajectory section
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: MintColors.primary.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.rocket_launch_outlined,
+                            color: MintColors.primary, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n?.coachTrajectory ?? 'Ta trajectoire',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (yearsLeft != null)
+                    Text(
+                      l10n?.advisorMiniPreviewSubtitle('$yearsLeft') ??
+                          'Projection indicative sur ~$yearsLeft ans',
                       style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  if (baseValue != null) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: MintColors.coachBubble,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: MintColors.lightBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n?.advisorMiniPreviewBase ?? 'Base',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: MintColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            ForecasterService.formatChf(baseValue),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: MintColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 14),
+                  _buildCoachIntroBlock(),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(ctx).pop('plan30'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: MintColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        isChallenge
+                            ? (l10n?.advisorMiniWeekOneCta ??
+                                'Lancer ma semaine 1')
+                            : 'Voir mon plan 30 jours',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(ctx).pop('dashboard'),
-                    child: Text(
-                      isChallenge
-                          ? (l10n?.advisorMiniStartWithDashboard ??
-                              'Commencer avec le dashboard')
-                          : (l10n?.advisorMiniActivateDashboard ??
-                              'Activer mon dashboard'),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(ctx).pop('dashboard'),
+                      child: Text(
+                        isChallenge
+                            ? (l10n?.advisorMiniStartWithDashboard ??
+                                'Commencer avec le dashboard')
+                            : (l10n?.advisorMiniActivateDashboard ??
+                                'Activer mon dashboard'),
+                      ),
                     ),
                   ),
-                ),
                 ],
               ),
             ),
@@ -958,31 +959,31 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           backgroundColor: MintColors.surface,
           body: SafeArea(
             child: Column(
-            children: [
-              // Top bar with back/close + step indicator
-              _buildTopBar(),
+              children: [
+                // Top bar with back/close + step indicator
+                _buildTopBar(),
 
-              // Step indicator dots
-              _buildStepIndicator(),
-              _buildEtaHint(),
+                // Step indicator dots
+                _buildStepIndicator(),
+                _buildEtaHint(),
 
-              // Pages
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: (i) => setState(() => _currentStep = i),
-                  children: [
-                    _buildStep1Essentials(),
-                    _buildStep2Income(),
-                    _buildStep3GoalAndPreview(),
-                  ],
+                // Pages
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onPageChanged: (i) => setState(() => _currentStep = i),
+                    children: [
+                      _buildStep1Essentials(),
+                      _buildStep2Income(),
+                      _buildStep3GoalAndPreview(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-          ),
       ),
     );
   }
@@ -1043,6 +1044,11 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              IconButton(
+                icon: const Icon(Icons.dashboard_outlined, size: 20),
+                color: MintColors.textMuted,
+                onPressed: () => context.go('/coach/dashboard'),
+              ),
               IconButton(
                 icon: const Icon(Icons.insights_outlined, size: 20),
                 color: MintColors.textMuted,
@@ -2037,10 +2043,12 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           // Retirement horizon
           Row(
             children: [
-              const Icon(Icons.calendar_today, size: 16, color: MintColors.textSecondary),
+              const Icon(Icons.calendar_today,
+                  size: 16, color: MintColors.textSecondary),
               const SizedBox(width: 8),
               Text(
-                l10n?.advisorMiniStep2AhaHorizon(yearsToRetirement.toString()) ??
+                l10n?.advisorMiniStep2AhaHorizon(
+                        yearsToRetirement.toString()) ??
                     'Horizon retraite : ~$yearsToRetirement ans',
                 style: GoogleFonts.inter(
                   fontSize: 13,
@@ -2054,11 +2062,13 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           // Canton tax positioning — qualitative
           Row(
             children: [
-              const Icon(Icons.account_balance, size: 16, color: MintColors.textSecondary),
+              const Icon(Icons.account_balance,
+                  size: 16, color: MintColors.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  l10n?.advisorMiniStep2AhaTaxQualitative(cantonName, pressureLabel) ??
+                  l10n?.advisorMiniStep2AhaTaxQualitative(
+                          cantonName, pressureLabel) ??
                       'Fiscalité en $cantonName : $pressureLabel par rapport à la moyenne suisse',
                   style: GoogleFonts.inter(
                     fontSize: 13,
@@ -2077,7 +2087,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            l10n?.advisorMiniStep2AhaQualitativeHint ?? 'On affinera avec ton revenu à l\'étape suivante.',
+            l10n?.advisorMiniStep2AhaQualitativeHint ??
+                'On affinera avec ton revenu à l\'étape suivante.',
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -2115,8 +2126,9 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
     final readiness = _computeAdvisorReadiness();
     final hasCoreProjectionContext = _provider.canAdvanceFromStep2 &&
         (!_provider.isHouseholdWithPartner || _provider.hasPartnerRequiredData);
-    final preview =
-        (_mainGoal != null && hasCoreProjectionContext) ? _computePreviewProjection() : null;
+    final preview = (_mainGoal != null && hasCoreProjectionContext)
+        ? _computePreviewProjection()
+        : null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -2366,7 +2378,8 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             () {
               final levelLabel = l10n?.advisorReadinessLevel ?? 'Niveau';
               final detail = missing.isEmpty
-                  ? (l10n?.advisorReadinessSufficient ?? 'Socle suffisant pour un plan initial.')
+                  ? (l10n?.advisorReadinessSufficient ??
+                      'Socle suffisant pour un plan initial.')
                   : '${l10n?.advisorReadinessToComplete ?? 'À compléter'}: ${missing.take(2).join(', ')}${missing.length > 2 ? '…' : ''}';
               return '$levelLabel $level. $detail';
             }(),
@@ -2615,8 +2628,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
             l10n?.advisorMiniReadyProfile(employmentLabel, householdLabel) ??
                 'Profil: $employmentLabel · $householdLabel',
           ),
-          if (firstName.isNotEmpty)
-            _mintUnderstoodRow('Prénom: $firstName'),
+          if (firstName.isNotEmpty) _mintUnderstoodRow('Prénom: $firstName'),
           if (partnerFirstName.isNotEmpty)
             _mintUnderstoodRow('Partenaire: $partnerFirstName'),
           _mintUnderstoodRow(
