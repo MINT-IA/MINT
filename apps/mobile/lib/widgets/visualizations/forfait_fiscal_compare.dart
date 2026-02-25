@@ -138,7 +138,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(20),
+                borderRadius: const BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -173,7 +173,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
           height: 40,
           decoration: BoxDecoration(
             color: MintColors.success.withValues(alpha: 0.12),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.balance,
@@ -259,7 +259,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
                     color.withValues(alpha: 0.05),
                   ],
                 ),
-                borderRadius: const Borderconst Radius.circular(16),
+                borderRadius: const BorderRadius.circular(16),
                 border: Border.all(
                   color: color.withValues(alpha: 0.3),
                 ),

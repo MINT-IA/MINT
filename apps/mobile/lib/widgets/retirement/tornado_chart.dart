@@ -144,7 +144,7 @@ class TornadoChart extends StatelessWidget {
           height: 10,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: const Borderconst Radius.circular(3),
+            borderRadius: const BorderRadius.circular(3),
           ),
         ),
         const SizedBox(width: 5),

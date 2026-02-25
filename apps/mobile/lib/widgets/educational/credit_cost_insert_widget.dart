@@ -137,7 +137,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: MintColors.error,
-                borderRadius: const Borderconst Radius.circular(20),
+                borderRadius: const BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
                     color: MintColors.error.withValues(alpha: 0.35),
@@ -178,7 +178,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: const Borderconst Radius.circular(20),
+                      borderRadius: const BorderRadius.circular(20),
                     ),
                     child: Text(
                       'soit ${(_totalInterest / _amount * 100).toStringAsFixed(0)}% du montant emprunte',
@@ -201,7 +201,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.05),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
             ),
             child: Column(
@@ -238,7 +238,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.1),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,

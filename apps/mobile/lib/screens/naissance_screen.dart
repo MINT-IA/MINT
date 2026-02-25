@@ -214,7 +214,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -293,7 +293,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -318,14 +318,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
           // Timeline bar
           ClipRRect(
-            borderRadius: const Borderconst Radius.circular(8),
+            borderRadius: const BorderRadius.circular(8),
             child: Container(
               height: 48,
               decoration: BoxDecoration(
                 color: _isMother
                     ? MintColors.info.withValues(alpha: 0.15)
                     : MintColors.success.withValues(alpha: 0.15),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
@@ -333,7 +333,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                     child: Container(
                       decoration: BoxDecoration(
                         color: _isMother ? MintColors.info : MintColors.success,
-                        borderRadius: const Borderconst Radius.circular(8),
+                        borderRadius: const BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
                       child: Text(
@@ -368,7 +368,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: MintColors.warning.withValues(alpha: 0.1),
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
               child: Text(
                 'Plafonne a CHF\u00A0${FamilyService.apgDailyMax.toStringAsFixed(0)}/jour',
@@ -396,7 +396,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -482,7 +482,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -549,7 +549,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -572,7 +572,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -641,7 +641,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -687,7 +687,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -755,7 +755,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: ClipRRect(
-                      borderRadius: const Borderconst Radius.circular(3),
+                      borderRadius: const BorderRadius.circular(3),
                       child: LinearProgressIndicator(
                         value: ratio,
                         backgroundColor: MintColors.appleSurface,
@@ -801,7 +801,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.success.withValues(alpha: 0.08),
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border:
               Border.all(color: MintColors.success.withValues(alpha: 0.2)),
         ),
@@ -869,7 +869,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -1014,7 +1014,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             color: netImpact >= 0
                 ? MintColors.success.withValues(alpha: 0.08)
                 : MintColors.error.withValues(alpha: 0.08),
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(
               color: netImpact >= 0
                   ? MintColors.success.withValues(alpha: 0.3)
@@ -1082,7 +1082,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1095,7 +1095,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 height: 32,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Icon(icon, size: 16, color: color),
               ),
@@ -1133,7 +1133,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -1163,7 +1163,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -1193,7 +1193,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
               const SizedBox(height: 12),
               ClipRRect(
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   child: LinearProgressIndicator(
@@ -1244,7 +1244,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           color: isChecked
               ? MintColors.success.withValues(alpha: 0.04)
               : Colors.white,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: isChecked
                 ? MintColors.success.withValues(alpha: 0.3)
@@ -1282,7 +1282,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                           color: isChecked
                               ? MintColors.success
                               : Colors.transparent,
-                          borderRadius: const Borderconst Radius.circular(7),
+                          borderRadius: const BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked
                                 ? MintColors.success
@@ -1578,7 +1578,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: const Borderconst Radius.circular(4),
+          borderRadius: const BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: ratio,
             backgroundColor: MintColors.appleSurface,
@@ -1595,7 +1595,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1605,7 +1605,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: const Icon(Icons.lightbulb_outline,
                 size: 18, color: MintColors.info),
@@ -1645,7 +1645,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

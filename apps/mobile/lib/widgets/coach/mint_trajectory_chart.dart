@@ -539,7 +539,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
               border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
             child: Row(

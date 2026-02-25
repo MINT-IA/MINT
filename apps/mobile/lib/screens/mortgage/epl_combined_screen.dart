@@ -120,7 +120,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
@@ -174,7 +174,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -239,7 +239,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             height: 14,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: const Borderconst Radius.circular(3),
+              borderRadius: const BorderRadius.circular(3),
             ),
           ),
           const SizedBox(width: 10),
@@ -281,7 +281,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -314,7 +314,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   border: Border.all(color: MintColors.border),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -439,7 +439,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -561,7 +561,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -685,7 +685,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.amber.shade50,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: Colors.amber.shade200),
             ),
             child: Row(
@@ -745,7 +745,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

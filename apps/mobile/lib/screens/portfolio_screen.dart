@@ -64,7 +64,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.withValues(alpha: 0.05),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
       ),
       child: const Row(
@@ -87,7 +87,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -121,7 +121,7 @@ class PortfolioScreen extends StatelessWidget {
           backgroundColor: MintColors.background,
           valueColor: AlwaysStoppedAnimation<Color>(value < 0.5 ? MintColors.warning : MintColors.success),
           minHeight: 4,
-          borderRadius: const Borderconst Radius.circular(2),
+          borderRadius: const BorderRadius.circular(2),
         ),
       ],
     );
@@ -132,7 +132,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
@@ -185,7 +185,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
@@ -194,7 +194,7 @@ class PortfolioScreen extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
@@ -219,7 +219,7 @@ class PortfolioScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.primary.withValues(alpha: 0.05),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
       child: const Row(

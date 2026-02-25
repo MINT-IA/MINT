@@ -392,7 +392,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
         color: _currentScore > 0
             ? _scoreColor.withValues(alpha: 0.10)
             : MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: Border.all(
           color: _currentScore > 0
               ? _scoreColor.withValues(alpha: 0.20)
@@ -452,7 +452,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
               Container(
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: const Borderconst Radius.circular(3),
+                  borderRadius: const BorderRadius.circular(3),
                 ),
               ),
 
@@ -462,7 +462,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
                   duration: const Duration(milliseconds: 200),
                   width: filledWidth,
                   decoration: BoxDecoration(
-                    borderRadius: const Borderconst Radius.circular(3),
+                    borderRadius: const BorderRadius.circular(3),
                     gradient: LinearGradient(
                       colors: [
                         _scoreColor.withValues(alpha: 0.6),

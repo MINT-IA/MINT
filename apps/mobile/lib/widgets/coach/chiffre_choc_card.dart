@@ -42,7 +42,7 @@ class ChiffreChocCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border(
           left: BorderSide(color: color, width: 4),
         ),
@@ -65,7 +65,7 @@ class ChiffreChocCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.10),
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
@@ -74,7 +74,7 @@ class ChiffreChocCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Text(
                   source,
@@ -158,7 +158,7 @@ class ChiffreChocCard extends StatelessWidget {
                 foregroundColor: color,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
               ),
               child: Row(

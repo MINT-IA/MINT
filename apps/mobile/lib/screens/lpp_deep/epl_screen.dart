@@ -116,7 +116,7 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -151,7 +151,7 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -343,7 +343,7 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -423,7 +423,7 @@ class _EplScreenState extends State<EplScreen> {
         gradient: LinearGradient(
           colors: [Colors.red.shade50, Colors.orange.shade50],
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.red.shade200),
       ),
       child: Column(
@@ -498,7 +498,7 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -566,7 +566,7 @@ class _EplScreenState extends State<EplScreen> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.amber.shade50,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: Colors.amber.shade200),
             ),
             child: Row(
@@ -597,7 +597,7 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

@@ -121,7 +121,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Column(
@@ -167,7 +167,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -195,7 +195,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.amber.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

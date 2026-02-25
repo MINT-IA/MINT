@@ -59,7 +59,7 @@ class RetirementProjectionCard extends StatelessWidget {
         const SizedBox(height: 8),
         // Replacement rate bar
         ClipRRect(
-          borderRadius: const Borderconst Radius.circular(4),
+          borderRadius: const BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: (replacementRate / 100).clamp(0.0, 1.0),
             backgroundColor: MintColors.lightBorder,
@@ -98,7 +98,7 @@ class RetirementProjectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -137,7 +137,7 @@ class RetirementProjectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(

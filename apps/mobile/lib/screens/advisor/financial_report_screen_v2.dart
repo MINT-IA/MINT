@@ -592,7 +592,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -685,7 +685,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: priorityColor, width: 2),
         boxShadow: [
           BoxShadow(
@@ -715,7 +715,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: Text(
                     '+CHF ${action.potentialGainChf!.toStringAsFixed(0)}',
@@ -761,7 +761,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: const Borderconst Radius.circular(12)),
+                    borderRadius: const BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -791,7 +791,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           gradient: LinearGradient(
             colors: [Colors.green.shade50, Colors.teal.shade50],
           ),
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(color: Colors.green.shade200, width: 2),
         ),
         child: Column(
@@ -819,7 +819,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: const Borderconst Radius.circular(12),
+                    borderRadius: const BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -843,7 +843,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.green.shade100,
-                          borderRadius: const Borderconst Radius.circular(8),
+                          borderRadius: const BorderRadius.circular(8),
                         ),
                         child: Text(
                           '\u00c9conomie: CHF ${buyback.estimatedTaxSavings.toStringAsFixed(0)}',
@@ -886,7 +886,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(color: MintColors.border),
         ),
         child: Column(
@@ -999,7 +999,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1063,7 +1063,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
           border: Border.all(
             color: MintColors.lightBorder,
           ),

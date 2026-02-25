@@ -30,7 +30,7 @@ class EducationalInsertWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border: Border.all(
           color: MintColors.lightBorder,
           width: 1,

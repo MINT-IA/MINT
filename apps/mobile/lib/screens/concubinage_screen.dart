@@ -189,7 +189,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -250,7 +250,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -291,7 +291,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -392,7 +392,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   color: marriageGood
                       ? MintColors.success.withValues(alpha: 0.12)
                       : MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Icon(
                   marriageGood ? Icons.check : Icons.close,
@@ -413,7 +413,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                   color: concubinGood
                       ? MintColors.success.withValues(alpha: 0.12)
                       : MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Icon(
                   concubinGood ? Icons.check : Icons.close,
@@ -438,7 +438,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Row(
         children: [
@@ -526,7 +526,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -599,7 +599,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -650,7 +650,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,7 +684,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -693,7 +693,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: const Icon(Icons.balance, size: 18, color: MintColors.primary),
           ),
@@ -747,7 +747,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -778,7 +778,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -808,7 +808,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
               const SizedBox(height: 12),
               ClipRRect(
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   child: LinearProgressIndicator(
@@ -859,7 +859,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           color: isChecked
               ? MintColors.success.withValues(alpha: 0.04)
               : Colors.white,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: isChecked
                 ? MintColors.success.withValues(alpha: 0.3)
@@ -899,7 +899,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                           color: isChecked
                               ? MintColors.success
                               : Colors.transparent,
-                          borderRadius: const Borderconst Radius.circular(7),
+                          borderRadius: const BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked
                                 ? MintColors.success
@@ -1127,7 +1127,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

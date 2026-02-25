@@ -43,7 +43,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -146,7 +146,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
     final netPortion = brut - totalDeductions;
 
     return ClipRRect(
-      borderRadius: const Borderconst Radius.circular(8),
+      borderRadius: const BorderRadius.circular(8),
       child: SizedBox(
         height: 28,
         child: Row(
@@ -205,7 +205,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
             height: 12,
             decoration: BoxDecoration(
               color: _parseHexColor(item.color),
-              borderRadius: const Borderconst Radius.circular(3),
+              borderRadius: const BorderRadius.circular(3),
             ),
           ),
           const SizedBox(width: 10),
@@ -248,7 +248,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(
           color: MintColors.info.withValues(alpha: 0.4),
           width: 1.5,

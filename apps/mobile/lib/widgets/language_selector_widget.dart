@@ -46,7 +46,7 @@ class LanguageSelectorSheet extends StatelessWidget {
               height: 4,
               decoration: BoxDecoration(
                 color: MintColors.border,
-                borderRadius: const Borderconst Radius.circular(2),
+                borderRadius: const BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 20),

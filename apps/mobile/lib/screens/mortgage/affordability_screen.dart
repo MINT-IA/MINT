@@ -123,7 +123,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
@@ -166,7 +166,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -242,7 +242,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
               child: Text(
                 isOk ? 'OK' : 'DEPASSE',
@@ -263,7 +263,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
               height: 12,
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
             ),
             // Progress
@@ -273,7 +273,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 height: 12,
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
               ),
             ),
@@ -320,7 +320,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -353,7 +353,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   border: Border.all(color: MintColors.border),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -500,7 +500,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -601,7 +601,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

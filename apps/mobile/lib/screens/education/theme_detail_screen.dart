@@ -87,7 +87,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -133,7 +133,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: const Borderconst Radius.circular(14),
+                                borderRadius: const BorderRadius.circular(14),
                               ),
                               child: Icon(theme.icon,
                                   color: Colors.white, size: 28),
@@ -236,7 +236,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
             theme.color.withValues(alpha: 0.03),
           ],
         ),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: theme.color.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -317,7 +317,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -336,7 +336,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: theme.color.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child:
                     Icon(Icons.checklist_rounded, size: 18, color: theme.color),
@@ -422,7 +422,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
           color: _quizAnswered
               ? (_selectedQuizAnswer == quiz.correctIndex
@@ -440,7 +440,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: Colors.purple.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.quiz_outlined,
                     size: 18, color: Colors.purple),
@@ -498,7 +498,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               padding: const EdgeInsets.only(bottom: 8),
               child: Material(
                 color: bgColor,
-                borderRadius: const Borderconst Radius.circular(14),
+                borderRadius: const BorderRadius.circular(14),
                 child: InkWell(
                   onTap: _quizAnswered
                       ? null
@@ -508,12 +508,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                             _quizAnswered = true;
                           });
                         },
-                  borderRadius: const Borderconst Radius.circular(14),
+                  borderRadius: const BorderRadius.circular(14),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      borderRadius: const Borderconst Radius.circular(14),
+                      borderRadius: const BorderRadius.circular(14),
                       border: Border.all(color: borderColor, width: 1.5),
                     ),
                     child: Row(
@@ -583,7 +583,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                   color: _selectedQuizAnswer == quiz.correctIndex
                       ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.warning.withValues(alpha: 0.06),
-                  borderRadius: const Borderconst Radius.circular(14),
+                  borderRadius: const BorderRadius.circular(14),
                   border: Border.all(
                     color: _selectedQuizAnswer == quiz.correctIndex
                         ? MintColors.success.withValues(alpha: 0.2)
@@ -645,7 +645,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -657,7 +657,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: MintColors.warning.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.auto_awesome,
                     size: 18, color: MintColors.warning),
@@ -697,11 +697,11 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
         childrenPadding:
             const EdgeInsets.only(left: 16, right: 16, bottom: 12),
         shape: RoundedRectangleBorder(
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           side: const BorderSide(color: MintColors.lightBorder),
         ),
         collapsedShape: RoundedRectangleBorder(
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           side: const BorderSide(color: MintColors.lightBorder),
         ),
         backgroundColor: Colors.white,
@@ -765,7 +765,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -774,7 +774,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: theme.color.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: Icon(Icons.notifications_active_outlined,
                 size: 18, color: theme.color),
@@ -817,7 +817,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -27,7 +27,7 @@ class BenchmarkCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -54,7 +54,7 @@ class BenchmarkCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: (isAbove ? MintColors.success : MintColors.warning)
                       .withValues(alpha: 0.10),
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Text(
                   'Top ${isAbove ? (100 - benchmark.percentile) : benchmark.percentile}%',

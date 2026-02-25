@@ -118,7 +118,7 @@ class MentorModal extends StatelessWidget {
             height: 4,
             decoration: BoxDecoration(
               color: MintColors.border,
-              borderRadius: const Borderconst Radius.circular(2),
+              borderRadius: const BorderRadius.circular(2),
             ),
           ),
 
@@ -207,12 +207,12 @@ class MentorModal extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: const Borderconst Radius.circular(16),
+      borderRadius: const BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(color: MintColors.border),
         ),
         child: Row(
@@ -221,7 +221,7 @@ class MentorModal extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
             ),

@@ -391,7 +391,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   : MintColors.textSecondary,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected
                     ? MintColors.coachAccent
@@ -423,11 +423,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           suffixStyle: GoogleFonts.inter(
               fontSize: 14, color: MintColors.textSecondary),
           border: OutlineInputBorder(
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             borderSide: const BorderSide(color: MintColors.border),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             borderSide:
                 const BorderSide(color: MintColors.coachAccent, width: 2),
           ),
@@ -462,11 +462,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           suffixStyle: GoogleFonts.inter(
               fontSize: 14, color: MintColors.textSecondary),
           border: OutlineInputBorder(
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             borderSide: const BorderSide(color: MintColors.border),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             borderSide:
                 const BorderSide(color: MintColors.coachAccent, width: 2),
           ),
@@ -512,7 +512,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   : MintColors.textSecondary,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected
                     ? MintColors.coachAccent
@@ -554,7 +554,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   : MintColors.textSecondary,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected
                     ? MintColors.coachAccent
@@ -593,7 +593,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   color: isSelected
                       ? MintColors.coachAccent.withAlpha(15)
                       : MintColors.surface,
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? MintColors.coachAccent
@@ -647,7 +647,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
           backgroundColor: MintColors.coachAccent,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: const Borderconst Radius.circular(14),
+            borderRadius: const BorderRadius.circular(14),
           ),
           elevation: 0,
         ),
@@ -756,7 +756,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: MintColors.card,
-                    borderRadius: const Borderconst Radius.circular(16),
+                    borderRadius: const BorderRadius.circular(16),
                     border: Border.all(color: MintColors.lightBorder),
                     boxShadow: [
                       BoxShadow(
@@ -834,7 +834,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                       backgroundColor: MintColors.coachAccent,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(14),
+                        borderRadius: const BorderRadius.circular(14),
                       ),
                       elevation: 0,
                     ),
@@ -901,7 +901,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -921,7 +921,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 height: 28,
                 decoration: BoxDecoration(
                   color: MintColors.coachAccent.withAlpha(20),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text(

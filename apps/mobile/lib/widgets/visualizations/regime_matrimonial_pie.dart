@@ -205,7 +205,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -244,7 +244,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
             height: 40,
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.pie_chart_outline,
@@ -286,7 +286,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(4),
         child: Row(
@@ -305,7 +305,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.white : Colors.transparent,
-                    borderRadius: const Borderconst Radius.circular(10),
+                    borderRadius: const BorderRadius.circular(10),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
@@ -518,7 +518,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Row(
             children: [

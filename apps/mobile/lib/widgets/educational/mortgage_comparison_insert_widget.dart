@@ -39,7 +39,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Column(
@@ -75,7 +75,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
     return Table(
       border: TableBorder.all(
         color: Colors.grey.shade300,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       children: [
         _buildTableRow(

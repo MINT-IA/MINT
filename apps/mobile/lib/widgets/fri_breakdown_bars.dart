@@ -112,7 +112,7 @@ class _BarRow extends StatelessWidget {
             height: 26,
             decoration: BoxDecoration(
               color: color.withAlpha(25),
-              borderRadius: const Borderconst Radius.circular(7),
+              borderRadius: const BorderRadius.circular(7),
             ),
             child: Center(
               child: Text(
@@ -142,7 +142,7 @@ class _BarRow extends StatelessWidget {
           // Progress bar
           Expanded(
             child: ClipRRect(
-              borderRadius: const Borderconst Radius.circular(4),
+              borderRadius: const BorderRadius.circular(4),
               child: SizedBox(
                 height: 8,
                 child: LinearProgressIndicator(

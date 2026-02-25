@@ -105,7 +105,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         gradient: LinearGradient(
           colors: [Colors.green.shade50, Colors.green.shade100],
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.green.shade300, width: 2),
       ),
       child: Column(
@@ -145,7 +145,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -239,7 +239,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                     color: isSelected
                         ? MintColors.primary
                         : MintColors.surface,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                     border: Border.all(
                       color: isSelected
                           ? MintColors.primary
@@ -360,7 +360,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: borderColor, width: borderWidth),
       ),
       child: Column(
@@ -397,7 +397,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.shade600,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: Text(
                     result.badge!.length > 20
@@ -416,7 +416,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.red.shade600,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'WARNING',
@@ -491,7 +491,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.red.shade100,
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
               child: Text(
                 '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs meilleur',
@@ -523,7 +523,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             gradient: LinearGradient(
               colors: [Colors.red.shade50, Colors.red.shade100],
             ),
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: Colors.red.shade300, width: 2),
           ),
           child: Column(
@@ -579,7 +579,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

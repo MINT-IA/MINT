@@ -81,7 +81,7 @@ class CompoundInterestChart extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -110,7 +110,7 @@ class CompoundInterestChart extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: Row(
@@ -265,7 +265,7 @@ class LppBuybackSimulation extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -289,7 +289,7 @@ class LppBuybackSimulation extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: Column(

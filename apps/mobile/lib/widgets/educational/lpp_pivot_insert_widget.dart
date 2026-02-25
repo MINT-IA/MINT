@@ -57,7 +57,7 @@ class LppPivotInsertWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Row(
@@ -99,7 +99,7 @@ class LppPivotInsertWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color:
               isSelected ? MintColors.primary.withValues(alpha: 0.1) : Colors.white,
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? MintColors.primary : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
@@ -146,7 +146,7 @@ class LppPivotInsertWidget extends StatelessWidget {
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: MintColors.primary.withValues(alpha: 0.2),
-                          borderRadius: const Borderconst Radius.circular(4),
+                          borderRadius: const BorderRadius.circular(4),
                         ),
                         child: Text(
                           limit,

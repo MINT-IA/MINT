@@ -53,7 +53,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             MintColors.accentPastel.withValues(alpha: 0.1),
           ],
         ),
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border:
             Border.all(color: MintColors.primary.withValues(alpha: 0.2), width: 2),
       ),
@@ -66,7 +66,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: MintColors.primary,
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.compare_arrows,
                     color: Colors.white, size: 24),
@@ -102,7 +102,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.border),
             ),
             child: Column(
@@ -205,7 +205,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: MintColors.success.withValues(alpha: 0.05),
-                borderRadius: const Borderconst Radius.circular(16),
+                borderRadius: const BorderRadius.circular(16),
                 border: Border.all(color: MintColors.success.withValues(alpha: 0.3), width: 2),
               ),
               child: Column(
@@ -273,7 +273,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.warning.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,7 +337,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.05),
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -479,7 +479,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: borderColor, width: isRecommended ? 2 : 1),
       ),
       child: Column(
@@ -513,7 +513,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: MintColors.success,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'RECOMMANDÉ',
@@ -578,7 +578,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: gain > 0 ? MintColors.success.withValues(alpha: 0.15) : MintColors.error.withValues(alpha: 0.15),
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
               child: Text(
                 '${gain > 0 ? '+' : ''}${currencyFormat.format(gain)} vs Banque',

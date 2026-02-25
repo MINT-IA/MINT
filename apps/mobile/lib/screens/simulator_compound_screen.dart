@@ -90,7 +90,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +243,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.appleSurface.withValues(alpha: 0.3),
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
@@ -259,12 +259,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             children: [
               Expanded(
                 flex: (100 - gainPercentage).toInt(),
-                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.border, borderRadius: const Borderconst Radius.circular(3))),
+                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.border, borderRadius: const BorderRadius.circular(3))),
               ),
               const SizedBox(width: 4),
               Expanded(
                 flex: gainPercentage.toInt(),
-                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.success, borderRadius: const Borderconst Radius.circular(3))),
+                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.success, borderRadius: const BorderRadius.circular(3))),
               ),
             ],
           ),
@@ -302,7 +302,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),

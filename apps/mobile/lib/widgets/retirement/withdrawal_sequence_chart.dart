@@ -118,7 +118,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Text(
@@ -143,7 +143,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -182,7 +182,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.10),
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: Text(
               "soit ${(result.savingsPercent * 100).toStringAsFixed(0)}% d'impots en moins",
@@ -438,7 +438,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
           height: 36,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.85),
-            borderRadius: const Borderconst Radius.circular(6),
+            borderRadius: const BorderRadius.circular(6),
             border: Border.all(
               color: color.withValues(alpha: 0.40),
               width: 1,
@@ -511,7 +511,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -732,7 +732,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
           height: 10,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: const Borderconst Radius.circular(3),
+            borderRadius: const BorderRadius.circular(3),
           ),
         ),
         const SizedBox(width: 5),

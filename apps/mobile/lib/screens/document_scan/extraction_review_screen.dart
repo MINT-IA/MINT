@@ -144,7 +144,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -184,7 +184,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: MintColors.warning.withValues(alpha: 0.08),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
           ),
           child: Row(
@@ -234,7 +234,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(
           color: field.needsReview
               ? badgeColor.withValues(alpha: 0.4)
@@ -271,7 +271,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: badgeColor.withValues(alpha: 0.10),
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child: Text(
                   '$confidencePct%',
@@ -308,7 +308,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 style: IconButton.styleFrom(
                   backgroundColor: MintColors.surface,
                   shape: RoundedRectangleBorder(
-                    borderRadius: const Borderconst Radius.circular(10),
+                    borderRadius: const BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -354,7 +354,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           backgroundColor: MintColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: const Borderconst Radius.circular(14),
+            borderRadius: const BorderRadius.circular(14),
           ),
         ),
       ),
@@ -369,7 +369,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,10 +470,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 labelText: 'Nouvelle valeur',
                 labelStyle: GoogleFonts.inter(fontSize: 14),
                 border: OutlineInputBorder(
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                   borderSide: const BorderSide(color: MintColors.primary),
                 ),
               ),

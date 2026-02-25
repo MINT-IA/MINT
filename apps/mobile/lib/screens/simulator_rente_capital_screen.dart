@@ -145,7 +145,7 @@ class _SimulatorRenteCapitalScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Row(
         children: [
@@ -153,7 +153,7 @@ class _SimulatorRenteCapitalScreenState
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.1),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Icon(Icons.account_balance,
                 color: MintColors.primary, size: 24),
@@ -196,7 +196,7 @@ class _SimulatorRenteCapitalScreenState
         gradient: LinearGradient(
           colors: [MintColors.primary, MintColors.primary.withValues(alpha: 0.85)],
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
       ),
       child: Row(
         children: [
@@ -373,7 +373,7 @@ class _SimulatorRenteCapitalScreenState
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: MintColors.surface,
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             border: Border.all(color: MintColors.border),
           ),
           child: DropdownButtonHideUnderline(
@@ -419,7 +419,7 @@ class _SimulatorRenteCapitalScreenState
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Row(
             children: [
@@ -447,7 +447,7 @@ class _SimulatorRenteCapitalScreenState
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: const Borderconst Radius.circular(10),
+            borderRadius: const BorderRadius.circular(10),
             boxShadow: isSelected
                 ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 2))]
                 : null,
@@ -655,7 +655,7 @@ class _SimulatorRenteCapitalScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.purple.withValues(alpha: 0.06),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.purple.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -784,11 +784,11 @@ class _SimulatorRenteCapitalScreenState
     required String subtitle,
   }) {
     return ClipRRect(
-      borderRadius: const Borderconst Radius.circular(20),
+      borderRadius: const BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.06),
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Stack(
@@ -1143,7 +1143,7 @@ class _SimulatorRenteCapitalScreenState
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.06),
-                  borderRadius: const Borderconst Radius.circular(16),
+                  borderRadius: const BorderRadius.circular(16),
                   border: Border.all(color: color.withValues(alpha: 0.15)),
                 ),
                 child: Column(
@@ -1273,7 +1273,7 @@ class _SimulatorRenteCapitalScreenState
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Theme(
@@ -1311,7 +1311,7 @@ class _SimulatorRenteCapitalScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

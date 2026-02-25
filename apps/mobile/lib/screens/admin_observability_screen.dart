@@ -168,7 +168,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.error.withValues(alpha: 0.08),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Text(
             _error!,
@@ -249,7 +249,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
           LinearProgressIndicator(
             value: (score / 100).clamp(0.0, 1.0),
             minHeight: 8,
-            borderRadius: const Borderconst Radius.circular(99),
+            borderRadius: const BorderRadius.circular(99),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -313,7 +313,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(9),
+        borderRadius: const BorderRadius.circular(9),
         border: Border.all(color: MintColors.border),
       ),
       child: Text(
@@ -336,7 +336,7 @@ class _Card extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(

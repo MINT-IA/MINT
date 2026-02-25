@@ -174,7 +174,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.primary.withValues(alpha: 0.1),
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: MintColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -213,7 +213,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: const BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -348,7 +348,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: const BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -409,7 +409,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   Widget _buildInfoCard() {
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: const BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

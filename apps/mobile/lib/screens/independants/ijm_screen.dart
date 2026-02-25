@@ -129,7 +129,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -208,7 +208,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -271,7 +271,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -320,7 +320,7 @@ class _IjmScreenState extends State<IjmScreen> {
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: isSelected ? MintColors.primary : MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? MintColors.primary : MintColors.border,
               width: isSelected ? 2 : 1,
@@ -361,7 +361,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.error,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -397,7 +397,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.1),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.5)),
       ),
       child: Row(
@@ -493,7 +493,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -533,7 +533,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -558,7 +558,7 @@ class _IjmScreenState extends State<IjmScreen> {
 
           // Timeline bar
           ClipRRect(
-            borderRadius: const Borderconst Radius.circular(6),
+            borderRadius: const BorderRadius.circular(6),
             child: Row(
               children: [
                 Expanded(
@@ -613,7 +613,7 @@ class _IjmScreenState extends State<IjmScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Text(
               'Pendant les ${r.delaiCarence} premiers jours de maladie, '
@@ -706,7 +706,7 @@ class _IjmScreenState extends State<IjmScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -715,7 +715,7 @@ class _IjmScreenState extends State<IjmScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -757,7 +757,7 @@ class _IjmScreenState extends State<IjmScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

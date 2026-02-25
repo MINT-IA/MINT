@@ -108,7 +108,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -182,7 +182,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Row(
@@ -239,7 +239,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: _urgencyBgColor(alert.urgency),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: _urgencyBorderColor(alert.urgency)),
             ),
             child: Row(
@@ -287,7 +287,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -317,7 +317,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border(
           left: BorderSide(
             color: _urgencyColor(item.urgency),
@@ -373,7 +373,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: _urgencyColor(urgency).withValues(alpha: 0.15),
-        borderRadius: const Borderconst Radius.circular(6),
+        borderRadius: const BorderRadius.circular(6),
       ),
       child: Text(
         label,
@@ -391,7 +391,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -442,12 +442,12 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
       },
-      borderRadius: const Borderconst Radius.circular(16),
+      borderRadius: const BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.blue.shade50,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(color: Colors.blue.shade200),
         ),
         child: Row(
@@ -489,7 +489,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,7 +517,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

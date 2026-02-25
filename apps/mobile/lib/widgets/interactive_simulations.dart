@@ -66,7 +66,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -124,7 +124,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
@@ -243,7 +243,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: const Row(
@@ -373,7 +373,7 @@ class _InteractiveLppBuybackSimulationState
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -500,7 +500,7 @@ class _InteractiveLppBuybackSimulationState
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: const Column(

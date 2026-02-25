@@ -54,7 +54,7 @@ class PrecisionPromptCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.info.withAlpha(40)),
       ),
       child: Padding(
@@ -69,7 +69,7 @@ class PrecisionPromptCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: MintColors.info.withAlpha(25),
-                    borderRadius: const Borderconst Radius.circular(10),
+                    borderRadius: const BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.description_outlined,
@@ -110,7 +110,7 @@ class PrecisionPromptCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: MintColors.info.withAlpha(20),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -157,7 +157,7 @@ class PrecisionPromptCard extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(10),
+                        borderRadius: const BorderRadius.circular(10),
                       ),
                     ),
                   ),
@@ -175,7 +175,7 @@ class PrecisionPromptCard extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(10),
+                        borderRadius: const BorderRadius.circular(10),
                       ),
                     ),
                     child: Text(

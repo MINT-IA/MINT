@@ -187,7 +187,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -262,7 +262,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                       : qualityTag == 'estimé'
                           ? MintColors.warning.withValues(alpha: 0.12)
                           : MintColors.textMuted.withValues(alpha: 0.12),
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Text(
                   qualityTag,
@@ -311,7 +311,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: MintColors.warning.withValues(alpha: 0.10),
-          borderRadius: const Borderconst Radius.circular(10),
+          borderRadius: const BorderRadius.circular(10),
           border:
               Border.all(color: MintColors.warning.withValues(alpha: 0.35)),
         ),
@@ -399,7 +399,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -434,7 +434,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: progressColor.withValues(alpha: 0.12),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Text(
                   statusText,

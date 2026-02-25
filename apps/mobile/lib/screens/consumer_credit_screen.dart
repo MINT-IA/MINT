@@ -92,7 +92,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +238,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: rateWarning ? MintColors.error.withValues(alpha: 0.05) : MintColors.appleSurface.withValues(alpha: 0.3),
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border: Border.all(
           color: rateWarning ? MintColors.error.withValues(alpha: 0.2) : MintColors.primary.withValues(alpha: 0.1),
         ),
@@ -270,7 +270,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: MintColors.error.withValues(alpha: 0.1),
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
               ),
               child: const Row(
                 children: [
@@ -314,7 +314,7 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),

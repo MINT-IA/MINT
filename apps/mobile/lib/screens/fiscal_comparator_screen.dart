@@ -281,7 +281,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -362,7 +362,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -532,7 +532,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     border: OutlineInputBorder(
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
                     hintText: '0',
@@ -611,7 +611,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -663,7 +663,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 const SizedBox(height: 8),
                 // Progress bar
                 ClipRRect(
-                  borderRadius: const Borderconst Radius.circular(4),
+                  borderRadius: const BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: (tauxEffectif / 20.0).clamp(0.0, 1.0),
                     backgroundColor: MintColors.appleSurface,
@@ -696,7 +696,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -834,7 +834,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -938,7 +938,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: MintColors.primary,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
           ),
           child: Column(
             children: [
@@ -970,7 +970,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Row(
             children: [
@@ -995,7 +995,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -1033,7 +1033,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -1063,7 +1063,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -1167,7 +1167,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1301,7 +1301,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(10),
+            borderRadius: const BorderRadius.circular(10),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -1342,7 +1342,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1388,7 +1388,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                         color: checked
                             ? MintColors.success
                             : Colors.transparent,
-                        borderRadius: const Borderconst Radius.circular(6),
+                        borderRadius: const BorderRadius.circular(6),
                         border: Border.all(
                           color: checked
                               ? MintColors.success
@@ -1482,7 +1482,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1491,7 +1491,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -1557,7 +1557,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String?>(
@@ -1611,7 +1611,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

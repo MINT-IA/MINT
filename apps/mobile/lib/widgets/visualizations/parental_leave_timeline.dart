@@ -137,7 +137,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -189,7 +189,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
             height: 44,
             decoration: BoxDecoration(
               color: _themeColor.withValues(alpha: 0.15),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Icon(
               widget.leaveType == LeaveType.maternity
@@ -236,7 +236,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                 ),
                 decoration: BoxDecoration(
                   color: _themeColor,
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child: Text(
                   _formatChf(_totalApg * _progressAnimation.value),
@@ -288,7 +288,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                     color: isHighlighted
                         ? _themeColor.withValues(alpha: 0.1)
                         : MintColors.surface,
-                    borderRadius: const Borderconst Radius.circular(14),
+                    borderRadius: const BorderRadius.circular(14),
                     border: Border.all(
                       color: isHighlighted
                           ? _themeColor
@@ -381,7 +381,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
               height: fullHeight,
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
             ),
             // APG fill bar
@@ -397,7 +397,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                     _themeColor,
                   ],
                 ),
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
               ),
             ),
             // Cap line
@@ -410,7 +410,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                   height: 2,
                   decoration: BoxDecoration(
                     color: MintColors.warning,
-                    borderRadius: const Borderconst Radius.circular(1),
+                    borderRadius: const BorderRadius.circular(1),
                   ),
                 ),
               ),
@@ -452,7 +452,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,7 +505,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: MintColors.warning.withValues(alpha: 0.1),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -552,7 +552,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
         ),
         Expanded(
           child: ClipRRect(
-            borderRadius: const Borderconst Radius.circular(4),
+            borderRadius: const BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: ratio,
               backgroundColor: Colors.white,

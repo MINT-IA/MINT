@@ -398,7 +398,7 @@ class _ProgressiveEnrichmentScreenState
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
-                          borderRadius: const Borderconst Radius.circular(16),
+                          borderRadius: const BorderRadius.circular(16),
                         ),
                       ),
                       child: Text(
@@ -457,7 +457,7 @@ class _LiveChiffreChocBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: color.withAlpha(15),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: color.withAlpha(40)),
       ),
       child: Column(
@@ -590,7 +590,7 @@ class _ToggleChips<T> extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: isSelected ? MintColors.primary : MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected ? MintColors.primary : MintColors.lightBorder,
                 width: isSelected ? 2 : 1,
@@ -669,7 +669,7 @@ class _AmountInputState extends State<_AmountInput> {
         filled: true,
         fillColor: MintColors.surface,
         border: OutlineInputBorder(
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         contentPadding:

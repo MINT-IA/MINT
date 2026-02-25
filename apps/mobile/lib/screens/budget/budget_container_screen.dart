@@ -69,7 +69,7 @@ class BudgetContainerScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(14)),
+                      borderRadius: const BorderRadius.circular(14)),
                 ),
               ),
             ],

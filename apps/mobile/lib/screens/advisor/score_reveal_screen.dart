@@ -451,7 +451,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     ),
                     decoration: BoxDecoration(
                       color: _scoreColor.withValues(alpha: 0.20),
-                      borderRadius: const Borderconst Radius.circular(8),
+                      borderRadius: const BorderRadius.circular(8),
                       border: Border.all(
                         color: _scoreColor.withValues(alpha: 0.40),
                         width: 1,
@@ -486,7 +486,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.08),
           ),
@@ -553,7 +553,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
           const SizedBox(width: 10),
           Expanded(
             child: ClipRRect(
-              borderRadius: const Borderconst Radius.circular(4),
+              borderRadius: const BorderRadius.circular(4),
               child: SizedBox(
                 height: 8,
                 child: Stack(
@@ -562,7 +562,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.08),
-                        borderRadius: const Borderconst Radius.circular(4),
+                        borderRadius: const BorderRadius.circular(4),
                       ),
                     ),
                     // Filled bar
@@ -576,7 +576,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                               barColor,
                             ],
                           ),
-                          borderRadius: const Borderconst Radius.circular(4),
+                          borderRadius: const BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
                               color: barColor.withValues(alpha: 0.3),
@@ -629,7 +629,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.06),
           ),
@@ -650,7 +650,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     _scoreColor,
                   ],
                 ),
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.auto_awesome,
@@ -711,7 +711,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                  borderRadius: const Borderconst Radius.circular(16),
+                  borderRadius: const BorderRadius.circular(16),
                 ),
                 elevation: 0,
               ),

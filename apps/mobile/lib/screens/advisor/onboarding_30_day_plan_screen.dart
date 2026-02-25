@@ -342,7 +342,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.primary.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border:
                   Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
             ),
@@ -368,7 +368,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
                 ),
                 const SizedBox(height: 10),
                 ClipRRect(
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                   child: LinearProgressIndicator(
                     value: completionRatio,
                     minHeight: 8,
@@ -395,7 +395,7 @@ class _Onboarding30DayPlanScreenState extends State<Onboarding30DayPlanScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 border: Border.all(color: MintColors.lightBorder),
               ),
               child: Row(
@@ -496,12 +496,12 @@ class _PlanActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: const Borderconst Radius.circular(14),
+      borderRadius: const BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const Borderconst Radius.circular(14),
+          borderRadius: const BorderRadius.circular(14),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Row(
@@ -511,7 +511,7 @@ class _PlanActionCard extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: MintColors.primary.withValues(alpha: 0.08),
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(action.icon, color: MintColors.primary, size: 20),
             ),

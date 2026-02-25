@@ -70,7 +70,7 @@ class ProfileScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: MintColors.success.withValues(alpha: 0.08),
-                        borderRadius: const Borderconst Radius.circular(14),
+                        borderRadius: const BorderRadius.circular(14),
                         border: Border.all(
                             color: MintColors.success.withValues(alpha: 0.3)),
                       ),
@@ -243,7 +243,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
               color: MintColors.primary.withValues(alpha: 0.3),
@@ -271,7 +271,7 @@ class ProfileScreen extends StatelessWidget {
             value: precision,
             backgroundColor: Colors.white24,
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            borderRadius: const Borderconst Radius.circular(4),
+            borderRadius: const BorderRadius.circular(4),
             minHeight: 8,
           ),
           const SizedBox(height: 16),
@@ -330,7 +330,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -390,7 +390,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
       ),
       child: Text(
         label,
@@ -460,7 +460,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -487,7 +487,7 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Text(
                   coachModeLabel,
@@ -542,7 +542,7 @@ class ProfileScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
                   color: MintColors.coachBubble,
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                   border: Border.all(color: MintColors.lightBorder),
                 ),
                 child: Row(
@@ -593,7 +593,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -706,7 +706,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -797,7 +797,7 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.white24,
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Text(reward,
                     style: const TextStyle(
@@ -826,12 +826,12 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: onTap,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.border),
           ),
           child: Row(
@@ -861,7 +861,7 @@ class ProfileScreen extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                       color: MintColors.appleSurface,
-                      borderRadius: const Borderconst Radius.circular(8)),
+                      borderRadius: const BorderRadius.circular(8)),
                   child: Text(reward,
                       style: const TextStyle(
                           color: MintColors.primary,
@@ -913,7 +913,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -1051,7 +1051,7 @@ class ProfileScreen extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         InkWell(
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           onTap: () async {
             final selected =
                 await showLanguageSelector(context, localeProvider.locale);
@@ -1063,7 +1063,7 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border: Border.all(color: MintColors.border),
             ),
             child: Row(

@@ -156,7 +156,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.amber.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.amber.shade300),
       ),
       child: Row(
@@ -203,7 +203,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.blue.shade50,
-          borderRadius: const Borderconst Radius.circular(8),
+          borderRadius: const BorderRadius.circular(8),
           border: Border.all(color: Colors.blue.shade200),
         ),
         child: Text(
@@ -248,7 +248,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -281,7 +281,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: statusConfig.color.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -329,7 +329,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Text(
                   _scopeLabel(scope),
@@ -377,7 +377,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   foregroundColor: MintColors.error,
                   side: BorderSide(color: MintColors.error.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
-                    borderRadius: const Borderconst Radius.circular(12),
+                    borderRadius: const BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -389,7 +389,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: MintColors.error.withValues(alpha: 0.05),
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
@@ -419,7 +419,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.teal.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.teal.shade200),
       ),
       child: Column(
@@ -495,7 +495,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           foregroundColor: MintColors.textPrimary,
           side: const BorderSide(color: MintColors.border),
           shape: RoundedRectangleBorder(
-            borderRadius: const Borderconst Radius.circular(14),
+            borderRadius: const BorderRadius.circular(14),
           ),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
@@ -520,7 +520,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
               border: Border.all(color: Colors.blue.shade200),
             ),
             child: Text(
@@ -626,7 +626,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border:
             Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -661,14 +661,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
           _newConsentStep = 1;
         });
       },
-      borderRadius: const Borderconst Radius.circular(12),
+      borderRadius: const BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
               ? MintColors.primary.withValues(alpha: 0.05)
               : MintColors.surface,
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? MintColors.primary : Colors.transparent,
           ),
@@ -683,7 +683,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 color: isSelected
                     ? MintColors.primary.withValues(alpha: 0.1)
                     : MintColors.border.withValues(alpha: 0.3),
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Center(
                 child: Text(
@@ -737,7 +737,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border:
             Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -786,7 +786,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: Row(
               children: [
@@ -818,7 +818,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   onPressed: () => setState(() => _newConsentStep = 0),
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(12),
+                      borderRadius: const BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -835,7 +835,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       : null,
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(12),
+                      borderRadius: const BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -863,7 +863,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             onChanged: onChanged,
             activeThumbColor: MintColors.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: const Borderconst Radius.circular(4),
+              borderRadius: const BorderRadius.circular(4),
             ),
           ),
           Expanded(
@@ -892,7 +892,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border:
             Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -925,7 +925,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
               border: Border.all(color: Colors.orange.shade200),
             ),
             child: Text(
@@ -951,7 +951,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   onPressed: () => setState(() => _newConsentStep = 1),
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(12),
+                      borderRadius: const BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -986,7 +986,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   },
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(12),
+                      borderRadius: const BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -1033,7 +1033,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

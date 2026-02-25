@@ -380,7 +380,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               height: 4,
               decoration: BoxDecoration(
                 color: MintColors.border,
-                borderRadius: const Borderconst Radius.circular(2),
+                borderRadius: const BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 24),
@@ -418,7 +418,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Text(
                 '$_overallProgress% complete — $_currentSection',
@@ -438,7 +438,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                   backgroundColor: MintColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(14)),
+                      borderRadius: const BorderRadius.circular(14)),
                 ),
                 child: const Text('Continuer mon diagnostic',
                     style: TextStyle(fontWeight: FontWeight.bold)),
@@ -454,7 +454,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                   side: const BorderSide(color: MintColors.border),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(14)),
+                      borderRadius: const BorderRadius.circular(14)),
                 ),
                 child: const Text('Sauvegarder et quitter'),
               ),
@@ -549,7 +549,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Text(
               '$_overallProgress%',
@@ -595,7 +595,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: MintColors.info.withValues(alpha: 0.08),
-                          borderRadius: const Borderconst Radius.circular(16),
+                          borderRadius: const BorderRadius.circular(16),
                           border: Border.all(
                               color: MintColors.info.withValues(alpha: 0.3)),
                         ),
@@ -1346,7 +1346,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(

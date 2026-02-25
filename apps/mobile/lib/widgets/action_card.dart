@@ -55,7 +55,7 @@ class ActionCard extends StatelessWidget {
             : const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -69,7 +69,7 @@ class ActionCard extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             child: Padding(
               padding: padding ?? const EdgeInsets.all(20),
               child: Row(
@@ -83,7 +83,7 @@ class ActionCard extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: MintColors.surface,
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.arrow_forward_ios_rounded,
                         color: MintColors.textSecondary, size: 14),
@@ -110,7 +110,7 @@ class ActionCard extends StatelessWidget {
             color.withValues(alpha: 0.05),
           ],
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Icon(icon, color: color, size: 24),

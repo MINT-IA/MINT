@@ -88,7 +88,7 @@ class _AdvisorSessionWizardScreenState
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: const BorderRadius.circular(24)),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           height: MediaQuery.of(context).size.height * 0.8,

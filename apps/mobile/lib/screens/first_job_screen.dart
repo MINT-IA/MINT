@@ -150,7 +150,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -226,7 +226,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -296,7 +296,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -319,7 +319,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                   border: Border.all(color: MintColors.border),
                 ),
                 child: DropdownButton<String>(
@@ -411,7 +411,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -446,7 +446,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -491,7 +491,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Row(
               children: [
@@ -521,7 +521,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,7 +554,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.06),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.4), width: 1.5),
       ),
       child: Row(
@@ -601,7 +601,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -636,7 +636,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 color: isRecommended
                     ? MintColors.success.withValues(alpha: 0.06)
                     : Colors.transparent,
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 border: isRecommended
                     ? Border.all(
                         color: MintColors.success.withValues(alpha: 0.4))
@@ -652,7 +652,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: MintColors.success,
-                        borderRadius: const Borderconst Radius.circular(4),
+                        borderRadius: const BorderRadius.circular(4),
                       ),
                       child: Text(
                         'TOP',
@@ -707,7 +707,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Row(
               children: [
@@ -752,7 +752,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -800,7 +800,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         color: checked
                             ? MintColors.success
                             : MintColors.appleSurface,
-                        borderRadius: const Borderconst Radius.circular(8),
+                        borderRadius: const BorderRadius.circular(8),
                         border: Border.all(
                           color: checked
                               ? MintColors.success
@@ -909,7 +909,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -918,7 +918,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -960,7 +960,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

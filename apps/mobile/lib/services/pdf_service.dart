@@ -1086,7 +1086,7 @@ class PdfService {
             padding: const pw.const EdgeInsets.all(12),
             decoration: pw.BoxDecoration(
               color: PdfColors.blue50,
-              borderRadius: pw.const Borderconst Radius.circular(8),
+              borderRadius: pw.const BorderRadius.circular(8),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -1145,7 +1145,7 @@ class PdfService {
                 padding: const pw.const EdgeInsets.all(10),
                 decoration: pw.BoxDecoration(
                   border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
-                  borderRadius: pw.const Borderconst Radius.circular(6),
+                  borderRadius: pw.const BorderRadius.circular(6),
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1211,7 +1211,7 @@ class PdfService {
             padding: const pw.const EdgeInsets.all(10),
             decoration: pw.BoxDecoration(
               color: PdfColors.amber50,
-              borderRadius: pw.const Borderconst Radius.circular(6),
+              borderRadius: pw.const BorderRadius.circular(6),
               border: pw.Border.all(color: PdfColors.amber200, width: 0.5),
             ),
             child: pw.Text(

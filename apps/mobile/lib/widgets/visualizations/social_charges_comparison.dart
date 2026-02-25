@@ -134,7 +134,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(20),
+                borderRadius: const BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -173,7 +173,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
           height: 40,
           decoration: BoxDecoration(
             color: MintColors.info.withValues(alpha: 0.12),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.compare_arrows,
@@ -219,7 +219,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: MintColors.primary.withValues(alpha: 0.08),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -229,7 +229,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                     height: 8,
                     decoration: BoxDecoration(
                       color: MintColors.primary,
-                      borderRadius: const Borderconst Radius.circular(2),
+                      borderRadius: const BorderRadius.circular(2),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -255,7 +255,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: MintColors.warning.withValues(alpha: 0.08),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -265,7 +265,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                     height: 8,
                     decoration: BoxDecoration(
                       color: MintColors.warning,
-                      borderRadius: const Borderconst Radius.circular(2),
+                      borderRadius: const BorderRadius.circular(2),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -326,7 +326,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
             ),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Row(
@@ -388,7 +388,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
               ),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.08),
-                borderRadius: const Borderconst Radius.circular(14),
+                borderRadius: const BorderRadius.circular(14),
                 border: Border.all(color: color.withValues(alpha: 0.25)),
               ),
               child: Row(

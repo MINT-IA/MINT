@@ -156,7 +156,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.amber.shade50,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.business_center,
@@ -199,7 +199,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -232,7 +232,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -314,7 +314,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -394,7 +394,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.06),
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Row(
@@ -477,7 +477,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(
           color: statusColor.withValues(alpha: 0.3),
           width: gap.isCovered ? 0.8 : 1.5,
@@ -519,7 +519,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: const Borderconst Radius.circular(4),
+                        borderRadius: const BorderRadius.circular(4),
                       ),
                       child: Text(
                         statusLabel,
@@ -564,7 +564,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -692,7 +692,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.teal.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -741,7 +741,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF4F46E5).withValues(alpha: 0.05),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -816,7 +816,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(14),
+                borderRadius: const BorderRadius.circular(14),
                 border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
               ),
               child: Row(
@@ -827,7 +827,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                     height: 24,
                     decoration: BoxDecoration(
                       color: MintColors.primary.withValues(alpha: 0.1),
-                      borderRadius: const Borderconst Radius.circular(6),
+                      borderRadius: const BorderRadius.circular(6),
                     ),
                     child: Center(
                       child: Text(
@@ -867,7 +867,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

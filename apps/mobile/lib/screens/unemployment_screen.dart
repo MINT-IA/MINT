@@ -147,7 +147,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -240,7 +240,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -310,7 +310,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -393,7 +393,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.1),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.5)),
       ),
       child: Row(
@@ -439,7 +439,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.error,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -477,7 +477,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -591,7 +591,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -628,7 +628,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -729,7 +729,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
             color: isCurrent
                 ? MintColors.primary.withValues(alpha: 0.06)
                 : Colors.transparent,
-            borderRadius: const Borderconst Radius.circular(8),
+            borderRadius: const BorderRadius.circular(8),
             border: isCurrent
                 ? Border.all(
                     color: MintColors.primary.withValues(alpha: 0.3))
@@ -747,7 +747,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: MintColors.primary,
-                        borderRadius: const Borderconst Radius.circular(4),
+                        borderRadius: const BorderRadius.circular(4),
                       ),
                       child: Text(
                         'TOI',
@@ -804,7 +804,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -850,7 +850,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                         color: checked
                             ? MintColors.success
                             : Colors.transparent,
-                        borderRadius: const Borderconst Radius.circular(6),
+                        borderRadius: const BorderRadius.circular(6),
                         border: Border.all(
                           color: checked
                               ? MintColors.success
@@ -949,7 +949,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -958,7 +958,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -1000,7 +1000,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

@@ -44,7 +44,7 @@ class FieldHelpTooltip extends StatelessWidget {
 
     return InkWell(
       onTap: () => _showHelpSheet(context, help),
-      borderRadius: const Borderconst Radius.circular(20),
+      borderRadius: const BorderRadius.circular(20),
       child: const Padding(
         padding: const EdgeInsets.all(4),
         child: Icon(
@@ -83,7 +83,7 @@ class FieldHelpTooltip extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: MintColors.border,
-                    borderRadius: const Borderconst Radius.circular(2),
+                    borderRadius: const BorderRadius.circular(2),
                   ),
                 ),
               ),
@@ -131,7 +131,7 @@ class FieldHelpTooltip extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: MintColors.info.withAlpha(15),
-                    borderRadius: const Borderconst Radius.circular(12),
+                    borderRadius: const BorderRadius.circular(12),
                     border: Border.all(color: MintColors.info.withAlpha(40)),
                   ),
                   child: Column(
@@ -167,7 +167,7 @@ class FieldHelpTooltip extends StatelessWidget {
                               foregroundColor: MintColors.info,
                               side: const BorderSide(color: MintColors.info),
                               shape: RoundedRectangleBorder(
-                                borderRadius: const Borderconst Radius.circular(10),
+                                borderRadius: const BorderRadius.circular(10),
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 10),
                             ),

@@ -36,7 +36,7 @@ class SafeModeGate extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.background,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Row(
@@ -169,7 +169,7 @@ class SafeModeGate extends StatelessWidget {
                       foregroundColor: MintColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(10),
+                        borderRadius: const BorderRadius.circular(10),
                       ),
                     ),
                     child: Text(

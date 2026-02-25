@@ -138,7 +138,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -195,7 +195,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                           _currentProgress >= 1 ? MintColors.success : MintColors.primary,
                         ),
                         minHeight: 8,
-                        borderRadius: const Borderconst Radius.circular(4),
+                        borderRadius: const BorderRadius.circular(4),
                       ),
                       const SizedBox(height: 8),
                       if (_currentProgress < 1)
@@ -228,7 +228,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Row(

@@ -64,12 +64,12 @@ class _ThemeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => context.push('/education/theme/${theme.id}'),
-      borderRadius: const Borderconst Radius.circular(20),
+      borderRadius: const BorderRadius.circular(20),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),

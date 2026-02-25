@@ -101,7 +101,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
@@ -136,7 +136,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -189,7 +189,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           height: 3,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: const Borderconst Radius.circular(2),
+            borderRadius: const BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 4),
@@ -206,7 +206,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -251,7 +251,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   border: Border.all(color: MintColors.border),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
@@ -326,7 +326,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -369,7 +369,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: Row(
               children: [
@@ -408,7 +408,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           height: 40,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: const Borderconst Radius.circular(2),
+            borderRadius: const BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 12),
@@ -451,7 +451,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

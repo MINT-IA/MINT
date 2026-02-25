@@ -536,7 +536,7 @@ Reponds uniquement avec le texte final.
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: MintColors.coachBubble,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
           ),
           child: const Icon(
             Icons.edit_calendar,
@@ -613,7 +613,7 @@ Reponds uniquement avec le texte final.
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: MintColors.coachAccent.withValues(alpha: 0.3),
             style: BorderStyle.solid,
@@ -712,7 +712,7 @@ Reponds uniquement avec le texte final.
                       height: 4,
                       decoration: BoxDecoration(
                         color: MintColors.border,
-                        borderRadius: const Borderconst Radius.circular(2),
+                        borderRadius: const BorderRadius.circular(2),
                       ),
                     ),
                   ),
@@ -752,7 +752,7 @@ Reponds uniquement avec le texte final.
                             color: isSelected
                                 ? cat.$4.withValues(alpha: 0.12)
                                 : MintColors.surface,
-                            borderRadius: const Borderconst Radius.circular(10),
+                            borderRadius: const BorderRadius.circular(10),
                             border: Border.all(
                               color:
                                   isSelected ? cat.$4 : MintColors.lightBorder,
@@ -810,15 +810,15 @@ Reponds uniquement avec le texte final.
                       filled: true,
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                         borderSide: BorderSide(color: MintColors.lightBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                         borderSide: BorderSide(color: MintColors.lightBorder),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                         borderSide: const BorderSide(
                             color: MintColors.coachAccent, width: 1.5),
                       ),
@@ -854,15 +854,15 @@ Reponds uniquement avec le texte final.
                       filled: true,
                       fillColor: MintColors.surface,
                       border: OutlineInputBorder(
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                         borderSide: BorderSide(color: MintColors.lightBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                         borderSide: BorderSide(color: MintColors.lightBorder),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                         borderSide: const BorderSide(
                             color: MintColors.coachAccent, width: 1.5),
                       ),
@@ -920,7 +920,7 @@ Reponds uniquement avec le texte final.
                         backgroundColor: MintColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                            borderRadius: const Borderconst Radius.circular(14)),
+                            borderRadius: const BorderRadius.circular(14)),
                         elevation: 0,
                       ),
                       child: Text(
@@ -968,7 +968,7 @@ Reponds uniquement avec le texte final.
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1010,15 +1010,15 @@ Reponds uniquement avec le texte final.
               filled: true,
               fillColor: MintColors.background,
               border: OutlineInputBorder(
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 borderSide: BorderSide(color: MintColors.border),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 borderSide: BorderSide(color: MintColors.lightBorder),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 borderSide:
                     const BorderSide(color: MintColors.coachAccent, width: 1.5),
               ),
@@ -1053,15 +1053,15 @@ Reponds uniquement avec le texte final.
         filled: true,
         fillColor: MintColors.surface,
         border: OutlineInputBorder(
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           borderSide: BorderSide(color: MintColors.lightBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           borderSide: BorderSide(color: MintColors.lightBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           borderSide:
               const BorderSide(color: MintColors.coachAccent, width: 1.5),
         ),
@@ -1082,7 +1082,7 @@ Reponds uniquement avec le texte final.
           backgroundColor: MintColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
           ),
           elevation: 0,
         ),
@@ -1173,7 +1173,7 @@ Reponds uniquement avec le texte final.
             backgroundColor: MintColors.primary,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
             ),
             elevation: 0,
           ),
@@ -1203,7 +1203,7 @@ Reponds uniquement avec le texte final.
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.06),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
           color: color.withValues(alpha: 0.2),
         ),
@@ -1214,7 +1214,7 @@ Reponds uniquement avec le texte final.
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(14),
+              borderRadius: const BorderRadius.circular(14),
             ),
             child: Icon(
               isPositive ? Icons.trending_up : Icons.trending_down,
@@ -1283,7 +1283,7 @@ Reponds uniquement avec le texte final.
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.success.withValues(alpha: 0.06),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
           color: MintColors.success.withValues(alpha: 0.2),
         ),
@@ -1294,7 +1294,7 @@ Reponds uniquement avec le texte final.
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(14),
+              borderRadius: const BorderRadius.circular(14),
             ),
             child: const Icon(
               Icons.trending_up,
@@ -1347,7 +1347,7 @@ Reponds uniquement avec le texte final.
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
           color: MintColors.warning.withValues(alpha: 0.2),
         ),
@@ -1358,7 +1358,7 @@ Reponds uniquement avec le texte final.
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.warning.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(14),
+              borderRadius: const BorderRadius.circular(14),
             ),
             child: const Icon(
               Icons.emoji_events,
@@ -1403,7 +1403,7 @@ Reponds uniquement avec le texte final.
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
           color: MintColors.coachAccent.withValues(alpha: 0.15),
         ),
@@ -1415,7 +1415,7 @@ Reponds uniquement avec le texte final.
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.coachAccent.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.tips_and_updates,
@@ -1460,7 +1460,7 @@ Reponds uniquement avec le texte final.
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1518,7 +1518,7 @@ class _ContributionRow extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
@@ -1535,7 +1535,7 @@ class _ContributionRow extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 22),
               ),
@@ -1564,7 +1564,7 @@ class _ContributionRow extends StatelessWidget {
                         color: contribution.isAutomatic
                             ? MintColors.success.withValues(alpha: 0.1)
                             : MintColors.surface,
-                        borderRadius: const Borderconst Radius.circular(6),
+                        borderRadius: const BorderRadius.circular(6),
                       ),
                       child: Text(
                         contribution.isAutomatic
@@ -1605,15 +1605,15 @@ class _ContributionRow extends StatelessWidget {
                     filled: true,
                     fillColor: MintColors.surface,
                     border: OutlineInputBorder(
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                       borderSide: BorderSide(color: MintColors.lightBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                       borderSide: const BorderSide(
                         color: MintColors.coachAccent,
                         width: 1.5,

@@ -126,7 +126,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -159,7 +159,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Row(
@@ -209,7 +209,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -275,7 +275,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -343,7 +343,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
         ),
         child: Column(
           children: [
@@ -374,7 +374,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.success,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -410,7 +410,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -467,7 +467,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -555,7 +555,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: const Borderconst Radius.circular(4),
+          borderRadius: const BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: ratio,
             minHeight: highlight ? 14 : 10,
@@ -621,7 +621,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.appleSurface,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,7 +630,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
@@ -672,7 +672,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

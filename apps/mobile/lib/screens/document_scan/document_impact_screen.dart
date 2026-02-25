@@ -266,7 +266,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             color: MintColors.success.withValues(alpha: 0.10),
-            borderRadius: const Borderconst Radius.circular(24),
+            borderRadius: const BorderRadius.circular(24),
             border:
                 Border.all(color: MintColors.success.withValues(alpha: 0.3)),
           ),
@@ -308,7 +308,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
               MintColors.info.withValues(alpha: 0.06),
             ],
           ),
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Column(
@@ -437,7 +437,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             height: 24,
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.10),
-              borderRadius: const Borderconst Radius.circular(6),
+              borderRadius: const BorderRadius.circular(6),
             ),
             child: const Icon(Icons.check, size: 14, color: MintColors.success),
           ),
@@ -492,7 +492,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
             backgroundColor: MintColors.primary,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: const Borderconst Radius.circular(14),
+              borderRadius: const BorderRadius.circular(14),
             ),
           ),
         ),

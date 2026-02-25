@@ -150,7 +150,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.blue.shade50,
-          borderRadius: const Borderconst Radius.circular(8),
+          borderRadius: const BorderRadius.circular(8),
           border: Border.all(color: Colors.blue.shade200),
         ),
         child: Text(
@@ -175,7 +175,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.indigo.shade50,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.verified_user,
@@ -218,7 +218,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -302,7 +302,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? MintColors.primary : Colors.transparent,
-          borderRadius: const Borderconst Radius.circular(10),
+          borderRadius: const BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.border,
           ),
@@ -346,7 +346,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -439,7 +439,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -511,7 +511,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: MintColors.error.withValues(alpha: 0.08),
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
                 border: Border.all(color: MintColors.error.withValues(alpha: 0.2)),
               ),
               child: Row(
@@ -585,7 +585,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -676,7 +676,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: const Borderconst Radius.circular(6),
+        borderRadius: const BorderRadius.circular(6),
       ),
       child: Text(
         label,
@@ -743,7 +743,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
             ),
             child: Text(
@@ -767,7 +767,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

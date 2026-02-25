@@ -35,14 +35,14 @@ class EnrichmentSuggestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: MintColors.card,
-      borderRadius: const Borderconst Radius.circular(12),
+      borderRadius: const BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(

@@ -214,7 +214,7 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Text(
@@ -295,15 +295,15 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                   borderSide: const BorderSide(color: MintColors.lightBorder),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                   borderSide: const BorderSide(color: MintColors.lightBorder),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                   borderSide:
                       const BorderSide(color: MintColors.primary, width: 1.8),
                 ),
@@ -580,7 +580,7 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: allDone ? const Color(0xFFF0FDF4) : const Color(0xFFFFF7ED),
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(
           color: allDone
               ? MintColors.success.withValues(alpha: 0.4)

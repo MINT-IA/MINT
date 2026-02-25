@@ -41,7 +41,7 @@ class AvsScenarioCard extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isSelected ? config.color.withValues(alpha: 0.06) : Colors.white,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? config.color : MintColors.lightBorder,
             width: isSelected ? 2.0 : 1.0,
@@ -56,7 +56,7 @@ class AvsScenarioCard extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: config.color.withValues(alpha: 0.12),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Icon(
                 config.icon,
@@ -108,7 +108,7 @@ class AvsScenarioCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: MintColors.info.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -129,7 +129,7 @@ class AvsScenarioCard extends StatelessWidget {
                   color: penalitePct < 0
                       ? MintColors.error.withValues(alpha: 0.1)
                       : MintColors.success.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(6),
+                  borderRadius: const BorderRadius.circular(6),
                 ),
                 child: Text(
                   '${penalitePct > 0 ? '+' : ''}${penalitePct.toStringAsFixed(1)}%',

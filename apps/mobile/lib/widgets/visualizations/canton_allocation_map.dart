@@ -162,7 +162,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -198,7 +198,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             height: 40,
             decoration: BoxDecoration(
               color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.map_outlined,
@@ -240,7 +240,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -273,7 +273,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isActive ? MintColors.primary : Colors.transparent,
-          borderRadius: const Borderconst Radius.circular(8),
+          borderRadius: const BorderRadius.circular(8),
         ),
         child: Text(
           label,
@@ -299,7 +299,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
       decoration: BoxDecoration(
         color: _allocationColor(canton.allocationPerChild)
             .withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(
           color: _allocationColor(canton.allocationPerChild)
               .withValues(alpha: 0.3),
@@ -313,7 +313,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             height: 36,
             decoration: BoxDecoration(
               color: _allocationColor(canton.allocationPerChild),
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: Center(
               child: Text(
@@ -380,7 +380,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             child: Container(
               height: 8,
               decoration: BoxDecoration(
-                borderRadius: const Borderconst Radius.circular(4),
+                borderRadius: const BorderRadius.circular(4),
                 gradient: const LinearGradient(
                   colors: [
                     Color(0xFFA5D6A7),

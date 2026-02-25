@@ -139,7 +139,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.purple.shade50,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
           ),
           child: Icon(
             Icons.balance,
@@ -182,7 +182,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -215,7 +215,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -248,7 +248,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
                       : _tauxActivite < 80
                           ? MintColors.warning.withValues(alpha: 0.1)
                           : MintColors.success.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${_tauxActivite.round()}%',
@@ -304,7 +304,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -333,7 +333,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: Row(
               children: [
@@ -386,7 +386,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
@@ -436,7 +436,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.06),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: MintColors.error.withValues(alpha: 0.2)),
             ),
             child: Column(
@@ -524,7 +524,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: const Borderconst Radius.circular(4),
+          borderRadius: const BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: ratio,
             minHeight: 12,
@@ -544,7 +544,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -583,7 +583,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.appleSurface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Column(
               children: [
@@ -665,7 +665,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -739,7 +739,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
@@ -779,7 +779,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

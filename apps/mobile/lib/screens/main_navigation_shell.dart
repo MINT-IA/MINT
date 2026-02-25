@@ -241,7 +241,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             setState(() => _currentIndex = index);
           }
         },
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: isCompact ? 4 : 6),
           child: Column(

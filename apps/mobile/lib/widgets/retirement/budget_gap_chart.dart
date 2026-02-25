@@ -91,7 +91,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -122,7 +122,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.warning.withValues(alpha: 0.06),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Row(

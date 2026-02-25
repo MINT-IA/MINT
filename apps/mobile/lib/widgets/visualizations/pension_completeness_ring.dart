@@ -131,7 +131,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(20),
+                borderRadius: const BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -170,7 +170,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
           height: 40,
           decoration: BoxDecoration(
             color: _ringColor.withValues(alpha: 0.12),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Icon(
             Icons.donut_large,
@@ -282,7 +282,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(14),
+              borderRadius: const BorderRadius.circular(14),
             ),
             child: Column(
               children: [
@@ -320,7 +320,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                     ),
                     decoration: BoxDecoration(
                       color: MintColors.error.withValues(alpha: 0.06),
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
@@ -405,7 +405,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                     MintColors.info.withValues(alpha: 0.04),
                   ],
                 ),
-                borderRadius: const Borderconst Radius.circular(14),
+                borderRadius: const BorderRadius.circular(14),
                 border: Border.all(
                   color: MintColors.info.withValues(alpha: 0.2),
                 ),
@@ -417,7 +417,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                     height: 32,
                     decoration: BoxDecoration(
                       color: MintColors.info.withValues(alpha: 0.15),
-                      borderRadius: const Borderconst Radius.circular(8),
+                      borderRadius: const BorderRadius.circular(8),
                     ),
                     child: const Icon(
                       Icons.lightbulb_outline,

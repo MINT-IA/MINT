@@ -153,7 +153,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(20),
+                borderRadius: const BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -194,7 +194,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
           height: 40,
           decoration: BoxDecoration(
             color: _scoreColor.withValues(alpha: 0.12),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Icon(
             Icons.fitness_center,
@@ -230,7 +230,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: _scoreColor.withValues(alpha: 0.10),
-            borderRadius: const Borderconst Radius.circular(8),
+            borderRadius: const BorderRadius.circular(8),
           ),
           child: Text(
             _levelLabel,
@@ -306,7 +306,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                       ),
                       decoration: BoxDecoration(
                         color: _trendColor.withValues(alpha: 0.10),
-                        borderRadius: const Borderconst Radius.circular(6),
+                        borderRadius: const BorderRadius.circular(6),
                       ),
                       child: Text(
                         '$_trendSymbol $_deltaText',
@@ -343,7 +343,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(14),
+              borderRadius: const BorderRadius.circular(14),
             ),
             child: Column(
               children: [
@@ -399,7 +399,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         const SizedBox(width: 8),
         Expanded(
           child: ClipRRect(
-            borderRadius: const Borderconst Radius.circular(4),
+            borderRadius: const BorderRadius.circular(4),
             child: SizedBox(
               height: 8,
               child: LinearProgressIndicator(

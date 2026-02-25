@@ -98,7 +98,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -288,7 +288,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: const Borderconst Radius.circular(4),
+          borderRadius: const BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: ratio,
             backgroundColor: MintColors.appleSurface,

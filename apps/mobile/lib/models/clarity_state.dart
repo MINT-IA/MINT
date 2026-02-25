@@ -469,7 +469,7 @@ class ClarityProgressHeader extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade100,
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                     border: Border.all(color: Colors.orange),
                   ),
                   child: const Row(
@@ -491,7 +491,7 @@ class ClarityProgressHeader extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           ClipRRect(
-            borderRadius: const Borderconst Radius.circular(8),
+            borderRadius: const BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: state.precisionIndex / 100,
               minHeight: 8,
@@ -505,7 +505,7 @@ class ClarityProgressHeader extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFFF0F9F4),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
                 border:
                     Border.all(color: const Color(0xFF2D6A4F).withValues(alpha: 0.3)),
               ),

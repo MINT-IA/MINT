@@ -192,7 +192,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(
             color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
@@ -244,7 +244,7 @@ class _MariageScreenState extends State<MariageScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: MintColors.appleSurface,
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -313,7 +313,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -345,7 +345,7 @@ class _MariageScreenState extends State<MariageScreen>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
-                    borderRadius: const Borderconst Radius.circular(16),
+                    borderRadius: const BorderRadius.circular(16),
                   ),
                   child: Column(
                     children: [
@@ -382,7 +382,7 @@ class _MariageScreenState extends State<MariageScreen>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.appleSurface,
-                    borderRadius: const Borderconst Radius.circular(16),
+                    borderRadius: const BorderRadius.circular(16),
                   ),
                   child: Column(
                     children: [
@@ -424,7 +424,7 @@ class _MariageScreenState extends State<MariageScreen>
               color: isPenalite
                   ? MintColors.error.withValues(alpha: 0.1)
                   : MintColors.success.withValues(alpha: 0.1),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(
                 color: isPenalite
                     ? MintColors.error.withValues(alpha: 0.3)
@@ -469,7 +469,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -587,7 +587,7 @@ class _MariageScreenState extends State<MariageScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -655,7 +655,7 @@ class _MariageScreenState extends State<MariageScreen>
           color: isSelected
               ? MintColors.primary.withValues(alpha: 0.04)
               : Colors.white,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? MintColors.primary : MintColors.lightBorder,
             width: isSelected ? 2.0 : 1.0,
@@ -671,7 +671,7 @@ class _MariageScreenState extends State<MariageScreen>
                 color: isSelected
                     ? MintColors.primary.withValues(alpha: 0.1)
                     : MintColors.appleSurface,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
@@ -718,7 +718,7 @@ class _MariageScreenState extends State<MariageScreen>
                 height: 24,
                 decoration: BoxDecoration(
                   color: MintColors.primary,
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child:
                     const Icon(Icons.check, size: 14, color: Colors.white),
@@ -771,7 +771,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -851,7 +851,7 @@ class _MariageScreenState extends State<MariageScreen>
               height: 10,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: const Borderconst Radius.circular(3),
+                borderRadius: const BorderRadius.circular(3),
               ),
             ),
             const SizedBox(width: 6),
@@ -908,7 +908,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.primary,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: Column(
         children: [
@@ -955,7 +955,7 @@ class _MariageScreenState extends State<MariageScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -985,7 +985,7 @@ class _MariageScreenState extends State<MariageScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
@@ -1029,7 +1029,7 @@ class _MariageScreenState extends State<MariageScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: MintColors.primary,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
           ),
           child: Column(
             children: [
@@ -1080,7 +1080,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1090,7 +1090,7 @@ class _MariageScreenState extends State<MariageScreen>
             height: 44,
             decoration: BoxDecoration(
               color: MintColors.success.withValues(alpha: 0.1),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Icon(icon, size: 22, color: MintColors.success),
           ),
@@ -1144,7 +1144,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1175,7 +1175,7 @@ class _MariageScreenState extends State<MariageScreen>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1254,7 +1254,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1325,7 +1325,7 @@ class _MariageScreenState extends State<MariageScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Row(
@@ -1356,7 +1356,7 @@ class _MariageScreenState extends State<MariageScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
           ),
           child: Column(
@@ -1386,7 +1386,7 @@ class _MariageScreenState extends State<MariageScreen>
               ),
               const SizedBox(height: 12),
               ClipRRect(
-                borderRadius: const Borderconst Radius.circular(6),
+                borderRadius: const BorderRadius.circular(6),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   child: LinearProgressIndicator(
@@ -1437,7 +1437,7 @@ class _MariageScreenState extends State<MariageScreen>
           color: isChecked
               ? MintColors.success.withValues(alpha: 0.04)
               : Colors.white,
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: isChecked
                 ? MintColors.success.withValues(alpha: 0.3)
@@ -1475,7 +1475,7 @@ class _MariageScreenState extends State<MariageScreen>
                           color: isChecked
                               ? MintColors.success
                               : Colors.transparent,
-                          borderRadius: const Borderconst Radius.circular(7),
+                          borderRadius: const BorderRadius.circular(7),
                           border: Border.all(
                             color: isChecked
                                 ? MintColors.success
@@ -1728,7 +1728,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1738,7 +1738,7 @@ class _MariageScreenState extends State<MariageScreen>
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.15),
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child:
                 const Icon(Icons.lightbulb_outline, size: 18, color: MintColors.info),
@@ -1778,7 +1778,7 @@ class _MariageScreenState extends State<MariageScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

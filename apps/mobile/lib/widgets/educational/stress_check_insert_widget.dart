@@ -60,12 +60,12 @@ class StressCheckInsertWidget extends StatelessWidget {
   }) {
     return InkWell(
       onTap: () => onAction?.call(route),
-      borderRadius: const Borderconst Radius.circular(12),
+      borderRadius: const BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(color: MintColors.primary.withValues(alpha: 0.3)),
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
         ),
         child: Row(
           children: [

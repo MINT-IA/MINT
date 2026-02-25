@@ -72,7 +72,7 @@ class CantonRankingBar extends StatelessWidget {
         color: isHighlighted
             ? MintColors.primary.withValues(alpha: 0.06)
             : Colors.transparent,
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: isHighlighted
             ? Border.all(color: MintColors.primary.withValues(alpha: 0.3))
             : null,
@@ -102,7 +102,7 @@ class CantonRankingBar extends StatelessWidget {
               color: isHighlighted
                   ? MintColors.primary
                   : color.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(4),
+              borderRadius: const BorderRadius.circular(4),
             ),
             child: Text(
               cantonCode,
@@ -141,7 +141,7 @@ class CantonRankingBar extends StatelessWidget {
                       height: 14,
                       decoration: BoxDecoration(
                         color: MintColors.appleSurface,
-                        borderRadius: const Borderconst Radius.circular(7),
+                        borderRadius: const BorderRadius.circular(7),
                       ),
                     ),
                     AnimatedContainer(
@@ -151,7 +151,7 @@ class CantonRankingBar extends StatelessWidget {
                       width: barWidth.clamp(0.0, constraints.maxWidth),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.7),
-                        borderRadius: const Borderconst Radius.circular(7),
+                        borderRadius: const BorderRadius.circular(7),
                       ),
                     ),
                   ],

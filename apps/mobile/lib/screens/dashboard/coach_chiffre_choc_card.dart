@@ -89,7 +89,7 @@ class _CoachChiffreChocCardState extends State<CoachChiffreChocCard>
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -110,7 +110,7 @@ class _CoachChiffreChocCardState extends State<CoachChiffreChocCard>
                       height: 36,
                       decoration: BoxDecoration(
                         color: MintColors.purple.withAlpha(20),
-                        borderRadius: const Borderconst Radius.circular(10),
+                        borderRadius: const BorderRadius.circular(10),
                       ),
                       child: const Icon(
                         Icons.auto_awesome_rounded,
@@ -137,7 +137,7 @@ class _CoachChiffreChocCardState extends State<CoachChiffreChocCard>
                       ),
                       decoration: BoxDecoration(
                         color: confColor.withAlpha(15),
-                        borderRadius: const Borderconst Radius.circular(8),
+                        borderRadius: const BorderRadius.circular(8),
                       ),
                       child: Text(
                         '${widget.confidenceScore.toStringAsFixed(0)}% fiable',
@@ -154,7 +154,7 @@ class _CoachChiffreChocCardState extends State<CoachChiffreChocCard>
 
                 // ── Confidence bar ──
                 ClipRRect(
-                  borderRadius: const Borderconst Radius.circular(4),
+                  borderRadius: const BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: widget.confidenceScore / 100,
                     minHeight: 4,

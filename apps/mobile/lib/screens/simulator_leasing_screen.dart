@@ -87,7 +87,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +219,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.05),
-        borderRadius: const Borderconst Radius.circular(24),
+        borderRadius: const BorderRadius.circular(24),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.1)),
       ),
       child: Column(
@@ -241,7 +241,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.1),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Row(
               children: [
@@ -284,7 +284,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),

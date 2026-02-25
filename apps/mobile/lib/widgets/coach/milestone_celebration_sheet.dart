@@ -124,7 +124,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                     height: 4,
                     decoration: BoxDecoration(
                       color: MintColors.border,
-                      borderRadius: const Borderconst Radius.circular(2),
+                      borderRadius: const BorderRadius.circular(2),
                     ),
                   ),
                 ),
@@ -196,7 +196,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                       backgroundColor: milestoneColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(16),
+                        borderRadius: const BorderRadius.circular(16),
                       ),
                       elevation: 0,
                     ),

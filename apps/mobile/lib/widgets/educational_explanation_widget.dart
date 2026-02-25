@@ -33,7 +33,7 @@ class _EducationalExplanationWidgetState
       margin: const EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
         color: widget.accentColor.withValues(alpha: 0.05),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: widget.accentColor.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -42,7 +42,7 @@ class _EducationalExplanationWidgetState
           // Header cliquable
           InkWell(
             onTap: () => setState(() => _isExpanded = !_isExpanded),
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -146,7 +146,7 @@ class _EducationalExplanationWidgetState
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
                 border: Border.all(color: Colors.orange.shade200),
               ),
               child: Column(

@@ -578,7 +578,7 @@ Si une categorie ne s'applique pas, omets-la.
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF10B981).withValues(alpha: 0.25),
@@ -593,7 +593,7 @@ Si une categorie ne s'applique pas, omets-la.
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: const Borderconst Radius.circular(12),
+                  borderRadius: const BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.calendar_today_outlined,
@@ -671,7 +671,7 @@ Si une categorie ne s'applique pas, omets-la.
               Colors.white,
             ],
           ),
-          borderRadius: const Borderconst Radius.circular(16),
+          borderRadius: const BorderRadius.circular(16),
           border: Border.all(
             color: MintColors.coachAccent.withAlpha(75),
           ),
@@ -710,7 +710,7 @@ Si une categorie ne s'applique pas, omets-la.
                   backgroundColor: MintColors.coachAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: const Borderconst Radius.circular(12),
+                    borderRadius: const BorderRadius.circular(12),
                   ),
                 ),
                 child: Text(
@@ -735,7 +735,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -754,7 +754,7 @@ Si une categorie ne s'applique pas, omets-la.
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.10),
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   Icons.event_repeat_rounded,
@@ -777,7 +777,7 @@ Si une categorie ne s'applique pas, omets-la.
           ),
           const SizedBox(height: 10),
           ClipRRect(
-            borderRadius: const Borderconst Radius.circular(8),
+            borderRadius: const BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
@@ -1169,7 +1169,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1180,7 +1180,7 @@ Si une categorie ne s'applique pas, omets-la.
             height: 28,
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(8),
+              borderRadius: const BorderRadius.circular(8),
             ),
             child: const Icon(Icons.radar, color: MintColors.info, size: 16),
           ),
@@ -1224,7 +1224,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -1233,7 +1233,7 @@ Si une categorie ne s'applique pas, omets-la.
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: MintColors.scoreAttention.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: const Icon(
               Icons.tune,
@@ -1307,7 +1307,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -1368,7 +1368,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(
           color: hasLlmNarrative
               ? MintColors.info.withValues(alpha: 0.35)
@@ -1401,7 +1401,7 @@ Si une categorie ne s'applique pas, omets-la.
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: MintColors.info.withValues(alpha: 0.12),
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: Text(
                     'personnalise',
@@ -1501,7 +1501,7 @@ Si une categorie ne s'applique pas, omets-la.
         Container(
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -1529,7 +1529,7 @@ Si une categorie ne s'applique pas, omets-la.
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: MintColors.scoreAttention.withValues(alpha: 0.08),
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
@@ -1569,7 +1569,7 @@ Si une categorie ne s'applique pas, omets-la.
                         const BorderSide(color: MintColors.primary, width: 1.5),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(14)),
+                        borderRadius: const BorderRadius.circular(14)),
                   ),
                 ),
               ),
@@ -1596,7 +1596,7 @@ Si une categorie ne s'applique pas, omets-la.
             MintColors.primary.withValues(alpha: 0.88),
           ],
         ),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: MintColors.primary.withValues(alpha: 0.20),
@@ -1652,7 +1652,7 @@ Si une categorie ne s'applique pas, omets-la.
                 foregroundColor: MintColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: const Borderconst Radius.circular(14),
+                  borderRadius: const BorderRadius.circular(14),
                 ),
               ),
               child: Text(
@@ -1776,7 +1776,7 @@ Si une categorie ne s'applique pas, omets-la.
             width: double.infinity,
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
@@ -1796,7 +1796,7 @@ Si une categorie ne s'applique pas, omets-la.
                       height: 40,
                       decoration: BoxDecoration(
                         color: MintColors.border.withValues(alpha: 0.20),
-                        borderRadius: const Borderconst Radius.circular(12),
+                        borderRadius: const BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.fitness_center,
@@ -1835,7 +1835,7 @@ Si une categorie ne s'applique pas, omets-la.
                       ),
                       decoration: BoxDecoration(
                         color: MintColors.border.withValues(alpha: 0.15),
-                        borderRadius: const Borderconst Radius.circular(8),
+                        borderRadius: const BorderRadius.circular(8),
                       ),
                       child: Text(
                         '?',
@@ -1891,7 +1891,7 @@ Si une categorie ne s'applique pas, omets-la.
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: MintColors.surface,
-                    borderRadius: const Borderconst Radius.circular(14),
+                    borderRadius: const BorderRadius.circular(14),
                   ),
                   child: Column(
                     children: [
@@ -1947,7 +1947,7 @@ Si une categorie ne s'applique pas, omets-la.
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: const Borderconst Radius.circular(14),
+                        borderRadius: const BorderRadius.circular(14),
                       ),
                     ),
                   ),
@@ -1983,7 +1983,7 @@ Si une categorie ne s'applique pas, omets-la.
         const SizedBox(width: 8),
         Expanded(
           child: ClipRRect(
-            borderRadius: const Borderconst Radius.circular(4),
+            borderRadius: const BorderRadius.circular(4),
             child: const SizedBox(
               height: 8,
               child: LinearProgressIndicator(
@@ -2038,7 +2038,7 @@ Si une categorie ne s'applique pas, omets-la.
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.warning.withValues(alpha: 0.12),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Estimation partielle',
@@ -2055,7 +2055,7 @@ Si une categorie ne s'applique pas, omets-la.
           Container(
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
@@ -2110,7 +2110,7 @@ Si une categorie ne s'applique pas, omets-la.
           child: Container(
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
@@ -2142,7 +2142,7 @@ Si une categorie ne s'applique pas, omets-la.
                       final glowOpacity = 0.03 + (_pulseAnimation.value * 0.05);
                       return Container(
                         decoration: BoxDecoration(
-                          borderRadius: const Borderconst Radius.circular(20),
+                          borderRadius: const BorderRadius.circular(20),
                           gradient: RadialGradient(
                             center: Alignment.center,
                             radius: 0.8,
@@ -2271,7 +2271,7 @@ Si une categorie ne s'applique pas, omets-la.
     return Container(
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -2292,7 +2292,7 @@ Si une categorie ne s'applique pas, omets-la.
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.10),
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: iconColor, size: 20),
               ),
@@ -2358,7 +2358,7 @@ Si une categorie ne s'applique pas, omets-la.
             MintColors.primary.withValues(alpha: 0.88),
           ],
         ),
-        borderRadius: const Borderconst Radius.circular(20),
+        borderRadius: const BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: MintColors.primary.withValues(alpha: 0.20),
@@ -2415,7 +2415,7 @@ Si une categorie ne s'applique pas, omets-la.
                 foregroundColor: MintColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: const Borderconst Radius.circular(14),
+                  borderRadius: const BorderRadius.circular(14),
                 ),
               ),
               child: Text(
@@ -2550,7 +2550,7 @@ Si une categorie ne s'applique pas, omets-la.
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: const Color(0xFFFEF2F2),
-          borderRadius: const Borderconst Radius.circular(12),
+          borderRadius: const BorderRadius.circular(12),
           border: const Border(
             left: BorderSide(color: Color(0xFFEF4444), width: 4),
           ),
@@ -2584,7 +2584,7 @@ Si une categorie ne s'applique pas, omets-la.
         color: urgency == _AlertUrgency.urgent
             ? const Color(0xFFFEF2F2)
             : MintColors.coachBubble,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border(
           left: BorderSide(color: borderColor, width: 4),
         ),
@@ -2630,7 +2630,7 @@ Si une categorie ne s'applique pas, omets-la.
                               ),
                               decoration: BoxDecoration(
                                 color: borderColor.withValues(alpha: 0.12),
-                                borderRadius: const Borderconst Radius.circular(8),
+                                borderRadius: const BorderRadius.circular(8),
                               ),
                               child: Text(
                                 deadlineText,
@@ -2661,7 +2661,7 @@ Si une categorie ne s'applique pas, omets-la.
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: borderColor.withValues(alpha: 0.08),
-                          borderRadius: const Borderconst Radius.circular(6),
+                          borderRadius: const BorderRadius.circular(6),
                         ),
                         child: Text(
                           'Impact estime : ~CHF ${topTip!.estimatedImpactChf!.toStringAsFixed(0)}',
@@ -2692,7 +2692,7 @@ Si une categorie ne s'applique pas, omets-la.
                     ),
                     decoration: BoxDecoration(
                       color: MintColors.textSecondary.withValues(alpha: 0.08),
-                      borderRadius: const Borderconst Radius.circular(8),
+                      borderRadius: const BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${activeTipCount - 1} autre${activeTipCount > 2 ? 's' : ''} action${activeTipCount > 2 ? 's' : ''}',
@@ -2848,7 +2848,7 @@ Si une categorie ne s'applique pas, omets-la.
         width: double.infinity,
         decoration: BoxDecoration(
           color: MintColors.card,
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           border: Border.all(
             color: MintColors.success.withValues(alpha: 0.25),
           ),
@@ -2870,7 +2870,7 @@ Si une categorie ne s'applique pas, omets-la.
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: MintColors.success.withValues(alpha: 0.12),
-                    borderRadius: const Borderconst Radius.circular(10),
+                    borderRadius: const BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.trending_up,
@@ -2988,7 +2988,7 @@ Si une categorie ne s'applique pas, omets-la.
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: MintColors.success.withValues(alpha: 0.12),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Text(
                 '+${fmt(delta)}',
@@ -3069,7 +3069,7 @@ Si une categorie ne s'applique pas, omets-la.
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: MintColors.success.withValues(alpha: 0.12),
-                borderRadius: const Borderconst Radius.circular(8),
+                borderRadius: const BorderRadius.circular(8),
               ),
               child: Text(
                 '+${ForecasterService.formatChf(totalSavings)}',
@@ -3115,7 +3115,7 @@ Si une categorie ne s'applique pas, omets-la.
         Container(
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -3144,7 +3144,7 @@ Si une categorie ne s'applique pas, omets-la.
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: MintColors.coachBubble,
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
               border: Border.all(color: MintColors.lightBorder),
             ),
             child: Text(
@@ -3175,7 +3175,7 @@ Si une categorie ne s'applique pas, omets-la.
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: MintColors.success.withValues(alpha: 0.08),
-          borderRadius: const Borderconst Radius.circular(10),
+          borderRadius: const BorderRadius.circular(10),
           border: Border.all(
             color: MintColors.success.withValues(alpha: 0.25),
           ),
@@ -3509,7 +3509,7 @@ Si une categorie ne s'applique pas, omets-la.
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.card,
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -3542,7 +3542,7 @@ Si une categorie ne s'applique pas, omets-la.
                     color: isImproving
                         ? MintColors.success.withValues(alpha: 0.12)
                         : MintColors.scoreAttention.withValues(alpha: 0.12),
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -3784,7 +3784,7 @@ Si une categorie ne s'applique pas, omets-la.
         Container(
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -3856,7 +3856,7 @@ Si une categorie ne s'applique pas, omets-la.
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Text(
                   coachBadgeLabel,
@@ -3876,7 +3876,7 @@ Si une categorie ne s'applique pas, omets-la.
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: colors[i].withValues(alpha: 0.06),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border(left: BorderSide(color: colors[i], width: 3)),
             ),
             child: Column(
@@ -3939,7 +3939,7 @@ Si une categorie ne s'applique pas, omets-la.
     return Container(
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
@@ -3957,7 +3957,7 @@ Si une categorie ne s'applique pas, omets-la.
                 _etSiProjection = null;
               }
             }),
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -3966,7 +3966,7 @@ Si une categorie ne s'applique pas, omets-la.
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: MintColors.info.withValues(alpha: 0.12),
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.tune,
@@ -4187,7 +4187,7 @@ Si une categorie ne s'applique pas, omets-la.
         color:
             (isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique)
                 .withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Row(
         children: [
@@ -4234,7 +4234,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Row(
@@ -4243,7 +4243,7 @@ Si une categorie ne s'applique pas, omets-la.
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(10),
+              borderRadius: const BorderRadius.circular(10),
             ),
             child: const Icon(Icons.tune, color: MintColors.info, size: 18),
           ),
@@ -4462,7 +4462,7 @@ Si une categorie ne s'applique pas, omets-la.
             decoration: BoxDecoration(
               color:
                   showDoneBadge ? const Color(0xFFF0FDF4) : MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(16),
+              borderRadius: const BorderRadius.circular(16),
               border: Border.all(
                 color: showDoneBadge
                     ? const Color(0xFF10B981)
@@ -4505,7 +4505,7 @@ Si une categorie ne s'applique pas, omets-la.
                 ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981),
-                  borderRadius: const Borderconst Radius.circular(8),
+                  borderRadius: const BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Fait',
@@ -4555,7 +4555,7 @@ Si une categorie ne s'applique pas, omets-la.
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: const Borderconst Radius.circular(16),
+            borderRadius: const BorderRadius.circular(16),
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
@@ -4576,7 +4576,7 @@ Si une categorie ne s'applique pas, omets-la.
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3E0),
-                    borderRadius: const Borderconst Radius.circular(12),
+                    borderRadius: const BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -4675,7 +4675,7 @@ Si une categorie ne s'applique pas, omets-la.
               Color(0xFF2D2D30),
             ],
           ),
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: MintColors.primary.withValues(alpha: 0.12),
@@ -4690,7 +4690,7 @@ Si une categorie ne s'applique pas, omets-la.
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: const Borderconst Radius.circular(14),
+                borderRadius: const BorderRadius.circular(14),
               ),
               child: const Icon(
                 Icons.auto_awesome,
@@ -4721,7 +4721,7 @@ Si une categorie ne s'applique pas, omets-la.
                         ),
                         decoration: BoxDecoration(
                           color: MintColors.success.withValues(alpha: 0.25),
-                          borderRadius: const Borderconst Radius.circular(6),
+                          borderRadius: const BorderRadius.circular(6),
                         ),
                         child: Text(
                           'ACTIF',
@@ -4767,7 +4767,7 @@ Si une categorie ne s'applique pas, omets-la.
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: MintColors.card,
-          borderRadius: const Borderconst Radius.circular(20),
+          borderRadius: const BorderRadius.circular(20),
           border: Border.all(color: MintColors.lightBorder),
           boxShadow: [
             BoxShadow(
@@ -4783,7 +4783,7 @@ Si une categorie ne s'applique pas, omets-la.
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: MintColors.accentPastel,
-                borderRadius: const Borderconst Radius.circular(14),
+                borderRadius: const BorderRadius.circular(14),
               ),
               child: const Icon(
                 Icons.auto_awesome,
@@ -4820,7 +4820,7 @@ Si une categorie ne s'applique pas, omets-la.
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: MintColors.primary,
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: Text(
                 'Configurer',
@@ -4847,7 +4847,7 @@ Si une categorie ne s'applique pas, omets-la.
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.surface,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
       ),
       child: Text(
         l10n?.coachDisclaimer ??
@@ -5171,7 +5171,7 @@ class _TrustChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
       ),
       child: Text(
         label,

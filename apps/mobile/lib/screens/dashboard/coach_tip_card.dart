@@ -68,7 +68,7 @@ class _CoachTipCardState extends State<CoachTipCard>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: MintColors.card,
-            borderRadius: const Borderconst Radius.circular(20),
+            borderRadius: const BorderRadius.circular(20),
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
@@ -89,7 +89,7 @@ class _CoachTipCardState extends State<CoachTipCard>
                     height: 36,
                     decoration: BoxDecoration(
                       color: MintColors.warning.withAlpha(20),
-                      borderRadius: const Borderconst Radius.circular(10),
+                      borderRadius: const BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.lightbulb_outline_rounded,

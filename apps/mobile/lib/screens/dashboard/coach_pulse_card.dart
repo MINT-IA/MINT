@@ -98,7 +98,7 @@ class _CoachPulseCardState extends State<CoachPulseCard>
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: MintColors.card,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -193,7 +193,7 @@ class _DeltaBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: color.withAlpha(15),
-        borderRadius: const Borderconst Radius.circular(8),
+        borderRadius: const BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

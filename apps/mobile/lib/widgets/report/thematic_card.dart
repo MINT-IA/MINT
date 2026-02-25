@@ -46,7 +46,7 @@ class ThematicCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
@@ -80,7 +80,7 @@ class ThematicCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.12),
-                    borderRadius: const Borderconst Radius.circular(8),
+                    borderRadius: const BorderRadius.circular(8),
                   ),
                   child: Text(
                     statusLabel,
@@ -156,7 +156,7 @@ class ThematicCard extends StatelessWidget {
                     side: BorderSide(color: statusColor),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(12),
+                      borderRadius: const BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(

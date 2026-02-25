@@ -23,7 +23,7 @@ class DebtAlertBanner extends StatelessWidget {
         gradient: LinearGradient(
           colors: [MintColors.error.withValues(alpha: 0.12), MintColors.error.withValues(alpha: 0.06)],
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -72,7 +72,7 @@ class DebtAlertBanner extends StatelessWidget {
                 backgroundColor: MintColors.error,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: const Borderconst Radius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: const BorderRadius.circular(12)),
               ),
             ),
           ),

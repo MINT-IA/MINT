@@ -61,7 +61,7 @@ class _PCWidgetState extends State<PCWidget> {
               color: isEligible
                   ? MintColors.success.withValues(alpha: 0.1)
                   : MintColors.surface,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(
                 color: isEligible ? MintColors.success : MintColors.border,
                 width: isEligible ? 1 : 0.5,
@@ -106,7 +106,7 @@ class _PCWidgetState extends State<PCWidget> {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                      borderRadius: const Borderconst Radius.circular(8)),
+                      borderRadius: const BorderRadius.circular(8)),
                 ),
               ),
             ),

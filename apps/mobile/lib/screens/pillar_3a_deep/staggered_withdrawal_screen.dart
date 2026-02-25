@@ -106,7 +106,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               ? [Colors.green.shade50, Colors.green.shade100]
               : [Colors.orange.shade50, Colors.orange.shade100],
         ),
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(
           color: result.economie > 0
               ? Colors.green.shade300
@@ -168,7 +168,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -205,7 +205,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -310,7 +310,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             border: Border.all(color: MintColors.border),
-            borderRadius: const Borderconst Radius.circular(8),
+            borderRadius: const BorderRadius.circular(8),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -422,7 +422,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.green.shade50,
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(color: Colors.green.shade200),
             ),
             child: Row(
@@ -459,7 +459,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(
           color: isWinner ? color : MintColors.border,
           width: isWinner ? 2 : 1,
@@ -512,7 +512,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const Borderconst Radius.circular(16),
+        borderRadius: const BorderRadius.circular(16),
         border: Border.all(color: MintColors.border),
       ),
       child: Column(
@@ -656,7 +656,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: const Borderconst Radius.circular(12),
+        borderRadius: const BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(

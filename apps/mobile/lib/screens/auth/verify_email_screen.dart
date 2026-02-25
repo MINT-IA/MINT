@@ -136,7 +136,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: MintColors.info.withValues(alpha: 0.08),
-                    borderRadius: const Borderconst Radius.circular(12),
+                    borderRadius: const BorderRadius.circular(12),
                   ),
                   child: Text(
                     '${l10n?.authDebugTokenLabel ?? 'Token debug (tests)'}: $_debugToken',

@@ -95,7 +95,7 @@ class LetterGeneratorSheet extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: MintColors.surface,
-                borderRadius: const Borderconst Radius.circular(12),
+                borderRadius: const BorderRadius.circular(12),
               ),
               child: Icon(icon, color: MintColors.primary),
             ),

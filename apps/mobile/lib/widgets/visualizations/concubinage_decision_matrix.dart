@@ -105,7 +105,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -141,7 +141,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
             height: 40,
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.compare_arrows,
@@ -190,7 +190,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: MintColors.info.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: Text(
                   'Mariage',
@@ -211,7 +211,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: MintColors.warning.withValues(alpha: 0.1),
-                  borderRadius: const Borderconst Radius.circular(10),
+                  borderRadius: const BorderRadius.circular(10),
                 ),
                 child: Text(
                   'Concubinage',
@@ -265,7 +265,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: MintColors.surface,
-                  borderRadius: const Borderconst Radius.circular(14),
+                  borderRadius: const BorderRadius.circular(14),
                 ),
                 child: Column(
                   children: [
@@ -341,7 +341,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
         if (score != null)
           // Bar indicator
           ClipRRect(
-            borderRadius: const Borderconst Radius.circular(4),
+            borderRadius: const BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: score * progress,
               backgroundColor: MintColors.lightBorder,
@@ -422,7 +422,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
             color: MintColors.primary,
-            borderRadius: const Borderconst Radius.circular(14),
+            borderRadius: const BorderRadius.circular(14),
           ),
           child: Row(
             children: [
@@ -490,7 +490,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: MintColors.surface,
-          borderRadius: const Borderconst Radius.circular(14),
+          borderRadius: const BorderRadius.circular(14),
         ),
         child: Row(
           children: [
@@ -499,7 +499,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
               height: 36,
               decoration: BoxDecoration(
                 color: MintColors.info.withValues(alpha: 0.12),
-                borderRadius: const Borderconst Radius.circular(10),
+                borderRadius: const BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.balance,

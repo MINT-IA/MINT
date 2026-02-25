@@ -135,7 +135,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const Borderconst Radius.circular(20),
+              borderRadius: const BorderRadius.circular(20),
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
@@ -171,7 +171,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
             height: 40,
             decoration: BoxDecoration(
               color: MintColors.info.withValues(alpha: 0.12),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.pie_chart_outline,
@@ -273,7 +273,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                     height: 12,
                     decoration: BoxDecoration(
                       color: segment.color,
-                      borderRadius: const Borderconst Radius.circular(3),
+                      borderRadius: const BorderRadius.circular(3),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -309,7 +309,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
                       color: widget.depasseQuotite
                           ? MintColors.error
                           : MintColors.warning,
-                      borderRadius: const Borderconst Radius.circular(3),
+                      borderRadius: const BorderRadius.circular(3),
                       border: Border.all(
                         color: MintColors.textSecondary.withValues(alpha: 0.3),
                         width: 1,
@@ -363,7 +363,7 @@ class _DonationReserveDonutState extends State<DonationReserveDonut>
             ),
             decoration: BoxDecoration(
               color: MintColors.error.withValues(alpha: 0.08),
-              borderRadius: const Borderconst Radius.circular(12),
+              borderRadius: const BorderRadius.circular(12),
               border: Border.all(
                 color: MintColors.error.withValues(alpha: 0.3),
               ),

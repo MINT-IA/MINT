@@ -190,7 +190,7 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
           width: 12, height: 12,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: const Borderconst Radius.circular(3),
+            borderRadius: const BorderRadius.circular(3),
           ),
         ),
         const SizedBox(width: 6),
@@ -217,7 +217,7 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: source.color.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(10),
+        borderRadius: const BorderRadius.circular(10),
         border: Border.all(color: source.color.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -226,7 +226,7 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
             width: 4, height: 36,
             decoration: BoxDecoration(
               color: source.color,
-              borderRadius: const Borderconst Radius.circular(2),
+              borderRadius: const BorderRadius.circular(2),
             ),
           ),
           const SizedBox(width: 12),

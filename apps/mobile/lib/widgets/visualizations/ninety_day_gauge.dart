@@ -115,7 +115,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const Borderconst Radius.circular(20),
+                borderRadius: const BorderRadius.circular(20),
                 border: Border.all(color: MintColors.lightBorder),
                 boxShadow: [
                   BoxShadow(
@@ -169,7 +169,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
           height: 40,
           decoration: BoxDecoration(
             color: _statusColor.withValues(alpha: 0.12),
-            borderRadius: const Borderconst Radius.circular(12),
+            borderRadius: const BorderRadius.circular(12),
           ),
           child: Icon(
             Icons.timer_outlined,
@@ -246,7 +246,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: _statusColor.withValues(alpha: 0.08),
-        borderRadius: const Borderconst Radius.circular(14),
+        borderRadius: const BorderRadius.circular(14),
         border: Border.all(
           color: _statusColor.withValues(alpha: 0.2),
         ),
