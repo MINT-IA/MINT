@@ -78,6 +78,7 @@ class _AdvisorOnboardingScreenState extends State<AdvisorOnboardingScreen> {
 
   // Saved wizard progress (read from provider)
   bool get _hasSavedWizardProgress => _provider.hasSavedWizardProgress;
+  // ignore: unused_element
   int get _savedWizardProgress => _provider.savedWizardProgress;
 
   late final DateTime _onboardingStartedAt;

@@ -20,7 +20,6 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';

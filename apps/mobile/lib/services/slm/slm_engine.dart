@@ -179,7 +179,7 @@ class SlmEngine {
     _isGenerating = true;
 
     final stopwatch = Stopwatch()..start();
-    Chat? chat;
+    dynamic chat;
 
     try {
       // Create a chat session with caller-specified params.
@@ -244,7 +244,7 @@ class SlmEngine {
     if (!isAvailable || _model == null || _isGenerating) return;
 
     _isGenerating = true;
-    Chat? chat;
+    dynamic chat;
 
     try {
       chat = await _model!.createChat(

@@ -1,5 +1,4 @@
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
 
 enum SubscriptionTier { free, coach }
