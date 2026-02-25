@@ -97,19 +97,23 @@ class SlmDownloadService {
   //  Constants
   // ═══════════════════════════════════════════════════════════════
 
-  /// Model identifier matching flutter_gemma's internal naming.
-  static const String modelId = 'gemma-3n-e4b-it';
+  /// HuggingFace model URL (Gemma 3n E4B IT in .task format).
+  /// In production, configure via remote config.
+  static const String _defaultModelUrl =
+      'https://huggingface.co/litert-community/gemma-3n-E4B-it-litert-preview/resolve/main/gemma3n-E4B-it-multi.task';
+
+  /// Model identifier as registered by flutter_gemma.
+  ///
+  /// flutter_gemma derives this from the URL filename:
+  ///   Uri.parse(url).pathSegments.last → 'gemma3n-E4B-it-multi.task'
+  /// This MUST match the URL filename for isModelInstalled() to work.
+  static const String modelId = 'gemma3n-E4B-it-multi.task';
 
   /// Expected model size (~2.3 GB).
   static const int _expectedSizeBytes = 2400000000;
 
   /// Model version for cache invalidation.
   static const String _modelVersion = '1.0.0';
-
-  /// HuggingFace model URL (Gemma 3n E4B IT in .task format).
-  /// In production, configure via remote config.
-  static const String _defaultModelUrl =
-      'https://huggingface.co/litert-community/gemma-3n-E4B-it-litert-preview/resolve/main/gemma3n-E4B-it-multi.task';
 
   /// SharedPreferences key for model version tracking.
   static const String _prefKeyVersion = 'slm_model_version';
@@ -264,10 +268,19 @@ class SlmDownloadService {
 
   /// Delete the downloaded model to free disk space (~2.3 GB).
   ///
-  /// Note: flutter_gemma manages model files internally.
-  /// We clear our version metadata; the model file is managed
-  /// by the platform's app storage cleanup.
+  /// Uses [FlutterGemma.uninstallModel] to remove both model files
+  /// and flutter_gemma metadata. Also clears our version tracking.
   Future<bool> deleteModel() async {
+    try {
+      // Uninstall via flutter_gemma — deletes files + metadata.
+      await FlutterGemma.uninstallModel(modelId);
+      debugPrint('[SLM] Model uninstalled via flutter_gemma');
+    } catch (e) {
+      // Model might not be registered (e.g., partial download).
+      // Continue to clear our own state regardless.
+      debugPrint('[SLM] flutter_gemma uninstall error (continuing): $e');
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_prefKeyVersion);
@@ -275,10 +288,10 @@ class SlmDownloadService {
       _state = DownloadState.notStarted;
       _progress = 0.0;
       _stateController.add(_state);
-      debugPrint('[SLM] Model state cleared');
+      debugPrint('[SLM] Model deleted — ~${modelSizeFormatted} liberes');
       return true;
     } catch (e) {
-      debugPrint('[SLM] Model deletion failed: $e');
+      debugPrint('[SLM] Model state clear failed: $e');
       return false;
     }
   }
