@@ -145,7 +145,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [MintColors.primary, MintColors.primaryDark],
+                  colors: [MintColors.primary, MintColors.accent],
                 ),
               ),
             ),

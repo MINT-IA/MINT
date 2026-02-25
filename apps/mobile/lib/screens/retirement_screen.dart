@@ -9,7 +9,6 @@ import 'package:mint_mobile/widgets/retirement/lpp_comparison_card.dart';
 import 'package:mint_mobile/widgets/retirement/budget_gauge_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SCREEN — Sprint S21 / Retraite complete

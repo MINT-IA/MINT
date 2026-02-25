@@ -1296,6 +1296,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
   }
 
   /// Neighbor comparison insight — shown once on savings question
+  // ignore: unused_element
   Widget _buildNeighborInsight() {
     final income = (_answers['q_net_income_period_chf'] as num).toDouble();
     final canton = _answers['q_canton'] as String;
