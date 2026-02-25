@@ -23,6 +23,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:mint_mobile/services/slm/slm_download_service.dart';
 
 /// Status of the SLM engine.
 enum SlmStatus {
@@ -84,8 +85,9 @@ class SlmEngine {
   /// Whether the engine is ready for inference.
   bool get isAvailable => _status == SlmStatus.running;
 
-  /// Model identifier (used by flutter_gemma internally).
-  static const String modelId = 'gemma-3n-e4b-it';
+  /// Model identifier — delegates to [SlmDownloadService.modelId]
+  /// (derived from the URL filename, e.g. 'gemma3n-E4B-it-multi.task').
+  static String get modelId => SlmDownloadService.modelId;
 
   /// Model display name.
   static const String modelDisplayName = 'Gemma 3n 4B (on-device)';
@@ -188,13 +190,12 @@ class SlmEngine {
         topK: 1,
       );
 
-      // Combine system + user prompt.
-      // flutter_gemma handles <start_of_turn> formatting internally
-      // for ModelType.gemmaIt, so we send a single user message.
-      final combinedPrompt = '$systemPrompt\n\n$userPrompt';
-
+      // Send system prompt via dedicated Message.systemInfo,
+      // then user prompt as Message.text(isUser: true).
+      // flutter_gemma handles <start_of_turn> formatting internally.
+      await chat.addQueryChunk(Message.systemInfo(text: systemPrompt));
       await chat.addQueryChunk(Message.text(
-        text: combinedPrompt,
+        text: userPrompt,
         isUser: true,
       ));
 
@@ -252,9 +253,9 @@ class SlmEngine {
         topK: 1,
       );
 
-      final combinedPrompt = '$systemPrompt\n\n$userPrompt';
+      await chat.addQueryChunk(Message.systemInfo(text: systemPrompt));
       await chat.addQueryChunk(Message.text(
-        text: combinedPrompt,
+        text: userPrompt,
         isUser: true,
       ));
 
