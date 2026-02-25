@@ -58,12 +58,24 @@ jobs:
       name: staging
       url: ${{ steps.deploy.outputs.url }}
     steps:
+      - name: Check Railway config
+        env:
+          HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
+        run: |
+          if [ "$HAS_TOKEN" != "true" ]; then
+            echo "::notice::Railway secrets not configured yet — skipping deploy"
+            echo "SKIP_DEPLOY=true" >> "$GITHUB_ENV"
+          fi
+
       - uses: actions/checkout@v4
+        if: env.SKIP_DEPLOY != 'true'
 
       - name: Install Railway CLI
+        if: env.SKIP_DEPLOY != 'true'
         run: npm install -g @railway/cli
 
       - name: Deploy to staging
+        if: env.SKIP_DEPLOY != 'true'
         id: deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -81,12 +93,24 @@ jobs:
       name: production
       url: https://mint-api.up.railway.app
     steps:
+      - name: Check Railway config
+        env:
+          HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
+        run: |
+          if [ "$HAS_TOKEN" != "true" ]; then
+            echo "::notice::Railway secrets not configured yet — skipping deploy"
+            echo "SKIP_DEPLOY=true" >> "$GITHUB_ENV"
+          fi
+
       - uses: actions/checkout@v4
+        if: env.SKIP_DEPLOY != 'true'
 
       - name: Install Railway CLI
+        if: env.SKIP_DEPLOY != 'true'
         run: npm install -g @railway/cli
 
       - name: Deploy to production
+        if: env.SKIP_DEPLOY != 'true'
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
