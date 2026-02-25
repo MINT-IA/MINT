@@ -1,0 +1,90 @@
+# MINT CI — Run tests on every push & PR
+# Triggers on push to main + any PR
+# Two parallel jobs: backend (pytest) + flutter (analyze + test)
+# REQUIRED to pass before merge (branch protection rule)
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Backend Tests ───────────────────────────────────────────
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+
+      - name: Install dependencies (app + dev/test deps)
+        run: pip install ".[dev]"
+
+      - name: Run tests
+        env:
+          TESTING: "1"
+          DATABASE_URL: "sqlite:///./test.db"
+        run: python -m pytest tests/ -q --tb=short -x
+
+  # ─── Flutter Analysis & Tests ────────────────────────────────
+  flutter:
+    name: Flutter analyze + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Analyze (errors only)
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test --reporter compact
+
+  # ─── Gate: all checks must pass ──────────────────────────────
+  ci-gate:
+    name: CI Gate
+    needs: [backend, flutter]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.backend.result }}" != "success" ]] || \
+             [[ "${{ needs.flutter.result }}" != "success" ]]; then
+            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}"
+            exit 1
+          fi
+          echo "All checks passed"

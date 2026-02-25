@@ -23,6 +23,7 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -30,7 +31,7 @@ import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH DASHBOARD SCREEN — Sprint C5 / MINT Coach
@@ -93,6 +94,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
   // Chiffre choc emotional narratives (LLM-generated via BYOK)
   Map<String, String> _chiffreChocNarratives = {};
+  bool _didTrackDashboardView = false;
 
   // T7: Coach narrative (LLM or static fallback)
   CoachNarrative? _narrative;
@@ -561,7 +563,13 @@ Si une categorie ne s'applique pas, omets-la.
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: GestureDetector(
-        onTap: () => context.push('/coach/checkin'),
+        onTap: () {
+          AnalyticsService().trackCTAClick(
+            'checkin_card',
+            screenName: 'coach_dashboard',
+          );
+          context.push('/coach/checkin');
+        },
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -824,11 +832,29 @@ Si une categorie ne s'applique pas, omets-la.
 
     // ── ETAT C : Utilisateur curieux (pas de profil) ──
     if (!coachProvider.hasProfile) {
+      if (!_didTrackDashboardView) {
+        _didTrackDashboardView = true;
+        AnalyticsService().trackEvent(
+          'dashboard_viewed',
+          category: 'engagement',
+          data: {'state': 'empty'},
+          screenName: 'coach_dashboard',
+        );
+      }
       return _buildEmptyDashboard();
     }
 
     // ── ETAT B : Profil partiel (mini-onboarding) ──
     if (coachProvider.isPartialProfile) {
+      if (!_didTrackDashboardView) {
+        _didTrackDashboardView = true;
+        AnalyticsService().trackEvent(
+          'dashboard_viewed',
+          category: 'engagement',
+          data: {'state': 'partial'},
+          screenName: 'coach_dashboard',
+        );
+      }
       return _buildPartialDashboard();
     }
 
@@ -837,6 +863,20 @@ Si une categorie ne s'applique pas, omets-la.
       return const Scaffold(
         backgroundColor: MintColors.background,
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (!_didTrackDashboardView) {
+      _didTrackDashboardView = true;
+      AnalyticsService().trackEvent(
+        'dashboard_viewed',
+        category: 'engagement',
+        data: {
+          'state': 'full',
+          'score': _score!.global,
+          'scenario_count': 3,
+        },
+        screenName: 'coach_dashboard',
       );
     }
 

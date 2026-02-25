@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Chiffre Choc screen — full-screen card with ONE impactful number.
@@ -115,6 +116,18 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     }
 
     _animController.forward(from: 0);
+
+    // Analytics: chiffre choc viewed with type and severity
+    AnalyticsService().trackEvent(
+      'chiffre_choc_viewed',
+      category: 'conversion',
+      data: {
+        'type': _chiffreChoc!.type.name,
+        'color_key': _chiffreChoc!.colorKey,
+        'info_count': _profile!.providedFieldsCount,
+      },
+      screenName: 'chiffre_choc',
+    );
   }
 
   Color _colorForKey(String key) {
@@ -307,6 +320,14 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                       ChiffreChocType.retirementIncome =>
                         '/retirement/projection',
                     };
+                    AnalyticsService().trackCTAClick(
+                      'chiffre_choc_action',
+                      screenName: 'chiffre_choc',
+                      data: {
+                        'choc_type': choc.type.name,
+                        'target_route': route,
+                      },
+                    );
                     context.go(route);
                   },
                   style: FilledButton.styleFrom(
@@ -333,6 +354,11 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
+                    AnalyticsService().trackCTAClick(
+                      'chiffre_choc_enrich',
+                      screenName: 'chiffre_choc',
+                      data: {'choc_type': choc.type.name},
+                    );
                     context.push(
                       '/onboarding/enrichment',
                       extra: _buildEnrichmentExtra(),

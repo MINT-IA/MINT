@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -92,6 +92,7 @@ import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:mint_mobile/screens/mortgage/imputed_rental_screen.dart';
 import 'package:mint_mobile/screens/mortgage/saron_vs_fixed_screen.dart';
 import 'package:mint_mobile/screens/admin_observability_screen.dart';
+import 'package:mint_mobile/screens/admin_analytics_screen.dart';
 // Pillar 3a Deep (Sprint S17)
 import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
@@ -230,6 +231,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'admin-observability',
           builder: (context, state) => const AdminObservabilityScreen(),
+        ),
+        GoRoute(
+          path: 'admin-analytics',
+          builder: (context, state) => const AdminAnalyticsScreen(),
         ),
         GoRoute(
           path: 'consent',

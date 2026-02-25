@@ -447,9 +447,23 @@ void main() {
   // ===========================================================================
 
   group('SimulatorRenteCapitalScreen', () {
+    late CoachProfileProvider renteCapitalProvider;
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      renteCapitalProvider = CoachProfileProvider();
+    });
+
+    Widget buildWithProvider(Widget child) {
+      return ChangeNotifierProvider.value(
+        value: renteCapitalProvider,
+        child: MaterialApp(home: child),
+      );
+    }
+
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -459,7 +473,7 @@ void main() {
 
     testWidgets('displays AppBar title in French', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -471,7 +485,7 @@ void main() {
 
     testWidgets('shows header with LPP subtitle', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -483,7 +497,7 @@ void main() {
 
     testWidgets('shows input section with sliders', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -497,7 +511,7 @@ void main() {
     testWidgets('shows canton dropdown and civil status selector',
         (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -509,7 +523,7 @@ void main() {
 
     testWidgets('auto-calculates and shows result cards', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -526,7 +540,7 @@ void main() {
 
     testWidgets('shows break-even section', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -543,7 +557,7 @@ void main() {
 
     testWidgets('shows educational section', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 
@@ -559,7 +573,7 @@ void main() {
 
     testWidgets('shows disclaimer', (tester) async {
       await tester.pumpWidget(
-        buildTestable(const SimulatorRenteCapitalScreen()),
+        buildWithProvider(const SimulatorRenteCapitalScreen()),
       );
       await tester.pump();
 

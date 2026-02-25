@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class EducationalTheme {
@@ -33,11 +33,11 @@ class EducationalTheme {
     if (t == null) return this;
     return EducationalTheme(
       id: id,
-      title: t['title']!(l10n) ?? title,
-      question: t['question']!(l10n) ?? question,
-      actionLabel: t['actionLabel']!(l10n) ?? actionLabel,
+      title: t['title']?.call(l10n) ?? title,
+      question: t['question']?.call(l10n) ?? question,
+      actionLabel: t['actionLabel']?.call(l10n) ?? actionLabel,
       route: route,
-      reminderText: t['reminderText']!(l10n) ?? reminderText,
+      reminderText: t['reminderText']?.call(l10n) ?? reminderText,
       icon: icon,
       color: color,
       estimatedMinutes: estimatedMinutes,

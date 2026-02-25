@@ -83,6 +83,46 @@ flutter run                           # Run app
 
 ---
 
+## GIT SYNC PROTOCOL (NON-NEGOTIABLE)
+
+### At the START of every task/sprint/session
+```bash
+git fetch --all
+git status
+git pull --rebase origin main
+# If on a feature branch:
+git pull --rebase origin <current-branch>
+# If conflicts exist → STOP, report to user, do NOT auto-resolve.
+```
+
+### At the END of every task/sprint/session
+```bash
+git add <only sprint-relevant files>
+git status  # show user what will be committed
+git commit -m "S{XX}: <description concise>"
+git push origin <current-branch>
+```
+
+### Branch convention
+- Feature work: `feature/S{XX}-<slug>` (e.g. `feature/S35-slm-coach`)
+- Hotfix: `hotfix/<description>`
+- Always branch from latest `main`
+- Never commit directly to `main` without explicit user approval
+
+### Before ANY code modification
+1. Confirm current branch with `git branch --show-current`
+2. Confirm no uncommitted changes with `git status`
+3. If dirty working tree → ask user whether to stash, commit, or discard
+
+### Rules
+- **NEVER** force push (`git push --force` is BANNED)
+- **NEVER** auto-merge branches without user approval
+- **ALWAYS** use `--rebase` on pull (no merge commits)
+- **ALWAYS** show `git status` output before committing
+- **ALWAYS** delete feature branches after merge (`git branch -d <branch>` local + `git push origin --delete <branch>` remote)
+
+---
+
 ## COMPLIANCE RULES (NON-NEGOTIABLE)
 
 ### Banned terms (never use in user-facing text)

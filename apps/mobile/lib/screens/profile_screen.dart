@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -966,6 +966,15 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () => context.push('/profile/admin-observability'),
             icon: const Icon(Icons.analytics_outlined, size: 18),
             label: const Text('Admin observability'),
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => context.push('/profile/admin-analytics'),
+            icon: const Icon(Icons.bar_chart_rounded, size: 18),
+            label: const Text('Analytics beta testeurs'),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 12),

@@ -1,0 +1,6 @@
+# MINT iOS — App identifiers
+# Update these with your actual values
+
+app_identifier("ch.mint.app")           # Bundle ID
+# apple_id("julien@mint.ch")            # Your Apple ID (not needed with API key auth)
+# team_id("XXXXXXXXXX")                 # Your Apple Developer Team ID
