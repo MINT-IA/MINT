@@ -15,7 +15,7 @@ import 'package:mint_mobile/screens/advisor/onboarding/onboarding_constants.dart
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_essentials.dart';
 import 'package:mint_mobile/screens/advisor/onboarding/onboarding_step_income.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 // ────────────────────────────────────────────────────────────

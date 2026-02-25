@@ -31,7 +31,7 @@ import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH DASHBOARD SCREEN — Sprint C5 / MINT Coach
