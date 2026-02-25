@@ -87,7 +87,7 @@ flutter run                           # Run app
 
 ### At the START of every task/sprint/session
 ```bash
-git fetch --all
+git fetch origin
 git status
 git pull --rebase origin main
 # If on a feature branch:
@@ -100,14 +100,22 @@ git pull --rebase origin <current-branch>
 git add <only sprint-relevant files>
 git status  # show user what will be committed
 git commit -m "S{XX}: <description concise>"
-git push origin <current-branch>
+git push -u origin <current-branch>
+# Then open a PR on GitHub (or update the existing PR)
 ```
 
 ### Branch convention
 - Feature work: `feature/S{XX}-<slug>` (e.g. `feature/S35-slm-coach`)
 - Hotfix: `hotfix/<description>`
 - Always branch from latest `main`
-- Never commit directly to `main` without explicit user approval
+- **NEVER** commit directly to `main` — always use feature branches + PR
+
+### PR & merge workflow (team of 2)
+1. Push feature branch → open PR against `main`
+2. CI Gate must pass (backend tests + Flutter analyze + test)
+3. The other developer reviews and approves (1 approval required)
+4. **Merge strategy: "Squash and merge"** — keeps `main` history clean (1 commit per feature/sprint)
+5. Feature branch is auto-deleted after merge (`delete_branch_on_merge` enabled)
 
 ### Before ANY code modification
 1. Confirm current branch with `git branch --show-current`
@@ -116,10 +124,11 @@ git push origin <current-branch>
 
 ### Rules
 - **NEVER** force push (`git push --force` is BANNED)
-- **NEVER** auto-merge branches without user approval
-- **ALWAYS** use `--rebase` on pull (no merge commits)
+- **NEVER** merge PRs without CI passing + peer review
+- **NEVER** push directly to `main` (branch protection enforced)
+- **ALWAYS** use `--rebase` on pull (no merge commits on local branches)
 - **ALWAYS** show `git status` output before committing
-- **ALWAYS** delete feature branches after merge (`git branch -d <branch>` local + `git push origin --delete <branch>` remote)
+- **ALWAYS** use "Squash and merge" on GitHub PRs
 
 ---
 
