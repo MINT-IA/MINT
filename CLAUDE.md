@@ -119,6 +119,7 @@ git push origin <current-branch>
 - **NEVER** auto-merge branches without user approval
 - **ALWAYS** use `--rebase` on pull (no merge commits)
 - **ALWAYS** show `git status` output before committing
+- **ALWAYS** delete feature branches after merge (`git branch -d <branch>` local + `git push origin --delete <branch>` remote)
 
 ---
 
