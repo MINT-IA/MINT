@@ -30,8 +30,10 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(
       routerConfig: router,
     ));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    // Pump multiple frames to allow GoRouter + async _loadSavedProgress to complete
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // SECTION 0: STRESS CHECK
     await _answerChoice(tester, "Réduire mes dettes");
