@@ -1,0 +1,84 @@
+# MINT iOS — Fastlane configuration
+# Usage:
+#   cd apps/mobile/ios
+#   bundle exec fastlane beta
+#
+# Required environment variables (set as GitHub Secrets):
+#   APP_STORE_CONNECT_API_KEY_ID      — App Store Connect API Key ID
+#   APP_STORE_CONNECT_ISSUER_ID       — App Store Connect Issuer ID
+#   APP_STORE_CONNECT_API_KEY_CONTENT — App Store Connect API Key (.p8 content)
+#   MATCH_PASSWORD                    — Password to decrypt certificates repo
+#   MATCH_GIT_URL                     — Git repo URL for match certificates
+#   KEYCHAIN_PASSWORD                 — Temporary keychain password (CI only)
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    # ── 1. App Store Connect API auth (no interactive login) ──
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"],
+      is_key_content_base64: true,
+      in_house: false,
+    )
+
+    # ── 2. Setup temporary keychain (CI environment) ──
+    if ENV["CI"]
+      create_keychain(
+        name: "ci_keychain",
+        password: ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password",
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+      )
+    end
+
+    # ── 3. Fetch signing certificates + profiles ──
+    match(
+      type: "appstore",
+      app_identifier: "ch.mint.app",
+      git_url: ENV["MATCH_GIT_URL"],
+      keychain_name: ENV["CI"] ? "ci_keychain" : nil,
+      keychain_password: ENV["CI"] ? (ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password") : nil,
+      api_key: api_key,
+      readonly: true,
+    )
+
+    # ── 4. Auto-increment build number ──
+    increment_build_number(
+      build_number: latest_testflight_build_number(api_key: api_key) + 1,
+      xcodeproj: "Runner.xcodeproj",
+    )
+
+    # ── 5. Build the Flutter IPA ──
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+      output_directory: "../build/ios",
+      output_name: "Mint.ipa",
+    )
+
+    # ── 6. Upload to TestFlight ──
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      distribute_external: true,
+      groups: ["Beta Testeurs"],  # <-- ton groupe TestFlight
+      changelog: "Nouvelle version automatique depuis CI/CD",
+    )
+  end
+
+  desc "Register devices + refresh profiles"
+  lane :refresh_profiles do
+    match(
+      type: "appstore",
+      app_identifier: "ch.mint.app",
+      git_url: ENV["MATCH_GIT_URL"],
+      force_for_new_devices: true,
+    )
+  end
+end

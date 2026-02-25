@@ -1,0 +1,30 @@
+# MINT Backend — Deploy to Fly.io
+# Triggers: push to main (only if backend files changed)
+# Requires secret: FLY_API_TOKEN
+
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/backend/**"
+
+jobs:
+  deploy:
+    name: Deploy to Fly.io
+    runs-on: ubuntu-latest
+    # Only deploy if CI passed (optional: add needs: [ci] if same workflow)
+    defaults:
+      run:
+        working-directory: services/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-action/setup-flyctl@master
+
+      - name: Deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only
