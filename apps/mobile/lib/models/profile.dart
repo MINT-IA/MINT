@@ -1,3 +1,5 @@
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 enum HouseholdType { single, couple, concubine, family }
 
 enum Goal { house, retire, emergency, invest, optimizeTaxes, other }
@@ -112,15 +114,36 @@ class Profile {
     this.pillar3aAnnual,
   });
 
-  /// Calcule le plafond 3a selon le profil
+  /// Calcule le plafond 3a selon le profil (OPP3 art. 7).
+  ///
+  /// - Salarie avec LPP: petit 3a (7'258 CHF)
+  /// - Independant sans LPP: grand 3a (20% du revenu net, max 36'288 CHF)
+  /// - Etudiants/retraites: 0 CHF
   double get pillar3aLimit {
     if (employmentStatus == null) return 0;
 
-    // Import du calculateur nécessaire
-    // Note: Ceci nécessite d'importer pillar_3a_calculator.dart
-    // Pour éviter une dépendance circulaire, on pourrait aussi
-    // calculer cela dans un service séparé
-    return 0; // TODO: Implémenter avec Pillar3aCalculator
+    switch (employmentStatus!) {
+      case EmploymentStatus.student:
+      case EmploymentStatus.retired:
+        return 0;
+      case EmploymentStatus.selfEmployed:
+        if (has2ndPillar == true) return pilier3aPlafondAvecLpp;
+        // Grand 3a: 20% du revenu net, plafonne a 36'288 CHF
+        if (selfEmployedNetIncome != null && selfEmployedNetIncome! > 0) {
+          final calculated = selfEmployedNetIncome! * pilier3aTauxRevenuSansLpp;
+          return calculated < pilier3aPlafondSansLpp
+              ? calculated
+              : pilier3aPlafondSansLpp;
+        }
+        return pilier3aPlafondSansLpp;
+      case EmploymentStatus.mixed:
+        // Mixte: depend de l'activite principale et de la LPP
+        if (has2ndPillar == true) return pilier3aPlafondAvecLpp;
+        return pilier3aPlafondSansLpp;
+      case EmploymentStatus.employee:
+      case EmploymentStatus.other:
+        return pilier3aPlafondAvecLpp;
+    }
   }
 
   /// Détermine si l'utilisateur a besoin d'une couverture protection

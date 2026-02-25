@@ -33,10 +33,10 @@ void main() {
       expect(state.tier, SubscriptionTier.free);
     });
 
-    test('default dev state is coach', () {
+    test('default state is free', () {
       SubscriptionService.resetToDefault();
       final state = SubscriptionService.currentState();
-      expect(state.tier, SubscriptionTier.coach);
+      expect(state.tier, SubscriptionTier.free);
     });
 
     test('free state has source mock', () {
@@ -273,11 +273,11 @@ void main() {
       expect(state.trialDaysRemaining, 7);
     });
 
-    test('resetToDefault sets coach tier (dev mode)', () {
-      SubscriptionService.setMockTier(SubscriptionTier.free);
+    test('resetToDefault sets free tier', () {
+      SubscriptionService.setMockTier(SubscriptionTier.coach);
       SubscriptionService.resetToDefault();
 
-      expect(SubscriptionService.currentState().tier, SubscriptionTier.coach);
+      expect(SubscriptionService.currentState().tier, SubscriptionTier.free);
     });
   });
 

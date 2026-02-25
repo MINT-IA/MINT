@@ -620,6 +620,10 @@ class CoachProfile {
   /// Relevant for cross-border workers (permis G) and expats.
   final String? residencePermit;
 
+  /// Family change reported during annual refresh (e.g. 'Mariage', 'Naissance').
+  /// Used by CoachingService for life event nudges.
+  final String? familyChange;
+
   // === META ===
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -650,6 +654,7 @@ class CoachProfile {
     this.providers3a = const [],
     this.arrivalAge,
     this.residencePermit,
+    this.familyChange,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -760,6 +765,7 @@ class CoachProfile {
     List<String>? providers3a,
     int? arrivalAge,
     String? residencePermit,
+    String? familyChange,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -789,6 +795,7 @@ class CoachProfile {
       providers3a: providers3a ?? this.providers3a,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       residencePermit: residencePermit ?? this.residencePermit,
+      familyChange: familyChange ?? this.familyChange,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -822,6 +829,7 @@ class CoachProfile {
       providers3a: providers3a,
       arrivalAge: arrivalAge,
       residencePermit: residencePermit,
+      familyChange: familyChange,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -855,6 +863,7 @@ class CoachProfile {
       providers3a: providers3a,
       arrivalAge: arrivalAge,
       residencePermit: residencePermit,
+      familyChange: familyChange,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -1009,6 +1018,7 @@ class CoachProfile {
           const [],
       arrivalAge: json['arrivalAge'] as int?,
       residencePermit: json['residencePermit'] as String?,
+      familyChange: json['familyChange'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -1044,6 +1054,7 @@ class CoachProfile {
     'providers3a': providers3a,
     'arrivalAge': arrivalAge,
     'residencePermit': residencePermit,
+    'familyChange': familyChange,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
   };
@@ -1408,9 +1419,7 @@ class CoachProfile {
     final savedCreatedAt = answers['_coach_created_at'] as String?;
 
     // ── Family change persiste par annual refresh ─────────
-    // Stocke pour usage futur (coaching proactif, life events)
-    // La cle _coach_family_change est lue ici pour completude;
-    // elle pourra alimenter des nudges dans le CoachingService.
+    final familyChange = answers['_coach_family_change'] as String?;
 
     return CoachProfile(
       firstName: firstName,
@@ -1435,6 +1444,7 @@ class CoachProfile {
           : <String>[],
       arrivalAge: computedArrivalAge,
       residencePermit: answers['q_residence_permit'] as String?,
+      familyChange: familyChange,
       updatedAt: savedUpdatedAt != null
           ? DateTime.tryParse(savedUpdatedAt)
           : null,
