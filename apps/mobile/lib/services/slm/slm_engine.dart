@@ -23,6 +23,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:mint_mobile/services/slm/slm_download_service.dart';
 
 /// Status of the SLM engine.
 enum SlmStatus {
