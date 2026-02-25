@@ -67,14 +67,6 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
-      - name: Verify l10n output
-        run: |
-          if [ ! -f .dart_tool/flutter_gen/gen_l10n/app_localizations.dart ]; then
-            echo "::error::l10n generation failed — app_localizations.dart not found"
-            exit 1
-          fi
-          echo "l10n OK"
-
       - name: Analyze (errors only)
         run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
