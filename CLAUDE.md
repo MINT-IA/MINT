@@ -303,10 +303,7 @@ Every projection MUST include:
 - `visions/vision_product.md` — Core promise, acquisition strategy, North Star metric
 - `visions/vision_features.md` — Feature specs, screen contracts
 - `visions/vision_compliance.md` — Legal framework, FINMA, LPD
-- `visions/vision_trust_privacy.md` — Trust architecture, consent
-- `visions/vision_monetization.md` — Revenue model
 - `visions/vision_tech_stack.md` — Technical choices
-- `visions/vision_user_journeys.md` — Persona journeys
 
 ---
 
@@ -323,6 +320,8 @@ In case of conflict, priority order:
 8. `decisions/` (ADR) — Architecture decisions
 9. `SOT.md` + OpenAPI — Data contracts
 10. Code — Implementation follows documents
+
+Archived docs: `docs/archive/`, `visions/archive/`, `.claude/archive/` — historique, accessible via git.
 
 ---
 

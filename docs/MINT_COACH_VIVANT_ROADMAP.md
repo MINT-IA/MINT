@@ -1,5 +1,8 @@
 # MINT_COACH_VIVANT_ROADMAP.md — Definitive Execution Plan
 
+> **Scope**: Plan d'execution sprint pour Coach Vivant (S31-S45 dependances, ordering, specs).
+> **Companions**: BLUEPRINT_COACH_AI_LAYER.md (architecture technique), UX_REDESIGN_COACH.md (design UX).
+
 > Integrates: Coach Layer (T1-T7) + Arbitrage Engine + Onboarding Redesign
 > + Compliance Guards + Longitudinal Tracking
 >

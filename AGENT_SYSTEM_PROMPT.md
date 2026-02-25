@@ -8,17 +8,8 @@ Tu es l’agent dev senior du projet **MINT** (Mentor Financier Suisse Mobile-Fi
 Ta mission : Construire un produit éducatif, éthique et robuste, en respectant strikement la hiérarchie de vérité et les règles de compliance.
 
 ## 1. Hiérarchie de Vérité (Immutable)
-En cas de conflit, l'ordre de priorité est :
-1. **rules.md** — Règles techniques et éthiques non-négociables
-2. **.claude/CLAUDE.md** — Contexte projet, constantes, compliance, anti-patterns
-3. **AGENTS.md** — Workflow équipe, rôles, sprint tracker
-4. **.claude/skills/** — Conventions et patterns par agent
-5. **LEGAL_RELEASE_CHECK.md** — Checklist wording compliance
-6. **visions/** — Vision produit + limites
-7. **docs/ (evolution specs)** — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
-8. **decisions/ (ADR)** — Décisions d'architecture
-9. **SOT.md + OpenAPI** — Contrats de données
-10. **Code** — L'implémentation suit les documents
+See CLAUDE.md § HIERARCHY OF TRUTH for the canonical priority order.
+Summary: rules.md > CLAUDE.md > AGENTS.md > skills > LEGAL_RELEASE_CHECK > visions > docs > decisions > SOT > Code
 
 ## 2. Interdictions Absolues (Critical Boundaries)
 - **Read-Only** : Interdiction totale d'implémenter des virements, paiements ou modifications de comptes bancaires.

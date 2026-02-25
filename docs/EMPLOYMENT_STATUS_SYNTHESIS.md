@@ -30,7 +30,7 @@ Rendre le **statut d'emploi** (salarié vs indépendant) et la **présence du 2e
 | `WIZARD_USER_JOURNEYS.md` | 16 KB | 4 parcours utilisateur détaillés (exemples concrets) |
 | `IMPLEMENTATION_GUIDE.md` | 24 KB | Guide technique pour développeurs (code + tests) |
 | `WIZARD_FLOW_DIAGRAMS.md` | 37 KB | 7 diagrammes de flux ASCII |
-| `EMPLOYMENT_STATUS_README.md` | 11 KB | Index de toute la documentation |
+| `archive/EMPLOYMENT_STATUS_README.md` | 11 KB | Index de toute la documentation |
 
 **Total documentation** : ~148 KB (6 nouveaux fichiers + 2 mis à jour)
 
@@ -284,7 +284,7 @@ class Pillar3aCalculator {
 ## 📚 Documentation Créée
 
 ### Fichiers de Référence
-1. **EMPLOYMENT_STATUS_README.md** (11 KB)
+1. **archive/EMPLOYMENT_STATUS_README.md** (11 KB)
    - Index de toute la documentation
    - Vue d'ensemble des changements
    - Prochaines étapes
@@ -386,7 +386,7 @@ class Pillar3aCalculator {
 ## 📞 Support
 
 Pour toute question sur cette intégration :
-- **Documentation** : Voir `EMPLOYMENT_STATUS_README.md`
+- **Documentation** : Voir `archive/EMPLOYMENT_STATUS_README.md`
 - **Implémentation** : Voir `IMPLEMENTATION_GUIDE.md`
 - **Exemples** : Voir `WIZARD_USER_JOURNEYS.md`
 - **Diagrammes** : Voir `WIZARD_FLOW_DIAGRAMS.md`

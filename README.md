@@ -6,7 +6,7 @@ Mint est un mentor financier suisse, mobile-first, qui aide à prendre de meille
 - Vision (visions/*) = le Tout (pourquoi / pour qui / limites)
 - SOT.md + OpenAPI = contrats (vérité opérationnelle)
 - Code = implémentation des parties
-- Postmortems + AGENTS_LOG = apprentissage
+- Postmortems = apprentissage
 Règle: si un écart se répète, on modifie un .md (vision / règle / contrat), pas juste le code.
 
 ## Démarrage dev
