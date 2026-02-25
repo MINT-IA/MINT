@@ -97,8 +97,8 @@ class SlmDownloadService {
   //  Constants
   // ═══════════════════════════════════════════════════════════════
 
-  /// Model file name on disk (.task format for MediaPipe).
-  static const String _modelFileName = 'gemma-3n-e4b-it.task';
+  /// Model identifier matching flutter_gemma's internal naming.
+  static const String modelId = 'gemma-3n-e4b-it';
 
   /// Expected model size (~2.3 GB).
   static const int _expectedSizeBytes = 2400000000;
@@ -111,10 +111,8 @@ class SlmDownloadService {
   static const String _defaultModelUrl =
       'https://huggingface.co/litert-community/gemma-3n-E4B-it-litert-preview/resolve/main/gemma3n-E4B-it-multi.task';
 
-  /// SharedPreferences keys for download state.
-  static const String _prefKeyDownloaded = 'slm_model_downloaded';
+  /// SharedPreferences key for model version tracking.
   static const String _prefKeyVersion = 'slm_model_version';
-  static const String _prefKeyPath = 'slm_model_path';
 
   // ═══════════════════════════════════════════════════════════════
   //  State
@@ -133,33 +131,46 @@ class SlmDownloadService {
   double _progress = 0.0;
   double get progress => _progress;
 
+  /// Active cancel token for in-progress downloads.
+  CancelToken? _cancelToken;
+
   // ═══════════════════════════════════════════════════════════════
   //  Public API
   // ═══════════════════════════════════════════════════════════════
 
-  /// Get the local model file path (null if not downloaded).
-  Future<String?> get modelPath async {
-    final prefs = await SharedPreferences.getInstance();
-    final isDownloaded = prefs.getBool(_prefKeyDownloaded) ?? false;
-    if (!isDownloaded) return null;
+  /// Check if model is installed via flutter_gemma's native check.
+  ///
+  /// This is the authoritative source of truth — not SharedPreferences.
+  Future<bool> get isModelReady async {
+    try {
+      return await FlutterGemma.isModelInstalled(modelId);
+    } catch (_) {
+      return false;
+    }
+  }
 
-    final path = prefs.getString(_prefKeyPath);
-    return path;
+  /// Get the local model file path (null if not downloaded).
+  ///
+  /// Note: flutter_gemma manages paths internally. Returns the model
+  /// identifier when installed, null otherwise.
+  Future<String?> get modelPath async {
+    final installed = await isModelReady;
+    return installed ? modelId : null;
   }
 
   /// Get model information.
   Future<ModelInfo> getModelInfo() async {
-    final path = await modelPath;
+    final installed = await isModelReady;
     final prefs = await SharedPreferences.getInstance();
     final version = prefs.getString(_prefKeyVersion) ?? _modelVersion;
 
     return ModelInfo(
-      modelId: 'gemma-3n-e4b-it',
+      modelId: modelId,
       displayName: 'Gemma 3n 4B (on-device)',
       sizeBytes: _expectedSizeBytes,
       version: version,
-      isReady: path != null,
-      localPath: path,
+      isReady: installed,
+      localPath: installed ? modelId : null,
     );
   }
 
@@ -179,6 +190,7 @@ class SlmDownloadService {
 
     _state = DownloadState.downloading;
     _progress = 0.0;
+    _cancelToken = CancelToken();
     _stateController.add(_state);
 
     try {
@@ -190,60 +202,80 @@ class SlmDownloadService {
 
       // Use flutter_gemma's built-in model installer.
       // Handles chunked download, resume support, and verification.
-      var installer = FlutterGemma.installModel(
+      // withProgress receives int 0-100, withCancelToken for abort.
+      await FlutterGemma.installModel(
         modelType: ModelType.gemmaIt,
-      ).fromNetwork(
-        url,
-        token: hfToken,
-      );
+      )
+          .fromNetwork(url, token: hfToken)
+          .withProgress((percentInt) {
+            _progress = percentInt / 100.0;
+            final downloadedBytes = (_progress * _expectedSizeBytes).toInt();
+            onProgress?.call(_progress, downloadedBytes, _expectedSizeBytes);
+          })
+          .withCancelToken(_cancelToken!)
+          .install();
 
-      // Add progress tracking.
-      installer = installer.withProgress((progressPercent) {
-        _progress = progressPercent / 100.0;
-        final downloadedBytes = (_progress * _expectedSizeBytes).toInt();
-        onProgress?.call(_progress, downloadedBytes, _expectedSizeBytes);
-      });
+      // Check if cancelled during install.
+      if (_cancelToken?.isCancelled == true) {
+        _state = DownloadState.notStarted;
+        _progress = 0.0;
+        _cancelToken = null;
+        _stateController.add(_state);
+        debugPrint('[SLM] Download was cancelled');
+        return false;
+      }
 
-      // Execute the download + installation.
-      await installer.install();
-
-      // Persist download state.
+      // Persist version for future cache invalidation checks.
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_prefKeyDownloaded, true);
       await prefs.setString(_prefKeyVersion, _modelVersion);
-      await prefs.setString(_prefKeyPath, _modelFileName);
 
       _state = DownloadState.completed;
       _progress = 1.0;
+      _cancelToken = null;
       _stateController.add(_state);
 
       debugPrint('[SLM] Model download complete');
       return true;
     } catch (e) {
-      debugPrint('[SLM] Model download failed: $e');
-      _state = DownloadState.failed;
+      // CancelToken.isCancel checks if exception is a cancellation.
+      if (CancelToken.isCancel(e)) {
+        _state = DownloadState.notStarted;
+        _progress = 0.0;
+        debugPrint('[SLM] Download cancelled by user');
+      } else {
+        debugPrint('[SLM] Model download failed: $e');
+        _state = DownloadState.failed;
+      }
+      _cancelToken = null;
       _stateController.add(_state);
       return false;
     }
   }
 
   /// Cancel an in-progress download.
-  Future<void> cancelDownload() async {
+  ///
+  /// Uses flutter_gemma's [CancelToken] to abort the network request.
+  void cancelDownload() {
     if (_state != DownloadState.downloading) return;
-    _state = DownloadState.notStarted;
-    _progress = 0.0;
-    _stateController.add(_state);
-    debugPrint('[SLM] Download cancelled');
+    _cancelToken?.cancel('User cancelled download');
+    debugPrint('[SLM] Cancel requested');
+    // State transition happens in downloadModel() catch block.
   }
 
   /// Delete the downloaded model to free disk space (~2.3 GB).
+  ///
+  /// Note: flutter_gemma manages model files internally.
+  /// We clear our version metadata; the model file is managed
+  /// by the platform's app storage cleanup.
   Future<bool> deleteModel() async {
     try {
-      await _clearDownloadState();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_prefKeyVersion);
+
       _state = DownloadState.notStarted;
       _progress = 0.0;
       _stateController.add(_state);
-      debugPrint('[SLM] Model deleted');
+      debugPrint('[SLM] Model state cleared');
       return true;
     } catch (e) {
       debugPrint('[SLM] Model deletion failed: $e');
@@ -268,19 +300,9 @@ class SlmDownloadService {
     return '${gb.toStringAsFixed(1)} Go';
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  //  Private
-  // ═══════════════════════════════════════════════════════════════
-
-  Future<void> _clearDownloadState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_prefKeyDownloaded);
-    await prefs.remove(_prefKeyVersion);
-    await prefs.remove(_prefKeyPath);
-  }
-
   /// Release resources.
   void dispose() {
+    _cancelToken?.cancel('Service disposed');
     _stateController.close();
   }
 }

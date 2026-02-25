@@ -28,6 +28,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
   ModelInfo? _modelInfo;
   bool _isLoading = true;
+  bool _isProcessing = false;
   StreamSubscription<DownloadState>? _downloadSub;
 
   @override
@@ -56,13 +57,19 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   }
 
   Future<void> _startDownload() async {
-    setState(() {});
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
+
     await _downloadService.downloadModel(
       onProgress: (progress, downloaded, total) {
         if (mounted) setState(() {});
       },
     );
-    await _loadModelInfo();
+
+    if (mounted) {
+      await _loadModelInfo();
+      setState(() => _isProcessing = false);
+    }
   }
 
   Future<void> _deleteModel() async {
@@ -92,23 +99,30 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
       ),
     );
 
-    if (confirm == true) {
-      _engine.dispose();
-      await _downloadService.deleteModel();
+    if (confirm != true || !mounted) return;
+
+    setState(() => _isProcessing = true);
+    await _engine.dispose();
+    await _downloadService.deleteModel();
+    if (mounted) {
       await _loadModelInfo();
+      setState(() => _isProcessing = false);
     }
   }
 
   Future<void> _initializeEngine() async {
-    setState(() {});
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
+
     final success = await _engine.initialize();
+
     if (mounted) {
-      setState(() {});
+      setState(() => _isProcessing = false);
       if (!success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erreur d\'initialisation du modele. '
-                'Verifiez que votre appareil est compatible.'),
+                'Verifie que ton appareil est compatible.'),
           ),
         );
       }
@@ -184,7 +198,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   }
 
   Widget _buildModelCard() {
-    if (_isLoading) {
+    if (_isLoading || _modelInfo == null) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(24),
@@ -251,20 +265,19 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               ),
               const SizedBox(height: 12),
               OutlinedButton(
-                onPressed: () async {
-                  await _downloadService.cancelDownload();
-                  setState(() {});
+                onPressed: () {
+                  _downloadService.cancelDownload();
                 },
                 child: const Text('Annuler'),
               ),
             ],
 
-            // Action buttons
+            // Download button
             if (!isDownloading && !info.isReady)
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _startDownload,
+                  onPressed: _isProcessing ? null : _startDownload,
                   icon: const Icon(Icons.download),
                   label: Text(
                     'Telecharger (${SlmDownloadService.modelSizeFormatted})',
@@ -276,11 +289,12 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                 ),
               ),
 
+            // Delete button
             if (!isDownloading && info.isReady) ...[
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: _deleteModel,
+                  onPressed: _isProcessing ? null : _deleteModel,
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   label: const Text(
                     'Supprimer le modele',
@@ -365,9 +379,20 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _initializeEngine,
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Initialiser le moteur'),
+                  onPressed: _isProcessing ? null : _initializeEngine,
+                  icon: _isProcessing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.play_arrow),
+                  label: Text(
+                    _isProcessing ? 'Initialisation...' : 'Initialiser le moteur',
+                  ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
