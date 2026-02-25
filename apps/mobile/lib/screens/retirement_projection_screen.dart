@@ -626,7 +626,7 @@ class _RetirementProjectionScreenState
           min: min,
           max: max,
           divisions: divisions ?? (max - min).round(),
-          activeColor: MintColors.info,
+          activeThumbColor: MintColors.info,
           onChanged: onChanged,
         ),
       ],

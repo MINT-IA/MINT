@@ -205,7 +205,7 @@ class _ConsentDashboardSettingsScreenState
               Switch.adaptive(
                 value: consent.enabled,
                 onChanged: (v) => _toggleConsent(consent.type, v),
-                activeColor: color,
+                activeThumbColor: color,
               ),
             ],
           ),

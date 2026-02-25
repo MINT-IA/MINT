@@ -374,19 +374,19 @@ class _CoachingTipCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.02),
+            color: const Color(0xFF1D1D1F).withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(
-          color: MintColors.border.withOpacity(0.6),
+          color: MintColors.border.withValues(alpha: 0.6),
           width: 0.8,
         ),
       ),
@@ -403,7 +403,7 @@ class _CoachingTipCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _getCategoryColor(tip.category).withOpacity(0.1),
+                    color: _getCategoryColor(tip.category).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -438,7 +438,7 @@ class _CoachingTipCard extends StatelessWidget {
 
           // Divider
           Divider(
-            color: MintColors.border.withOpacity(0.4),
+            color: MintColors.border.withValues(alpha: 0.4),
             height: 1,
           ),
 
@@ -463,7 +463,7 @@ class _CoachingTipCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: MintColors.success.withOpacity(0.08),
+                  color: MintColors.success.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -492,7 +492,7 @@ class _CoachingTipCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
             decoration: BoxDecoration(
-              color: MintColors.surface.withOpacity(0.5),
+              color: MintColors.surface.withValues(alpha: 0.5),
               borderRadius:
                   const BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
@@ -517,7 +517,7 @@ class _CoachingTipCard extends StatelessWidget {
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
-                    backgroundColor: MintColors.primary.withOpacity(0.05),
+                    backgroundColor: MintColors.primary.withValues(alpha: 0.05),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -603,7 +603,7 @@ class _PriorityBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

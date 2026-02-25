@@ -294,9 +294,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: MintColors.appleSurface.withOpacity(0.3),
+        color: MintColors.appleSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.primary.withOpacity(0.1)),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [

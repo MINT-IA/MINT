@@ -128,14 +128,14 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [MintColors.primary, MintColors.primary.withOpacity(0.8)],
+          colors: [MintColors.primary, MintColors.primary.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.3),
+            color: MintColors.primary.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -164,7 +164,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -207,8 +207,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
-          border: Border.all(color: color.withOpacity(0.2)),
+          color: color.withValues(alpha: 0.05),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -302,7 +302,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         decoration: BoxDecoration(
           color: MintColors.accentPastel,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.border.withOpacity(0.3)),
+          border: Border.all(color: MintColors.border.withValues(alpha: 0.3)),
         ),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -410,7 +410,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             activeTrackColor: MintColors.primary,
             inactiveTrackColor: MintColors.border,
             thumbColor: Colors.white,
-            overlayColor: MintColors.primary.withOpacity(0.1),
+            overlayColor: MintColors.primary.withValues(alpha: 0.1),
             thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 6, elevation: 1),
             trackHeight: 2,

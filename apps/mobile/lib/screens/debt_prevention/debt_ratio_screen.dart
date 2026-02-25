@@ -154,7 +154,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -296,7 +296,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
               Switch(
                 value: _estCelibataire,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) => setState(() => _estCelibataire = v),
               ),
             ],
@@ -354,7 +354,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],
@@ -683,7 +683,7 @@ class _GaugePainter extends CustomPainter {
 
     // Green zone (0-15%)
     final greenPaint = Paint()
-      ..color = const Color(0xFF24B14D).withOpacity(0.3)
+      ..color = const Color(0xFF24B14D).withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16
       ..strokeCap = StrokeCap.round;
@@ -698,7 +698,7 @@ class _GaugePainter extends CustomPainter {
 
     // Orange zone (15-30%)
     final orangePaint = Paint()
-      ..color = const Color(0xFFFF9F0A).withOpacity(0.3)
+      ..color = const Color(0xFFFF9F0A).withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 
@@ -712,7 +712,7 @@ class _GaugePainter extends CustomPainter {
 
     // Red zone (30%+)
     final redPaint = Paint()
-      ..color = const Color(0xFFFF453A).withOpacity(0.3)
+      ..color = const Color(0xFFFF453A).withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/simulators/buyback_simulator.dart';
 
@@ -36,7 +37,7 @@ void main() {
       // YES! Staggering buybacks IS usually better because you deduct against the highest marginal rate every year,
       // instead of using the deduction against lower brackets in a single year.
 
-      print('Delta: ${result.delta}');
+      debugPrint('Delta: ${result.delta}');
       expect(result.delta, greaterThan(0),
           reason: 'Delta should be positive (Staggered > Single)');
     });

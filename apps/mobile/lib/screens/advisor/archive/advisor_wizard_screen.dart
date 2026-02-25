@@ -261,7 +261,7 @@ class _AdvisorSessionWizardScreenState
                           color: isCompleted
                               ? MintColors.primary
                               : isCurrent
-                                  ? MintColors.primary.withOpacity(0.5)
+                                  ? MintColors.primary.withValues(alpha: 0.5)
                                   : MintColors.border,
                           shape: BoxShape.circle,
                         ),

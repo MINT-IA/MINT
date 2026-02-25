@@ -253,7 +253,7 @@ class ComplianceGuard {
     if (discussesProjection && !hasDisclaimer) {
       var trimmed = text.trimRight();
       if (!trimmed.endsWith('.')) trimmed += '.';
-      return '$trimmed\n\n_$standardDisclaimer\_';
+      return '$trimmed\n\n_$standardDisclaimer _';
     }
     return text;
   }

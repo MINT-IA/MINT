@@ -248,7 +248,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFEA580C).withOpacity(0.1),
+              color: const Color(0xFFEA580C).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.swap_horiz,
@@ -288,17 +288,17 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFEA580C).withOpacity(0.06),
+        color: const Color(0xFFEA580C).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFEA580C).withOpacity(0.15),
+          color: const Color(0xFFEA580C).withValues(alpha: 0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: const Color(0xFFEA580C).withOpacity(0.8)),
+              size: 20, color: const Color(0xFFEA580C).withValues(alpha: 0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -514,7 +514,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                         const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
                       color: selected
-                          ? accentColor.withOpacity(0.1)
+                          ? accentColor.withValues(alpha: 0.1)
                           : MintColors.surface,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
@@ -567,7 +567,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
         ),
       ],
     );
@@ -622,14 +622,14 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            verdictColor.withOpacity(0.08),
-            verdictColor.withOpacity(0.04),
+            verdictColor.withValues(alpha: 0.08),
+            verdictColor.withValues(alpha: 0.04),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: verdictColor.withOpacity(0.2), width: 1.5),
+        border: Border.all(color: verdictColor.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,7 +763,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               decoration: BoxDecoration(
                 color: isEven
                     ? Colors.transparent
-                    : MintColors.surface.withOpacity(0.5),
+                    : MintColors.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -851,9 +851,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.06),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -919,10 +919,10 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.06),
+                  color: MintColors.warning.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: MintColors.warning.withOpacity(0.15),
+                    color: MintColors.warning.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -975,12 +975,12 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: _checklistState[index]
-                      ? MintColors.success.withOpacity(0.06)
+                      ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _checklistState[index]
-                        ? MintColors.success.withOpacity(0.3)
+                        ? MintColors.success.withValues(alpha: 0.3)
                         : MintColors.border,
                   ),
                 ),

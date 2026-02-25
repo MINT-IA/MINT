@@ -152,7 +152,7 @@ class _SimulatorRenteCapitalScreenState
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: MintColors.primary.withOpacity(0.1),
+              color: MintColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.account_balance,
@@ -194,7 +194,7 @@ class _SimulatorRenteCapitalScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [MintColors.primary, MintColors.primary.withOpacity(0.85)],
+          colors: [MintColors.primary, MintColors.primary.withValues(alpha: 0.85)],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -449,7 +449,7 @@ class _SimulatorRenteCapitalScreenState
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected
-                ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4, offset: const Offset(0, 2))]
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 2))]
                 : null,
           ),
           child: Center(
@@ -485,7 +485,7 @@ class _SimulatorRenteCapitalScreenState
             ),
             Switch(
               value: _useCustomRetrait,
-              activeColor: MintColors.primary,
+              activeThumbColor: MintColors.primary,
               onChanged: (v) {
                 _useCustomRetrait = v;
                 if (v && _result != null) {
@@ -590,7 +590,7 @@ class _SimulatorRenteCapitalScreenState
             min: 0,
             max: 1,
             divisions: 20,
-            activeColor: MintColors.primary,
+            activeThumbColor: MintColors.primary,
             label: '${(_partRente * 100).round()}%',
             onChanged: (v) => setState(() {
               _partRente = v;
@@ -787,9 +787,9 @@ class _SimulatorRenteCapitalScreenState
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
+          color: color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Stack(
           children: [
@@ -911,7 +911,7 @@ class _SimulatorRenteCapitalScreenState
                   drawVerticalLine: false,
                   horizontalInterval: _calcGridInterval(effectiveRange),
                   getDrawingHorizontalLine: (value) => FlLine(
-                    color: MintColors.border.withOpacity(0.5),
+                    color: MintColors.border.withValues(alpha: 0.5),
                     strokeWidth: 0.8,
                   ),
                 ),
@@ -965,7 +965,7 @@ class _SimulatorRenteCapitalScreenState
                   horizontalLines: [
                     HorizontalLine(
                       y: 0,
-                      color: MintColors.textMuted.withOpacity(0.5),
+                      color: MintColors.textMuted.withValues(alpha: 0.5),
                       strokeWidth: 1.5,
                       dashArray: [6, 4],
                       label: HorizontalLineLabel(
@@ -983,7 +983,7 @@ class _SimulatorRenteCapitalScreenState
                 lineTouchData: LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
                     getTooltipColor: (_) =>
-                        MintColors.textPrimary.withOpacity(0.9),
+                        MintColors.textPrimary.withValues(alpha: 0.9),
                     tooltipRoundedRadius: 12,
                     getTooltipItems: (spots) {
                       return spots.map((spot) {
@@ -1012,7 +1012,7 @@ class _SimulatorRenteCapitalScreenState
                   LineChartBarData(
                     spots: baselineSpots,
                     isCurved: false,
-                    color: MintColors.textMuted.withOpacity(0.35),
+                    color: MintColors.textMuted.withValues(alpha: 0.35),
                     barWidth: 1.5,
                     dashArray: [6, 4],
                     dotData: const FlDotData(show: false),
@@ -1049,7 +1049,7 @@ class _SimulatorRenteCapitalScreenState
       dotData: const FlDotData(show: false),
       belowBarData: BarAreaData(
         show: true,
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
       ),
     );
   }
@@ -1067,7 +1067,7 @@ class _SimulatorRenteCapitalScreenState
             Container(
               width: 14,
               height: 2,
-              color: MintColors.textMuted.withOpacity(0.35),
+              color: MintColors.textMuted.withValues(alpha: 0.35),
             ),
             const SizedBox(width: 6),
             Text(
@@ -1142,9 +1142,9 @@ class _SimulatorRenteCapitalScreenState
                 ),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.06),
+                  color: color.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: color.withOpacity(0.15)),
+                  border: Border.all(color: color.withValues(alpha: 0.15)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

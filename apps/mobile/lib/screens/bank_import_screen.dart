@@ -173,7 +173,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         gradient: LinearGradient(
           colors: [
             MintColors.info,
-            MintColors.info.withOpacity(0.85),
+            MintColors.info.withValues(alpha: 0.85),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -181,7 +181,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: MintColors.info.withOpacity(0.3),
+            color: MintColors.info.withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -195,7 +195,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.account_balance_outlined,
@@ -221,7 +221,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
                 'CSV ou PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB et autres banques suisses',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
           ),
@@ -295,9 +295,9 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.error.withOpacity(0.08),
+        color: MintColors.error.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withOpacity(0.3)),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -331,9 +331,9 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: MintColors.success.withOpacity(0.08),
+        color: MintColors.success.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.success.withOpacity(0.3)),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -525,7 +525,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: pct,
-            backgroundColor: color.withOpacity(0.12),
+            backgroundColor: color.withValues(alpha: 0.12),
             valueColor: AlwaysStoppedAnimation<Color>(color),
             minHeight: 8,
           ),
@@ -721,7 +721,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -757,7 +757,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.06),
+            color: MintColors.primary.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -850,9 +850,9 @@ class _BankImportScreenState extends State<BankImportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.success.withOpacity(0.08),
+        color: MintColors.success.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.success.withOpacity(0.3)),
+        border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -883,7 +883,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
       decoration: BoxDecoration(
         color: MintColors.accentPastel,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.accent.withOpacity(0.2)),
+        border: Border.all(color: MintColors.accent.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -891,7 +891,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: MintColors.accent.withOpacity(0.1),
+              color: MintColors.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.lock_outline,

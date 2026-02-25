@@ -99,7 +99,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.success.withOpacity(0.1),
+              color: MintColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -127,9 +127,9 @@ class _BuybackWidgetState extends State<BuybackWidget> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: MintColors.info.withOpacity(0.06),
+                color: MintColors.info.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: MintColors.info.withOpacity(0.15)),
+                border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
               ),
               child: Row(
                 children: [
@@ -260,7 +260,7 @@ class _BuybackWidgetState extends State<BuybackWidget> {
               boxShadow: highlight
                   ? [
                       BoxShadow(
-                          color: MintColors.primary.withOpacity(0.3),
+                          color: MintColors.primary.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4))
                     ]

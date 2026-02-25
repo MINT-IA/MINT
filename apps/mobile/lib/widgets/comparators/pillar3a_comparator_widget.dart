@@ -49,13 +49,13 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            MintColors.primary.withOpacity(0.05),
-            MintColors.accentPastel.withOpacity(0.1),
+            MintColors.primary.withValues(alpha: 0.05),
+            MintColors.accentPastel.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border:
-            Border.all(color: MintColors.primary.withOpacity(0.2), width: 2),
+            Border.all(color: MintColors.primary.withValues(alpha: 0.2), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,9 +204,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: MintColors.success.withOpacity(0.05),
+                color: MintColors.success.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: MintColors.success.withOpacity(0.3), width: 2),
+                border: Border.all(color: MintColors.success.withValues(alpha: 0.3), width: 2),
               ),
               child: Column(
                 children: [
@@ -272,7 +272,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.warning.withOpacity(0.08),
+              color: MintColors.warning.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -336,9 +336,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.05),
+        color: MintColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withOpacity(0.3)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,11 +468,11 @@ class Pillar3aComparatorWidget extends StatelessWidget {
     Color borderColor = MintColors.border;
 
     if (isRecommended) {
-      bgColor = MintColors.success.withOpacity(0.05);
-      borderColor = MintColors.success.withOpacity(0.5);
+      bgColor = MintColors.success.withValues(alpha: 0.05);
+      borderColor = MintColors.success.withValues(alpha: 0.5);
     } else if (isWarning) {
-      bgColor = MintColors.error.withOpacity(0.05);
-      borderColor = MintColors.error.withOpacity(0.3);
+      bgColor = MintColors.error.withValues(alpha: 0.05);
+      borderColor = MintColors.error.withValues(alpha: 0.3);
     }
 
     return Container(
@@ -577,7 +577,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: gain > 0 ? MintColors.success.withOpacity(0.15) : MintColors.error.withOpacity(0.15),
+                color: gain > 0 ? MintColors.success.withValues(alpha: 0.15) : MintColors.error.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(

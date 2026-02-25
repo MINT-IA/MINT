@@ -179,7 +179,7 @@ class BenchmarkService {
 
   static String _savingsMessage(int percentile, String bracket, double delta) {
     if (percentile >= 75) {
-      return 'Tu épargnes plus que ${percentile}% des $bracket ans en Suisse. Continue ainsi.';
+      return 'Tu épargnes plus que $percentile% des $bracket ans en Suisse. Continue ainsi.';
     }
     if (percentile >= 50) {
       return 'Ton taux d\'épargne est dans la moyenne suisse pour les $bracket ans.';
@@ -193,7 +193,7 @@ class BenchmarkService {
 
   static String _contributionMessage(int percentile, double contribution) {
     if (percentile >= 75) {
-      return 'Ta cotisation 3a est supérieure à celle de ${percentile}% des cotisant·e·s suisses.';
+      return 'Ta cotisation 3a est supérieure à celle de $percentile% des cotisant·e·s suisses.';
     }
     if (percentile >= 50) {
       return 'Ta cotisation 3a est dans la moyenne des cotisant·e·s suisses.';

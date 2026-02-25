@@ -359,7 +359,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           label: "🔒 Futur (Épargne, Projets)",
           value: plan.future,
           max: plan.available,
-          activeColor: MintColors.info,
+          activeThumbColor: MintColors.info,
           onChanged: (val) {
             provider.updateOverride('future', val);
           },
@@ -369,7 +369,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           label: "🛍️ Variables (Vivre)",
           value: plan.variables,
           max: plan.available,
-          activeColor: MintColors.success,
+          activeThumbColor: MintColors.success,
           onChanged: (val) {
             provider.updateOverride('variables', val);
           },

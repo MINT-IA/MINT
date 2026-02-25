@@ -96,9 +96,9 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: MintColors.info.withOpacity(0.05),
+              color: MintColors.info.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.info.withOpacity(0.15)),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +175,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isMain ? color.withOpacity(0.1) : Colors.transparent,
+          color: isMain ? color.withValues(alpha: 0.1) : Colors.transparent,
           border: Border.all(color: isMain ? color : MintColors.border),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -237,7 +237,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
             activeTrackColor: MintColors.primary,
             inactiveTrackColor: MintColors.border,
             thumbColor: Colors.white,
-            overlayColor: MintColors.primary.withOpacity(0.1),
+            overlayColor: MintColors.primary.withValues(alpha: 0.1),
             thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 8, elevation: 2),
             trackHeight: 4,

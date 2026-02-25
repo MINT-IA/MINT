@@ -745,9 +745,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.05),
+        color: MintColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -757,7 +757,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: MintColors.info.withOpacity(0.8),
+              color: MintColors.info.withValues(alpha: 0.8),
               letterSpacing: 0.5,
             ),
           ),
@@ -770,7 +770,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.description_outlined,
-                        size: 13, color: MintColors.info.withOpacity(0.7)),
+                        size: 13, color: MintColors.info.withValues(alpha: 0.7)),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
@@ -779,7 +779,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                           fontSize: 11,
                           color: MintColors.info,
                           decoration: TextDecoration.underline,
-                          decorationColor: MintColors.info.withOpacity(0.5),
+                          decorationColor: MintColors.info.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -796,22 +796,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.warning.withOpacity(0.2)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline,
-              size: 14, color: MintColors.warning.withOpacity(0.8)),
+              size: 14, color: MintColors.warning.withValues(alpha: 0.8)),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               disclaimers.join('\n'),
               style: TextStyle(
                 fontSize: 11,
-                color: MintColors.warning.withOpacity(0.9),
+                color: MintColors.warning.withValues(alpha: 0.9),
                 height: 1.4,
               ),
             ),

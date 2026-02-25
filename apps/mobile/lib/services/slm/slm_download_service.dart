@@ -275,7 +275,7 @@ class SlmDownloadService {
       _state = DownloadState.notStarted;
       _progress = 0.0;
       _stateController.add(_state);
-      debugPrint('[SLM] Model state cleared');
+      debugPrint('[SLM] Model deleted — ~$modelSizeFormatted liberes');
       return true;
     } catch (e) {
       debugPrint('[SLM] Model deletion failed: $e');

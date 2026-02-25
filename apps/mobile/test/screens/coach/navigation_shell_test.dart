@@ -29,7 +29,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  CoachProfileProvider _buildCoachProvider() {
+  CoachProfileProvider buildCoachProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
       'q_firstname': 'Julien',
@@ -64,7 +64,7 @@ void main() {
             create: (_) => DocumentProvider()),
         ChangeNotifierProvider<BudgetProvider>(
             create: (_) => BudgetProvider()),
-        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(create: (_) => UserActivityProvider()),
       ],

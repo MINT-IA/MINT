@@ -304,7 +304,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

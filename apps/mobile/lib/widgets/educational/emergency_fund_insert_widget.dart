@@ -73,7 +73,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                   min: 1000,
                   max: 8000,
                   divisions: 70,
-                  activeColor: MintColors.primary,
+                  activeThumbColor: MintColors.primary,
                   onChanged: (v) => setState(() => _monthlyExpenses = v),
                 ),
               ),
@@ -104,7 +104,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                   min: 3,
                   max: 6,
                   divisions: 3,
-                  activeColor: MintColors.primary,
+                  activeThumbColor: MintColors.primary,
                   onChanged: (v) => setState(() => _targetMonths = v),
                 ),
               ),
@@ -142,7 +142,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
-                  color: MintColors.primary.withOpacity(0.1),
+                  color: MintColors.primary.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

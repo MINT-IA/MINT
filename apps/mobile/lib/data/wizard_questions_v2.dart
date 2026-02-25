@@ -282,13 +282,13 @@ class WizardQuestionsV2 {
           tags: ['budget', 'savings', 'allocation'],
           condition: (answers) {
             // Compute savings from income - ALL expenses (q_savings_monthly removed)
-            double _parse(dynamic v) => double.tryParse(v?.toString() ?? '') ?? 0;
-            final income = _parse(answers['q_net_income_period_chf']);
-            final housing = _parse(answers['q_housing_cost_period_chf']);
-            final debt = _parse(answers['q_debt_payments_period_chf']);
-            final tax = _parse(answers['q_tax_provision_monthly_chf']);
-            final lamal = _parse(answers['q_lamal_premium_monthly_chf']);
-            final other = _parse(answers['q_other_fixed_costs_monthly_chf']);
+            double parse(dynamic v) => double.tryParse(v?.toString() ?? '') ?? 0;
+            final income = parse(answers['q_net_income_period_chf']);
+            final housing = parse(answers['q_housing_cost_period_chf']);
+            final debt = parse(answers['q_debt_payments_period_chf']);
+            final tax = parse(answers['q_tax_provision_monthly_chf']);
+            final lamal = parse(answers['q_lamal_premium_monthly_chf']);
+            final other = parse(answers['q_other_fixed_costs_monthly_chf']);
             final surplus = income - housing - debt - tax - lamal - other;
             return surplus > 0;
           },

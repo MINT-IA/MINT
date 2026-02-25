@@ -102,7 +102,7 @@ class OnboardingStepEssentials extends StatelessWidget {
           ],
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: canton,
+            initialValue: canton,
             isExpanded: true,
             decoration: InputDecoration(
               labelText: l10n?.advisorMiniCantonLabel ?? 'Canton de résidence',
@@ -127,7 +127,7 @@ class OnboardingStepEssentials extends StatelessWidget {
             items: sortedCantons
                 .map(
                   (entry) => DropdownMenuItem<String>(
-                    value: entry.key,
+                    initialValue: entry.key,
                     child: Text('${entry.value.name} (${entry.key})'),
                   ),
                 )
@@ -136,7 +136,7 @@ class OnboardingStepEssentials extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: provider.residencePermit,
+            initialValue: provider.residencePermit,
             isExpanded: true,
             decoration: InputDecoration(
               labelText: 'Permis de séjour',
@@ -159,10 +159,10 @@ class OnboardingStepEssentials extends StatelessWidget {
               ),
             ),
             items: const [
-              DropdownMenuItem(value: 'swiss', child: Text('Nationalité suisse')),
-              DropdownMenuItem(value: 'permit_c', child: Text('Permis C (établissement)')),
-              DropdownMenuItem(value: 'permit_b', child: Text('Permis B (séjour)')),
-              DropdownMenuItem(value: 'permit_g', child: Text('Permis G (frontalier)')),
+              DropdownMenuItem(initialValue: 'swiss', child: Text('Nationalité suisse')),
+              DropdownMenuItem(initialValue: 'permit_c', child: Text('Permis C (établissement)')),
+              DropdownMenuItem(initialValue: 'permit_b', child: Text('Permis B (séjour)')),
+              DropdownMenuItem(initialValue: 'permit_g', child: Text('Permis G (frontalier)')),
             ],
             onChanged: (value) => provider.setResidencePermit(value),
           ),

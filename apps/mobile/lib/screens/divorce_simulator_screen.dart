@@ -167,7 +167,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.purple.shade600.withOpacity(0.1),
+              color: Colors.purple.shade600.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.family_restroom,
@@ -207,17 +207,17 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.purple.shade600.withOpacity(0.06),
+        color: Colors.purple.shade600.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.purple.shade600.withOpacity(0.15),
+          color: Colors.purple.shade600.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: Colors.purple.shade600.withOpacity(0.8)),
+              size: 20, color: Colors.purple.shade600.withValues(alpha: 0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -307,7 +307,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.purple.shade600.withOpacity(0.1)
+                      ? Colors.purple.shade600.withValues(alpha: 0.1)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -486,9 +486,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.info.withOpacity(0.06),
+        color: MintColors.info.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.info.withOpacity(0.15)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -521,7 +521,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: MintColors.info.withOpacity(0.08),
+                color: MintColors.info.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -557,11 +557,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: (isIncrease ? MintColors.warning : MintColors.success)
-            .withOpacity(0.06),
+            .withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: (isIncrease ? MintColors.warning : MintColors.success)
-              .withOpacity(0.15),
+              .withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -600,7 +600,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: (isIncrease ? MintColors.warning : MintColors.success)
-                  .withOpacity(0.08),
+                  .withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -638,10 +638,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.purple.shade600.withOpacity(0.06),
+        color: Colors.purple.shade600.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.purple.shade600.withOpacity(0.15),
+          color: Colors.purple.shade600.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -741,9 +741,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.warning.withOpacity(0.15)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,10 +817,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: MintColors.warning.withOpacity(0.06),
+                  color: MintColors.warning.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: MintColors.warning.withOpacity(0.15),
+                    color: MintColors.warning.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -873,12 +873,12 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: _checklistState[index]
-                      ? MintColors.success.withOpacity(0.06)
+                      ? MintColors.success.withValues(alpha: 0.06)
                       : MintColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _checklistState[index]
-                        ? MintColors.success.withOpacity(0.3)
+                        ? MintColors.success.withValues(alpha: 0.3)
                         : MintColors.border,
                   ),
                 ),

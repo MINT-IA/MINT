@@ -195,7 +195,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               _affilieLpp = v;
               _calculate();
             },
-            activeColor: MintColors.success,
+            activeThumbColor: MintColors.success,
           ),
         ],
       ),

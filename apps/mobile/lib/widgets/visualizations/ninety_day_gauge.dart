@@ -104,7 +104,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
   Widget build(BuildContext context) {
     return Semantics(
       label:
-          'Jauge de la regle des 90 jours. ${widget.currentDays} jours sur 90. ${_statusText}',
+          'Jauge de la regle des 90 jours. ${widget.currentDays} jours sur 90. $_statusText',
       child: GestureDetector(
         onTap: widget.onTap,
         child: LayoutBuilder(

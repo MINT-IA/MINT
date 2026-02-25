@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +21,7 @@ void main() {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       TaxScalesLoader.init(jsonMap);
     } else {
-      print('Warning: Tax scales asset not found for test.');
+      debugPrint('Warning: Tax scales asset not found for test.');
     }
   });
 
@@ -31,7 +32,7 @@ void main() {
     tester.view.physicalSize = const Size(1440, 3200);
     tester.view.devicePixelRatio = 2.0;
 
-    print('STEP 1: Pump Widget');
+    debugPrint('STEP 1: Pump Widget');
     // 1. Pump Wizard Screen with GoRouter wrapper
     final router = GoRouter(
       routes: [
@@ -56,7 +57,7 @@ void main() {
     ));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    print('STEP 1: Done');
+    debugPrint('STEP 1: Done');
 
     // Helper to tap next securely
     Future<void> tapNext() async {
@@ -67,38 +68,38 @@ void main() {
     }
 
     // Q0: Name (stress check removed — wizard now starts with Profil section)
-    print('STEP 2: Name');
+    debugPrint('STEP 2: Name');
     await tester.enterText(find.byType(TextField).first, 'TestUser');
     await tapNext();
 
-    print('STEP 3: Birth Year');
+    debugPrint('STEP 3: Birth Year');
     // Q1: Birth Year
     await tester.enterText(find.byType(TextField).first, '1990');
     await tapNext();
 
-    print('STEP 4: Canton');
+    debugPrint('STEP 4: Canton');
     // Q2: Canton
     await _answerChoice(tester, 'Vaud (VD)');
 
-    print('STEP 5: Civil Status');
+    debugPrint('STEP 5: Civil Status');
     // Q3: Civil Status
     await _answerChoice(tester, 'Célibataire');
 
-    print('STEP 6: Children');
+    debugPrint('STEP 6: Children');
     // Q4: Children
     await _answerChoice(tester, 'Aucun');
 
-    print('STEP 7: Employment');
+    debugPrint('STEP 7: Employment');
     // Q5: Employment (last Profil question)
     await _answerChoice(tester, 'Salarié(e)');
 
-    print('STEP 8: Income');
+    debugPrint('STEP 8: Income');
     // Q6: Net Income (first Budget & Protection question)
     await tester.enterText(
         find.byType(TextField).first, '10000'); // 10k/month => 120k/year
     await tapNext();
 
-    print('STEP 9: Check Insight');
+    debugPrint('STEP 9: Check Insight');
 
     // Scroll down to find the insight widgets
     final scrollable = find.byKey(const ValueKey('wizard_scroll_view'));
