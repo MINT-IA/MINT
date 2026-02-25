@@ -1,6 +1,7 @@
 # MINT CI — Run tests on every push & PR
 # Triggers on push to main + any PR
 # Two parallel jobs: backend (pytest) + flutter (analyze + test)
+# REQUIRED to pass before merge (branch protection rule)
 
 name: CI
 
@@ -69,3 +70,19 @@ jobs:
 
       - name: Run tests
         run: flutter test
+
+  # ─── Gate: all checks must pass ──────────────────────────────
+  ci-gate:
+    name: CI Gate
+    needs: [backend, flutter]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.backend.result }}" != "success" ]] || \
+             [[ "${{ needs.flutter.result }}" != "success" ]]; then
+            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}"
+            exit 1
+          fi
+          echo "All checks passed"

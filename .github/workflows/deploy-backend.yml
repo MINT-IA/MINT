@@ -1,6 +1,10 @@
-# MINT Backend — Deploy to Fly.io
-# Triggers: push to main (only if backend files changed)
-# Requires secret: FLY_API_TOKEN
+# MINT Backend — Deploy to Railway
+# Two environments: staging (on PR) + production (on push to main)
+#
+# Required secrets:
+#   RAILWAY_TOKEN          — Railway API token
+#   RAILWAY_SERVICE_ID     — Production service ID
+#   RAILWAY_STAGING_SERVICE_ID — Staging service ID (optional)
 
 name: Deploy Backend
 
@@ -9,22 +13,82 @@ on:
     branches: [main]
     paths:
       - "services/backend/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "services/backend/**"
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Deploy to Fly.io
+  # ─── Tests must pass first ──────────────────────────────────
+  test:
+    name: Pre-deploy tests
     runs-on: ubuntu-latest
-    # Only deploy if CI passed (optional: add needs: [ci] if same workflow)
     defaults:
       run:
         working-directory: services/backend
-
     steps:
       - uses: actions/checkout@v4
 
-      - uses: superfly/flyctl-action/setup-flyctl@master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/requirements.txt
 
-      - name: Deploy
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        run: flyctl deploy --remote-only
+          TESTING: "1"
+          DATABASE_URL: "sqlite:///./test.db"
+        run: python -m pytest tests/ -q --tb=short
+
+  # ─── Deploy to staging (on PR) ─────────────────────────────
+  deploy-staging:
+    name: Deploy to Staging
+    needs: test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to staging
+        id: deploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up --service ${{ secrets.RAILWAY_STAGING_SERVICE_ID }} --detach
+          echo "Deployed to staging"
+
+  # ─── Deploy to production (on push to main) ────────────────
+  deploy-production:
+    name: Deploy to Production
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://mint-api.up.railway.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to production
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --detach
+          echo "Deployed to production"
