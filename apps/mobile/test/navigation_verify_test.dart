@@ -30,6 +30,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
 
     // Ignore rendering overflow errors (layout issues)
+    final originalOnError = FlutterError.onError;
     FlutterError.onError = (FlutterErrorDetails details) {
       if (details.toString().contains('RenderFlex overflowed')) {
         // Ignore overflow errors
@@ -37,6 +38,9 @@ void main() {
       }
       FlutterError.presentError(details);
     };
+    addTearDown(() {
+      FlutterError.onError = originalOnError;
+    });
 
     // 1. Pump App
     await tester.pumpWidget(const MintApp());
