@@ -9,7 +9,7 @@ import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 
 void main() {
-  CoachProfileProvider _buildCoachProvider() {
+  CoachProfileProvider buildCoachProvider() {
     final provider = CoachProfileProvider();
     provider.updateFromAnswers({
       'q_firstname': 'Julien',
@@ -22,10 +22,10 @@ void main() {
     return provider;
   }
 
-  Widget _buildDashboard() {
+  Widget buildDashboard() {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
@@ -33,10 +33,10 @@ void main() {
     );
   }
 
-  Widget _buildAgir() {
+  Widget buildAgir() {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => _buildCoachProvider()),
+        ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
       child: const MaterialApp(home: CoachAgirScreen()),
@@ -58,7 +58,7 @@ void main() {
       'last_fitness_score_delta_v1': 2,
     });
 
-    await tester.pumpWidget(_buildDashboard());
+    await tester.pumpWidget(buildDashboard());
     await tester.pump(const Duration(seconds: 2));
 
     expect(
@@ -71,7 +71,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
 
-    await tester.pumpWidget(_buildAgir());
+    await tester.pumpWidget(buildAgir());
     await tester.pump(const Duration(seconds: 2));
 
     expect(
@@ -83,7 +83,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
 
-    await tester.pumpWidget(_buildDashboard());
+    await tester.pumpWidget(buildDashboard());
     await tester.pump(const Duration(seconds: 2));
 
     expect(

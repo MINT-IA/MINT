@@ -4110,7 +4110,7 @@ Si une categorie ne s'applique pas, omets-la.
             min: min,
             max: max,
             divisions: ((max - min) * 10).round(), // 0.1% steps
-            activeColor: MintColors.info,
+            activeThumbColor: MintColors.info,
             onChanged: onChanged,
           ),
         ),

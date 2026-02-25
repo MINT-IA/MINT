@@ -211,7 +211,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           ),
           Switch(
             value: _hasNewEmployer,
-            activeColor: MintColors.primary,
+            activeThumbColor: MintColors.primary,
             onChanged: (v) => setState(() => _hasNewEmployer = v),
           ),
         ],
@@ -372,7 +372,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: _urgencyColor(urgency).withOpacity(0.15),
+        color: _urgencyColor(urgency).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

@@ -266,7 +266,7 @@ class _EplScreenState extends State<EplScreen> {
               ),
               Switch(
                 value: _aRachete,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) => setState(() {
                   _aRachete = v;
                   if (!v) _anneesSDepuisRachat = 0;
@@ -331,7 +331,7 @@ class _EplScreenState extends State<EplScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

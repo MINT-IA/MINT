@@ -148,7 +148,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -273,7 +273,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               child: Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MintColors.error.withOpacity(0.2),
+                  color: MintColors.error.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(6),
                   ),
@@ -291,7 +291,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               child: Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: MintColors.success.withOpacity(0.2),
+                  color: MintColors.success.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(6),
                   ),
@@ -449,7 +449,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
               ),
               Switch(
                 value: _bienAncien,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) => setState(() => _bienAncien = v),
               ),
             ],
@@ -511,7 +511,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

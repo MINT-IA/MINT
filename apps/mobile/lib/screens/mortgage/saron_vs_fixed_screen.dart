@@ -102,7 +102,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withOpacity(0.3), width: 2),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -314,7 +314,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

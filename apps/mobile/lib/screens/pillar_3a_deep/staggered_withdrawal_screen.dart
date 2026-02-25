@@ -372,7 +372,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

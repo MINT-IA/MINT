@@ -113,7 +113,7 @@ class MortgageComparisonInsertWidget extends StatelessWidget {
   }) {
     return TableRow(
       decoration: isHeader
-          ? BoxDecoration(color: MintColors.primary.withOpacity(0.1))
+          ? BoxDecoration(color: MintColors.primary.withValues(alpha: 0.1))
           : null,
       children: cells.asMap().entries.map((entry) {
         final index = entry.key;

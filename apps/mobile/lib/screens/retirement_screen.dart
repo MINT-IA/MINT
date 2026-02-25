@@ -462,7 +462,7 @@ class _RetirementScreenState extends State<RetirementScreen>
               ),
               Switch(
                 value: _isCouple,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) {
                   setState(() {
                     _isCouple = v;
@@ -1137,7 +1137,7 @@ class _RetirementScreenState extends State<RetirementScreen>
               ),
               Switch(
                 value: _budgetCouple,
-                activeColor: MintColors.primary,
+                activeThumbColor: MintColors.primary,
                 onChanged: (v) {
                   setState(() {
                     _budgetCouple = v;

@@ -12,7 +12,7 @@ import 'package:mint_mobile/models/profile.dart';
 /// Priority ordering: Protection > 3a > LPP > Compound interest
 void main() {
   /// Helper to create a Profile with sensible defaults
-  Profile _makeProfile({
+  Profile makeProfile({
     String id = 'test-user',
     int? birthYear = 1990,
     String? canton = 'VD',
@@ -65,7 +65,7 @@ void main() {
 
   group('Protection recommendations (debt / low savings)', () {
     test('recommends emergency fund when user has debt', () {
-      final profile = _makeProfile(hasDebt: true, totalSavings: 5000);
+      final profile = makeProfile(hasDebt: true, totalSavings: 5000);
       final recs = RecommendationsService.generateRecommendations(
         profile: profile,
       );
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('recommends emergency fund when savings < 3000', () {
-      final profile = _makeProfile(hasDebt: false, totalSavings: 1000);
+      final profile = makeProfile(hasDebt: false, totalSavings: 1000);
       final recs = RecommendationsService.generateRecommendations(
         profile: profile,
       );
@@ -84,7 +84,7 @@ void main() {
     });
 
     test('emergency fund recommendation calculates remaining amount', () {
-      final profile = _makeProfile(hasDebt: false, totalSavings: 1500);
+      final profile = makeProfile(hasDebt: false, totalSavings: 1500);
       final recs = RecommendationsService.generateRecommendations(
         profile: profile,
       );
@@ -95,7 +95,7 @@ void main() {
     });
 
     test('no emergency fund recommendation when savings >= 3000 and no debt', () {
-      final profile = _makeProfile(hasDebt: false, totalSavings: 5000);
+      final profile = makeProfile(hasDebt: false, totalSavings: 5000);
       final recs = RecommendationsService.generateRecommendations(
         profile: profile,
       );
@@ -106,7 +106,7 @@ void main() {
 
   group('3a recommendations', () {
     test('recommends 3a for employed user with income and no debt', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -121,7 +121,7 @@ void main() {
     });
 
     test('3a recommendation estimates tax savings at 25% marginal rate', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -137,7 +137,7 @@ void main() {
     });
 
     test('no 3a recommendation when user has debt (protection first)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: true,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -151,7 +151,7 @@ void main() {
     });
 
     test('no 3a recommendation when no income', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -165,7 +165,7 @@ void main() {
     });
 
     test('no 3a recommendation when employment status unknown', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: null,
@@ -181,7 +181,7 @@ void main() {
 
   group('LPP buyback recommendations', () {
     test('recommends LPP buyback for employee with LPP and high income', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -197,7 +197,7 @@ void main() {
     });
 
     test('no LPP recommendation for self-employed without LPP', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.selfEmployed,
@@ -212,7 +212,7 @@ void main() {
     });
 
     test('no LPP recommendation for income below 80k threshold', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -229,7 +229,7 @@ void main() {
 
   group('Compound interest recommendations', () {
     test('recommends compound interest when monthly savings > 0', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         savingsMonthly: 500,
@@ -242,7 +242,7 @@ void main() {
     });
 
     test('compound interest uses correct formula', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         savingsMonthly: 500,
@@ -262,7 +262,7 @@ void main() {
     });
 
     test('no compound interest when savings = 0', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         savingsMonthly: 0,
@@ -275,7 +275,7 @@ void main() {
     });
 
     test('no compound interest when savings is null', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         savingsMonthly: null,
@@ -291,7 +291,7 @@ void main() {
   group('Max recommendations limit', () {
     test('respects maxRecommendations default of 3', () {
       // Profile that qualifies for all 4 recommendations
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: true, // triggers emergency fund
         totalSavings: 1000,
         savingsMonthly: 500,
@@ -306,7 +306,7 @@ void main() {
     });
 
     test('respects custom maxRecommendations = 1', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: true,
         totalSavings: 1000,
         savingsMonthly: 500,
@@ -319,7 +319,7 @@ void main() {
     });
 
     test('respects custom maxRecommendations = 10 (returns all available)', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         savingsMonthly: 500,
@@ -338,7 +338,7 @@ void main() {
 
   group('Priority ordering', () {
     test('emergency fund comes before 3a and LPP', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: true, // triggers emergency fund
         totalSavings: 1000,
         savingsMonthly: 500,
@@ -355,7 +355,7 @@ void main() {
     });
 
     test('debt-first rule: no 3a/LPP when debt exists', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: true,
         totalSavings: 5000,
         employmentStatus: EmploymentStatus.employee,
@@ -374,7 +374,7 @@ void main() {
 
   group('Recommendation data quality', () {
     test('all recommendations have non-empty id and title', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 5000,
         savingsMonthly: 500,
@@ -396,7 +396,7 @@ void main() {
     });
 
     test('all recommendations have at least one risk listed', () {
-      final profile = _makeProfile(
+      final profile = makeProfile(
         hasDebt: false,
         totalSavings: 1000,
         savingsMonthly: 500,

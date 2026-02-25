@@ -488,7 +488,7 @@ class ClarityProgressHeader extends StatelessWidget {
                 color: const Color(0xFFF0F9F4),
                 borderRadius: BorderRadius.circular(8),
                 border:
-                    Border.all(color: const Color(0xFF2D6A4F).withOpacity(0.3)),
+                    Border.all(color: const Color(0xFF2D6A4F).withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [

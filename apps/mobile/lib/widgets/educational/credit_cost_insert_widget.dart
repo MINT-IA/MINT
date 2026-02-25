@@ -140,7 +140,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: MintColors.error.withOpacity(0.35),
+                    color: MintColors.error.withValues(alpha: 0.35),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -158,7 +158,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -177,7 +177,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -185,7 +185,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.95),
+                        color: Colors.white.withValues(alpha: 0.95),
                       ),
                     ),
                   ),
@@ -200,9 +200,9 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: MintColors.error.withOpacity(0.05),
+              color: MintColors.error.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.error.withOpacity(0.3)),
+              border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [
@@ -237,7 +237,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: MintColors.primary.withOpacity(0.1),
+              color: MintColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Column(
@@ -293,7 +293,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 min: min,
                 max: max,
                 divisions: divisions,
-                activeColor: isWarning ? MintColors.error : MintColors.primary,
+                activeThumbColor: isWarning ? MintColors.error : MintColors.primary,
                 onChanged: onChanged,
               ),
             ),

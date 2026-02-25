@@ -121,7 +121,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -427,7 +427,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

@@ -609,7 +609,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                           min: 0.10,
                           max: 0.45,
                           divisions: 35,
-                          activeColor: MintColors.primary,
+                          activeThumbColor: MintColors.primary,
                           onChanged: (v) {
                             _manualTaux = v;
                             _onInputChanged();
@@ -844,7 +844,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: MintColors.primary,
+          activeThumbColor: MintColors.primary,
           onChanged: onChanged,
         ),
       ],

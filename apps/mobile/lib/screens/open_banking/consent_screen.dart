@@ -251,14 +251,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: const Color(0xFF1D1D1F).withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
           ),
         ],
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +280,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: statusConfig.color.withOpacity(0.1),
+                  color: statusConfig.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -375,7 +375,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 label: const Text('Revoquer'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: MintColors.error,
-                  side: BorderSide(color: MintColors.error.withOpacity(0.5)),
+                  side: BorderSide(color: MintColors.error.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -388,13 +388,13 @@ class _ConsentScreenState extends State<ConsentScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: MintColors.error.withOpacity(0.05),
+                color: MintColors.error.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
                   Icon(Icons.check_circle,
-                      color: MintColors.error.withOpacity(0.7), size: 16),
+                      color: MintColors.error.withValues(alpha: 0.7), size: 16),
                   const SizedBox(width: 8),
                   Text(
                     'Consentement revoque',
@@ -628,7 +628,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,7 +666,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
-              ? MintColors.primary.withOpacity(0.05)
+              ? MintColors.primary.withValues(alpha: 0.05)
               : MintColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -681,8 +681,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
               height: 36,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? MintColors.primary.withOpacity(0.1)
-                    : MintColors.border.withOpacity(0.3),
+                    ? MintColors.primary.withValues(alpha: 0.1)
+                    : MintColors.border.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
@@ -739,7 +739,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -791,7 +791,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             child: Row(
               children: [
                 Icon(Icons.info_outline,
-                    size: 16, color: MintColors.textMuted.withOpacity(0.7)),
+                    size: 16, color: MintColors.textMuted.withValues(alpha: 0.7)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -861,7 +861,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           Checkbox(
             value: value,
             onChanged: onChanged,
-            activeColor: MintColors.primary,
+            activeThumbColor: MintColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),
@@ -894,7 +894,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border:
-            Border.all(color: MintColors.border.withOpacity(0.6), width: 0.8),
+            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -329,9 +329,9 @@ class DocumentDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -339,7 +339,7 @@ class DocumentDetailScreen extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -405,7 +405,7 @@ class DocumentDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 18),
@@ -486,9 +486,9 @@ class DocumentDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.warning.withOpacity(0.06),
+        color: MintColors.warning.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.warning.withOpacity(0.2)),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,14 +496,14 @@ class DocumentDetailScreen extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.warning_amber_rounded,
-                  size: 18, color: MintColors.warning.withOpacity(0.8)),
+                  size: 18, color: MintColors.warning.withValues(alpha: 0.8)),
               const SizedBox(width: 8),
               Text(
                 s?.documentsWarningsTitle ?? 'Points d\'attention',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: MintColors.warning.withOpacity(0.9),
+                  color: MintColors.warning.withValues(alpha: 0.9),
                 ),
               ),
             ],
@@ -517,13 +517,13 @@ class DocumentDetailScreen extends StatelessWidget {
                 children: [
                   Text('\u2022 ',
                       style: TextStyle(
-                          color: MintColors.warning.withOpacity(0.7))),
+                          color: MintColors.warning.withValues(alpha: 0.7))),
                   Expanded(
                     child: Text(
                       w,
                       style: TextStyle(
                         fontSize: 13,
-                        color: MintColors.warning.withOpacity(0.8),
+                        color: MintColors.warning.withValues(alpha: 0.8),
                         height: 1.4,
                       ),
                     ),

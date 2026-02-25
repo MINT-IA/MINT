@@ -68,7 +68,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                   min: 200,
                   max: 1500,
                   divisions: 130,
-                  activeColor: MintColors.primary,
+                  activeThumbColor: MintColors.primary,
                   onChanged: (v) => setState(() => _monthlyPayment = v),
                 ),
               ),
@@ -99,7 +99,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                   min: 1,
                   max: 48,
                   divisions: 47,
-                  activeColor: MintColors.primary,
+                  activeThumbColor: MintColors.primary,
                   onChanged: (v) => setState(() => _remainingMonths = v.toInt()),
                 ),
               ),
@@ -229,7 +229,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            color: iconColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: iconColor, size: 24),

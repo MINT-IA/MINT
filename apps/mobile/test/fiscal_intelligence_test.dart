@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/fiscal_intelligence_service.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
@@ -31,7 +32,7 @@ void main() {
       );
 
       expect(result, isNotNull);
-      print('VD Neighbor Result: $result');
+      debugPrint('VD Neighbor Result: $result');
       // Should find cheaper neighbor (VS, FR)
       expect(result!['savings'], greaterThan(1000));
     });
@@ -47,7 +48,7 @@ void main() {
       // Probably null or very low savings as ZG is cheap
       // neighbors: ZH (expensive), LU (cheap but > ZG usually), SZ (cheap), AG (medium)
       // SZ might be cheaper in some cases, but likely result is null or low
-      print('ZG Neighbor Result: $result');
+      debugPrint('ZG Neighbor Result: $result');
     });
   });
 }

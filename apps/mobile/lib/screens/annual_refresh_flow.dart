@@ -273,8 +273,8 @@ class _AnnualRefreshFlowState extends State<AnnualRefreshFlow> {
           min: minVal,
           max: maxVal,
           divisions: divisions,
-          activeColor: MintColors.coachAccent,
-          inactiveColor: MintColors.coachAccent.withAlpha(40),
+          activeThumbColor: MintColors.coachAccent,
+          inactiveThumbColor: MintColors.coachAccent.withAlpha(40),
           label: '${currentVal.toInt()} CHF',
           onChanged: (v) {
             setState(() {

@@ -33,20 +33,20 @@ class SimulatorCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1D1D1F)
-                .withOpacity(0.08), // Apple-like dark shadow
+                .withValues(alpha: 0.08), // Apple-like dark shadow
             blurRadius: 24,
             offset: const Offset(0, 8),
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.02),
+            color: const Color(0xFF1D1D1F).withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
             spreadRadius: 0,
           ),
         ],
         border: Border.all(
-          color: MintColors.border.withOpacity(0.6),
+          color: MintColors.border.withValues(alpha: 0.6),
           width: 0.8,
         ),
       ),
@@ -58,7 +58,7 @@ class SimulatorCard extends StatelessWidget {
             height: 4,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [color, color.withOpacity(0.3)],
+                colors: [color, color.withValues(alpha: 0.3)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
@@ -75,7 +75,7 @@ class SimulatorCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: color, size: 22),
@@ -110,7 +110,7 @@ class SimulatorCard extends StatelessWidget {
             ),
           ),
 
-          Divider(color: MintColors.border.withOpacity(0.5), height: 1),
+          Divider(color: MintColors.border.withValues(alpha: 0.5), height: 1),
 
           // Body
           Padding(
@@ -120,11 +120,11 @@ class SimulatorCard extends StatelessWidget {
 
           // Actions
           if (actions != null && actions!.isNotEmpty) ...[
-            Divider(color: MintColors.border.withOpacity(0.5), height: 1),
+            Divider(color: MintColors.border.withValues(alpha: 0.5), height: 1),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
-                color: MintColors.surface.withOpacity(0.5),
+                color: MintColors.surface.withValues(alpha: 0.5),
                 borderRadius:
                     const BorderRadius.vertical(bottom: Radius.circular(20)),
               ),

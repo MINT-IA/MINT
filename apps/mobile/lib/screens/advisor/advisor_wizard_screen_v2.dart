@@ -75,7 +75,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     if (monthlyExpenses > 0 && cash > 0) {
       final months = cash / monthlyExpenses;
       items.add(DeductionItem(
-        label: 'Fonds d\'urgence',
+        label: 'Fonds d'urgence',
         value: '${months.toStringAsFixed(1)} mois de charges',
         source: 'liquidités / charges',
         isPositive: months >= 3,
@@ -86,7 +86,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     if (income > 0 && monthlyExpenses > 0) {
       final surplus = income - monthlyExpenses;
       items.add(DeductionItem(
-        label: 'Capacité d\'épargne',
+        label: 'Capacité d'épargne',
         value: 'CHF ${surplus.round()}/mois',
         source: 'revenu - dépenses',
         isPositive: surplus > 0,
@@ -515,7 +515,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white.withOpacity(0.8),
+        backgroundColor: Colors.white.withValues(alpha: 0.8),
         foregroundColor: MintColors.textPrimary,
         centerTitle: false,
         leading: IconButton(
@@ -594,10 +594,10 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                             horizontal: 24, vertical: 8),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: MintColors.info.withOpacity(0.08),
+                          color: MintColors.info.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: MintColors.info.withOpacity(0.3)),
+                              color: MintColors.info.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
@@ -610,7 +610,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                                 children: [
                                   Text(
                                     '⚡ Estimation — Ton revenu dépasse le seuil LPP '
-                                    'de 22\'680 CHF/an (art. 7). En tant que salarié·e, '
+                                    'de 22'680 CHF/an (art. 7). En tant que salarié·e, '
                                     'tu es en principe affilié·e. '
                                     'Tu peux corriger ci-dessous si nécessaire.',
                                     style: GoogleFonts.inter(
@@ -716,7 +716,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           final age = _currentAge;
           final yearsToRetirement = (65 - age).clamp(0, 50);
           final horizon = yearsToRetirement > 0
-              ? 'Dans $yearsToRetirement ans, CHF 100 investis aujourd\'hui '
+              ? 'Dans $yearsToRetirement ans, CHF 100 investis aujourd'hui '
                 'pourraient valoir CHF ${(100 * _compoundFactor(yearsToRetirement)).toStringAsFixed(0)} (5%/an).'
               : 'A $age ans, tu es proche de la retraite. Chaque franc optimise compte.';
           return _buildMindBlowingInsight(
@@ -732,8 +732,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           return _buildMindBlowingInsight(
             icon: Icons.map_outlined,
             title: 'SAVIEZ-VOUS ?',
-            text: 'L\'ecart d\'impots entre le canton le moins cher (ZG) et le plus cher (GE) '
-                'peut depasser CHF 20\'000/an pour un meme revenu. '
+            text: 'L'ecart d'impots entre le canton le moins cher (ZG) et le plus cher (GE) '
+                'peut depasser CHF 20'000/an pour un meme revenu. '
                 'Le canton est le levier fiscal n\u00b01 en Suisse.',
             color: Colors.indigo,
           );
@@ -746,7 +746,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           return _buildMindBlowingInsight(
             icon: Icons.warning_amber,
             title: 'CONCUBINAGE : ZERO PROTECTION LEGALE',
-            text: 'Le concubinage n\'existe PAS en droit suisse (CC). '
+            text: 'Le concubinage n'existe PAS en droit suisse (CC). '
                 'Consequences : pas de rente de survivant AVS, '
                 'pas de beneficiaire LPP automatique, '
                 'pas de droits successoraux, '
@@ -769,8 +769,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         return _buildMindBlowingInsight(
           icon: Icons.child_care,
           title: 'DEDUCTIONS ENFANTS',
-          text: 'Chaque enfant = CHF 6\'600 de deduction federale (LIFD art. 35) '
-              '+ deduction cantonale (CHF 6\'000-13\'000 selon canton) '
+          text: 'Chaque enfant = CHF 6'600 de deduction federale (LIFD art. 35) '
+              '+ deduction cantonale (CHF 6'000-13'000 selon canton) '
               '+ allocations familiales CHF 200-400/mois.',
           color: Colors.teal,
         );
@@ -780,8 +780,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           icon: Icons.work_outline,
           title: 'CLE DE VOUTE',
           text: 'Ton statut professionnel determine tout : '
-              'Salarie = LPP obligatoire + 3a max 7\'258 CHF. '
-              'Independant = Pas de LPP + 3a max 36\'288 CHF (5x plus !). '
+              'Salarie = LPP obligatoire + 3a max 7'258 CHF. '
+              'Independant = Pas de LPP + 3a max 36'288 CHF (5x plus !). '
               'Le bon statut peut changer toute ta strategie.',
           color: Colors.blueGrey,
         );
@@ -807,7 +807,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             text: 'Brut CHF ${gross.round()} - Net CHF ${net.round()} = '
                 'CHF ${charges.round()}/mois de charges sociales (${chargesPercent.toStringAsFixed(1)}%). '
                 'Dont AVS 5.3%, LPP ~7-18% selon ton âge, AC 1.1%. '
-                'Ces cotisations construisent ta retraite — ce n\'est pas de l\'argent perdu.',
+                'Ces cotisations construisent ta retraite — ce n'est pas de l'argent perdu.',
             color: Colors.blueGrey,
           );
         }
@@ -818,8 +818,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           title: 'LOUER VS ACHETER',
           text: 'En Suisse, la regle FINMA : '
               'charges max 1/3 du revenu brut, fonds propres min 20%. '
-              'Un salaire de CHF 8\'000/mois = prix max ~CHF 650\'000. '
-              'Locataire n\'est pas "perdre de l\'argent" — c\'est de la flexibilite.',
+              'Un salaire de CHF 8'000/mois = prix max ~CHF 650'000. '
+              'Locataire n'est pas "perdre de l'argent" — c'est de la flexibilite.',
           color: Colors.brown,
         );
 
@@ -830,10 +830,10 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           final housing = (_answers['q_housing_cost_period_chf'] as num).toDouble();
           final ratio = income > 0 ? (housing / income * 100) : 0;
           final verdict = ratio > 33
-              ? 'Au-dessus du seuil recommande (33%). Attention a ta capacite d\'epargne.'
+              ? 'Au-dessus du seuil recommande (33%). Attention a ta capacite d'epargne.'
               : ratio > 25
                   ? 'Dans la norme suisse. Marge de manoeuvre correcte.'
-                  : 'Excellent ratio ! Tu as une belle capacite d\'epargne.';
+                  : 'Excellent ratio ! Tu as une belle capacite d'epargne.';
           return _buildMindBlowingInsight(
             icon: Icons.pie_chart_outline,
             title: 'TON RATIO LOGEMENT',
@@ -847,7 +847,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         return _buildMindBlowingInsight(
           icon: Icons.priority_high,
           title: 'MATHEMATIQUE CRUELLE',
-          text: 'Un credit conso a 9.9% coute CHF 4\'950/an sur CHF 50\'000 de dette. '
+          text: 'Un credit conso a 9.9% coute CHF 4'950/an sur CHF 50'000 de dette. '
               'Un ETF monde rapporte ~6%/an. Rembourser ses dettes = '
               'le placement le plus rentable et le seul GARANTI.',
           color: Colors.red.shade700,
@@ -861,8 +861,8 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             icon: Icons.trending_down,
             title: 'COUT ANNUEL',
             text: 'Tes remboursements = CHF ${annualCost.toStringAsFixed(0)}/an. '
-                'En 10 ans, c\'est CHF ${(annualCost * 10).toStringAsFixed(0)} qui ne travaillent pas pour toi. '
-                'Methode avalanche : rembourse d\'abord le taux le plus eleve.',
+                'En 10 ans, c'est CHF ${(annualCost * 10).toStringAsFixed(0)} qui ne travaillent pas pour toi. '
+                'Methode avalanche : rembourse d'abord le taux le plus eleve.',
             color: Colors.orange.shade800,
           );
         }
@@ -887,11 +887,11 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       case 'q_lamal_franchise':
         return _buildMindBlowingInsight(
           icon: Icons.health_and_safety,
-          title: 'LA REGLE DES CHF 5\'000',
-          text: 'Franchise 300 → 2\'500 CHF = économie ~CHF 1\'500-2\'400/an de primes. '
-              'Si tu as >CHF 5\'000 d\'épargne d\'urgence et <2 visites médecin/an, '
+          title: 'LA REGLE DES CHF 5'000',
+          text: 'Franchise 300 → 2'500 CHF = économie ~CHF 1'500-2'400/an de primes. '
+              'Si tu as >CHF 5'000 d'épargne d'urgence et <2 visites médecin/an, '
               'la franchise haute est mathématiquement rentable. '
-              'Sinon, reste à 300 CHF pour la tranquillité d\'esprit.',
+              'Sinon, reste à 300 CHF pour la tranquillité d'esprit.',
           color: Colors.teal,
         );
 
@@ -907,7 +907,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               icon: Icons.auto_graph,
               title: 'INTERET COMPOSE',
               text: 'CHF ${savings.toStringAsFixed(0)}/mois investis pendant 20 ans = '
-                  'CHF ${totalFuture.toStringAsFixed(0)} dont CHF ${gain.toStringAsFixed(0)} d\'interets purs. '
+                  'CHF ${totalFuture.toStringAsFixed(0)} dont CHF ${gain.toStringAsFixed(0)} d'interets purs. '
                   'Einstein appelait les interets composes "la 8e merveille du monde".',
               color: const Color(0xFF1565C0),
             );
@@ -924,7 +924,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               icon: Icons.account_balance,
               title: 'TON 2E PILIER',
               text: 'En tant que salarie, ton employeur cotise autant que toi a ta LPP. '
-                  'C\'est de l\'argent "gratuit" — CHF 3\'000-10\'000/an selon ton age. '
+                  'C'est de l'argent "gratuit" — CHF 3'000-10'000/an selon ton age. '
                   'Taux de conversion garanti : 6.8% sur la part obligatoire (LPP art. 14).',
               color: MintColors.info,
             );
@@ -932,7 +932,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             return _buildMindBlowingInsight(
               icon: Icons.account_balance,
               title: 'LPP VOLONTAIRE',
-              text: 'Les independants peuvent s\'affilier volontairement (LPP art. 4). '
+              text: 'Les independants peuvent s'affilier volontairement (LPP art. 4). '
                   'Avantage : cotisations deductibles des impots + '
                   'capital bloque pour un achat immobilier (EPL).',
               color: MintColors.info,
@@ -953,9 +953,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           return _buildMindBlowingInsight(
             icon: Icons.savings,
             title: 'RACHAT = DEDUCTION ILLIMITEE',
-            text: 'Contrairement au 3a (plafond 7\'258 CHF), le rachat LPP n\'a PAS de plafond annuel. '
+            text: 'Contrairement au 3a (plafond 7'258 CHF), le rachat LPP n'a PAS de plafond annuel. '
                 'A ton taux marginal de ${(marginalRate * 100).toStringAsFixed(0)}% ($canton), '
-                'un rachat de CHF 10\'000 = economie fiscale de CHF ${(10000 * marginalRate).toStringAsFixed(0)}. '
+                'un rachat de CHF 10'000 = economie fiscale de CHF ${(10000 * marginalRate).toStringAsFixed(0)}. '
                 'Attention : blocage 3 ans si retrait (LPP art. 79b).',
             color: Colors.green.shade700,
           );
@@ -990,7 +990,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           title: 'STRATEGIE MULTI-COMPTES',
           text: 'Les retraits 3a sont imposes progressivement. '
               'Avec 3 comptes retires sur 3 ans differents, tu paies le taux le plus bas chaque annee. '
-              'Economie potentielle : CHF 5\'000-15\'000 sur l\'ensemble du capital.',
+              'Economie potentielle : CHF 5'000-15'000 sur l'ensemble du capital.',
           color: Colors.purple,
         );
 
@@ -1013,7 +1013,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               icon: Icons.warning_amber,
               title: 'ARGENT LAISSE SUR LA TABLE',
               text: 'Tu verses CHF ${contribution.toStringAsFixed(0)} au lieu du max de CHF ${max3a.toStringAsFixed(0)}. '
-                  'Gap : CHF ${gap.toStringAsFixed(0)}/an = CHF ${missedSavings.toStringAsFixed(0)} d\'impots '
+                  'Gap : CHF ${gap.toStringAsFixed(0)}/an = CHF ${missedSavings.toStringAsFixed(0)} d'impots '
                   'non economises chaque annee dans le canton $canton.',
               color: Colors.amber.shade800,
             );
@@ -1027,7 +1027,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           icon: Icons.history_edu,
           title: 'ECHELLE COMPLETE = 44 ANS',
           text: 'A $age ans, tu devrais avoir $theoreticalYears annees de cotisation. '
-              'Rente max individuelle : CHF 30\'240/an (couple: CHF 45\'360). '
+              'Rente max individuelle : CHF 30'240/an (couple: CHF 45'360). '
               'Chaque annee manquante = -2.3% de rente A VIE. '
               'Tu peux racheter les 5 dernieres annees manquantes (LAVS art. 16).',
           color: MintColors.warning,
@@ -1061,7 +1061,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             title: 'IMPACT ETRANGER',
             text: '$yearsAbroad ans hors Suisse = -${renteLoss.toStringAsFixed(1)}% de rente AVS. '
                 'Bonne nouvelle : les cotisations de jeunesse (18-20 ans) peuvent combler '
-                'jusqu\'a 3 annees (RAVS art. 52b). '
+                'jusqu'a 3 annees (RAVS art. 52b). '
                 'Les accords bilateraux EU/AELE comptent aussi.',
             color: Colors.indigo,
           );
@@ -1100,9 +1100,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         return _buildMindBlowingInsight(
           icon: Icons.show_chart,
           title: 'INFLATION = IMPOT INVISIBLE',
-          text: 'CHF 100\'000 sur un compte epargne a 0.5% perdent 2-3% de pouvoir '
-              'd\'achat par an. Dans 20 ans, ils ne "valent" plus que ~CHF 65\'000. '
-              'Investir (diversifie, long terme) est le seul remede contre l\'erosion.',
+          text: 'CHF 100'000 sur un compte epargne a 0.5% perdent 2-3% de pouvoir '
+              'd'achat par an. Dans 20 ans, ils ne "valent" plus que ~CHF 65'000. '
+              'Investir (diversifie, long terme) est le seul remede contre l'erosion.',
           color: const Color(0xFF1565C0),
         );
 
@@ -1112,7 +1112,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           return _buildMindBlowingInsight(
             icon: Icons.warning_amber,
             title: 'PROTECTION URGENTE',
-            text: 'En concubinage, ton/ta partenaire n\'a AUCUN droit : '
+            text: 'En concubinage, ton/ta partenaire n'a AUCUN droit : '
                 'pas de rente survivant AVS (LAVS art. 23), pas de LPP automatique, '
                 'pas de droits successoraux. Une assurance décès croisée + '
                 'testament + clause bénéficiaire LPP/3a sont le MINIMUM VITAL.',
@@ -1122,9 +1122,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
         return _buildMindBlowingInsight(
           icon: Icons.shield_outlined,
           title: 'PROTECTION DES PROCHES',
-          text: 'L\'assurance décès couvre le risque que tes proches ne pourraient pas '
-              'absorber financièrement. Coût typique : CHF 15-40/mois pour CHF 200\'000 de capital. '
-              'En Suisse, la rente de survivant AVS est plafonnée à CHF 24\'192/an (80% de 30\'240, LAVS art. 23).',
+          text: 'L'assurance décès couvre le risque que tes proches ne pourraient pas '
+              'absorber financièrement. Coût typique : CHF 15-40/mois pour CHF 200'000 de capital. '
+              'En Suisse, la rente de survivant AVS est plafonnée à CHF 24'192/an (80% de 30'240, LAVS art. 23).',
           color: Colors.indigo,
         );
 
@@ -1133,7 +1133,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           icon: Icons.house_outlined,
           title: 'REGLE DES 20%',
           text: 'Fonds propres min 20% du prix (max 10% du 2e pilier). '
-              'Pour un bien a CHF 800\'000 : CHF 160\'000 minimum dont CHF 80\'000 en cash. '
+              'Pour un bien a CHF 800'000 : CHF 160'000 minimum dont CHF 80'000 en cash. '
               'Attention : rachat LPP + achat immo dans les 3 ans = incompatible legalement (LPP art. 79b).',
           color: Colors.brown.shade700,
         );
@@ -1148,7 +1148,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             text: 'Bien estimé à CHF ${value.round()}. '
                 'Valeur fiscale probable : ~CHF ${fortuneEstimate.round()} (60-80% de la valeur vénale). '
                 'Cette fortune est imposée chaque année par le canton (LHID art. 14). '
-                'Les intérêts hypothécaires sont déductibles — c\'est un levier fiscal majeur.',
+                'Les intérêts hypothécaires sont déductibles — c'est un levier fiscal majeur.',
             color: Colors.brown.shade700,
           );
         }
@@ -1164,7 +1164,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
             title: 'TON RATIO HYPOTHECAIRE',
             text: 'Hypothèque CHF ${mortgage.round()} / Bien CHF ${value.round()} = '
                 '${ltv.toStringAsFixed(1)}% LTV (Loan-to-Value). '
-                '${mustAmortize ? "Au-dessus de 67% — amortissement obligatoire en 15 ans (directive ASB). " : "En dessous de 67% — pas d\'amortissement obligatoire. "}'
+                '${mustAmortize ? "Au-dessus de 67% — amortissement obligatoire en 15 ans (directive ASB). " : "En dessous de 67% — pas d'amortissement obligatoire. "}'
                 'Les intérêts (~CHF ${(mortgage * 0.015 / 12).round()}/mois à 1.5%) sont déductibles fiscalement.',
             color: ltv > 80 ? Colors.red.shade700 : Colors.green.shade700,
           );
@@ -1254,9 +1254,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return _buildMindBlowingInsight(
       icon: Icons.savings,
       title: 'LE 3A = TON ARME FISCALE',
-      text: 'Max 3a : 7\'258 CHF/an = economie de CHF ${savings.toStringAsFixed(0)}/an '
+      text: 'Max 3a : 7'258 CHF/an = economie de CHF ${savings.toStringAsFixed(0)}/an '
           'dans le canton $canton. Sur $yearsToRetirement ans = CHF ${lifetimeSavings.toStringAsFixed(0)} '
-          'd\'impots economises au total. C\'est le meilleur outil fiscal en Suisse.',
+          'd'impots economises au total. C'est le meilleur outil fiscal en Suisse.',
       color: Colors.green.shade700,
     );
   }
@@ -1288,9 +1288,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return _buildMindBlowingInsight(
       icon: Icons.auto_awesome,
       title: 'DATE DE LIBERATION FISCALE',
-      text: 'Tu travailles jusqu\'au $formattedDate rien que pour payer tes impots '
+      text: 'Tu travailles jusqu'au $formattedDate rien que pour payer tes impots '
           '(${monthsForTax.toStringAsFixed(1)} mois sur 12). '
-          'Chaque franc d\'optimisation fiscale = du temps de vie recupere.',
+          'Chaque franc d'optimisation fiscale = du temps de vie recupere.',
       color: MintColors.primary,
     );
   }
@@ -1327,7 +1327,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return _buildMindBlowingInsight(
       icon: Icons.compare_arrows,
       title: 'OPTIMISATION CANTONALE',
-      text: 'A ${neighborComp['canton']}, tu economiserais CHF $savingsAmount/an d\'impots. '
+      text: 'A ${neighborComp['canton']}, tu economiserais CHF $savingsAmount/an d'impots. '
           'Sur 10 ans = CHF ${((neighborComp['savings'] as double) * 10).toStringAsFixed(0)}. '
           'Bien sur, demenager a un cout — mais le chiffre merite reflexion.',
       color: Colors.indigo,
@@ -1347,10 +1347,10 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.06),
+            color: color.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -1362,7 +1362,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.08),
+              color: color.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
@@ -1377,7 +1377,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
                   style: GoogleFonts.outfit(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: color.withOpacity(0.7),
+                    color: color.withValues(alpha: 0.7),
                     letterSpacing: 0.8,
                   ),
                 ),
