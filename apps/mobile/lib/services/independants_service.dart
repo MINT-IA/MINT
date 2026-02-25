@@ -450,7 +450,7 @@ class IndependantsService {
         chargeTotal: 0,
         chargeToutSalaire: 0,
         economie: 0,
-        sensitivity: [],
+        sensitivity: const [],
         optimalSplitPct: 60,
         optimalCharge: 0,
         requalificationRisk: false,

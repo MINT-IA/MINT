@@ -206,7 +206,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
       // buyNonConsumable returns false so the flow exits early after query.
       fakePlatform.buyNonConsumableReturn = false;
@@ -219,7 +219,7 @@ void main() {
     test('purchaseCoachMonthly returns false when product not found', () async {
       // Empty product list — product not configured in App Store Connect.
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
-        productDetails: [],
+        productDetails: const [],
         notFoundIDs: [IosIapService.coachMonthlyProductId],
       );
 
@@ -241,7 +241,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
       fakePlatform.buyNonConsumableReturn = true;
 
@@ -262,7 +262,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
       fakePlatform.buyNonConsumableReturn = false;
 
@@ -282,7 +282,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -305,7 +305,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -328,7 +328,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -354,7 +354,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -380,7 +380,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -402,7 +402,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -519,7 +519,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {
@@ -555,7 +555,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       // First emit pending, then purchased.
@@ -601,7 +601,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       // First emit a purchase for a different product, then the correct one.
@@ -638,7 +638,7 @@ void main() {
       final product = _coachProduct();
       fakePlatform.queryProductDetailsReturn = ProductDetailsResponse(
         productDetails: [product],
-        notFoundIDs: [],
+        notFoundIDs: const [],
       );
 
       Future<void>.delayed(const Duration(milliseconds: 50), () {

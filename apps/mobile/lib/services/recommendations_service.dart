@@ -110,7 +110,7 @@ class RecommendationsService {
       impact: Impact(amountCHF: remaining, period: Period.oneoff),
       risks: ['Inflation réduit la valeur'],
       alternatives: ['Compte épargne', '3a (moins liquide)'],
-      evidenceLinks: [],
+      evidenceLinks: const [],
       nextActions: [
         const NextAction(
           type: NextActionType.simulate,
@@ -144,7 +144,7 @@ class RecommendationsService {
       impact: Impact(amountCHF: taxSavings, period: Period.yearly),
       risks: ['Capital bloqué jusqu\'à la retraite'],
       alternatives: ['3a bancaire', '3a assurance', '3a titres'],
-      evidenceLinks: [],
+      evidenceLinks: const [],
       nextActions: [
         const NextAction(
           type: NextActionType.simulate,
@@ -179,7 +179,7 @@ class RecommendationsService {
         'Nécessite liquidités disponibles',
       ],
       alternatives: ['3a d\'abord', 'Investissement libre'],
-      evidenceLinks: [],
+      evidenceLinks: const [],
       nextActions: [
         const NextAction(
           type: NextActionType.simulate,
@@ -219,7 +219,7 @@ class RecommendationsService {
       impact: Impact(amountCHF: interestGained, period: Period.oneoff),
       risks: ['Volatilité du marché', 'Rendement non garanti'],
       alternatives: ['Compte épargne', 'Pilier 3a', 'ETF'],
-      evidenceLinks: [],
+      evidenceLinks: const [],
       nextActions: [
         const NextAction(
           type: NextActionType.simulate,
@@ -242,11 +242,11 @@ class RecommendationsService {
           'Reçois des recommandations personnalisées',
           'Gratuit et confidentiel',
         ],
-        assumptions: [],
+        assumptions: const [],
         impact: const Impact(amountCHF: 0, period: Period.oneoff),
-        risks: [],
-        alternatives: [],
-        evidenceLinks: [],
+        risks: const [],
+        alternatives: const [],
+        evidenceLinks: const [],
         nextActions: [
           const NextAction(
             type: NextActionType.checklist,

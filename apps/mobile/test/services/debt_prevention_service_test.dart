@@ -214,7 +214,7 @@ void main() {
   group('RepaymentPlanner', () {
     test('empty debt list returns 0 months for both strategies', () {
       final result = RepaymentPlanner.plan(
-        dettes: [],
+        dettes: const [],
         budgetMensuelRemboursement: 500,
       );
       expect(result.avalanche.moisJusquaLiberation, 0);

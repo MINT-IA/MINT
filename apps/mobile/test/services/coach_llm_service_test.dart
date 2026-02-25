@@ -548,7 +548,7 @@ void main() {
       final response = await CoachLlmService.chat(
         userMessage: 'Mon 3a',
         profile: profile,
-        history: [],
+        history: const [],
         config: config,
       );
 

@@ -929,7 +929,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         _messages.add(_ChatMessage(
           text: _getErrorMessage(e.code),
           isUser: false,
-          disclaimers: [],
+          disclaimers: const [],
         ));
         _isLoading = false;
       });
@@ -939,7 +939,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
           text: S.of(context)?.askMintErrorGeneric ??
               'Une erreur est survenue. V\u00e9rifie ta connexion et r\u00e9essaie.',
           isUser: false,
-          disclaimers: [],
+          disclaimers: const [],
         ));
         _isLoading = false;
       });

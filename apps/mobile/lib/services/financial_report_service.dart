@@ -597,7 +597,7 @@ class FinancialReportService {
       RoadmapPhase(
         title: 'Court Terme',
         timeframe: '3-6 mois',
-        actions: [], // À compléter selon contexte
+        actions: const [], // À compléter selon contexte
       ),
     ]);
   }

@@ -134,8 +134,8 @@ class WithdrawalSequencingService {
     if (currentAge >= retirementAge) {
       // Personne deja a l'age de retraite ou au-dela
       return const WithdrawalSequencingResult(
-        optimizedSequence: [],
-        naiveSequence: [],
+        optimizedSequence: const [],
+        naiveSequence: const [],
         totalTaxOptimized: 0,
         totalTaxNaive: 0,
         taxSavings: 0,
@@ -162,8 +162,8 @@ class WithdrawalSequencingService {
     // Si aucun capital, retourner des sequences vides.
     if (capitalSources.isEmpty) {
       return const WithdrawalSequencingResult(
-        optimizedSequence: [],
-        naiveSequence: [],
+        optimizedSequence: const [],
+        naiveSequence: const [],
         totalTaxOptimized: 0,
         totalTaxNaive: 0,
         taxSavings: 0,
