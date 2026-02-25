@@ -62,8 +62,8 @@ class ReportBuilder {
       assumptions: ['Revenus réguliers', 'Charges fixes déclarées exactes'],
       impact: const Impact(amountCHF: 0, period: Period.monthly),
       risks: ['Sous-estimer les dépenses variables'],
-      alternatives: [],
-      evidenceLinks: [],
+      alternatives: const [],
+      evidenceLinks: const [],
       nextActions: [
         const NextAction(
           label: 'Configurer mon Budget',
@@ -86,11 +86,11 @@ class ReportBuilder {
               'Les intérêts composés jouent contre toi.',
               'Réduit le stress mental'
             ],
-            assumptions: [],
+            assumptions: const [],
             impact: const Impact(amountCHF: 0, period: Period.oneoff),
             risks: ['Intérêts élevés si retard'],
-            alternatives: [],
-            evidenceLinks: [],
+            alternatives: const [],
+            evidenceLinks: const [],
             nextActions: [
               const NextAction(
                   label: 'Lire le guide "Sortir du rouge"',
@@ -113,7 +113,7 @@ class ReportBuilder {
           impact: const Impact(amountCHF: 1500, period: Period.yearly),
           risks: ['Argent bloqué jusqu\'à la retraite'],
           alternatives: ['Compte épargne (fiscalisé)', 'Assurance vie 3b'],
-          evidenceLinks: [],
+          evidenceLinks: const [],
           nextActions: [
             const NextAction(
                 label: 'Comparer les offres',
@@ -128,11 +128,11 @@ class ReportBuilder {
           title: 'Optimiser ton 3a',
           summary: 'Vérifie tes frais et rendements.',
           why: ['Les frais mangent la performance sur le long terme.'],
-          assumptions: [],
+          assumptions: const [],
           impact: const Impact(amountCHF: 500, period: Period.yearly),
           risks: ['Volatilité des marchés'],
-          alternatives: [],
-          evidenceLinks: [],
+          alternatives: const [],
+          evidenceLinks: const [],
           nextActions: [
             const NextAction(
                 label: 'Checklist frais',
@@ -247,12 +247,12 @@ class ReportBuilder {
           'Estimation fiscale approximative'
         ],
         assumptions: ['Revenus stables', 'Dépenses lissées'],
-        conflicts: [],
+        conflicts: const [],
       ),
       scoreboard: scoreboard,
       recommendedGoal:
           const GoalTemplate(id: 'financial_health', label: 'Santé Financière'),
-      alternativeGoals: [],
+      alternativeGoals: const [],
       topActions: topActions,
       recommendations: recommendations,
       disclaimers: [

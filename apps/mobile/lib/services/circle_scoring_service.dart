@@ -359,7 +359,7 @@ class CircleScoringService {
       circleNumber: 4,
       percentage: 20,
       level: ScoreLevel.needsImprovement,
-      items: [],
+      items: const [],
       recommendations: ['Cercles 1-3 à compléter en priorité'],
     );
   }

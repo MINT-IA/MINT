@@ -1210,11 +1210,11 @@ class ArbitrageEngine {
   }) {
     if (assets.isEmpty) {
       return const ArbitrageResult(
-        options: [],
+        options: const [],
         breakevenYear: null,
         chiffreChoc: 'Ajoute au moins un avoir pour voir la comparaison.',
         displaySummary: '',
-        hypotheses: [],
+        hypotheses: const [],
         disclaimer:
             'Outil educatif — ne constitue pas un conseil financier (LSFin).',
         sources: ['LIFD art. 38 (impot sur retrait en capital)'],

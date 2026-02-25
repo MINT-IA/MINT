@@ -185,16 +185,16 @@ void main() {
         mintRoadmap: MintRoadmap(
           mentorshipLevel: 'Basic',
           natureOfService: 'Mentor',
-          limitations: [],
-          assumptions: [],
-          conflicts: [],
+          limitations: const [],
+          assumptions: const [],
+          conflicts: const [],
         ),
-        scoreboard: [],
+        scoreboard: const [],
         recommendedGoal: GoalTemplate(id: 'g1', label: 'Test'),
-        alternativeGoals: [],
-        topActions: [],
-        recommendations: [],
-        disclaimers: [],
+        alternativeGoals: const [],
+        topActions: const [],
+        recommendations: const [],
+        disclaimers: const [],
         generatedAt: DateTime.now(),
       );
 
@@ -217,8 +217,8 @@ void main() {
         circleNumber: 1,
         percentage: 72.0,
         level: ScoreLevel.good,
-        items: [],
-        recommendations: [],
+        items: const [],
+        recommendations: const [],
       );
 
       final report = FinancialReport(
@@ -261,7 +261,7 @@ void main() {
           RoadmapPhase(
             title: 'Immediat',
             timeframe: '0-1 mois',
-            actions: [],
+            actions: const [],
           ),
         ]),
         generatedAt: DateTime(2025, 6, 15),

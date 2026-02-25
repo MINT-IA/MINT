@@ -781,7 +781,7 @@ void main() {
 
     test('enrichTips handles empty tips list', () async {
       final result = await CoachingService.enrichTips(
-        tips: [],
+        tips: const [],
         profile: testProfile,
         firstName: 'Julien',
         apiKey: 'sk-test',
