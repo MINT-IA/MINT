@@ -710,11 +710,16 @@ class ForecasterService {
     );
     final renteAvsAnnuelle = coupleAvs.total * 12;
 
-    // LPP rente (use profile taux conversion if available)
-    final userConvRate = profile.prevoyance.tauxConversion;
+    // LPP rente — adjust conversion rate for early retirement (LPP art. 13)
+    final userConvRate = LppCalculator.adjustedConversionRate(
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: retirementAge,
+    );
     final renteLppUser = lppBalance * userConvRate;
-    final conjConvRate =
-        profile.conjoint?.prevoyance?.tauxConversion ?? 0.068;
+    final conjConvRate = LppCalculator.adjustedConversionRate(
+      baseRate: profile.conjoint?.prevoyance?.tauxConversion ?? 0.068,
+      retirementAge: retirementAge,
+    );
     final renteLppConjoint = conjLppBalance * conjConvRate;
 
     // 3a: annualize over 20 years AFTER capital withdrawal tax (LIFD art. 38)

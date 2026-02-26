@@ -175,7 +175,11 @@ class MonteCarloProjectionService {
       // ── LPP utilisateur : rente et/ou capital ─────────────
       double lppMonthly;
       double lppCapitalNet = 0;
-      final conversionRate = profile.prevoyance.tauxConversion;
+      // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+      final conversionRate = LppCalculator.adjustedConversionRate(
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: retirementAgeUser,
+      );
 
       if (lppCapitalPct > 0 && lppBalance > 0) {
         final capitalPortion = lppBalance * lppCapitalPct;
@@ -198,7 +202,11 @@ class MonteCarloProjectionService {
         final conjHasLpp = conjLppBalance > 0 ||
             conjoint.employmentStatus != 'independant';
         final conjSalary = conjoint.revenuBrutAnnuel;
-        final conjConvRate = conjoint.prevoyance?.tauxConversion ?? 0.068;
+        // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+        final conjConvRate = LppCalculator.adjustedConversionRate(
+          baseRate: conjoint.prevoyance?.tauxConversion ?? 0.068,
+          retirementAge: conjointRetirementAge,
+        );
         // Rachats LPP conjoint: contributes dont l'id/label contient
         // le prenom du conjoint (ex: 'lpp_buyback_lauren')
         final conjName = conjoint.firstName?.toLowerCase() ?? '';

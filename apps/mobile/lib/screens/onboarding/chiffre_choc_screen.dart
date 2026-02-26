@@ -61,6 +61,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final age = extra['age'] as int? ?? 35;
     final grossSalary = (extra['grossSalary'] as num?)?.toDouble() ?? 80000;
     final canton = extra['canton'] as String? ?? 'ZH';
+    final targetRetirementAge = extra['targetRetirementAge'] as int?;
 
     // Optional enrichment fields
     final householdType = extra['householdType'] as String?;
@@ -106,6 +107,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         isPropertyOwner: isPropertyOwner,
         existing3a: existing3a,
         existingLpp: existingLpp,
+        targetRetirementAge: targetRetirementAge,
       );
 
       if (!mounted) return;

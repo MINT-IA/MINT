@@ -363,6 +363,11 @@ class RetirementProjectionService {
     final userHasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
         profile.employmentStatus != 'independant';
     final userBuyback = _userLppBuyback(profile);
+    // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+    final userAdjustedConvRate = LppCalculator.adjustedConversionRate(
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: ageUser,
+    );
     final lppUserRente = LppCalculator.projectToRetirement(
       currentBalance: profile.prevoyance.avoirLppTotal ?? 0,
       currentAge: profile.age,
@@ -382,7 +387,7 @@ class RetirementProjectionService {
         profile.etatCivil == CoachCivilStatus.marie;
     final lppUserMonthly = LppCalculator.blendedMonthly(
       annualRente: lppUserRente,
-      conversionRate: profile.prevoyance.tauxConversion,
+      conversionRate: userAdjustedConvRate,
       lppCapitalPct: lppCapitalPct,
       canton: profile.canton,
       isMarried: isMarriedForTax,
@@ -401,6 +406,10 @@ class RetirementProjectionService {
     if (hasConjoint) {
       final conjPrev = profile.conjoint!.prevoyance;
       final conjBuyback = _conjointLppBuyback(profile);
+      final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
+        baseRate: conjPrev?.tauxConversion ?? 0.068,
+        retirementAge: ageConjoint,
+      );
       final lppConjRente = LppCalculator.projectToRetirement(
         currentBalance: conjPrev?.avoirLppTotal ?? 0,
         currentAge: profile.conjoint!.age ?? 45,
@@ -414,7 +423,7 @@ class RetirementProjectionService {
       if (lppConjRente > 0) {
         final lppConjMonthly = LppCalculator.blendedMonthly(
           annualRente: lppConjRente,
-          conversionRate: conjPrev?.tauxConversion ?? 0.068,
+          conversionRate: conjAdjustedConvRate,
           lppCapitalPct: lppCapitalPct,
           canton: profile.canton,
           isMarried: isMarriedForTax,
@@ -700,9 +709,14 @@ class RetirementProjectionService {
               : '';
       final isMarriedForTax =
           profile.etatCivil == CoachCivilStatus.marie;
+      // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+      final userAdjustedConvRate = LppCalculator.adjustedConversionRate(
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: ageUser,
+      );
       final lppUserMonthly = LppCalculator.blendedMonthly(
         annualRente: lppUser,
-        conversionRate: profile.prevoyance.tauxConversion,
+        conversionRate: userAdjustedConvRate,
         lppCapitalPct: lppCapitalPct,
         canton: profile.canton,
         isMarried: isMarriedForTax,
@@ -763,9 +777,14 @@ class RetirementProjectionService {
                 : '';
         final isMarriedForTax =
             profile.etatCivil == CoachCivilStatus.marie;
+        // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+        final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
+          baseRate: conjPrev?.tauxConversion ?? 0.068,
+          retirementAge: ageConjoint,
+        );
         final lppConjMonthly = LppCalculator.blendedMonthly(
           annualRente: lppConj,
-          conversionRate: conjPrev?.tauxConversion ?? 0.068,
+          conversionRate: conjAdjustedConvRate,
           lppCapitalPct: lppCapitalPct,
           canton: profile.canton,
           isMarried: isMarriedForTax,

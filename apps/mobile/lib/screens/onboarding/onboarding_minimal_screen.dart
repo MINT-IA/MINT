@@ -42,11 +42,15 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
 
   double _selectedSalary = 80000;
   int _selectedAge = 35;
+  int _selectedRetirementAge = 65;
   String? _selectedCanton;
   late final TextEditingController _ageController;
   bool _didTrackStart = false;
 
   bool get _canSubmit => _selectedCanton != null;
+
+  /// Show retirement age question only for users 40+.
+  bool get _showRetirementAge => _selectedAge >= 40;
 
   @override
   void initState() {
@@ -107,6 +111,8 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
         'age': _selectedAge,
         'grossSalary': _selectedSalary,
         'canton': _selectedCanton,
+        if (_showRetirementAge && _selectedRetirementAge != 65)
+          'targetRetirementAge': _selectedRetirementAge,
       },
     );
   }
@@ -155,7 +161,7 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
                 children: [
                   const SizedBox(height: 8),
                   Text(
-                    '3 infos suffisent pour te montrer un premier resultat personnalise.',
+                    'Quelques infos suffisent pour te montrer un premier resultat personnalise.',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
@@ -245,6 +251,29 @@ class _OnboardingMinimalScreenState extends State<OnboardingMinimalScreen> {
                     value: _selectedCanton,
                     onChanged: (v) => setState(() => _selectedCanton = v),
                   ),
+
+                  // --- 4. RETIREMENT AGE (conditionally shown for 40+) ---
+                  if (_showRetirementAge) ...[
+                    const SizedBox(height: 32),
+                    const _SectionTitle(label: 'Age de retraite souhaite'),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Anticipation possible des 63 ans (LAVS art. 40). '
+                      'Certaines caisses LPP permettent des 58 ans.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textMuted,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _RetirementAgePicker(
+                      value: _selectedRetirementAge,
+                      onChanged: (v) =>
+                          setState(() => _selectedRetirementAge = v),
+                    ),
+                  ],
+
                   const SizedBox(height: 48),
 
                   // --- CTA ---
@@ -724,6 +753,123 @@ class _CantonDropdown extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  RETIREMENT AGE PICKER — quick chips for 58-70
+// ════════════════════════════════════════════════════════════════════════════
+
+class _RetirementAgePicker extends StatelessWidget {
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  const _RetirementAgePicker({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    const minAge = 58;
+    const maxAge = 70;
+    const quickAges = [58, 60, 62, 63, 64, 65, 67, 70];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              '$value ans',
+              style: GoogleFonts.montserrat(
+                fontSize: 30,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.lightBorder,
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withAlpha(28),
+              trackHeight: 5,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+            ),
+            child: Slider(
+              value: value.toDouble(),
+              min: minAge.toDouble(),
+              max: maxAge.toDouble(),
+              divisions: maxAge - minAge,
+              label: '$value ans',
+              onChanged: (v) => onChanged(v.round()),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('58',
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
+                Text('65',
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
+                Text('70',
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: quickAges.map((age) {
+              final isSelected = age == value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => onChanged(age),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? MintColors.primary.withAlpha(24)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? MintColors.primary
+                          : MintColors.lightBorder,
+                    ),
+                  ),
+                  child: Text(
+                    '$age ans',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected
+                          ? MintColors.primary
+                          : MintColors.textSecondary,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

@@ -29,6 +29,11 @@ import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
+import 'package:mint_mobile/widgets/coach/chiffre_choc_section.dart';
+import 'package:mint_mobile/widgets/coach/explore_hub.dart';
+import 'package:mint_mobile/widgets/coach/low_confidence_card.dart';
+import 'package:mint_mobile/widgets/coach/trajectory_card.dart';
+import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
 import 'package:mint_mobile/widgets/coach/benchmark_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
@@ -907,18 +912,30 @@ Si une categorie ne s'applique pas, omets-la.
                 if (_showRefreshBanner) _buildRefreshBanner(),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
-                _buildCoachVivantHubSection(),
+                const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildScoreSection(),
                 const SizedBox(height: 24),
-                _buildChiffreChocSection(),
+                ChiffreChocSection(
+                  profile: _profile!,
+                  narratives: _chiffreChocNarratives,
+                ),
                 const SizedBox(height: 24),
                 // Guard rail: only show trajectory if confidence >= 40%
                 if (_confidenceScore >= 40) ...[
-                  _buildTrajectorySection(),
+                  TrajectoryCard(
+                    profile: _profile!,
+                    projection: _projection!,
+                    etSiProjection: _etSiProjection,
+                  ),
                   const SizedBox(height: 24),
                 ] else ...[
-                  _buildLowConfidenceCard(),
+                  LowConfidenceCard(profile: _profile!),
+                  const SizedBox(height: 24),
+                ],
+                // Early retirement comparison for 45+ users
+                if (_profile!.age >= 45) ...[
+                  EarlyRetirementComparison(profile: _profile!),
                   const SizedBox(height: 24),
                 ],
                 _buildQuickActions(),
@@ -968,121 +985,6 @@ Si une categorie ne s'applique pas, omets-la.
           size: 18,
         ),
         label: Text(label),
-      ),
-    );
-  }
-
-  Widget _buildCoachVivantHubSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Explorer',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Outils et simulateurs pour ta pr\u00e9voyance',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildExploreRow(
-            icon: Icons.person_outline,
-            title: 'Mon profil',
-            subtitle: 'Compl\u00e9ter ou ajuster mes donn\u00e9es',
-            route: '/onboarding/minimal',
-          ),
-          _buildExploreRow(
-            icon: Icons.balance,
-            title: 'Rente vs capital',
-            subtitle: 'Comparer les options de retrait LPP',
-            route: '/arbitrage/rente-vs-capital',
-          ),
-          _buildExploreRow(
-            icon: Icons.chat_outlined,
-            title: 'Coach & check-in',
-            subtitle: 'Discussion et suivi mensuel',
-            route: '/coach/checkin',
-          ),
-          _buildExploreRow(
-            icon: Icons.document_scanner_outlined,
-            title: 'Scanner un document',
-            subtitle: 'Certificat LPP, d\u00e9claration fiscale',
-            route: '/document-scan',
-          ),
-          _buildExploreRow(
-            icon: Icons.assignment_outlined,
-            title: 'Extrait AVS',
-            subtitle: 'Commander et v\u00e9rifier ton extrait CI',
-            route: '/document-scan/avs-guide',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExploreRow({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String route,
-  }) {
-    return InkWell(
-      onTap: () => context.push(route),
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MintColors.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 20, color: MintColors.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: MintColors.textMuted),
-          ],
-        ),
       ),
     );
   }
@@ -1203,10 +1105,13 @@ Si une categorie ne s'applique pas, omets-la.
                 const SizedBox(height: 20),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 20),
-                _buildCoachVivantHubSection(),
+                const ExploreHub(),
                 const SizedBox(height: 20),
                 // Chiffre choc (main value proposition)
-                _buildChiffreChocSection(),
+                ChiffreChocSection(
+                  profile: _profile!,
+                  narratives: _chiffreChocNarratives,
+                ),
                 const SizedBox(height: 24),
                 // Estimated score with "enrichir" prompt
                 _buildPartialScoreCard(provider),
@@ -1845,7 +1750,7 @@ Si une categorie ne s'applique pas, omets-la.
                 const SizedBox(height: 24),
                 _buildResumePlan30Card(),
                 if (_hasOnboarding30PlanToResume()) const SizedBox(height: 24),
-                _buildCoachVivantHubSection(),
+                const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildTeaserTrajectory(),
                 const SizedBox(height: 24),
@@ -3796,110 +3701,8 @@ Si une categorie ne s'applique pas, omets-la.
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  3b. CHIFFRES CHOC SECTION — Personalized shock figures
+  //  Helpers used by SLM prompt construction
   // ════════════════════════════════════════════════════════════════
-
-  Widget _buildChiffreChocSection() {
-    final l10n = S.of(context);
-    final revenuBrutAnnuel = _profile!.revenuBrutAnnuel;
-    final cards = <Widget>[];
-
-    // 1. 3a tax savings gap — if not maxing out the pillar 3a
-    final cotisation3aAnnuelle = _profile!.total3aMensuel * 12;
-    const plafond3a = 7258.0; // OPP3 art. 7
-    if (cotisation3aAnnuelle < plafond3a &&
-        _profile!.prevoyance.canContribute3a) {
-      final tauxMarginal =
-          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
-      final economiePotentielle =
-          (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
-      final anneesRestantes = _profile!.anneesAvantRetraite;
-      final economieTotale = economiePotentielle * anneesRestantes;
-
-      if (economieTotale > 500) {
-        cards.add(ChiffreChocCard(
-          value: economieTotale,
-          message: 'Économies d\'impôts potentielles d\'ici ta retraite en '
-              'maximisant ton 3a chaque année.',
-          narrativeMessage: _chiffreChocNarratives['fiscalite'],
-          source: 'OPP3 art. 7 · LIFD',
-          ctaLabel: 'Simuler mon 3a',
-          ctaRoute: '/simulator/3a',
-          icon: Icons.savings,
-          color: const Color(0xFF4F46E5),
-        ));
-      }
-    }
-
-    // 2. LPP buyback tax deduction potential
-    final lacuneLpp = _profile!.prevoyance.lacuneRachatRestante;
-    if (lacuneLpp > 5000) {
-      final tauxMarginal =
-          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
-      final economieRachat = lacuneLpp * tauxMarginal;
-
-      cards.add(ChiffreChocCard(
-        value: economieRachat,
-        message: 'Déduction fiscale potentielle en rachetant '
-            'ta lacune LPP de CHF ${_formatChf(lacuneLpp)}.',
-        narrativeMessage: _chiffreChocNarratives['prevoyance'],
-        source: 'LPP art. 79b',
-        ctaLabel: 'Explorer le rachat',
-        ctaRoute: '/lpp-deep/rachat',
-        icon: Icons.account_balance,
-        color: MintColors.coachAccent,
-      ));
-    }
-
-    // 3. AVS gap cost — each missing year = -1/44 of max rente (LAVS art. 29ter)
-    final lacunesAVS = _profile!.prevoyance.lacunesAVS ?? 0;
-    if (lacunesAVS > 0) {
-      final perteTotaleAnnuelle =
-          AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
-      // Over ~20 years of retirement
-      final perteTotaleRetraite = perteTotaleAnnuelle * 20;
-
-      cards.add(ChiffreChocCard(
-        value: perteTotaleRetraite,
-        message: 'Rente AVS perdue sur 20 ans de retraite avec '
-            '$lacunesAVS année${lacunesAVS > 1 ? 's' : ''} '
-            'de cotisation manquante${lacunesAVS > 1 ? 's' : ''}.',
-        narrativeMessage: _chiffreChocNarratives['avs'],
-        source: 'LAVS art. 29',
-        ctaLabel: 'Vérifier mes lacunes',
-        ctaRoute: '/retirement',
-        icon: Icons.shield_outlined,
-        color: MintColors.scoreAttention,
-      ));
-    }
-
-    if (cards.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n?.coachShockTitle ?? 'Tes chiffres-chocs',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l10n?.coachShockSubtitle ??
-              'Des montants personnalisés pour éclairer tes décisions',
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: MintColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 14),
-        ...cards.expand((card) => [card, const SizedBox(height: 12)]),
-      ],
-    );
-  }
 
   /// Simplified marginal tax rate estimation by canton bracket.
   /// Source: AFC taux marginaux d'imposition 2025
@@ -3922,175 +3725,6 @@ Si une categorie ne s'applique pas, omets-la.
     if (highTaxCantons.contains(canton)) return baseRate * 1.1;
     if (lowTaxCantons.contains(canton)) return baseRate * 0.75;
     return baseRate;
-  }
-
-  String _formatChf(double amount) {
-    final formatted = amount.toStringAsFixed(0);
-    final buffer = StringBuffer();
-    int count = 0;
-    for (int i = formatted.length - 1; i >= 0; i--) {
-      buffer.write(formatted[i]);
-      count++;
-      if (count % 3 == 0 && i > 0) buffer.write("'");
-    }
-    return buffer.toString().split('').reversed.join();
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  4. TRAJECTORY SECTION
-  // ════════════════════════════════════════════════════════════════
-
-  /// Card shown instead of trajectory when confidence < 40%.
-  Widget _buildLowConfidenceCard() {
-    final confidence = ConfidenceScorer.score(_profile!);
-    final topPrompts = confidence.prompts.take(3).toList();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: MintColors.scoreAttention.withValues(alpha: 0.30),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline,
-                  color: MintColors.scoreAttention, size: 22),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Pas assez de donn\u00e9es pour une projection fiable',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'En Suisse, le taux de remplacement moyen est de 60-70% '
-            'du dernier salaire. Pour estimer le tien, '
-            'compl\u00e8te quelques informations :',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...topPrompts.map((p) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: MintColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '+${p.impact}%',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        p.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => context.push('/onboarding/minimal'),
-              icon: const Icon(Icons.edit_outlined, size: 18),
-              label: Text(
-                'Compl\u00e9ter mon profil',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrajectorySection() {
-    final l10n = S.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n?.coachTrajectory ?? 'Ta trajectoire',
-          style: GoogleFonts.montserrat(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: MintColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: MintColors.card,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: MintTrajectoryChart(
-            result: _etSiProjection ?? _projection!,
-            goalALabel: _profile!.goalA.label,
-            goalAType: _profile!.goalA.type,
-            initialDebt: _profile!.dettes.totalDettes,
-            onTap: () => context.push('/retirement/projection'),
-          ),
-        ),
-      ],
-    );
   }
 
   // ════════════════════════════════════════════════════════════════

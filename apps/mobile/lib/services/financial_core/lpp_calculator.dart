@@ -15,6 +15,25 @@ class LppCalculator {
   /// Safe withdrawal rate (Trinity Study, 4%).
   static const double safeWithdrawalRate = 0.04;
 
+  /// Adjust LPP conversion rate for early retirement.
+  ///
+  /// Swiss caisses typically reduce the conversion rate by ~0.2 percentage
+  /// points per year before the reference age (LPP art. 13 al. 2).
+  /// Late retirement (> referenceAge) does not increase the rate.
+  /// Returns the adjusted rate clamped to [3%, baseRate].
+  ///
+  /// Note: the actual rate varies by caisse — this is an educational estimate.
+  static double adjustedConversionRate({
+    required double baseRate,
+    required int retirementAge,
+    int referenceAge = 65,
+    double reductionPerYear = lppEarlyRetirementRateReduction,
+  }) {
+    if (retirementAge >= referenceAge) return baseRate;
+    final yearsEarly = referenceAge - retirementAge;
+    return (baseRate - yearsEarly * reductionPerYear).clamp(0.03, baseRate);
+  }
+
   /// Project LPP balance to retirement with bonifications.
   ///
   /// Returns the projected annual rente (balance × conversionRate).
@@ -50,7 +69,11 @@ class LppCalculator {
       }
     }
 
-    return balance * conversionRate;
+    final effectiveRate = adjustedConversionRate(
+      baseRate: conversionRate,
+      retirementAge: retirementAge,
+    );
+    return balance * effectiveRate;
   }
 
   /// Single month LPP projection step (for ForecasterService monthly loop).
