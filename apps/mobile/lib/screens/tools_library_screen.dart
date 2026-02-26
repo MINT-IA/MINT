@@ -375,7 +375,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.payments,
           title: 'Plan de remboursement',
-          subtitle: 'Strategie optimale pour rembourser',
+          subtitle: 'Strategie adaptee pour rembourser',
           route: '/debt/repayment',
           color: const Color(0xFF059669),
         ),

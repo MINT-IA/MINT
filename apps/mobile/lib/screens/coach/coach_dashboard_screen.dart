@@ -11,6 +11,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
@@ -81,6 +82,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
   FinancialFitnessScore? _score;
   ProjectionResult? _projection;
   ProjectionResult? _baselineProjection; // projection sans contributions
+  double _confidenceScore = 0; // 0-100, from ConfidenceScorer
   List<CoachingTip> _coachingTips = [];
   List<Map<String, dynamic>>? _scoreHistory;
   StreakResult? _streak;
@@ -173,6 +175,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         } else {
           _baselineProjection = null;
         }
+
+        // Confidence score (guards projection display)
+        _confidenceScore = ConfidenceScorer.score(_profile!).score;
 
         // Streak computation (cached as state for badge display)
         _streak = StreakService.compute(_profile!);
@@ -908,8 +913,14 @@ Si une categorie ne s'applique pas, omets-la.
                 const SizedBox(height: 24),
                 _buildChiffreChocSection(),
                 const SizedBox(height: 24),
-                _buildTrajectorySection(),
-                const SizedBox(height: 24),
+                // Guard rail: only show trajectory if confidence >= 40%
+                if (_confidenceScore >= 40) ...[
+                  _buildTrajectorySection(),
+                  const SizedBox(height: 24),
+                ] else ...[
+                  _buildLowConfidenceCard(),
+                  const SizedBox(height: 24),
+                ],
                 _buildQuickActions(),
                 const SizedBox(height: 12),
                 _buildDashboardDensityToggle(),
@@ -920,10 +931,12 @@ Si une categorie ne s'applique pas, omets-la.
                   _buildScoreTrendText(),
                   _buildScoreHistorySection(),
                   const SizedBox(height: 24),
-                  _buildNowVsWithCard(),
-                  _buildScenarioNarrations(),
-                  const SizedBox(height: 12),
-                  _buildEtSiPanel(),
+                  if (_confidenceScore >= 40) ...[
+                    _buildNowVsWithCard(),
+                    _buildScenarioNarrations(),
+                    const SizedBox(height: 12),
+                    _buildEtSiPanel(),
+                  ],
                   const SizedBox(height: 24),
                   _buildBenchmarkSection(),
                   const SizedBox(height: 24),
@@ -972,7 +985,7 @@ Si une categorie ne s'applique pas, omets-la.
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Coach Vivant — S30 a S46',
+            'Explorer',
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -981,65 +994,50 @@ Si une categorie ne s'applique pas, omets-la.
           ),
           const SizedBox(height: 6),
           Text(
-            'Acces direct aux modules visibles. Le reste tourne en backend/compliance.',
+            'Outils et simulateurs pour ta pr\u00e9voyance',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
-          _buildHubRow(
-            sprint: 'S31',
-            title: 'Onboarding minimal',
-            subtitle: 'Profil de base + enrichissement progressif',
+          _buildExploreRow(
+            icon: Icons.person_outline,
+            title: 'Mon profil',
+            subtitle: 'Compl\u00e9ter ou ajuster mes donn\u00e9es',
             route: '/onboarding/minimal',
           ),
-          _buildHubRow(
-            sprint: 'S32-S33',
-            title: 'Arbitrages',
-            subtitle: 'Rente/capital, allocation, retraits, etc.',
+          _buildExploreRow(
+            icon: Icons.balance,
+            title: 'Rente vs capital',
+            subtitle: 'Comparer les options de retrait LPP',
             route: '/arbitrage/rente-vs-capital',
           ),
-          _buildHubRow(
-            sprint: 'S35-S37',
-            title: 'Coach chat + check-in',
-            subtitle: 'Narrative et suivi mensuel',
+          _buildExploreRow(
+            icon: Icons.chat_outlined,
+            title: 'Coach & check-in',
+            subtitle: 'Discussion et suivi mensuel',
             route: '/coach/checkin',
           ),
-          _buildHubRow(
-            sprint: 'S42-S44',
-            title: 'Scan documents',
-            subtitle: 'LPP + fiscalite (OCR)',
+          _buildExploreRow(
+            icon: Icons.document_scanner_outlined,
+            title: 'Scanner un document',
+            subtitle: 'Certificat LPP, d\u00e9claration fiscale',
             route: '/document-scan',
           ),
-          _buildHubRow(
-            sprint: 'S45',
-            title: 'Guide extrait AVS',
-            subtitle: 'Parcours CI AVS + scan',
+          _buildExploreRow(
+            icon: Icons.assignment_outlined,
+            title: 'Extrait AVS',
+            subtitle: 'Commander et v\u00e9rifier ton extrait CI',
             route: '/document-scan/avs-guide',
-          ),
-          _buildHubRow(
-            sprint: 'S46',
-            title: 'Confidence dashboard',
-            subtitle: 'Completude + fiabilite + fraicheur',
-            route: '/confidence',
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'S34, S38-S41 et S40 sont majoritairement infrastructure/compliance et s’affichent indirectement.',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHubRow({
-    required String sprint,
+  Widget _buildExploreRow({
+    required IconData icon,
     required String title,
     required String subtitle,
     required String route,
@@ -1052,21 +1050,14 @@ Si une categorie ne s'applique pas, omets-la.
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: MintColors.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                sprint,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
-              ),
+              child: Icon(icon, size: 20, color: MintColors.primary),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2613,7 +2604,11 @@ Si une categorie ne s'applique pas, omets-la.
 
   Widget _buildAppBar() {
     final l10n = S.of(context);
-    final firstName = _profile!.firstName ?? 'Coach';
+    final rawName = _profile!.firstName;
+    final firstName =
+        (rawName != null && rawName.isNotEmpty && rawName.toLowerCase() != 'utilisateur')
+            ? rawName
+            : null;
     final isCompact = MediaQuery.of(context).size.height <= 760;
     return SliverAppBar(
       pinned: true,
@@ -2633,7 +2628,9 @@ Si une categorie ne s'applique pas, omets-la.
         ),
         title: Text(
           _narrative?.greeting ??
-              (l10n?.coachHello(firstName) ?? 'Bonjour $firstName'),
+              (firstName != null
+                  ? (l10n?.coachHello(firstName) ?? 'Bonjour $firstName')
+                  : 'Bonjour'),
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: isCompact ? 18 : 20,
@@ -2974,6 +2971,12 @@ Si une categorie ne s'applique pas, omets-la.
     final tauxSans = _baselineProjection!.tauxRemplacementBase;
     final tauxAvec = _projection!.tauxRemplacementBase;
     final deltaTaux = tauxAvec - tauxSans;
+
+    // Guard: do not show absurd replacement rates (below 15% is clearly
+    // the result of missing LPP/3a data, not reality).
+    if (tauxAvec < 15 && _confidenceScore < 60) {
+      return const SizedBox.shrink();
+    }
 
     // Tax savings from 3a + LPP deductions
     // LIFD art. 9 al. 1: seuls les mariés déclarent conjointement.
@@ -3936,6 +3939,120 @@ Si une categorie ne s'applique pas, omets-la.
   // ════════════════════════════════════════════════════════════════
   //  4. TRAJECTORY SECTION
   // ════════════════════════════════════════════════════════════════
+
+  /// Card shown instead of trajectory when confidence < 40%.
+  Widget _buildLowConfidenceCard() {
+    final confidence = ConfidenceScorer.score(_profile!);
+    final topPrompts = confidence.prompts.take(3).toList();
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: MintColors.scoreAttention.withValues(alpha: 0.30),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info_outline,
+                  color: MintColors.scoreAttention, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Pas assez de donn\u00e9es pour une projection fiable',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'En Suisse, le taux de remplacement moyen est de 60-70% '
+            'du dernier salaire. Pour estimer le tien, '
+            'compl\u00e8te quelques informations :',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...topPrompts.map((p) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: MintColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '+${p.impact}%',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        p.label,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => context.push('/onboarding/minimal'),
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: Text(
+                'Compl\u00e9ter mon profil',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildTrajectorySection() {
     final l10n = S.of(context);

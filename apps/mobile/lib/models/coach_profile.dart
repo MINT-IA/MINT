@@ -183,6 +183,19 @@ class PrevoyanceProfile {
     return ((rachatMaximum ?? 0) - (rachatEffectue ?? 0)).clamp(0, double.infinity);
   }
 
+  /// Rendement moyen pondere des comptes 3a.
+  /// Si aucun compte, retourne 0.02 (hypothese conservative).
+  double get rendementMoyen3a {
+    if (comptes3a.isEmpty || totalEpargne3a <= 0) return 0.02;
+    double weightedSum = 0;
+    double totalSolde = 0;
+    for (final c in comptes3a) {
+      weightedSum += c.solde * c.rendementEstime;
+      totalSolde += c.solde;
+    }
+    return totalSolde > 0 ? weightedSum / totalSolde : 0.02;
+  }
+
   factory PrevoyanceProfile.fromJson(Map<String, dynamic> json) {
     return PrevoyanceProfile(
       anneesContribuees: json['anneesContribuees'] as int?,

@@ -849,7 +849,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           title: 'MATHEMATIQUE CRUELLE',
           text: 'Un credit conso a 9.9% coute CHF 4\'950/an sur CHF 50\'000 de dette. '
               'Un ETF monde rapporte ~6%/an. Rembourser ses dettes = '
-              'le placement le plus rentable et le seul GARANTI.',
+              'le placement le plus rentable et au rendement connu d\'avance.',
           color: Colors.red.shade700,
         );
 
@@ -1192,7 +1192,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               'Prudent (obligations) ~2%/an. '
               'Equilibre (mixte) ~4-5%/an. '
               'Dynamique (actions) ~6-8%/an. '
-              'Aucune perte sur 15+ ans historiquement — le temps est le meilleur allie.',
+              'Aucune perte sur 15+ ans historiquement — le temps est un allie puissant.',
           color: Colors.teal.shade700,
         );
     }
@@ -1256,7 +1256,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
       title: 'LE 3A = TON ARME FISCALE',
       text: 'Max 3a : 7\'258 CHF/an = economie de CHF ${savings.toStringAsFixed(0)}/an '
           'dans le canton $canton. Sur $yearsToRetirement ans = CHF ${lifetimeSavings.toStringAsFixed(0)} '
-          'd\'impots economises au total. C\'est le meilleur outil fiscal en Suisse.',
+          'd\'impots economises au total. C\'est l\'outil fiscal le plus courant en Suisse.',
       color: Colors.green.shade700,
     );
   }

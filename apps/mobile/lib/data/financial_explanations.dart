@@ -54,7 +54,7 @@ class FinancialExplanations {
         ],
       ),
       ExplanationSection(
-        title: '🎯 Stratégie optimale',
+        title: '🎯 Stratégie adaptée',
         content:
             'Pour maximiser l\'économie fiscale, il faut racheter dans les dernières années pré-retraite (quand ton salaire est au plus haut).',
         keyPoints: [
@@ -188,7 +188,7 @@ class FinancialExplanations {
             'Les DERNIÈRES années font +50% du gain total !',
       ),
       const ExplanationSection(
-        title: '⏰ Le temps est ton meilleur allié',
+        title: '⏰ Le temps est un allié puissant',
         keyPoints: [
           KeyPoint(
             'Commencer tôt = Effet décuplé',

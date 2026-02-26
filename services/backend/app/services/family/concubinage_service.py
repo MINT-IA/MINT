@@ -204,14 +204,14 @@ class ConcubinageService:
             synthese = (
                 f"Le concubinage est plus avantageux fiscalement "
                 f"(~CHF {abs(fiscal.difference):,.0f}/an), mais le mariage offre "
-                f"une bien meilleure protection (prevoyance, succession, enfants). "
+                f"une protection nettement plus etendue (prevoyance, succession, enfants). "
                 f"La difference de succession peut atteindre CHF {succession.difference:,.0f}."
             )
         else:
             synthese = (
                 f"Le mariage est plus avantageux fiscalement "
                 f"(~CHF {abs(fiscal.difference):,.0f}/an) ET offre "
-                f"une bien meilleure protection (prevoyance, succession, enfants). "
+                f"une protection nettement plus etendue (prevoyance, succession, enfants). "
                 f"La difference de succession peut atteindre CHF {succession.difference:,.0f}."
             )
 
