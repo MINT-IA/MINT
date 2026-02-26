@@ -68,12 +68,16 @@ platform :ios do
 
     # ── 2. Setup temporary keychain (CI environment) ──
     if ENV["CI"]
+      keychain_pw = ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password"
+      delete_keychain(name: "ci_keychain") if File.exist?(File.expand_path("~/Library/Keychains/ci_keychain-db"))
       create_keychain(
         name: "ci_keychain",
-        password: ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password",
+        password: keychain_pw,
         default_keychain: true,
         unlock: true,
         timeout: 3600,
+        lock_when_sleeps: false,
+        lock_after_timeout: false,
       )
     end
 
@@ -87,13 +91,18 @@ platform :ios do
     }
     if ENV["CI"]
       match_params[:keychain_name] = "ci_keychain"
-      match_params[:keychain_password] = ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password"
+      match_params[:keychain_password] = keychain_pw
       # CI needs explicit auth to clone the private certificates repo
       if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
         match_params[:git_basic_authorization] = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
       end
     end
     match(match_params)
+
+    # Ensure xcodebuild can find the signing identity
+    if ENV["CI"]
+      sh("security", "set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-s", "-k", keychain_pw, File.expand_path("~/Library/Keychains/ci_keychain-db"))
+    end
 
     # ── 4. Auto-increment build number ──
     increment_build_number(
