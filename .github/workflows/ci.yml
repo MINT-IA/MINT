@@ -64,6 +64,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Patch google_fonts for Dart compatibility
+        run: bash scripts/patch_google_fonts_const_map.sh
+
       - name: Generate l10n
         run: flutter gen-l10n
 
