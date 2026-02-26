@@ -66,28 +66,8 @@ platform :ios do
       in_house: false,
     )
 
-    # ── 2. Setup temporary keychain (CI environment) ──
-    if ENV["CI"]
-      keychain_pw = ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password"
-      keychain_path = File.expand_path("~/Library/Keychains/ci_keychain-db")
-      # Nuke stale keychain completely (file + search list entry)
-      sh("security", "delete-keychain", keychain_path) rescue nil
-      FileUtils.rm_f(keychain_path)
-      create_keychain(
-        name: "ci_keychain",
-        password: keychain_pw,
-        default_keychain: true,
-        unlock: true,
-        timeout: 3600,
-        lock_when_sleeps: false,
-        lock_after_timeout: false,
-        add_to_search_list: true,
-      )
-      # Verify keychain is in search list and unlocked
-      sh("security", "list-keychains", "-d", "user", "-s", keychain_path, File.expand_path("~/Library/Keychains/login.keychain-db"))
-      sh("security", "default-keychain", "-s", keychain_path)
-      sh("security", "unlock-keychain", "-p", keychain_pw, keychain_path)
-    end
+    # ── 2. Setup CI keychain (handles everything automatically) ──
+    setup_ci if ENV["CI"]
 
     # ── 3. Fetch signing certificates + profiles ──
     match_params = {
@@ -97,20 +77,10 @@ platform :ios do
       api_key: api_key,
       readonly: true,
     }
-    if ENV["CI"]
-      match_params[:keychain_name] = "ci_keychain"
-      match_params[:keychain_password] = keychain_pw
-      # CI needs explicit auth to clone the private certificates repo
-      if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
-        match_params[:git_basic_authorization] = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
-      end
+    if ENV["CI"] && ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+      match_params[:git_basic_authorization] = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
     end
     match(match_params)
-
-    # Ensure xcodebuild can find the signing identity
-    if ENV["CI"]
-      sh("security", "set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-s", "-k", keychain_pw, File.expand_path("~/Library/Keychains/ci_keychain-db"))
-    end
 
     # ── 4. Auto-increment build number ──
     increment_build_number(
