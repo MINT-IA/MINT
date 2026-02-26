@@ -74,7 +74,7 @@ class MentorModal extends StatelessWidget {
     const enrichir = _MentorAction(
       icon: Icons.person_add_outlined,
       title: 'Enrichir mon profil',
-      subtitle: 'Plus de precision = meilleurs conseils',
+      subtitle: 'Plus de precision = projections plus fiables',
       color: MintColors.primary,
       route: '/advisor/wizard',
     );
