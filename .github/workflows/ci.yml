@@ -68,7 +68,27 @@ jobs:
         run: flutter gen-l10n
 
       - name: Analyze (errors only)
-        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+        shell: bash
+        run: |
+          set +e
+          flutter analyze --no-fatal-warnings --no-fatal-infos > /tmp/flutter_analyze.log 2>&1
+          status=$?
+
+          errors=$(grep -cE "^[[:space:]]*error[[:space:]]+•" /tmp/flutter_analyze.log || true)
+          warnings=$(grep -cE "^[[:space:]]*warning[[:space:]]+•" /tmp/flutter_analyze.log || true)
+          infos=$(grep -cE "^[[:space:]]*info[[:space:]]+•" /tmp/flutter_analyze.log || true)
+          echo "Analyze summary: errors=$errors warnings=$warnings infos=$infos"
+
+          echo "Analyze diagnostics (warnings/errors only):"
+          grep -E "^[[:space:]]*(error|warning)[[:space:]]+•" /tmp/flutter_analyze.log || true
+          grep -E "issues found" /tmp/flutter_analyze.log || true
+
+          if [[ $status -ne 0 ]]; then
+            echo "Analyze failed. Raw output head:"
+            sed -n '1,120p' /tmp/flutter_analyze.log
+          fi
+
+          exit $status
 
       - name: Run tests
         run: flutter test --reporter compact

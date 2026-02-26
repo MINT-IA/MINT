@@ -179,7 +179,7 @@ class SlmEngine {
     _isGenerating = true;
 
     final stopwatch = Stopwatch()..start();
-    Chat? chat;
+    InferenceChat? chat;
 
     try {
       // Create a chat session with caller-specified params.
@@ -224,7 +224,7 @@ class SlmEngine {
       return null;
     } finally {
       // Always release the chat session to free native resources.
-      await chat?.close();
+      await chat?.session.close();
       _isGenerating = false;
     }
   }
@@ -244,7 +244,7 @@ class SlmEngine {
     if (!isAvailable || _model == null || _isGenerating) return;
 
     _isGenerating = true;
-    Chat? chat;
+    InferenceChat? chat;
 
     try {
       chat = await _model!.createChat(
@@ -268,7 +268,7 @@ class SlmEngine {
     } catch (e) {
       debugPrint('[SLM] Stream generation failed: $e');
     } finally {
-      await chat?.close();
+      await chat?.session.close();
       _isGenerating = false;
     }
   }
