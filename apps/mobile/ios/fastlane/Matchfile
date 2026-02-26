@@ -1,0 +1,13 @@
+# MINT iOS — Fastlane Match configuration
+# Certificates and profiles are stored in a private Git repo
+
+git_url(ENV["MATCH_GIT_URL"] || "https://github.com/Julienbatt/mint-certificates.git")
+
+storage_mode("git")
+
+type("appstore")
+
+app_identifier(["ch.mint.app"])
+
+# Don't generate new certs on CI — readonly mode
+readonly(ENV["CI"] == "true")
