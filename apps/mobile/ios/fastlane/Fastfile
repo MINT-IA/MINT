@@ -18,8 +18,28 @@ default_platform(:ios)
 platform :ios do
   desc "Build and upload to TestFlight"
   lane :beta do
-    raw_key_content = ENV["APP_STORE_CONNECT_API_KEY_CONTENT"].to_s.strip
-    UI.user_error!("Missing APP_STORE_CONNECT_API_KEY_CONTENT") if raw_key_content.empty?
+    key_id = [
+      ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      ENV["APP_STORE_KEY_ID"],
+      ENV["ASC_KEY_ID"],
+    ].map { |v| v.to_s.strip }.find { |v| !v.empty? }
+
+    issuer_id = [
+      ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      ENV["APP_STORE_ISSUER_ID"],
+      ENV["ASC_ISSUER_ID"],
+    ].map { |v| v.to_s.strip }.find { |v| !v.empty? }
+
+    raw_key_content = [
+      ENV["APP_STORE_CONNECT_API_KEY_CONTENT"],
+      ENV["APP_STORE_CONNECT_API_KEY"],
+      ENV["APP_STORE_CONNECT_PRIVATE_KEY"],
+      ENV["ASC_API_KEY_CONTENT"],
+    ].map { |v| v.to_s.strip }.find { |v| !v.empty? }
+
+    UI.user_error!("Missing App Store key id (APP_STORE_CONNECT_API_KEY_ID)") if key_id.to_s.empty?
+    UI.user_error!("Missing App Store issuer id (APP_STORE_CONNECT_ISSUER_ID)") if issuer_id.to_s.empty?
+    UI.user_error!("Missing App Store private key content (APP_STORE_CONNECT_API_KEY_CONTENT)") if raw_key_content.to_s.empty?
 
     # Accept either plain .p8 content or base64-encoded .p8, and normalize escaped newlines.
     normalized_key_content = raw_key_content.gsub('\n', "\n")
@@ -39,8 +59,8 @@ platform :ios do
 
     # ── 1. App Store Connect API auth (no interactive login) ──
     api_key = app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_id: key_id,
+      issuer_id: issuer_id,
       key_content: normalized_key_content,
       is_key_content_base64: false,
       in_house: false,
