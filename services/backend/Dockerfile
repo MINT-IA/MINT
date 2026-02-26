@@ -35,13 +35,5 @@ USER mint
 ENV PORT=8080
 EXPOSE ${PORT}
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen(f'http://localhost:{__import__(\"os\").environ.get(\"PORT\",\"8080\")}/api/v1/health')" || exit 1
-
-CMD gunicorn app.main:app \
-    -w 2 \
-    -k uvicorn.workers.UvicornWorker \
-    --bind 0.0.0.0:${PORT} \
-    --timeout 120 \
-    --access-logfile - \
-    --error-logfile -
+# Railway provides its own healthcheck via railway.json
+CMD ["sh", "-c", "gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8080} --timeout 120 --access-logfile - --error-logfile -"]
