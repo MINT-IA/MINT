@@ -88,20 +88,30 @@ platform :ios do
       xcodeproj: "Runner.xcodeproj",
     )
 
-    # Work around google_fonts const-map incompatibility on some CI runtimes.
-    # sh() runs from ios/fastlane/, so ../../scripts/ reaches apps/mobile/scripts/
-    sh("../../scripts/patch_google_fonts_const_map.sh")
+    # ── 5. Configure manual code signing (use Match profile) ──
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      team_id: "7F5UDGYS5H",
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "match AppStore ch.mint.app",
+      path: "Runner.xcodeproj",
+    )
 
-    # ── 5. Build the Flutter IPA ──
+    # ── 6. Build the Flutter IPA ──
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "ch.mint.app" => "match AppStore ch.mint.app",
+        },
+      },
       output_directory: "../build/ios",
       output_name: "Mint.ipa",
     )
 
-    # ── 6. Upload to TestFlight ──
+    # ── 7. Upload to TestFlight ──
     upload_to_testflight(
       api_key: api_key,
       skip_waiting_for_build_processing: true,
