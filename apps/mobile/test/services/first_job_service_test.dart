@@ -45,15 +45,17 @@ void main() {
       expect(result.ac, closeTo(66.0, 0.1)); // 6000 * 0.011
     });
 
-    test('computes AC at 0.5% when annual salary above AC ceiling', () {
+    test('computes blended AC when annual salary above AC ceiling', () {
       // 13'000 * 12 = 156'000 > 148'200
+      // AC = (148200 * 0.011 + (156000 - 148200) * 0.005) / 12
+      //    = (1630.2 + 39) / 12 = 139.1
       final result = FirstJobService.analyzeSalary(
         salaireBrutMensuel: 13000,
         age: 30,
         canton: 'ZH',
       );
 
-      expect(result.ac, closeTo(65.0, 0.1)); // 13000 * 0.005
+      expect(result.ac, closeTo(139.1, 0.5));
     });
 
     test('computes AANP at 1.3% of gross', () {
@@ -462,8 +464,9 @@ void main() {
 
       expect(result.netEstime, greaterThan(0));
       expect(result.netEstime, lessThan(15000));
-      // AC should use solidarity rate (0.5%) since 180'000 > 148'200
-      expect(result.ac, closeTo(75.0, 0.1)); // 15000 * 0.005
+      // AC = blended: (148200 * 0.011 + (180000 - 148200) * 0.005) / 12
+      //    = (1630.2 + 159) / 12 = 149.1
+      expect(result.ac, closeTo(149.1, 0.5));
     });
 
     test('age exactly 25 qualifies for LPP', () {

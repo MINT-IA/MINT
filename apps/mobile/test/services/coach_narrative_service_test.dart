@@ -416,7 +416,7 @@ void main() {
       expect(
           CoachNarrativeService.containsBannedTerms('placement sans risque'),
           isTrue);
-      expect(CoachNarrativeService.containsBannedTerms('la solution optimale'),
+      expect(CoachNarrativeService.containsBannedTerms('le choix optimal'),
           isTrue);
       expect(CoachNarrativeService.containsBannedTerms('texte normal ok'),
           isFalse);

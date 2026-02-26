@@ -295,7 +295,9 @@ void main() {
       expect(empty.profileCompleteness, 0.0);
 
       final mini = buildMiniCoachProvider();
-      expect(mini.profileCompleteness, 0.15);
+      // Mini provider answers 3 of 16 quality keys (q_birth_year,
+      // q_canton, q_net_income_period_chf). Result: (3/16).clamp(0.10, 0.55).
+      expect(mini.profileCompleteness, 3 / 16);
 
       final full = buildFullCoachProvider();
       expect(full.profileCompleteness, 0.60);

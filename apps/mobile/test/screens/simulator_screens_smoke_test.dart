@@ -11,6 +11,7 @@ import 'package:mint_mobile/screens/gender_gap_screen.dart';
 
 // Dependencies
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // =============================================================================
@@ -330,8 +331,11 @@ void main() {
 
   group('FiscalComparatorScreen', () {
     Widget buildScreen() {
-      return const MaterialApp(
-        home: FiscalComparatorScreen(),
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
+          home: FiscalComparatorScreen(),
+        ),
       );
     }
 

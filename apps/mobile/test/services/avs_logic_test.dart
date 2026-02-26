@@ -65,10 +65,8 @@ void main() {
     test('FinancialReportService._estimateAvsRent with gaps', () {
       final service = FinancialReportService();
 
-      // Note: FinancialReportService._estimateAvsRent is private,
-      // but we can test it through buildRetirementProjection or
-      // by making a test-only subclass if needed.
-      // For now, let's assume we can generate a report and check the projection.
+      // The report uses AvsCalculator.computeMonthlyRente which takes into
+      // account income-based rente (RAMD) and future contribution years.
 
       final answersSingleGap = {
         'q_birth_year': 1980,
@@ -82,10 +80,13 @@ void main() {
       };
 
       final report = service.generateReport(answersSingleGap);
-      final expectedRent = 2520 * (40 / 44); // 30'240/12 = 2520 CHF/mois (LAVS)
+      // grossAnnualSalary = 5000 * 12 / 0.87 = ~68965.5
+      // renteFromRAMD(68965.5) = ~2190.25 (linear interpolation)
+      // With anneesContribuees=40 + futureYears=19 = 44 total => gapFactor=1.0
+      // So rente = ~2190.25
 
       expect(report.retirementProjection?.monthlyAvsRent,
-          closeTo(expectedRent, 0.1));
+          closeTo(2190.27, 1.0));
     });
 
     test('Married AVS Rent calculation with spouse gaps', () {
@@ -105,13 +106,14 @@ void main() {
 
       final report = service.generateReport(answersMarriedGaps);
 
-      // Couple max = 3780 (1890 each)
-      // Part 1: 1890 * (40/44)
-      // Part 2: 1890 * (42/44)
-      final expectedRent = (1890.0 * 40 / 44) + (1890.0 * 42 / 44);
-
+      // grossAnnualSalary = 8000 * 12 / 0.87 = ~110344.8 (> RAMD max 88200)
+      // Both user and spouse get max rente = 2520 CHF/mois
+      // With future years: user 40+19=44, spouse 42+19=44 => gapFactor=1.0 for both
+      // userRente = 2520, spouseRente = 2520, total = 5040
+      // Married cap (LAVS art. 35): 150% of 2520 = 3780
+      // Total capped to 3780
       expect(report.retirementProjection?.monthlyAvsRent,
-          closeTo(expectedRent, 0.1));
+          closeTo(3780.0, 1.0));
     });
   });
 }

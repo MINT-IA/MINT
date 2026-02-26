@@ -103,7 +103,7 @@ void main() {
 
     test('q_canton title mentions fiscalite', () {
       final title = EducationalInsertService.getLearnMoreTitle('q_canton');
-      expect(title!.toLowerCase(), contains('fiscalite'));
+      expect(title!.toLowerCase(), contains('fiscalité'));
     });
 
     test('q_emergency_fund title is about emergency fund', () {
