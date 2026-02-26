@@ -246,6 +246,8 @@ void main() {
     // =========================================================================
 
     test('throws ArgumentError for unsupported canton', () {
+      // All 26 Swiss cantons (including FR) are now supported.
+      // Use a non-existent canton code to trigger ArgumentError.
       expect(
         () => computeDisabilityGap(
           revenuMensuelNet: 8000,

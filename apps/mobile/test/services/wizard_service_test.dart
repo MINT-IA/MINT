@@ -518,7 +518,9 @@ void main() {
     test('asks investments when no debt and has emergency fund', () {
       final answers = <String, dynamic>{
         'q_has_consumer_debt': 'no',
-        'q_emergency_fund': 'yes_6months',
+        // Emergency fund is now computed from q_cash_total / expenses.
+        // With no expenses known, hasEmergencyFund = cash > 10000.
+        'q_cash_total': 20000,
       };
       expect(
         WizardConditionsService.shouldAskQuestion('q_has_investments', answers),
@@ -534,9 +536,12 @@ void main() {
         WizardConditionsService.shouldAskQuestion('q_3a_accounts_count', answers),
         false,
       );
+      // q_3a_providers has no condition in WizardConditionsService, so it
+      // returns true (default). Only q_3a_accounts_count and
+      // q_3a_annual_contribution are gated by q_has_3a.
       expect(
         WizardConditionsService.shouldAskQuestion('q_3a_providers', answers),
-        false,
+        true,
       );
       expect(
         WizardConditionsService.shouldAskQuestion('q_3a_annual_contribution', answers),

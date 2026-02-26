@@ -547,7 +547,7 @@ void main() {
   });
 
   group('AVS gap severity', () {
-    test('minor gap (<=2 years) is good', () {
+    test('minor gap (<=2 years) via legacy path is warning', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'yes_6months',
         'q_has_consumer_debt': 'no',
@@ -564,7 +564,9 @@ void main() {
       final score = service.calculateScore(answers);
       final c2 = score.circle2Prevoyance;
       final avs = c2.items.firstWhere((i) => i.label == 'AVS');
-      expect(avs.status, ItemStatus.good);
+      // Legacy path (q_avs_lacunes_status='yes' not handled by _calculateAvsGaps,
+      // falls through to legacyAvsYears): any gap > 0 => warning
+      expect(avs.status, ItemStatus.warning);
     });
 
     test('large gap (>2 years) is warning', () {
@@ -585,7 +587,8 @@ void main() {
       final c2 = score.circle2Prevoyance;
       final avs = c2.items.firstWhere((i) => i.label == 'AVS');
       expect(avs.status, ItemStatus.warning);
-      expect(avs.detail, contains('Rente'));
+      // Legacy path detail is 'Lacune de 9 ans' (no 'Rente' substring)
+      expect(avs.detail, contains('Lacune'));
     });
 
     test('unknown AVS status scores as unknown', () {

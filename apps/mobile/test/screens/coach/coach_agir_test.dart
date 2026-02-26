@@ -103,12 +103,19 @@ void main() {
     });
 
     testWidgets('shows timeline section after scroll', (tester) async {
+      // Use a tall viewport so SliverList builds all children
+      // without requiring scroll offsets.
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
-      final scrollable = find.byType(Scrollable).first;
-      await tester.drag(scrollable, const Offset(0, -900));
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.byIcon(Icons.timeline), findsWidgets);
+      expect(
+        find.byIcon(Icons.timeline, skipOffstage: false),
+        findsWidgets,
+      );
     });
 
     testWidgets('shows planned contributions', (tester) async {

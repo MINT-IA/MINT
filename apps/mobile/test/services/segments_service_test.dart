@@ -307,7 +307,7 @@ void main() {
       );
       expect(
         result.rules.any((r) =>
-            r.category == '3a' && r.title.contains('quasi-resident')),
+            r.category == '3a' && r.title.contains('quasi-résident')),
         isTrue,
       );
     });
@@ -323,7 +323,7 @@ void main() {
       );
       final rule3a = result.rules.firstWhere((r) => r.category == '3a');
       expect(rule3a.isAlert, isTrue);
-      expect(rule3a.title, contains('pas de deduction'));
+      expect(rule3a.title, contains('pas de déduction'));
     });
 
     test('all countries produce LPP and AVS rules', () {
@@ -378,7 +378,7 @@ void main() {
         ),
       );
       expect(
-        result.checklist.any((c) => c.contains('quasi-resident')),
+        result.checklist.any((c) => c.contains('quasi-résident')),
         isTrue,
       );
     });
@@ -430,7 +430,7 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════
 
   group('IndependantService', () {
-    test('3a ceiling without LPP is 20% of net, max 35280', () {
+    test('3a ceiling without LPP is 20% of net, max 36288', () {
       final result = IndependantService.analyse(
         input: const IndependantInput(
           revenuNet: 100000,
@@ -442,7 +442,7 @@ void main() {
       expect(result.plafond3a, 20000);
     });
 
-    test('3a ceiling without LPP caps at 35280', () {
+    test('3a ceiling without LPP caps at 36288', () {
       final result = IndependantService.analyse(
         input: const IndependantInput(
           revenuNet: 200000,
@@ -450,11 +450,11 @@ void main() {
           canton: 'VD',
         ),
       );
-      // 20% of 200k = 40000, capped at 35280
-      expect(result.plafond3a, 35280);
+      // 20% of 200k = 40000, capped at 36288
+      expect(result.plafond3a, 36288);
     });
 
-    test('3a ceiling with LPP is 7056', () {
+    test('3a ceiling with LPP is 7258', () {
       final result = IndependantService.analyse(
         input: const IndependantInput(
           revenuNet: 100000,
@@ -463,7 +463,7 @@ void main() {
           canton: 'VD',
         ),
       );
-      expect(result.plafond3a, 7056);
+      expect(result.plafond3a, 7258);
     });
 
     test('AVS contribution at full rate for income >= 58800', () {
@@ -626,7 +626,7 @@ void main() {
     });
 
     test('formatChf formats large numbers with apostrophes', () {
-      expect(IndependantService.formatChf(35280), contains("35'280"));
+      expect(IndependantService.formatChf(36288), contains("36'288"));
     });
   });
 }
