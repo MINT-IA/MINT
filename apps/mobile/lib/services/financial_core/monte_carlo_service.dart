@@ -148,9 +148,13 @@ class MonteCarloProjectionService {
       }
 
       // ── LPP utilisateur : projection simplifiee jusqu'a la retraite ─
+      // Inclut bonifications annuelles + rachats LPP planifies (LPP art. 79b)
       double lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
       final userHasLpp =
           lppBalance > 0 || profile.employmentStatus != 'independant';
+      final annualBuyback = profile.totalLppBuybackMensuel * 12;
+      final maxBuyback = profile.prevoyance.lacuneRachatRestante;
+      double cumulBuyback = 0;
       for (int a = profile.age; a < retirementAgeUser && a < 70; a++) {
         lppBalance *= (1 + lppReturn);
         if (userHasLpp) {
@@ -158,6 +162,13 @@ class MonteCarloProjectionService {
               pow(1 + salaryGrowth, (a - profile.age).toDouble());
           final salaireCoord = LppCalculator.computeSalaireCoordonne(salary);
           lppBalance += salaireCoord * getLppBonificationRate(a);
+        }
+        // Rachats LPP planifies, plafonnes a la lacune restante
+        if (annualBuyback > 0 && cumulBuyback < maxBuyback) {
+          final buybackThisYear =
+              annualBuyback.clamp(0.0, maxBuyback - cumulBuyback);
+          lppBalance += buybackThisYear;
+          cumulBuyback += buybackThisYear;
         }
       }
 
@@ -180,7 +191,7 @@ class MonteCarloProjectionService {
         lppMonthly = lppBalance * conversionRate / 12;
       }
 
-      // ── LPP conjoint : projection simplifiee ──────────────
+      // ── LPP conjoint : projection avec rachats planifies ──
       double conjointLppMonthly = 0;
       if (hasConjoint && conjointAge != null) {
         double conjLppBalance = conjoint!.prevoyance?.avoirLppTotal ?? 0;
@@ -188,6 +199,19 @@ class MonteCarloProjectionService {
             conjoint.employmentStatus != 'independant';
         final conjSalary = conjoint.revenuBrutAnnuel;
         final conjConvRate = conjoint.prevoyance?.tauxConversion ?? 0.068;
+        // Rachats LPP conjoint: contributes dont l'id/label contient
+        // le prenom du conjoint (ex: 'lpp_buyback_lauren')
+        final conjName = conjoint.firstName?.toLowerCase() ?? '';
+        final conjAnnualBuyback = profile.plannedContributions
+            .where((c) =>
+                c.category == 'lpp_buyback' &&
+                conjName.isNotEmpty &&
+                (c.id.toLowerCase().contains(conjName) ||
+                    c.label.toLowerCase().contains(conjName)))
+            .fold(0.0, (sum, c) => sum + c.amount) * 12;
+        final conjMaxBuyback =
+            conjoint.prevoyance?.lacuneRachatRestante ?? 0;
+        double conjCumulBuyback = 0;
 
         for (int a = conjointAge; a < conjointRetirementAge && a < 70; a++) {
           conjLppBalance *= (1 + lppReturn);
@@ -198,6 +222,13 @@ class MonteCarloProjectionService {
                 LppCalculator.computeSalaireCoordonne(salary);
             conjLppBalance += salaireCoord * getLppBonificationRate(a);
           }
+          // Rachats LPP conjoint, plafonnes a la lacune
+          if (conjAnnualBuyback > 0 && conjCumulBuyback < conjMaxBuyback) {
+            final buyback =
+                conjAnnualBuyback.clamp(0.0, conjMaxBuyback - conjCumulBuyback);
+            conjLppBalance += buyback;
+            conjCumulBuyback += buyback;
+          }
         }
 
         // Conjoint LPP: 100% rente (simplification)
@@ -205,11 +236,16 @@ class MonteCarloProjectionService {
       }
 
       // ── 3a utilisateur : projection simplifiee ────────────
+      // Utilise le rendement moyen pondere des comptes 3a (ex: VIAC 5%, cash 2%)
+      // avec un bruit stochastique proportionnel.
       double threeABalance = profile.prevoyance.totalEpargne3a;
       final monthly3a = profile.total3aMensuel;
+      final baseReturn3a = profile.prevoyance.rendementMoyen3a;
+      final threeAReturn =
+          _normalRandom(random, mean: baseReturn3a, sd: baseReturn3a * 0.5)
+              .clamp(0.0, 0.10);
       for (int a = profile.age; a < retirementAgeUser; a++) {
-        // Rendement conservateur pour le 3a (borne a 4%)
-        threeABalance *= (1 + lppReturn.clamp(0.0, 0.04));
+        threeABalance *= (1 + threeAReturn);
         threeABalance += monthly3a * 12;
       }
       final threeATax = RetirementTaxCalculator.capitalWithdrawalTax(
@@ -221,16 +257,32 @@ class MonteCarloProjectionService {
       final threeAMonthly =
           threeANet > 0 ? threeANet / _3aDrawdownYears / 12 : 0.0;
 
-      // ── 3a conjoint : projection simplifiee ───────────────
+      // ── 3a conjoint : projection avec rendement propre + contributions ─
       double conjointThreeAMonthly = 0;
       if (hasConjoint && conjointAge != null) {
         final conjPrev = conjoint!.prevoyance;
         double conj3aBalance = conjPrev?.totalEpargne3a ?? 0;
-        if (conj3aBalance > 0) {
+        // Rendement propre du conjoint (ex: FATCA → cash 2%, VIAC → 5%)
+        final conjBase3aReturn = conjPrev?.rendementMoyen3a ?? 0.02;
+        final conj3aReturn = _normalRandom(
+          random,
+          mean: conjBase3aReturn,
+          sd: conjBase3aReturn * 0.5,
+        ).clamp(0.0, 0.10);
+        // Contributions 3a mensuelles du conjoint: depuis plannedContributions
+        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren')
+        final conjNameLower = conjoint.firstName?.toLowerCase() ?? '';
+        final conj3aMonthlyContrib = profile.plannedContributions
+            .where((c) =>
+                c.category == '3a' &&
+                conjNameLower.isNotEmpty &&
+                (c.id.toLowerCase().contains(conjNameLower) ||
+                    c.label.toLowerCase().contains(conjNameLower)))
+            .fold(0.0, (sum, c) => sum + c.amount);
+        if (conj3aBalance > 0 || conj3aMonthlyContrib > 0) {
           for (int a = conjointAge; a < conjointRetirementAge; a++) {
-            conj3aBalance *= (1 + lppReturn.clamp(0.0, 0.04));
-            // Conjoint 3a contributions: check canContribute3a
-            // (simplified — no monthly contribution data on conjoint)
+            conj3aBalance *= (1 + conj3aReturn);
+            conj3aBalance += conj3aMonthlyContrib * 12;
           }
           final conj3aTax = RetirementTaxCalculator.capitalWithdrawalTax(
             capitalBrut: conj3aBalance,
