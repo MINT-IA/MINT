@@ -18,6 +18,7 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/widgets/language_selector_widget.dart';
 import 'package:mint_mobile/l10n/locale_helper.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/slm/slm_engine.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -880,14 +881,28 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildAiSection(BuildContext context) {
     final byok = context.watch<ByokProvider>();
     final s = S.of(context);
-    return _buildFactFindSection(
-      title: s?.profileAiByok ?? 'Ask MINT (BYOK)',
-      status: byok.isConfigured
-          ? '${byok.providerLabel} \u2014 ${s?.profileAiConfigured ?? 'Configur\u00e9'}'
-          : (s?.profileAiNotConfigured ?? 'Non configur\u00e9'),
-      isComplete: byok.isConfigured,
-      icon: Icons.auto_awesome,
-      onTap: () => context.push('/profile/byok'),
+    return Column(
+      children: [
+        _buildFactFindSection(
+          title: s?.profileAiByok ?? 'Ask MINT (BYOK)',
+          status: byok.isConfigured
+              ? '${byok.providerLabel} \u2014 ${s?.profileAiConfigured ?? 'Configur\u00e9'}'
+              : (s?.profileAiNotConfigured ?? 'Non configur\u00e9'),
+          isComplete: byok.isConfigured,
+          icon: Icons.auto_awesome,
+          onTap: () => context.push('/profile/byok'),
+        ),
+        const SizedBox(height: 12),
+        _buildFactFindSection(
+          title: 'IA on-device (SLM)',
+          status: SlmEngine.instance.isAvailable
+              ? 'Mod\u00e8le pr\u00eat'
+              : 'Mod\u00e8le non install\u00e9',
+          isComplete: SlmEngine.instance.isAvailable,
+          icon: Icons.smartphone,
+          onTap: () => context.push('/profile/slm'),
+        ),
+      ],
     );
   }
 
