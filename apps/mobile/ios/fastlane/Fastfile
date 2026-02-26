@@ -78,15 +78,22 @@ platform :ios do
     end
 
     # ── 3. Fetch signing certificates + profiles ──
-    match(
+    match_params = {
       type: "appstore",
       app_identifier: "ch.mint.app",
       git_url: ENV["MATCH_GIT_URL"],
-      keychain_name: ENV["CI"] ? "ci_keychain" : nil,
-      keychain_password: ENV["CI"] ? (ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password") : nil,
       api_key: api_key,
       readonly: true,
-    )
+    }
+    if ENV["CI"]
+      match_params[:keychain_name] = "ci_keychain"
+      match_params[:keychain_password] = ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password"
+      # CI needs explicit auth to clone the private certificates repo
+      if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+        match_params[:git_basic_authorization] = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+      end
+    end
+    match(match_params)
 
     # ── 4. Auto-increment build number ──
     increment_build_number(
