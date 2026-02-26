@@ -19,3 +19,7 @@ apps/mobile/.flutter-plugins-dependencies
 # Logs
 *.log
 tools/tax_fetch.log
+
+# Fastlane generated
+apps/mobile/ios/fastlane/report.xml
+apps/mobile/ios/fastlane/README.md
