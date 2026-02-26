@@ -1,3 +1,5 @@
+require "base64"
+
 # MINT iOS — Fastlane configuration
 # Usage:
 #   cd apps/mobile/ios
@@ -16,12 +18,31 @@ default_platform(:ios)
 platform :ios do
   desc "Build and upload to TestFlight"
   lane :beta do
+    raw_key_content = ENV["APP_STORE_CONNECT_API_KEY_CONTENT"].to_s.strip
+    UI.user_error!("Missing APP_STORE_CONNECT_API_KEY_CONTENT") if raw_key_content.empty?
+
+    # Accept either plain .p8 content or base64-encoded .p8, and normalize escaped newlines.
+    normalized_key_content = raw_key_content.gsub('\n', "\n")
+    unless normalized_key_content.include?("-----BEGIN PRIVATE KEY-----")
+      begin
+        decoded = Base64.strict_decode64(normalized_key_content)
+        normalized_key_content = decoded
+      rescue ArgumentError
+        UI.user_error!("APP_STORE_CONNECT_API_KEY_CONTENT must be a .p8 key or base64-encoded .p8 key")
+      end
+    end
+
+    unless normalized_key_content.include?("-----BEGIN PRIVATE KEY-----") &&
+           normalized_key_content.include?("-----END PRIVATE KEY-----")
+      UI.user_error!("APP_STORE_CONNECT_API_KEY_CONTENT does not contain a valid .p8 private key")
+    end
+
     # ── 1. App Store Connect API auth (no interactive login) ──
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-      key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"],
-      is_key_content_base64: true,
+      key_content: normalized_key_content,
+      is_key_content_base64: false,
       in_house: false,
     )
 
