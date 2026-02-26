@@ -1,6 +1,9 @@
 # MINT iOS — Build + Upload to TestFlight
-# Triggers: push to main (only if Flutter code changed)
+# Triggers: merged PR to main (only if Flutter code changed)
 # Also: manual trigger (workflow_dispatch) for on-demand builds
+#
+# NOTE: Direct pushes to main do NOT trigger this workflow.
+# Use feature branches + PR merge, or workflow_dispatch for manual builds.
 #
 # Required GitHub Secrets:
 #   APP_STORE_CONNECT_API_KEY_ID
@@ -12,7 +15,8 @@
 name: TestFlight
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches: [main]
     paths:
       - "apps/mobile/**"
@@ -25,6 +29,9 @@ concurrency:
 jobs:
   build-and-upload:
     name: Build iOS + Upload TestFlight
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true)
     runs-on: macos-15
     timeout-minutes: 45
 
