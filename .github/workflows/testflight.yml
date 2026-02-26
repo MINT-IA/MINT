@@ -65,21 +65,39 @@ jobs:
       - name: Validate App Store secrets
         working-directory: apps/mobile/ios
         env:
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID || secrets.APP_STORE_KEY_ID || secrets.ASC_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID || secrets.APP_STORE_ISSUER_ID || secrets.ASC_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT || secrets.APP_STORE_CONNECT_API_KEY || secrets.APP_STORE_CONNECT_PRIVATE_KEY || secrets.ASC_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
         run: |
-          [[ -n "$APP_STORE_CONNECT_API_KEY_ID" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_API_KEY_ID (or APP_STORE_KEY_ID/ASC_KEY_ID)"; exit 1; }
-          [[ -n "$APP_STORE_CONNECT_ISSUER_ID" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_ISSUER_ID (or APP_STORE_ISSUER_ID/ASC_ISSUER_ID)"; exit 1; }
-          [[ -n "$APP_STORE_CONNECT_API_KEY_CONTENT" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_API_KEY_CONTENT (or APP_STORE_CONNECT_API_KEY/APP_STORE_CONNECT_PRIVATE_KEY/ASC_API_KEY_CONTENT)"; exit 1; }
+          key_id="${APP_STORE_CONNECT_API_KEY_ID:-${APP_STORE_KEY_ID:-${ASC_KEY_ID:-}}}"
+          issuer_id="${APP_STORE_CONNECT_ISSUER_ID:-${APP_STORE_ISSUER_ID:-${ASC_ISSUER_ID:-}}}"
+          key_content="${APP_STORE_CONNECT_API_KEY_CONTENT:-${APP_STORE_CONNECT_API_KEY:-${APP_STORE_CONNECT_PRIVATE_KEY:-${ASC_API_KEY_CONTENT:-}}}}"
+          [[ -n "$key_id" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_API_KEY_ID (or APP_STORE_KEY_ID/ASC_KEY_ID)"; exit 1; }
+          [[ -n "$issuer_id" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_ISSUER_ID (or APP_STORE_ISSUER_ID/ASC_ISSUER_ID)"; exit 1; }
+          [[ -n "$key_content" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_API_KEY_CONTENT (or APP_STORE_CONNECT_API_KEY/APP_STORE_CONNECT_PRIVATE_KEY/ASC_API_KEY_CONTENT)"; exit 1; }
+          echo "App Store secrets precheck: OK"
 
       # ── Fastlane: sign + upload ──
       - name: Build & Upload to TestFlight
         working-directory: apps/mobile/ios
         env:
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID || secrets.APP_STORE_KEY_ID || secrets.ASC_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID || secrets.APP_STORE_ISSUER_ID || secrets.ASC_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT || secrets.APP_STORE_CONNECT_API_KEY || secrets.APP_STORE_CONNECT_PRIVATE_KEY || secrets.ASC_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
