@@ -69,8 +69,10 @@ platform :ios do
     # ── 2. Setup temporary keychain (CI environment) ──
     if ENV["CI"]
       keychain_pw = ENV["KEYCHAIN_PASSWORD"] || "ci_temp_password"
-      # Force-remove any stale keychain from previous CI runs
-      sh("security", "delete-keychain", "ci_keychain", raise_on_error: false) rescue nil
+      keychain_path = File.expand_path("~/Library/Keychains/ci_keychain-db")
+      # Nuke stale keychain completely (file + search list entry)
+      sh("security", "delete-keychain", keychain_path) rescue nil
+      FileUtils.rm_f(keychain_path)
       create_keychain(
         name: "ci_keychain",
         password: keychain_pw,
@@ -81,6 +83,10 @@ platform :ios do
         lock_after_timeout: false,
         add_to_search_list: true,
       )
+      # Verify keychain is in search list and unlocked
+      sh("security", "list-keychains", "-d", "user", "-s", keychain_path, File.expand_path("~/Library/Keychains/login.keychain-db"))
+      sh("security", "default-keychain", "-s", keychain_path)
+      sh("security", "unlock-keychain", "-p", keychain_pw, keychain_path)
     end
 
     # ── 3. Fetch signing certificates + profiles ──
