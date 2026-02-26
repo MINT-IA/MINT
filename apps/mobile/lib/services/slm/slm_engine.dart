@@ -11,8 +11,8 @@
 ///
 /// Priority chain in CoachNarrativeService:
 ///   1. SLM on-device (if model downloaded + initialized)
-///   2. Static templates (always available)
-///   3. BYOK cloud LLM (if API key configured)
+///   2. BYOK cloud LLM (if API key configured)
+///   3. Static templates (always available)
 ///
 /// References:
 ///   - flutter_gemma 0.12.x (pub.dev/packages/flutter_gemma)
@@ -305,9 +305,9 @@ class SlmEngine {
     return response.toString();
   }
 
-  /// Rough token count estimation (1 token ~= 4 chars for French).
+  /// Rough token count estimation (~3.5 chars/token for French with accents).
   static int _estimateTokens(String text) {
     if (text.isEmpty) return 0;
-    return (text.length / 4).ceil();
+    return (text.length / 3.5).ceil();
   }
 }

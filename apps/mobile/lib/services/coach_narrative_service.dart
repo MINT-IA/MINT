@@ -20,8 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 //
 // TRIPLE MODE :
 //   1. SLM on-device (Gemma 3n) → zero reseau, privacy totale
-//   2. Templates statiques      → toujours disponible
-//   3. BYOK cloud LLM           → si API key configuree
+//   2. BYOK cloud LLM           → si API key configuree
+//   3. Templates statiques      → toujours disponible
 //
 // CACHE :
 //   - SharedPreferences, cle "coach_narrative_{yyyy-MM-dd}"
@@ -145,18 +145,8 @@ class CoachNarrativeService {
   static const disclaimer =
       'Outil educatif — ne constitue pas un conseil financier. LSFin.';
 
-  /// Termes bannis (identique a coach_llm_service.dart)
-  static const _bannedTerms = [
-    'garanti',
-    'certain',
-    'assuré',
-    'assure',
-    'sans risque',
-    'optimal',
-    'optimale',
-    'meilleur',
-    'parfait',
-  ];
+  /// Termes bannis — delegue a ComplianceGuard (source unique).
+  static List<String> get _bannedTerms => ComplianceGuard.bannedTerms;
 
   /// Applique un mode de rendu a un texte narratif.
   /// - detailed: texte complet
@@ -186,8 +176,8 @@ class CoachNarrativeService {
   ///
   /// Priorite de generation :
   ///   1. SLM on-device (Gemma 3n) — si modele telecharge
-  ///   2. Templates statiques — toujours disponible
-  ///   3. BYOK cloud LLM — si API key configuree
+  ///   2. BYOK cloud LLM — si API key configuree
+  ///   3. Templates statiques — toujours disponible
   ///
   /// Le resultat est cache 24h dans SharedPreferences.
   static Future<CoachNarrative> generate({
@@ -200,7 +190,7 @@ class CoachNarrativeService {
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
-    // 2. Generer le narratif (priorite : SLM > statique > BYOK)
+    // 2. Generer le narratif (priorite : SLM > BYOK > statique)
     CoachNarrative narrative;
 
     if (SlmEngine.instance.isAvailable) {
@@ -359,7 +349,8 @@ class CoachNarrativeService {
       trendMessage: trendMessage,
       topTipNarrative: topTipNarrative,
       urgentAlert: urgentAlert,
-      milestoneMessage: null, // Milestones: async detection, handled in generate()
+      milestoneMessage:
+          null, // Milestones: async detection, handled in generate()
       scenarioNarrations: scenarioNarrations,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),

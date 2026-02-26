@@ -104,10 +104,10 @@ class SlmDownloadService {
 
   /// Model identifier as registered by flutter_gemma.
   ///
-  /// flutter_gemma derives this from the URL filename:
+  /// Derived from the URL filename to stay in sync automatically:
   ///   Uri.parse(url).pathSegments.last → 'gemma3n-E4B-it-multi.task'
   /// This MUST match the URL filename for isModelInstalled() to work.
-  static const String modelId = 'gemma3n-E4B-it-multi.task';
+  static final String modelId = Uri.parse(_defaultModelUrl).pathSegments.last;
 
   /// Expected model size (~2.3 GB).
   static const int _expectedSizeBytes = 2400000000;
@@ -314,8 +314,10 @@ class SlmDownloadService {
   }
 
   /// Release resources.
-  void dispose() {
+  ///
+  /// Cancels any in-progress download and closes the state stream.
+  Future<void> dispose() async {
     _cancelToken?.cancel('Service disposed');
-    _stateController.close();
+    await _stateController.close();
   }
 }

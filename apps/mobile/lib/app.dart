@@ -44,6 +44,7 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/screens/coaching_screen.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
@@ -684,14 +685,33 @@ class MintApp extends StatefulWidget {
   State<MintApp> createState() => _MintAppState();
 }
 
-class _MintAppState extends State<MintApp> {
+class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Initialize analytics service
     AnalyticsService().init();
     // Initialize local notifications for coaching reminders
     NotificationService().init();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      // Release SLM model (~2 GB RAM) when app goes to background.
+      // The model will be re-initialized on next use.
+      if (SlmEngine.instance.isAvailable) {
+        SlmEngine.instance.dispose();
+      }
+    }
   }
 
   @override

@@ -58,6 +58,36 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
   Future<void> _startDownload() async {
     if (_isProcessing) return;
+
+    // Warn user about large download size before starting.
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          'Telecharger le modele ?',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          'Le modele fait ${SlmDownloadService.modelSizeFormatted}. '
+          'Assure-toi d\'etre connecte en WiFi pour eviter '
+          'une consommation importante de donnees mobiles.',
+          style: GoogleFonts.inter(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Telecharger'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
     setState(() => _isProcessing = true);
 
     await _downloadService.downloadModel(
@@ -391,7 +421,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                         )
                       : const Icon(Icons.play_arrow),
                   label: Text(
-                    _isProcessing ? 'Initialisation...' : 'Initialiser le moteur',
+                    _isProcessing
+                        ? 'Initialisation...'
+                        : 'Initialiser le moteur',
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
