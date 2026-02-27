@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
 import 'package:mint_mobile/widgets/coach/data_quality_card.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
@@ -69,26 +70,40 @@ class _RetirementDashboardScreenState
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = context.watch<CoachProfileProvider>();
-    if (!provider.hasProfile) return;
+    if (!provider.hasProfile) {
+      _profile = null;
+      _projection = null;
+      _confidence = null;
+      _confidenceScore = 0;
+      return;
+    }
 
     final newProfile = provider.profile!;
     if (_profile == newProfile) return;
 
     _profile = newProfile;
-    _score = FinancialFitnessService.calculate(
-      profile: _profile!,
-      previousScore: provider.previousScore,
-    );
-    _projection = ForecasterService.project(profile: _profile!);
-    _confidence = ConfidenceScorer.score(_profile!);
-    _confidenceScore = _confidence!.score;
+    try {
+      _score = FinancialFitnessService.calculate(
+        profile: _profile!,
+        previousScore: provider.previousScore,
+      );
+      _projection = ForecasterService.project(profile: _profile!);
+      _confidence = ConfidenceScorer.score(_profile!);
+      _confidenceScore = _confidence!.score;
 
-    // Baseline sans contributions pour calcul delta MINT
-    if (_profile!.plannedContributions.isNotEmpty) {
-      final profileSans = _profile!.copyWithContributions(const []);
-      _baselineProjection = ForecasterService.project(profile: profileSans);
-    } else {
-      _baselineProjection = null;
+      // Baseline sans contributions pour calcul delta MINT
+      if (_profile!.plannedContributions.isNotEmpty) {
+        final profileSans = _profile!.copyWithContributions(const []);
+        _baselineProjection =
+            ForecasterService.project(profile: profileSans);
+      } else {
+        _baselineProjection = null;
+      }
+    } catch (e) {
+      debugPrint('RetirementDashboard: projection error: $e');
+      _projection = null;
+      _confidence = null;
+      _confidenceScore = 0;
     }
   }
 
@@ -100,14 +115,14 @@ class _RetirementDashboardScreenState
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
-    if (!provider.hasProfile) {
+    if (!provider.hasProfile || _projection == null) {
       return _buildStateC();
     }
 
-    if (_confidenceScore >= 70) {
+    if (_confidenceScore >= 70 && _score != null) {
       return _buildStateA();
     }
-    if (_confidenceScore >= 40) {
+    if (_confidenceScore >= 40 && _score != null) {
       return _buildStateB();
     }
     return _buildStateC();
@@ -492,7 +507,7 @@ class _RetirementDashboardScreenState
 
     if (profile.salaireBrutMensuel > 0) {
       fields.add(
-          'Salaire\u00a0: CHF\u00a0${_formatChf(profile.salaireBrutMensuel)}/mois');
+          'Salaire\u00a0: CHF\u00a0${formatChf(profile.salaireBrutMensuel)}/mois');
     }
     if (profile.canton.isNotEmpty) {
       fields.add('Canton\u00a0: ${profile.canton}');
@@ -502,11 +517,11 @@ class _RetirementDashboardScreenState
     }
     if ((profile.prevoyance.avoirLppTotal ?? 0) > 0) {
       fields.add(
-          'LPP\u00a0: CHF\u00a0${_formatChf(profile.prevoyance.avoirLppTotal!)}');
+          'LPP\u00a0: CHF\u00a0${formatChf(profile.prevoyance.avoirLppTotal!)}');
     }
     if (profile.prevoyance.totalEpargne3a > 0) {
       fields.add(
-          '3e pilier\u00a0: CHF\u00a0${_formatChf(profile.prevoyance.totalEpargne3a)}');
+          '3e pilier\u00a0: CHF\u00a0${formatChf(profile.prevoyance.totalEpargne3a)}');
     }
 
     return fields;
@@ -521,16 +536,4 @@ class _RetirementDashboardScreenState
         .toList();
   }
 
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
-  }
 }

@@ -61,16 +61,22 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   }
 
   Future<void> _saveThenGo(BuildContext context) async {
-    if (_viewModel.canton == null) {
-      context.go('/home');
-      return;
-    }
+    _saveProfile(context);
+    if (context.mounted) context.go('/home');
+  }
+
+  Future<void> _saveThenEnrich(BuildContext context) async {
+    _saveProfile(context);
+    if (context.mounted) context.push('/onboarding/enrichment');
+  }
+
+  void _saveProfile(BuildContext context) {
+    if (_viewModel.canton == null) return;
     context.read<CoachProfileProvider>().updateFromSmartFlow(
           age: _viewModel.age,
           grossSalary: _viewModel.grossSalary,
           canton: _viewModel.canton!,
         );
-    context.go('/home');
   }
 
   @override
@@ -94,7 +100,10 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
-                onEnrich: () => _goToPage(2), // future enrichment page
+                onEnrich: () {
+                  // Save current profile first, then navigate to enrichment
+                  _saveThenEnrich(context);
+                },
                 onDashboard: () => _saveThenGo(context),
               ),
             ],

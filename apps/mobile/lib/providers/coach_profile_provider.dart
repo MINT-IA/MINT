@@ -303,7 +303,11 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Met a jour le profil depuis le Smart Onboarding (3 questions: age, salaire, canton).
   ///
   /// Cree un profil partiel minimal immediatement utilisable par le dashboard.
-  /// Convertit le salaire brut annuel en net mensuel (taux charges sociales 13%).
+  /// Convertit le salaire brut annuel en net mensuel via le taux de charges
+  /// sociales standard (~13%: AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1%).
+  /// Source: OFAS barème cotisations 2025. Estimation; le taux réel dépend
+  /// du plan LPP et du canton.
+  ///
   /// Persiste de maniere asynchrone via [ReportPersistenceService].
   void updateFromSmartFlow({
     required int age,
@@ -311,8 +315,11 @@ class CoachProfileProvider extends ChangeNotifier {
     required String canton,
   }) {
     // Convert gross annual → net monthly
-    // Net monthly = (grossSalary / 12) * (1 - 0.13)  (social charges ~13%)
-    final netMonthly = (grossSalary / 12) * 0.87;
+    // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
+    // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
+    // ce qui préserve le salaire brut original.
+    const double socialChargesRate = 0.13;
+    final netMonthly = (grossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
 
     final answers = <String, dynamic>{

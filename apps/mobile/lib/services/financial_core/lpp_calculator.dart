@@ -39,6 +39,14 @@ class LppCalculator {
   /// Returns the projected annual rente (balance × conversionRate).
   /// Bonifications by age (LPP art. 16): 7/10/15/18%.
   /// Below seuil entree (22'680): no bonifications, only return on existing capital.
+  ///
+  /// [bonificationRateOverride]: if set, overrides the age-based LPP bonification
+  /// rate. Use for surobligatoire/enveloppant plans (e.g. CPE Plan Maxi 31.69%).
+  /// This is the TOTAL rate (employee + employer combined).
+  ///
+  /// [salaireAssureOverride]: if set, uses this instead of computed salaire
+  /// coordonné. Useful when the certificate declares a specific salaire assuré
+  /// (e.g. 91'967 CHF for CPE vs standard coordonné calculation).
   static double projectToRetirement({
     required double currentBalance,
     required int currentAge,
@@ -48,19 +56,25 @@ class LppCalculator {
     required double conversionRate,
     double monthlyBuyback = 0,
     double buybackCap = 0,
+    double? bonificationRateOverride,
+    double? salaireAssureOverride,
   }) {
-    final belowThreshold = grossAnnualSalary < lppSeuilEntree;
-    final salaireCoord = belowThreshold
-        ? 0.0
-        : (grossAnnualSalary - lppDeductionCoordination)
-            .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    final belowThreshold =
+        salaireAssureOverride == null && grossAnnualSalary < lppSeuilEntree;
+    final salaireBase = salaireAssureOverride ??
+        (belowThreshold
+            ? 0.0
+            : (grossAnnualSalary - lppDeductionCoordination)
+                .clamp(lppSalaireCoordMin, lppSalaireCoordMax));
 
     double balance = currentBalance;
     double buybackDone = 0;
 
     for (int a = currentAge; a < retirementAge && a < 70; a++) {
       balance *= (1 + caisseReturn);
-      balance += salaireCoord * getLppBonificationRate(a);
+      final bonifRate =
+          bonificationRateOverride ?? getLppBonificationRate(a);
+      balance += salaireBase * bonifRate;
       if (!belowThreshold && monthlyBuyback > 0 && buybackDone < buybackCap) {
         final yearly =
             (monthlyBuyback * 12).clamp(0, buybackCap - buybackDone);
@@ -80,18 +94,26 @@ class LppCalculator {
   ///
   /// Returns new balance after one month of return + bonification.
   /// Use this inside a monthly loop to get intermediate projection points.
+  ///
+  /// [bonificationRateOverride] / [salaireAssureOverride]: same as
+  /// [projectToRetirement] — for surobligatoire plan support.
   static double projectOneMonth({
     required double currentBalance,
     required int age,
     required double grossAnnualSalary,
     required double monthlyReturn,
+    double? bonificationRateOverride,
+    double? salaireAssureOverride,
   }) {
     double newBalance = currentBalance * (1 + monthlyReturn);
-    if (grossAnnualSalary < lppSeuilEntree) return newBalance;
-    final salaireCoord = (grossAnnualSalary - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
-    final bonifRate = getLppBonificationRate(age);
-    return newBalance + salaireCoord * bonifRate / 12;
+    if (salaireAssureOverride == null && grossAnnualSalary < lppSeuilEntree) {
+      return newBalance;
+    }
+    final salaireBase = salaireAssureOverride ??
+        (grossAnnualSalary - lppDeductionCoordination)
+            .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    final bonifRate = bonificationRateOverride ?? getLppBonificationRate(age);
+    return newBalance + salaireBase * bonifRate / 12;
   }
 
   /// Compute monthly LPP income blending rente and capital withdrawal.

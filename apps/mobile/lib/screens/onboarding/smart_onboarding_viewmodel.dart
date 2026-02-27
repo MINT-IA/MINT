@@ -46,6 +46,9 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   /// True when a result has been computed at least once.
   bool get hasResult => profile != null && chiffreChoc != null;
 
+  /// Error message if computation failed.
+  String? error;
+
   // ─── Setters with notification ────────────────────────────────────────────
 
   void setGrossSalary(double value) {
@@ -65,27 +68,47 @@ class SmartOnboardingViewModel extends ChangeNotifier {
 
   void setHouseholdType(String? value) {
     householdType = value;
-    if (hasResult) compute();
+    if (hasResult) {
+      compute(); // compute() calls notifyListeners()
+    } else {
+      notifyListeners();
+    }
   }
 
   void setCurrentSavings(double? value) {
     currentSavings = value;
-    if (hasResult) compute();
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
   }
 
   void setIsPropertyOwner(bool? value) {
     isPropertyOwner = value;
-    if (hasResult) compute();
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
   }
 
   void setExisting3a(double? value) {
     existing3a = value;
-    if (hasResult) compute();
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
   }
 
   void setExistingLpp(double? value) {
     existingLpp = value;
-    if (hasResult) compute();
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
   }
 
   // ─── Computation ─────────────────────────────────────────────────────────
@@ -97,26 +120,35 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   void compute() {
     if (!canCompute) return;
 
-    profile = MinimalProfileService.compute(
-      age: age,
-      grossSalary: grossSalary,
-      canton: canton!,
-      householdType: householdType,
-      currentSavings: currentSavings,
-      isPropertyOwner: isPropertyOwner,
-      existing3a: existing3a,
-      existingLpp: existingLpp,
-    );
+    try {
+      error = null;
 
-    chiffreChoc = ChiffreChocSelector.select(profile!);
+      profile = MinimalProfileService.compute(
+        age: age,
+        grossSalary: grossSalary,
+        canton: canton!,
+        householdType: householdType,
+        currentSavings: currentSavings,
+        isPropertyOwner: isPropertyOwner,
+        existing3a: existing3a,
+        existingLpp: existingLpp,
+      );
 
-    // Confidence: number of estimated fields reduces the score.
-    // Base: 3 provided fields (age, salary, canton) out of 8 total data points.
-    const totalFields = 8; // age, salary, canton + 5 optional enrichment fields
-    final estimatedCount = profile!.estimatedFields.length;
-    final providedCount = totalFields - estimatedCount;
-    confidenceScore =
-        (providedCount / totalFields * 100).clamp(0.0, 100.0);
+      chiffreChoc = ChiffreChocSelector.select(profile!);
+
+      // Confidence: number of estimated fields reduces the score.
+      // Base: 3 provided fields (age, salary, canton) out of 8 total data points.
+      const totalFields = 8; // age, salary, canton + 5 optional enrichment fields
+      final estimatedCount = profile!.estimatedFields.length;
+      final providedCount = totalFields - estimatedCount;
+      confidenceScore =
+          (providedCount / totalFields * 100).clamp(0.0, 100.0);
+    } catch (e) {
+      error = 'Erreur de calcul. Verifie tes données et réessaie.';
+      profile = null;
+      chiffreChoc = null;
+      confidenceScore = 0;
+    }
 
     notifyListeners();
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  HERO RETIREMENT CARD — LOT 4 / Retirement Dashboard
@@ -217,7 +218,7 @@ class HeroRetirementCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _formatChf(income),
+          formatChfWithPrefix(income),
           style: GoogleFonts.montserrat(
             fontSize: 36,
             fontWeight: FontWeight.w800,
@@ -305,7 +306,7 @@ class HeroRetirementCard extends StatelessWidget {
         Icon(Icons.unfold_more, size: 14, color: MintColors.textMuted),
         const SizedBox(width: 4),
         Text(
-          'Fourchette\u00a0: ${_formatChf(rangeMin!)} \u2013 ${_formatChf(rangeMax!)} / mois',
+          'Fourchette\u00a0: ${formatChfWithPrefix(rangeMin!)} \u2013 ${formatChfWithPrefix(rangeMax!)} / mois',
           style: GoogleFonts.inter(
             fontSize: 12,
             color: MintColors.textMuted,
@@ -334,7 +335,7 @@ class HeroRetirementCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              _formatChf(min),
+              formatChfWithPrefix(min),
               style: GoogleFonts.montserrat(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -353,7 +354,7 @@ class HeroRetirementCard extends StatelessWidget {
               ),
             ),
             Text(
-              _formatChf(max),
+              formatChfWithPrefix(max),
               style: GoogleFonts.montserrat(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -505,20 +506,4 @@ class HeroRetirementCard extends StatelessWidget {
     );
   }
 
-  // ────────────────────────────────────────────────────────────
-  //  HELPERS
-  // ────────────────────────────────────────────────────────────
-
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00a0${buffer.toString()}';
-  }
 }

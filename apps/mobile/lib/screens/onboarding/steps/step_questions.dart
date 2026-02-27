@@ -5,6 +5,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Step 1 of the Smart Onboarding flow — 3 required questions.
 ///
@@ -186,7 +187,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'CHF\u00A0${_formatNumber(widget.viewModel.grossSalary.round())}/an',
+                      '${formatChfWithPrefix(widget.viewModel.grossSalary)}/an',
                       style: GoogleFonts.montserrat(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -304,17 +305,6 @@ class _StepQuestionsState extends State<StepQuestions> {
     );
   }
 
-  static String _formatNumber(int value) {
-    final str = value.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
-  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════

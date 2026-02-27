@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  IMPACT MINT CARD — LOT 4 / Retirement Dashboard
@@ -236,7 +237,7 @@ class _ImpactMintCardState extends State<ImpactMintCard>
           ),
           const SizedBox(height: 6),
           Text(
-            _formatChf(amount),
+            formatChfWithPrefix(amount),
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -271,7 +272,7 @@ class _ImpactMintCardState extends State<ImpactMintCard>
       child: Row(
         children: [
           Text(
-            '+${_formatChf(_delta)} / mois',
+            '+${formatChfWithPrefix(_delta)} / mois',
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -308,20 +309,4 @@ class _ImpactMintCardState extends State<ImpactMintCard>
     );
   }
 
-  // ────────────────────────────────────────────────────────────
-  //  HELPERS
-  // ────────────────────────────────────────────────────────────
-
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00a0${buffer.toString()}';
-  }
 }

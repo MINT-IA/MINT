@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR DECOMPOSITION — LOT 4 / Retirement Dashboard
@@ -108,6 +109,18 @@ class _PillarDecompositionState extends State<PillarDecomposition>
         children: [
           _buildHeader(),
           const SizedBox(height: 16),
+          if (total <= 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'Compl\u00e8te ton profil pour voir la d\u00e9composition par pilier.',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            )
+          else
           AnimatedBuilder(
             animation: _animation,
             builder: (context, _) {
@@ -241,7 +254,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
         SizedBox(
           width: 80,
           child: Text(
-            amount > 0 ? _formatChf(amount) : '—',
+            amount > 0 ? formatChfWithPrefix(amount) : '—',
             textAlign: TextAlign.right,
             style: GoogleFonts.montserrat(
               fontSize: 13,
@@ -269,7 +282,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
           ),
         ),
         Text(
-          _formatChf(total),
+          formatChfWithPrefix(total),
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w800,
@@ -280,20 +293,4 @@ class _PillarDecompositionState extends State<PillarDecomposition>
     );
   }
 
-  // ────────────────────────────────────────────────────────────
-  //  HELPERS
-  // ────────────────────────────────────────────────────────────
-
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00a0${buffer.toString()}';
-  }
 }

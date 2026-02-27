@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Step 2 of the Smart Onboarding flow — Chiffre Choc reveal.
 ///
@@ -442,21 +443,9 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
       suffix = '/an';
     }
 
-    return 'CHF\u00A0${_formatChfRaw(animValue)}$suffix';
+    return 'CHF\u00A0${formatChf(animValue)}$suffix';
   }
 
-  static String _formatChfRaw(double value) {
-    final intVal = value.round().abs();
-    final str = intVal.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
-  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
