@@ -29,7 +29,7 @@ void main() {
         etatCivil: CoachCivilStatus.marie,
         nombreEnfants: 2,
         salaireBrutMensuel: 9080,
-        nombreDeMois: 13.92,
+        nombreDeMois: 13,
         employmentStatus: 'salarie',
         depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 400),
         prevoyance: const PrevoyanceProfile(
@@ -136,7 +136,7 @@ void main() {
         etatCivil: CoachCivilStatus.marie,
         nombreEnfants: 2,
         salaireBrutMensuel: 9080,
-        nombreDeMois: 13.92,
+        nombreDeMois: 13,
         employmentStatus: 'salarie',
         depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 400),
         prevoyance: const PrevoyanceProfile(
@@ -194,7 +194,7 @@ void main() {
         etatCivil: CoachCivilStatus.marie,
         nombreEnfants: 2,
         salaireBrutMensuel: 9080,
-        nombreDeMois: 13.92,
+        nombreDeMois: 13,
         employmentStatus: 'salarie',
         depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 400),
         prevoyance: const PrevoyanceProfile(

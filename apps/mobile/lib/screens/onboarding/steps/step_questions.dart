@@ -135,7 +135,7 @@ class _StepQuestionsState extends State<StepQuestions> {
               titlePadding:
                   const EdgeInsets.only(left: 24, bottom: 16, right: 24),
               title: Text(
-                'Decouvre ta situation retraite en 30 secondes',
+                'D\u00e9couvre ta situation retraite en 30 secondes',
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -165,7 +165,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                 children: [
                   const SizedBox(height: 4),
                   Text(
-                    '3 infos suffisent pour un premier apercu personnalise.',
+                    '3 infos suffisent pour un premier aper\u00e7u personnalis\u00e9.',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
@@ -197,7 +197,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 2. AGE ────────────────────────────────────────────────
-                  _SectionTitle(label: 'Ton age'),
+                  _SectionTitle(label: 'Ton \u00e2ge'),
                   const SizedBox(height: 12),
                   _AgePicker(
                     value: widget.viewModel.age,
@@ -630,7 +630,7 @@ class _CantonPicker extends StatelessWidget {
                       child: filtered.isEmpty
                           ? Center(
                               child: Text(
-                                'Aucun canton trouve',
+                                'Aucun canton trouv\u00e9',
                                 style: GoogleFonts.inter(
                                   color: MintColors.textMuted,
                                 ),

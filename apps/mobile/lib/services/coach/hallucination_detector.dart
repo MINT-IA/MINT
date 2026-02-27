@@ -32,7 +32,7 @@ class HallucinationDetector {
   /// it is NOT flagged as a hallucination regardless of knownValues.
   ///
   /// Sources: LAVS art. 34, LPP art. 7/8/14/16, OPP3 art. 7
-  static const Set<double> _legalConstantsChf = {
+  static final Set<double> _legalConstantsChf = {
     // Pilier 3a (OPP3 art. 7)
     7258.0,   // Plafond 3a salarié affilié LPP
     36288.0,  // Plafond 3a indépendant sans LPP
@@ -59,7 +59,7 @@ class HallucinationDetector {
   };
 
   /// Legal percentage constants.
-  static const Set<double> _legalConstantsPct = {
+  static final Set<double> _legalConstantsPct = {
     6.8,    // Taux de conversion LPP minimum (LPP art. 14)
     1.25,   // Taux d'intérêt minimum LPP
     5.3,    // Cotisation AVS salarié

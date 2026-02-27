@@ -271,8 +271,8 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Estimation basee sur $infoCount informations. '
-                              'Plus tu precises, plus c\'est fiable.',
+                              'Estimation bas\u00e9e sur $infoCount informations. '
+                              'Plus tu pr\u00e9cises, plus c\'est fiable.',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: MintColors.textMuted,
@@ -406,7 +406,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
               // ── DISCLAIMER ───────────────────────────────────────────────
               Text(
-                'Outil educatif simplifie. Ne constitue pas un conseil financier (LSFin). '
+                'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
                 'Sources: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.',
                 style: GoogleFonts.inter(
                   fontSize: 10,
