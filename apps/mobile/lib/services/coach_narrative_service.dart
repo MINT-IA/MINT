@@ -204,11 +204,12 @@ class CoachNarrativeService {
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
-    // 2. Generer le narratif (priorite : SLM > BYOK > statique)
+    // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
+    //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
     CoachNarrative narrative;
 
     if (SlmEngine.instance.isAvailable) {
-      // 3a. SLM on-device disponible → inference locale (zero reseau)
+      // Tier 1: SLM on-device (zero reseau, privacy totale)
       try {
         narrative = await _generateViaSlm(
           profile: profile,
@@ -216,24 +217,7 @@ class CoachNarrativeService {
           tips: tips,
         );
       } catch (_) {
-        // Fallback vers statique si SLM echoue
-        narrative = _generateStatic(
-          profile: profile,
-          scoreHistory: scoreHistory,
-          tips: tips,
-        );
-      }
-    } else if (byokConfig != null && byokConfig.hasApiKey) {
-      // 3b. BYOK configure → appel LLM cloud
-      try {
-        narrative = await _generateViaLlm(
-          profile: profile,
-          scoreHistory: scoreHistory,
-          tips: tips,
-          config: byokConfig,
-        );
-      } catch (_) {
-        // Fallback vers statique si LLM echoue (resilience)
+        // Fallback vers templates enrichis si SLM echoue
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
@@ -241,12 +225,28 @@ class CoachNarrativeService {
         );
       }
     } else {
-      // 3c. Aucun LLM → templates statiques
+      // Tier 2: Templates enrichis (zero LLM, toujours disponible)
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
       );
+
+      // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
+      // Tente d'ameliorer le narratif statique si BYOK est configure.
+      // En cas d'echec, le narratif statique reste intact.
+      if (byokConfig != null && byokConfig.hasApiKey) {
+        try {
+          narrative = await _generateViaLlm(
+            profile: profile,
+            scoreHistory: scoreHistory,
+            tips: tips,
+            config: byokConfig,
+          );
+        } catch (_) {
+          // Resilience: garde le narratif statique deja genere
+        }
+      }
     }
 
     // 4. Appliquer les guardrails sur TOUS les modes (SLM, LLM et statique)
