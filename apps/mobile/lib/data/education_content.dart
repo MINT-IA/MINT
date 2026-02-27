@@ -175,24 +175,24 @@ class EducationContentData {
       chiffreChoc: '3 a 6',
       chiffreChocUnit: 'mois',
       chiffreChocLabel:
-          'D\'epargne de securite recommandee (charges mensuelles)',
+          'D\'épargne de sécurité recommandée (charges mensuelles)',
       intro:
-          'Le fonds d\'urgence, c\'est ton filet de securite. Si tu perds ton '
-          'emploi, si ta voiture lache, si une facture imprevue tombe : tu as '
+          'Le fonds d\'urgence, c\'est ton filet de sécurité. Si tu perds ton '
+          'emploi, si ta voiture lâche, si une facture imprévue tombe : tu as '
           'de quoi tenir sans stress. C\'est la base avant tout investissement.',
       keyFacts: [
-        'Calcul : charges mensuelles x 3 (minimum) a 6 (confort)',
-        'Sur un compte separe, accessible en 24-48h (pas investi, pas bloque)',
-        'L\'assurance chomage ne couvre que 70-80% du salaire, avec un delai de carence',
-        'Independant\u00b7e ? Vise plutot 6 a 9 mois (pas de chomage, pas d\'IJM)',
-        'Astuce : automatise un virement le 1er du mois, meme 100 CHF',
+        'Calcul : charges mensuelles x 3 (minimum) à 6 (confort)',
+        'Sur un compte séparé, accessible en 24-48h (pas investi, pas bloqué)',
+        'L\'assurance chômage ne couvre que 70-80% du salaire, avec un délai de carence',
+        'Indépendant\u00b7e ? Vise plutôt 6 à 9 mois (pas de chômage, pas d\'IJM)',
+        'Astuce : automatise un virement le 1er du mois, même 100 CHF',
       ],
       quiz: QuizQuestion(
         question:
             'Pourquoi ne faut-il PAS investir son fonds d\'urgence ?',
         options: [
           'Parce que c\'est interdit',
-          'Parce qu\'il doit etre disponible immediatement',
+          'Parce qu\'il doit être disponible immédiatement',
           'Parce que les rendements sont trop bas',
           'Parce que les banques refusent',
         ],
@@ -401,22 +401,22 @@ class EducationContentData {
       intro:
           'L\'assurance maladie (LAMal) est obligatoire en Suisse, mais les '
           'primes varient du simple au double selon le canton et la caisse. '
-          'Choisir la bonne franchise et verifier ton droit aux subsides '
-          'peut te faire economiser des centaines de francs par an.',
+          'Choisir la bonne franchise et vérifier ton droit aux subsides '
+          'peut te faire économiser des centaines de francs par an.',
       keyFacts: [
-        'Les primes varient enormement selon le canton (GE et BS sont les plus chers)',
-        'Franchise 300 vs 2\'500 : economie de prime d\'environ 1\'500 CHF/an, mais risque accru',
-        'Subsides disponibles dans tous les cantons — criteres de revenu variables',
-        'Delai pour changer de caisse : 30 novembre de chaque annee',
-        'Les modeles alternatifs (medecin de famille, HMO, telmed) offrent 10-20% de reduction',
+        'Les primes varient énormément selon le canton (GE et BS sont les plus chers)',
+        'Franchise 300 vs 2\'500 : économie de prime d\'environ 1\'500 CHF/an, mais risque accru',
+        'Subsides disponibles dans tous les cantons — critères de revenu variables',
+        'Délai pour changer de caisse : 30 novembre de chaque année',
+        'Les modèles alternatifs (médecin de famille, HMO, télmed) offrent 10-20% de réduction',
       ],
       quiz: QuizQuestion(
         question:
-            'A quelle date limite peux-tu changer de caisse maladie pour l\'annee suivante ?',
+            'À quelle date limite peux-tu changer de caisse maladie pour l\'année suivante ?',
         options: [
           '31 octobre',
           '30 novembre',
-          '31 decembre',
+          '31 décembre',
           '1er janvier',
         ],
         correctIndex: 1,

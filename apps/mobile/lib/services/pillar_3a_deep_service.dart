@@ -335,12 +335,12 @@ class RealReturnCalculator {
         isPositive: gainVsEpargne > 0,
       ),
       disclaimer:
-          'Simulation pedagogique basee sur des hypotheses de rendement '
-          'constant. Les rendements passes ne prejugent pas des rendements '
+          'Simulation pédagogique basée sur des hypothèses de rendement '
+          'constant. Les rendements passés ne préjugent pas des rendements '
           'futurs. Les frais et rendements varient selon le prestataire. '
-          'L\'economie fiscale depend de ton taux marginal reel. '
-          'Base legale : OPP3, LIFD art. 33 al. 1 let. e. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'L\'économie fiscale dépend de ton taux marginal réel. '
+          'Base légale : OPP3, LIFD art. 33 al. 1 let. e. '
+          'Consultez un ou une spécialiste avant toute décision.',
     );
   }
 

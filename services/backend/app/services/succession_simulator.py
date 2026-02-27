@@ -615,33 +615,33 @@ class SuccessionSimulator:
         """
         order = [
             "1. Conjoint survivant ou partenaire enregistre",
-            "2. Descendants directs (enfants) ou personnes a charge du defunt",
-            "3. Parents (pere et mere)",
-            "4. Freres et soeurs",
-            "5. Autres heritiers selon le droit successoral",
+            "2. Descendants directs (enfants) ou personnes à charge du défunt",
+            "3. Parents (père et mère)",
+            "4. Frères et sœurs",
+            "5. Autres héritiers selon le droit successoral",
         ]
 
         # Annotate with applicability
         annotations = []
         if data.a_conjoint and data.etat_civil == "marie":
             annotations.append(
-                "Dans votre situation: le conjoint survivant recoit le 3a en priorite."
+                "Dans votre situation : le conjoint survivant reçoit le 3a en priorité."
             )
         elif data.nombre_enfants > 0:
             annotations.append(
-                "Dans votre situation: les descendants recoivent le 3a."
+                "Dans votre situation : les descendants reçoivent le 3a."
             )
         elif data.a_parents_vivants:
             annotations.append(
-                "Dans votre situation: les parents recoivent le 3a."
+                "Dans votre situation : les parents reçoivent le 3a."
             )
 
         if data.a_concubin:
             annotations.append(
-                "ATTENTION: Le concubin n'a PAS de droit automatique sur le 3a. "
-                "Il est possible de le designer comme beneficiaire par clause "
-                "beneficiaire ecrite aupres de la fondation 3a, a condition "
-                "qu'il figure dans l'une des categories OPP3 (ex: personne a charge)."
+                "ATTENTION : Le concubin n'a PAS de droit automatique sur le 3a. "
+                "Il est possible de le désigner comme bénéficiaire par clause "
+                "bénéficiaire écrite auprès de la fondation 3a, à condition "
+                "qu'il figure dans l'une des catégories OPP3 (ex : personne à charge)."
             )
 
         order.extend(annotations)
@@ -660,16 +660,16 @@ class SuccessionSimulator:
             return ""
 
         return (
-            "IMPORTANT: En droit suisse, le concubin n'a AUCUN droit "
+            "IMPORTANT : En droit suisse, le concubin n'a AUCUN droit "
             "successoral automatique. Sans testament, votre partenaire "
             "ne recevra rien de votre succession. De plus, les droits "
-            "de succession pour les concubins sont eleves (souvent 20-35% "
-            "selon le canton). Actions recommandees: "
-            "1) Rediger un testament attribuant la quotite disponible au concubin. "
-            "2) Verifier les clauses beneficiaires du 3a et de l'assurance-vie. "
+            "de succession pour les concubins sont élevés (souvent 20-35% "
+            "selon le canton). Actions recommandées : "
+            "1) Rédiger un testament attribuant la quotité disponible au concubin. "
+            "2) Vérifier les clauses bénéficiaires du 3a et de l'assurance-vie. "
             "3) Envisager un pacte successoral. "
-            "4) Evaluer l'option du partenariat enregistre ou du mariage "
-            "pour beneficier de l'exoneration fiscale."
+            "4) Évaluer l'option du partenariat enregistré ou du mariage "
+            "pour bénéficier de l'exonération fiscale."
         )
 
     def _generate_checklist(self, data: SuccessionInput) -> List[str]:
@@ -680,27 +680,27 @@ class SuccessionSimulator:
         """
         checklist = [
             "Faire un inventaire complet de vos avoirs (fortune, immobilier, 2e et 3e piliers).",
-            "Verifier les clauses beneficiaires de vos assurances-vie et du 3a.",
-            "Consulter un notaire pour rediger ou mettre a jour votre testament.",
+            "Vérifier les clauses bénéficiaires de vos assurances-vie et du 3a.",
+            "Consulter un notaire pour rédiger ou mettre à jour votre testament.",
         ]
 
         if data.nombre_enfants > 0:
             checklist.append(
-                "Si vos enfants sont mineurs: designer un tuteur dans votre testament."
+                "Si vos enfants sont mineurs : désigner un tuteur dans votre testament."
             )
 
         if data.a_concubin:
             checklist.append(
-                "Rediger un testament en faveur de votre concubin "
-                "(attribution de la quotite disponible)."
+                "Rédiger un testament en faveur de votre concubin "
+                "(attribution de la quotité disponible)."
             )
             checklist.append(
-                "Verifier la clause beneficiaire du 3e pilier aupres "
+                "Vérifier la clause bénéficiaire du 3e pilier auprès "
                 "de votre fondation."
             )
             checklist.append(
-                "Evaluer le partenariat enregistre ou le mariage pour "
-                "optimiser la fiscalite successorale."
+                "Évaluer le partenariat enregistré ou le mariage pour "
+                "optimiser la fiscalité successorale."
             )
 
         if data.fortune_totale > 500000:

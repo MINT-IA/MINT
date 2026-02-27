@@ -159,7 +159,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: 'Deadline 3a',
         body:
-            'Il reste 61 jours. Economie estimee : CHF $savingStr.',
+            'Il reste 61 jours. Économie estimée : CHF $savingStr.',
         deeplink: '/simulator/3a',
         scheduledDate: nov1,
         personalNumber: 'CHF $savingStr',
@@ -175,7 +175,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: 'Deadline 3a',
         body:
-            'Dernier mois pour ton 3a. CHF $savingStr d\'economie en jeu.',
+            'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
         deeplink: '/simulator/3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',
@@ -206,7 +206,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: 'Nouveaux plafonds ${year + 1}',
         body:
-            'Nouveaux plafonds ${year + 1}. Ton economie potentielle a change.',
+            'Nouveaux plafonds ${year + 1}. Ton économie potentielle a changé.',
         deeplink: '/simulator/3a',
         scheduledDate: jan5,
         personalNumber: savingStr,
@@ -258,7 +258,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: 'Declaration fiscale',
         body:
-            'Declaration fiscale dans 44 jours. Pense a rassembler tes documents.',
+            'Déclaration fiscale dans 44 jours. Pense à rassembler tes documents.',
         deeplink: '/home',
         scheduledDate: feb15,
         personalNumber: savingStr,
@@ -274,7 +274,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: 'Declaration fiscale',
         body:
-            'Declaration fiscale dans 16 jours. Commence a la remplir.',
+            'Déclaration fiscale dans 16 jours. Commence à la remplir.',
         deeplink: '/home',
         scheduledDate: mar15,
         personalNumber: savingStr,
@@ -290,7 +290,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: 'Declaration fiscale',
         body:
-            'Declaration a rendre avant le 31 mars. Derniere semaine.',
+            'Déclaration à rendre avant le 31 mars. Dernière semaine.',
         deeplink: '/home',
         scheduledDate: mar25,
         personalNumber: savingStr,
@@ -327,7 +327,7 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.friImprovement,
         tier: NotificationTier.event,
-        title: 'Score de solidite',
+        title: 'Score de solidité',
         body: 'Depuis ton dernier check-in : $deltaStr points.',
         deeplink: '/coach/dashboard',
         scheduledDate: now,
@@ -341,9 +341,9 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.profileUpdate,
         tier: NotificationTier.event,
-        title: 'Profil mis a jour',
+        title: 'Profil mis à jour',
         body:
-            'Ton profil a ete mis a jour. Nouvelles projections disponibles.',
+            'Ton profil a été mis à jour. Nouvelles projections disponibles.',
         deeplink: '/coach/dashboard',
         scheduledDate: now,
         personalNumber: 'nouvelles projections',
@@ -357,13 +357,13 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.friImprovement,
         tier: NotificationTier.event,
-        title: 'Score de solidite',
+        title: 'Score de solidité',
         body:
-            'Ta solidite a progresse de ${friDelta.toStringAsFixed(0)} points.',
+            'Ta solidité a progressé de ${friDelta.toStringAsFixed(0)} points.',
         deeplink: '/coach/dashboard',
         scheduledDate: now,
         personalNumber: '$deltaStr points',
-        timeReference: 'recemment',
+        timeReference: 'récemment',
       ));
     }
 
@@ -388,17 +388,17 @@ class NotificationSchedulerService {
     const names = [
       '',
       'janvier',
-      'fevrier',
+      'février',
       'mars',
       'avril',
       'mai',
       'juin',
       'juillet',
-      'aout',
+      'août',
       'septembre',
       'octobre',
       'novembre',
-      'decembre',
+      'décembre',
     ];
     return names[month.clamp(1, 12)];
   }

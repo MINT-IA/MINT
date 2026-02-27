@@ -84,7 +84,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 // Source legale
                 Text(
                   'Source : LIFD art. 21 al. 1 let. b, art. 32. '
-                  'Taux cantonaux estimes a titre pedagogique.',
+                  'Taux cantonaux estimés à titre pédagogique.',
                   style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -120,10 +120,10 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'En Suisse, les proprietaires doivent declarer un revenu fictif '
+            'En Suisse, les propriétaires doivent déclarer un revenu fictif '
             '(valeur locative) correspondant au loyer qu\'ils pourraient obtenir '
-            'en louant leur bien. En contrepartie, ils peuvent deduire les '
-            'interets hypothecaires et les frais d\'entretien.',
+            'en louant leur bien. En contrepartie, ils peuvent déduire les '
+            'intérêts hypothécaires et les frais d\'entretien.',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -189,7 +189,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DECOMPOSITION',
+            'DÉCOMPOSITION',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -204,7 +204,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           const SizedBox(height: 20),
 
           // Revenus ajoutes
-          _buildSectionLabel('Revenu imposable ajoute', MintColors.error),
+          _buildSectionLabel('Revenu imposable ajouté', MintColors.error),
           _buildInfoRow(
             'Valeur locative',
             '+CHF ${formatChf(result.valeurLocative)}',
@@ -213,9 +213,9 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           const Divider(height: 20),
 
           // Deductions
-          _buildSectionLabel('Deductions', MintColors.success),
+          _buildSectionLabel('Déductions', MintColors.success),
           _buildInfoRow(
-            'Interets hypothecaires',
+            'Intérêts hypothécaires',
             '-CHF ${formatChf(result.deductionInterets)}',
             color: MintColors.success,
           ),
@@ -225,12 +225,12 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Assurance batiment (estimation)',
+            'Assurance bâtiment (estimation)',
             '-CHF ${formatChf(result.deductionAssurance)}',
             color: MintColors.success,
           ),
           _buildInfoRow(
-            'Total deductions',
+            'Total déductions',
             '-CHF ${formatChf(result.totalDeductions)}',
             isBold: true,
             color: MintColors.success,
@@ -245,7 +245,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
             color: result.impactNet > 0 ? MintColors.error : MintColors.success,
           ),
           _buildInfoRow(
-            'Impact fiscal estime (taux marginal ${(_tauxMarginal * 100).toStringAsFixed(0)}%)',
+            'Impact fiscal estimé (taux marginal ${(_tauxMarginal * 100).toStringAsFixed(0)}%)',
             '${result.impotSupplementaire >= 0 ? "+" : "-"}CHF ${formatChf(result.impotSupplementaire.abs())}/an',
             isBold: true,
             color: result.impotSupplementaire > 0
@@ -298,7 +298,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Deductions',
+                  'Déductions',
                   style: TextStyle(fontSize: 10, color: MintColors.success),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -336,7 +336,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            'PARAMÈTRES',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -386,7 +386,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Valeur venale
           _buildSliderRow(
-            label: 'Valeur venale du bien',
+            label: 'Valeur vénale du bien',
             value: _valeurVenale,
             min: 200000,
             max: 3000000,
@@ -398,7 +398,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Interets annuels
           _buildSliderRow(
-            label: 'Interets hypothecaires annuels',
+            label: 'Intérêts hypothécaires annuels',
             value: _interetsAnnuels,
             min: 0,
             max: 80000,
@@ -458,7 +458,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
 
           // Taux marginal
           _buildSliderRow(
-            label: 'Taux marginal estime',
+            label: 'Taux marginal estimé',
             value: _tauxMarginal,
             min: 0.15,
             max: 0.45,

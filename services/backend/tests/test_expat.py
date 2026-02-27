@@ -78,7 +78,7 @@ class TestSourceTax:
         )
         assert result.regime_special == "quasi_resident"
         assert result.impot_source == 0.0
-        assert "quasi-resident" in result.recommandation.lower()
+        assert "quasi-résident" in result.recommandation.lower()
 
     def test_tessin_italy_regime(self, frontalier_service):
         """TI should flag Italy special regime."""
@@ -220,7 +220,7 @@ class TestQuasiResident:
             ch_income=95_000, worldwide_income=100_000,
         )
         source_text = " ".join(result.sources)
-        assert "quasi-resident" in source_text.lower() or "LIPP" in source_text
+        assert "quasi-résident" in source_text.lower() or "LIPP" in source_text
 
 
 # ===========================================================================

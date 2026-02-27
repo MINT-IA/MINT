@@ -35,8 +35,8 @@ from app.services.onboarding.onboarding_models import (
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _DISCLAIMER = (
-    "Outil educatif simplifie. Ne constitue pas un conseil financier (LSFin). "
-    "Consulte un\u00b7e specialiste pour une analyse personnalisee."
+    "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). "
+    "Consulte un\u00b7e spécialiste pour une analyse personnalisée."
 )
 
 _SOURCES_RETIREMENT = [
@@ -46,11 +46,11 @@ _SOURCES_RETIREMENT = [
 
 _SOURCES_TAX = [
     "OPP3 art. 7 (plafond 3a: 7'258 CHF)",
-    "LIFD art. 33 (deduction 3a du revenu imposable)",
+    "LIFD art. 33 (déduction 3a du revenu imposable)",
 ]
 
 _SOURCES_LIQUIDITY = [
-    "Recommandation generale: 3-6 mois de charges en reserve",
+    "Recommandation générale: 3-6 mois de charges en réserve",
 ]
 
 
@@ -64,17 +64,17 @@ def _build_liquidity_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     monthly_expenses = profile.estimated_monthly_expenses
 
     display_text = (
-        f"Ta reserve financiere couvre environ {months:.1f} mois de charges. "
-        f"Avec ~CHF {monthly_expenses:,.0f} de depenses mensuelles estimees, "
-        f"un imprévu pourrait vite devenir problematique."
+        f"Ta réserve financière couvre environ {months:.1f} mois de charges. "
+        f"Avec ~CHF {monthly_expenses:,.0f} de dépenses mensuelles estimées, "
+        f"un imprévu pourrait vite devenir problématique."
     )
     explanation_text = (
-        "Les specialistes recommandent de conserver 3 a 6 mois de charges "
-        "en epargne de precaution. En dessous de 2 mois, la marge de "
-        "manoeuvre est tres reduite face a une perte d'emploi, une maladie "
-        "ou une reparation urgente."
+        "Les spécialistes recommandent de conserver 3 à 6 mois de charges "
+        "en épargne de précaution. En dessous de 2 mois, la marge de "
+        "manœuvre est très réduite face à une perte d'emploi, une maladie "
+        "ou une réparation urgente."
     )
-    action_text = "Decouvre comment constituer ta reserve de precaution pas a pas \u2192"
+    action_text = "Découvre comment constituer ta réserve de précaution pas à pas \u2192"
 
     return ChiffreChoc(
         category="liquidity",
@@ -95,22 +95,22 @@ def _build_retirement_gap_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     gap = max(0, monthly_expenses - monthly_retirement)
 
     display_text = (
-        f"A la retraite, ton revenu mensuel estime serait de "
-        f"CHF {monthly_retirement:,.0f}. Aujourd'hui, tu depenses "
+        f"À la retraite, ton revenu mensuel estimé serait de "
+        f"CHF {monthly_retirement:,.0f}. Aujourd'hui, tu dépenses "
         f"probablement ~CHF {monthly_expenses:,.0f} par mois."
     )
 
     if gap > 0:
         explanation_text = (
-            f"Cela represente un ecart d'environ CHF {gap:,.0f} par mois. "
+            f"Cela représente un écart d'environ CHF {gap:,.0f} par mois. "
             f"L'AVS et la LPP couvrent en moyenne 60% du dernier salaire. "
-            f"Le 3e pilier et l'epargne libre permettent de combler ce gap."
+            f"Le 3e pilier et l'épargne libre permettent de combler ce gap."
         )
     else:
         explanation_text = (
-            "Tes revenus projetes a la retraite semblent couvrir tes charges "
-            "estimees. Toutefois, cette projection est basee sur des estimations "
-            "simplifiees. Enrichis ton profil pour une analyse plus precise."
+            "Tes revenus projetés à la retraite semblent couvrir tes charges "
+            "estimées. Toutefois, cette projection est basée sur des estimations "
+            "simplifiées. Enrichis ton profil pour une analyse plus précise."
         )
 
     action_text = "Simule l'impact d'un 3e pilier sur ta situation \u2192"
@@ -132,13 +132,13 @@ def _build_tax_saving_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     tax_saving = profile.tax_saving_3a
 
     display_text = (
-        f"En ouvrant un 3e pilier, tu pourrais economiser environ "
-        f"CHF {tax_saving:,.0f} d'impots chaque annee."
+        f"En ouvrant un 3e pilier, tu pourrais économiser environ "
+        f"CHF {tax_saving:,.0f} d'impôts chaque année."
     )
     explanation_text = (
-        "Le versement au 3e pilier est deductible du revenu imposable. "
-        "Avec un plafond de CHF 7'258 par an (salarie·e affilie·e LPP), "
-        "l'economie fiscale depend de ton taux marginal d'imposition."
+        "Le versement au 3e pilier est déductible du revenu imposable. "
+        "Avec un plafond de CHF 7'258 par an (salarié·e affilié·e LPP), "
+        "l'économie fiscale dépend de ton taux marginal d'imposition."
     )
     action_text = "Explore les options 3a et leur impact fiscal \u2192"
 

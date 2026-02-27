@@ -438,14 +438,14 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.timeline,
           title: 'Timeline',
-          subtitle: 'Tes echeances et rappels importants',
+          subtitle: 'Tes échéances et rappels importants',
           route: '/timeline',
           color: const Color(0xFF7C3AED),
         ),
         _ToolItem(
           icon: Icons.privacy_tip,
           title: 'Consentements',
-          subtitle: 'Gere tes autorisations de donnees',
+          subtitle: 'Gère tes autorisations de données',
           route: '/profile/consent',
           color: const Color(0xFF6B7280),
         ),

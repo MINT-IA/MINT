@@ -104,7 +104,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // No BYOK: provide context-aware static greeting
       final scoreSuffix = _buildGreetingScoreContext(p);
       greeting = 'Salut $name ! Je suis ton coach MINT. '
-          'Pose-moi tes questions sur la prevoyance, les impots, '
+          'Pose-moi tes questions sur la prévoyance, les impôts, '
           'le budget ou la retraite en Suisse.$scoreSuffix';
     }
 
@@ -207,14 +207,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       switch (e.code) {
         case 'invalid_key':
           errorMsg =
-              'Ta cle API semble invalide ou expiree. Verifie-la dans les parametres.';
+              'Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.';
           break;
         case 'rate_limit':
           errorMsg =
-              'Limite de requetes atteinte. Reessaie dans quelques instants.';
+              'Limite de requêtes atteinte. Réessaie dans quelques instants.';
           break;
         default:
-          errorMsg = 'Erreur technique. Reessaie plus tard.';
+          errorMsg = 'Erreur technique. Réessaie plus tard.';
       }
       setState(() {
         _messages.add(ChatMessage(
@@ -229,7 +229,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _messages.add(ChatMessage(
           role: 'system',
           content:
-              'Erreur de connexion. Verifie ta connexion internet ou ta cle API.',
+              'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.',
           timestamp: DateTime.now(),
         ));
         _isLoading = false;
@@ -392,7 +392,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Conversation educative',
+                      'Conversation éducative',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -415,7 +415,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   _isByokConfigured ? Icons.settings : Icons.key,
                   color: Colors.white,
                 ),
-                tooltip: 'Configurer la cle API',
+                tooltip: 'Configurer la clé API',
                 onPressed: () => context.push('/profile/byok'),
               ),
             ],
@@ -468,7 +468,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Ajoute ta cle API pour des reponses personnalisees basees sur ton profil.',
+                      'Ajoute ta clé API pour des réponses personnalisées basées sur ton profil.',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -512,7 +512,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: MintColors.coachBubble,
       child: Text(
-        'Outil educatif — les reponses ne constituent pas un conseil financier. LSFin.',
+        'Outil éducatif — les réponses ne constituent pas un conseil financier. LSFin.',
         style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w400,
@@ -726,7 +726,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Reflexion en cours...',
+                  'Réflexion en cours...',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w400,

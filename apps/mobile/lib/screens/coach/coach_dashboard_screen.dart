@@ -424,7 +424,7 @@ Si une categorie ne s'applique pas, omets-la.
       final economieTotale = economiePotentielle * anneesRestantes;
       if (economieTotale > 500) {
         buffer.writeln(
-            'FISCALITE: CHF ${economieTotale.toStringAsFixed(0)} d\'economies d\'impots potentielles d\'ici la retraite en maximisant le 3a.');
+            'FISCALITÉ : CHF ${economieTotale.toStringAsFixed(0)} d\'économies d\'impôts potentielles d\'ici la retraite en maximisant le 3a.');
       }
     }
 

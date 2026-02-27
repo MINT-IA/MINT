@@ -198,7 +198,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Evalue ta protection assurantielle',
+                'Évalue ta protection assurantielle',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -277,8 +277,8 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     return Wrap(
       spacing: 8,
       children: [
-        _buildStatutChip('salarie', 'Salarie\u00B7e'),
-        _buildStatutChip('independant', 'Independant\u00B7e'),
+        _buildStatutChip('salarie', 'Salarié·e'),
+        _buildStatutChip('independant', 'Indépendant·e'),
         _buildStatutChip('sans_emploi', 'Sans emploi'),
       ],
     );
@@ -778,9 +778,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           Expanded(
             child: Text(
               'Cette analyse est indicative et ne constitue pas un '
-              'conseil en assurance personnalise. Les primes varient '
-              'selon l\'assureur et ton profil. Consulte un '
-              'spécialiste en assurances pour une evaluation complete.',
+              'conseil en assurance personnalisé. Les primes varient '
+              'selon l\'assureur et ton profil. Consulte un·e '
+              'spécialiste en assurances pour une évaluation complète.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,
