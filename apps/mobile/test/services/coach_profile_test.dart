@@ -31,7 +31,8 @@ void main() {
     });
 
     test('demo profile anneesAvantRetraite is correct', () {
-      final expectedYears = (65 - (DateTime.now().year - 1977)).clamp(0, 99);
+      // Demo profile has targetRetirementAge = 63
+      final expectedYears = (63 - (DateTime.now().year - 1977)).clamp(0, 99);
       expect(demo.anneesAvantRetraite, expectedYears);
     });
 
@@ -102,7 +103,8 @@ void main() {
 
     test('demo profile goalA is retirement', () {
       expect(demo.goalA.type, GoalAType.retraite);
-      expect(demo.goalA.targetDate.year, 2042);
+      // Demo profile has targetDate = DateTime(2040, 12, 31)
+      expect(demo.goalA.targetDate.year, 2040);
     });
   });
 

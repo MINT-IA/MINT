@@ -38,7 +38,11 @@ const double lppTauxConversionMin = 6.8;
 /// Reduction du taux de conversion par annee de retraite anticipee.
 /// Pratique standard des caisses suisses: ~0.2 points de % par annee
 /// avant l'age de reference (LPP art. 13 al. 2).
-/// Le taux reel varie par caisse — cette valeur est une estimation educative.
+///
+/// Le taux reel varie significativement par caisse (0.1% a 0.5%/an).
+/// Cette valeur est une estimation educative (moyenne observee).
+/// Source: CHS PP - Rapport sur la situation financiere des caisses LPP.
+/// Note: toujours afficher "confirme avec ta caisse" dans les projections.
 const double lppEarlyRetirementRateReduction = 0.002;
 
 /// Taux d'interet minimum LPP en % (fixe par le Conseil federal).

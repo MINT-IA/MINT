@@ -9,6 +9,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // LandingScreen should contain the hero text
-    expect(find.textContaining('Financial OS'), findsWidgets);
+    expect(find.textContaining('Tes finances'), findsWidgets);
   });
 }

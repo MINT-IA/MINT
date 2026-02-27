@@ -46,6 +46,10 @@ class ProjectionConfidence {
 class ConfidenceScorer {
   ConfidenceScorer._();
 
+  /// Minimum confidence score (0-100) to display projections.
+  /// Below this threshold, show enrichment prompts instead.
+  static const double minConfidenceForProjection = 40.0;
+
   /// Score projection confidence based on profile completeness.
   static ProjectionConfidence score(CoachProfile profile) {
     double total = 0;

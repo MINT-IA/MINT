@@ -21,14 +21,12 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
-import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_section.dart';
 import 'package:mint_mobile/widgets/coach/explore_hub.dart';
 import 'package:mint_mobile/widgets/coach/low_confidence_card.dart';
@@ -922,7 +920,7 @@ Si une categorie ne s'applique pas, omets-la.
                 ),
                 const SizedBox(height: 24),
                 // Guard rail: only show trajectory if confidence >= 40%
-                if (_confidenceScore >= 40) ...[
+                if (_confidenceScore >= ConfidenceScorer.minConfidenceForProjection) ...[
                   TrajectoryCard(
                     profile: _profile!,
                     projection: _projection!,
@@ -948,7 +946,7 @@ Si une categorie ne s'applique pas, omets-la.
                   _buildScoreTrendText(),
                   _buildScoreHistorySection(),
                   const SizedBox(height: 24),
-                  if (_confidenceScore >= 40) ...[
+                  if (_confidenceScore >= ConfidenceScorer.minConfidenceForProjection) ...[
                     _buildNowVsWithCard(),
                     _buildScenarioNarrations(),
                     const SizedBox(height: 12),

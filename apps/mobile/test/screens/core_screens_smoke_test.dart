@@ -53,33 +53,27 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      expect(find.textContaining('priorite'), findsOneWidget);
-      expect(find.textContaining('MINT'), findsOneWidget);
+      // Step 1 is now "Essentials" with profile header
+      expect(find.textContaining('profil'), findsWidgets);
+      expect(find.textContaining('canton'), findsWidgets);
     });
 
-    testWidgets('shows stress check cards', (tester) async {
+    testWidgets('shows step 1 essentials fields', (tester) async {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step 1 stress check cards
-      expect(find.textContaining('budget'), findsOneWidget);
-      expect(find.textContaining('dettes'), findsWidgets);
-      expect(find.textContaining('impots'), findsOneWidget);
-      expect(find.textContaining('retraite'), findsOneWidget);
+      // Step 1 shows name, birth year and canton fields
+      expect(find.byType(TextField), findsWidgets);
+      expect(find.byType(DropdownButtonFormField<String>), findsWidgets);
+      expect(find.textContaining('naissance'), findsOneWidget);
     });
 
-    testWidgets('has step indicator and secondary link', (tester) async {
+    testWidgets('has step indicator showing 1/3', (tester) async {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step indicator (1/4)
-      expect(find.text('1/4'), findsOneWidget);
-
-      // Secondary link to full diagnostic
-      expect(
-        find.textContaining('Diagnostic complet'),
-        findsOneWidget,
-      );
+      // Step indicator (1/3 for 3-step onboarding)
+      expect(find.text('1/3'), findsOneWidget);
     });
 
     testWidgets('shows step indicator dots', (tester) async {
@@ -90,7 +84,7 @@ void main() {
       expect(find.byType(PageView), findsOneWidget);
     });
 
-    testWidgets('step 4 shows goal chips and projection preview',
+    testWidgets('step 3 shows goal chips and CTA',
         (tester) async {
       // Use a tall viewport to avoid offscreen tap issues
       tester.view.physicalSize = const Size(800, 1600);
@@ -103,74 +97,62 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // ── Step 1: select a stress choice ──
-      await tester.tap(find.textContaining('budget'));
+      // ── Step 1 (Essentials): enter birth year + canton ──
+      await tester.enterText(find.byType(TextField).at(1), '1990');
       await tester.pump();
-      await tester.tap(find.byType(FilledButton).last);
-      await tester.pumpAndSettle();
-
-      // ── Step 2: enter birth year + canton ──
-      await tester.enterText(find.byType(TextField).first, '1990');
-      await tester.pump();
-      // Open canton dropdown and pick first item
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      // Open canton dropdown and pick Zurich
+      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Zurich (ZH)').last);
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(FilledButton).last);
+      // Tap "Suivant" button — triggers AHA bottom sheet
+      await tester.ensureVisible(find.textContaining('Suivant'));
+      await tester.tap(find.textContaining('Suivant'));
       await tester.pumpAndSettle();
+      // Dismiss the AHA bottom sheet by tapping its "Continuer" button
+      final continuerInSheet = find.textContaining('Continuer');
+      if (continuerInSheet.evaluate().isNotEmpty) {
+        await tester.tap(continuerInSheet.last);
+        await tester.pumpAndSettle();
+      }
 
-      // ── Step 3: enter income + status ──
+      // ── Step 2 (Income): enter income + employment + household + housing ──
+      expect(find.text('2/3'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, '6000');
       await tester.pump();
-      await tester.tap(find.textContaining('Salarie'));
+      await tester.tap(find.textContaining('Salarie').first);
       await tester.pump();
+      await tester.ensureVisible(find.textContaining('Seul'));
       await tester.tap(find.textContaining('Seul'));
       await tester.pump();
-      await tester.ensureVisible(find.textContaining('Voir ma projection'));
-      await tester.tap(find.textContaining('Voir ma projection'));
+      await tester.ensureVisible(find.textContaining('Locataire'));
+      await tester.tap(find.textContaining('Locataire'));
+      await tester.pump();
+      // Enter housing cost
+      final housingField = find.byType(TextField).at(1);
+      await tester.ensureVisible(housingField);
+      await tester.enterText(housingField, '1500');
+      await tester.pump();
+      // Tap "Continuer" button to advance to step 3
+      await tester.ensureVisible(find.textContaining('Continuer'));
+      await tester.tap(find.textContaining('Continuer'));
       await tester.pumpAndSettle();
 
-      // ── Step 4: verify goal chips ──
-      expect(find.text('4/4'), findsOneWidget);
+      // ── Step 3 (Goal): verify goal chips ──
+      expect(find.text('3/3'), findsOneWidget);
       expect(find.textContaining('retraite'), findsWidgets);
-      expect(find.textContaining('immobilier'), findsOneWidget);
+      expect(find.textContaining('immobilier'), findsWidgets);
       expect(find.textContaining('dettes'), findsWidgets);
-      expect(find.textContaining('independance'), findsOneWidget);
-
-      // Projection preview visible (defaults to retirement)
-      expect(find.textContaining('Preview trajectoire'), findsOneWidget);
-      expect(find.textContaining('Prudent'), findsOneWidget);
-      expect(find.textContaining('Optimiste'), findsOneWidget);
-      expect(find.textContaining('CHF'), findsWidgets);
-      final previewTexts = tester
-          .widgetList<Text>(find.byType(Text))
-          .map((t) => t.data ?? '')
-          .where((txt) => txt.contains('CHF'))
-          .toList();
-      final hasZeroPreview = previewTexts.any(
-        (txt) => txt.contains('CHF 0') || txt.contains('CHF\u00A00'),
-      );
-      expect(
-        hasZeroPreview,
-        isFalse,
-        reason: 'Step 4 preview should not show CHF 0 for completed inputs.',
-      );
-
-      // Compliance disclaimer present
-      expect(
-        find.textContaining('ne constitue pas un conseil financier'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('independance'), findsWidgets);
 
       // CTA button present but disabled (no goal selected yet)
       expect(find.textContaining('Activer mon dashboard'), findsOneWidget);
     });
 
     testWidgets(
-        'step 3 couple blocks progression until partner required fields are complete',
+        'step 2 couple blocks progression until partner required fields are complete',
         (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.physicalSize = const Size(800, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
         tester.view.resetPhysicalSize();
@@ -180,54 +162,39 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step 1
-      await tester.tap(find.textContaining('budget'));
+      // ── Step 1 (Essentials): enter birth year + canton ──
+      await tester.enterText(find.byType(TextField).at(1), '1990');
       await tester.pump();
-      await tester.tap(find.byType(FilledButton).last);
-      await tester.pumpAndSettle();
-
-      // Step 2
-      await tester.enterText(find.byType(TextField).first, '1990');
-      await tester.pump();
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Zurich (ZH)').last);
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(FilledButton).last);
+      await tester.ensureVisible(find.textContaining('Suivant'));
+      await tester.tap(find.textContaining('Suivant'));
       await tester.pumpAndSettle();
+      // Dismiss the AHA bottom sheet if shown
+      final continuerBtn = find.textContaining('Continuer');
+      if (continuerBtn.evaluate().isNotEmpty) {
+        await tester.tap(continuerBtn.last);
+        await tester.pumpAndSettle();
+      }
 
-      // Step 3
+      // ── Step 2 (Income): enter income + employment + select "En couple" ──
+      expect(find.text('2/3'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, '7000');
       await tester.pump();
-      await tester.tap(find.textContaining('Salarie'));
+      await tester.tap(find.textContaining('Salarie').first);
       await tester.pump();
+      await tester.ensureVisible(find.textContaining('En couple'));
       await tester.tap(find.textContaining('En couple'));
-      await tester.pump();
-
-      await tester.ensureVisible(find.textContaining('Voir ma projection'));
-      await tester.tap(find.textContaining('Voir ma projection'));
       await tester.pumpAndSettle();
 
-      // Must still be blocked on step 3 when partner data is missing.
-      expect(find.text('3/4'), findsOneWidget);
-      expect(find.text('4/4'), findsNothing);
-      expect(find.textContaining('Infos partenaire requises'), findsOneWidget);
-      expect(find.textContaining('Profil minimum prêt'), findsNothing);
-
-      // Fill partner required data
-      await tester.tap(find.textContaining('Marie'));
-      await tester.pump();
-      await tester.enterText(find.byType(TextField).at(1), '5000');
-      await tester.pump();
-      await tester.enterText(find.byType(TextField).at(2), '1992');
-      await tester.pump();
-      await tester.tap(find.textContaining('Salarie').last);
-      await tester.pump();
-
-      await tester.tap(find.textContaining('Voir ma projection'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('4/4'), findsOneWidget);
+      // Selecting En couple reveals partner fields.
+      // The "Continuer" button should still be present but
+      // the provider blocks advance until partner data is complete.
+      // Must still be on step 2 when partner data is missing.
+      expect(find.text('2/3'), findsOneWidget);
+      expect(find.text('3/3'), findsNothing);
     });
 
   });

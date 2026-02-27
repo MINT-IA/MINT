@@ -73,9 +73,17 @@ void main() {
     });
 
     testWidgets('contains MintScoreGauge', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
-      expect(find.byType(MintScoreGauge), findsOneWidget);
+      expect(
+        find.byType(MintScoreGauge, skipOffstage: false),
+        findsOneWidget,
+      );
     });
 
     testWidgets('contains MintTrajectoryChart in tall viewport',
@@ -106,9 +114,17 @@ void main() {
     });
 
     testWidgets('shows fitness score section header', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
-      expect(find.textContaining('Fitness'), findsWidgets);
+      expect(
+        find.textContaining('Fitness', skipOffstage: false),
+        findsWidgets,
+      );
     });
 
     testWidgets('shows trajectory section in tall viewport', (tester) async {
@@ -147,7 +163,7 @@ void main() {
     testWidgets(
         'uses persisted concise narrative mode for score attribution reason',
         (tester) async {
-      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.physicalSize = const Size(1080, 12000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -162,23 +178,44 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 2));
 
+      // Dashboard starts in compact mode — expand to see score attribution
+      final expandButton = find.textContaining('Afficher le dashboard complet');
+      if (expandButton.evaluate().isNotEmpty) {
+        await tester.ensureVisible(expandButton);
+        await tester.tap(expandButton);
+        await tester.pump(const Duration(seconds: 1));
+      }
+
       expect(
-        find.textContaining('Hausse principale: versements confirmes'),
+        find.textContaining('Hausse principale: versements confirmes',
+            skipOffstage: false),
         findsWidgets,
       );
-      expect(find.textContaining('Deuxieme phrase a masquer.'), findsNothing);
+      expect(
+        find.textContaining('Deuxieme phrase a masquer.', skipOffstage: false),
+        findsNothing,
+      );
     });
   });
 
   group('CoachDashboardScreen - Et si...', () {
     testWidgets('shows Et si panel in tall viewport', (tester) async {
-      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.physicalSize = const Size(1080, 12000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
+
+      // Dashboard starts in compact mode — expand to see Et si panel
+      final expandButton = find.textContaining('Afficher le dashboard complet');
+      if (expandButton.evaluate().isNotEmpty) {
+        await tester.ensureVisible(expandButton);
+        await tester.tap(expandButton);
+        await tester.pump(const Duration(seconds: 1));
+      }
+
       expect(
         find.textContaining('Et si', skipOffstage: false),
         findsWidgets,
@@ -203,6 +240,13 @@ void main() {
   group('CoachDashboardScreen - Plan 30 jours resume', () {
     testWidgets('shows resume card when plan 30 is started and incomplete',
         (tester) async {
+      // Use a tall viewport so the resume card (below several other cards)
+      // is within the rendered area of the SliverList.
+      tester.view.physicalSize = const Size(1080, 12000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       SharedPreferences.setMockInitialValues({
         'onboarding_30_day_plan_v1': jsonEncode({
           'started_at': '2026-02-19T10:00:00.000Z',
@@ -213,12 +257,25 @@ void main() {
       });
 
       await tester.pumpWidget(buildTestWidget());
+      // Multiple pump cycles to let the unawaited async
+      // _loadOnboarding30PlanState() resolve and setState.
+      for (int i = 0; i < 10; i++) {
+        await tester.pump();
+      }
       await tester.pump(const Duration(seconds: 1));
 
       expect(
-          find.textContaining('Reprendre mon plan 30 jours'), findsOneWidget);
-      expect(find.textContaining('1/3 etapes ouvertes'), findsOneWidget);
-      expect(find.textContaining('Continuer'), findsWidgets);
+        find.textContaining('Reprendre mon plan 30 jours', skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('1/3 etapes ouvertes', skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Continuer', skipOffstage: false),
+        findsWidgets,
+      );
     });
   });
 }

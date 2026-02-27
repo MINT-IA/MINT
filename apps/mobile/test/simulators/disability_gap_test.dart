@@ -251,11 +251,13 @@ void main() {
     });
 
     test('Throws ArgumentError for unsupported canton', () {
+      // All 26 Swiss cantons (including FR) are now supported.
+      // Use a non-existent canton code to trigger ArgumentError.
       expect(
         () => computeDisabilityGap(
           revenuMensuelNet: 8000,
           statutProfessionnel: EmploymentStatusType.employee,
-          canton: 'FR', // Not supported
+          canton: 'XX', // Non-existent canton
           anneesAnciennete: 5,
           hasIjmCollective: true,
           degreInvalidite: 100,

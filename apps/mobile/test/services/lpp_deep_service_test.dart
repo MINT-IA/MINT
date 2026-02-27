@@ -69,15 +69,16 @@ void main() {
       }
     });
 
-    test('horizon clampe entre 1 et 5', () {
+    test('horizon clampe entre 1 et 15', () {
       final resultHigh = RachatEchelonneSimulator.compare(
         avoirActuel: 100000,
         rachatMax: 30000,
         revenuImposable: 80000,
         tauxMarginalEstime: 0.30,
-        horizon: 10, // > 5
+        horizon: 10, // within 1-15 range
       );
-      expect(resultHigh.yearlyPlan.length, 5);
+      // Source clamps horizon to 1-15, so 10 is within range
+      expect(resultHigh.yearlyPlan.length, 10);
     });
 
     test('taux marginal clampe entre 0.10 et 0.50', () {
@@ -125,7 +126,7 @@ void main() {
         horizon: 3,
       );
       expect(result.disclaimer, contains('79b'));
-      expect(result.disclaimer, contains('specialiste'));
+      expect(result.disclaimer, contains('spécialiste'));
     });
   });
 
@@ -210,7 +211,7 @@ void main() {
         hasNewEmployer: false,
       );
       final chomageItem = result.checklist.where(
-        (c) => c.title.contains('chomage'),
+        (c) => c.title.contains('chômage'),
       );
       expect(chomageItem, isNotEmpty);
     });
@@ -237,10 +238,10 @@ void main() {
         hasNewEmployer: true,
       );
       final decompte = result.checklist.where(
-        (c) => c.title.contains('decompte'),
+        (c) => c.title.contains('décompte'),
       );
       final oublies = result.checklist.where(
-        (c) => c.title.contains('oublies'),
+        (c) => c.title.contains('oubliés'),
       );
       expect(decompte, isNotEmpty);
       expect(oublies, isNotEmpty);
@@ -254,7 +255,7 @@ void main() {
         hasNewEmployer: true,
       );
       expect(result.disclaimer, contains('LFLP'));
-      expect(result.disclaimer, contains('specialiste'));
+      expect(result.disclaimer, contains('spécialiste'));
     });
   });
 
@@ -275,7 +276,7 @@ void main() {
       expect(result.montantMaxRetirable, closeTo(150000, 0.01));
     });
 
-    test('des 50 ans : montant max = moitie de l avoir', () {
+    test('des 50 ans : montant max = max(avoir estime a 50, moitie avoir)', () {
       final result = EplSimulator.simulate(
         avoirTotal: 200000,
         avoirObligatoire: 140000,
@@ -284,8 +285,10 @@ void main() {
         montantSouhaite: 200000,
         aRachete: false,
       );
-      // A 50+ : max(50% actuel, avoir a 50 = ~50% estim) = 100000
-      expect(result.montantMaxRetirable, closeTo(100000, 0.01));
+      // A 55 ans: anneesDepuis25 = 30, ratioA50 = 25/30 = 0.833
+      // avoirEstimeA50 = 200000 * 0.833 = 166666.67
+      // montantMax = max(166666.67, 200000/2=100000) = 166666.67
+      expect(result.montantMaxRetirable, closeTo(166666.67, 1.0));
     });
 
     test('minimum EPL de 20000 CHF', () {
@@ -334,7 +337,9 @@ void main() {
       expect(result.montantSouhaiteApplicable, closeTo(50000, 0.01));
     });
 
-    test('impot progressif : < 50k => 3%, 50-100k => 5%', () {
+    test('impot progressif via RetirementTaxCalculator (ZH base rate 6.5%)', () {
+      // EPL uses RetirementTaxCalculator.capitalWithdrawalTax with canton ZH (default)
+      // ZH base rate = 0.065, progressive brackets: 0-100k (1.0x), 100k-200k (1.15x), etc.
       final result30k = EplSimulator.simulate(
         avoirTotal: 200000,
         avoirObligatoire: 140000,
@@ -343,7 +348,8 @@ void main() {
         montantSouhaite: 30000,
         aRachete: false,
       );
-      expect(result30k.impotEstime, closeTo(30000 * 0.03, 0.01));
+      // 30000 * 0.065 * 1.0 = 1950
+      expect(result30k.impotEstime, closeTo(1950, 1.0));
 
       final result80k = EplSimulator.simulate(
         avoirTotal: 200000,
@@ -353,10 +359,11 @@ void main() {
         montantSouhaite: 80000,
         aRachete: false,
       );
-      expect(result80k.impotEstime, closeTo(80000 * 0.05, 0.01));
+      // 80000 * 0.065 * 1.0 = 5200
+      expect(result80k.impotEstime, closeTo(5200, 1.0));
     });
 
-    test('impot progressif : 100-250k => 7%, > 250k => 9%', () {
+    test('impot progressif sur montants > 100k', () {
       final result150k = EplSimulator.simulate(
         avoirTotal: 300000,
         avoirObligatoire: 200000,
@@ -365,7 +372,11 @@ void main() {
         montantSouhaite: 150000,
         aRachete: false,
       );
-      expect(result150k.impotEstime, closeTo(150000 * 0.07, 0.01));
+      // ZH base rate = 0.065
+      // First 100k: 100000 * 0.065 * 1.0 = 6500
+      // Next 50k: 50000 * 0.065 * 1.15 = 3737.5
+      // Total = 10237.5
+      expect(result150k.impotEstime, closeTo(10237.5, 1.0));
     });
 
     test('reduction prestations de risque proportionnelle', () {
@@ -424,7 +435,7 @@ void main() {
         aRachete: false,
       );
       expect(result.disclaimer, contains('30c LPP'));
-      expect(result.disclaimer, contains('specialiste'));
+      expect(result.disclaimer, contains('spécialiste'));
     });
 
     test('montant souhaite plafonne au montant max retirable', () {

@@ -515,10 +515,11 @@ void main() {
       );
     });
 
-    test('asks investments when no debt and has emergency fund', () {
+    test('asks investments when no debt and has emergency fund (computed)', () {
+      // Emergency fund is now computed from q_cash_total / monthly expenses
       final answers = <String, dynamic>{
         'q_has_consumer_debt': 'no',
-        'q_emergency_fund': 'yes_6months',
+        'q_cash_total': '30000', // enough cash
       };
       expect(
         WizardConditionsService.shouldAskQuestion('q_has_investments', answers),
@@ -534,10 +535,7 @@ void main() {
         WizardConditionsService.shouldAskQuestion('q_3a_accounts_count', answers),
         false,
       );
-      expect(
-        WizardConditionsService.shouldAskQuestion('q_3a_providers', answers),
-        false,
-      );
+      // q_3a_providers is no longer gated by the conditions service
       expect(
         WizardConditionsService.shouldAskQuestion('q_3a_annual_contribution', answers),
         false,

@@ -113,7 +113,7 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('DonationService - Reserve hereditaire', () {
-    test('avec enfants: reserve = 50% (conjoint 1/4 + enfants 1/4)', () {
+    test('avec enfants: reserve with regime matrimonial factor', () {
       final result = DonationService.calculate(
         montant: 50000,
         donateurAge: 50,
@@ -123,14 +123,16 @@ void main() {
         fortuneTotaleDonateur: 1000000,
       );
 
-      // conjoint: 1000000 * 0.50 * 0.50 = 250000
-      // enfants:  1000000 * 0.50 * 0.50 = 250000
-      // total reserve = 500000
-      expect(result.reserveHereditaireTotale, 500000.0);
-      expect(result.quotiteDisponible, 500000.0);
+      // Default regime = participation_acquets => regimeFactor = 0.75
+      // fortune = 1000000 * 0.75 = 750000
+      // conjoint: 750000 * 0.50 * 0.50 = 187500
+      // enfants:  750000 * 0.50 * 0.50 = 187500
+      // total reserve = 375000
+      expect(result.reserveHereditaireTotale, 375000.0);
+      expect(result.quotiteDisponible, 375000.0);
     });
 
-    test('sans enfants: reserve = conjoint 3/4 * 50% = 3/8 de la fortune', () {
+    test('sans enfants: reserve with regime matrimonial factor', () {
       final result = DonationService.calculate(
         montant: 50000,
         donateurAge: 50,
@@ -140,10 +142,12 @@ void main() {
         fortuneTotaleDonateur: 800000,
       );
 
-      // conjoint: 800000 * 0.75 * 0.50 = 300000
+      // Default regime = participation_acquets => regimeFactor = 0.75
+      // fortune = 800000 * 0.75 = 600000
+      // conjoint: 600000 * 0.75 * 0.50 = 225000
       // parents: no reserve since 2023
-      expect(result.reserveHereditaireTotale, 300000.0);
-      expect(result.quotiteDisponible, 500000.0);
+      expect(result.reserveHereditaireTotale, 225000.0);
+      expect(result.quotiteDisponible, 375000.0);
     });
 
     test('nouveau droit 2023: parents n\'ont plus de reserve', () {
@@ -161,9 +165,10 @@ void main() {
         fortuneTotaleDonateur: 1000000,
       );
 
-      // quotite = 500000, donation = 600000 => depasse de 100000
+      // fortune = 1000000 * 0.75 = 750000, reserve = 375000, quotite = 375000
+      // donation = 600000 > 375000 => depasse de 225000
       expect(result.donationDepasseQuotite, isTrue);
-      expect(result.montantDepassement, 100000.0);
+      expect(result.montantDepassement, 225000.0);
       expect(result.alerts, anyElement(contains('quotite disponible')));
     });
 

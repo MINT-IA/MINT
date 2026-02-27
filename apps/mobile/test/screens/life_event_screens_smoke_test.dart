@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // Family
 import 'package:mint_mobile/screens/mariage_screen.dart';
@@ -134,8 +136,11 @@ void main() {
 
     testWidgets('RetirementScreen renders without error', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: RetirementScreen(),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => CoachProfileProvider(),
+          child: const MaterialApp(
+            home: RetirementScreen(),
+          ),
         ),
       );
       await tester.pump();
@@ -161,8 +166,11 @@ void main() {
     testWidgets('FiscalComparatorScreen renders without error',
         (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: FiscalComparatorScreen(),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => CoachProfileProvider(),
+          child: const MaterialApp(
+            home: FiscalComparatorScreen(),
+          ),
         ),
       );
       await tester.pump();

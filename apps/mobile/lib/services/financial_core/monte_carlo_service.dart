@@ -207,16 +207,21 @@ class MonteCarloProjectionService {
           baseRate: conjoint.prevoyance?.tauxConversion ?? 0.068,
           retirementAge: conjointRetirementAge,
         );
-        // Rachats LPP conjoint: contributes dont l'id/label contient
-        // le prenom du conjoint (ex: 'lpp_buyback_lauren')
+        // Rachats LPP conjoint: contributions dont l'id/label contient
+        // le prenom du conjoint (ex: 'lpp_buyback_lauren').
+        // Guard: si firstName est null/vide, on ne peut pas matcher → 0.
         final conjName = conjoint.firstName?.toLowerCase() ?? '';
-        final conjAnnualBuyback = profile.plannedContributions
-            .where((c) =>
-                c.category == 'lpp_buyback' &&
-                conjName.isNotEmpty &&
-                (c.id.toLowerCase().contains(conjName) ||
-                    c.label.toLowerCase().contains(conjName)))
-            .fold(0.0, (sum, c) => sum + c.amount) * 12;
+        final double conjAnnualBuyback;
+        if (conjName.isEmpty) {
+          conjAnnualBuyback = 0;
+        } else {
+          conjAnnualBuyback = profile.plannedContributions
+              .where((c) =>
+                  c.category == 'lpp_buyback' &&
+                  (c.id.toLowerCase().contains(conjName) ||
+                      c.label.toLowerCase().contains(conjName)))
+              .fold(0.0, (sum, c) => sum + c.amount) * 12;
+        }
         final conjMaxBuyback =
             conjoint.prevoyance?.lacuneRachatRestante ?? 0;
         double conjCumulBuyback = 0;
@@ -278,15 +283,20 @@ class MonteCarloProjectionService {
           sd: conjBase3aReturn * 0.5,
         ).clamp(0.0, 0.10);
         // Contributions 3a mensuelles du conjoint: depuis plannedContributions
-        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren')
+        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren').
+        // Guard: si firstName est null/vide, on ne peut pas matcher → 0.
         final conjNameLower = conjoint.firstName?.toLowerCase() ?? '';
-        final conj3aMonthlyContrib = profile.plannedContributions
-            .where((c) =>
-                c.category == '3a' &&
-                conjNameLower.isNotEmpty &&
-                (c.id.toLowerCase().contains(conjNameLower) ||
-                    c.label.toLowerCase().contains(conjNameLower)))
-            .fold(0.0, (sum, c) => sum + c.amount);
+        final double conj3aMonthlyContrib;
+        if (conjNameLower.isEmpty) {
+          conj3aMonthlyContrib = 0;
+        } else {
+          conj3aMonthlyContrib = profile.plannedContributions
+              .where((c) =>
+                  c.category == '3a' &&
+                  (c.id.toLowerCase().contains(conjNameLower) ||
+                      c.label.toLowerCase().contains(conjNameLower)))
+              .fold(0.0, (sum, c) => sum + c.amount);
+        }
         if (conj3aBalance > 0 || conj3aMonthlyContrib > 0) {
           for (int a = conjointAge; a < conjointRetirementAge; a++) {
             conj3aBalance *= (1 + conj3aReturn);
