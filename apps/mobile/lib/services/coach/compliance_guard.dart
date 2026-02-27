@@ -223,6 +223,12 @@ class ComplianceGuard {
       }
     }
 
+    // Defense-in-depth: if sanitization emptied the text, force fallback.
+    if (!useFallback && text.trim().isEmpty) {
+      useFallback = true;
+      violations.add('Texte vide après sanitisation');
+    }
+
     return ComplianceResult(
       isCompliant: violations.isEmpty,
       sanitizedText: useFallback ? '' : text,

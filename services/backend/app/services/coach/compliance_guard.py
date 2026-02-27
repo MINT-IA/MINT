@@ -126,7 +126,10 @@ class ComplianceGuard:
         re.compile(r"prends?\s+le\s+capital", re.IGNORECASE),
         re.compile(r"investis?\s+dans", re.IGNORECASE),
         re.compile(r"priorit[ée]\s+absolue", re.IGNORECASE),
-        re.compile(r"c['']est\s+plus\s+important\s+que", re.IGNORECASE),
+        re.compile(r"c['\u2018\u2019\u0027\u2032]est\s+plus\s+important\s+que", re.IGNORECASE),
+        re.compile(r"souscris\b", re.IGNORECASE),
+        re.compile(r"rach[eè]te\b", re.IGNORECASE),
+        re.compile(r"transf[eè]re\b", re.IGNORECASE),
     ]
 
     # ═══════════════════════════════════════════════════════════════════
@@ -240,6 +243,11 @@ class ComplianceGuard:
             text, length_violation = self._enforce_length(text, word_limit)
             if length_violation:
                 violations.append(length_violation)
+
+        # Defense-in-depth: if sanitization emptied the text, force fallback.
+        if not use_fallback and not text.strip():
+            use_fallback = True
+            violations.append("Texte vide après sanitisation")
 
         is_compliant = len(violations) == 0
         return ComplianceResult(
@@ -356,7 +364,6 @@ class ComplianceGuard:
             truncated = truncated[: last_boundary + 1]
 
         violation = (
-            f"Texte trop long: {len(words)} mots "
-            f"(limite: {max_words} pour {ComponentType.general})"
+            f"Texte trop long: {len(words)} mots (limite: {max_words})"
         )
         return truncated, violation
