@@ -90,7 +90,6 @@ class _RetirementDashboardScreenState
     } else {
       _baselineProjection = null;
     }
-
   }
 
   // ────────────────────────────────────────────────────────────
