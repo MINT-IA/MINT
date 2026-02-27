@@ -43,7 +43,7 @@ class ExploreHub extends StatelessWidget {
             icon: Icons.person_outline,
             title: 'Mon profil',
             subtitle: 'Compl\u00e9ter ou ajuster mes donn\u00e9es',
-            route: '/onboarding/minimal',
+            route: '/onboarding/smart',
           ),
           _ExploreRow(
             icon: Icons.balance,

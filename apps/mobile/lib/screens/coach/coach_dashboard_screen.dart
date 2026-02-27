@@ -297,7 +297,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       final enriched = await CoachingService.enrichTips(
         tips: _coachingTips.take(3).toList(),
         profile: _profile!.toCoachingProfile(),
-        firstName: _profile!.firstName ?? 'utilisateur',
+        firstName: _profile!.firstName ?? '',
         apiKey: byok.apiKey,
         provider: byok.provider ?? 'openai',
       );
@@ -350,7 +350,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     try {
       final ragService = RagService();
       final prompt = '''
-Tu es le coach MINT. Transforme ces chiffres choc en impact emotionnel pour ${_profile!.firstName ?? 'utilisateur'} :
+Tu es le coach MINT. Transforme ces chiffres choc en impact emotionnel pour ${_profile!.firstName ?? ''} :
 
 ${_buildChiffreChocContext()}
 
@@ -369,7 +369,7 @@ Si une categorie ne s'applique pas, omets-la.
         provider: byok.provider ?? 'openai',
         profileContext: {
           'financial_summary':
-              '${_profile!.firstName ?? 'utilisateur'}, ${_profile!.age} ans',
+              '${_profile!.firstName ?? ''}, ${_profile!.age} ans',
         },
       );
 

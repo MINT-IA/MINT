@@ -300,6 +300,40 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met a jour le profil depuis le Smart Onboarding (3 questions: age, salaire, canton).
+  ///
+  /// Cree un profil partiel minimal immediatement utilisable par le dashboard.
+  /// Convertit le salaire brut annuel en net mensuel (taux charges sociales 13%).
+  /// Persiste de maniere asynchrone via [ReportPersistenceService].
+  void updateFromSmartFlow({
+    required int age,
+    required double grossSalary,
+    required String canton,
+  }) {
+    // Convert gross annual → net monthly
+    // Net monthly = (grossSalary / 12) * (1 - 0.13)  (social charges ~13%)
+    final netMonthly = (grossSalary / 12) * 0.87;
+    final birthYear = DateTime.now().year - age;
+
+    final answers = <String, dynamic>{
+      'q_birth_year': birthYear,
+      'q_canton': canton,
+      'q_net_income_period_chf': netMonthly,
+      'q_employment_status': 'employed',
+    };
+
+    _lastAnswers = answers;
+    _profile = CoachProfile.fromWizardAnswers(answers);
+    _isPartialProfile = true;
+    _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+
+    // Persist asynchronously so the dashboard can reload from storage
+    ReportPersistenceService.saveAnswers(answers);
+    ReportPersistenceService.setMiniOnboardingCompleted(true);
+  }
+
   /// Ajoute un check-in mensuel au profil et le persiste.
   void addCheckIn(MonthlyCheckIn checkIn) {
     if (_profile == null) return;

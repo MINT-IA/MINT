@@ -117,6 +117,7 @@ import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
 import 'package:mint_mobile/screens/onboarding/onboarding_minimal_screen.dart';
+import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
@@ -612,11 +613,19 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RepaymentScreen(),
     ),
+    // === Route Compatibility Layer (migration P0) ===
+    // Old routes redirect to new smart onboarding flow.
+    // Keep /advisor/plan-30-days as-is (still active).
+    GoRoute(
+      path: '/onboarding/smart',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SmartOnboardingScreen(),
+    ),
     // Onboarding Redesign (Sprint S31)
     GoRoute(
       path: '/onboarding/minimal',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const OnboardingMinimalScreen(),
+      redirect: (context, state) => '/onboarding/smart',
     ),
     GoRoute(
       path: '/onboarding/chiffre-choc',
