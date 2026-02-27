@@ -58,7 +58,6 @@ class HallucinationDetector {
     1.25,   // Taux d'intérêt minimum LPP
     5.3,    // Cotisation AVS salarié
     10.6,   // Cotisation AVS totale
-    6.8,    // Réduction anticipation AVS par an
     5.0,    // Taux théorique hypothécaire (FINMA/ASB)
     7.0,    // Bonification LPP 25-34
     10.0,   // Bonification LPP 35-44
@@ -67,6 +66,7 @@ class HallucinationDetector {
     20.0,   // Part revenu 3a sans LPP
     70.0,   // Taux indemnité chômage standard
     80.0,   // Taux indemnité chômage avec charges
+    100.0,  // Reference: "100% de ton capital" (completeness)
   };
 
   /// Tolerance for matching legal constants (±1%).
@@ -166,6 +166,25 @@ class HallucinationDetector {
       }
 
       if (bestKey == null) continue;
+
+      // Relevance check: only flag if the number is plausibly trying to
+      // cite a known value. Numbers far from all known values are likely
+      // contextual (e.g., "50% des fonds propres" near a 58% metric).
+      bool isRelevant = true;
+      if (numberType == 'pct' || numberType == 'score') {
+        // If the closest known value is >30 points away, the number
+        // probably isn't trying to cite that metric.
+        if ((foundValue - bestValue!).abs() > 30.0) isRelevant = false;
+      } else {
+        // For CHF amounts, use order-of-magnitude check: only flag if
+        // within 10x of a known value. This filters "CHF 50" when known
+        // values are ~450000, but still catches "CHF 900000" vs 450000.
+        if (bestValue != 0) {
+          final ratio = foundValue / bestValue!;
+          if (ratio > 10.0 || ratio < 0.1) isRelevant = false;
+        }
+      }
+      if (!isRelevant) continue;
 
       bool isHallucinated = false;
       if (numberType == 'pct' || numberType == 'score') {

@@ -35,13 +35,23 @@ class ComplianceGuardrails:
 
     # Terms that should never appear in financial advice (implies guarantees)
     BANNED_TERMS = [
-        # French
+        # French (masculine + feminine)
         "garanti",
+        "garantie",
         "assuré",
+        "assurée",
         "certain",
         "sans risque",
         "rendement fixe",
         "profit assuré",
+        "optimal",
+        "optimale",
+        "meilleur",
+        "meilleure",
+        "parfait",
+        "parfaite",
+        "conseiller",
+        "conseillère",
         # German
         "garantiert",
         "gesichert",

@@ -26,6 +26,7 @@ class ComplianceGuard {
   // ═══════════════════════════════════════════════════════════════
 
   static const List<String> bannedTerms = [
+    // Masculine forms
     'garanti',
     'certain',
     'assuré',
@@ -34,6 +35,14 @@ class ComplianceGuard {
     'meilleur',
     'parfait',
     'conseiller',
+    // Feminine forms (HIGH audit: bypass via inflection)
+    'garantie',
+    'assurée',
+    'optimale',
+    'meilleure',
+    'parfaite',
+    'conseillère',
+    // Prescriptive phrases
     'tu devrais',
     'tu dois',
     'il faut que tu',
@@ -53,6 +62,14 @@ class ComplianceGuard {
     'meilleur': 'pertinent',
     'parfait': 'adapté',
     'conseiller': 'spécialiste',
+    // Feminine forms
+    'garantie': 'possible dans ce scénario',
+    'assurée': 'envisageable',
+    'optimale': 'adaptée',
+    'meilleure': 'pertinente',
+    'parfaite': 'adaptée',
+    'conseillère': 'spécialiste',
+    // Prescriptive phrases
     'tu devrais': 'tu pourrais envisager de',
     'tu dois': 'il serait utile de',
     'il faut que tu': 'tu pourrais',
@@ -106,16 +123,21 @@ class ComplianceGuard {
 
   /// Pre-compiled word-boundary patterns for single-word banned terms.
   ///
+  /// Uses French-aware word boundaries via lookbehind/lookahead with a
+  /// character class that includes accented letters (À-ÿ). Standard \b
+  /// treats accented chars as \W, breaking terms like "assuré" or
+  /// "conseillère" where the accent sits at a boundary position.
+  ///
   /// Multi-word phrases (containing spaces) still use substring matching
   /// because word boundaries around phrases are implicit.
-  /// Single-word terms use \b to avoid false positives:
-  /// e.g. "incertain" should NOT match "certain", "parfaitement" should
-  /// NOT match "parfait".
   static final Map<String, RegExp> _bannedTermPatterns = {
     for (final term in bannedTerms)
       term: term.contains(' ')
           ? RegExp(RegExp.escape(term), caseSensitive: false)
-          : RegExp('\\b${RegExp.escape(term)}\\b', caseSensitive: false),
+          : RegExp(
+              '(?<![a-zA-ZÀ-ÿ])${RegExp.escape(term)}(?![a-zA-ZÀ-ÿ])',
+              caseSensitive: false,
+            ),
   };
 
   // ═══════════════════════════════════════════════════════════════

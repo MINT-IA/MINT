@@ -181,18 +181,11 @@ void main() {
       expect(assureViolations, isEmpty);
     });
 
-    test('"optimale" still triggers "optimal" ban (word boundary)', () {
-      // "optimale" starts with "optimal" but has a word boundary after "e"
-      // With \b matching, "optimale" should NOT match \boptimal\b
-      // because "optimale" != "optimal" (extra "e" after boundary)
-      // Actually \boptimal\b will NOT match "optimale" because 'e' is a word char.
+    test('"optimale" triggers ban (feminine form added)', () {
       final result = ComplianceGuard.validate(
         'C\'est une approche optimale pour ta situation.',
       );
-      final optimalViolations = result.violations
-          .where((v) => v.contains("'optimal'"))
-          .toList();
-      expect(optimalViolations, isEmpty);
+      expect(result.violations, anyElement(contains('optimale')));
     });
 
     test('exact "certain" still triggers the ban', () {
@@ -207,6 +200,64 @@ void main() {
         'Ce plan est parfait.',
       );
       expect(result.violations, anyElement(contains('parfait')));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Layer 1c: Feminine forms (HIGH audit finding)
+  // ═══════════════════════════════════════════════════════════
+
+  group('Layer 1c — Feminine forms', () {
+    test('catches "conseillère" (feminine of conseiller)', () {
+      final result = ComplianceGuard.validate(
+        'Demande à une conseillère financière.',
+      );
+      expect(result.violations, anyElement(contains('conseillère')));
+    });
+
+    test('catches "garantie" (feminine of garanti)', () {
+      final result = ComplianceGuard.validate(
+        'La performance garantie est de 2%.',
+      );
+      expect(result.violations, anyElement(contains('garantie')));
+    });
+
+    test('catches "assurée" (feminine of assuré)', () {
+      final result = ComplianceGuard.validate(
+        'Ta rente est assurée par la loi.',
+      );
+      expect(result.violations, anyElement(contains('assurée')));
+    });
+
+    test('catches "meilleure" (feminine of meilleur)', () {
+      final result = ComplianceGuard.validate(
+        'C\'est la meilleure stratégie.',
+      );
+      expect(result.violations, anyElement(contains('meilleure')));
+    });
+
+    test('catches "parfaite" (feminine of parfait)', () {
+      final result = ComplianceGuard.validate(
+        'Une solution parfaite pour toi.',
+      );
+      expect(result.violations, anyElement(contains('parfaite')));
+    });
+
+    test('"assuré" with accent is still caught (regression test)', () {
+      // Critical: \b in JS/Dart regex treats é as \W, so \bassuré\b
+      // would never match. French-aware boundaries fix this.
+      final result = ComplianceGuard.validate(
+        'Ton capital est assuré contre les pertes.',
+      );
+      expect(result.violations, anyElement(contains('assuré')));
+    });
+
+    test('sanitizes feminine form "garantie" → "possible dans ce scénario"', () {
+      final result = ComplianceGuard.validate(
+        'La performance garantie est intéressante.',
+      );
+      expect(result.sanitizedText.toLowerCase(), isNot(contains('garantie')));
+      expect(result.sanitizedText.toLowerCase(), contains('possible'));
     });
   });
 

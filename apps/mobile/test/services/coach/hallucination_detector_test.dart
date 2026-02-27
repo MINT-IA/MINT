@@ -280,5 +280,73 @@ void main() {
       );
       expect(hallucinations, isNotEmpty);
     });
+
+    test('100% is NOT flagged (common reference percentage)', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Tu conserves 100% de ton capital.',
+        knownValues,
+      );
+      final pctHallucinations = hallucinations
+          .where((h) => h.foundValue == 100.0)
+          .toList();
+      expect(pctHallucinations, isEmpty);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Relevance distance (HIGH audit fix)
+  // ═══════════════════════════════════════════════════════════
+
+  group('Relevance distance', () {
+    const knownValues = {
+      'fri_total': 62.0,
+      'capital_final': 450000.0,
+      'replacement_ratio': 58.0,
+    };
+
+    test('percentage far from all known values is NOT flagged', () {
+      // 2% is >30 points from all known values (58, 62)
+      // so it should not be flagged despite not being a legal constant
+      final hallucinations = HallucinationDetector.detect(
+        'Le taux hypothécaire est de 2%.',
+        knownValues,
+      );
+      final pctHall = hallucinations
+          .where((h) => h.foundValue == 2.0)
+          .toList();
+      expect(pctHall, isEmpty);
+    });
+
+    test('percentage close to known value IS still flagged', () {
+      // 85% is within 30 points of 58% or 62%, so it IS relevant
+      // and 85 - 58 = 27 > 2pt tolerance → flagged
+      final hallucinations = HallucinationDetector.detect(
+        'Ton taux de remplacement est de 85%.',
+        knownValues,
+      );
+      expect(hallucinations, isNotEmpty);
+    });
+
+    test('CHF amount far from all known values is NOT flagged', () {
+      // CHF 50 vs known 450000: ratio = 0.0001 < 0.1 → not relevant
+      final hallucinations = HallucinationDetector.detect(
+        'La cotisation minimale est de CHF 50.',
+        knownValues,
+      );
+      final chfHall = hallucinations
+          .where((h) => h.foundValue == 50.0)
+          .toList();
+      expect(chfHall, isEmpty);
+    });
+
+    test('CHF amount in same order of magnitude IS still flagged', () {
+      // CHF 900000 vs 450000: ratio = 2.0 (within 10x) → relevant
+      // deviation = 100% > 5% tolerance → flagged
+      final hallucinations = HallucinationDetector.detect(
+        'Ton capital projeté est de CHF 900000.',
+        knownValues,
+      );
+      expect(hallucinations, isNotEmpty);
+    });
   });
 }
