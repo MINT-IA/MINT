@@ -10,7 +10,7 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 // adversarial patterns before LLM output reaches the user.
 //
 // Layers tested:
-//   1. Banned terms (French + variants)
+//   1. Banned terms (French + variants + word-boundary CRIT #5)
 //   2. Prescriptive language (imperative financial instructions)
 //   3. Hallucination detection (fabricated numbers)
 //   4. Disclaimer injection (projections/simulations)
@@ -133,6 +133,80 @@ void main() {
       expect(result.isCompliant, isTrue);
       expect(result.violations, isEmpty);
       expect(result.useFallback, isFalse);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Layer 1b: Word-boundary false positives (CRIT #5)
+  // ═══════════════════════════════════════════════════════════
+
+  group('Layer 1b — Word-boundary false positives (CRIT #5)', () {
+    test('"incertain" does NOT trigger "certain" ban', () {
+      final result = ComplianceGuard.validate(
+        'L\'avenir est incertain, donc diversifie ton approche.',
+      );
+      final certainViolations = result.violations
+          .where((v) => v.contains("'certain'"))
+          .toList();
+      expect(certainViolations, isEmpty);
+    });
+
+    test('"certains" does NOT trigger "certain" ban', () {
+      final result = ComplianceGuard.validate(
+        'Certains scénarios montrent une amélioration.',
+      );
+      final certainViolations = result.violations
+          .where((v) => v.contains("'certain'"))
+          .toList();
+      expect(certainViolations, isEmpty);
+    });
+
+    test('"parfaitement" does NOT trigger "parfait" ban', () {
+      final result = ComplianceGuard.validate(
+        'Tu as parfaitement rempli ton profil.',
+      );
+      final parfaitViolations = result.violations
+          .where((v) => v.contains("'parfait'"))
+          .toList();
+      expect(parfaitViolations, isEmpty);
+    });
+
+    test('"assurément" does NOT trigger "assuré" ban', () {
+      final result = ComplianceGuard.validate(
+        'Ton profil est assurément complet.',
+      );
+      final assureViolations = result.violations
+          .where((v) => v.contains("'assuré'"))
+          .toList();
+      expect(assureViolations, isEmpty);
+    });
+
+    test('"optimale" still triggers "optimal" ban (word boundary)', () {
+      // "optimale" starts with "optimal" but has a word boundary after "e"
+      // With \b matching, "optimale" should NOT match \boptimal\b
+      // because "optimale" != "optimal" (extra "e" after boundary)
+      // Actually \boptimal\b will NOT match "optimale" because 'e' is a word char.
+      final result = ComplianceGuard.validate(
+        'C\'est une approche optimale pour ta situation.',
+      );
+      final optimalViolations = result.violations
+          .where((v) => v.contains("'optimal'"))
+          .toList();
+      expect(optimalViolations, isEmpty);
+    });
+
+    test('exact "certain" still triggers the ban', () {
+      final result = ComplianceGuard.validate(
+        'Il est certain que ton capital augmentera.',
+      );
+      expect(result.violations, anyElement(contains('certain')));
+    });
+
+    test('exact "parfait" still triggers the ban', () {
+      final result = ComplianceGuard.validate(
+        'Ce plan est parfait.',
+      );
+      expect(result.violations, anyElement(contains('parfait')));
     });
   });
 
@@ -295,6 +369,29 @@ void main() {
           .toList();
       expect(hallucinations, isEmpty);
     });
+
+    // CRIT #2: legal constants are whitelisted
+    test('CHF 7258 is not flagged (legal constant whitelist)', () {
+      final result = ComplianceGuard.validate(
+        'Le plafond 3a est de CHF 7258 par an.',
+        context: ctx,
+      );
+      final hallucinations = result.violations
+          .where((v) => v.contains('Hallucination') && v.contains('7258'))
+          .toList();
+      expect(hallucinations, isEmpty);
+    });
+
+    test('6.8% is not flagged (taux conversion LPP)', () {
+      final result = ComplianceGuard.validate(
+        'Le taux de conversion LPP est de 6.8%.',
+        context: ctx,
+      );
+      final hallucinations = result.violations
+          .where((v) => v.contains('Hallucination') && v.contains('6.8'))
+          .toList();
+      expect(hallucinations, isEmpty);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -337,7 +434,6 @@ void main() {
         context: const CoachContext(knownValues: {'fri_total': 62.0}),
       );
       // "score" alone shouldn't trigger disclaimer (no projection keywords)
-      // Unless the word "score" doesn't trigger it
       expect(result.isCompliant, isTrue);
     });
   });

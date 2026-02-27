@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/slm/slm_engine.dart';
 //   3. OCR sanitizer: percentages
 //   4. OCR sanitizer: years
 //   5. OCR sanitizer: AVS numbers (privacy masking)
+//   6. CRIT #7: sealed class type safety
 //
 // References: LPD art. 6, FINMA circular 2008/21
 // ────────────────────────────────────────────────────────────
@@ -210,6 +211,50 @@ void main() {
     test('rejects AVS number with letters', () {
       final result = OcrSanitizer.sanitizeAvsNumber('756.ABCD.5678.97');
       expect(result.isValid, isFalse);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // CRIT #7: Sealed class type safety
+  // ═══════════════════════════════════════════════════════════
+
+  group('CRIT #7 — Sealed class type safety', () {
+    test('ValidValue has non-null value', () {
+      final result = OcrSanitizer.sanitizeChfAmount('1000');
+      expect(result, isA<ValidValue<double>>());
+      expect(result.value, isNotNull);
+      expect(result.value, equals(1000.0));
+      expect(result.rejectionReason, isNull);
+    });
+
+    test('InvalidValue has non-null rejectionReason', () {
+      final result = OcrSanitizer.sanitizeChfAmount('abc');
+      expect(result, isA<InvalidValue<double>>());
+      expect(result.value, isNull);
+      expect(result.rejectionReason, isNotNull);
+      expect(result.rejectionReason, contains('non reconnu'));
+    });
+
+    test('switch exhaustiveness on sealed class', () {
+      final result = OcrSanitizer.sanitizeChfAmount('5000');
+      // This compiles only because SanitizedValue is sealed
+      final description = switch (result) {
+        ValidValue(:final value) => 'Valid: $value',
+        InvalidValue(:final rejectionReason) => 'Invalid: $rejectionReason',
+      };
+      expect(description, startsWith('Valid:'));
+    });
+
+    test('ValidValue year has correct type', () {
+      final result = OcrSanitizer.sanitizeYear('2025');
+      expect(result, isA<ValidValue<int>>());
+      expect(result.value, isA<int>());
+    });
+
+    test('InvalidValue year has correct type', () {
+      final result = OcrSanitizer.sanitizeYear('ABCD');
+      expect(result, isA<InvalidValue<int>>());
+      expect(result.value, isNull);
     });
   });
 }

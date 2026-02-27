@@ -8,9 +8,11 @@ import 'package:mint_mobile/services/coach/hallucination_detector.dart';
 //
 // Verifies number extraction and hallucination detection for:
 //   - CHF amounts (Swiss format: 1'820, 1'820.50)
-//   - Percentages (58.0%, 6.8%)
+//   - Percentages (58.0%, 85%, integer + decimal)
 //   - Scores (62/100)
 //   - Durations (3 mois, 2 ans)
+//   - Legal constants whitelist (CRIT #2)
+//   - Integer percentage capture (CRIT #4)
 //
 // References: FINMA circular 2008/21, LSFin art. 8
 // ────────────────────────────────────────────────────────────
@@ -39,13 +41,23 @@ void main() {
       expect(chf.$2, equals(25000.0));
     });
 
-    test('extracts percentage', () {
+    test('extracts decimal percentage', () {
       final numbers = HallucinationDetector.extractNumbers(
         'Ton taux de remplacement est de 58.0%.',
       );
       expect(numbers, isNotEmpty);
       final pct = numbers.firstWhere((n) => n.$3 == 'pct');
       expect(pct.$2, equals(58.0));
+    });
+
+    // CRIT #4: integer percentages must be captured
+    test('extracts integer percentage (CRIT #4)', () {
+      final numbers = HallucinationDetector.extractNumbers(
+        'Ton taux de remplacement est de 85%.',
+      );
+      expect(numbers, isNotEmpty);
+      final pct = numbers.firstWhere((n) => n.$3 == 'pct');
+      expect(pct.$2, equals(85.0));
     });
 
     test('extracts score (X/100)', () {
@@ -136,6 +148,15 @@ void main() {
       expect(hallucinations, isNotEmpty);
     });
 
+    // CRIT #4: integer percentage must be detected as hallucination
+    test('detects hallucinated integer percentage (CRIT #4)', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Ton taux de remplacement est de 85%.',
+        knownValues,
+      );
+      expect(hallucinations, isNotEmpty);
+    });
+
     test('accepts percentage within 2pt tolerance', () {
       // 58% + 1.5pt = 59.5%
       final hallucinations = HallucinationDetector.detect(
@@ -172,6 +193,92 @@ void main() {
       expect(h.foundValue, equals(900000.0));
       expect(h.closestKey, isNotEmpty);
       expect(h.deviationPct, greaterThan(0));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Legal constants whitelist (CRIT #2)
+  // ═══════════════════════════════════════════════════════════
+
+  group('Legal constants whitelist (CRIT #2)', () {
+    const knownValues = {
+      'fri_total': 62.0,
+      'capital_final': 450000.0,
+      'replacement_ratio': 58.0,
+    };
+
+    test('CHF 7258 (3a cap) is NOT flagged as hallucination', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Le plafond 3a est de CHF 7258 par an (OPP3 art. 7).',
+        knownValues,
+      );
+      final chfHallucinations = hallucinations
+          .where((h) => h.foundValue == 7258.0)
+          .toList();
+      expect(chfHallucinations, isEmpty);
+    });
+
+    test('CHF 22680 (seuil LPP) is NOT flagged as hallucination', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Le seuil LPP est de CHF 22680 (LPP art. 7).',
+        knownValues,
+      );
+      final lppHallucinations = hallucinations
+          .where((h) => h.foundValue == 22680.0)
+          .toList();
+      expect(lppHallucinations, isEmpty);
+    });
+
+    test('6.8% (taux conversion LPP) is NOT flagged as hallucination', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Le taux de conversion minimum est de 6.8% (LPP art. 14).',
+        knownValues,
+      );
+      final pctHallucinations = hallucinations
+          .where((h) => h.foundValue == 6.8)
+          .toList();
+      expect(pctHallucinations, isEmpty);
+    });
+
+    test('CHF 2520 (rente AVS max mensuelle) is NOT flagged', () {
+      final hallucinations = HallucinationDetector.detect(
+        'La rente AVS max est de CHF 2520 par mois (LAVS art. 34).',
+        knownValues,
+      );
+      final avsHallucinations = hallucinations
+          .where((h) => h.foundValue == 2520.0)
+          .toList();
+      expect(avsHallucinations, isEmpty);
+    });
+
+    test('CHF 36288 (grand 3a) is NOT flagged', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Le plafond 3a indépendant est de CHF 36288.',
+        knownValues,
+      );
+      final halluc = hallucinations
+          .where((h) => h.foundValue == 36288.0)
+          .toList();
+      expect(halluc, isEmpty);
+    });
+
+    test('CHF 30240 (rente AVS max annuelle) is NOT flagged', () {
+      final hallucinations = HallucinationDetector.detect(
+        'La rente AVS maximale est de CHF 30240 par an.',
+        knownValues,
+      );
+      final halluc = hallucinations
+          .where((h) => h.foundValue == 30240.0)
+          .toList();
+      expect(halluc, isEmpty);
+    });
+
+    test('non-legal CHF amount IS still flagged', () {
+      final hallucinations = HallucinationDetector.detect(
+        'Ton avoir sera de CHF 777777.',
+        knownValues,
+      );
+      expect(hallucinations, isNotEmpty);
     });
   });
 }

@@ -160,22 +160,33 @@ class CoachLlmService {
       profile: profile,
     );
 
-    final coachCtx = _buildCoachContext(profile);
-    final result = ComplianceGuard.validate(
-      rawResponse.message,
-      context: coachCtx,
-      componentType: ComponentType.general,
-    );
+    // CRIT #6: try-catch around validate() to prevent crashes on edge cases.
+    ComplianceResult result;
+    try {
+      final coachCtx = _buildCoachContext(profile);
+      result = ComplianceGuard.validate(
+        rawResponse.message,
+        context: coachCtx,
+        componentType: ComponentType.general,
+      );
+    } catch (_) {
+      // If validation crashes, use fallback — never show unvalidated LLM output.
+      return CoachResponse(
+        message: _safeChatFallback(),
+        disclaimer: _disclaimer,
+        wasFiltered: true,
+      );
+    }
 
-    final message = result.useFallback
-        ? _safeChatFallback()
-        : result.sanitizedText;
+    final isFallback = result.useFallback;
+    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
 
     return CoachResponse(
       message: message,
-      suggestedActions: rawResponse.suggestedActions,
+      // HIGH fix: clear sources/actions when using fallback (orphaned metadata).
+      suggestedActions: isFallback ? null : rawResponse.suggestedActions,
       disclaimer: _disclaimer,
-      sources: rawResponse.sources,
+      sources: isFallback ? const [] : rawResponse.sources,
       disclaimers: const [],
       wasFiltered: !result.isCompliant,
     );
@@ -214,24 +225,34 @@ class CoachLlmService {
       profileContext: profileContext,
     );
 
-    // Validate through ComplianceGuard (5-layer) in addition to backend filtering
-    final coachCtx = _buildCoachContext(profile);
-    final result = ComplianceGuard.validate(
-      ragResponse.answer,
-      context: coachCtx,
-      componentType: ComponentType.general,
-    );
+    // Validate through ComplianceGuard (5-layer) in addition to backend filtering.
+    // CRIT #6: try-catch to prevent crashes on edge cases.
+    ComplianceResult result;
+    try {
+      final coachCtx = _buildCoachContext(profile);
+      result = ComplianceGuard.validate(
+        ragResponse.answer,
+        context: coachCtx,
+        componentType: ComponentType.general,
+      );
+    } catch (_) {
+      return CoachResponse(
+        message: _safeChatFallback(),
+        disclaimer: _disclaimer,
+        wasFiltered: true,
+      );
+    }
 
-    final message = result.useFallback
-        ? _safeChatFallback()
-        : result.sanitizedText;
+    final isFallback = result.useFallback;
+    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
 
     return CoachResponse(
       message: message,
-      suggestedActions: _inferSuggestedActions(userMessage),
+      // HIGH fix: clear sources/actions when using fallback.
+      suggestedActions: isFallback ? null : _inferSuggestedActions(userMessage),
       disclaimer: _disclaimer,
-      sources: ragResponse.sources,
-      disclaimers: ragResponse.disclaimers,
+      sources: isFallback ? const [] : ragResponse.sources,
+      disclaimers: isFallback ? const [] : ragResponse.disclaimers,
       wasFiltered: !result.isCompliant,
     );
   }
@@ -355,7 +376,7 @@ class CoachLlmService {
       parts.add(
           'Capital projete retraite : ${proj.base.capitalFinal.toStringAsFixed(0)} CHF');
       parts.add(
-          'Taux de remplacement : ${(proj.tauxRemplacementBase * 100).toStringAsFixed(1)}%');
+          'Taux de remplacement : ${proj.tauxRemplacementBase.toStringAsFixed(1)}%');
     } catch (_) {}
 
     // Conjoint
@@ -404,25 +425,38 @@ class CoachLlmService {
     return ['Mon score Fitness', 'Ma trajectoire retraite'];
   }
 
-  /// Construit le system prompt avec le contexte utilisateur
+  /// Construit le system prompt avec le contexte utilisateur.
+  ///
+  /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
   static String buildSystemPrompt(CoachProfile profile) {
-    // Calculer le score et la projection pour enrichir le contexte
-    final score = FinancialFitnessService.calculate(profile: profile);
-    final projection = ForecasterService.project(
-      profile: profile,
-      targetDate: profile.goalA.targetDate,
-    );
-
     final firstName = profile.firstName ?? 'utilisateur';
     final age = profile.age;
     final canton = profile.canton;
-    final globalScore = score.global;
-    final budgetScore = score.budget.score;
-    final prevoyanceScore = score.prevoyance.score;
-    final patrimoineScore = score.patrimoine.score;
-    final capitalBase = projection.base.capitalFinal.toStringAsFixed(0);
-    final tauxRemplacement =
-        (projection.tauxRemplacementBase * 100).toStringAsFixed(1);
+
+    // Calculate score and projection — may fail on incomplete profiles.
+    int globalScore = 0;
+    int budgetScore = 0;
+    int prevoyanceScore = 0;
+    int patrimoineScore = 0;
+    String capitalBase = '—';
+    String tauxRemplacement = '—';
+
+    try {
+      final score = FinancialFitnessService.calculate(profile: profile);
+      globalScore = score.global;
+      budgetScore = score.budget.score;
+      prevoyanceScore = score.prevoyance.score;
+      patrimoineScore = score.patrimoine.score;
+    } catch (_) {}
+
+    try {
+      final projection = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      capitalBase = projection.base.capitalFinal.toStringAsFixed(0);
+      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
+    } catch (_) {}
 
     final buffer = StringBuffer();
     buffer.writeln(
@@ -494,7 +528,7 @@ class CoachLlmService {
       targetDate: profile.goalA.targetDate,
     );
     final tauxRemplacement =
-        (projection.tauxRemplacementBase * 100).toStringAsFixed(1);
+        projection.tauxRemplacementBase.toStringAsFixed(1);
 
     if (lower.contains('3a')) {
       return _MockResult(
@@ -595,12 +629,14 @@ class CoachLlmService {
   ///
   /// Extracts known numeric values from financial_core so
   /// [HallucinationDetector] can verify LLM output.
+  /// HIGH fix: guards against infinity/NaN with `.isFinite` before injection.
   static CoachContext _buildCoachContext(CoachProfile profile) {
     final knownValues = <String, double>{};
 
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
-      knownValues['fri_total'] = score.global.toDouble();
+      final g = score.global.toDouble();
+      if (g.isFinite && g > 0) knownValues['fri_total'] = g;
     } catch (_) {}
 
     try {
@@ -608,16 +644,19 @@ class CoachLlmService {
         profile: profile,
         targetDate: profile.goalA.targetDate,
       );
-      knownValues['capital_final'] = proj.base.capitalFinal;
-      knownValues['replacement_ratio'] = proj.tauxRemplacementBase * 100;
+      final cap = proj.base.capitalFinal;
+      final taux = proj.tauxRemplacementBase;
+      if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
+      if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
     } catch (_) {}
 
-    if (profile.prevoyance.totalEpargne3a > 0) {
-      knownValues['epargne_3a'] = profile.prevoyance.totalEpargne3a;
+    final epargne3a = profile.prevoyance.totalEpargne3a;
+    if (epargne3a.isFinite && epargne3a > 0) {
+      knownValues['epargne_3a'] = epargne3a;
     }
-    if (profile.prevoyance.avoirLppTotal != null &&
-        profile.prevoyance.avoirLppTotal! > 0) {
-      knownValues['avoir_lpp'] = profile.prevoyance.avoirLppTotal!;
+    final avoirLpp = profile.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp.isFinite && avoirLpp > 0) {
+      knownValues['avoir_lpp'] = avoirLpp;
     }
 
     return CoachContext(

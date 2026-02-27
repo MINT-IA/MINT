@@ -39,16 +39,11 @@ enum DataSource {
 }
 
 /// Result of sanitizing an OCR-extracted value.
-class SanitizedValue<T> {
-  /// The sanitized value (null if rejected).
-  final T? value;
-
-  /// Whether the value passed validation.
-  final bool isValid;
-
-  /// Human-readable reason if rejected.
-  final String? rejectionReason;
-
+///
+/// CRIT #7 fix: sealed class hierarchy prevents isValid=true + value=null.
+/// - [ValidValue] guarantees a non-null [value].
+/// - [InvalidValue] guarantees a non-null [rejectionReason].
+sealed class SanitizedValue<T> {
   /// Source quality of this value.
   final DataSource source;
 
@@ -56,12 +51,54 @@ class SanitizedValue<T> {
   final String rawText;
 
   const SanitizedValue({
-    this.value,
-    required this.isValid,
-    this.rejectionReason,
     this.source = DataSource.document,
     this.rawText = '',
   });
+
+  /// Whether the value passed validation.
+  bool get isValid;
+
+  /// The sanitized value (only on [ValidValue]).
+  T? get value;
+
+  /// Rejection reason (only on [InvalidValue]).
+  String? get rejectionReason;
+}
+
+/// A successfully sanitized value with a guaranteed non-null [value].
+class ValidValue<T> extends SanitizedValue<T> {
+  @override
+  final T value;
+
+  const ValidValue({
+    required this.value,
+    super.source,
+    super.rawText,
+  });
+
+  @override
+  bool get isValid => true;
+
+  @override
+  String? get rejectionReason => null;
+}
+
+/// A rejected value with a guaranteed non-null [rejectionReason].
+class InvalidValue<T> extends SanitizedValue<T> {
+  @override
+  final String rejectionReason;
+
+  const InvalidValue({
+    required this.rejectionReason,
+    super.source,
+    super.rawText,
+  });
+
+  @override
+  bool get isValid => false;
+
+  @override
+  T? get value => null;
 }
 
 /// Sanitizes OCR-extracted values before profile injection.
@@ -91,33 +128,29 @@ class OcrSanitizer {
 
     final value = double.tryParse(cleaned);
     if (value == null) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Format non reconnu: "$rawText"',
         rawText: rawText,
       );
     }
 
     if (value < 0) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Montant négatif non autorisé',
         rawText: rawText,
       );
     }
 
     if (value > _maxChfAmount) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason:
             'Montant anormalement élevé (> CHF ${_maxChfAmount.toStringAsFixed(0)})',
         rawText: rawText,
       );
     }
 
-    return SanitizedValue(
+    return ValidValue(
       value: value,
-      isValid: true,
       rawText: rawText,
     );
   }
@@ -134,24 +167,21 @@ class OcrSanitizer {
 
     final value = double.tryParse(cleaned);
     if (value == null) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Format non reconnu: "$rawText"',
         rawText: rawText,
       );
     }
 
     if (value < 0 || value > 100) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Pourcentage hors limites (0-100%): $value%',
         rawText: rawText,
       );
     }
 
-    return SanitizedValue(
+    return ValidValue(
       value: value,
-      isValid: true,
       rawText: rawText,
     );
   }
@@ -164,24 +194,21 @@ class OcrSanitizer {
     final value = int.tryParse(cleaned);
 
     if (value == null) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Année non reconnue: "$rawText"',
         rawText: rawText,
       );
     }
 
     if (value < 1900 || value > 2100) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Année hors limites (1900-2100): $value',
         rawText: rawText,
       );
     }
 
-    return SanitizedValue(
+    return ValidValue(
       value: value,
-      isValid: true,
       rawText: rawText,
     );
   }
@@ -198,17 +225,15 @@ class OcrSanitizer {
     if (cleaned.length != 13 ||
         !cleaned.startsWith('756') ||
         !RegExp(r'^\d{13}$').hasMatch(cleaned)) {
-      return SanitizedValue(
-        isValid: false,
+      return InvalidValue(
         rejectionReason: 'Format AVS invalide (attendu: 756.XXXX.XXXX.XX)',
         rawText: rawText,
       );
     }
 
     // Valid format — return true (has AVS) without storing the number
-    return SanitizedValue(
+    return ValidValue(
       value: true,
-      isValid: true,
       rawText: '756.XXXX.XXXX.XX', // Masked for privacy
     );
   }

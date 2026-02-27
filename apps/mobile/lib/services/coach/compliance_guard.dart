@@ -92,6 +92,32 @@ class ComplianceGuard {
       'Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). '
       'Consulte un·e spécialiste pour une analyse personnalisée.';
 
+  // Hoisted to static final — avoids recompilation on every call.
+  static final List<RegExp> _englishMarkers = [
+    RegExp(r'\byour\b', caseSensitive: false),
+    RegExp(r'\byou\b', caseSensitive: false),
+    RegExp(r'\bshould\b', caseSensitive: false),
+    RegExp(r'\bwould\b', caseSensitive: false),
+    RegExp(r'\bcould\b', caseSensitive: false),
+    RegExp(r'\bthe\b', caseSensitive: false),
+    RegExp(r'\bwith\b', caseSensitive: false),
+    RegExp(r'\bthis\b', caseSensitive: false),
+  ];
+
+  /// Pre-compiled word-boundary patterns for single-word banned terms.
+  ///
+  /// Multi-word phrases (containing spaces) still use substring matching
+  /// because word boundaries around phrases are implicit.
+  /// Single-word terms use \b to avoid false positives:
+  /// e.g. "incertain" should NOT match "certain", "parfaitement" should
+  /// NOT match "parfait".
+  static final Map<String, RegExp> _bannedTermPatterns = {
+    for (final term in bannedTerms)
+      term: term.contains(' ')
+          ? RegExp(RegExp.escape(term), caseSensitive: false)
+          : RegExp('\\b${RegExp.escape(term)}\\b', caseSensitive: false),
+  };
+
   // ═══════════════════════════════════════════════════════════════
   // Main validation
   // ═══════════════════════════════════════════════════════════════
@@ -185,18 +211,8 @@ class ComplianceGuard {
   // ═══════════════════════════════════════════════════════════════
 
   static List<String> _checkLanguage(String text) {
-    final englishMarkers = [
-      RegExp(r'\byour\b', caseSensitive: false),
-      RegExp(r'\byou\b', caseSensitive: false),
-      RegExp(r'\bshould\b', caseSensitive: false),
-      RegExp(r'\bwould\b', caseSensitive: false),
-      RegExp(r'\bcould\b', caseSensitive: false),
-      RegExp(r'\bthe\b', caseSensitive: false),
-      RegExp(r'\bwith\b', caseSensitive: false),
-      RegExp(r'\bthis\b', caseSensitive: false),
-    ];
     var count = 0;
-    for (final pattern in englishMarkers) {
+    for (final pattern in _englishMarkers) {
       if (pattern.hasMatch(text)) count++;
     }
     if (count >= 3) {
@@ -205,12 +221,13 @@ class ComplianceGuard {
     return [];
   }
 
+  /// CRIT #5 fix: use word-boundary regex for single-word banned terms
+  /// to avoid false positives on "incertain", "certains", "parfaitement".
   static List<String> _checkBannedTerms(String text) {
     final found = <String>[];
-    final lower = text.toLowerCase();
-    for (final term in bannedTerms) {
-      if (lower.contains(term.toLowerCase())) {
-        found.add(term);
+    for (final entry in _bannedTermPatterns.entries) {
+      if (entry.value.hasMatch(text)) {
+        found.add(entry.key);
       }
     }
     // Fuzzy: "sans aucun risque" etc.
@@ -220,13 +237,15 @@ class ComplianceGuard {
     return found;
   }
 
+  /// Sanitize text by replacing banned terms with softer alternatives.
+  /// Uses word-boundary patterns for single-word terms.
   static String _sanitizeBannedTerms(String text) {
     var result = text;
     for (final entry in termReplacements.entries) {
-      result = result.replaceAll(
-        RegExp(RegExp.escape(entry.key), caseSensitive: false),
-        entry.value,
-      );
+      final pattern = _bannedTermPatterns[entry.key];
+      if (pattern != null) {
+        result = result.replaceAll(pattern, entry.value);
+      }
     }
     return result;
   }

@@ -21,7 +21,6 @@ Ensures generated responses comply with Swiss financial regulations:
 from __future__ import annotations
 
 import re
-import warnings
 from typing import Optional
 
 
@@ -214,6 +213,13 @@ class ComplianceGuardrails:
         ),
     }
 
+    # Safe fallback message when ComplianceGuard rejects the response.
+    _SAFE_FALLBACK_FR = (
+        "Je suis là pour t'aider à comprendre ta situation financière. "
+        "N'hésite pas à reformuler ta question, ou explore les simulateurs "
+        "pour des estimations chiffrées."
+    )
+
     def filter_response(self, response: str, language: str = "fr") -> dict:
         """
         Apply compliance filters to a generated response.
@@ -237,39 +243,46 @@ class ComplianceGuardrails:
                 guard = ComplianceGuard()
                 result = guard.validate(response)
                 filter_warnings.extend(result.violations)
-                filtered_text = result.sanitized_text if not result.use_fallback else response
-                # If fallback triggered, still do legacy filtering below
                 if result.use_fallback:
-                    filtered_text = self._legacy_filter_banned(response)
+                    # CRIT #3 fix: when ComplianceGuard rejects (prescriptive,
+                    # hallucination, etc.), use safe fallback — NOT the original
+                    # response filtered only for banned terms.
+                    filtered_text = self._SAFE_FALLBACK_FR
+                else:
+                    filtered_text = result.sanitized_text
             except ImportError:
                 filtered_text = self._legacy_filter_banned(response)
         else:
             filtered_text = self._legacy_filter_banned(response, language)
 
         # ── Disclaimer logic (multilingual, retained here) ──
-        response_lower = response.lower()
-        needs_tax_disclaimer = False
-        needs_investment_disclaimer = False
+        # Only add disclaimers for non-French languages.
+        # For French, ComplianceGuard already handles disclaimer injection
+        # in Layer 4 — adding them here too would double-inject.
+        if language != "fr":
+            response_lower = response.lower()
+            needs_tax_disclaimer = False
+            needs_investment_disclaimer = False
 
-        for term in self.REQUIRES_DISCLAIMER:
-            if term.lower() in response_lower:
-                tax_terms = {
-                    "impôt", "fiscal", "déduction", "steuer", "steuerlich",
-                    "abzug", "tax", "deduction", "imposta", "fiscale", "deduzione",
-                }
-                if term.lower() in tax_terms:
-                    needs_tax_disclaimer = True
-                else:
-                    needs_investment_disclaimer = True
+            for term in self.REQUIRES_DISCLAIMER:
+                if term.lower() in response_lower:
+                    tax_terms = {
+                        "impôt", "fiscal", "déduction", "steuer", "steuerlich",
+                        "abzug", "tax", "deduction", "imposta", "fiscale", "deduzione",
+                    }
+                    if term.lower() in tax_terms:
+                        needs_tax_disclaimer = True
+                    else:
+                        needs_investment_disclaimer = True
 
-        lang_disclaimers = self.DISCLAIMERS.get(language, self.DISCLAIMERS["fr"])
-        disclaimers_added.append(lang_disclaimers["general"])
+            lang_disclaimers = self.DISCLAIMERS.get(language, self.DISCLAIMERS["fr"])
+            disclaimers_added.append(lang_disclaimers["general"])
 
-        if needs_tax_disclaimer:
-            disclaimers_added.append(lang_disclaimers["tax"])
+            if needs_tax_disclaimer:
+                disclaimers_added.append(lang_disclaimers["tax"])
 
-        if needs_investment_disclaimer:
-            disclaimers_added.append(lang_disclaimers["investment"])
+            if needs_investment_disclaimer:
+                disclaimers_added.append(lang_disclaimers["investment"])
 
         return {
             "text": filtered_text,
