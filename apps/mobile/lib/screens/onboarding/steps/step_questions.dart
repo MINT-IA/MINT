@@ -110,10 +110,8 @@ class _StepQuestionsState extends State<StepQuestions> {
       screenName: 'smart_onboarding_step1',
     );
     vm.compute();
-    onNext();
+    widget.onNext();
   }
-
-  void onNext() => widget.onNext();
 
   @override
   Widget build(BuildContext context) {

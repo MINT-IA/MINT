@@ -12,10 +12,17 @@ import 'package:mint_mobile/theme/colors.dart';
 /// - Confidence bar showing data completeness
 /// - Three CTAs: primary action, enrich profile, go to dashboard
 ///
+/// [animTrigger] is a [ValueNotifier<int>] owned by the parent screen.
+/// Each time its value increments the reveal animation replays.
+/// This avoids cross-file private state access.
+///
 /// Design: Material 3, GoogleFonts.montserrat headings, GoogleFonts.inter body
 /// Compliance: disclaimer visible, no banned terms, French informal "tu"
 class StepChiffreChoc extends StatefulWidget {
   final SmartOnboardingViewModel viewModel;
+
+  /// Incrementing counter that triggers the reveal animation.
+  final ValueNotifier<int> animTrigger;
 
   /// Called when the user taps "Affiner mon profil".
   final VoidCallback onEnrich;
@@ -26,6 +33,7 @@ class StepChiffreChoc extends StatefulWidget {
   const StepChiffreChoc({
     super.key,
     required this.viewModel,
+    required this.animTrigger,
     required this.onEnrich,
     required this.onDashboard,
   });
@@ -40,9 +48,9 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
   late Animation<double> _fadeAnim;
   late Animation<double> _scaleAnim;
 
-  // Track the rawValue at the time the animation was triggered,
-  // so TweenAnimationBuilder animates from 0 to that value.
+  // The rawValue snapshot at the time the animation was triggered.
   double _animatedTarget = 0;
+  int _lastTrigger = 0;
 
   @override
   void initState() {
@@ -55,25 +63,27 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
     _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
+
+    widget.animTrigger.addListener(_onAnimTrigger);
   }
 
   @override
   void didUpdateWidget(StepChiffreChoc oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-animate when the chiffre choc changes
-    final newChoc = widget.viewModel.chiffreChoc;
-    if (newChoc != null && newChoc.rawValue != _animatedTarget) {
-      _animatedTarget = newChoc.rawValue;
-      _controller.forward(from: 0);
-      _trackView(newChoc);
+    if (oldWidget.animTrigger != widget.animTrigger) {
+      oldWidget.animTrigger.removeListener(_onAnimTrigger);
+      widget.animTrigger.addListener(_onAnimTrigger);
     }
   }
 
-  /// Called the first time this step becomes visible (from parent PageView).
-  void animateIn() {
+  void _onAnimTrigger() {
+    if (widget.animTrigger.value == _lastTrigger) return;
+    _lastTrigger = widget.animTrigger.value;
     final choc = widget.viewModel.chiffreChoc;
     if (choc == null) return;
-    _animatedTarget = choc.rawValue;
+    setState(() {
+      _animatedTarget = choc.rawValue;
+    });
     _controller.forward(from: 0);
     _trackView(choc);
   }
@@ -93,6 +103,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
   @override
   void dispose() {
+    widget.animTrigger.removeListener(_onAnimTrigger);
     _controller.dispose();
     super.dispose();
   }
@@ -114,15 +125,6 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
       'savings' => Icons.savings_rounded,
       'account_balance' => Icons.account_balance_rounded,
       _ => Icons.insights_rounded,
-    };
-  }
-
-  String _actionRouteFor(ChiffreChocType type) {
-    return switch (type) {
-      ChiffreChocType.liquidityAlert => '/home',
-      ChiffreChocType.retirementGap => '/retirement/projection',
-      ChiffreChocType.taxSaving3a => '/simulator/3a',
-      ChiffreChocType.retirementIncome => '/retirement/projection',
     };
   }
 
@@ -202,8 +204,9 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                         ),
                         const SizedBox(height: 12),
 
-                        // THE NUMBER — animated counter
+                        // THE NUMBER — animated counter from 0 → rawValue
                         TweenAnimationBuilder<double>(
+                          key: ValueKey(_animatedTarget),
                           tween: Tween<double>(
                             begin: 0,
                             end: _animatedTarget,
@@ -211,12 +214,8 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                           duration: const Duration(milliseconds: 900),
                           curve: Curves.easeOutCubic,
                           builder: (context, animValue, _) {
-                            // Re-format the animated number in the same style
-                            // as the final value string (preserving unit suffix)
-                            final formattedValue =
-                                _buildAnimatedValueText(choc, animValue);
                             return Text(
-                              formattedValue,
+                              _buildAnimatedValueText(choc, animValue),
                               style: GoogleFonts.montserrat(
                                 fontSize: 44,
                                 fontWeight: FontWeight.w800,
@@ -315,10 +314,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                     AnalyticsService().trackCTAClick(
                       'smart_onboarding_action',
                       screenName: 'smart_onboarding_chiffre_choc',
-                      data: {
-                        'choc_type': choc.type.name,
-                        'target_route': _actionRouteFor(choc.type),
-                      },
+                      data: {'choc_type': choc.type.name},
                     );
                     widget.onDashboard();
                   },
@@ -429,27 +425,24 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
   /// Rebuilds the displayed value string during counter animation.
   ///
-  /// Detects the unit suffix from [choc.value] (e.g. "/mois", "/an", " mois")
-  /// and applies the same formatting.
+  /// Detects the unit suffix from [choc.value] and replicates
+  /// the same formatting during the counter animation.
   String _buildAnimatedValueText(ChiffreChoc choc, double animValue) {
     final raw = choc.value;
 
-    // Determine suffix: "/mois", "/an", " mois" (for liquidityMonths)
-    String suffix = '';
-    String prefix = 'CHF\u00A0';
+    if (raw.endsWith(' mois')) {
+      // liquidityAlert: rawValue is months displayed as "X.X mois"
+      return '${animValue.toStringAsFixed(1)} mois';
+    }
 
+    String suffix = '';
     if (raw.endsWith('/mois')) {
       suffix = '/mois';
     } else if (raw.endsWith('/an')) {
       suffix = '/an';
-    } else if (raw.endsWith(' mois')) {
-      // liquidityAlert: rawValue is in months, displayed as "X.X mois"
-      prefix = '';
-      suffix = ' mois';
-      return '${animValue.toStringAsFixed(1)}$suffix';
     }
 
-    return '$prefix${_formatChfRaw(animValue)}$suffix';
+    return 'CHF\u00A0${_formatChfRaw(animValue)}$suffix';
   }
 
   static String _formatChfRaw(double value) {

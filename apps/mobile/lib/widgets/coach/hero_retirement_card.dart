@@ -1,0 +1,524 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/colors.dart';
+
+// ────────────────────────────────────────────────────────────
+//  HERO RETIREMENT CARD — LOT 4 / Retirement Dashboard
+// ────────────────────────────────────────────────────────────
+//
+//  Carte principale affichant le revenu de retraite projete.
+//  3 modes selon le score de confiance :
+//
+//  full       (>= 70%) — Montant precis + taux de remplacement
+//  range      (40-69%) — Fourchette min/max + avertissement
+//  educational(< 40%)  — Aucun chiffre, CTA profil uniquement
+//
+//  Widget pur — aucune dependance Provider.
+//  Aucun terme banni (garanti, certain, optimal…).
+// ────────────────────────────────────────────────────────────
+
+/// Mode d'affichage de la carte hero.
+enum HeroCardMode {
+  /// Projection fiable — montant precis affiche.
+  full,
+
+  /// Projection partielle — fourchette affichee.
+  range,
+
+  /// Donnees insuffisantes — aucun chiffre, CTA uniquement.
+  educational,
+}
+
+class HeroRetirementCard extends StatelessWidget {
+  final HeroCardMode mode;
+
+  // Mode full
+  final double? monthlyIncome;
+  final double? replacementRatio; // 0-100 (%)
+  final double? rangeMin;
+  final double? rangeMax;
+
+  // Mode educational
+  final VoidCallback? onCompleteProfil;
+
+  const HeroRetirementCard({
+    super.key,
+    required this.mode,
+    this.monthlyIncome,
+    this.replacementRatio,
+    this.rangeMin,
+    this.rangeMax,
+    this.onCompleteProfil,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 20),
+          _buildContent(context),
+          const SizedBox(height: 16),
+          _buildDisclaimer(),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  HEADER
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: MintColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.account_balance_outlined,
+            color: MintColors.primary,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Projection retraite',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              Text(
+                _headerSubtitle,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        _buildModeBadge(),
+      ],
+    );
+  }
+
+  String get _headerSubtitle {
+    switch (mode) {
+      case HeroCardMode.full:
+        return 'Scenario de base (revenus 3 piliers)';
+      case HeroCardMode.range:
+        return 'Estimation avec incertitude';
+      case HeroCardMode.educational:
+        return 'Profil incomplet';
+    }
+  }
+
+  Widget _buildModeBadge() {
+    switch (mode) {
+      case HeroCardMode.full:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: MintColors.scoreExcellent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'Fiable',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: MintColors.scoreExcellent,
+            ),
+          ),
+        );
+      case HeroCardMode.range:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: MintColors.scoreAttention.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'Estimation',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: MintColors.scoreAttention,
+            ),
+          ),
+        );
+      case HeroCardMode.educational:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'A compl\u00e9ter',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textMuted,
+            ),
+          ),
+        );
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  CONTENT PAR MODE
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildContent(BuildContext context) {
+    switch (mode) {
+      case HeroCardMode.full:
+        return _buildFullMode();
+      case HeroCardMode.range:
+        return _buildRangeMode();
+      case HeroCardMode.educational:
+        return _buildEducationalMode(context);
+    }
+  }
+
+  /// Mode full : montant precis + taux de remplacement + fourchette.
+  Widget _buildFullMode() {
+    final income = monthlyIncome ?? 0;
+    final ratio = replacementRatio ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _formatChf(income),
+          style: GoogleFonts.montserrat(
+            fontSize: 36,
+            fontWeight: FontWeight.w800,
+            color: MintColors.textPrimary,
+            height: 1.0,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'par mois \u00e0 la retraite',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        if (ratio > 0) ...[
+          const SizedBox(height: 12),
+          _buildReplacementRatioBar(ratio),
+        ],
+        if (rangeMin != null && rangeMax != null) ...[
+          const SizedBox(height: 12),
+          _buildRangeChip(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildReplacementRatioBar(double ratio) {
+    final color = ratio >= 70
+        ? MintColors.scoreExcellent
+        : ratio >= 50
+            ? MintColors.scoreAttention
+            : MintColors.scoreCritique;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Taux de remplacement',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${ratio.toStringAsFixed(0)}% de ton revenu actuel',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            ratio >= 70
+                ? Icons.check_circle_outline
+                : ratio >= 50
+                    ? Icons.info_outline
+                    : Icons.warning_amber_outlined,
+            color: color,
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRangeChip() {
+    return Row(
+      children: [
+        Icon(Icons.unfold_more, size: 14, color: MintColors.textMuted),
+        const SizedBox(width: 4),
+        Text(
+          'Fourchette\u00a0: ${_formatChf(rangeMin!)} \u2013 ${_formatChf(rangeMax!)} / mois',
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: MintColors.textMuted,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Mode range : fourchette + message d'avertissement.
+  Widget _buildRangeMode() {
+    final min = rangeMin ?? 0;
+    final max = rangeMax ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Entre',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              _formatChf(min),
+              style: GoogleFonts.montserrat(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: MintColors.textPrimary,
+                height: 1.0,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 3, left: 6, right: 6),
+              child: Text(
+                'et',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ),
+            Text(
+              _formatChf(max),
+              style: GoogleFonts.montserrat(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: MintColors.textPrimary,
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'par mois \u00e0 la retraite',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: MintColors.scoreAttention.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+                color: MintColors.scoreAttention.withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline,
+                  size: 16, color: MintColors.scoreAttention),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'La fourchette se r\u00e9duira en ajoutant tes donn\u00e9es LPP et AVS.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Mode educational : aucun chiffre, uniquement des questions et CTA.
+  Widget _buildEducationalMode(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Il nous manque des informations',
+                style: GoogleFonts.montserrat(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Pour estimer ton revenu de retraite, quelques questions suffisent\u00a0:',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildQuestion(
+                  Icons.work_outline, 'Ton salaire et statut professionnel'),
+              _buildQuestion(
+                  Icons.account_balance_outlined, 'Ton avoir LPP'),
+              _buildQuestion(Icons.savings_outlined, 'Ton \u00e9pargne 3e pilier'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: onCompleteProfil ??
+                () => context.push('/onboarding/smart'),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: Text(
+              'Compl\u00e9ter mon profil',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuestion(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: MintColors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  DISCLAIMER
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildDisclaimer() {
+    return Text(
+      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin).',
+      style: GoogleFonts.inter(
+        fontSize: 10,
+        color: MintColors.textMuted,
+        fontStyle: FontStyle.italic,
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  HELPERS
+  // ────────────────────────────────────────────────────────────
+
+  static String _formatChf(double value) {
+    final intVal = value.round();
+    final str = intVal.abs().toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write("'");
+      }
+      buffer.write(str[i]);
+    }
+    return 'CHF\u00a0${buffer.toString()}';
+  }
+}
