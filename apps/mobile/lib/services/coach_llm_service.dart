@@ -1,4 +1,6 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -128,18 +130,6 @@ class CoachLlmService {
   static const _disclaimer =
       'Outil educatif — ne constitue pas un conseil financier. LSFin.';
 
-  /// Termes bannis (jamais dans une reponse user-facing)
-  static const _bannedTerms = [
-    'garanti',
-    'certain',
-    'assuré',
-    'assure',
-    'sans risque',
-    'optimal',
-    'meilleur',
-    'parfait',
-  ];
-
   /// Envoie un message et recoit une reponse du coach
   ///
   /// Le service prepend le system prompt avec le contexte utilisateur,
@@ -170,15 +160,24 @@ class CoachLlmService {
       profile: profile,
     );
 
-    final filtered = _applyGuardrails(rawResponse);
+    final coachCtx = _buildCoachContext(profile);
+    final result = ComplianceGuard.validate(
+      rawResponse.message,
+      context: coachCtx,
+      componentType: ComponentType.general,
+    );
+
+    final message = result.useFallback
+        ? _safeChatFallback()
+        : result.sanitizedText;
 
     return CoachResponse(
-      message: filtered.message,
-      suggestedActions: filtered.suggestedActions,
+      message: message,
+      suggestedActions: rawResponse.suggestedActions,
       disclaimer: _disclaimer,
-      sources: filtered.sources,
+      sources: rawResponse.sources,
       disclaimers: const [],
-      wasFiltered: filtered.wasFiltered,
+      wasFiltered: !result.isCompliant,
     );
   }
 
@@ -215,16 +214,25 @@ class CoachLlmService {
       profileContext: profileContext,
     );
 
-    // Appliquer les guardrails locaux en plus du filtrage backend
-    final filtered = _applyGuardrailsOnText(ragResponse.answer);
+    // Validate through ComplianceGuard (5-layer) in addition to backend filtering
+    final coachCtx = _buildCoachContext(profile);
+    final result = ComplianceGuard.validate(
+      ragResponse.answer,
+      context: coachCtx,
+      componentType: ComponentType.general,
+    );
+
+    final message = result.useFallback
+        ? _safeChatFallback()
+        : result.sanitizedText;
 
     return CoachResponse(
-      message: filtered.message,
+      message: message,
       suggestedActions: _inferSuggestedActions(userMessage),
       disclaimer: _disclaimer,
       sources: ragResponse.sources,
       disclaimers: ragResponse.disclaimers,
-      wasFiltered: filtered.wasFiltered,
+      wasFiltered: !result.isCompliant,
     );
   }
 
@@ -583,36 +591,49 @@ class CoachLlmService {
     );
   }
 
-  /// Applique les guardrails de filtrage sur un _MockResult
-  static _FilterResult _applyGuardrails(_MockResult raw) {
-    final filtered = _applyGuardrailsOnText(raw.message);
-    return _FilterResult(
-      message: filtered.message,
-      suggestedActions: raw.suggestedActions,
-      sources: raw.sources,
-      wasFiltered: filtered.wasFiltered,
+  /// Build a [CoachContext] from profile data for compliance validation.
+  ///
+  /// Extracts known numeric values from financial_core so
+  /// [HallucinationDetector] can verify LLM output.
+  static CoachContext _buildCoachContext(CoachProfile profile) {
+    final knownValues = <String, double>{};
+
+    try {
+      final score = FinancialFitnessService.calculate(profile: profile);
+      knownValues['fri_total'] = score.global.toDouble();
+    } catch (_) {}
+
+    try {
+      final proj = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      knownValues['capital_final'] = proj.base.capitalFinal;
+      knownValues['replacement_ratio'] = proj.tauxRemplacementBase * 100;
+    } catch (_) {}
+
+    if (profile.prevoyance.totalEpargne3a > 0) {
+      knownValues['epargne_3a'] = profile.prevoyance.totalEpargne3a;
+    }
+    if (profile.prevoyance.avoirLppTotal != null &&
+        profile.prevoyance.avoirLppTotal! > 0) {
+      knownValues['avoir_lpp'] = profile.prevoyance.avoirLppTotal!;
+    }
+
+    return CoachContext(
+      firstName: profile.firstName ?? 'utilisateur',
+      age: profile.age,
+      canton: profile.canton,
+      knownValues: knownValues,
     );
   }
 
-  /// Applique les guardrails sur un texte brut (utilise pour mock et RAG)
-  static _FilterResult _applyGuardrailsOnText(String text) {
-    var message = text;
-    var wasFiltered = false;
-
-    for (final term in _bannedTerms) {
-      if (message.toLowerCase().contains(term.toLowerCase())) {
-        message = message.replaceAll(
-          RegExp(term, caseSensitive: false),
-          '[terme retire]',
-        );
-        wasFiltered = true;
-      }
-    }
-
-    return _FilterResult(
-      message: message,
-      wasFiltered: wasFiltered,
-    );
+  /// Safe fallback when ComplianceGuard rejects LLM output.
+  static String _safeChatFallback() {
+    return 'Je suis là pour t\'aider à comprendre ta situation financière. '
+        'N\'hésite pas à reformuler ta question, ou explore les simulateurs '
+        'pour des estimations chiffrées.\n\n'
+        '_${ComplianceGuard.standardDisclaimer}_';
   }
 
   /// Message d'accueil initial du coach
@@ -646,17 +667,3 @@ class _MockResult {
   });
 }
 
-/// Resultat du filtrage guardrails
-class _FilterResult {
-  final String message;
-  final List<String>? suggestedActions;
-  final List<RagSource> sources;
-  final bool wasFiltered;
-
-  const _FilterResult({
-    required this.message,
-    this.suggestedActions,
-    this.sources = const [],
-    this.wasFiltered = false,
-  });
-}

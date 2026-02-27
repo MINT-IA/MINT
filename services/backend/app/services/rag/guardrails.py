@@ -1,6 +1,16 @@
 """
 Compliance guardrails for Swiss financial content.
 
+.. deprecated:: S34
+    This module is maintained for backward compatibility with the RAG
+    orchestrator. New code should use ``app.services.coach.compliance_guard``
+    which implements the full 5-layer validation pipeline (banned terms,
+    prescriptive language, hallucination detection, disclaimer injection,
+    length constraints).
+
+    The Flutter client also runs ComplianceGuard on every LLM response,
+    providing defense-in-depth regardless of backend filtering.
+
 Ensures generated responses comply with Swiss financial regulations:
 - No product recommendations
 - No guaranteed returns
@@ -11,11 +21,18 @@ Ensures generated responses comply with Swiss financial regulations:
 from __future__ import annotations
 
 import re
+import warnings
 from typing import Optional
 
 
 class ComplianceGuardrails:
-    """Post-generation compliance filter for Swiss financial content."""
+    """Post-generation compliance filter for Swiss financial content.
+
+    .. deprecated:: S34
+        Use :class:`app.services.coach.compliance_guard.ComplianceGuard` for
+        the full 5-layer validation. This class is kept for RAG orchestrator
+        backward compatibility.
+    """
 
     # Terms that should never appear in financial advice (implies guarantees)
     BANNED_TERMS = [
@@ -201,33 +218,41 @@ class ComplianceGuardrails:
         """
         Apply compliance filters to a generated response.
 
+        Delegates core validation to :class:`ComplianceGuard` (5-layer pipeline)
+        when the language is French, falling back to legacy term replacement
+        for other languages. Disclaimer logic is retained here because it is
+        multilingual.
+
         Returns:
             dict with keys: text, warnings, disclaimers_added
         """
-        warnings = []
-        disclaimers_added = []
-        filtered_text = response
+        filter_warnings: list[str] = []
+        disclaimers_added: list[str] = []
 
-        # Check for banned terms
+        # ── Delegate to ComplianceGuard for French (primary language) ──
+        if language == "fr":
+            try:
+                from app.services.coach.compliance_guard import ComplianceGuard
+
+                guard = ComplianceGuard()
+                result = guard.validate(response)
+                filter_warnings.extend(result.violations)
+                filtered_text = result.sanitized_text if not result.use_fallback else response
+                # If fallback triggered, still do legacy filtering below
+                if result.use_fallback:
+                    filtered_text = self._legacy_filter_banned(response)
+            except ImportError:
+                filtered_text = self._legacy_filter_banned(response)
+        else:
+            filtered_text = self._legacy_filter_banned(response, language)
+
+        # ── Disclaimer logic (multilingual, retained here) ──
         response_lower = response.lower()
-        for term in self.BANNED_TERMS:
-            if term.lower() in response_lower:
-                warnings.append(
-                    f"Banned term detected: '{term}'"
-                )
-                # Replace banned terms with softer alternatives
-                pattern = re.compile(re.escape(term), re.IGNORECASE)
-                filtered_text = pattern.sub(
-                    self._get_replacement(term, language), filtered_text
-                )
-
-        # Check if disclaimers are needed
         needs_tax_disclaimer = False
         needs_investment_disclaimer = False
 
         for term in self.REQUIRES_DISCLAIMER:
             if term.lower() in response_lower:
-                # Categorize the disclaimer type
                 tax_terms = {
                     "impôt", "fiscal", "déduction", "steuer", "steuerlich",
                     "abzug", "tax", "deduction", "imposta", "fiscale", "deduzione",
@@ -237,10 +262,7 @@ class ComplianceGuardrails:
                 else:
                     needs_investment_disclaimer = True
 
-        # Get disclaimers for the language (fallback to French)
         lang_disclaimers = self.DISCLAIMERS.get(language, self.DISCLAIMERS["fr"])
-
-        # Always add general disclaimer
         disclaimers_added.append(lang_disclaimers["general"])
 
         if needs_tax_disclaimer:
@@ -251,9 +273,21 @@ class ComplianceGuardrails:
 
         return {
             "text": filtered_text,
-            "warnings": warnings,
+            "warnings": filter_warnings,
             "disclaimers_added": disclaimers_added,
         }
+
+    def _legacy_filter_banned(self, response: str, language: str = "fr") -> str:
+        """Legacy banned-term replacement for non-French languages."""
+        filtered_text = response
+        response_lower = response.lower()
+        for term in self.BANNED_TERMS:
+            if term.lower() in response_lower:
+                pattern = re.compile(re.escape(term), re.IGNORECASE)
+                filtered_text = pattern.sub(
+                    self._get_replacement(term, language), filtered_text
+                )
+        return filtered_text
 
     def build_system_prompt(
         self,
