@@ -39,17 +39,23 @@ class HallucinationDetector {
     // LPP (art. 7, 8)
     22680.0,  // Seuil d'entrée LPP
     26460.0,  // Déduction de coordination
-    3780.0,   // Salaire coordonné minimum
+    3780.0,   // Salaire coordonné minimum / Rente couple max mensuelle
     64260.0,  // Salaire coordonné maximum
     90720.0,  // Salaire maximum assuré LPP
     // AVS (LAVS art. 34)
     2520.0,   // Rente AVS max mensuelle
     1260.0,   // Rente AVS min mensuelle
-    3780.0,   // Rente couple max mensuelle
     30240.0,  // Rente AVS max annuelle
     530.0,    // Cotisation min indépendant
     // EPL (OPP2 art. 5)
     20000.0,  // EPL minimum
+    // AC / AVS extended
+    148200.0, // AC plafond salaire assuré
+    14700.0,  // AVS RAMD min
+    88200.0,  // AVS RAMD max
+    1400.0,   // AVS franchise retraite mensuelle
+    514.0,    // AVS volontaire cotisation min
+    25700.0,  // AVS volontaire cotisation max
   };
 
   /// Legal percentage constants.
@@ -67,6 +73,10 @@ class HallucinationDetector {
     70.0,   // Taux indemnité chômage standard
     80.0,   // Taux indemnité chômage avec charges
     100.0,  // Reference: "100% de ton capital" (completeness)
+    // AVS deferral bonuses (LAVS art. 39)
+    5.2, 16.4, 22.7, 31.5,
+    // AI/APG/AC cotisation rates
+    0.7, 0.25, 1.1, 0.5, 0.2,
   };
 
   /// Tolerance for matching legal constants (±1%).

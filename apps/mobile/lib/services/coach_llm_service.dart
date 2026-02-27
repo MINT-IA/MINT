@@ -523,12 +523,16 @@ class CoachLlmService {
     final lower = userMessage.toLowerCase();
 
     // Calculer la projection pour enrichir les reponses
-    final projection = ForecasterService.project(
-      profile: profile,
-      targetDate: profile.goalA.targetDate,
-    );
-    final tauxRemplacement =
-        projection.tauxRemplacementBase.toStringAsFixed(1);
+    String tauxRemplacement = '—';
+    try {
+      final projection = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
+    } catch (_) {
+      // Incomplete profile or missing targetDate — degrade gracefully.
+    }
 
     if (lower.contains('3a')) {
       return _MockResult(

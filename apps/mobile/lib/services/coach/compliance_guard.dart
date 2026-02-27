@@ -93,7 +93,10 @@ class ComplianceGuard {
     RegExp(r'prends?\s+le\s+capital', caseSensitive: false),
     RegExp(r'investis?\s+dans', caseSensitive: false),
     RegExp(r'priorit[ée]\s+absolue', caseSensitive: false),
-    RegExp(r"c['']est\s+plus\s+important\s+que", caseSensitive: false),
+    RegExp(r"c[''\u2018\u2019]est\s+plus\s+important\s+que", caseSensitive: false),
+    RegExp(r'souscris\b', caseSensitive: false),
+    RegExp(r'rach[eè]te\b', caseSensitive: false),
+    RegExp(r'transf[eè]re\b', caseSensitive: false),
   ];
 
   // Fuzzy banned pattern for "sans ... risque" variants
@@ -245,25 +248,31 @@ class ComplianceGuard {
 
   /// CRIT #5 fix: use word-boundary regex for single-word banned terms
   /// to avoid false positives on "incertain", "certains", "parfaitement".
+  /// Text is lowercased before matching to handle accented uppercase
+  /// (Dart caseSensitive:false only folds ASCII a-z/A-Z, not À-ÿ).
   static List<String> _checkBannedTerms(String text) {
+    final lower = text.toLowerCase();
     final found = <String>[];
     for (final entry in _bannedTermPatterns.entries) {
-      if (entry.value.hasMatch(text)) {
+      if (entry.value.hasMatch(lower)) {
         found.add(entry.key);
       }
     }
     // Fuzzy: "sans aucun risque" etc.
-    if (!found.contains('sans risque') && _sansRisquePattern.hasMatch(text)) {
+    if (!found.contains('sans risque') && _sansRisquePattern.hasMatch(lower)) {
       found.add('sans risque');
     }
     return found;
   }
 
   /// Sanitize text by replacing banned terms with softer alternatives.
-  /// Uses word-boundary patterns for single-word terms.
+  /// Processes multi-word phrases first (longer match priority), then
+  /// single-word terms, to avoid partial replacements mangling phrases.
   static String _sanitizeBannedTerms(String text) {
     var result = text;
-    for (final entry in termReplacements.entries) {
+    final phrases = termReplacements.entries.where((e) => e.key.contains(' '));
+    final words = termReplacements.entries.where((e) => !e.key.contains(' '));
+    for (final entry in [...phrases, ...words]) {
       final pattern = _bannedTermPatterns[entry.key];
       if (pattern != null) {
         result = result.replaceAll(pattern, entry.value);
@@ -294,7 +303,7 @@ class ComplianceGuard {
     if (discussesProjection && !hasDisclaimer) {
       var trimmed = text.trimRight();
       if (!trimmed.endsWith('.')) trimmed += '.';
-      return '$trimmed\n\n_$standardDisclaimer\_';
+      return '$trimmed\n\n_${standardDisclaimer}_';
     }
     return text;
   }

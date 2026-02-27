@@ -245,6 +245,14 @@ class ComplianceGuardrails:
         filter_warnings: list[str] = []
         disclaimers_added: list[str] = []
 
+        # ── Guard: None / non-string input ──
+        if not isinstance(response, str):
+            return {
+                "text": self._SAFE_FALLBACK_FR,
+                "warnings": ["Entrée invalide (non-string)"],
+                "disclaimers_added": [],
+            }
+
         # ── Delegate to ComplianceGuard for French (primary language) ──
         if language == "fr":
             try:
@@ -300,13 +308,26 @@ class ComplianceGuardrails:
             "disclaimers_added": disclaimers_added,
         }
 
+    # French-aware letter class for word boundaries (matches À-ÿ range).
+    _FR_LETTER = r"a-zA-Z\u00C0-\u00FF"
+
     def _legacy_filter_banned(self, response: str, language: str = "fr") -> str:
-        """Legacy banned-term replacement for non-French languages."""
+        """Legacy banned-term replacement for non-French languages.
+
+        Uses French-aware word boundaries to avoid false positives on
+        substrings like 'incertain' matching 'certain'.
+        """
         filtered_text = response
-        response_lower = response.lower()
+        lower = response.lower()
         for term in self.BANNED_TERMS:
-            if term.lower() in response_lower:
+            if " " in term:
                 pattern = re.compile(re.escape(term), re.IGNORECASE)
+            else:
+                pattern = re.compile(
+                    rf"(?<![{self._FR_LETTER}]){re.escape(term)}(?![{self._FR_LETTER}])",
+                    re.IGNORECASE,
+                )
+            if pattern.search(lower):
                 filtered_text = pattern.sub(
                     self._get_replacement(term, language), filtered_text
                 )
