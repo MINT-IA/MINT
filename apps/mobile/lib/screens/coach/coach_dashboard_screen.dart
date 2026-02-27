@@ -12,6 +12,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
@@ -411,11 +412,11 @@ Si une categorie ne s'applique pas, omets-la.
 
     // 3a tax savings
     final cotisation3aAnnuelle = _profile!.total3aMensuel * 12;
-    const plafond3a = 7258.0;
+    const plafond3a = pilier3aPlafondAvecLpp;
     if (cotisation3aAnnuelle < plafond3a &&
         _profile!.prevoyance.canContribute3a) {
       final tauxMarginal =
-          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
+          RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, _profile!.canton);
       final economiePotentielle =
           (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
       final anneesRestantes = _profile!.anneesAvantRetraite;
@@ -430,7 +431,7 @@ Si une categorie ne s'applique pas, omets-la.
     final lacuneLpp = _profile!.prevoyance.lacuneRachatRestante;
     if (lacuneLpp > 5000) {
       final tauxMarginal =
-          _estimateMarginalTaxRate(revenuBrutAnnuel, _profile!.canton);
+          RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, _profile!.canton);
       final economieRachat = lacuneLpp * tauxMarginal;
       buffer.writeln(
           'PREVOYANCE: CHF ${economieRachat.toStringAsFixed(0)} de deduction fiscale potentielle en rachetant la lacune LPP de CHF ${lacuneLpp.toStringAsFixed(0)}.');
@@ -919,7 +920,7 @@ Si une categorie ne s'applique pas, omets-la.
                   narratives: _chiffreChocNarratives,
                 ),
                 const SizedBox(height: 24),
-                // Guard rail: only show trajectory if confidence >= 40%
+                // Guard rail: only show trajectory if confidence >= threshold
                 if (_confidenceScore >= ConfidenceScorer.minConfidenceForProjection) ...[
                   TrajectoryCard(
                     profile: _profile!,
@@ -1106,11 +1107,12 @@ Si une categorie ne s'applique pas, omets-la.
                 const ExploreHub(),
                 const SizedBox(height: 20),
                 // Chiffre choc (main value proposition)
-                ChiffreChocSection(
-                  profile: _profile!,
-                  narratives: _chiffreChocNarratives,
-                ),
-                const SizedBox(height: 24),
+                if (_profile != null)
+                  ChiffreChocSection(
+                    profile: _profile!,
+                    narratives: _chiffreChocNarratives,
+                  ),
+                if (_profile != null) const SizedBox(height: 24),
                 // Estimated score with "enrichir" prompt
                 _buildPartialScoreCard(provider),
                 const SizedBox(height: 24),
@@ -3701,29 +3703,6 @@ Si une categorie ne s'applique pas, omets-la.
   // ════════════════════════════════════════════════════════════════
   //  Helpers used by SLM prompt construction
   // ════════════════════════════════════════════════════════════════
-
-  /// Simplified marginal tax rate estimation by canton bracket.
-  /// Source: AFC taux marginaux d'imposition 2025
-  /// Combined rates (fédéral + cantonal + communal).
-  double _estimateMarginalTaxRate(double revenuBrutAnnuel, String canton) {
-    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
-    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
-
-    double baseRate;
-    if (revenuBrutAnnuel > 200000) {
-      baseRate = 0.38;
-    } else if (revenuBrutAnnuel > 120000) {
-      baseRate = 0.32;
-    } else if (revenuBrutAnnuel > 80000) {
-      baseRate = 0.28;
-    } else {
-      baseRate = 0.22;
-    }
-
-    if (highTaxCantons.contains(canton)) return baseRate * 1.1;
-    if (lowTaxCantons.contains(canton)) return baseRate * 0.75;
-    return baseRate;
-  }
 
   // ════════════════════════════════════════════════════════════════
   //  4b. SCENARIO NARRATIONS (T7 — Coach AI Layer)

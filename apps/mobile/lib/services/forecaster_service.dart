@@ -437,12 +437,14 @@ class ForecasterService {
     final conjFirstName =
         profile.conjoint?.firstName?.toLowerCase() ?? '';
 
-    // Partner 3a contribution potential: if conjoint exists and has income,
-    // add 604.83 CHF/month (7258/12) as potential 3a contribution
+    // Partner 3a contribution potential: if conjoint exists, has income,
+    // AND can contribute to 3a (e.g. FATCA US persons cannot).
+    // Add 604.83 CHF/month (7258/12) as potential 3a contribution
     // (only if not already captured in planned contributions)
     double partner3aMonthly = 0;
     if (profile.conjoint != null &&
-        (profile.conjoint!.salaireBrutMensuel ?? 0) > 0) {
+        (profile.conjoint!.salaireBrutMensuel ?? 0) > 0 &&
+        (profile.conjoint!.prevoyance?.canContribute3a ?? true)) {
       final conjAnnualSalary =
           (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
       // Partner is salaried with LPP if their salary exceeds the LPP threshold

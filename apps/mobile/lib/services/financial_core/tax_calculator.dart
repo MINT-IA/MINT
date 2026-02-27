@@ -68,6 +68,31 @@ class RetirementTaxCalculator {
     return totalTax;
   }
 
+  /// Simplified marginal tax rate by canton bracket.
+  ///
+  /// Source: AFC taux marginaux d'imposition 2025.
+  /// Used for chiffre-choc estimates — NOT for precise tax returns.
+  static double estimateMarginalRate(double revenuBrutAnnuel, String canton) {
+    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
+    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
+
+    double baseRate;
+    if (revenuBrutAnnuel > 200000) {
+      baseRate = 0.38;
+    } else if (revenuBrutAnnuel > 120000) {
+      baseRate = 0.32;
+    } else if (revenuBrutAnnuel > 80000) {
+      baseRate = 0.28;
+    } else {
+      baseRate = 0.22;
+    }
+
+    final cantonCode = canton.toUpperCase();
+    if (highTaxCantons.contains(cantonCode)) return baseRate * 1.1;
+    if (lowTaxCantons.contains(cantonCode)) return baseRate * 0.75;
+    return baseRate;
+  }
+
   /// Estimate retirement income tax (annual → monthly).
   ///
   /// CRITICAL: revenuAnnuelImposable must EXCLUDE capital SWR withdrawals.

@@ -449,6 +449,8 @@ class RetirementProjectionService {
       averageReturn: _average3aReturn(profile),
       isIndependantSansLpp: isIndepSansLpp,
       isCouple: hasConjoint,
+      conjointCanContribute3a:
+          profile.conjoint?.prevoyance?.canContribute3a ?? true,
     );
     // Apply capital withdrawal tax (LIFD art. 38) before annualizing
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
@@ -497,14 +499,17 @@ class RetirementProjectionService {
     required double averageReturn,
     bool isIndependantSansLpp = false,
     bool isCouple = false,
+    bool conjointCanContribute3a = true,
   }) {
     double balance = currentBalance;
     // Plafond legal: 7'258 CHF/an si affilie LPP, 36'288 CHF/an si
-    // independant sans LPP (OPP3 art. 7). Couple = 2× plafond.
+    // independant sans LPP (OPP3 art. 7). Couple = 2× plafond ONLY
+    // if conjoint can contribute (e.g. FATCA US persons cannot).
     final plafondIndividuel = isIndependantSansLpp
         ? pilier3aPlafondSansLpp
         : pilier3aPlafondAvecLpp;
-    final plafondMenage = isCouple ? plafondIndividuel * 2 : plafondIndividuel;
+    final plafondMenage =
+        (isCouple && conjointCanContribute3a) ? plafondIndividuel * 2 : plafondIndividuel;
     final annual3a = (monthly3a * 12).clamp(0.0, plafondMenage);
 
     for (int y = 0; y < yearsToRetirement; y++) {
@@ -830,6 +835,8 @@ class RetirementProjectionService {
       averageReturn: _average3aReturn(profile),
       isIndependantSansLpp: isIndepSansLpp,
       isCouple: true, // transition phase = always couple
+      conjointCanContribute3a:
+          profile.conjoint?.prevoyance?.canContribute3a ?? true,
     );
     // Apply capital withdrawal tax (LIFD art. 38) before annualizing
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
@@ -979,7 +986,9 @@ class RetirementProjectionService {
     final impotMensuel = RetirementTaxCalculator.estimateMonthlyIncomeTax(
       revenuAnnuelImposable: revenuImposableMensuel * 12,
       canton: profile.canton,
-      etatCivil: profile.isCouple ? 'marie' : 'celibataire',
+      etatCivil: profile.etatCivil == CoachCivilStatus.marie
+          ? 'marie'
+          : 'celibataire',
     );
 
     final revenuPreRetraite = profile.revenuBrutAnnuel * 0.87 / 12 +

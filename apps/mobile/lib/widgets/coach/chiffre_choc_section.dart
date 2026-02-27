@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_card.dart';
 
@@ -28,11 +30,11 @@ class ChiffreChocSection extends StatelessWidget {
 
     // 1. 3a tax savings gap — if not maxing out the pillar 3a
     final cotisation3aAnnuelle = profile.total3aMensuel * 12;
-    const plafond3a = 7258.0; // OPP3 art. 7
+    const plafond3a = pilier3aPlafondAvecLpp; // OPP3 art. 7
     if (cotisation3aAnnuelle < plafond3a &&
         profile.prevoyance.canContribute3a) {
       final tauxMarginal =
-          _estimateMarginalTaxRate(revenuBrutAnnuel, profile.canton);
+          RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, profile.canton);
       final economiePotentielle =
           (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
       final anneesRestantes = profile.anneesAvantRetraite;
@@ -57,7 +59,7 @@ class ChiffreChocSection extends StatelessWidget {
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
     if (lacuneLpp > 5000) {
       final tauxMarginal =
-          _estimateMarginalTaxRate(revenuBrutAnnuel, profile.canton);
+          RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, profile.canton);
       final economieRachat = lacuneLpp * tauxMarginal;
 
       cards.add(ChiffreChocCard(
@@ -119,31 +121,18 @@ class ChiffreChocSection extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         ...cards.expand((card) => [card, const SizedBox(height: 12)]),
+        Text(
+          'Simulation \u00e0 titre \u00e9ducatif uniquement. '
+          'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
+          'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            color: MintColors.textMuted,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
       ],
     );
-  }
-
-  /// Simplified marginal tax rate estimation by canton bracket.
-  /// Source: AFC taux marginaux d'imposition 2025
-  static double _estimateMarginalTaxRate(
-      double revenuBrutAnnuel, String canton) {
-    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
-    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
-
-    double baseRate;
-    if (revenuBrutAnnuel > 200000) {
-      baseRate = 0.38;
-    } else if (revenuBrutAnnuel > 120000) {
-      baseRate = 0.32;
-    } else if (revenuBrutAnnuel > 80000) {
-      baseRate = 0.28;
-    } else {
-      baseRate = 0.22;
-    }
-
-    if (highTaxCantons.contains(canton)) return baseRate * 1.1;
-    if (lowTaxCantons.contains(canton)) return baseRate * 0.75;
-    return baseRate;
   }
 
   /// Format CHF with Swiss thousands separator (apostrophe).

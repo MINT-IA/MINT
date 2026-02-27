@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 // ────────────────────────────────────────────────────────────
 //  SEGMENTS SOCIOLOGIQUES SERVICE — Sprint S12 / Chantier 6
 // ────────────────────────────────────────────────────────────
@@ -103,12 +105,8 @@ class GenderGapService {
   static const int ageRetraite = 65;
 
   /// LPP contribution rates by age bracket (employee + employer).
-  static const Map<String, double> tauxCotisationParAge = {
-    '25-34': 0.07,
-    '35-44': 0.10,
-    '45-54': 0.15,
-    '55-64': 0.18,
-  };
+  /// Source of truth: getLppBonificationRate() in social_insurance.dart
+  /// 25-34: 7%, 35-44: 10%, 45-54: 15%, 55-65: 18% (LPP art. 16)
 
   /// OFS statistic on gender pension gap.
   static const String statistiqueOfs =
@@ -194,13 +192,7 @@ class GenderGapService {
   }
 
   /// Get the LPP contribution rate for a given age.
-  static double _getTauxCotisation(int age) {
-    if (age >= 55) return 0.18;
-    if (age >= 45) return 0.15;
-    if (age >= 35) return 0.10;
-    if (age >= 25) return 0.07;
-    return 0.0;
-  }
+  static double _getTauxCotisation(int age) => getLppBonificationRate(age);
 
   /// Projected annual return on LPP capital (conservative estimate).
   static const double projectedReturn = 0.015;

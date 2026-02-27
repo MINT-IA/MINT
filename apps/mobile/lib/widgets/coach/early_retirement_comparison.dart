@@ -46,7 +46,10 @@ class EarlyRetirementComparison extends StatelessWidget {
       final lppMonthly = lppRente / 12;
 
       final totalMonthly = avsMonthly + lppMonthly;
-      final replacementRate = totalMonthly / grossMonthlySalary;
+      // Replacement rate on NET salary (~87% of gross after social charges)
+      final netMonthlySalary = grossMonthlySalary * 0.87;
+      final replacementRate =
+          netMonthlySalary > 0 ? totalMonthly / netMonthlySalary : 0.0;
 
       rows.add(_ComparisonRow(
         age: retAge,

@@ -120,16 +120,18 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     _animController.forward(from: 0);
 
     // Analytics: chiffre choc viewed with type and severity
-    AnalyticsService().trackEvent(
-      'chiffre_choc_viewed',
-      category: 'conversion',
-      data: {
-        'type': _chiffreChoc!.type.name,
-        'color_key': _chiffreChoc!.colorKey,
-        'info_count': _profile!.providedFieldsCount,
-      },
-      screenName: 'chiffre_choc',
-    );
+    if (_chiffreChoc != null && _profile != null) {
+      AnalyticsService().trackEvent(
+        'chiffre_choc_viewed',
+        category: 'conversion',
+        data: {
+          'type': _chiffreChoc!.type.name,
+          'color_key': _chiffreChoc!.colorKey,
+          'info_count': _profile!.providedFieldsCount,
+        },
+        screenName: 'chiffre_choc',
+      );
+    }
   }
 
   Color _colorForKey(String key) {
