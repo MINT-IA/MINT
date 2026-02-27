@@ -65,11 +65,11 @@ class MentorModal extends StatelessWidget {
       route: '/education/hub',
     );
     const askMint = _MentorAction(
-      icon: Icons.auto_awesome,
-      title: 'Ask MINT',
+      icon: Icons.chat_bubble_outline,
+      title: 'Parler au Coach',
       subtitle: 'Pose tes questions finance suisse',
       color: MintColors.accent,
-      route: '/ask-mint',
+      route: '/coach/chat',
     );
     const enrichir = _MentorAction(
       icon: Icons.person_add_outlined,
