@@ -37,14 +37,14 @@ This checklist must pass before any major release or merging features related to
 - [ ] Rente vs Capital ALWAYS shows mixed scenario (oblig/suroblig split).
 
 ## 7. Coach Layer Compliance (from S35+)
-- [ ] ComplianceGuard validates ALL LLM output before display.
-- [ ] HallucinationDetector verifies ALL numbers against financial_core.
-- [ ] Banned terms check catches ALL terms from CLAUDE.md banned list.
-- [ ] Prescriptive language check catches ALL imperative financial instructions.
-- [ ] Disclaimer auto-injected when LLM discusses projections.
+- [x] ComplianceGuard validates ALL LLM output before display.
+- [x] HallucinationDetector verifies ALL numbers against financial_core.
+- [x] Banned terms check catches ALL terms from CLAUDE.md banned list.
+- [x] Prescriptive language check catches ALL imperative financial instructions.
+- [x] Disclaimer auto-injected when LLM discusses projections.
 - [ ] No social comparison in milestones or coaching ("top X%" → BANNED).
 - [ ] BYOK consent screen shows exactly which data is sent to which provider.
-- [ ] Fallback templates produce compliant output without LLM.
+- [x] Fallback templates produce compliant output without LLM.
 
 ## 8. Data Acquisition Compliance (from S42+)
 - [ ] Document images NEVER stored (deleted after OCR extraction).
