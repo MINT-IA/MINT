@@ -18,10 +18,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Le cerveau du Coach Layer. Genere tout le contenu narratif
 // du dashboard via 3 modes (par priorite) :
 //
-// TRIPLE MODE :
+// TRIPLE MODE (privacy-first) :
 //   1. SLM on-device (Gemma 3n) → zero reseau, privacy totale
-//   2. BYOK cloud LLM           → si API key configuree
-//   3. Templates statiques      → toujours disponible
+//   2. Templates enrichis       → toujours disponible, zero LLM
+//   3. BYOK cloud LLM           → optionnel, opt-in explicite
 //
 // CACHE :
 //   - SharedPreferences, cle "coach_narrative_{yyyy-MM-dd}"
@@ -188,10 +188,10 @@ class CoachNarrativeService {
 
   /// Genere le narratif complet du dashboard.
   ///
-  /// Priorite de generation :
+  /// Priorite de generation (privacy-first) :
   ///   1. SLM on-device (Gemma 3n) — si modele telecharge
-  ///   2. BYOK cloud LLM — si API key configuree
-  ///   3. Templates statiques — toujours disponible
+  ///   2. Templates enrichis — toujours disponible, zero LLM
+  ///   3. BYOK cloud LLM — optionnel, opt-in explicite
   ///
   /// Le resultat est cache 24h dans SharedPreferences.
   static Future<CoachNarrative> generate({
