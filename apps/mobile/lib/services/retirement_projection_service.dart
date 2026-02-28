@@ -1042,19 +1042,22 @@ class RetirementProjectionService {
   }
 
   static double _estimateRetirementExpenses(CoachProfile profile) {
-    final householdNet = profile.salaireBrutMensuel * 0.87 +
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
-    // Income-based floor: 70% of household net (Swiss retirement planning standard)
-    final incomeFloor = householdNet * 0.70;
-
-    final current = profile.depenses.totalMensuel;
-    if (current > 0) {
-      // 85% of current expenses (retirement rule), floored by income estimate
-      // to catch incomplete budget data.
-      return max(current * 0.85, incomeFloor);
-    }
-    // No expense data: 75% of household net income
-    return householdNet > 0 ? householdNet * 0.75 : 5000;
+    return HousingCostCalculator.estimateRetirementExpenses(
+      salaireBrutMensuel: profile.salaireBrutMensuel,
+      conjointSalaireBrutMensuel:
+          profile.conjoint?.salaireBrutMensuel ?? 0,
+      currentExpenses: profile.depenses.totalMensuel,
+      housingStatus: profile.housingStatus,
+      canton: profile.canton.isNotEmpty
+          ? profile.canton.toUpperCase()
+          : 'ZH',
+      currentAge: profile.age,
+      targetRetirementAge: profile.targetRetirementAge ?? 65,
+      propertyMarketValue: profile.patrimoine.propertyMarketValue,
+      mortgageBalance: profile.patrimoine.mortgageBalance,
+      mortgageRate: profile.patrimoine.mortgageRate,
+      monthlyRent: profile.patrimoine.monthlyRent,
+    );
   }
 
   // ════════════════════════════════════════════════════════════

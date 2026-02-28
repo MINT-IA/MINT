@@ -303,12 +303,22 @@ class PatrimoineProfile {
   final InvestmentCurrency deviseInvestissements;
   final String? plateformeInvestissement; // "Interactive Brokers", etc.
 
+  // P2: Housing model fields
+  final double? propertyMarketValue;
+  final double? mortgageBalance;
+  final double? mortgageRate;
+  final double? monthlyRent;
+
   const PatrimoineProfile({
     this.epargneLiquide = 0,
     this.investissements = 0,
     this.immobilier,
     this.deviseInvestissements = InvestmentCurrency.chf,
     this.plateformeInvestissement,
+    this.propertyMarketValue,
+    this.mortgageBalance,
+    this.mortgageRate,
+    this.monthlyRent,
   });
 
   double get totalPatrimoine =>
@@ -324,6 +334,34 @@ class PatrimoineProfile {
         orElse: () => InvestmentCurrency.chf,
       ),
       plateformeInvestissement: json['plateformeInvestissement'] as String?,
+      propertyMarketValue: (json['propertyMarketValue'] as num?)?.toDouble(),
+      mortgageBalance: (json['mortgageBalance'] as num?)?.toDouble(),
+      mortgageRate: (json['mortgageRate'] as num?)?.toDouble(),
+      monthlyRent: (json['monthlyRent'] as num?)?.toDouble(),
+    );
+  }
+
+  PatrimoineProfile copyWith({
+    double? epargneLiquide,
+    double? investissements,
+    double? immobilier,
+    InvestmentCurrency? deviseInvestissements,
+    String? plateformeInvestissement,
+    double? propertyMarketValue,
+    double? mortgageBalance,
+    double? mortgageRate,
+    double? monthlyRent,
+  }) {
+    return PatrimoineProfile(
+      epargneLiquide: epargneLiquide ?? this.epargneLiquide,
+      investissements: investissements ?? this.investissements,
+      immobilier: immobilier ?? this.immobilier,
+      deviseInvestissements: deviseInvestissements ?? this.deviseInvestissements,
+      plateformeInvestissement: plateformeInvestissement ?? this.plateformeInvestissement,
+      propertyMarketValue: propertyMarketValue ?? this.propertyMarketValue,
+      mortgageBalance: mortgageBalance ?? this.mortgageBalance,
+      mortgageRate: mortgageRate ?? this.mortgageRate,
+      monthlyRent: monthlyRent ?? this.monthlyRent,
     );
   }
 
@@ -333,6 +371,10 @@ class PatrimoineProfile {
     'immobilier': immobilier,
     'deviseInvestissements': deviseInvestissements.name,
     'plateformeInvestissement': plateformeInvestissement,
+    'propertyMarketValue': propertyMarketValue,
+    'mortgageBalance': mortgageBalance,
+    'mortgageRate': mortgageRate,
+    'monthlyRent': monthlyRent,
   };
 }
 
@@ -1315,6 +1357,10 @@ class CoachProfile {
     final patrimoine = PatrimoineProfile(
       epargneLiquide: epargneLiquide,
       investissements: estimatedInvestments,
+      propertyMarketValue: _parseDouble(answers['q_property_market_value']),
+      mortgageBalance: _parseDouble(answers['q_mortgage_balance']),
+      mortgageRate: _parseDouble(answers['q_mortgage_rate']),
+      monthlyRent: _parseDouble(answers['q_monthly_rent']),
     );
 
     // ── Dettes ──────────────────────────────────────────────

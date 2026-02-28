@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -42,6 +45,11 @@ class _ProgressiveEnrichmentScreenState
   String _householdType = 'single';
   int _savingsRangeIndex = -1; // -1 = not set
   bool? _isPropertyOwner;
+
+  // Housing follow-up fields (P2)
+  double? _propertyMarketValue;
+  double? _mortgageBalance;
+  double? _monthlyRent;
 
   // Round 3 fields
   bool? _has3a;
@@ -197,6 +205,41 @@ class _ProgressiveEnrichmentScreenState
     _numberAnimController.forward(from: 0);
   }
 
+  /// Save enrichment answers (including housing data) to CoachProfile.
+  ///
+  /// Uses direct construction (not copyWith) so that null values correctly
+  /// clear stale data — e.g. switching from owner to renter clears
+  /// propertyMarketValue/mortgageBalance.
+  void _saveEnrichment(BuildContext context) {
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    final housingStatus =
+        _isPropertyOwner == true ? 'owner' : (_isPropertyOwner == false ? 'renter' : null);
+
+    final p = profile.patrimoine;
+    final updatedPatrimoine = PatrimoineProfile(
+      epargneLiquide: p.epargneLiquide,
+      investissements: p.investissements,
+      immobilier: p.immobilier,
+      deviseInvestissements: p.deviseInvestissements,
+      plateformeInvestissement: p.plateformeInvestissement,
+      // Housing fields: only set for the relevant status, null otherwise
+      propertyMarketValue: _isPropertyOwner == true ? _propertyMarketValue : null,
+      mortgageBalance: _isPropertyOwner == true ? _mortgageBalance : null,
+      mortgageRate: _isPropertyOwner == true ? p.mortgageRate : null,
+      monthlyRent: _isPropertyOwner == false ? _monthlyRent : null,
+    );
+
+    provider.updateProfile(
+      profile.copyWith(
+        housingStatus: housingStatus,
+        patrimoine: updatedPatrimoine,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _numberAnimController.dispose();
@@ -296,10 +339,51 @@ class _ProgressiveEnrichmentScreenState
                     labels: const ['Locataire', 'Proprietaire'],
                     selectedValue: _isPropertyOwner,
                     onSelected: (v) {
-                      setState(() => _isPropertyOwner = v);
+                      setState(() {
+                        _isPropertyOwner = v;
+                        // Reset housing follow-up fields
+                        if (v) {
+                          _monthlyRent = null;
+                        } else {
+                          _propertyMarketValue = null;
+                          _mortgageBalance = null;
+                        }
+                      });
                       _recompute();
                     },
                   ),
+                  // Housing follow-up questions (P2)
+                  if (_isPropertyOwner == true) ...[
+                    const SizedBox(height: 12),
+                    _AmountInput(
+                      label: 'Valeur estimee du bien (CHF)',
+                      initialValue: _propertyMarketValue,
+                      onChanged: (v) {
+                        _propertyMarketValue = v;
+                        _recompute();
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _AmountInput(
+                      label: 'Solde hypothecaire (CHF, 0 si rembourse)',
+                      initialValue: _mortgageBalance,
+                      onChanged: (v) {
+                        _mortgageBalance = v;
+                        _recompute();
+                      },
+                    ),
+                  ],
+                  if (_isPropertyOwner == false) ...[
+                    const SizedBox(height: 12),
+                    _AmountInput(
+                      label: 'Loyer mensuel (CHF)',
+                      initialValue: _monthlyRent,
+                      onChanged: (v) {
+                        _monthlyRent = v;
+                        _recompute();
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -397,7 +481,10 @@ class _ProgressiveEnrichmentScreenState
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: () => context.go('/home'),
+                      onPressed: () {
+                        _saveEnrichment(context);
+                        context.go('/home');
+                      },
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.primary,
                         foregroundColor: Colors.white,

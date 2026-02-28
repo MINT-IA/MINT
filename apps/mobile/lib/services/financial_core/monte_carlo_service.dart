@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -73,7 +74,8 @@ class MonteCarloProjectionService {
 
     final retirementYear =
         DateTime.now().year + (retirementAgeUser - profile.age);
-    final expenses = depensesMensuelles ?? _estimateExpenses(profile);
+    final expenses = depensesMensuelles ??
+        _estimateExpenses(profile, retirementAge: retirementAgeUser);
     final canton =
         profile.canton.isNotEmpty ? profile.canton.toUpperCase() : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
@@ -491,13 +493,27 @@ class MonteCarloProjectionService {
   }
 
   /// Estimation des depenses mensuelles a la retraite.
-  static double _estimateExpenses(CoachProfile profile) {
-    final householdNet = profile.salaireBrutMensuel * 0.87 +
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
-    final current = profile.depenses.totalMensuel;
-    if (current > 0) {
-      return max(current * 0.85, householdNet * 0.70);
-    }
-    return householdNet > 0 ? householdNet * 0.75 : 5000;
+  /// Delegates to HousingCostCalculator (single source of truth).
+  static double _estimateExpenses(
+    CoachProfile profile, {
+    int? retirementAge,
+  }) {
+    return HousingCostCalculator.estimateRetirementExpenses(
+      salaireBrutMensuel: profile.salaireBrutMensuel,
+      conjointSalaireBrutMensuel:
+          profile.conjoint?.salaireBrutMensuel ?? 0,
+      currentExpenses: profile.depenses.totalMensuel,
+      housingStatus: profile.housingStatus,
+      canton: profile.canton.isNotEmpty
+          ? profile.canton.toUpperCase()
+          : 'ZH',
+      currentAge: profile.age,
+      targetRetirementAge:
+          retirementAge ?? profile.targetRetirementAge ?? 65,
+      propertyMarketValue: profile.patrimoine.propertyMarketValue,
+      mortgageBalance: profile.patrimoine.mortgageBalance,
+      mortgageRate: profile.patrimoine.mortgageRate,
+      monthlyRent: profile.patrimoine.monthlyRent,
+    );
   }
 }
