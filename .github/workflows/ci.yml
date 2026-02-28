@@ -34,13 +34,32 @@ jobs:
           cache-dependency-path: services/backend/pyproject.toml
 
       - name: Install dependencies (app + dev/test deps)
-        run: pip install ".[dev]"
+        run: pip install ".[dev]" pytest-cov
 
       - name: Run tests
         env:
           TESTING: "1"
           DATABASE_URL: "sqlite:///./test.db"
-        run: python -m pytest tests/ -q --tb=short -x
+        run: python -m pytest tests/ -q --tb=short -x --cov=app --cov-report=term-missing --cov-fail-under=60
+
+      - name: OpenAPI contract check
+        env:
+          TESTING: "1"
+          DATABASE_URL: "sqlite:///./test.db"
+        run: |
+          python ../../tools/openapi/generate_canonical.py
+          git diff --exit-code ../../tools/openapi/mint.openapi.canonical.json || \
+            (echo "OpenAPI spec has changed. Regenerate and commit." && exit 1)
+
+      - name: Alembic migration check
+        env:
+          TESTING: "1"
+          DATABASE_URL: "sqlite:///./test_migration.db"
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+          rm -f test_migration.db
 
   # ─── Flutter Analysis & Tests ────────────────────────────────
   flutter:
