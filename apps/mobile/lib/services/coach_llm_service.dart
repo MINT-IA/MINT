@@ -1,4 +1,6 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -128,18 +130,6 @@ class CoachLlmService {
   static const _disclaimer =
       'Outil educatif — ne constitue pas un conseil financier. LSFin.';
 
-  /// Termes bannis (jamais dans une reponse user-facing)
-  static const _bannedTerms = [
-    'garanti',
-    'certain',
-    'assuré',
-    'assure',
-    'sans risque',
-    'optimal',
-    'meilleur',
-    'parfait',
-  ];
-
   /// Envoie un message et recoit une reponse du coach
   ///
   /// Le service prepend le system prompt avec le contexte utilisateur,
@@ -170,15 +160,35 @@ class CoachLlmService {
       profile: profile,
     );
 
-    final filtered = _applyGuardrails(rawResponse);
+    // CRIT #6: try-catch around validate() to prevent crashes on edge cases.
+    ComplianceResult result;
+    try {
+      final coachCtx = _buildCoachContext(profile);
+      result = ComplianceGuard.validate(
+        rawResponse.message,
+        context: coachCtx,
+        componentType: ComponentType.general,
+      );
+    } catch (_) {
+      // If validation crashes, use fallback — never show unvalidated LLM output.
+      return CoachResponse(
+        message: _safeChatFallback(),
+        disclaimer: _disclaimer,
+        wasFiltered: true,
+      );
+    }
+
+    final isFallback = result.useFallback;
+    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
 
     return CoachResponse(
-      message: filtered.message,
-      suggestedActions: filtered.suggestedActions,
+      message: message,
+      // HIGH fix: clear sources/actions when using fallback (orphaned metadata).
+      suggestedActions: isFallback ? null : rawResponse.suggestedActions,
       disclaimer: _disclaimer,
-      sources: filtered.sources,
+      sources: isFallback ? const [] : rawResponse.sources,
       disclaimers: const [],
-      wasFiltered: filtered.wasFiltered,
+      wasFiltered: !result.isCompliant,
     );
   }
 
@@ -215,16 +225,35 @@ class CoachLlmService {
       profileContext: profileContext,
     );
 
-    // Appliquer les guardrails locaux en plus du filtrage backend
-    final filtered = _applyGuardrailsOnText(ragResponse.answer);
+    // Validate through ComplianceGuard (5-layer) in addition to backend filtering.
+    // CRIT #6: try-catch to prevent crashes on edge cases.
+    ComplianceResult result;
+    try {
+      final coachCtx = _buildCoachContext(profile);
+      result = ComplianceGuard.validate(
+        ragResponse.answer,
+        context: coachCtx,
+        componentType: ComponentType.general,
+      );
+    } catch (_) {
+      return CoachResponse(
+        message: _safeChatFallback(),
+        disclaimer: _disclaimer,
+        wasFiltered: true,
+      );
+    }
+
+    final isFallback = result.useFallback;
+    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
 
     return CoachResponse(
-      message: filtered.message,
-      suggestedActions: _inferSuggestedActions(userMessage),
+      message: message,
+      // HIGH fix: clear sources/actions when using fallback.
+      suggestedActions: isFallback ? null : _inferSuggestedActions(userMessage),
       disclaimer: _disclaimer,
-      sources: ragResponse.sources,
-      disclaimers: ragResponse.disclaimers,
-      wasFiltered: filtered.wasFiltered,
+      sources: isFallback ? const [] : ragResponse.sources,
+      disclaimers: isFallback ? const [] : ragResponse.disclaimers,
+      wasFiltered: !result.isCompliant,
     );
   }
 
@@ -347,7 +376,7 @@ class CoachLlmService {
       parts.add(
           'Capital projete retraite : ${proj.base.capitalFinal.toStringAsFixed(0)} CHF');
       parts.add(
-          'Taux de remplacement : ${(proj.tauxRemplacementBase * 100).toStringAsFixed(1)}%');
+          'Taux de remplacement : ${proj.tauxRemplacementBase.toStringAsFixed(1)}%');
     } catch (_) {}
 
     // Conjoint
@@ -396,25 +425,38 @@ class CoachLlmService {
     return ['Mon score Fitness', 'Ma trajectoire retraite'];
   }
 
-  /// Construit le system prompt avec le contexte utilisateur
+  /// Construit le system prompt avec le contexte utilisateur.
+  ///
+  /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
   static String buildSystemPrompt(CoachProfile profile) {
-    // Calculer le score et la projection pour enrichir le contexte
-    final score = FinancialFitnessService.calculate(profile: profile);
-    final projection = ForecasterService.project(
-      profile: profile,
-      targetDate: profile.goalA.targetDate,
-    );
-
     final firstName = profile.firstName ?? 'utilisateur';
     final age = profile.age;
     final canton = profile.canton;
-    final globalScore = score.global;
-    final budgetScore = score.budget.score;
-    final prevoyanceScore = score.prevoyance.score;
-    final patrimoineScore = score.patrimoine.score;
-    final capitalBase = projection.base.capitalFinal.toStringAsFixed(0);
-    final tauxRemplacement =
-        (projection.tauxRemplacementBase * 100).toStringAsFixed(1);
+
+    // Calculate score and projection — may fail on incomplete profiles.
+    int globalScore = 0;
+    int budgetScore = 0;
+    int prevoyanceScore = 0;
+    int patrimoineScore = 0;
+    String capitalBase = '—';
+    String tauxRemplacement = '—';
+
+    try {
+      final score = FinancialFitnessService.calculate(profile: profile);
+      globalScore = score.global;
+      budgetScore = score.budget.score;
+      prevoyanceScore = score.prevoyance.score;
+      patrimoineScore = score.patrimoine.score;
+    } catch (_) {}
+
+    try {
+      final projection = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      capitalBase = projection.base.capitalFinal.toStringAsFixed(0);
+      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
+    } catch (_) {}
 
     final buffer = StringBuffer();
     buffer.writeln(
@@ -481,12 +523,16 @@ class CoachLlmService {
     final lower = userMessage.toLowerCase();
 
     // Calculer la projection pour enrichir les reponses
-    final projection = ForecasterService.project(
-      profile: profile,
-      targetDate: profile.goalA.targetDate,
-    );
-    final tauxRemplacement =
-        (projection.tauxRemplacementBase * 100).toStringAsFixed(1);
+    String tauxRemplacement = '—';
+    try {
+      final projection = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
+    } catch (_) {
+      // Incomplete profile or missing targetDate — degrade gracefully.
+    }
 
     if (lower.contains('3a')) {
       return _MockResult(
@@ -583,36 +629,54 @@ class CoachLlmService {
     );
   }
 
-  /// Applique les guardrails de filtrage sur un _MockResult
-  static _FilterResult _applyGuardrails(_MockResult raw) {
-    final filtered = _applyGuardrailsOnText(raw.message);
-    return _FilterResult(
-      message: filtered.message,
-      suggestedActions: raw.suggestedActions,
-      sources: raw.sources,
-      wasFiltered: filtered.wasFiltered,
+  /// Build a [CoachContext] from profile data for compliance validation.
+  ///
+  /// Extracts known numeric values from financial_core so
+  /// [HallucinationDetector] can verify LLM output.
+  /// HIGH fix: guards against infinity/NaN with `.isFinite` before injection.
+  static CoachContext _buildCoachContext(CoachProfile profile) {
+    final knownValues = <String, double>{};
+
+    try {
+      final score = FinancialFitnessService.calculate(profile: profile);
+      final g = score.global.toDouble();
+      if (g.isFinite && g > 0) knownValues['fri_total'] = g;
+    } catch (_) {}
+
+    try {
+      final proj = ForecasterService.project(
+        profile: profile,
+        targetDate: profile.goalA.targetDate,
+      );
+      final cap = proj.base.capitalFinal;
+      final taux = proj.tauxRemplacementBase;
+      if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
+      if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
+    } catch (_) {}
+
+    final epargne3a = profile.prevoyance.totalEpargne3a;
+    if (epargne3a.isFinite && epargne3a > 0) {
+      knownValues['epargne_3a'] = epargne3a;
+    }
+    final avoirLpp = profile.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp.isFinite && avoirLpp > 0) {
+      knownValues['avoir_lpp'] = avoirLpp;
+    }
+
+    return CoachContext(
+      firstName: profile.firstName ?? 'utilisateur',
+      age: profile.age,
+      canton: profile.canton,
+      knownValues: knownValues,
     );
   }
 
-  /// Applique les guardrails sur un texte brut (utilise pour mock et RAG)
-  static _FilterResult _applyGuardrailsOnText(String text) {
-    var message = text;
-    var wasFiltered = false;
-
-    for (final term in _bannedTerms) {
-      if (message.toLowerCase().contains(term.toLowerCase())) {
-        message = message.replaceAll(
-          RegExp(term, caseSensitive: false),
-          '[terme retire]',
-        );
-        wasFiltered = true;
-      }
-    }
-
-    return _FilterResult(
-      message: message,
-      wasFiltered: wasFiltered,
-    );
+  /// Safe fallback when ComplianceGuard rejects LLM output.
+  static String _safeChatFallback() {
+    return 'Je suis là pour t\'aider à comprendre ta situation financière. '
+        'N\'hésite pas à reformuler ta question, ou explore les simulateurs '
+        'pour des estimations chiffrées.\n\n'
+        '_${ComplianceGuard.standardDisclaimer}_';
   }
 
   /// Message d'accueil initial du coach
@@ -646,17 +710,3 @@ class _MockResult {
   });
 }
 
-/// Resultat du filtrage guardrails
-class _FilterResult {
-  final String message;
-  final List<String>? suggestedActions;
-  final List<RagSource> sources;
-  final bool wasFiltered;
-
-  const _FilterResult({
-    required this.message,
-    this.suggestedActions,
-    this.sources = const [],
-    this.wasFiltered = false,
-  });
-}

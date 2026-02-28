@@ -121,9 +121,9 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          "L'extrait de compte individuel (CI) contient tes annees de "
-          "cotisation, ton revenu moyen (RAMD) et tes eventuelles lacunes. "
-          "C'est la cle pour une projection AVS fiable.",
+          "L'extrait de compte individuel (CI) contient tes années de "
+          "cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. "
+          "C'est la clé pour une projection AVS fiable.",
           style: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textSecondary,

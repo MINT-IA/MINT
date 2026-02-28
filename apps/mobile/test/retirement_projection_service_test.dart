@@ -1140,4 +1140,191 @@ void main() {
       expect(concubinAvs, greaterThan(marriedAvs));
     });
   });
+
+  // ════════════════════════════════════════════════════════════════
+  //  GOLDEN: FATCA 3a guard (C01)
+  // ════════════════════════════════════════════════════════════════
+
+  group('FATCA 3a guard — C01', () {
+    test('conjoint canContribute3a=false reduces 3a projection', () {
+      final fatcaProfile = CoachProfile(
+        firstName: 'Julien',
+        birthYear: 1977,
+        canton: 'VS',
+        commune: 'Sion',
+        etatCivil: CoachCivilStatus.marie,
+        nombreEnfants: 2,
+        salaireBrutMensuel: 9080,
+        nombreDeMois: 13,
+        employmentStatus: 'salarie',
+        depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 400),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 180000,
+          tauxConversion: 0.068,
+          rendementCaisse: 0.02,
+          totalEpargne3a: 42000,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 20000,
+          investissements: 60000,
+        ),
+        dettes: const DetteProfile(),
+        goalA: _testGoalA(),
+        // Both profiles contribute Julien + Lauren 3a = 1209.66/mo = 14515.92/yr
+        // This exceeds individual cap (7258) but fits couple cap (14516).
+        // FATCA case: conjoint can't contribute → capped at individual plafond.
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_julien',
+            label: '3a Julien',
+            amount: 604.83,
+            category: '3a',
+          ),
+          PlannedMonthlyContribution(
+            id: '3a_lauren',
+            label: '3a Lauren',
+            amount: 604.83,
+            category: '3a',
+          ),
+        ],
+        conjoint: const ConjointProfile(
+          firstName: 'Lauren',
+          birthYear: 1981,
+          salaireBrutMensuel: 5000,
+          employmentStatus: 'salarie',
+          prevoyance: PrevoyanceProfile(
+            avoirLppTotal: 60000,
+            tauxConversion: 0.068,
+            rendementCaisse: 0.02,
+            totalEpargne3a: 15000,
+            canContribute3a: false, // FATCA
+          ),
+        ),
+      );
+
+      final nonFatcaProfile = CoachProfile(
+        firstName: 'Julien',
+        birthYear: 1977,
+        canton: 'VS',
+        commune: 'Sion',
+        etatCivil: CoachCivilStatus.marie,
+        nombreEnfants: 2,
+        salaireBrutMensuel: 9080,
+        nombreDeMois: 13,
+        employmentStatus: 'salarie',
+        depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 400),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 180000,
+          tauxConversion: 0.068,
+          rendementCaisse: 0.02,
+          totalEpargne3a: 42000,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 20000,
+          investissements: 60000,
+        ),
+        dettes: const DetteProfile(),
+        goalA: _testGoalA(),
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_julien',
+            label: '3a Julien',
+            amount: 604.83,
+            category: '3a',
+          ),
+          PlannedMonthlyContribution(
+            id: '3a_lauren',
+            label: '3a Lauren',
+            amount: 604.83,
+            category: '3a',
+          ),
+        ],
+        conjoint: const ConjointProfile(
+          firstName: 'Lauren',
+          birthYear: 1981,
+          salaireBrutMensuel: 5000,
+          employmentStatus: 'salarie',
+          prevoyance: PrevoyanceProfile(
+            avoirLppTotal: 60000,
+            tauxConversion: 0.068,
+            rendementCaisse: 0.02,
+            totalEpargne3a: 15000,
+            canContribute3a: true,
+          ),
+        ),
+      );
+
+      final fatcaResult = RetirementProjectionService.project(
+        profile: fatcaProfile,
+      );
+      final nonFatcaResult = RetirementProjectionService.project(
+        profile: nonFatcaProfile,
+      );
+
+      final fatca3a = fatcaResult.phases.last.sources
+          .where((s) => s.id == '3a')
+          .fold(0.0, (sum, s) => sum + s.monthlyAmount);
+      final nonFatca3a = nonFatcaResult.phases.last.sources
+          .where((s) => s.id == '3a')
+          .fold(0.0, (sum, s) => sum + s.monthlyAmount);
+
+      // FATCA conjoint = no 3a doubling, so less total 3a projection
+      expect(fatca3a, lessThan(nonFatca3a));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  GOLDEN: Concubin tax treatment (H02)
+  // ════════════════════════════════════════════════════════════════
+
+  group('Concubin tax — H02', () {
+    test('concubin is isCouple but not marie for tax', () {
+      final concubinProfile = CoachProfile(
+        firstName: 'Marc',
+        birthYear: 1985,
+        canton: 'GE',
+        commune: 'Geneve',
+        etatCivil: CoachCivilStatus.concubinage,
+        nombreEnfants: 0,
+        salaireBrutMensuel: 7000,
+        nombreDeMois: 12,
+        employmentStatus: 'salarie',
+        depenses: const DepensesProfile(loyer: 1500, assuranceMaladie: 400),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 100000,
+          tauxConversion: 0.068,
+          rendementCaisse: 0.02,
+          totalEpargne3a: 20000,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 10000,
+          investissements: 50000,
+        ),
+        dettes: const DetteProfile(),
+        goalA: _testGoalA(),
+        plannedContributions: const [],
+        conjoint: const ConjointProfile(
+          firstName: 'Anne',
+          birthYear: 1987,
+          salaireBrutMensuel: 6000,
+          employmentStatus: 'salarie',
+          prevoyance: PrevoyanceProfile(
+            avoirLppTotal: 80000,
+            tauxConversion: 0.068,
+            rendementCaisse: 0.02,
+          ),
+        ),
+      );
+
+      final result = RetirementProjectionService.project(
+        profile: concubinProfile,
+      );
+
+      // isCouple but NOT marie
+      expect(concubinProfile.isCouple, isTrue);
+      expect(concubinProfile.etatCivil, isNot(CoachCivilStatus.marie));
+      expect(result.phases, isNotEmpty);
+      expect(result.disclaimer, isNotEmpty);
+    });
+  });
 }

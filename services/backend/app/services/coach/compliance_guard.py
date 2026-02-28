@@ -37,6 +37,7 @@ class ComplianceGuard:
     # ═══════════════════════════════════════════════════════════════════
 
     BANNED_TERMS = [
+        # Masculine forms
         "garanti",
         "certain",
         "assuré",
@@ -45,6 +46,14 @@ class ComplianceGuard:
         "meilleur",
         "parfait",
         "conseiller",          # → use "spécialiste"
+        # Feminine forms (audit: bypass via inflection)
+        "garantie",
+        "assurée",
+        "optimale",
+        "meilleure",
+        "parfaite",
+        "conseillère",
+        # Prescriptive phrases
         "tu devrais",
         "tu dois",
         "il faut que tu",
@@ -54,6 +63,27 @@ class ComplianceGuard:
         "il est optimal",
         "la solution idéale",
     ]
+
+    # Pre-compiled word-boundary patterns (French-aware: includes À-ÿ).
+    # Mirroring Flutter compliance_guard.dart approach.
+    _FR_LETTER = r"a-zA-Z\u00C0-\u00FF"
+    _BANNED_PATTERNS_MAP: dict[str, re.Pattern] = {}
+
+    @classmethod
+    def _get_banned_patterns(cls) -> dict[str, re.Pattern]:
+        """Lazy-init pre-compiled banned term patterns."""
+        if not cls._BANNED_PATTERNS_MAP:
+            for term in cls.BANNED_TERMS:
+                if " " in term:
+                    cls._BANNED_PATTERNS_MAP[term] = re.compile(
+                        re.escape(term), re.IGNORECASE
+                    )
+                else:
+                    cls._BANNED_PATTERNS_MAP[term] = re.compile(
+                        rf"(?<![{cls._FR_LETTER}]){re.escape(term)}(?![{cls._FR_LETTER}])",
+                        re.IGNORECASE,
+                    )
+        return cls._BANNED_PATTERNS_MAP
 
     # Replacement map for salvageable terms
     TERM_REPLACEMENTS = {
@@ -65,6 +95,14 @@ class ComplianceGuard:
         "meilleur": "pertinent",
         "parfait": "adapté",
         "conseiller": "spécialiste",
+        # Feminine forms
+        "garantie": "possible dans ce scénario",
+        "assurée": "envisageable",
+        "optimale": "adaptée",
+        "meilleure": "pertinente",
+        "parfaite": "adaptée",
+        "conseillère": "spécialiste",
+        # Prescriptive phrases
         "tu devrais": "tu pourrais envisager de",
         "tu dois": "il serait utile de",
         "il faut que tu": "tu pourrais",
@@ -88,7 +126,10 @@ class ComplianceGuard:
         re.compile(r"prends?\s+le\s+capital", re.IGNORECASE),
         re.compile(r"investis?\s+dans", re.IGNORECASE),
         re.compile(r"priorit[ée]\s+absolue", re.IGNORECASE),
-        re.compile(r"c['']est\s+plus\s+important\s+que", re.IGNORECASE),
+        re.compile(r"c['\u2018\u2019\u0027\u2032]est\s+plus\s+important\s+que", re.IGNORECASE),
+        re.compile(r"souscris\b", re.IGNORECASE),
+        re.compile(r"rach[eè]te\b", re.IGNORECASE),
+        re.compile(r"transf[eè]re\b", re.IGNORECASE),
     ]
 
     # ═══════════════════════════════════════════════════════════════════
@@ -130,8 +171,18 @@ class ComplianceGuard:
             ComplianceResult with compliance status and sanitized text.
         """
         violations = []
-        text = llm_output
         use_fallback = False
+
+        # ── Pre-check: None / non-string input ──
+        if not isinstance(llm_output, str):
+            return ComplianceResult(
+                is_compliant=False,
+                sanitized_text="",
+                violations=["Entrée invalide (non-string)"],
+                use_fallback=True,
+            )
+
+        text = llm_output
 
         # ── Pre-check: empty output ──
         if not text or not text.strip():
@@ -193,6 +244,11 @@ class ComplianceGuard:
             if length_violation:
                 violations.append(length_violation)
 
+        # Defense-in-depth: if sanitization emptied the text, force fallback.
+        if not use_fallback and not text.strip():
+            use_fallback = True
+            violations.append("Texte vide après sanitisation")
+
         is_compliant = len(violations) == 0
         return ComplianceResult(
             is_compliant=is_compliant,
@@ -232,25 +288,32 @@ class ComplianceGuard:
     ]
 
     def _check_banned_terms(self, text: str) -> list:
-        """Layer 1: Check for banned terms (exact + fuzzy variants)."""
+        """Layer 1: Check for banned terms using French-aware word boundaries."""
+        lower = text.lower()
         found = []
-        text_lower = text.lower()
-        for term in self.BANNED_TERMS:
-            if term.lower() in text_lower:
+        for term, pattern in self._get_banned_patterns().items():
+            if pattern.search(lower):
                 found.append(term)
         # Also check regex patterns for fuzzy variants
         for pattern, label in self.BANNED_PATTERNS:
-            if label not in found and pattern.search(text):
+            if label not in found and pattern.search(lower):
                 found.append(label)
         return found
 
     def _sanitize_banned_terms(self, text: str) -> str:
-        """Attempt to replace banned terms with compliant alternatives."""
+        """Replace banned terms using French-aware word-boundary patterns.
+
+        Processes multi-word phrases first for longest-match priority.
+        """
         result = text
-        for term, replacement in self.TERM_REPLACEMENTS.items():
-            # Case-insensitive replacement preserving surrounding text
-            pattern = re.compile(re.escape(term), re.IGNORECASE)
-            result = pattern.sub(replacement, result)
+        patterns = self._get_banned_patterns()
+        # Phrases first, then single-word terms
+        phrases = [(t, r) for t, r in self.TERM_REPLACEMENTS.items() if " " in t]
+        words = [(t, r) for t, r in self.TERM_REPLACEMENTS.items() if " " not in t]
+        for term, replacement in phrases + words:
+            p = patterns.get(term)
+            if p:
+                result = p.sub(replacement, result)
         return result
 
     def _check_prescriptive(self, text: str) -> list:
@@ -301,7 +364,6 @@ class ComplianceGuard:
             truncated = truncated[: last_boundary + 1]
 
         violation = (
-            f"Texte trop long: {len(words)} mots "
-            f"(limite: {max_words} pour {ComponentType.general})"
+            f"Texte trop long: {len(words)} mots (limite: {max_words})"
         )
         return truncated, violation

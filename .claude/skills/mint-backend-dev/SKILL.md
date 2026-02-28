@@ -119,6 +119,28 @@ Every calculation function must:
 4. Include "a titre indicatif" for estimations
 5. Ranges/estimates clearly labeled as such
 
+## Active Chantiers (read CLAUDE.md § STRATEGIC EVOLUTION DIGEST for full context)
+
+### Chantier 1: Certificate → Profile Persistence
+**Key endpoint**: `POST /document-parser/lpp` — extracts cert fields. Must wire to profile persistence.
+**Key files**:
+- `app/services/document_parser/lpp_certificate_parser.py` — LPP extraction
+- `app/services/document_parser/avs_extract_parser.py` — AVS extraction
+- `app/schemas/profile.py` — Profile schema (prevoyance fields)
+- `app/api/v1/endpoints/document_parser.py` — Parser endpoints
+
+### Chantier 2: Dashboard Data Endpoints
+**Needed**: Unified `/retirement/dashboard` endpoint that returns:
+- Income breakdown (AVS + LPP + 3a + Libre per source)
+- Budget gap (income - tax - expenses)
+- Top 3 arbitrage chiffres chocs
+- Confidence score + enrichment prompts
+- Couple phases (if applicable)
+- Timeline/checklist items
+
+### Golden Test Couple
+Julien (50, CH, 100k) + Lauren (45, US/FATCA, 60k). Golden file: `test/golden/julien_lauren.xlsx`.
+
 ## Commands
 
 ```bash

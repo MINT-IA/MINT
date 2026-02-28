@@ -275,7 +275,7 @@ class _LandingScreenState extends State<LandingScreen> {
           if (isCompleted || isMiniCompleted) {
             context.go('/home');
           } else {
-            context.go('/advisor');
+            context.go('/onboarding/smart');
           }
         }
       },

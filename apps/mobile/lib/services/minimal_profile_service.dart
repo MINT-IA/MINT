@@ -28,6 +28,7 @@ class MinimalProfileService {
     bool? isPropertyOwner,
     double? existing3a,
     double? existingLpp,
+    int? targetRetirementAge,
   }) {
     final estimatedFields = <String>[];
 
@@ -50,10 +51,12 @@ class MinimalProfileService {
     final effectiveLpp = existingLpp ?? _estimateLppBalance(age, grossSalary);
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
+    final effectiveRetAge = targetRetirementAge ?? 65;
+
     // --- AVS monthly rente (financial_core) ---
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
-      retirementAge: 65,
+      retirementAge: effectiveRetAge,
       grossAnnualSalary: grossSalary,
     );
 
@@ -61,7 +64,7 @@ class MinimalProfileService {
     final lppAnnualRente = LppCalculator.projectToRetirement(
       currentBalance: effectiveLpp,
       currentAge: age,
-      retirementAge: 65,
+      retirementAge: effectiveRetAge,
       grossAnnualSalary: grossSalary,
       caisseReturn: lppTauxInteretMin / 100,
       conversionRate: lppTauxConversionMin / 100,

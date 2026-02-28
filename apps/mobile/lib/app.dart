@@ -106,6 +106,8 @@ import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 import 'package:mint_mobile/screens/timeline_screen.dart';
 // Coach screens (Sprint C5-C10)
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
@@ -116,7 +118,7 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
-import 'package:mint_mobile/screens/onboarding/onboarding_minimal_screen.dart';
+import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
@@ -169,7 +171,9 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/dashboard',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachDashboardScreen(),
+      builder: (context, state) => FeatureFlags.useNewDashboard
+          ? const RetirementDashboardScreen()
+          : const CoachDashboardScreen(),
     ),
     GoRoute(
       path: '/coach/agir',
@@ -612,11 +616,19 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RepaymentScreen(),
     ),
+    // === Route Compatibility Layer (migration P0) ===
+    // Old routes redirect to new smart onboarding flow.
+    // Keep /advisor/plan-30-days as-is (still active).
+    GoRoute(
+      path: '/onboarding/smart',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SmartOnboardingScreen(),
+    ),
     // Onboarding Redesign (Sprint S31)
     GoRoute(
       path: '/onboarding/minimal',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const OnboardingMinimalScreen(),
+      redirect: (context, state) => '/onboarding/smart',
     ),
     GoRoute(
       path: '/onboarding/chiffre-choc',

@@ -56,7 +56,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.textContaining('echelonner ses rachats'), findsOneWidget);
+      expect(find.textContaining('échelonner ses rachats'), findsOneWidget);
       expect(find.textContaining('progressif'), findsOneWidget);
     });
 

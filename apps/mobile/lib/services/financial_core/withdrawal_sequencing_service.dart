@@ -276,10 +276,13 @@ class WithdrawalSequencingService {
           caisseReturn: profile.prevoyance.rendementCaisse,
           conversionRate: profile.prevoyance.tauxConversion,
         );
-        // Back-calculate balance from annual rente.
-        final effectiveConversion = profile.prevoyance.tauxConversion > 0
-            ? profile.prevoyance.tauxConversion
-            : 0.068;
+        // Back-calculate balance from annual rente using adjusted rate.
+        final effectiveConversion = LppCalculator.adjustedConversionRate(
+          baseRate: profile.prevoyance.tauxConversion > 0
+              ? profile.prevoyance.tauxConversion
+              : 0.068,
+          retirementAge: retirementAge,
+        );
         final projectedBalance = projectedLppRente / effectiveConversion;
         final capitalPortion = projectedBalance * lppCapitalPct;
 

@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -110,11 +112,13 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     }
   }
 
-  final List<Widget> _tabs = const [
-    CoachDashboardScreen(),
-    CoachAgirScreen(),
-    ExploreTab(),
-    ProfileScreen(),
+  List<Widget> get _tabs => [
+    FeatureFlags.useNewDashboard
+        ? const RetirementDashboardScreen()
+        : const CoachDashboardScreen(),
+    const CoachAgirScreen(),
+    const ExploreTab(),
+    const ProfileScreen(),
   ];
 
   final List<String> _tabNames = const [

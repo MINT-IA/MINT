@@ -45,6 +45,10 @@ class ConjointProfile {
   /// If null, assumes contributions since age 20 (Swiss native).
   final int? arrivalAge;
 
+  /// Target retirement age for the conjoint (58-70).
+  /// Null means default (65 ans).
+  final int? targetRetirementAge;
+
   const ConjointProfile({
     this.firstName,
     this.birthYear,
@@ -57,6 +61,7 @@ class ConjointProfile {
     this.canContribute3a = true,
     this.prevoyance,
     this.arrivalAge,
+    this.targetRetirementAge,
   });
 
   /// Revenu brut annuel estime
@@ -73,11 +78,14 @@ class ConjointProfile {
     return DateTime.now().year - birthYear!;
   }
 
-  /// Annees restantes avant retraite (65 ans)
+  /// Age de retraite effectif (custom ou 65 par defaut).
+  int get effectiveRetirementAge => targetRetirementAge ?? 65;
+
+  /// Annees restantes avant retraite.
   int? get anneesAvantRetraite {
     final a = age;
     if (a == null) return null;
-    return (65 - a).clamp(0, 99);
+    return (effectiveRetirementAge - a).clamp(0, 99);
   }
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
@@ -95,6 +103,7 @@ class ConjointProfile {
           ? PrevoyanceProfile.fromJson(json['prevoyance'])
           : null,
       arrivalAge: json['arrivalAge'] as int?,
+      targetRetirementAge: json['targetRetirementAge'] as int?,
     );
   }
 
@@ -110,6 +119,7 @@ class ConjointProfile {
     'canContribute3a': canContribute3a,
     'prevoyance': prevoyance?.toJson(),
     'arrivalAge': arrivalAge,
+    'targetRetirementAge': targetRetirementAge,
   };
 
   ConjointProfile copyWith({
@@ -124,6 +134,7 @@ class ConjointProfile {
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
     int? arrivalAge,
+    int? targetRetirementAge,
   }) {
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
@@ -137,6 +148,7 @@ class ConjointProfile {
       canContribute3a: canContribute3a ?? this.canContribute3a,
       prevoyance: prevoyance ?? this.prevoyance,
       arrivalAge: arrivalAge ?? this.arrivalAge,
+      targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
     );
   }
 }
@@ -151,10 +163,17 @@ class PrevoyanceProfile {
   // --- LPP ---
   final String? nomCaisse;
   final double? avoirLppTotal; // obligatoire + surobligatoire
+  final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
+  final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
   final double? rachatEffectue; // deja rachete
   final double tauxConversion; // taux de la caisse (min legal 6.8%)
+  final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
+  final double? salaireAssure; // salaire assure LPP (from certificate)
+
+  // --- AVS (from extraction) ---
+  final double? ramd; // revenu annuel moyen determinant (AVS)
 
   // --- 3a ---
   final int nombre3a; // nombre de comptes 3a
@@ -168,10 +187,15 @@ class PrevoyanceProfile {
     this.renteAVSEstimeeMensuelle,
     this.nomCaisse,
     this.avoirLppTotal,
+    this.avoirLppObligatoire,
+    this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
     this.tauxConversion = 0.068,
+    this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
+    this.salaireAssure,
+    this.ramd,
     this.nombre3a = 0,
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
@@ -203,10 +227,15 @@ class PrevoyanceProfile {
       renteAVSEstimeeMensuelle: (json['renteAVSEstimeeMensuelle'] as num?)?.toDouble(),
       nomCaisse: json['nomCaisse'] as String?,
       avoirLppTotal: (json['avoirLppTotal'] as num?)?.toDouble(),
+      avoirLppObligatoire: (json['avoirLppObligatoire'] as num?)?.toDouble(),
+      avoirLppSurobligatoire: (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
       tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
+      tauxConversionSuroblig: (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
+      salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
+      ramd: (json['ramd'] as num?)?.toDouble(),
       nombre3a: json['nombre3a'] ?? 0,
       totalEpargne3a: (json['totalEpargne3a'] as num?)?.toDouble() ?? 0,
       comptes3a: (json['comptes3a'] as List?)
@@ -223,10 +252,15 @@ class PrevoyanceProfile {
     'renteAVSEstimeeMensuelle': renteAVSEstimeeMensuelle,
     'nomCaisse': nomCaisse,
     'avoirLppTotal': avoirLppTotal,
+    'avoirLppObligatoire': avoirLppObligatoire,
+    'avoirLppSurobligatoire': avoirLppSurobligatoire,
     'rachatMaximum': rachatMaximum,
     'rachatEffectue': rachatEffectue,
     'tauxConversion': tauxConversion,
+    'tauxConversionSuroblig': tauxConversionSuroblig,
     'rendementCaisse': rendementCaisse,
+    'salaireAssure': salaireAssure,
+    'ramd': ramd,
     'nombre3a': nombre3a,
     'totalEpargne3a': totalEpargne3a,
     'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
@@ -637,6 +671,12 @@ class CoachProfile {
   /// Used by CoachingService for life event nudges.
   final String? familyChange;
 
+  /// Target retirement age chosen by the user (58-70).
+  /// Null means default (65 ans, age legal AVS).
+  /// LAVS art. 40: anticipation possible des 63 ans.
+  /// Certaines caisses LPP permettent des 58 ans.
+  final int? targetRetirementAge;
+
   // === META ===
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -668,6 +708,7 @@ class CoachProfile {
     this.arrivalAge,
     this.residencePermit,
     this.familyChange,
+    this.targetRetirementAge,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -680,8 +721,11 @@ class CoachProfile {
   /// Age actuel
   int get age => DateTime.now().year - birthYear;
 
-  /// Annees restantes avant retraite (65 ans)
-  int get anneesAvantRetraite => (65 - age).clamp(0, 99);
+  /// Age de retraite effectif (custom ou 65 par defaut).
+  int get effectiveRetirementAge => targetRetirementAge ?? 65;
+
+  /// Annees restantes avant retraite.
+  int get anneesAvantRetraite => (effectiveRetirementAge - age).clamp(0, 99);
 
   /// Revenu brut annuel estime
   double get revenuBrutAnnuel {
@@ -779,6 +823,7 @@ class CoachProfile {
     int? arrivalAge,
     String? residencePermit,
     String? familyChange,
+    int? targetRetirementAge,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -809,6 +854,7 @@ class CoachProfile {
       arrivalAge: arrivalAge ?? this.arrivalAge,
       residencePermit: residencePermit ?? this.residencePermit,
       familyChange: familyChange ?? this.familyChange,
+      targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -843,6 +889,7 @@ class CoachProfile {
       arrivalAge: arrivalAge,
       residencePermit: residencePermit,
       familyChange: familyChange,
+      targetRetirementAge: targetRetirementAge,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -862,6 +909,7 @@ class CoachProfile {
       nombreDeMois: nombreDeMois,
       bonusPourcentage: bonusPourcentage,
       employmentStatus: employmentStatus,
+      targetRetirementAge: targetRetirementAge,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,
@@ -1032,6 +1080,7 @@ class CoachProfile {
       arrivalAge: json['arrivalAge'] as int?,
       residencePermit: json['residencePermit'] as String?,
       familyChange: json['familyChange'] as String?,
+      targetRetirementAge: json['targetRetirementAge'] as int?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -1068,6 +1117,7 @@ class CoachProfile {
     'arrivalAge': arrivalAge,
     'residencePermit': residencePermit,
     'familyChange': familyChange,
+    'targetRetirementAge': targetRetirementAge,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
   };
@@ -1177,6 +1227,17 @@ class CoachProfile {
     }
     final avsYears = _parseInt(answers['q_avs_contribution_years']);
 
+    // ── Extraction-persisted fields (survive restart) ─────────
+    final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);
+    final coachAvoirLppSuroblig = _parseDouble(answers['_coach_avoir_lpp_suroblig']);
+    final coachTauxConversion = _parseDouble(answers['_coach_taux_conversion']);
+    final coachTauxConvSuroblig = _parseDouble(answers['_coach_taux_conversion_suroblig']);
+    final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
+    final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
+    final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
+    final coachAvsRenteEstimee = _parseDouble(answers['_coach_avs_rente_estimee']);
+    final coachAvsRamd = _parseDouble(answers['_coach_avs_ramd']);
+
     // Estimate LPP total based on age and salary (rough Swiss average).
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere.
     // For independants without LPP (LPP art. 4): no bonifications estimated.
@@ -1203,9 +1264,16 @@ class CoachProfile {
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
-      lacunesAVS: avsGaps > 0 ? avsGaps : null,
+      lacunesAVS: coachAvsLacunes ?? (avsGaps > 0 ? avsGaps : null),
+      renteAVSEstimeeMensuelle: coachAvsRenteEstimee,
       avoirLppTotal: estimatedLpp,
-      rachatMaximum: lppBuybackAvailable,
+      avoirLppObligatoire: coachAvoirLppOblig,
+      avoirLppSurobligatoire: coachAvoirLppSuroblig,
+      tauxConversion: coachTauxConversion ?? 0.068,
+      tauxConversionSuroblig: coachTauxConvSuroblig,
+      rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
+      salaireAssure: coachSalaireAssure,
+      ramd: coachAvsRamd,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
     );
@@ -1267,7 +1335,9 @@ class CoachProfile {
 
     // ── Goal A ──────────────────────────────────────────────
     final mainGoalRaw = answers['q_main_goal'] as String?;
-    final goalA = _parseGoalA(mainGoalRaw, birthYear);
+    final targetRetAge = _parseInt(answers['q_target_retirement_age']);
+    final goalA = _parseGoalA(mainGoalRaw, birthYear,
+        targetRetirementAge: targetRetAge);
 
     // ── Planned contributions ───────────────────────────────
     // Built from q_savings_allocation (multi-choice) + wizard data
@@ -1458,6 +1528,7 @@ class CoachProfile {
       arrivalAge: computedArrivalAge,
       residencePermit: answers['q_residence_permit'] as String?,
       familyChange: familyChange,
+      targetRetirementAge: targetRetAge,
       updatedAt: savedUpdatedAt != null
           ? DateTime.tryParse(savedUpdatedAt)
           : null,
@@ -1545,15 +1616,17 @@ class CoachProfile {
     }
   }
 
-  static GoalA _parseGoalA(String? raw, int birthYear) {
-    final retirementYear = birthYear + 65;
+  static GoalA _parseGoalA(String? raw, int birthYear, {int? targetRetirementAge}) {
+    final effectiveAge = targetRetirementAge ?? 65;
+    final retirementYear = birthYear + effectiveAge;
     final retirementDate = DateTime(retirementYear, 12, 31);
+    final retirementLabel = 'Retraite a $effectiveAge ans';
 
     if (raw == null) {
       return GoalA(
         type: GoalAType.retraite,
         targetDate: retirementDate,
-        label: 'Retraite a 65 ans',
+        label: retirementLabel,
       );
     }
 
@@ -1562,7 +1635,7 @@ class CoachProfile {
         return GoalA(
           type: GoalAType.retraite,
           targetDate: retirementDate,
-          label: 'Retraite a 65 ans',
+          label: retirementLabel,
         );
       case 'real_estate':
       case 'house':
@@ -1585,7 +1658,7 @@ class CoachProfile {
         return GoalA(
           type: GoalAType.retraite,
           targetDate: retirementDate,
-          label: 'Transmission de patrimoine',
+          label: retirementLabel,
         );
       case 'project':
         return GoalA(
@@ -1604,7 +1677,7 @@ class CoachProfile {
         return GoalA(
           type: GoalAType.retraite,
           targetDate: retirementDate,
-          label: 'Retraite a 65 ans',
+          label: retirementLabel,
         );
     }
   }
@@ -1737,10 +1810,11 @@ class CoachProfile {
         plateformeInvestissement: 'Interactive Brokers',
       ),
       dettes: const DetteProfile(),
+      targetRetirementAge: 63,
       goalA: GoalA(
         type: GoalAType.retraite,
-        targetDate: DateTime(2042, 12, 31),
-        label: 'Retraite a 65 ans',
+        targetDate: DateTime(2040, 12, 31),
+        label: 'Retraite a 63 ans',
       ),
       plannedContributions: const [
         PlannedMonthlyContribution(

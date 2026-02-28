@@ -46,6 +46,10 @@ class ProjectionConfidence {
 class ConfidenceScorer {
   ConfidenceScorer._();
 
+  /// Minimum confidence score (0-100) to display projections.
+  /// Below this threshold, show enrichment prompts instead.
+  static const double minConfidenceForProjection = 40.0;
+
   /// Score projection confidence based on profile completeness.
   static ProjectionConfidence score(CoachProfile profile) {
     double total = 0;
@@ -185,6 +189,40 @@ class ConfidenceScorer {
       assumptions.add('Pension etrangere non modelisee');
     } else {
       total += 5;
+    }
+
+    // ── Age-weighted penalties for 50+ ──────────────────────
+    // At 50+, retirement-critical data gaps are MORE impactful.
+    // Missing LPP/AVS/taux at 58 is CRITICAL — not just "nice to have".
+    if (profile.age >= 50) {
+      final yearsLeft = profile.effectiveRetirementAge - profile.age;
+      final urgencyLabel = yearsLeft <= 5
+          ? 'URGENT'
+          : yearsLeft <= 10
+              ? 'IMPORTANT'
+              : 'NORMAL';
+
+      // Extra penalty for missing retirement-critical data
+      if (lppDeclared == null || lppDeclared <= 0) {
+        if (!isIndepSansLpp) total -= 5; // LPP missing: extra -5
+      }
+      if (!hasAvsData) {
+        total -= 5; // AVS extrait missing: extra -5
+      }
+      if (!isIndepSansLpp &&
+          profile.prevoyance.tauxConversion == 0.068) {
+        total -= 3; // Default taux: extra -3
+      }
+
+      // Retirement urgency enrichment prompt
+      prompts.add(EnrichmentPrompt(
+        label: 'Plus que $yearsLeft ans avant ta retraite',
+        impact: yearsLeft <= 5 ? 15 : 10,
+        category: 'retirement_urgency',
+        action: urgencyLabel == 'URGENT'
+            ? 'Chaque mois compte — confirme tes donnees de prevoyance'
+            : 'Affine tes projections pour une vision claire',
+      ));
     }
 
     // Clamp to 0-100

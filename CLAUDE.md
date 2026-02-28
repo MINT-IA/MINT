@@ -9,7 +9,8 @@
 
 **MINT** — Swiss financial education app (Flutter + FastAPI).
 **Mission**: "Juste quand il faut: une explication, une action, un rappel."
-**Target**: 22-45 yo Swiss residents navigating financial complexity (3a, LPP, taxes, mortgage, debt).
+**Primary Target (V1)**: 45-60 yo Swiss residents preparing retirement (couple focus: Julien 50 + Lauren 45, US/FATCA).
+**Secondary Target**: 22-45 yo Swiss residents navigating financial complexity (3a, LPP, taxes, mortgage, debt).
 **Model**: Read-only, education-first. No money movement. No investment advice.
 
 ---
@@ -356,6 +357,141 @@ Every projection MUST include:
 - **Rente LPP** = revenu imposable annuel (LIFD art. 22)
 - **Capital LPP retiré** = taxé séparément au retrait (LIFD art. 38), retraits SWR = consommation de patrimoine, PAS un revenu imposable
 - NEVER double-tax capital: retrait tax + income tax on SWR withdrawals
+
+---
+
+## STRATEGIC EVOLUTION DIGEST (condensed from docs/)
+
+> The 3 source documents are: `docs/MINT_COACH_VIVANT_ROADMAP.md`, `docs/UX_REDESIGN_COACH.md`, `docs/ONBOARDING_ARBITRAGE_ENGINE.md`. Read them for full specs.
+
+### The Pivot: Catalogue → Coach
+
+**Before**: Wizard → Rapport → 49 Simulateurs → user quits (no reason to return).
+**After**: Profil persistant → Trajectoire → Coach mensuel → LLM contextuel.
+Analogy: TrainerRoad for finances. Goal A + check-ins + FRI score + alerts.
+
+### 3 Execution Tracks (S31-S40)
+
+```
+Track A — FOUNDATION (S31-S33, no LLM)
+  S31: Value-first onboarding (3Q → chiffre choc → 1 action, 30 sec)
+  S32: Arbitrage Phase 1 (Rente vs Capital 3-option + Allocation Annuelle)
+  S33: Arbitrage Phase 2 (Calendrier Retraits + Location vs Propriété + Snapshots)
+
+Track B — COACH LAYER (S34-S37, BYOK LLM)
+  S34: ComplianceGuard 5-layer (BLOCKER for all LLM features)
+  S35: CoachNarrativeService (4 independent calls: greeting, score, tip, chiffre_choc)
+  S36: Notifications + Milestones (calendar-driven + event-driven + BYOK-enriched)
+  S37: Scenario Narration + Annual Refresh
+
+Track C — ENGAGEMENT (S38-S40)
+  S38: FRI shadow mode (compute, don't display)
+  S39: FRI beta display + longitudinal charts
+  S40: Reengagement + Consent hardening
+```
+
+### Onboarding Spec (S31)
+
+**MinimalProfileService**: 3 inputs (age, grossSalary, canton) → projection with Swiss defaults.
+Defaults: expenses = net×0.85, savings = (age-25)×salary×0.05, LPP from age 25. All flagged `isEstimated: true`.
+
+**ChiffreChocSelector** priority: 1) Liquidity < 2mo, 2) Replacement < 55%, 3) 3a unused > 1500, 4) Rachat LPP > 20k, 5) Mortgage stress > 38%. Returns ONE chiffre choc, never two.
+
+**Progressive Enrichment**: Round 2 (family, savings, property) → Round 3 (3a, LPP type, debts). Chiffre choc updates in real-time after each answer.
+
+### Arbitrage Engine (5 Modules)
+
+| Module | Key insight | Legal source |
+|--------|------------|-------------|
+| A: Location vs Propriété | Opportunity cost of locked equity, valeur locative trap | CO art. 253ss, LIFD art. 21/32 |
+| B: Rachat LPP vs Marché | Breakeven = (marginal rate - withdrawal tax) / horizon vs market | LPP art. 79b, LIFD art. 33/38 |
+| C: Rente vs Capital LPP | 3 options: full rente, full capital, MIXED (oblig rente 6.8% + suroblig capital) | LPP art. 14/37, LIFD art. 22/38 |
+| D: Allocation Annuelle | 4-way: 3a vs rachat vs amort indirect vs marché, same horizon | OPP3, LPP art. 79b, LIFD art. 33 |
+| E: Calendrier Retraits | Stagger 3a/LPP/LP over 3-5 years = CHF 15k-40k tax savings | LIFD art. 38, OPP3 art. 3 |
+
+**Compliance**: No ranking (side-by-side only), hypotheses visible & editable, crossover mandatory, sensitivity shown, conditional language ("Dans ce scénario simulé...").
+
+### Dashboard Structure (4 tabs)
+
+```
+Tab 1 — TABLEAU DE BORD (Home)
+  Financial Fitness Score (0-100, gauge) + 3 sub-scores (Budget/Prévoyance/Patrimoine)
+  Trajectoire Graph (3 scenarios, current position, Goal A marker)
+  Coach Alert Card (on-track / warning / red flag)
+  Quick Actions (max 3, prioritized by AdaptivePriorityService)
+
+Tab 2 — AGIR (Actions)
+  Ce mois: checklist (3a versement, LPP rachat, check-in budget)
+  Timeline: upcoming deadlines (3a dec, impots, LAMal, retraite)
+  Historique: completed actions
+
+Tab 3 — APPRENDRE (Explore)
+  Recommandés pour toi (archetype-driven)
+  Tous les simulateurs (49 outils, 8 catégories)
+  Événements de vie (18 types, relevance-sorted)
+
+Tab 4 — PROFIL
+  Mon profil financier (enrichissement progressif)
+  Mes documents (certificats LPP, extraits AVS)
+  Coach LLM (conversation BYOK)
+  Paramètres
+```
+
+### FRI — Financial Resilience Index (0-100)
+
+```
+FRI = L(0-25) + F(0-25) + R(0-25) + S(0-25)
+L = Liquidity:      sqrt(monthsCover/6) × 25, penalties: debt ratio > 30%, high volatility
+F = Fiscal:         0.6×3a_usage + 0.25×rachat_usage + 0.15×amort_indirect
+R = Retirement:     (replacementRatio/0.70)^1.5 × 25, uses AvsCalc + LppCalc
+S = Structural:     25 - penalties(disability gap, death gap, mortgage stress, concentration, employer dep)
+```
+Display only when confidence >= 50%. Never say "faible/mauvais". Compare user to own past only.
+
+### Coach Narrative (BYOK Architecture)
+
+4 independent LLM calls → ComplianceGuard each → fallback if fails:
+- `greeting` (30 words max, daily cache)
+- `scoreSummary` (80 words, cache until check-in)
+- `tipNarrative` (120 words, 7-day cache)
+- `chiffreChocReframe` (100 words, cache until profile change)
+
+**CoachContext** sent to LLM: firstName, age, canton, archetype, FRI score/delta, replacement ratio, months liquidity, tax saving potential, calendar context. NEVER: exact salary, savings, debts, employer, address.
+
+**ComplianceGuard 5 layers**: 1) Banned terms regex, 2) Prescriptive language, 3) Number verification (±5% CHF, ±2 pts %), 4) Disclaimer injection, 5) Length check.
+
+### Golden Test Couple: Julien + Lauren
+
+| | Julien | Lauren |
+|--|--------|--------|
+| Age | 50 | 45 |
+| Salaire | 100k CHF/an (ZH) | 60k CHF/an |
+| Nationalité | CH | US (FATCA) |
+| 3a | 7'258/an ✓ | IMPOSSIBLE (FATCA) |
+| AVS | Plein (44 ans) | Lacunes (~14 ans) |
+| LPP | Standard + rachat | Montant réduit |
+| Retraite | 65 (15 ans) | 63 (18 ans) |
+| Archetype | swiss_native | expat_us |
+
+Golden data file: `test/golden/julien_lauren.xlsx`
+
+### Current Gaps (Production Blockers)
+
+1. **Certificate dead-end**: Parsers work (LPP, AVS, Tax) but extracted data NEVER persists to CoachProfile → projections unchanged after scan
+2. **No archetype branching**: 8 archetypes defined but no logic in calculators (expats get same projections as swiss_native)
+3. **Forecaster tax hardcoded**: Uses 87% net conversion instead of FiscalService by canton
+4. **Monte Carlo + Bayesian unused**: 1'474 lines of advanced code never called from UI
+5. **No integrated cockpit**: Retirement features scattered across 15+ screens
+
+### Active Chantiers
+
+| # | Chantier | Status | Priority |
+|---|----------|--------|----------|
+| 1 | Certificate → CoachProfile → Projection wiring | IN PROGRESS | BLOCKER |
+| 2 | Retirement Cockpit Dashboard (unified) | IN PROGRESS | BLOCKER |
+| 3 | Coach IA (BYOK + narration contextuelle) | PLANNED | DIFFERENTIATOR |
+| 4 | Couple optimization (staggered withdrawals à deux) | PLANNED | HIGH |
+| 5 | Engagement loop (FRI + milestones + reengagement) | PLANNED | RETENTION |
 
 ---
 

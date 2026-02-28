@@ -44,6 +44,9 @@ class MintColors {
   static const Color scoreBon = Color(0xFF8BC34A);
   static const Color scoreAttention = Color(0xFFFF9F0A);
   static const Color scoreCritique = Color(0xFFFF453A);
+  // Score aliases (used by coach widgets)
+  static const Color scoreGreen = scoreExcellent;
+  static const Color scoreRed = scoreCritique;
 
   // Coach (MINT Coach)
   static const Color coachBubble = Color(0xFFF0F7FF);

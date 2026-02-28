@@ -98,6 +98,34 @@ tester.view.physicalSize = const Size(1440, 3200);
 tester.view.devicePixelRatio = 2.0;
 ```
 
+## Active Chantiers (read CLAUDE.md § STRATEGIC EVOLUTION DIGEST for full context)
+
+### Chantier 1: Certificate → Profile → Projection Wiring
+**Problem**: `ExtractionReviewScreen` shows extracted data but never persists to `CoachProfile`.
+**Key files**:
+- `lib/services/document_parser/lpp_certificate_parser.dart` — LPP cert extraction
+- `lib/services/document_parser/avs_extract_parser.dart` — AVS extract
+- `lib/services/document_parser/document_models.dart` — ExtractionResult models
+- `lib/screens/document_scan/document_scan_screen.dart` — Scan flow
+- `lib/models/coach_profile.dart` — Target model (PrevoyanceProfile, ConjointProfile)
+- `lib/providers/coach_profile_provider.dart` — State management
+
+**Task**: Wire `onConfirmExtraction()` → update `CoachProfile.prevoyance` fields → save → trigger `ConfidenceScorer` recalculation → show delta ("With real data: 4'280 CHF/mo instead of ~4'000 estimated").
+
+### Chantier 2: Retirement Cockpit Dashboard
+**Problem**: Retirement features scattered across 15+ screens. Need ONE unified cockpit.
+**Key files**:
+- `lib/screens/coach/retirement_dashboard_screen.dart` — Current 3-state dashboard (A/B/C by confidence)
+- `lib/services/retirement_projection_service.dart` — Main projection engine (1'146 lines)
+- `lib/services/forecaster_service.dart` — 3-scenario projections
+- `lib/services/financial_core/` — All calculators
+- `lib/screens/main_navigation_shell.dart` — Tab navigation (feature flag: `FeatureFlags.useNewDashboard`)
+
+**Target dashboard components**: ConfidenceBar, HeroRetirementCard (stacked bar AVS+LPP+3a+Libre), BudgetGapWaterfall, Top3ArbitragesCards (with chiffre choc each), CoupleTimelineChart (phases), PersonalizedChecklist (temporal), MintScoreGauge.
+
+### Golden Test Couple
+Julien (50, CH, 100k, swiss_native) + Lauren (45, US/FATCA, 60k, expat_us). File: `test/golden/julien_lauren.xlsx`.
+
 ## Rules
 
 - Never hardcode strings (prepare for i18n)
@@ -105,3 +133,5 @@ tester.view.devicePixelRatio = 2.0;
 - Wizard questions defined in `lib/data/wizard_questions_v2.dart`
 - Educational inserts in `lib/widgets/educational/`
 - Google Fonts: `GoogleFonts.spaceGrotesk()` for headers, `GoogleFonts.inter()` for body
+- **ALWAYS use `financial_core/` calculators** — never duplicate AVS/LPP/Tax logic
+- Certificate extraction MUST persist to CoachProfile and trigger recalculation

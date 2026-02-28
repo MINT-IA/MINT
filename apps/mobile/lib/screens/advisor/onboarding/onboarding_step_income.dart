@@ -119,7 +119,7 @@ class _OnboardingStepIncomeState extends State<OnboardingStepIncome> {
           OnboardingStepHeader(
             title: l10n?.advisorMiniStep3Title ?? 'Ton revenu',
             subtitle: l10n?.advisorMiniStep3Subtitle ??
-                'Pour calculer ton potentiel d\'economie',
+                'Pour calculer ton potentiel d\'économie',
           ),
           const SizedBox(height: 24),
           TextField(

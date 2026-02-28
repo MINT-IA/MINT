@@ -204,7 +204,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pourquoi echelonner ses rachats ?',
+            'Pourquoi échelonner ses rachats ?',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -212,9 +212,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(height: 8),
           const Text(
-            'L\'impot suisse etant progressif, repartir un rachat LPP sur '
-            'plusieurs annees permet de rester dans des tranches marginales '
-            'plus elevees chaque annee, maximisant ainsi l\'economie fiscale '
+            'L\'impôt suisse étant progressif, répartir un rachat LPP sur '
+            'plusieurs années permet de rester dans des tranches marginales '
+            'plus élevées chaque année, maximisant ainsi l\'économie fiscale '
             'totale. Ce simulateur compare les deux approches.',
             style: TextStyle(
               fontSize: 13,
@@ -279,7 +279,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               const SizedBox(height: 8),
               Text(
                 showSavings
-                    ? 'd\'economie supplementaire en echelonnant'
+                    ? 'd\'économie supplémentaire en échelonnant'
                     : 'Rachat en bloc plus avantageux dans ce cas',
                 style: GoogleFonts.inter(
                   fontSize: 14,
@@ -726,8 +726,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'C\'est pour ca qu\'echelonner tes rachats est malin : '
-                        'chaque tranche reste dans un taux marginal eleve.',
+                        'C\'est pour ça qu\'échelonner tes rachats est malin : '
+                        'chaque tranche reste dans un taux marginal élevé.',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.green.shade800,

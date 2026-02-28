@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -527,7 +530,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   // ── Confirm and navigate ─────────────────────────────────
 
-  void _onConfirmAll() {
+  Future<void> _onConfirmAll() async {
     // Build the confirmed result
     final confirmedResult = ExtractionResult(
       documentType: widget.result.documentType,
@@ -539,12 +542,38 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       sources: widget.result.sources,
     );
 
-    // Navigate to impact screen
+    // ── Persist extraction data to CoachProfile ──
+    final coachProvider = Provider.of<CoachProfileProvider>(
+      context,
+      listen: false,
+    );
+
+    // Get the CURRENT confidence score BEFORE injection
+    int previousConfidence = 42; // fallback if no profile
+    if (coachProvider.hasProfile) {
+      final currentConfidence = ConfidenceScorer.score(coachProvider.profile!);
+      previousConfidence = currentConfidence.score.round();
+    }
+
+    // Inject extracted data and AWAIT persistence before navigating
+    switch (widget.result.documentType) {
+      case DocumentType.lppCertificate:
+        await coachProvider.updateFromLppExtraction(_fields);
+      case DocumentType.avsExtract:
+        await coachProvider.updateFromAvsExtraction(_fields);
+      default:
+        // Other document types: not yet wired
+        break;
+    }
+
+    if (!mounted) return;
+
+    // Navigate to impact screen with real confidence values
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => DocumentImpactScreen(
           result: confirmedResult,
-          previousConfidence: 42, // Demo: simulated previous confidence
+          previousConfidence: previousConfidence,
         ),
       ),
     );

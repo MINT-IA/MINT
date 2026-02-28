@@ -368,7 +368,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      "Simulation incluant l'interet de la caisse (${(_fundRate * 100).toStringAsFixed(1)}%) et l'economie d'impot lissee sur $_staggeringYears ans pour un revenu imposable de CHF ${_taxableIncome.toStringAsFixed(0)}. Le rendement reel est calcule sur ton effort net reel.",
+      "Simulation incluant l'intérêt de la caisse (${(_fundRate * 100).toStringAsFixed(1)}%) et l'économie d'impôt lissée sur $_staggeringYears ans pour un revenu imposable de CHF ${_taxableIncome.toStringAsFixed(0)}. Le rendement réel est calculé sur ton effort net réel.",
       style: GoogleFonts.inter(
           fontSize: 10,
           color: MintColors.textMuted,

@@ -4,6 +4,14 @@
 > **Auteurs**: Dream Team (UX, Actuaire, CFA, UI, Compliance)
 > **Focus**: Retraite (extensible aux autres scénarios)
 > **Branche**: `claude/retirement-planning-features-hRXie`
+>
+> **Statut implementation (Phase 1)** :
+> - Onboarding Smart Flow : **4 steps implementes** (stress → bio → work → goals)
+>   Les ecrans 4-6 (prevoyance, 3a, situation) sont prevus mais pas encore implementes.
+> - Dashboard Retirement Focus : **implementé** (confidence gating, trajectory, explore hub)
+> - Quick Fixes M1-M3 : **implementés** (firstName, sprint labels, SLM nav)
+> - Chiffre Choc 2.0 : **implementé** (3a gap, LPP buyback, AVS gap)
+> - Early Retirement Comparison : **implementé** (age-gated 45+)
 
 ---
 

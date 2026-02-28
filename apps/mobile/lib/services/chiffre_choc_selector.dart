@@ -39,11 +39,11 @@ class ChiffreChocSelector {
         type: ChiffreChocType.retirementGap,
         value: '$gapFormatted/mois',
         rawValue: profile.retirementGapMonthly,
-        title: 'Ton ecart de retraite',
+        title: 'Ton écart de retraite',
         subtitle:
-            'A la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
+            'À la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
             'Il te manquerait $gapFormatted chaque mois. '
-            'Decouvre comment reduire cet ecart.',
+            'Découvre comment réduire cet écart.',
         iconName: 'trending_down',
         colorKey: 'warning',
       );

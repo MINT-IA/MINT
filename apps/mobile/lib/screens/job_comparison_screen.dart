@@ -269,7 +269,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Decouvre le salaire invisible',
+                  'Découvre le salaire invisible',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,

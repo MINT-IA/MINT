@@ -132,37 +132,37 @@ class CoachingEngine:
             "icon": "savings",
         },
         50: {
-            "title": "Planification retraite: le bon moment",
+            "title": "Planification retraite : le bon moment",
             "message": (
-                "A 50 ans, il reste 15 ans avant la retraite. C'est le moment "
-                "ideal pour faire un bilan complet de prevoyance: 1er, 2e et "
-                "3e piliers. Verifiez votre lacune LPP et explorez les rachats."
+                "À 50 ans, il reste 15 ans avant la retraite. C'est le moment "
+                "idéal pour faire un bilan complet de prévoyance : 1er, 2e et "
+                "3e piliers. Vérifiez votre lacune LPP et explorez les rachats."
             ),
             "icon": "event_note",
         },
         55: {
-            "title": "Hausse des cotisations LPP a 18%",
+            "title": "Hausse des cotisations LPP à 18%",
             "message": (
-                "A 55 ans, votre taux de cotisation LPP atteint le maximum de "
-                "18%. Votre potentiel de rachat LPP est souvent maximal a cet "
-                "age. Chaque rachat est integralement deductible."
+                "À 55 ans, votre taux de cotisation LPP atteint le maximum de "
+                "18%. Votre potentiel de rachat LPP est souvent maximal à cet "
+                "âge. Chaque rachat est intégralement déductible."
             ),
             "icon": "trending_up",
         },
         58: {
-            "title": "Controle pre-retraite: 5 ans pour agir",
+            "title": "Contrôle pré-retraite : 5 ans pour agir",
             "message": (
-                "A 58 ans, il reste environ 5 ans avant la retraite AVS a 65 "
-                "ans. C'est le dernier moment pour optimiser: rachats LPP, "
+                "À 58 ans, il reste environ 5 ans avant la retraite AVS à 65 "
+                "ans. C'est le dernier moment pour optimiser : rachats LPP, "
                 "maximisation du 3a, et choix rente vs capital."
             ),
             "icon": "warning",
         },
         63: {
-            "title": "Retraite dans 2 ans: dernieres etapes",
+            "title": "Retraite dans 2 ans : dernières étapes",
             "message": (
-                "A 63 ans, la retraite approche. Preparez-vous: demandez un "
-                "calcul de rente a votre caisse de pension, evaluez l'option "
+                "À 63 ans, la retraite approche. Préparez-vous : demandez un "
+                "calcul de rente à votre caisse de pension, évaluez l'option "
                 "capital vs rente, et anticipez l'impact fiscal du retrait."
             ),
             "icon": "flag",
@@ -432,14 +432,14 @@ class CoachingEngine:
             title="Lacune LPP: rachat volontaire",
             message=(
                 f"Votre lacune LPP est de CHF {profile.lacune_lpp:,.0f}. "
-                f"Un rachat volontaire est integralement deductible "
+                f"Un rachat volontaire est intégralement déductible "
                 f"fiscalement. Pour un rachat de CHF {montant_rachat_sugere:,.0f}, "
-                f"l'economie fiscale estimee est de CHF {economie_fiscale:,.0f}. "
-                f"L'impact reel depend de votre situation fiscale."
+                f"l'économie fiscale estimée est de CHF {economie_fiscale:,.0f}. "
+                f"L'impact réel dépend de votre situation fiscale."
             ),
             action=(
                 "Demandez a votre caisse de pension le montant maximal "
-                "de rachat et evaluez un rachat echelonne sur plusieurs annees."
+                "de rachat et évaluez un rachat échelonné sur plusieurs années."
             ),
             estimated_impact_chf=round(economie_fiscale, 2),
             source="LPP art. 79b",
@@ -671,8 +671,8 @@ class CoachingEngine:
                     title=info["title"],
                     message=info["message"],
                     action=(
-                        "Verifiez votre certificat de prevoyance LPP et "
-                        "evaluez votre situation globale."
+                        "Vérifiez votre certificat de prévoyance LPP et "
+                        "évaluez votre situation globale."
                     ),
                     estimated_impact_chf=None,
                     source="LPP art. 15-16",

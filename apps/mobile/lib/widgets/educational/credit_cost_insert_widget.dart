@@ -258,8 +258,8 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Rembourser ce credit en priorite est souvent la decision financiere la plus efficace. '
-                  'L\'economie d\'interets est acquise, contrairement aux rendements d\'investissement.',
+                  'Rembourser ce crédit en priorité est souvent la décision financière la plus efficace. '
+                  'L\'économie d\'intérêts est acquise, contrairement aux rendements d\'investissement.',
                   style: TextStyle(fontSize: 13),
                 ),
               ],

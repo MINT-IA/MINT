@@ -35,10 +35,10 @@ class MonteCarloProjectionService {
 
   static const String _disclaimer =
       'Simulation Monte Carlo a titre pedagogique. '
-      'Les rendements passes ne garantissent pas les rendements futurs. '
-      'Base : 500 simulations, distributions normales '
-      '(LPP, marche, inflation). '
-      'Ne constitue pas un conseil en placement (LSFin).';
+      'Les rendements passes ne presagent pas des rendements futurs. '
+      'Base : 500 simulations, tirages annuels independants '
+      '(LPP, marche, inflation, croissance salariale). '
+      'Ne constitue pas un conseil en placement ou prevoyance (LSFin).';
 
   static const List<String> _sources = [
     'LPP art. 14, 16 (taux de conversion)',
@@ -98,15 +98,14 @@ class MonteCarloProjectionService {
       bool simRuined = false;
 
       // ── Tirage aleatoire pour cette simulation ──────────
-      final lppReturn = _normalRandom(random, mean: 0.02, sd: 0.03);
-      final libreReturn = _normalRandom(random, mean: 0.04, sd: 0.08);
+      // Sim-level draws (stable over lifetime — reasonable simplification):
       final inflationRate =
           _normalRandom(random, mean: 0.012, sd: 0.005).clamp(0.0, 0.05);
       final lifeExpectancy = 82 + random.nextInt(14); // 82-95
-      final salaryGrowth =
-          _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
       final avsIndexation =
           _normalRandom(random, mean: 0.01, sd: 0.005).clamp(0.0, 0.03);
+      // Annual draws for market-sensitive returns (captures sequence-of-returns risk):
+      // lppReturn, libreReturn, salaryGrowth are drawn per-year inside loops below.
 
       // ── AVS mensuelle utilisateur ─────────────────────────
       final avsUserRaw = AvsCalculator.computeMonthlyRente(
@@ -156,10 +155,14 @@ class MonteCarloProjectionService {
       final maxBuyback = profile.prevoyance.lacuneRachatRestante;
       double cumulBuyback = 0;
       for (int a = profile.age; a < retirementAgeUser && a < 70; a++) {
-        lppBalance *= (1 + lppReturn);
+        final lppReturnYear =
+            _normalRandom(random, mean: 0.02, sd: 0.03);
+        final salaryGrowthYear =
+            _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
+        lppBalance *= (1 + lppReturnYear);
         if (userHasLpp) {
           final salary = profile.revenuBrutAnnuel *
-              pow(1 + salaryGrowth, (a - profile.age).toDouble());
+              pow(1 + salaryGrowthYear, (a - profile.age).toDouble());
           final salaireCoord = LppCalculator.computeSalaireCoordonne(salary);
           lppBalance += salaireCoord * getLppBonificationRate(a);
         }
@@ -175,7 +178,11 @@ class MonteCarloProjectionService {
       // ── LPP utilisateur : rente et/ou capital ─────────────
       double lppMonthly;
       double lppCapitalNet = 0;
-      final conversionRate = profile.prevoyance.tauxConversion;
+      // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+      final conversionRate = LppCalculator.adjustedConversionRate(
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: retirementAgeUser,
+      );
 
       if (lppCapitalPct > 0 && lppBalance > 0) {
         final capitalPortion = lppBalance * lppCapitalPct;
@@ -198,26 +205,39 @@ class MonteCarloProjectionService {
         final conjHasLpp = conjLppBalance > 0 ||
             conjoint.employmentStatus != 'independant';
         final conjSalary = conjoint.revenuBrutAnnuel;
-        final conjConvRate = conjoint.prevoyance?.tauxConversion ?? 0.068;
-        // Rachats LPP conjoint: contributes dont l'id/label contient
-        // le prenom du conjoint (ex: 'lpp_buyback_lauren')
+        // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
+        final conjConvRate = LppCalculator.adjustedConversionRate(
+          baseRate: conjoint.prevoyance?.tauxConversion ?? 0.068,
+          retirementAge: conjointRetirementAge,
+        );
+        // Rachats LPP conjoint: contributions dont l'id/label contient
+        // le prenom du conjoint (ex: 'lpp_buyback_lauren').
+        // Guard: si firstName est null/vide, on ne peut pas matcher → 0.
         final conjName = conjoint.firstName?.toLowerCase() ?? '';
-        final conjAnnualBuyback = profile.plannedContributions
-            .where((c) =>
-                c.category == 'lpp_buyback' &&
-                conjName.isNotEmpty &&
-                (c.id.toLowerCase().contains(conjName) ||
-                    c.label.toLowerCase().contains(conjName)))
-            .fold(0.0, (sum, c) => sum + c.amount) * 12;
+        final double conjAnnualBuyback;
+        if (conjName.isEmpty) {
+          conjAnnualBuyback = 0;
+        } else {
+          conjAnnualBuyback = profile.plannedContributions
+              .where((c) =>
+                  c.category == 'lpp_buyback' &&
+                  (c.id.toLowerCase().contains(conjName) ||
+                      c.label.toLowerCase().contains(conjName)))
+              .fold(0.0, (sum, c) => sum + c.amount) * 12;
+        }
         final conjMaxBuyback =
             conjoint.prevoyance?.lacuneRachatRestante ?? 0;
         double conjCumulBuyback = 0;
 
         for (int a = conjointAge; a < conjointRetirementAge && a < 70; a++) {
-          conjLppBalance *= (1 + lppReturn);
+          final lppReturnYear =
+              _normalRandom(random, mean: 0.02, sd: 0.03);
+          final salaryGrowthYear =
+              _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
+          conjLppBalance *= (1 + lppReturnYear);
           if (conjHasLpp && conjSalary > 0) {
             final salary = conjSalary *
-                pow(1 + salaryGrowth, (a - conjointAge).toDouble());
+                pow(1 + salaryGrowthYear, (a - conjointAge).toDouble());
             final salaireCoord =
                 LppCalculator.computeSalaireCoordonne(salary);
             conjLppBalance += salaireCoord * getLppBonificationRate(a);
@@ -258,8 +278,11 @@ class MonteCarloProjectionService {
           threeANet > 0 ? threeANet / _3aDrawdownYears / 12 : 0.0;
 
       // ── 3a conjoint : projection avec rendement propre + contributions ─
+      // Skip if conjoint cannot contribute to 3a (e.g. FATCA US persons)
       double conjointThreeAMonthly = 0;
-      if (hasConjoint && conjointAge != null) {
+      final conjointCan3a =
+          conjoint?.prevoyance?.canContribute3a ?? true;
+      if (hasConjoint && conjointAge != null && conjointCan3a) {
         final conjPrev = conjoint!.prevoyance;
         double conj3aBalance = conjPrev?.totalEpargne3a ?? 0;
         // Rendement propre du conjoint (ex: FATCA → cash 2%, VIAC → 5%)
@@ -270,15 +293,20 @@ class MonteCarloProjectionService {
           sd: conjBase3aReturn * 0.5,
         ).clamp(0.0, 0.10);
         // Contributions 3a mensuelles du conjoint: depuis plannedContributions
-        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren')
+        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren').
+        // Guard: si firstName est null/vide, on ne peut pas matcher → 0.
         final conjNameLower = conjoint.firstName?.toLowerCase() ?? '';
-        final conj3aMonthlyContrib = profile.plannedContributions
-            .where((c) =>
-                c.category == '3a' &&
-                conjNameLower.isNotEmpty &&
-                (c.id.toLowerCase().contains(conjNameLower) ||
-                    c.label.toLowerCase().contains(conjNameLower)))
-            .fold(0.0, (sum, c) => sum + c.amount);
+        final double conj3aMonthlyContrib;
+        if (conjNameLower.isEmpty) {
+          conj3aMonthlyContrib = 0;
+        } else {
+          conj3aMonthlyContrib = profile.plannedContributions
+              .where((c) =>
+                  c.category == '3a' &&
+                  (c.id.toLowerCase().contains(conjNameLower) ||
+                      c.label.toLowerCase().contains(conjNameLower)))
+              .fold(0.0, (sum, c) => sum + c.amount);
+        }
         if (conj3aBalance > 0 || conj3aMonthlyContrib > 0) {
           for (int a = conjointAge; a < conjointRetirementAge; a++) {
             conj3aBalance *= (1 + conj3aReturn);
@@ -300,13 +328,19 @@ class MonteCarloProjectionService {
           profile.patrimoine.epargneLiquide;
       final monthlyLibre = profile.totalEpargneLibreMensuel;
       for (int a = profile.age; a < retirementAgeUser; a++) {
-        libreBalance *= (1 + libreReturn);
+        final libreReturnYear =
+            _normalRandom(random, mean: 0.04, sd: 0.08);
+        libreBalance *= (1 + libreReturnYear);
         libreBalance += monthlyLibre * 12;
       }
 
       // ── Boucle post-retraite annee par annee ───────────
       for (int y = 0; y < _projectionYears; y++) {
         final currentAge = retirementAgeUser + y;
+
+        // Annual market return draw (sequence-of-returns risk)
+        final libreReturnYear =
+            _normalRandom(random, mean: 0.04, sd: 0.08);
 
         // AVS indexee chaque annee — seulement apres le delai d'anticipation
         final avsUserThisYear = y >= yearsUntilAvsUser
@@ -324,7 +358,7 @@ class MonteCarloProjectionService {
         double lppCapitalMonthly = 0;
         if (lppCapitalPct > 0 && lppCapitalNet > 0) {
           lppCapitalMonthly = lppCapitalNet * _safeWithdrawalRate / 12;
-          lppCapitalNet *= (1 + libreReturn - _safeWithdrawalRate);
+          lppCapitalNet *= (1 + libreReturnYear - _safeWithdrawalRate);
           if (lppCapitalNet < 0) lppCapitalNet = 0;
         }
 
@@ -337,7 +371,7 @@ class MonteCarloProjectionService {
         double libreMonthly = 0;
         if (libreBalance > 0) {
           libreMonthly = libreBalance * _safeWithdrawalRate / 12;
-          libreBalance *= (1 + libreReturn - _safeWithdrawalRate);
+          libreBalance *= (1 + libreReturnYear - _safeWithdrawalRate);
           if (libreBalance < 0) libreBalance = 0;
         }
 

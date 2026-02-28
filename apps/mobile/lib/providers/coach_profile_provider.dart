@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
@@ -300,6 +301,47 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met a jour le profil depuis le Smart Onboarding (3 questions: age, salaire, canton).
+  ///
+  /// Cree un profil partiel minimal immediatement utilisable par le dashboard.
+  /// Convertit le salaire brut annuel en net mensuel via le taux de charges
+  /// sociales standard (~13%: AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1%).
+  /// Source: OFAS barème cotisations 2025. Estimation; le taux réel dépend
+  /// du plan LPP et du canton.
+  ///
+  /// Persiste de maniere asynchrone via [ReportPersistenceService].
+  void updateFromSmartFlow({
+    required int age,
+    required double grossSalary,
+    required String canton,
+  }) {
+    // Convert gross annual → net monthly
+    // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
+    // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
+    // ce qui préserve le salaire brut original.
+    const double socialChargesRate = 0.13;
+    final netMonthly = (grossSalary / 12) * (1 - socialChargesRate);
+    final birthYear = DateTime.now().year - age;
+
+    final answers = <String, dynamic>{
+      'q_birth_year': birthYear,
+      'q_canton': canton,
+      'q_net_income_period_chf': netMonthly,
+      'q_employment_status': 'employed',
+    };
+
+    _lastAnswers = answers;
+    _profile = CoachProfile.fromWizardAnswers(answers);
+    _isPartialProfile = true;
+    _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+
+    // Persist asynchronously so the dashboard can reload from storage
+    ReportPersistenceService.saveAnswers(answers);
+    ReportPersistenceService.setMiniOnboardingCompleted(true);
+  }
+
   /// Ajoute un check-in mensuel au profil et le persiste.
   void addCheckIn(MonthlyCheckIn checkIn) {
     if (_profile == null) return;
@@ -374,10 +416,15 @@ class CoachProfileProvider extends ChangeNotifier {
       renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
       nomCaisse: p.prevoyance.nomCaisse,
       avoirLppTotal: avoirLppTotal ?? p.prevoyance.avoirLppTotal,
+      avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
+      avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
       rachatMaximum: p.prevoyance.rachatMaximum,
       rachatEffectue: p.prevoyance.rachatEffectue,
       tauxConversion: p.prevoyance.tauxConversion,
+      tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
       rendementCaisse: p.prevoyance.rendementCaisse,
+      salaireAssure: p.prevoyance.salaireAssure,
+      ramd: p.prevoyance.ramd,
       nombre3a: p.prevoyance.nombre3a,
       totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
@@ -451,6 +498,171 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['_coach_family_change'] = familyChange;
     }
 
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  DOCUMENT EXTRACTION → PROFILE INJECTION
+  // ════════════════════════════════════════════════════════════════
+
+  /// Met a jour le profil depuis l'extraction d'un certificat LPP.
+  ///
+  /// Mappe chaque [ExtractedField.profileField] vers les champs
+  /// PrevoyanceProfile correspondants. Persiste les nouvelles valeurs
+  /// dans les answers wizard pour coherence au redemarrage.
+  ///
+  /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document A
+  Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
+    if (_profile == null) return;
+
+    final p = _profile!;
+
+    // Extract values from confirmed fields
+    double? avoirTotal;
+    double? avoirOblig;
+    double? avoirSuroblig;
+    double? tauxConvOblig;
+    double? tauxConvSuroblig;
+    double? lacuneRachat;
+    double? salaireAssure;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      final value = field.value;
+      if (value is! double) continue;
+
+      switch (field.profileField) {
+        case 'avoirLppTotal':
+          avoirTotal = value;
+        case 'lppObligatoire':
+          avoirOblig = value;
+        case 'lppSurobligatoire':
+          avoirSuroblig = value;
+        case 'tauxConversionOblig':
+          tauxConvOblig = value / 100; // Stored as 6.8 → 0.068
+        case 'tauxConversionSuroblig':
+          tauxConvSuroblig = value / 100;
+        case 'buybackPotential':
+          lacuneRachat = value;
+        case 'lppInsuredSalary':
+          salaireAssure = value;
+      }
+    }
+
+    // Build updated prevoyance with real certificate data
+    final updatedPrevoyance = PrevoyanceProfile(
+      anneesContribuees: p.prevoyance.anneesContribuees,
+      lacunesAVS: p.prevoyance.lacunesAVS,
+      renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
+      nomCaisse: p.prevoyance.nomCaisse,
+      avoirLppTotal: avoirTotal ?? p.prevoyance.avoirLppTotal,
+      avoirLppObligatoire: avoirOblig ?? p.prevoyance.avoirLppObligatoire,
+      avoirLppSurobligatoire: avoirSuroblig ?? p.prevoyance.avoirLppSurobligatoire,
+      rachatMaximum: lacuneRachat ?? p.prevoyance.rachatMaximum,
+      rachatEffectue: p.prevoyance.rachatEffectue,
+      tauxConversion: tauxConvOblig ?? p.prevoyance.tauxConversion,
+      tauxConversionSuroblig: tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
+      rendementCaisse: p.prevoyance.rendementCaisse,
+      salaireAssure: salaireAssure ?? p.prevoyance.salaireAssure,
+      ramd: p.prevoyance.ramd,
+      nombre3a: p.prevoyance.nombre3a,
+      totalEpargne3a: p.prevoyance.totalEpargne3a,
+      comptes3a: p.prevoyance.comptes3a,
+      canContribute3a: p.prevoyance.canContribute3a,
+    );
+
+    _profile = p.copyWith(
+      prevoyance: updatedPrevoyance,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist to wizard answers for consistency across restarts
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (avoirTotal != null) answers['_coach_avoir_lpp'] = avoirTotal;
+    if (avoirOblig != null) answers['_coach_avoir_lpp_oblig'] = avoirOblig;
+    if (avoirSuroblig != null) answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
+    if (tauxConvOblig != null) answers['_coach_taux_conversion'] = tauxConvOblig;
+    if (tauxConvSuroblig != null) answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
+    if (lacuneRachat != null) answers['_coach_rachat_maximum'] = lacuneRachat;
+    if (salaireAssure != null) answers['_coach_salaire_assure'] = salaireAssure;
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    answers['_coach_lpp_source'] = 'document_scan';
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  /// Met a jour le profil depuis l'extraction d'un extrait AVS.
+  ///
+  /// Mappe les champs AVS extraits vers PrevoyanceProfile.
+  /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
+  Future<void> updateFromAvsExtraction(List<ExtractedField> fields) async {
+    if (_profile == null) return;
+
+    final p = _profile!;
+
+    int? anneesContrib;
+    int? lacunesCotisation;
+    double? renteEstimee;
+    double? ramd;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      final value = field.value;
+
+      switch (field.profileField) {
+        case 'anneesContribution':
+          if (value is double) anneesContrib = value.round();
+          if (value is int) anneesContrib = value;
+        case 'lacunesCotisation':
+          if (value is double) lacunesCotisation = value.round();
+          if (value is int) lacunesCotisation = value;
+        case 'renteEstimee':
+          if (value is double) renteEstimee = value;
+        case 'ramd':
+          if (value is double) ramd = value;
+      }
+    }
+
+    // Build updated prevoyance with real AVS data
+    final updatedPrevoyance = PrevoyanceProfile(
+      anneesContribuees: anneesContrib ?? p.prevoyance.anneesContribuees,
+      lacunesAVS: lacunesCotisation ?? p.prevoyance.lacunesAVS,
+      renteAVSEstimeeMensuelle: renteEstimee ?? p.prevoyance.renteAVSEstimeeMensuelle,
+      nomCaisse: p.prevoyance.nomCaisse,
+      avoirLppTotal: p.prevoyance.avoirLppTotal,
+      avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
+      avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
+      rachatMaximum: p.prevoyance.rachatMaximum,
+      rachatEffectue: p.prevoyance.rachatEffectue,
+      tauxConversion: p.prevoyance.tauxConversion,
+      tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
+      rendementCaisse: p.prevoyance.rendementCaisse,
+      salaireAssure: p.prevoyance.salaireAssure,
+      ramd: ramd ?? p.prevoyance.ramd,
+      nombre3a: p.prevoyance.nombre3a,
+      totalEpargne3a: p.prevoyance.totalEpargne3a,
+      comptes3a: p.prevoyance.comptes3a,
+      canContribute3a: p.prevoyance.canContribute3a,
+    );
+
+    _profile = p.copyWith(
+      prevoyance: updatedPrevoyance,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist to wizard answers
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (anneesContrib != null) answers['q_avs_contribution_years'] = anneesContrib;
+    if (lacunesCotisation != null) answers['_coach_avs_lacunes'] = lacunesCotisation;
+    if (renteEstimee != null) answers['_coach_avs_rente_estimee'] = renteEstimee;
+    if (ramd != null) answers['_coach_avs_ramd'] = ramd;
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    answers['_coach_avs_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;

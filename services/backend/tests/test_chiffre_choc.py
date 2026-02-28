@@ -275,7 +275,7 @@ class TestCompliance:
         for p in profiles:
             choc = select_chiffre_choc(p)
             assert len(choc.disclaimer) > 0
-            assert "educatif" in choc.disclaimer.lower()
+            assert "éducatif" in choc.disclaimer.lower()
             assert "LSFin" in choc.disclaimer
 
     def test_sources_present_in_all_categories(self):

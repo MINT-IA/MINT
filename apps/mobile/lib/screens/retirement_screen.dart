@@ -1280,11 +1280,11 @@ class _RetirementScreenState extends State<RetirementScreen>
 
   Widget _buildBudgetChecklist() {
     final items = [
-      'Verifie ton extrait CI AVS (lacunes)',
-      'Demande un releve de ta caisse LPP',
-      'Estime tes depenses reelles (pas seulement les fixes)',
-      'Prevois une marge pour les imprevus sante',
-      'Pense aux impots sur les rentes',
+      'Vérifie ton extrait CI AVS (lacunes)',
+      'Demande un relevé de ta caisse LPP',
+      'Estime tes dépenses réelles (pas seulement les fixes)',
+      'Prévois une marge pour les imprévus santé',
+      'Pense aux impôts sur les rentes',
     ];
 
     return Container(

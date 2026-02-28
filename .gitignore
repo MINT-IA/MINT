@@ -4,6 +4,19 @@ mint.db
 .DS_Store
 **/.DS_Store
 
+# Secrets — NEVER commit
+.env
+.env.*
+*.pem
+*.key
+*.p8
+*.p12
+*.keystore
+*.jks
+credentials.json
+service-account*.json
+!*.key.example
+
 # Python
 __pycache__/
 **/__pycache__/
@@ -15,6 +28,11 @@ services/backend/.venv/
 # Flutter generated
 apps/mobile/.flutter-plugins
 apps/mobile/.flutter-plugins-dependencies
+
+# Fastlane artifacts
+apps/mobile/ios/fastlane/README.md
+apps/mobile/ios/fastlane/report.xml
+apps/mobile/android/fastlane/report.xml
 
 # Logs
 *.log

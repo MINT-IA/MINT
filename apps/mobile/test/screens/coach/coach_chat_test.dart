@@ -55,14 +55,14 @@ void main() {
     testWidgets('shows educational subtitle', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('Conversation educative'), findsOneWidget);
+      expect(find.text('Conversation éducative'), findsOneWidget);
     });
 
     testWidgets('shows disclaimer text', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(
-        find.textContaining('Outil educatif'),
+        find.textContaining('Outil éducatif'),
         findsOneWidget,
       );
     });
@@ -220,7 +220,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(
-        find.textContaining('cle API'),
+        find.textContaining('clé API'),
         findsOneWidget,
       );
     });

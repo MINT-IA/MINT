@@ -830,10 +830,10 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
           final housing = (_answers['q_housing_cost_period_chf'] as num).toDouble();
           final ratio = income > 0 ? (housing / income * 100) : 0;
           final verdict = ratio > 33
-              ? 'Au-dessus du seuil recommande (33%). Attention a ta capacite d\'epargne.'
+              ? 'Au-dessus du seuil recommandé (33%). Attention à ta capacité d\'épargne.'
               : ratio > 25
-                  ? 'Dans la norme suisse. Marge de manoeuvre correcte.'
-                  : 'Excellent ratio ! Tu as une belle capacite d\'epargne.';
+                  ? 'Dans la norme suisse. Marge de manœuvre correcte.'
+                  : 'Excellent ratio ! Tu as une belle capacité d\'épargne.';
           return _buildMindBlowingInsight(
             icon: Icons.pie_chart_outline,
             title: 'TON RATIO LOGEMENT',
@@ -1254,9 +1254,9 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
     return _buildMindBlowingInsight(
       icon: Icons.savings,
       title: 'LE 3A = TON ARME FISCALE',
-      text: 'Max 3a : 7\'258 CHF/an = economie de CHF ${savings.toStringAsFixed(0)}/an '
+      text: 'Max 3a : 7\'258 CHF/an = économie de CHF ${savings.toStringAsFixed(0)}/an '
           'dans le canton $canton. Sur $yearsToRetirement ans = CHF ${lifetimeSavings.toStringAsFixed(0)} '
-          'd\'impots economises au total. C\'est l\'outil fiscal le plus courant en Suisse.',
+          'd\'impôts économisés au total. C\'est l\'outil fiscal le plus courant en Suisse.',
       color: Colors.green.shade700,
     );
   }

@@ -80,11 +80,11 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
     setState(() {
       _isTesting = false;
       if (_apiKeyController.text.isEmpty) {
-        _testResult = 'Saisis ta cle API pour tester la connexion.';
+        _testResult = 'Saisis ta clé API pour tester la connexion.';
       } else if (_apiKeyController.text.length < 10) {
-        _testResult = 'La cle API semble invalide. Verifie le format.';
+        _testResult = 'La clé API semble invalide. Vérifie le format.';
       } else {
-        _testResult = 'Connexion configuree. Le mode mock est actif pour le moment.';
+        _testResult = 'Connexion configurée. Le mode mock est actif pour le moment.';
       }
     });
   }
@@ -160,13 +160,13 @@ class _LlmConfigSheetState extends State<LlmConfigSheet> {
                 const SizedBox(height: 20),
 
                 // API Key field
-                _buildSectionLabel('Cle API'),
+                _buildSectionLabel('Clé API'),
                 const SizedBox(height: 8),
                 _buildApiKeyField(),
                 const SizedBox(height: 20),
 
                 // Model selector
-                _buildSectionLabel('Modele'),
+                _buildSectionLabel('Modèle'),
                 const SizedBox(height: 8),
                 _buildModelSelector(),
                 const SizedBox(height: 20),

@@ -418,20 +418,20 @@ class FrontalierService:
             impot_source = round(salary * 0.04, 2)  # ~4% approximatif
             taux_effectif = round(impot_source / salary * 100, 2) if salary > 0 else 0.0
             recommandation = (
-                "Regime special Tessin-Italie : les frontaliers italiens sont "
-                "principalement imposes en Italie (accord CH-IT du 03.10.1974). "
-                "L'employeur suisse preleve un impot a la source reduit, "
-                "retrocede partiellement au fisc italien."
+                "Régime spécial Tessin-Italie : les frontaliers italiens sont "
+                "principalement imposés en Italie (accord CH-IT du 03.10.1974). "
+                "L'employeur suisse prélève un impôt à la source réduit, "
+                "rétrocédé partiellement au fisc italien."
             )
         elif regime_special == "quasi_resident":
             # GE: pas d'impot a la source standard — regime quasi-resident
             impot_source = 0.0
             taux_effectif = 0.0
             recommandation = (
-                "Canton de Geneve : les frontaliers francais beneficient du regime "
-                "special de l'accord CH-FR du 11.04.1983. Verifie si tu es eligible "
-                "au statut quasi-resident (>=90% du revenu mondial en CH) pour "
-                "acceder a l'imposition ordinaire, souvent plus avantageuse."
+                "Canton de Genève : les frontaliers français bénéficient du régime "
+                "spécial de l'accord CH-FR du 11.04.1983. Vérifie si tu es éligible "
+                "au statut quasi-résident (>=90% du revenu mondial en CH) pour "
+                "accéder à l'imposition ordinaire, souvent plus avantageuse."
             )
         else:
             # Calcul standard : impot progressif * multiplicateur cantonal
@@ -524,25 +524,25 @@ class FrontalierService:
 
         if eligible:
             recommandation = (
-                f"Tu es eligible au statut quasi-resident ({ratio:.1%} de ton revenu "
-                f"mondial est gagne en Suisse, seuil requis: 90%). Tu peux deposer "
-                f"une declaration ordinaire et beneficier de toutes les deductions "
-                f"(3e pilier, frais effectifs, rachat LPP, etc.). Economie estimee: "
+                f"Tu es éligible au statut quasi-résident ({ratio:.1%} de ton revenu "
+                f"mondial est gagné en Suisse, seuil requis : 90%). Tu peux déposer "
+                f"une déclaration ordinaire et bénéficier de toutes les déductions "
+                f"(3e pilier, frais effectifs, rachat LPP, etc.). Économie estimée : "
                 f"~CHF {economie:,.0f}/an."
             )
         else:
             manque = QUASI_RESIDENT_SEUIL - ratio
             recommandation = (
-                f"Tu n'es pas eligible au statut quasi-resident ({ratio:.1%} de ton revenu "
-                f"mondial en Suisse, seuil requis: 90%). Il te manque {manque:.1%} pour "
-                f"atteindre le seuil. Si tu as des revenus a l'etranger (immobilier, "
-                f"placements), cela peut reduire ta part CH."
+                f"Tu n'es pas éligible au statut quasi-résident ({ratio:.1%} de ton revenu "
+                f"mondial en Suisse, seuil requis : 90%). Il te manque {manque:.1%} pour "
+                f"atteindre le seuil. Si tu as des revenus à l'étranger (immobilier, "
+                f"placements), cela peut réduire ta part CH."
             )
 
         sources = [
-            "LIFD art. 99a (taxation ordinaire ulterieure pour quasi-residents)",
-            "LIPP-GE art. 6 al. 6 (statut quasi-resident Geneve)",
-            "ATF 140 II 167 (arret du TF sur le statut quasi-resident)",
+            "LIFD art. 99a (taxation ordinaire ultérieure pour quasi-résidents)",
+            "LIPP-GE art. 6 al. 6 (statut quasi-résident Genève)",
+            "ATF 140 II 167 (arrêt du TF sur le statut quasi-résident)",
         ]
 
         return QuasiResidentResult(

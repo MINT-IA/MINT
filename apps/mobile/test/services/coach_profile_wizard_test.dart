@@ -155,11 +155,12 @@ void main() {
       expect(profile.goalA.label, contains('Independance'));
     });
 
-    test('"inheritance" → GoalAType.retraite avec label transmission', () {
+    test('"inheritance" → GoalAType.retraite avec label retraite', () {
       final answers = _baseAnswers(mainGoal: 'inheritance');
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.goalA.type, GoalAType.retraite);
-      expect(profile.goalA.label, contains('Transmission'));
+      // inheritance maps to retirement goal with retirement label
+      expect(profile.goalA.label, contains('Retraite'));
     });
 
     test('"project" → GoalAType.custom', () {

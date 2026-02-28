@@ -330,7 +330,7 @@ void main() {
       expect(narrative.greeting, contains('Alice'));
     });
 
-    test('greeting utilise "utilisateur" si firstName est null', () async {
+    test('greeting utilise "toi" si firstName est null', () async {
       final profile = _buildTestProfile(firstName: null);
       final tips = _generateTips(profile);
 
@@ -341,7 +341,7 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.greeting, contains('utilisateur'));
+      expect(narrative.greeting, contains('toi'));
     });
   });
 
@@ -416,7 +416,7 @@ void main() {
       expect(
           CoachNarrativeService.containsBannedTerms('placement sans risque'),
           isTrue);
-      expect(CoachNarrativeService.containsBannedTerms('le choix optimal'),
+      expect(CoachNarrativeService.containsBannedTerms('la solution optimal'),
           isTrue);
       expect(CoachNarrativeService.containsBannedTerms('texte normal ok'),
           isFalse);

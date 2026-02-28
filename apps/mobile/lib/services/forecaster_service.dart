@@ -437,12 +437,14 @@ class ForecasterService {
     final conjFirstName =
         profile.conjoint?.firstName?.toLowerCase() ?? '';
 
-    // Partner 3a contribution potential: if conjoint exists and has income,
-    // add 604.83 CHF/month (7258/12) as potential 3a contribution
+    // Partner 3a contribution potential: if conjoint exists, has income,
+    // AND can contribute to 3a (e.g. FATCA US persons cannot).
+    // Add 604.83 CHF/month (7258/12) as potential 3a contribution
     // (only if not already captured in planned contributions)
     double partner3aMonthly = 0;
     if (profile.conjoint != null &&
-        (profile.conjoint!.salaireBrutMensuel ?? 0) > 0) {
+        (profile.conjoint!.salaireBrutMensuel ?? 0) > 0 &&
+        (profile.conjoint!.prevoyance?.canContribute3a ?? true)) {
       final conjAnnualSalary =
           (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
       // Partner is salaried with LPP if their salary exceeds the LPP threshold
@@ -710,11 +712,16 @@ class ForecasterService {
     );
     final renteAvsAnnuelle = coupleAvs.total * 12;
 
-    // LPP rente (use profile taux conversion if available)
-    final userConvRate = profile.prevoyance.tauxConversion;
+    // LPP rente — adjust conversion rate for early retirement (LPP art. 13)
+    final userConvRate = LppCalculator.adjustedConversionRate(
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: retirementAge,
+    );
     final renteLppUser = lppBalance * userConvRate;
-    final conjConvRate =
-        profile.conjoint?.prevoyance?.tauxConversion ?? 0.068;
+    final conjConvRate = LppCalculator.adjustedConversionRate(
+      baseRate: profile.conjoint?.prevoyance?.tauxConversion ?? 0.068,
+      retirementAge: retirementAge,
+    );
     final renteLppConjoint = conjLppBalance * conjConvRate;
 
     // 3a: annualize over 20 years AFTER capital withdrawal tax (LIFD art. 38)

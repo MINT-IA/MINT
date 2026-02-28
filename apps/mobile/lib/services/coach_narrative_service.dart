@@ -18,10 +18,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Le cerveau du Coach Layer. Genere tout le contenu narratif
 // du dashboard via 3 modes (par priorite) :
 //
-// TRIPLE MODE :
+// TRIPLE MODE (privacy-first) :
 //   1. SLM on-device (Gemma 3n) → zero reseau, privacy totale
-//   2. BYOK cloud LLM           → si API key configuree
-//   3. Templates statiques      → toujours disponible
+//   2. Templates enrichis       → toujours disponible, zero LLM
+//   3. BYOK cloud LLM           → optionnel, opt-in explicite
 //
 // CACHE :
 //   - SharedPreferences, cle "coach_narrative_{yyyy-MM-dd}"
@@ -64,6 +64,14 @@ class CoachNarrative {
   /// Narration des scenarios Forecaster (3 paragraphes)
   final List<String>? scenarioNarrations;
 
+  /// Contextual narration for the chiffre-choc screen (max ~100 words).
+  /// Example: "A 58 ans, tu as encore 7 ans pour combler un ecart de CHF 850/mois."
+  final String? chiffreChocNarration;
+
+  /// Retirement countdown phrase for 45-60 dashboard header.
+  /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
+  final String? retirementCountdown;
+
   /// Source (llm ou static) pour debug
   final bool isLlmGenerated;
 
@@ -78,6 +86,8 @@ class CoachNarrative {
     this.urgentAlert,
     this.milestoneMessage,
     this.scenarioNarrations,
+    this.chiffreChocNarration,
+    this.retirementCountdown,
     required this.isLlmGenerated,
     required this.generatedAt,
   });
@@ -91,6 +101,8 @@ class CoachNarrative {
         'urgentAlert': urgentAlert,
         'milestoneMessage': milestoneMessage,
         'scenarioNarrations': scenarioNarrations,
+        'chiffreChocNarration': chiffreChocNarration,
+        'retirementCountdown': retirementCountdown,
         'isLlmGenerated': isLlmGenerated,
         'generatedAt': generatedAt.toIso8601String(),
       };
@@ -107,6 +119,8 @@ class CoachNarrative {
       scenarioNarrations: (json['scenarioNarrations'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      chiffreChocNarration: json['chiffreChocNarration'] as String?,
+      retirementCountdown: json['retirementCountdown'] as String?,
       isLlmGenerated: json['isLlmGenerated'] as bool? ?? false,
       generatedAt: json['generatedAt'] != null
           ? DateTime.parse(json['generatedAt'] as String)
@@ -174,10 +188,10 @@ class CoachNarrativeService {
 
   /// Genere le narratif complet du dashboard.
   ///
-  /// Priorite de generation :
+  /// Priorite de generation (privacy-first) :
   ///   1. SLM on-device (Gemma 3n) — si modele telecharge
-  ///   2. BYOK cloud LLM — si API key configuree
-  ///   3. Templates statiques — toujours disponible
+  ///   2. Templates enrichis — toujours disponible, zero LLM
+  ///   3. BYOK cloud LLM — optionnel, opt-in explicite
   ///
   /// Le resultat est cache 24h dans SharedPreferences.
   static Future<CoachNarrative> generate({
@@ -190,11 +204,12 @@ class CoachNarrativeService {
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
-    // 2. Generer le narratif (priorite : SLM > BYOK > statique)
+    // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
+    //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
     CoachNarrative narrative;
 
     if (SlmEngine.instance.isAvailable) {
-      // 3a. SLM on-device disponible → inference locale (zero reseau)
+      // Tier 1: SLM on-device (zero reseau, privacy totale)
       try {
         narrative = await _generateViaSlm(
           profile: profile,
@@ -202,24 +217,7 @@ class CoachNarrativeService {
           tips: tips,
         );
       } catch (_) {
-        // Fallback vers statique si SLM echoue
-        narrative = _generateStatic(
-          profile: profile,
-          scoreHistory: scoreHistory,
-          tips: tips,
-        );
-      }
-    } else if (byokConfig != null && byokConfig.hasApiKey) {
-      // 3b. BYOK configure → appel LLM cloud
-      try {
-        narrative = await _generateViaLlm(
-          profile: profile,
-          scoreHistory: scoreHistory,
-          tips: tips,
-          config: byokConfig,
-        );
-      } catch (_) {
-        // Fallback vers statique si LLM echoue (resilience)
+        // Fallback vers templates enrichis si SLM echoue
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
@@ -227,12 +225,28 @@ class CoachNarrativeService {
         );
       }
     } else {
-      // 3c. Aucun LLM → templates statiques
+      // Tier 2: Templates enrichis (zero LLM, toujours disponible)
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
       );
+
+      // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
+      // Tente d'ameliorer le narratif statique si BYOK est configure.
+      // En cas d'echec, le narratif statique reste intact.
+      if (byokConfig != null && byokConfig.hasApiKey) {
+        try {
+          narrative = await _generateViaLlm(
+            profile: profile,
+            scoreHistory: scoreHistory,
+            tips: tips,
+            config: byokConfig,
+          );
+        } catch (_) {
+          // Resilience: garde le narratif statique deja genere
+        }
+      }
     }
 
     // 4. Appliquer les guardrails sur TOUS les modes (SLM, LLM et statique)
@@ -269,7 +283,9 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName = profile.firstName ?? 'utilisateur';
+    final firstName = (profile.firstName != null && profile.firstName!.isNotEmpty)
+        ? profile.firstName!
+        : 'toi';
 
     // Score calculation
     FinancialFitnessScore? score;
@@ -318,6 +334,7 @@ class CoachNarrativeService {
     final now = DateTime.now();
 
     // Oct-Dec: deadline 3a avant le 31 decembre (OPP3 art. 7)
+    // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
           profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
@@ -326,8 +343,13 @@ class CoachNarrativeService {
       if (marge > 0) {
         final deadline = DateTime(now.year, 12, 31);
         final joursRestants = deadline.difference(now).inDays;
-        urgentAlert = 'Il reste $joursRestants jours pour maximiser ton 3a '
-            '(CHF ${marge.toStringAsFixed(0)} de marge). '
+        // Estimate tax savings from the remaining 3a margin
+        final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
+        final economie = marge * tauxEstime;
+        urgentAlert = 'Il te reste $joursRestants jours pour verser '
+            'CHF ${marge.toStringAsFixed(0)} en 3a et economiser '
+            '~CHF ${economie.toStringAsFixed(0)} d\'impots '
+            '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
             '\u2014 OPP3 art. 7';
       }
     }
@@ -343,6 +365,21 @@ class CoachNarrativeService {
       }
     }
 
+    // ── chiffreChocNarration + retirementCountdown (static fallback) ──
+    String? chiffreChocNarration;
+    String? retirementCountdown;
+    if (profile.age >= 45) {
+      final yearsLeft = profile.anneesAvantRetraite;
+      final retAge = profile.effectiveRetirementAge;
+      retirementCountdown = 'Plus que ${yearsLeft * 12} mois avant ta retraite '
+          'a $retAge ans.';
+
+      if (yearsLeft <= 10) {
+        chiffreChocNarration = 'A ${profile.age} ans, tu as encore $yearsLeft '
+            'ans pour optimiser ta prevoyance.';
+      }
+    }
+
     return CoachNarrative(
       greeting: greeting,
       scoreSummary: scoreSummary,
@@ -352,6 +389,8 @@ class CoachNarrativeService {
       milestoneMessage:
           null, // Milestones: async detection, handled in generate()
       scenarioNarrations: scenarioNarrations,
+      chiffreChocNarration: chiffreChocNarration,
+      retirementCountdown: retirementCountdown,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),
     );
@@ -531,7 +570,9 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName = profile.firstName ?? 'utilisateur';
+    final firstName = (profile.firstName != null && profile.firstName!.isNotEmpty)
+        ? profile.firstName!
+        : 'toi';
     final age = profile.age;
     final etatCivil = profile.etatCivil.name;
     final employmentStatus = profile.employmentStatus;
@@ -598,12 +639,29 @@ class CoachNarrativeService {
         '- Streak check-in : ${streak.currentStreak} mois consecutifs');
     buffer.writeln('- Dernier check-in : $dernierCheckIn');
     buffer.writeln();
+    // Retirement context for 45-60 age group
+    buffer.write(_buildRetirementContext(profile));
+
+    // Educational snippets (pre-computed, factual)
+    buffer.write(_buildEducationalSnippets(profile));
+
+    buffer.writeln('CONSTANTES SUISSES (grounding — valeurs 2025) :');
+    buffer.writeln('- Rente AVS max individuelle : 2\'520 CHF/mois (LAVS art. 34)');
+    buffer.writeln('- Taux conversion LPP min : 6.8% (LPP art. 14)');
+    buffer.writeln(
+        '- Reduction taux conversion par annee anticipee : ~0.2% (LPP art. 13 al. 2)');
+    buffer.writeln('- Plafond 3a salarie : 7\'258 CHF/an (OPP3 art. 7)');
+    buffer.writeln('- Seuil LPP : 22\'680 CHF/an (LPP art. 7)');
+    buffer.writeln(
+        '- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
+    buffer.writeln();
+
     buffer.writeln('TIPS ACTIFS (par priorite) :');
     buffer.writeln(tipsFormatted);
     buffer.writeln();
     buffer.writeln('INSTRUCTIONS :');
     buffer.writeln(
-        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste)');
+        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), chiffreChocNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
     buffer.writeln(
         '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)');
     buffer.writeln(
@@ -621,6 +679,157 @@ class CoachNarrativeService {
         '9. Ton educatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
     buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
 
+    return buffer.toString();
+  }
+
+  /// Build retirement context block for the SLM prompt.
+  ///
+  /// Injects countdown, urgency level, and replacement rate estimate
+  /// for users aged 45+. Returns empty string for younger users.
+  static String _buildRetirementContext(CoachProfile profile) {
+    if (profile.age < 45) return '';
+
+    final buffer = StringBuffer();
+    final retirementAge = profile.effectiveRetirementAge;
+    final yearsLeft = profile.anneesAvantRetraite;
+    final monthsLeft = yearsLeft * 12;
+
+    final urgency = yearsLeft <= 5
+        ? 'URGENT'
+        : yearsLeft <= 10
+            ? 'IMPORTANT'
+            : 'NORMAL';
+
+    // Quick replacement rate estimate (AVS + LPP rente / gross salary)
+    double replacementRate = 0;
+    if (profile.revenuBrutAnnuel > 0) {
+      // AVS: ~roughly estimated monthly
+      final avsEstimate = profile.revenuBrutAnnuel > 88200
+          ? 2520.0
+          : (profile.revenuBrutAnnuel / 88200 * 2520).clamp(1260.0, 2520.0);
+      // LPP: rough estimate from existing balance + remaining bonifications
+      final lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
+      final lppMonthlyEstimate = lppBalance * 0.068 / 12;
+      final totalRetirement = avsEstimate + lppMonthlyEstimate;
+      replacementRate = totalRetirement / (profile.revenuBrutAnnuel / 12);
+    }
+
+    buffer.writeln('CONTEXTE RETRAITE :');
+    buffer.writeln('- Age de retraite cible : $retirementAge ans');
+    buffer.writeln(
+        '- Countdown : Plus que $yearsLeft ans ($monthsLeft mois)');
+    buffer.writeln('- Niveau d\'urgence : $urgency');
+    if (replacementRate > 0) {
+      buffer.writeln(
+          '- Taux de remplacement estime : ~${(replacementRate * 100).toStringAsFixed(0)}%');
+    }
+    if (retirementAge < 65) {
+      buffer.writeln(
+          '- Retraite anticipee : penalite AVS de ${((65 - retirementAge) * 6.8).toStringAsFixed(1)}% '
+          '+ taux conversion LPP reduit');
+    }
+    buffer.writeln();
+
+    return buffer.toString();
+  }
+
+  /// Build pre-computed educational snippets relevant to the user's profile.
+  ///
+  /// Injected into the SLM system prompt so the LLM can reference factual
+  /// snippets without hallucinating. Max 3-5 snippets.
+  static String _buildEducationalSnippets(CoachProfile profile) {
+    final snippets = <String>[];
+
+    // 3a not maxed out
+    final cotisation3a = profile.total3aMensuel * 12;
+    if (cotisation3a < 7258 && profile.prevoyance.canContribute3a) {
+      final marge = 7258 - cotisation3a;
+      snippets.add(
+          'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
+          'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
+    }
+
+    // LPP buyback available
+    final lacune = profile.prevoyance.lacuneRachatRestante;
+    if (lacune > 5000) {
+      snippets.add(
+          'SNIPPET LPP: Lacune de rachat LPP de CHF ${lacune.toStringAsFixed(0)} '
+          '— deductible a 100% du revenu imposable (LPP art. 79b).');
+    }
+
+    // AVS gaps
+    final lacunesAvs = profile.prevoyance.lacunesAVS ?? 0;
+    if (lacunesAvs > 0) {
+      snippets.add(
+          'SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
+          'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
+          'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
+    }
+
+    // Close to retirement — coordination reminder
+    if (profile.age >= 55 && profile.anneesAvantRetraite <= 10) {
+      snippets.add(
+          'SNIPPET COORDINATION: A ${profile.anneesAvantRetraite} ans de la '
+          'retraite, la coordination des retraits (3a echelonne, LPP '
+          'rente/capital, AVS anticipation/ajournement) peut avoir un '
+          'impact fiscal significatif.');
+    }
+
+    // Time Machine insight (M6A) — regret + hope
+    if (profile.age >= 45) {
+      final timeMachine = _buildTimeMachineInsight(profile);
+      if (timeMachine != null) snippets.add(timeMachine);
+    }
+
+    if (snippets.isEmpty) return '';
+
+    final buffer = StringBuffer();
+    buffer.writeln('SNIPPETS EDUCATIFS (factuels, pre-calcules) :');
+    for (final s in snippets) {
+      buffer.writeln('- $s');
+    }
+    buffer.writeln();
+    return buffer.toString();
+  }
+
+  /// Time Machine insight: backward (regret) + forward (hope) 3a projection.
+  ///
+  /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
+  /// Pure compound interest: annual 7258 CHF at 2% average return.
+  static String? _buildTimeMachineInsight(CoachProfile profile) {
+    const plafond = 7258.0;
+    const avgReturn = 0.02; // Conservative 3a average
+
+    final retAge = profile.effectiveRetirementAge;
+    final age = profile.age;
+
+    // Backward: if started maxing 3a at age 30
+    final yearsIfStarted30 = (age - 30).clamp(0, 40);
+    double regretBalance = 0;
+    for (int i = 0; i < yearsIfStarted30; i++) {
+      regretBalance = (regretBalance + plafond) * (1 + avgReturn);
+    }
+
+    // Forward: from now to retirement
+    final yearsForward = (retAge - age).clamp(0, 40);
+    double hopeBalance = 0;
+    for (int i = 0; i < yearsForward; i++) {
+      hopeBalance = (hopeBalance + plafond) * (1 + avgReturn);
+    }
+
+    if (regretBalance <= 0 && hopeBalance <= 0) return null;
+
+    final buffer = StringBuffer('TIME MACHINE 3A: ');
+    if (yearsIfStarted30 > 0 && regretBalance > 10000) {
+      buffer.write(
+          'Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
+          'CHF ${regretBalance.toStringAsFixed(0)} aujourd\'hui. ');
+    }
+    if (yearsForward > 0) {
+      buffer.write(
+          'En versant le max pendant $yearsForward ans → '
+          '+CHF ${hopeBalance.toStringAsFixed(0)} a la retraite.');
+    }
     return buffer.toString();
   }
 
@@ -705,6 +914,8 @@ class CoachNarrativeService {
       scenarioNarrations: (json['scenarioNarrations'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      chiffreChocNarration: json['chiffreChocNarration'] as String?,
+      retirementCountdown: json['retirementCountdown'] as String?,
       isLlmGenerated: true,
       generatedAt: DateTime.now(),
     );
@@ -730,6 +941,12 @@ class CoachNarrativeService {
       scenarioNarrations: narrative.scenarioNarrations
           ?.map((s) => _filterBannedTerms(s))
           .toList(),
+      chiffreChocNarration: narrative.chiffreChocNarration != null
+          ? _filterBannedTerms(narrative.chiffreChocNarration!)
+          : null,
+      retirementCountdown: narrative.retirementCountdown != null
+          ? _filterBannedTerms(narrative.retirementCountdown!)
+          : null,
       isLlmGenerated: narrative.isLlmGenerated,
       generatedAt: narrative.generatedAt,
     );

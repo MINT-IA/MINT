@@ -108,10 +108,10 @@ class WithdrawalSequenceChart extends StatelessWidget {
 
   Widget _buildEmptyState({required bool hasCapital}) {
     final message = hasCapital
-        ? "Avec un seul compte, l'echelonnement n'apporte pas d'economie "
-            "supplementaire. Ouvrir un 2e compte 3a permet de repartir les "
-            "retraits sur plusieurs annees fiscales."
-        : "Aucun capital a retirer \u2014 pas d'optimisation possible.";
+        ? "Avec un seul compte, l'échelonnement n'apporte pas d'économie "
+            "supplémentaire. Ouvrir un 2e compte 3a permet de répartir les "
+            "retraits sur plusieurs années fiscales."
+        : "Aucun capital à retirer \u2014 pas d'optimisation possible.";
 
     return Container(
       width: double.infinity,

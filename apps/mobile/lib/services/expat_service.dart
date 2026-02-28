@@ -359,10 +359,10 @@ class ExpatService {
       'canton': canton,
       'cantonNom': cantonNames[canton] ?? canton,
       'recommendation': eligible
-          ? 'Tu es eligible au statut de quasi-resident. Cela te permet de '
-              'faire une taxation ordinaire avec deductions (3a, frais effectifs, etc.). '
-              'L\'economie potentielle est estimee a ${formatChf(potentialSavings)}/an.'
-          : 'Tu n\'es pas eligible au statut de quasi-resident. '
+          ? 'Tu es éligible au statut de quasi-résident. Cela te permet de '
+              'faire une taxation ordinaire avec déductions (3a, frais effectifs, etc.). '
+              'L\'économie potentielle est estimée à ${formatChf(potentialSavings)}/an.'
+          : 'Tu n\'es pas éligible au statut de quasi-résident. '
               'Il te faudrait que ${(quasiResidentThreshold * 100).toStringAsFixed(0)}% '
               'de tes revenus mondiaux proviennent de Suisse.',
       'disclaimer': disclaimer,

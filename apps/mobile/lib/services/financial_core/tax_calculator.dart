@@ -12,6 +12,15 @@ import 'package:mint_mobile/services/fiscal_service.dart';
 class RetirementTaxCalculator {
   RetirementTaxCalculator._();
 
+  /// Disclaimer: LPP rente is taxable income (LIFD art. 22).
+  ///
+  /// Capital withdrawal is taxed separately at withdrawal (LIFD art. 38).
+  /// SWR drawdown from withdrawn capital is consumption of own patrimony —
+  /// NOT taxable income. Never double-tax capital.
+  static const String renteLppTaxDisclaimer =
+      'La rente LPP est imposee comme revenu (LIFD art. 22). '
+      'Consulte un·e specialiste fiscal·e pour une estimation personnalisee.';
+
   /// Progressive capital withdrawal tax (LIFD art. 38).
   ///
   /// Brackets: 0-100k (1.0×), 100k-200k (1.15×), 200k-500k (1.30×),
@@ -57,6 +66,31 @@ class RetirementTaxCalculator {
       totalTax += remaining * baseRate * lastMultiplier;
     }
     return totalTax;
+  }
+
+  /// Simplified marginal tax rate by canton bracket.
+  ///
+  /// Source: AFC taux marginaux d'imposition 2025.
+  /// Used for chiffre-choc estimates — NOT for precise tax returns.
+  static double estimateMarginalRate(double revenuBrutAnnuel, String canton) {
+    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
+    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
+
+    double baseRate;
+    if (revenuBrutAnnuel > 200000) {
+      baseRate = 0.38;
+    } else if (revenuBrutAnnuel > 120000) {
+      baseRate = 0.32;
+    } else if (revenuBrutAnnuel > 80000) {
+      baseRate = 0.28;
+    } else {
+      baseRate = 0.22;
+    }
+
+    final cantonCode = canton.toUpperCase();
+    if (highTaxCantons.contains(cantonCode)) return baseRate * 1.1;
+    if (lowTaxCantons.contains(cantonCode)) return baseRate * 0.75;
+    return baseRate;
   }
 
   /// Estimate retirement income tax (annual → monthly).

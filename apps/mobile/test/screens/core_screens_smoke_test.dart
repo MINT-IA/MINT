@@ -53,23 +53,26 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
+      // Step 1 is now "Essentials" with profile header
       expect(find.textContaining('profil'), findsWidgets);
+      expect(find.textContaining('canton'), findsWidgets);
     });
 
-    testWidgets('shows step 1 essentials inputs', (tester) async {
+    testWidgets('shows step 1 essentials fields', (tester) async {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step 1 essentials: birth year, canton, first name
+      // Step 1 shows name, birth year and canton fields
       expect(find.byType(TextField), findsWidgets);
       expect(find.byType(DropdownButtonFormField<String>), findsWidgets);
+      expect(find.textContaining('naissance'), findsOneWidget);
     });
 
-    testWidgets('has step indicator', (tester) async {
+    testWidgets('has step indicator showing 1/3', (tester) async {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step indicator (1/3)
+      // Step indicator (1/3 for 3-step onboarding)
       expect(find.text('1/3'), findsOneWidget);
     });
 
@@ -81,7 +84,7 @@ void main() {
       expect(find.byType(PageView), findsOneWidget);
     });
 
-    testWidgets('step 3 shows goal chips and projection preview',
+    testWidgets('step 3 shows goal chips and CTA',
         (tester) async {
       // Use a tall viewport to avoid offscreen tap issues
       tester.view.physicalSize = const Size(800, 1600);
@@ -94,51 +97,53 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // ── Step 1: enter birth year + canton ──
+      // ── Step 1 (Essentials): enter birth year + canton ──
       await tester.enterText(find.byType(TextField).at(1), '1990');
       await tester.pump();
-      // Open canton dropdown and pick first item
+      // Open canton dropdown and pick Zurich
       await tester.tap(find.byType(DropdownButtonFormField<String>).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Zurich (ZH)').last);
       await tester.pumpAndSettle();
+      // Tap "Suivant" button — triggers AHA bottom sheet
       await tester.ensureVisible(find.textContaining('Suivant'));
       await tester.tap(find.textContaining('Suivant'));
       await tester.pumpAndSettle();
-
-      // An AHA bottom sheet may appear — dismiss it if present
-      if (find.textContaining('Continuer').evaluate().isNotEmpty) {
-        await tester.tap(find.textContaining('Continuer').last);
+      // Dismiss the AHA bottom sheet by tapping its "Continuer" button
+      final continuerInSheet = find.textContaining('Continuer');
+      if (continuerInSheet.evaluate().isNotEmpty) {
+        await tester.tap(continuerInSheet.last);
         await tester.pumpAndSettle();
       }
 
-      // ── Step 2: enter income + status + household + housing ──
+      // ── Step 2 (Income): enter income + employment + household + housing ──
+      expect(find.text('2/3'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, '6000');
       await tester.pump();
-      await tester.tap(find.textContaining('Salarie'));
+      await tester.tap(find.textContaining('Salarie').first);
       await tester.pump();
+      await tester.ensureVisible(find.textContaining('Seul'));
       await tester.tap(find.textContaining('Seul'));
       await tester.pump();
-      // Scroll down to housing section and select housing status
-      final scrollable2 = find.byType(Scrollable).first;
-      await tester.drag(scrollable2, const Offset(0, -300));
-      await tester.pump();
+      await tester.ensureVisible(find.textContaining('Locataire'));
       await tester.tap(find.textContaining('Locataire'));
       await tester.pump();
-      // Enter housing cost in the loyer field
-      final loyerField = find.byType(TextField).at(1);
-      await tester.enterText(loyerField, '1500');
+      // Enter housing cost
+      final housingField = find.byType(TextField).at(1);
+      await tester.ensureVisible(housingField);
+      await tester.enterText(housingField, '1500');
       await tester.pump();
+      // Tap "Continuer" button to advance to step 3
       await tester.ensureVisible(find.textContaining('Continuer'));
       await tester.tap(find.textContaining('Continuer'));
       await tester.pumpAndSettle();
 
-      // ── Step 3: verify goal chips ──
+      // ── Step 3 (Goal): verify goal chips ──
       expect(find.text('3/3'), findsOneWidget);
       expect(find.textContaining('retraite'), findsWidgets);
-      expect(find.textContaining('immobilier'), findsOneWidget);
+      expect(find.textContaining('immobilier'), findsWidgets);
       expect(find.textContaining('dettes'), findsWidgets);
-      expect(find.textContaining('independance'), findsOneWidget);
+      expect(find.textContaining('independance'), findsWidgets);
 
       // CTA button present but disabled (no goal selected yet)
       expect(find.textContaining('Activer mon dashboard'), findsOneWidget);
@@ -147,7 +152,7 @@ void main() {
     testWidgets(
         'step 2 couple blocks progression until partner required fields are complete',
         (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.physicalSize = const Size(800, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
         tester.view.resetPhysicalSize();
@@ -157,7 +162,7 @@ void main() {
       await tester.pumpWidget(buildOnboarding());
       await tester.pump();
 
-      // Step 1: enter birth year + canton
+      // ── Step 1 (Essentials): enter birth year + canton ──
       await tester.enterText(find.byType(TextField).at(1), '1990');
       await tester.pump();
       await tester.tap(find.byType(DropdownButtonFormField<String>).first);
@@ -167,21 +172,26 @@ void main() {
       await tester.ensureVisible(find.textContaining('Suivant'));
       await tester.tap(find.textContaining('Suivant'));
       await tester.pumpAndSettle();
-
-      // An AHA bottom sheet may appear — dismiss it if present
-      if (find.textContaining('Continuer').evaluate().isNotEmpty) {
-        await tester.tap(find.textContaining('Continuer').last);
+      // Dismiss the AHA bottom sheet if shown
+      final continuerBtn = find.textContaining('Continuer');
+      if (continuerBtn.evaluate().isNotEmpty) {
+        await tester.tap(continuerBtn.last);
         await tester.pumpAndSettle();
       }
 
-      // Step 2: enter income + status + couple
+      // ── Step 2 (Income): enter income + employment + select "En couple" ──
+      expect(find.text('2/3'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, '7000');
       await tester.pump();
-      await tester.tap(find.textContaining('Salarie'));
+      await tester.tap(find.textContaining('Salarie').first);
       await tester.pump();
+      await tester.ensureVisible(find.textContaining('En couple'));
       await tester.tap(find.textContaining('En couple'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
+      // Selecting En couple reveals partner fields.
+      // The "Continuer" button should still be present but
+      // the provider blocks advance until partner data is complete.
       // Must still be on step 2 when partner data is missing.
       expect(find.text('2/3'), findsOneWidget);
       expect(find.text('3/3'), findsNothing);
