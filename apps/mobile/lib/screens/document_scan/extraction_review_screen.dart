@@ -530,7 +530,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   // ── Confirm and navigate ─────────────────────────────────
 
-  void _onConfirmAll() {
+  Future<void> _onConfirmAll() async {
     // Build the confirmed result
     final confirmedResult = ExtractionResult(
       documentType: widget.result.documentType,
@@ -555,16 +555,18 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       previousConfidence = currentConfidence.score.round();
     }
 
-    // Inject extracted data into the profile based on document type
+    // Inject extracted data and AWAIT persistence before navigating
     switch (widget.result.documentType) {
       case DocumentType.lppCertificate:
-        coachProvider.updateFromLppExtraction(_fields);
+        await coachProvider.updateFromLppExtraction(_fields);
       case DocumentType.avsExtract:
-        coachProvider.updateFromAvsExtraction(_fields);
+        await coachProvider.updateFromAvsExtraction(_fields);
       default:
         // Other document types: not yet wired
         break;
     }
+
+    if (!mounted) return;
 
     // Navigate to impact screen with real confidence values
     Navigator.of(context).push(

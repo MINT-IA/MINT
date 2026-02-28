@@ -1170,10 +1170,19 @@ void main() {
         ),
         dettes: const DetteProfile(),
         goalA: _testGoalA(),
+        // Both profiles contribute Julien + Lauren 3a = 1209.66/mo = 14515.92/yr
+        // This exceeds individual cap (7258) but fits couple cap (14516).
+        // FATCA case: conjoint can't contribute → capped at individual plafond.
         plannedContributions: const [
           PlannedMonthlyContribution(
             id: '3a_julien',
             label: '3a Julien',
+            amount: 604.83,
+            category: '3a',
+          ),
+          PlannedMonthlyContribution(
+            id: '3a_lauren',
+            label: '3a Lauren',
             amount: 604.83,
             category: '3a',
           ),
@@ -1220,6 +1229,12 @@ void main() {
           PlannedMonthlyContribution(
             id: '3a_julien',
             label: '3a Julien',
+            amount: 604.83,
+            category: '3a',
+          ),
+          PlannedMonthlyContribution(
+            id: '3a_lauren',
+            label: '3a Lauren',
             amount: 604.83,
             category: '3a',
           ),

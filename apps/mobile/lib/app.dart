@@ -116,7 +116,6 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
-import 'package:mint_mobile/screens/onboarding/onboarding_minimal_screen.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';

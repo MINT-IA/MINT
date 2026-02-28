@@ -241,9 +241,9 @@ class _RetirementDashboardScreenState
                     userName: profile.firstName ?? 'Toi',
                     conjointName:
                         profile.conjoint!.firstName ?? 'Conjoint\u00b7e',
-                    userRetirementYear: profile.birthYear + 65,
+                    userRetirementYear: profile.birthYear + profile.effectiveRetirementAge,
                     conjointRetirementYear:
-                        profile.conjoint!.birthYear! + 65,
+                        profile.conjoint!.birthYear! + profile.conjoint!.effectiveRetirementAge,
                     phases: retProj.phases,
                   ),
                   const SizedBox(height: 16),
@@ -275,7 +275,7 @@ class _RetirementDashboardScreenState
                   previousScore: score.deltaVsPreviousMonth != null
                       ? score.global - (score.deltaVsPreviousMonth ?? 0)
                       : null,
-                  onTap: () => context.push('/coach/dashboard'),
+                  onTap: null, // Already on dashboard — no nav needed
                 ),
                 const SizedBox(height: 16),
 
@@ -361,7 +361,7 @@ class _RetirementDashboardScreenState
                   previousScore: score.deltaVsPreviousMonth != null
                       ? score.global - (score.deltaVsPreviousMonth ?? 0)
                       : null,
-                  onTap: () => context.push('/coach/dashboard'),
+                  onTap: null, // Already on dashboard — no nav needed
                 ),
                 const SizedBox(height: 16),
                 const ExploreHub(),
@@ -491,7 +491,7 @@ class _RetirementDashboardScreenState
             icon: Icons.savings_outlined,
             color: MintColors.retirement3a,
             title: '3\u00e8me pilier — 3a',
-            text: '\u00c9pargne volontaire avec d\u00e9duction fiscale jusqu\u00e0 CHF\u00a07\'258/an (OPP3 art. 7).',
+            text: '\u00c9pargne volontaire avec d\u00e9duction fiscale (OPP3 art. 7).',
           ),
         ],
       ),

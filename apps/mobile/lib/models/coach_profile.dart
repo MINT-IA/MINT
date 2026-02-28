@@ -1217,6 +1217,15 @@ class CoachProfile {
     }
     final avsYears = _parseInt(answers['q_avs_contribution_years']);
 
+    // ── Extraction-persisted fields (survive restart) ─────────
+    final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);
+    final coachAvoirLppSuroblig = _parseDouble(answers['_coach_avoir_lpp_suroblig']);
+    final coachTauxConversion = _parseDouble(answers['_coach_taux_conversion']);
+    final coachTauxConvSuroblig = _parseDouble(answers['_coach_taux_conversion_suroblig']);
+    final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
+    final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
+    final coachAvsRenteEstimee = _parseDouble(answers['_coach_avs_rente_estimee']);
+
     // Estimate LPP total based on age and salary (rough Swiss average).
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere.
     // For independants without LPP (LPP art. 4): no bonifications estimated.
@@ -1243,9 +1252,14 @@ class CoachProfile {
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
-      lacunesAVS: avsGaps > 0 ? avsGaps : null,
+      lacunesAVS: coachAvsLacunes ?? (avsGaps > 0 ? avsGaps : null),
+      renteAVSEstimeeMensuelle: coachAvsRenteEstimee,
       avoirLppTotal: estimatedLpp,
-      rachatMaximum: lppBuybackAvailable,
+      avoirLppObligatoire: coachAvoirLppOblig,
+      avoirLppSurobligatoire: coachAvoirLppSuroblig,
+      tauxConversion: coachTauxConversion ?? 0.068,
+      tauxConversionSuroblig: coachTauxConvSuroblig,
+      rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
     );

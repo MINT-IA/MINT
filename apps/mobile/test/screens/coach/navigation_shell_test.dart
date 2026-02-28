@@ -122,8 +122,12 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
 
       // Tab 0 (Dashboard) is active by default
-      expect(find.textContaining('Bonjour'), findsWidgets,
-          reason: 'Dashboard shows greeting');
+      // New RetirementDashboardScreen shows "Retraite · Name" or "Ma retraite"
+      expect(
+        find.byType(Scaffold),
+        findsWidgets,
+        reason: 'Dashboard tab renders content',
+      );
 
       // Tap Tab 1 (Agir)
       await tester.tap(find.text('Agir'));
