@@ -83,8 +83,8 @@ class MinimalProfileService {
     final effectiveDebtService = monthlyDebtService
         ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
 
-    // --- Total retirement income ---
-    final totalMonthlyRetirement = avsMonthly + lppMonthly - effectiveDebtService;
+    // --- Total retirement income (clamped >= 0, aligned with backend) ---
+    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly - effectiveDebtService);
     final grossMonthlySalary = grossSalary / 12;
     final replacementRate =
         grossMonthlySalary > 0 ? totalMonthlyRetirement / grossMonthlySalary : 0.0;
