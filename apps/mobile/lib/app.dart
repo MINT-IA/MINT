@@ -106,6 +106,8 @@ import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 import 'package:mint_mobile/screens/timeline_screen.dart';
 // Coach screens (Sprint C5-C10)
 import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
@@ -169,7 +171,9 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/dashboard',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachDashboardScreen(),
+      builder: (context, state) => FeatureFlags.useNewDashboard
+          ? const RetirementDashboardScreen()
+          : const CoachDashboardScreen(),
     ),
     GoRoute(
       path: '/coach/agir',

@@ -122,11 +122,11 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
 
       // Tab 0 (Dashboard) is active by default
-      // New RetirementDashboardScreen shows "Retraite · Name" or "Ma retraite"
+      // RetirementDashboardScreen shows "Retraite · {name}" or "Ma retraite"
       expect(
-        find.byType(Scaffold),
+        find.textContaining('etraite', findRichText: true),
         findsWidgets,
-        reason: 'Dashboard tab renders content',
+        reason: 'Dashboard tab shows retirement content',
       );
 
       // Tap Tab 1 (Agir)

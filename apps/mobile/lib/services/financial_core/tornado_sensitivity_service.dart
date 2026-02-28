@@ -671,6 +671,8 @@ class TornadoSensitivityService {
       tauxConversion: tauxConversion ?? original.tauxConversion,
       tauxConversionSuroblig: original.tauxConversionSuroblig,
       rendementCaisse: rendementCaisse ?? original.rendementCaisse,
+      salaireAssure: original.salaireAssure,
+      ramd: original.ramd,
       nombre3a: original.nombre3a,
       totalEpargne3a: totalEpargne3a ?? original.totalEpargne3a,
       comptes3a: original.comptes3a,

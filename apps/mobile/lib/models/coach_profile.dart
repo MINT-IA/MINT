@@ -170,6 +170,10 @@ class PrevoyanceProfile {
   final double tauxConversion; // taux de la caisse (min legal 6.8%)
   final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
+  final double? salaireAssure; // salaire assure LPP (from certificate)
+
+  // --- AVS (from extraction) ---
+  final double? ramd; // revenu annuel moyen determinant (AVS)
 
   // --- 3a ---
   final int nombre3a; // nombre de comptes 3a
@@ -190,6 +194,8 @@ class PrevoyanceProfile {
     this.tauxConversion = 0.068,
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
+    this.salaireAssure,
+    this.ramd,
     this.nombre3a = 0,
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
@@ -228,6 +234,8 @@ class PrevoyanceProfile {
       tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
       tauxConversionSuroblig: (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
+      salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
+      ramd: (json['ramd'] as num?)?.toDouble(),
       nombre3a: json['nombre3a'] ?? 0,
       totalEpargne3a: (json['totalEpargne3a'] as num?)?.toDouble() ?? 0,
       comptes3a: (json['comptes3a'] as List?)
@@ -251,6 +259,8 @@ class PrevoyanceProfile {
     'tauxConversion': tauxConversion,
     'tauxConversionSuroblig': tauxConversionSuroblig,
     'rendementCaisse': rendementCaisse,
+    'salaireAssure': salaireAssure,
+    'ramd': ramd,
     'nombre3a': nombre3a,
     'totalEpargne3a': totalEpargne3a,
     'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
@@ -1223,8 +1233,10 @@ class CoachProfile {
     final coachTauxConversion = _parseDouble(answers['_coach_taux_conversion']);
     final coachTauxConvSuroblig = _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
+    final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
     final coachAvsRenteEstimee = _parseDouble(answers['_coach_avs_rente_estimee']);
+    final coachAvsRamd = _parseDouble(answers['_coach_avs_ramd']);
 
     // Estimate LPP total based on age and salary (rough Swiss average).
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere.
@@ -1260,6 +1272,8 @@ class CoachProfile {
       tauxConversion: coachTauxConversion ?? 0.068,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
+      salaireAssure: coachSalaireAssure,
+      ramd: coachAvsRamd,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
     );
