@@ -26,6 +26,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for diff-cover on PRs
 
       - uses: actions/setup-python@v5
         with:
@@ -34,13 +36,18 @@ jobs:
           cache-dependency-path: services/backend/pyproject.toml
 
       - name: Install dependencies (app + dev/test deps)
-        run: pip install ".[dev]" pytest-cov
+        run: pip install ".[dev]" pytest-cov diff-cover
 
       - name: Run tests
         env:
           TESTING: "1"
           DATABASE_URL: "sqlite:///./test.db"
-        run: python -m pytest tests/ -q --tb=short -x --cov=app --cov-report=term-missing --cov-fail-under=60
+        run: python -m pytest tests/ -q --tb=short -x --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml --cov-fail-under=60
+
+      - name: Changed-lines coverage (PRs only, ≥80%)
+        if: github.event_name == 'pull_request'
+        working-directory: .
+        run: diff-cover services/backend/coverage.xml --compare-branch=origin/main --fail-under=80
 
       - name: OpenAPI contract check
         env:

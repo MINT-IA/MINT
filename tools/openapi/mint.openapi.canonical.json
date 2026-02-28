@@ -740,7 +740,7 @@
             "type": "string"
           },
           "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+            "$ref": "#/components/schemas/h_e891bcbaa9e3__ChiffreChocResponse",
             "description": "Chiffre choc"
           },
           "differenceNette": {
@@ -1887,7 +1887,7 @@
           "recurring_monthly": {
             "description": "Detected recurring monthly transactions",
             "items": {
-              "$ref": "#/components/schemas/app__schemas__document__TransactionResponse"
+              "$ref": "#/components/schemas/h_56bf17ec2da1__TransactionResponse"
             },
             "title": "Recurring Monthly",
             "type": "array"
@@ -1907,7 +1907,7 @@
           "transactions": {
             "description": "Extracted and categorized transactions",
             "items": {
-              "$ref": "#/components/schemas/app__schemas__document__TransactionResponse"
+              "$ref": "#/components/schemas/h_56bf17ec2da1__TransactionResponse"
             },
             "title": "Transactions",
             "type": "array"
@@ -2666,7 +2666,7 @@
           "transactions": {
             "description": "Transactions categorisees",
             "items": {
-              "$ref": "#/components/schemas/TransactionResponse"
+              "$ref": "#/components/schemas/h_ddb4a57cba60__TransactionResponse"
             },
             "title": "Transactions",
             "type": "array"
@@ -2813,96 +2813,6 @@
           "disclaimer"
         ],
         "title": "ChecklistConcubinageResponse",
-        "type": "object"
-      },
-      "ChecklistItem": {
-        "description": "Un element de la checklist de depart.",
-        "properties": {
-          "action": {
-            "description": "Action a effectuer",
-            "title": "Action",
-            "type": "string"
-          },
-          "delai": {
-            "description": "Delai recommande",
-            "title": "Delai",
-            "type": "string"
-          },
-          "priorite": {
-            "description": "Priorite (haute, moyenne, basse)",
-            "title": "Priorite",
-            "type": "string"
-          }
-        },
-        "required": [
-          "priorite",
-          "action",
-          "delai"
-        ],
-        "title": "ChecklistItem",
-        "type": "object"
-      },
-      "ChecklistItemResponse": {
-        "description": "A single insurance checklist item.",
-        "properties": {
-          "categorie": {
-            "description": "Categorie : obligatoire, recommandee, optionnelle",
-            "title": "Categorie",
-            "type": "string"
-          },
-          "coutEstimeAnnuel": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Fourchette de cout annuel estime",
-            "title": "Coutestimeannuel"
-          },
-          "description": {
-            "description": "Description",
-            "title": "Description",
-            "type": "string"
-          },
-          "id": {
-            "description": "Identifiant",
-            "title": "Id",
-            "type": "string"
-          },
-          "source": {
-            "description": "Source legale",
-            "title": "Source",
-            "type": "string"
-          },
-          "statut": {
-            "description": "Statut : couvert, non_couvert, a_verifier",
-            "title": "Statut",
-            "type": "string"
-          },
-          "titre": {
-            "description": "Titre de l'assurance",
-            "title": "Titre",
-            "type": "string"
-          },
-          "urgence": {
-            "description": "Urgence : critique, haute, moyenne, basse",
-            "title": "Urgence",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "categorie",
-          "titre",
-          "description",
-          "urgence",
-          "statut",
-          "source"
-        ],
-        "title": "ChecklistItemResponse",
         "type": "object"
       },
       "ChecklistMariageRequest": {
@@ -3112,7 +3022,7 @@
           "items": {
             "description": "Checklist items",
             "items": {
-              "$ref": "#/components/schemas/app__schemas__job_comparison__ChecklistItem"
+              "$ref": "#/components/schemas/h_a311694edeb1__ChecklistItem"
             },
             "title": "Items",
             "type": "array"
@@ -3123,27 +3033,6 @@
           "disclaimer"
         ],
         "title": "ChecklistResponse",
-        "type": "object"
-      },
-      "ChiffreChocResponse": {
-        "description": "Shock figure with amount and text.",
-        "properties": {
-          "montant": {
-            "description": "Montant du chiffre choc (CHF)",
-            "title": "Montant",
-            "type": "number"
-          },
-          "texte": {
-            "description": "Texte explicatif",
-            "title": "Texte",
-            "type": "string"
-          }
-        },
-        "required": [
-          "montant",
-          "texte"
-        ],
-        "title": "ChiffreChocResponse",
         "type": "object"
       },
       "ChurchTaxEstimateRequest": {
@@ -3532,7 +3421,7 @@
             "type": "number"
           },
           "etatCivil": {
-            "$ref": "#/components/schemas/app__schemas__coaching__EtatCivil",
+            "$ref": "#/components/schemas/h_b45372c17287__EtatCivil",
             "default": "celibataire",
             "description": "Civil status"
           },
@@ -4759,33 +4648,6 @@
         "title": "ConsentStatusResponse",
         "type": "object"
       },
-      "ConsentUpdateRequest": {
-        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).",
-        "properties": {
-          "categorie": {
-            "$ref": "#/components/schemas/ConsentCategory",
-            "description": "Categorie de traitement a modifier"
-          },
-          "estActif": {
-            "description": "True pour consentir, False pour retirer le consentement",
-            "title": "Estactif",
-            "type": "boolean"
-          },
-          "profileId": {
-            "description": "Identifiant unique du profil utilisateur",
-            "minLength": 1,
-            "title": "Profileid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "profileId",
-          "categorie",
-          "estActif"
-        ],
-        "title": "ConsentUpdateRequest",
-        "type": "object"
-      },
       "ConsentUpdateResponse": {
         "description": "Reponse pour la mise a jour d'un consentement.",
         "properties": {
@@ -4932,7 +4794,7 @@
           "checklist": {
             "description": "Liste des assurances evaluees",
             "items": {
-              "$ref": "#/components/schemas/ChecklistItemResponse"
+              "$ref": "#/components/schemas/h_9ed53dec0b71__ChecklistItemResponse"
             },
             "title": "Checklist",
             "type": "array"
@@ -4950,7 +4812,7 @@
           "recommandations": {
             "description": "Recommandations",
             "items": {
-              "$ref": "#/components/schemas/RecommandationResponse"
+              "$ref": "#/components/schemas/h_ebcc925d58e4__RecommandationResponse"
             },
             "title": "Recommandations",
             "type": "array"
@@ -5975,7 +5837,7 @@
           "checklist": {
             "description": "Checklist de depart",
             "items": {
-              "$ref": "#/components/schemas/ChecklistItem"
+              "$ref": "#/components/schemas/h_f8f05ee7c17c__ChecklistItem"
             },
             "title": "Checklist",
             "type": "array"
@@ -7444,7 +7306,7 @@
             "type": "array"
           },
           "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+            "$ref": "#/components/schemas/h_e891bcbaa9e3__ChiffreChocResponse",
             "description": "Chiffre choc"
           },
           "detail": {
@@ -7496,17 +7358,6 @@
         ],
         "title": "EplCombinedResponse",
         "type": "object"
-      },
-      "EtatCivil": {
-        "description": "Civil status.",
-        "enum": [
-          "celibataire",
-          "marie",
-          "divorce",
-          "veuf"
-        ],
-        "title": "EtatCivil",
-        "type": "string"
       },
       "EventNotificationRequest": {
         "description": "Requete pour generer les notifications evenementielles.",
@@ -8693,7 +8544,7 @@
             "type": "string"
           },
           "etatCivil": {
-            "$ref": "#/components/schemas/EtatCivil",
+            "$ref": "#/components/schemas/h_59af2e36de1e__EtatCivil",
             "default": "celibataire",
             "description": "Civil status"
           },
@@ -8748,7 +8599,7 @@
           },
           "checklist": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__segments__ChecklistItemResponse"
+              "$ref": "#/components/schemas/h_b1d8f918546e__ChecklistItemResponse"
             },
             "title": "Checklist",
             "type": "array"
@@ -8767,7 +8618,7 @@
           },
           "recommandations": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__segments__RecommandationResponse"
+              "$ref": "#/components/schemas/h_ebd6f6c97f30__RecommandationResponse"
             },
             "title": "Recommandations",
             "type": "array"
@@ -8957,7 +8808,7 @@
           },
           "recommandations": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__segments__RecommandationResponse"
+              "$ref": "#/components/schemas/h_ebd6f6c97f30__RecommandationResponse"
             },
             "title": "Recommandations",
             "type": "array"
@@ -9535,7 +9386,7 @@
             "type": "string"
           },
           "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+            "$ref": "#/components/schemas/h_e891bcbaa9e3__ChiffreChocResponse",
             "description": "Chiffre choc"
           },
           "deductionAssurance": {
@@ -9794,7 +9645,7 @@
           },
           "recommandations": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__segments__RecommandationResponse"
+              "$ref": "#/components/schemas/h_ebd6f6c97f30__RecommandationResponse"
             },
             "title": "Recommandations",
             "type": "array"
@@ -10414,7 +10265,7 @@
           "recommandations": {
             "description": "Recommandations personnalisees",
             "items": {
-              "$ref": "#/components/schemas/RecommandationResponse"
+              "$ref": "#/components/schemas/h_ebcc925d58e4__RecommandationResponse"
             },
             "title": "Recommandations",
             "type": "array"
@@ -10664,7 +10515,7 @@
           "recommandations": {
             "description": "Recommandations personnalisees",
             "items": {
-              "$ref": "#/components/schemas/app__schemas__lpp_deep__RecommandationResponse"
+              "$ref": "#/components/schemas/h_962873029011__RecommandationResponse"
             },
             "title": "Recommandations",
             "type": "array"
@@ -11814,7 +11665,7 @@
             "type": "array"
           },
           "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+            "$ref": "#/components/schemas/h_e891bcbaa9e3__ChiffreChocResponse",
             "description": "Chiffre choc"
           },
           "decompositionCharges": {
@@ -14829,45 +14680,6 @@
         "title": "RealReturnResponse",
         "type": "object"
       },
-      "RecommandationResponse": {
-        "description": "A single recommendation.",
-        "properties": {
-          "description": {
-            "description": "Description detaillee",
-            "title": "Description",
-            "type": "string"
-          },
-          "id": {
-            "description": "Identifiant de la recommandation",
-            "title": "Id",
-            "type": "string"
-          },
-          "priorite": {
-            "description": "Priorite : haute, moyenne, basse",
-            "title": "Priorite",
-            "type": "string"
-          },
-          "source": {
-            "description": "Source legale",
-            "title": "Source",
-            "type": "string"
-          },
-          "titre": {
-            "description": "Titre",
-            "title": "Titre",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "titre",
-          "description",
-          "source",
-          "priorite"
-        ],
-        "title": "RecommandationResponse",
-        "type": "object"
-      },
       "Recommendation": {
         "properties": {
           "alternatives": {
@@ -16057,7 +15869,7 @@
         "description": "Full response for SARON vs Fixed comparison.",
         "properties": {
           "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+            "$ref": "#/components/schemas/h_e891bcbaa9e3__ChiffreChocResponse",
             "description": "Chiffre choc"
           },
           "coutTotalFixe": {
@@ -17594,7 +17406,7 @@
             "type": "number"
           },
           "etatCivil": {
-            "$ref": "#/components/schemas/app__schemas__life_events__EtatCivil",
+            "$ref": "#/components/schemas/h_9602b9ec805b__EtatCivil",
             "description": "Civil status"
           },
           "fortuneTotale": {
@@ -18207,75 +18019,6 @@
           "cumulativeTaxImpact"
         ],
         "title": "TrajectoireOptionSchema",
-        "type": "object"
-      },
-      "TransactionResponse": {
-        "description": "A single bank transaction.",
-        "properties": {
-          "amount": {
-            "description": "Montant (CHF)",
-            "title": "Amount",
-            "type": "number"
-          },
-          "category": {
-            "description": "Categorie de depense",
-            "title": "Category",
-            "type": "string"
-          },
-          "confidence": {
-            "description": "Score de confiance de la categorisation (0-1)",
-            "title": "Confidence",
-            "type": "number"
-          },
-          "currency": {
-            "default": "CHF",
-            "description": "Devise",
-            "title": "Currency",
-            "type": "string"
-          },
-          "date": {
-            "description": "Date de la transaction (YYYY-MM-DD)",
-            "title": "Date",
-            "type": "string"
-          },
-          "description": {
-            "description": "Description",
-            "title": "Description",
-            "type": "string"
-          },
-          "id": {
-            "description": "Identifiant de la transaction",
-            "title": "Id",
-            "type": "string"
-          },
-          "isDebit": {
-            "description": "Debit (true) ou credit (false)",
-            "title": "Isdebit",
-            "type": "boolean"
-          },
-          "merchant": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Nom du commercant",
-            "title": "Merchant"
-          }
-        },
-        "required": [
-          "id",
-          "date",
-          "description",
-          "amount",
-          "category",
-          "isDebit",
-          "confidence"
-        ],
-        "title": "TransactionResponse",
         "type": "object"
       },
       "UnemploymentBenefitsRequest": {
@@ -19038,17 +18781,28 @@
         "title": "YearlyWithdrawalEntryResponse",
         "type": "object"
       },
-      "app__schemas__coaching__EtatCivil": {
-        "enum": [
-          "celibataire",
-          "marie",
-          "divorce",
-          "veuf"
+      "h_23998a381e30__ConsentUpdateRequest": {
+        "description": "Request body for PATCH /reengagement/consent/{user_id}.",
+        "properties": {
+          "consentType": {
+            "description": "Type de consentement (byok_data_sharing, snapshot_storage, notifications)",
+            "title": "Consenttype",
+            "type": "string"
+          },
+          "enabled": {
+            "description": "Activer (true) ou desactiver (false)",
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "consentType",
+          "enabled"
         ],
-        "title": "EtatCivil",
-        "type": "string"
+        "title": "ConsentUpdateRequest",
+        "type": "object"
       },
-      "app__schemas__document__TransactionResponse": {
+      "h_56bf17ec2da1__TransactionResponse": {
         "description": "A single bank transaction in the API response.",
         "properties": {
           "amount": {
@@ -19111,78 +18865,18 @@
         "title": "TransactionResponse",
         "type": "object"
       },
-      "app__schemas__job_comparison__ChecklistItem": {
-        "description": "A single checklist item for the 'before you sign' template.",
-        "properties": {
-          "category": {
-            "description": "Category (prevoyance, risque, administratif, fiscal)",
-            "title": "Category",
-            "type": "string"
-          },
-          "label": {
-            "description": "Checklist item description",
-            "title": "Label",
-            "type": "string"
-          },
-          "priority": {
-            "description": "Priority: haute, moyenne, basse",
-            "title": "Priority",
-            "type": "string"
-          }
-        },
-        "required": [
-          "label",
-          "category",
-          "priority"
-        ],
-        "title": "ChecklistItem",
-        "type": "object"
-      },
-      "app__schemas__life_events__EtatCivil": {
+      "h_59af2e36de1e__EtatCivil": {
+        "description": "Civil status.",
         "enum": [
-          "marie",
           "celibataire",
+          "marie",
           "divorce",
-          "veuf",
-          "concubin"
+          "veuf"
         ],
         "title": "EtatCivil",
         "type": "string"
       },
-      "app__schemas__lpp_deep__RecommandationResponse": {
-        "description": "A recommendation.",
-        "properties": {
-          "description": {
-            "description": "Description detaillee",
-            "title": "Description",
-            "type": "string"
-          },
-          "sourceLegale": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Source legale",
-            "title": "Sourcelegale"
-          },
-          "titre": {
-            "description": "Titre de la recommandation",
-            "title": "Titre",
-            "type": "string"
-          }
-        },
-        "required": [
-          "titre",
-          "description"
-        ],
-        "title": "RecommandationResponse",
-        "type": "object"
-      },
-      "app__schemas__onboarding__ChiffreChocResponse": {
+      "h_829c1a0e8779__ChiffreChocResponse": {
         "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
         "properties": {
           "actionText": {
@@ -19242,28 +18936,141 @@
         "title": "ChiffreChocResponse",
         "type": "object"
       },
-      "app__schemas__reengagement__ConsentUpdateRequest": {
-        "description": "Request body for PATCH /reengagement/consent/{user_id}.",
+      "h_9602b9ec805b__EtatCivil": {
+        "enum": [
+          "marie",
+          "celibataire",
+          "divorce",
+          "veuf",
+          "concubin"
+        ],
+        "title": "EtatCivil",
+        "type": "string"
+      },
+      "h_962873029011__RecommandationResponse": {
+        "description": "A recommendation.",
         "properties": {
-          "consentType": {
-            "description": "Type de consentement (byok_data_sharing, snapshot_storage, notifications)",
-            "title": "Consenttype",
+          "description": {
+            "description": "Description detaillee",
+            "title": "Description",
             "type": "string"
           },
-          "enabled": {
-            "description": "Activer (true) ou desactiver (false)",
-            "title": "Enabled",
-            "type": "boolean"
+          "sourceLegale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source legale",
+            "title": "Sourcelegale"
+          },
+          "titre": {
+            "description": "Titre de la recommandation",
+            "title": "Titre",
+            "type": "string"
           }
         },
         "required": [
-          "consentType",
-          "enabled"
+          "titre",
+          "description"
         ],
-        "title": "ConsentUpdateRequest",
+        "title": "RecommandationResponse",
         "type": "object"
       },
-      "app__schemas__segments__ChecklistItemResponse": {
+      "h_9ed53dec0b71__ChecklistItemResponse": {
+        "description": "A single insurance checklist item.",
+        "properties": {
+          "categorie": {
+            "description": "Categorie : obligatoire, recommandee, optionnelle",
+            "title": "Categorie",
+            "type": "string"
+          },
+          "coutEstimeAnnuel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fourchette de cout annuel estime",
+            "title": "Coutestimeannuel"
+          },
+          "description": {
+            "description": "Description",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "description": "Identifiant",
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "description": "Source legale",
+            "title": "Source",
+            "type": "string"
+          },
+          "statut": {
+            "description": "Statut : couvert, non_couvert, a_verifier",
+            "title": "Statut",
+            "type": "string"
+          },
+          "titre": {
+            "description": "Titre de l'assurance",
+            "title": "Titre",
+            "type": "string"
+          },
+          "urgence": {
+            "description": "Urgence : critique, haute, moyenne, basse",
+            "title": "Urgence",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categorie",
+          "titre",
+          "description",
+          "urgence",
+          "statut",
+          "source"
+        ],
+        "title": "ChecklistItemResponse",
+        "type": "object"
+      },
+      "h_a311694edeb1__ChecklistItem": {
+        "description": "A single checklist item for the 'before you sign' template.",
+        "properties": {
+          "category": {
+            "description": "Category (prevoyance, risque, administratif, fiscal)",
+            "title": "Category",
+            "type": "string"
+          },
+          "label": {
+            "description": "Checklist item description",
+            "title": "Label",
+            "type": "string"
+          },
+          "priority": {
+            "description": "Priority: haute, moyenne, basse",
+            "title": "Priority",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "category",
+          "priority"
+        ],
+        "title": "ChecklistItem",
+        "type": "object"
+      },
+      "h_b1d8f918546e__ChecklistItemResponse": {
         "description": "A single checklist item.",
         "properties": {
           "item": {
@@ -19287,7 +19094,173 @@
         "title": "ChecklistItemResponse",
         "type": "object"
       },
-      "app__schemas__segments__RecommandationResponse": {
+      "h_b45372c17287__EtatCivil": {
+        "enum": [
+          "celibataire",
+          "marie",
+          "divorce",
+          "veuf"
+        ],
+        "title": "EtatCivil",
+        "type": "string"
+      },
+      "h_be51dd6254bd__ConsentUpdateRequest": {
+        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).",
+        "properties": {
+          "categorie": {
+            "$ref": "#/components/schemas/ConsentCategory",
+            "description": "Categorie de traitement a modifier"
+          },
+          "estActif": {
+            "description": "True pour consentir, False pour retirer le consentement",
+            "title": "Estactif",
+            "type": "boolean"
+          },
+          "profileId": {
+            "description": "Identifiant unique du profil utilisateur",
+            "minLength": 1,
+            "title": "Profileid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profileId",
+          "categorie",
+          "estActif"
+        ],
+        "title": "ConsentUpdateRequest",
+        "type": "object"
+      },
+      "h_ddb4a57cba60__TransactionResponse": {
+        "description": "A single bank transaction.",
+        "properties": {
+          "amount": {
+            "description": "Montant (CHF)",
+            "title": "Amount",
+            "type": "number"
+          },
+          "category": {
+            "description": "Categorie de depense",
+            "title": "Category",
+            "type": "string"
+          },
+          "confidence": {
+            "description": "Score de confiance de la categorisation (0-1)",
+            "title": "Confidence",
+            "type": "number"
+          },
+          "currency": {
+            "default": "CHF",
+            "description": "Devise",
+            "title": "Currency",
+            "type": "string"
+          },
+          "date": {
+            "description": "Date de la transaction (YYYY-MM-DD)",
+            "title": "Date",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "description": "Identifiant de la transaction",
+            "title": "Id",
+            "type": "string"
+          },
+          "isDebit": {
+            "description": "Debit (true) ou credit (false)",
+            "title": "Isdebit",
+            "type": "boolean"
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nom du commercant",
+            "title": "Merchant"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "description",
+          "amount",
+          "category",
+          "isDebit",
+          "confidence"
+        ],
+        "title": "TransactionResponse",
+        "type": "object"
+      },
+      "h_e891bcbaa9e3__ChiffreChocResponse": {
+        "description": "Shock figure with amount and text.",
+        "properties": {
+          "montant": {
+            "description": "Montant du chiffre choc (CHF)",
+            "title": "Montant",
+            "type": "number"
+          },
+          "texte": {
+            "description": "Texte explicatif",
+            "title": "Texte",
+            "type": "string"
+          }
+        },
+        "required": [
+          "montant",
+          "texte"
+        ],
+        "title": "ChiffreChocResponse",
+        "type": "object"
+      },
+      "h_ebcc925d58e4__RecommandationResponse": {
+        "description": "A single recommendation.",
+        "properties": {
+          "description": {
+            "description": "Description detaillee",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "description": "Identifiant de la recommandation",
+            "title": "Id",
+            "type": "string"
+          },
+          "priorite": {
+            "description": "Priorite : haute, moyenne, basse",
+            "title": "Priorite",
+            "type": "string"
+          },
+          "source": {
+            "description": "Source legale",
+            "title": "Source",
+            "type": "string"
+          },
+          "titre": {
+            "description": "Titre",
+            "title": "Titre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "titre",
+          "description",
+          "source",
+          "priorite"
+        ],
+        "title": "RecommandationResponse",
+        "type": "object"
+      },
+      "h_ebd6f6c97f30__RecommandationResponse": {
         "description": "A single recommendation.",
         "properties": {
           "description": {
@@ -19319,6 +19292,33 @@
           "priorite"
         ],
         "title": "RecommandationResponse",
+        "type": "object"
+      },
+      "h_f8f05ee7c17c__ChecklistItem": {
+        "description": "Un element de la checklist de depart.",
+        "properties": {
+          "action": {
+            "description": "Action a effectuer",
+            "title": "Action",
+            "type": "string"
+          },
+          "delai": {
+            "description": "Delai recommande",
+            "title": "Delai",
+            "type": "string"
+          },
+          "priorite": {
+            "description": "Priorite (haute, moyenne, basse)",
+            "title": "Priorite",
+            "type": "string"
+          }
+        },
+        "required": [
+          "priorite",
+          "action",
+          "delai"
+        ],
+        "title": "ChecklistItem",
         "type": "object"
       }
     },
@@ -24498,7 +24498,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/app__schemas__onboarding__ChiffreChocResponse"
+                  "$ref": "#/components/schemas/h_829c1a0e8779__ChiffreChocResponse"
                 }
               }
             },
@@ -24701,7 +24701,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/TransactionResponse"
+                    "$ref": "#/components/schemas/h_ddb4a57cba60__TransactionResponse"
                   },
                   "title": "Response List Transactions Api V1 Open Banking Accounts  Account Id  Transactions Get",
                   "type": "array"
@@ -25283,7 +25283,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConsentUpdateRequest"
+                "$ref": "#/components/schemas/h_be51dd6254bd__ConsentUpdateRequest"
               }
             }
           },
@@ -25840,7 +25840,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/app__schemas__reengagement__ConsentUpdateRequest"
+                "$ref": "#/components/schemas/h_23998a381e30__ConsentUpdateRequest"
               }
             }
           },

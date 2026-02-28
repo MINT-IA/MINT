@@ -31,7 +31,8 @@ class FeatureFlags {
   // ── P6: Billing tiers ─────────────────────────────────────
 
   /// Enable Couple+ tier in the paywall.
-  /// Server-side source of truth: GET /api/v1/config/feature-flags.
+  /// Default: true (hardcoded). P6 will replace with server-driven
+  /// value from GET /api/v1/config/feature-flags (endpoint TODO P6).
   /// If false, paywall shows only Free/Starter/Premium.
   static bool enableCouplePlusTier = true;
 }
