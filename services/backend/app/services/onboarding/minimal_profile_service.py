@@ -349,7 +349,7 @@ def _build_enrichment_prompts(estimated_fields: List[str]) -> List[str]:
 def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     """Compute a full financial snapshot from minimal inputs.
 
-    Given 3 required fields (age, gross_salary, canton) and up to 5 optional
+    Given 3 required fields (age, gross_salary, canton) and up to 7 optional
     enrichment fields, produces projected retirement income, tax savings,
     liquidity, and a confidence score.
 
@@ -463,13 +463,19 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         max(0.0, estimated_monthly_retirement - monthly_debt_impact), 2
     )
 
-    # ── Replacement ratio ───────────────────────────────────────────────────
-    if estimated_monthly_expenses > 0:
+    # ── Replacement ratio (vs gross salary, standard Swiss definition) ─────
+    gross_monthly_salary = input.gross_salary / 12
+    if gross_monthly_salary > 0:
         estimated_replacement_ratio = round(
-            estimated_monthly_retirement / estimated_monthly_expenses, 4
+            estimated_monthly_retirement / gross_monthly_salary, 4
         )
     else:
         estimated_replacement_ratio = 0.0
+
+    # ── Retirement gap (vs gross salary) ──────────────────────────────────
+    retirement_gap_monthly = round(
+        max(0.0, gross_monthly_salary - estimated_monthly_retirement), 2
+    )
 
     # ── Tax saving 3a ───────────────────────────────────────────────────────
     marginal_tax_rate = _compute_marginal_tax_rate(input.gross_salary, canton)
@@ -493,6 +499,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         estimated_replacement_ratio=estimated_replacement_ratio,
         estimated_monthly_retirement=estimated_monthly_retirement,
         estimated_monthly_expenses=estimated_monthly_expenses,
+        retirement_gap_monthly=retirement_gap_monthly,
         tax_saving_3a=tax_saving_3a,
         existing_3a=existing_3a,
         marginal_tax_rate=marginal_tax_rate,

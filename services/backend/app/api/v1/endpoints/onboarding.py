@@ -72,6 +72,7 @@ def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
             estimated_replacement_ratio=result.estimated_replacement_ratio,
             estimated_monthly_retirement=result.estimated_monthly_retirement,
             estimated_monthly_expenses=result.estimated_monthly_expenses,
+            retirement_gap_monthly=result.retirement_gap_monthly,
             monthly_debt_impact=result.monthly_debt_impact,
             tax_saving_3a=result.tax_saving_3a,
             marginal_tax_rate=result.marginal_tax_rate,

@@ -55,6 +55,7 @@ class MinimalProfileResult:
     estimated_replacement_ratio: float
     estimated_monthly_retirement: float
     estimated_monthly_expenses: float
+    retirement_gap_monthly: float
     tax_saving_3a: float
     existing_3a: float
     marginal_tax_rate: float

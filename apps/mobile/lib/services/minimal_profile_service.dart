@@ -115,6 +115,7 @@ class MinimalProfileService {
       marginalTaxRate: marginalRate,
       currentSavings: effectiveSavings,
       estimatedMonthlyExpenses: estimatedMonthlyExpenses,
+      monthlyDebtImpact: effectiveDebtService,
       liquidityMonths: liquidityMonths,
       canton: canton,
       age: age,

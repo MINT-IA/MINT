@@ -47,6 +47,7 @@ def _make_profile(**overrides) -> MinimalProfileResult:
         estimated_replacement_ratio=0.60,
         estimated_monthly_retirement=3_700.0,
         estimated_monthly_expenses=5_800.0,
+        retirement_gap_monthly=4_633.33,
         tax_saving_3a=1_800.0,
         existing_3a=0.0,
         marginal_tax_rate=0.25,

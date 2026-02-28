@@ -4,7 +4,7 @@ Pydantic v2 schemas for the Onboarding module (Sprint S31).
 API convention: camelCase field names via alias_generator, ConfigDict.
 
 Covers:
-    - MinimalProfileRequest: input for minimal profile computation (3 required + 5 optional)
+    - MinimalProfileRequest: input for minimal profile computation (3 required + 8 optional)
     - MinimalProfileResponse: full projection result with confidence scoring
     - ChiffreChocResponse: single impactful number with educational context
 """
@@ -107,6 +107,9 @@ class MinimalProfileResponse(OnboardingBaseModel):
     )
     estimated_monthly_expenses: float = Field(
         ..., description="Charges mensuelles estimees actuelles (CHF)",
+    )
+    retirement_gap_monthly: float = Field(
+        ..., description="Ecart mensuel entre salaire brut et revenu retraite (CHF)",
     )
 
     # Debt impact

@@ -421,8 +421,10 @@ class ApiService {
         response,
         const ['estimatedReplacementRatio', 'estimated_replacement_ratio'],
       ),
-      retirementGapMonthly:
-          math.max(0, estimatedMonthlyExpenses - estimatedMonthlyRetirement),
+      retirementGapMonthly: _readDouble(
+        response,
+        const ['retirementGapMonthly', 'retirement_gap_monthly'],
+      ),
       taxSaving3a: _readDouble(
         response,
         const ['taxSaving3a', 'tax_saving_3a'],
@@ -433,6 +435,10 @@ class ApiService {
       ),
       currentSavings: currentSavingsValue,
       estimatedMonthlyExpenses: estimatedMonthlyExpenses,
+      monthlyDebtImpact: _readDouble(
+        response,
+        const ['monthlyDebtImpact', 'monthly_debt_impact'],
+      ),
       liquidityMonths: monthsLiquidity,
       canton: canton,
       age: age,

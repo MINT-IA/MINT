@@ -384,10 +384,14 @@ class TestReplacementRatio:
     """Test replacement ratio computation correctness."""
 
     def test_replacement_ratio_formula(self, minimal_result_30_80k_vd):
-        """Replacement ratio = (avs_monthly + lpp_monthly) / monthly_expenses."""
+        """Replacement ratio = estimated_monthly_retirement / gross_monthly_salary.
+
+        Standard Swiss taux de remplacement: retirement income vs salary, not expenses.
+        """
         r = minimal_result_30_80k_vd
-        if r.estimated_monthly_expenses > 0:
-            expected = (r.projected_avs_monthly + r.projected_lpp_monthly) / r.estimated_monthly_expenses
+        gross_monthly = 80_000.0 / 12
+        if gross_monthly > 0:
+            expected = r.estimated_monthly_retirement / gross_monthly
             assert abs(r.estimated_replacement_ratio - expected) < 0.001
 
     def test_retirement_income_sum(self, minimal_result_30_80k_vd):

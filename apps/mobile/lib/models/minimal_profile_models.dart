@@ -44,6 +44,9 @@ class MinimalProfileResult {
   /// Monthly expenses estimate (for liquidity analysis).
   final double estimatedMonthlyExpenses;
 
+  /// Monthly debt impact on retirement income (CHF).
+  final double monthlyDebtImpact;
+
   /// Liquidity coverage in months (currentSavings / monthlyExpenses).
   final double liquidityMonths;
 
@@ -91,6 +94,7 @@ class MinimalProfileResult {
     required this.marginalTaxRate,
     required this.currentSavings,
     required this.estimatedMonthlyExpenses,
+    required this.monthlyDebtImpact,
     required this.liquidityMonths,
     required this.canton,
     required this.age,
