@@ -29,6 +29,9 @@ class MinimalProfileService {
     double? existing3a,
     double? existingLpp,
     int? targetRetirementAge,
+    String? lppCaisseType,
+    double? totalDebts,
+    double? monthlyDebtService,
   }) {
     final estimatedFields = <String>[];
 
@@ -61,18 +64,27 @@ class MinimalProfileService {
     );
 
     // --- LPP projection (financial_core) ---
+    // Caisse complémentaire uses a blended conversion rate (~5.8%)
+    // vs standard minimum 6.8% (LPP art. 14 al. 2).
+    final effectiveConversionRate = lppCaisseType == 'complementaire'
+        ? 0.058
+        : lppTauxConversionMin / 100;
     final lppAnnualRente = LppCalculator.projectToRetirement(
       currentBalance: effectiveLpp,
       currentAge: age,
       retirementAge: effectiveRetAge,
       grossAnnualSalary: grossSalary,
       caisseReturn: lppTauxInteretMin / 100,
-      conversionRate: lppTauxConversionMin / 100,
+      conversionRate: effectiveConversionRate,
     );
     final lppMonthly = lppAnnualRente / 12;
 
-    // --- Total retirement income ---
-    final totalMonthlyRetirement = avsMonthly + lppMonthly;
+    // --- Debt service impact (anti-double-counting: subtract from income, not expenses) ---
+    final effectiveDebtService = monthlyDebtService
+        ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
+
+    // --- Total retirement income (clamped >= 0, aligned with backend) ---
+    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly - effectiveDebtService);
     final grossMonthlySalary = grossSalary / 12;
     final replacementRate =
         grossMonthlySalary > 0 ? totalMonthlyRetirement / grossMonthlySalary : 0.0;
@@ -103,6 +115,7 @@ class MinimalProfileService {
       marginalTaxRate: marginalRate,
       currentSavings: effectiveSavings,
       estimatedMonthlyExpenses: estimatedMonthlyExpenses,
+      monthlyDebtImpact: effectiveDebtService,
       liquidityMonths: liquidityMonths,
       canton: canton,
       age: age,

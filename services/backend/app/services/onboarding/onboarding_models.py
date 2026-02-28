@@ -36,6 +36,9 @@ class MinimalProfileInput:
     is_property_owner: Optional[bool] = None     # default: False
     existing_3a: Optional[float] = None          # default: 0
     existing_lpp: Optional[float] = None         # default: estimated from LPP projection
+    lpp_caisse_type: Optional[str] = None        # default: "base" (6.8% conversion rate)
+    total_debts: Optional[float] = None          # default: 0
+    monthly_debt_service: Optional[float] = None  # default: 0
 
 
 @dataclass
@@ -52,10 +55,12 @@ class MinimalProfileResult:
     estimated_replacement_ratio: float
     estimated_monthly_retirement: float
     estimated_monthly_expenses: float
+    retirement_gap_monthly: float
     tax_saving_3a: float
     existing_3a: float
     marginal_tax_rate: float
     months_liquidity: float
+    monthly_debt_impact: float
     confidence_score: float
     estimated_fields: List[str]
     archetype: str

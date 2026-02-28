@@ -4,7 +4,7 @@ Pydantic v2 schemas for the Onboarding module (Sprint S31).
 API convention: camelCase field names via alias_generator, ConfigDict.
 
 Covers:
-    - MinimalProfileRequest: input for minimal profile computation (3 required + 5 optional)
+    - MinimalProfileRequest: input for minimal profile computation (3 required + 8 optional)
     - MinimalProfileResponse: full projection result with confidence scoring
     - ChiffreChocResponse: single impactful number with educational context
 """
@@ -67,6 +67,19 @@ class MinimalProfileRequest(OnboardingBaseModel):
         default=None, ge=0,
         description="Avoir LPP actuel en CHF (certificat de prevoyance)",
     )
+    lpp_caisse_type: Optional[str] = Field(
+        default=None,
+        pattern=r"^(base|complementaire)$",
+        description="Type de caisse LPP: 'base' ou 'complementaire'",
+    )
+    total_debts: Optional[float] = Field(
+        default=None, ge=0,
+        description="Montant total des dettes en CHF",
+    )
+    monthly_debt_service: Optional[float] = Field(
+        default=None, ge=0,
+        description="Service de la dette mensuel en CHF",
+    )
 
 
 # ===========================================================================
@@ -94,6 +107,14 @@ class MinimalProfileResponse(OnboardingBaseModel):
     )
     estimated_monthly_expenses: float = Field(
         ..., description="Charges mensuelles estimees actuelles (CHF)",
+    )
+    retirement_gap_monthly: float = Field(
+        ..., description="Ecart mensuel entre salaire brut et revenu retraite (CHF)",
+    )
+
+    # Debt impact
+    monthly_debt_impact: float = Field(
+        ..., description="Impact mensuel de la dette sur le revenu de retraite (CHF)",
     )
 
     # Tax

@@ -7,6 +7,10 @@ import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
+// ZERO-PERSISTENCE GUARANTEE (P1):
+// All onboarding inputs stay in-memory until the user explicitly saves.
+// No SharedPreferences, no analytics payload, no auto-save before consent.
+
 /// Progressive enrichment screen — additional questions in rounds.
 ///
 /// Sprint S31 — Onboarding Redesign.
@@ -123,10 +127,7 @@ class _ProgressiveEnrichmentScreenState
         _has3a = true;
         _existing3a = (extra['existing3a'] as num).toDouble();
       }
-      if (extra['existingLpp'] is num) {
-        // Presence of existingLpp hints at complementaire
-        _lppCaisseType = 'complementaire';
-      }
+      // existingLpp does NOT determine caisse type — user selects explicitly
     }
     _recompute();
   }
@@ -164,6 +165,8 @@ class _ProgressiveEnrichmentScreenState
         isPropertyOwner: _isPropertyOwner,
         existing3a: existing3a,
         existingLpp: null,
+        lppCaisseType: _lppCaisseType,
+        totalDebts: _hasDebts == true ? _debtAmount : null,
       );
 
       if (!mounted) return;
@@ -180,6 +183,8 @@ class _ProgressiveEnrichmentScreenState
         isPropertyOwner: _isPropertyOwner,
         existing3a: existing3a,
         existingLpp: null, // Let service estimate unless user provides
+        lppCaisseType: _lppCaisseType,
+        totalDebts: _hasDebts == true ? _debtAmount : null,
       );
 
       if (!mounted) return;

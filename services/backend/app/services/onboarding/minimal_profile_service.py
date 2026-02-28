@@ -77,6 +77,14 @@ _LPP_INTEREST_RATE: float = LPP_TAUX_INTERET_MIN / 100.0  # 0.0125
 # LPP conversion rate
 _LPP_CONVERSION_RATE: float = LPP_TAUX_CONVERSION_MIN / 100.0  # 0.068
 
+# LPP blended conversion rate for "complementaire" caisses
+# Conservative estimate: ~60% obligatoire at 6.8% + ~40% surobligatoire at ~4.3%
+_LPP_CONVERSION_RATE_COMPLEMENTAIRE: float = 0.058
+
+# Debt: monthly estimation factor when only total_debts is provided
+# Assumes ~0.5% of total debt as monthly service (conservative proxy)
+_DEBT_MONTHLY_ESTIMATION_FACTOR: float = 0.005
+
 # Confidence scoring: base score with only 3 inputs, bonus per enrichment field
 _CONFIDENCE_BASE: float = 30.0
 _CONFIDENCE_BONUS_PER_FIELD: float = 10.0
@@ -93,9 +101,10 @@ _DISCLAIMER = (
 
 _SOURCES = [
     "LAVS art. 21-29 (rente AVS)",
-    "LPP art. 15-16 (bonifications vieillesse)",
+    "LPP art. 14-16 (conversion, bonifications vieillesse)",
     "LIFD art. 38 (imposition du capital)",
     "OPP3 art. 7 (plafond 3a)",
+    "CO art. 319ss (charges et dettes sur revenu disponible)",
 ]
 
 
@@ -265,14 +274,16 @@ def _compute_confidence_score(estimated_fields: List[str]) -> float:
     Base score: 30% with only 3 required inputs (age, salary, canton).
     Each enrichment field provided adds ~10% confidence.
 
-    The 5 optional fields are:
+    The 7 optional fields are:
     - household_type (+10%)
     - current_savings (+10%)
     - is_property_owner (+10%)
     - existing_3a (+10%)
     - existing_lpp (+10%)
+    - lpp_caisse_type (+10%)
+    - monthly_debt_service (+10%)
 
-    When all 5 are provided: 30 + 50 = 80%.
+    When all 7 are provided: 30 + 70 = 100%.
 
     Args:
         estimated_fields: List of field names that used default values.
@@ -280,7 +291,7 @@ def _compute_confidence_score(estimated_fields: List[str]) -> float:
     Returns:
         Confidence score (0-100).
     """
-    total_optional_fields = 5
+    total_optional_fields = 7
     fields_provided = total_optional_fields - len(estimated_fields)
     score = _CONFIDENCE_BASE + (fields_provided * _CONFIDENCE_BONUS_PER_FIELD)
     return round(min(max(score, 0.0), 100.0), 1)
@@ -318,6 +329,14 @@ def _build_enrichment_prompts(estimated_fields: List[str]) -> List[str]:
             "Renseigne ton avoir LPP actuel (visible sur ton certificat "
             "de prevoyance) pour une projection de retraite plus fiable."
         ),
+        "lpp_caisse_type": (
+            "Indique le type de ta caisse LPP (base ou complementaire) "
+            "pour un taux de conversion plus realiste."
+        ),
+        "monthly_debt_service": (
+            "Renseigne tes charges de dette mensuelles pour integrer "
+            "leur impact sur ton revenu de retraite disponible."
+        ),
     }
 
     return [prompts_map[f] for f in estimated_fields if f in prompts_map]
@@ -330,7 +349,7 @@ def _build_enrichment_prompts(estimated_fields: List[str]) -> List[str]:
 def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     """Compute a full financial snapshot from minimal inputs.
 
-    Given 3 required fields (age, gross_salary, canton) and up to 5 optional
+    Given 3 required fields (age, gross_salary, canton) and up to 7 optional
     enrichment fields, produces projected retirement income, tax savings,
     liquidity, and a confidence score.
 
@@ -387,6 +406,14 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         existing_lpp = _estimate_lpp_from_age_25(input.age, input.gross_salary)
         estimated_fields.append("existing_lpp")
 
+    # lpp_caisse_type
+    if input.lpp_caisse_type is None:
+        estimated_fields.append("lpp_caisse_type")
+
+    # monthly_debt_service (counts as provided if either debt field is given)
+    if input.monthly_debt_service is None and input.total_debts is None:
+        estimated_fields.append("monthly_debt_service")
+
     # ── AVS projection ──────────────────────────────────────────────────────
     # Contribution years: from age 21 to retirement (65), capped at 44
     years_until_retirement = max(0, _RETIREMENT_AGE - input.age)
@@ -404,7 +431,13 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         existing_lpp=existing_lpp,
         retirement_age=_RETIREMENT_AGE,
     )
-    projected_lpp_monthly = round(projected_lpp_capital * _LPP_CONVERSION_RATE / 12, 2)
+    # Select conversion rate based on caisse type
+    if input.lpp_caisse_type == "complementaire":
+        lpp_conversion_rate = _LPP_CONVERSION_RATE_COMPLEMENTAIRE
+    else:
+        # None or "base" → standard obligatory rate
+        lpp_conversion_rate = _LPP_CONVERSION_RATE
+    projected_lpp_monthly = round(projected_lpp_capital * lpp_conversion_rate / 12, 2)
 
     # ── Monthly expenses estimate ───────────────────────────────────────────
     net_salary_monthly = (input.gross_salary * _NET_SALARY_FACTOR) / 12
@@ -413,13 +446,36 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     # ── Retirement income ───────────────────────────────────────────────────
     estimated_monthly_retirement = round(projected_avs_monthly + projected_lpp_monthly, 2)
 
-    # ── Replacement ratio ───────────────────────────────────────────────────
-    if estimated_monthly_expenses > 0:
+    # ── Debt impact (anti-double-counting: subtract from retirement income,
+    #    NOT added to expenses) ────────────────────────────────────────────
+    # Priority: monthly_debt_service > total_debts estimate
+    # If both provided → IGNORE total_debts, use monthly_debt_service
+    monthly_debt_impact = 0.0
+    if input.monthly_debt_service is not None and input.monthly_debt_service > 0:
+        monthly_debt_impact = round(input.monthly_debt_service, 2)
+    elif input.total_debts is not None and input.total_debts > 0:
+        monthly_debt_impact = round(
+            input.total_debts * _DEBT_MONTHLY_ESTIMATION_FACTOR, 2
+        )
+
+    # Reduce available retirement income by debt service
+    estimated_monthly_retirement = round(
+        max(0.0, estimated_monthly_retirement - monthly_debt_impact), 2
+    )
+
+    # ── Replacement ratio (vs gross salary, standard Swiss definition) ─────
+    gross_monthly_salary = input.gross_salary / 12
+    if gross_monthly_salary > 0:
         estimated_replacement_ratio = round(
-            estimated_monthly_retirement / estimated_monthly_expenses, 4
+            estimated_monthly_retirement / gross_monthly_salary, 4
         )
     else:
         estimated_replacement_ratio = 0.0
+
+    # ── Retirement gap (vs gross salary) ──────────────────────────────────
+    retirement_gap_monthly = round(
+        max(0.0, gross_monthly_salary - estimated_monthly_retirement), 2
+    )
 
     # ── Tax saving 3a ───────────────────────────────────────────────────────
     marginal_tax_rate = _compute_marginal_tax_rate(input.gross_salary, canton)
@@ -443,10 +499,12 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         estimated_replacement_ratio=estimated_replacement_ratio,
         estimated_monthly_retirement=estimated_monthly_retirement,
         estimated_monthly_expenses=estimated_monthly_expenses,
+        retirement_gap_monthly=retirement_gap_monthly,
         tax_saving_3a=tax_saving_3a,
         existing_3a=existing_3a,
         marginal_tax_rate=marginal_tax_rate,
         months_liquidity=months_liquidity,
+        monthly_debt_impact=monthly_debt_impact,
         confidence_score=confidence_score,
         estimated_fields=estimated_fields,
         archetype="swiss_native",
