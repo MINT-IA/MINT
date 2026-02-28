@@ -8,6 +8,7 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
 
 /// "Coffre-fort" (Document Vault) screen.
 ///
@@ -121,7 +122,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       pinned: true,
       backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+        icon:
+            const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -293,7 +295,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       itemBuilder: (context, index) {
         final cat = categories[index];
         final count = _countDocumentsOfType(docProvider, cat.type);
-        return _buildCategoryCard(s, cat.type, cat.icon, cat.color, count, cat.label);
+        return _buildCategoryCard(
+            s, cat.type, cat.icon, cat.color, count, cat.label);
       },
     );
   }
@@ -348,8 +351,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
             Text(
               count > 0
-                  ? (s?.vaultCategoryCount(count.toString()) ??
-                      '$count')
+                  ? (s?.vaultCategoryCount(count.toString()) ?? '$count')
                   : (s?.vaultCategoryNone ?? 'Aucun'),
               style: TextStyle(
                 fontSize: 13,
@@ -393,8 +395,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   'le rendement admissible (CO art. 269). Le pr\u00e9avis l\u00e9gal est '
                   'de 3 mois pour un appartement, sauf clause contraire dans le bail. '
                   'L\u2019ASLOCA offre des consultations gratuites dans la plupart des cantons.',
-          source: s?.vaultGuidanceLeaseSource ??
-              'CO art. 269-270, OBLF art. 12-13',
+          source:
+              s?.vaultGuidanceLeaseSource ?? 'CO art. 269-270, OBLF art. 12-13',
         ),
         const SizedBox(height: 12),
 
@@ -410,8 +412,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   'assur\u00e9e m\u00e9nage couvre la valeur r\u00e9elle de tes biens. '
                   'La sous-assurance peut r\u00e9duire l\u2019indemnisation proportionnellement '
                   '(LCA art. 69).',
-          source: s?.vaultGuidanceInsuranceSource ??
-              'LCA art. 69, CGA assureurs',
+          source:
+              s?.vaultGuidanceInsuranceSource ?? 'LCA art. 69, CGA assureurs',
         ),
         const SizedBox(height: 12),
 
@@ -426,8 +428,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   '(franchise plus haute) ou au 31 d\u00e9cembre (franchise plus basse). '
                   'Un\u00b7e adulte en bonne sant\u00e9 peut \u00e9conomiser jusqu\u2019\u00e0 '
                   '1\u2019500 CHF/an avec une franchise de 2\u2019500 CHF vs 300 CHF.',
-          source: s?.vaultGuidanceLamalSource ??
-              'LAMal art. 62, OAMal art. 93-94',
+          source:
+              s?.vaultGuidanceLamalSource ?? 'LAMal art. 62, OAMal art. 93-94',
         ),
         const SizedBox(height: 12),
 
@@ -534,7 +536,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
         if (docProvider.documents.isEmpty)
           _buildEmptyState(s)
         else ...[
@@ -542,7 +543,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ..._buildGroupedDocuments(s, docProvider, sub),
 
           // Premium upsell if free user has reached limit
-          if (!sub.isCoach && docProvider.documents.length >= _freeDocLimit) ...[
+          if (!sub.isCoach &&
+              docProvider.documents.length >= _freeDocLimit) ...[
             const SizedBox(height: 16),
             _buildPremiumUpsellCard(s),
           ],
@@ -676,8 +678,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              s?.vaultConfidence(
-                                          confidence.toString()) ??
+                              s?.vaultConfidence(confidence.toString()) ??
                                   'Confiance : $confidence%',
                               style: TextStyle(
                                 fontSize: 11,
@@ -743,8 +744,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,
               foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -824,8 +824,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                // Navigate to premium/subscription page
-                context.push('/subscription');
+                // Open the existing coach paywall (no '/subscription' route exists)
+                Navigator.of(context).pop();
+                CoachPaywallSheet.show(context);
               },
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -1436,8 +1437,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(s?.vaultDeleteTitle ?? 'Supprimer le document ?'),
         content: Text(
             s?.vaultDeleteMessage ?? 'Cette action est irr\u00e9versible.'),
@@ -1448,8 +1448,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style:
-                FilledButton.styleFrom(backgroundColor: MintColors.error),
+            style: FilledButton.styleFrom(backgroundColor: MintColors.error),
             child: Text(s?.vaultDeleteButton ?? 'Supprimer'),
           ),
         ],
@@ -1462,8 +1461,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s?.vaultTitle ?? 'Coffre-fort',
           style: GoogleFonts.outfit(
@@ -1541,9 +1539,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   /// Count documents of a given type from the provider.
   int _countDocumentsOfType(
       DocumentProvider docProvider, VaultDocumentType type) {
-    return docProvider.documents
-        .where((d) => d.documentType == type)
-        .length;
+    return docProvider.documents.where((d) => d.documentType == type).length;
   }
 
   /// Get the display label for a document type.
@@ -1617,8 +1613,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // Helpers — Field entries (LPP-specific, kept for backward compat)
   // ──────────────────────────────────────────────────────────
 
-  List<(String, String)> _buildFieldEntries(
-      S? s, LppExtractedFields fields) {
+  List<(String, String)> _buildFieldEntries(S? s, LppExtractedFields fields) {
     final entries = <(String, String)>[];
 
     if (fields.avoirVieillesseTotal != null) {
@@ -1659,14 +1654,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
     if (fields.cotisationEmploye != null) {
       entries.add((
-        s?.documentsFieldCotisationEmploye ?? 'Cotisation employ\u00e9 annuelle',
+        s?.documentsFieldCotisationEmploye ??
+            'Cotisation employ\u00e9 annuelle',
         _formatChf(fields.cotisationEmploye!),
       ));
     }
     if (fields.cotisationEmployeur != null) {
       entries.add((
-        s?.documentsFieldCotisationEmployeur ??
-            'Cotisation employeur annuelle',
+        s?.documentsFieldCotisationEmployeur ?? 'Cotisation employeur annuelle',
         _formatChf(fields.cotisationEmployeur!),
       ));
     }
