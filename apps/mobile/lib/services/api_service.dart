@@ -371,6 +371,9 @@ class ApiService {
     bool? isPropertyOwner,
     double? existing3a,
     double? existingLpp,
+    String? lppCaisseType,
+    double? totalDebts,
+    double? monthlyDebtService,
   }) async {
     final response = await post('/onboarding/minimal-profile', {
       'age': age,
@@ -381,6 +384,9 @@ class ApiService {
       if (isPropertyOwner != null) 'is_property_owner': isPropertyOwner,
       if (existing3a != null) 'existing_3a': existing3a,
       if (existingLpp != null) 'existing_lpp': existingLpp,
+      if (lppCaisseType != null) 'lpp_caisse_type': lppCaisseType,
+      if (totalDebts != null) 'total_debts': totalDebts,
+      if (monthlyDebtService != null) 'monthly_debt_service': monthlyDebtService,
     });
 
     final estimatedMonthlyExpenses = _readDouble(
@@ -451,6 +457,9 @@ class ApiService {
     bool? isPropertyOwner,
     double? existing3a,
     double? existingLpp,
+    String? lppCaisseType,
+    double? totalDebts,
+    double? monthlyDebtService,
   }) async {
     final response = await post('/onboarding/chiffre-choc', {
       'age': age,
@@ -461,6 +470,9 @@ class ApiService {
       if (isPropertyOwner != null) 'is_property_owner': isPropertyOwner,
       if (existing3a != null) 'existing_3a': existing3a,
       if (existingLpp != null) 'existing_lpp': existingLpp,
+      if (lppCaisseType != null) 'lpp_caisse_type': lppCaisseType,
+      if (totalDebts != null) 'total_debts': totalDebts,
+      if (monthlyDebtService != null) 'monthly_debt_service': monthlyDebtService,
     });
 
     final category = _readString(

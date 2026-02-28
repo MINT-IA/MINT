@@ -44,6 +44,9 @@ def _request_to_input(request: MinimalProfileRequest) -> MinimalProfileInput:
         is_property_owner=request.is_property_owner,
         existing_3a=request.existing_3a,
         existing_lpp=request.existing_lpp,
+        lpp_caisse_type=request.lpp_caisse_type,
+        total_debts=request.total_debts,
+        monthly_debt_service=request.monthly_debt_service,
     )
 
 
@@ -69,6 +72,7 @@ def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
             estimated_replacement_ratio=result.estimated_replacement_ratio,
             estimated_monthly_retirement=result.estimated_monthly_retirement,
             estimated_monthly_expenses=result.estimated_monthly_expenses,
+            monthly_debt_impact=result.monthly_debt_impact,
             tax_saving_3a=result.tax_saving_3a,
             marginal_tax_rate=result.marginal_tax_rate,
             months_liquidity=result.months_liquidity,

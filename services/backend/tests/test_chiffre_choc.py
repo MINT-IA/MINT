@@ -51,6 +51,7 @@ def _make_profile(**overrides) -> MinimalProfileResult:
         existing_3a=0.0,
         marginal_tax_rate=0.25,
         months_liquidity=5.0,
+        monthly_debt_impact=0.0,
         confidence_score=30.0,
         estimated_fields=["household_type", "current_savings", "is_property_owner",
                           "existing_3a", "existing_lpp"],

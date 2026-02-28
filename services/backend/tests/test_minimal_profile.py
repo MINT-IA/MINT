@@ -69,6 +69,8 @@ def full_input_40_100k_zh():
         is_property_owner=True,
         existing_3a=25_000.0,
         existing_lpp=150_000.0,
+        lpp_caisse_type="base",
+        monthly_debt_service=0.0,
     )
 
 
@@ -161,9 +163,10 @@ class TestEstimatedFields:
     """Test correct tracking of which fields used defaults."""
 
     def test_all_optional_estimated_for_3_inputs(self, minimal_result_30_80k_vd):
-        """With only 3 inputs, all 5 optional fields should be estimated."""
+        """With only 3 inputs, all 7 optional fields should be estimated."""
         expected = ["household_type", "current_savings", "is_property_owner",
-                    "existing_3a", "existing_lpp"]
+                    "existing_3a", "existing_lpp", "lpp_caisse_type",
+                    "monthly_debt_service"]
         assert sorted(minimal_result_30_80k_vd.estimated_fields) == sorted(expected)
 
     def test_partial_enrichment(self):
@@ -188,7 +191,7 @@ class TestEstimatedFields:
         )
         r = compute_minimal_profile(inp)
         assert "current_savings" not in r.estimated_fields
-        assert len(r.estimated_fields) == 4
+        assert len(r.estimated_fields) == 6
 
 
 # ===========================================================================
@@ -202,18 +205,19 @@ class TestConfidenceScoring:
         """With only 3 required inputs, confidence should be < 50%."""
         assert minimal_result_30_80k_vd.confidence_score < 50
 
-    def test_confidence_exact_30_for_5_estimated(self):
-        """With all 5 optional fields estimated, score should be 30."""
+    def test_confidence_exact_30_for_7_estimated(self):
+        """With all 7 optional fields estimated, score should be 30."""
         score = _compute_confidence_score([
             "household_type", "current_savings", "is_property_owner",
-            "existing_3a", "existing_lpp",
+            "existing_3a", "existing_lpp", "lpp_caisse_type",
+            "monthly_debt_service",
         ])
         assert score == 30.0
 
-    def test_confidence_80_for_0_estimated(self):
-        """With no estimated fields, score should be 80."""
+    def test_confidence_100_for_0_estimated(self):
+        """With no estimated fields, score should be 100."""
         score = _compute_confidence_score([])
-        assert score == 80.0
+        assert score == 100.0
 
 
 # ===========================================================================

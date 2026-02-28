@@ -11316,6 +11316,45 @@
             ],
             "description": "True si proprietaire d'un bien immobilier",
             "title": "Ispropertyowner"
+          },
+          "lppCaisseType": {
+            "anyOf": [
+              {
+                "pattern": "^(base|complementaire)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Type de caisse LPP: 'base' ou 'complementaire'",
+            "title": "Lppcaissetype"
+          },
+          "monthlyDebtService": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Service de la dette mensuel en CHF",
+            "title": "Monthlydebtservice"
+          },
+          "totalDebts": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Montant total des dettes en CHF",
+            "title": "Totaldebts"
           }
         },
         "required": [
@@ -11380,6 +11419,11 @@
             "title": "Marginaltaxrate",
             "type": "number"
           },
+          "monthlyDebtImpact": {
+            "description": "Impact mensuel de la dette sur le revenu de retraite (CHF)",
+            "title": "Monthlydebtimpact",
+            "type": "number"
+          },
           "monthsLiquidity": {
             "description": "Nombre de mois de liquidite (epargne / charges)",
             "title": "Monthsliquidity",
@@ -11421,6 +11465,7 @@
           "estimatedReplacementRatio",
           "estimatedMonthlyRetirement",
           "estimatedMonthlyExpenses",
+          "monthlyDebtImpact",
           "taxSaving3A",
           "marginalTaxRate",
           "monthsLiquidity",

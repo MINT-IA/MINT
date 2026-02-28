@@ -75,7 +75,7 @@ class MinimalProfileResult {
   int get providedFieldsCount {
     // Base 3 fields (age, salary, canton) are always provided.
     // Additional fields reduce estimatedFields count.
-    const totalOptionalFields = 5; // household, savings, property, 3a, lpp
+    const totalOptionalFields = 7; // household, savings, property, 3a, lpp, lppCaisseType, debtService
     return 3 + (totalOptionalFields - estimatedFields.length);
   }
 

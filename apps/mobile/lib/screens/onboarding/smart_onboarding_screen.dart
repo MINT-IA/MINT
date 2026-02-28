@@ -6,6 +6,10 @@ import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
 
+// ZERO-PERSISTENCE GUARANTEE (P1):
+// All onboarding inputs stay in-memory until the user explicitly saves.
+// No SharedPreferences, no analytics payload, no auto-save before consent.
+
 /// Smart Onboarding — Value-First Flow (Lot 2).
 ///
 /// Orchestrates the 3-question → chiffre choc → action flow.
