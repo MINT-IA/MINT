@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "mint-backend"
 version = "0.1.0"
@@ -40,7 +44,9 @@ docling = [
 ]
 
 [tool.setuptools.packages.find]
+where = ["."]
 include = ["app*"]
+exclude = ["alembic*"]
 
 [tool.ruff]
 line-length = 88
