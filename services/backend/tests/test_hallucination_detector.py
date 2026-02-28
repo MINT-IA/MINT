@@ -100,13 +100,14 @@ class TestHallucinationDetection:
         assert len(hallucinations) == 0
 
     def test_hallucination_chf_outside_tolerance(self, detector):
-        # CHF 2'500 vs known 1'800 → 38.9% deviation, outside 5%
+        # CHF 3'200 vs known 1'800 → 77.8% deviation, outside 5%
+        # (Avoid CHF 2'500 which is within 1% of legal constant 2'520.)
         hallucinations = detector.detect(
-            "Tu économises CHF 2'500 d'impôt.",
+            "Tu économises CHF 3'200 d'impôt.",
             known_values={"3a_saving": 1800.0},
         )
         assert len(hallucinations) == 1
-        assert hallucinations[0].found_value == 2500.0
+        assert hallucinations[0].found_value == 3200.0
 
     def test_hallucination_percentage_outside_tolerance(self, detector):
         # 58% vs known 54 → 4 points difference, outside ±2

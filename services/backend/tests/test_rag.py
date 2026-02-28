@@ -406,7 +406,11 @@ class TestComplianceGuardrails:
     """Tests for ComplianceGuardrails."""
 
     def test_guardrails_banned_terms_french(self):
-        """Verify banned terms in French are caught and replaced."""
+        """Verify banned terms in French are caught and replaced.
+
+        French path delegates to ComplianceGuard (S34) which replaces
+        "garanti" → "possible dans ce scénario".
+        """
         from app.services.rag.guardrails import ComplianceGuardrails
 
         guardrails = ComplianceGuardrails()
@@ -416,7 +420,7 @@ class TestComplianceGuardrails:
 
         assert len(result["warnings"]) > 0
         assert "garanti" not in result["text"].lower()
-        assert "potentiel" in result["text"].lower()
+        assert "possible" in result["text"].lower()
 
     def test_guardrails_banned_terms_german(self):
         """Verify banned terms in German are caught."""

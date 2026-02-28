@@ -272,12 +272,39 @@ class ComplianceGuardrails:
                 filtered_text = self._legacy_filter_banned(response)
         else:
             filtered_text = self._legacy_filter_banned(response, language)
+            # Populate warnings for non-French: detect which banned terms were present.
+            response_lower = response.lower()
+            for term in self.BANNED_TERMS:
+                if " " in term:
+                    pat = re.compile(re.escape(term), re.IGNORECASE)
+                else:
+                    pat = re.compile(
+                        rf"(?<![{self._FR_LETTER}]){re.escape(term)}(?![{self._FR_LETTER}])",
+                        re.IGNORECASE,
+                    )
+                if pat.search(response_lower):
+                    filter_warnings.append(f"Terme interdit: '{term}'")
 
         # ── Disclaimer logic (multilingual, retained here) ──
-        # Only add disclaimers for non-French languages.
-        # For French, ComplianceGuard already handles disclaimer injection
-        # in Layer 4 — adding them here too would double-inject.
-        if language != "fr":
+        # For French, ComplianceGuard injects disclaimers into the text (Layer 4).
+        # We reflect them into disclaimers_added for API consistency.
+        if language == "fr":
+            from app.services.coach.compliance_guard import ComplianceGuard as _CG
+
+            disclaimers_added.append(self.DISCLAIMERS["fr"]["general"])
+            response_lower = response.lower()
+            for term in self.REQUIRES_DISCLAIMER:
+                if term.lower() in response_lower:
+                    tax_terms = {
+                        "impôt", "fiscal", "déduction",
+                    }
+                    if term.lower() in tax_terms:
+                        if self.DISCLAIMERS["fr"]["tax"] not in disclaimers_added:
+                            disclaimers_added.append(self.DISCLAIMERS["fr"]["tax"])
+                    else:
+                        if self.DISCLAIMERS["fr"]["investment"] not in disclaimers_added:
+                            disclaimers_added.append(self.DISCLAIMERS["fr"]["investment"])
+        else:
             response_lower = response.lower()
             needs_tax_disclaimer = False
             needs_investment_disclaimer = False
