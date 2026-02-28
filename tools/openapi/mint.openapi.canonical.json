@@ -11444,6 +11444,11 @@
             "title": "Projectedlppmonthly",
             "type": "number"
           },
+          "retirementGapMonthly": {
+            "description": "Ecart mensuel entre salaire brut et revenu retraite (CHF)",
+            "title": "Retirementgapmonthly",
+            "type": "number"
+          },
           "sources": {
             "description": "References legales suisses",
             "items": {
@@ -11465,6 +11470,7 @@
           "estimatedReplacementRatio",
           "estimatedMonthlyRetirement",
           "estimatedMonthlyExpenses",
+          "retirementGapMonthly",
           "monthlyDebtImpact",
           "taxSaving3A",
           "marginalTaxRate",
