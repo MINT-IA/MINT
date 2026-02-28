@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: authProvider.isLoading
                       ? null
                       : () {
-                          context.go('/advisor');
+                          context.go('/onboarding/smart');
                         },
                   child: Text(
                     'Continuer en mode local',

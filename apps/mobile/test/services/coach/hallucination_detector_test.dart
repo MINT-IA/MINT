@@ -167,9 +167,15 @@ void main() {
     });
 
     test('detects hallucinated score (>2pt deviation)', () {
+      // Use knownValues with fri_total closer to 95 so it passes relevance
+      // check (|95-70|=25 < 30pt threshold) but still triggers hallucination
+      // (|95-70|=25 > 2pt tolerance).
       final hallucinations = HallucinationDetector.detect(
         'Ton score est de 95/100.',
-        knownValues,
+        {
+          ...knownValues,
+          'fri_total': 70.0,
+        },
       );
       expect(hallucinations, isNotEmpty);
     });
@@ -298,18 +304,12 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('Relevance distance', () {
-    const knownValues = {
-      'fri_total': 62.0,
-      'capital_final': 450000.0,
-      'replacement_ratio': 58.0,
-    };
-
     test('percentage far from all known values is NOT flagged', () {
-      // 2% is >30 points from all known values (58, 62)
-      // so it should not be flagged despite not being a legal constant
+      // 2% is >30 points from 58, so not relevant and not flagged
+      const pctKnown = {'replacement_ratio': 58.0};
       final hallucinations = HallucinationDetector.detect(
         'Le taux hypothécaire est de 2%.',
-        knownValues,
+        pctKnown,
       );
       final pctHall = hallucinations
           .where((h) => h.foundValue == 2.0)
@@ -318,20 +318,24 @@ void main() {
     });
 
     test('percentage close to known value IS still flagged', () {
-      // 85% is within 30 points of 58% or 62%, so it IS relevant
+      // 85% is within 30 points of 58%, so it IS relevant
       // and 85 - 58 = 27 > 2pt tolerance → flagged
+      const pctKnown = {'replacement_ratio': 58.0};
       final hallucinations = HallucinationDetector.detect(
         'Ton taux de remplacement est de 85%.',
-        knownValues,
+        pctKnown,
       );
       expect(hallucinations, isNotEmpty);
     });
 
     test('CHF amount far from all known values is NOT flagged', () {
-      // CHF 50 vs known 450000: ratio = 0.0001 < 0.1 → not relevant
+      // CHF 50 vs known 450000: ratio = 0.0001 < 0.1 → not relevant.
+      // Only CHF-scale known values to avoid cross-type comparison
+      // (e.g., CHF 50 matched against a replacement_ratio of 58%).
+      const chfKnown = {'capital_final': 450000.0, 'epargne_3a': 25000.0};
       final hallucinations = HallucinationDetector.detect(
         'La cotisation minimale est de CHF 50.',
-        knownValues,
+        chfKnown,
       );
       final chfHall = hallucinations
           .where((h) => h.foundValue == 50.0)
@@ -342,9 +346,10 @@ void main() {
     test('CHF amount in same order of magnitude IS still flagged', () {
       // CHF 900000 vs 450000: ratio = 2.0 (within 10x) → relevant
       // deviation = 100% > 5% tolerance → flagged
+      const chfKnown = {'capital_final': 450000.0};
       final hallucinations = HallucinationDetector.detect(
         'Ton capital projeté est de CHF 900000.',
-        knownValues,
+        chfKnown,
       );
       expect(hallucinations, isNotEmpty);
     });

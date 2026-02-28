@@ -328,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: authProvider.isLoading
                       ? null
                       : () {
-                          context.go('/advisor');
+                          context.go('/onboarding/smart');
                         },
                   child: Text(
                     'Continuer en mode local',

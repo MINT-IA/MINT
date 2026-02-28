@@ -163,9 +163,12 @@ class PrevoyanceProfile {
   // --- LPP ---
   final String? nomCaisse;
   final double? avoirLppTotal; // obligatoire + surobligatoire
+  final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
+  final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
   final double? rachatEffectue; // deja rachete
   final double tauxConversion; // taux de la caisse (min legal 6.8%)
+  final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
 
   // --- 3a ---
@@ -180,9 +183,12 @@ class PrevoyanceProfile {
     this.renteAVSEstimeeMensuelle,
     this.nomCaisse,
     this.avoirLppTotal,
+    this.avoirLppObligatoire,
+    this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
     this.tauxConversion = 0.068,
+    this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
     this.nombre3a = 0,
     this.totalEpargne3a = 0,
@@ -215,9 +221,12 @@ class PrevoyanceProfile {
       renteAVSEstimeeMensuelle: (json['renteAVSEstimeeMensuelle'] as num?)?.toDouble(),
       nomCaisse: json['nomCaisse'] as String?,
       avoirLppTotal: (json['avoirLppTotal'] as num?)?.toDouble(),
+      avoirLppObligatoire: (json['avoirLppObligatoire'] as num?)?.toDouble(),
+      avoirLppSurobligatoire: (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
       tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
+      tauxConversionSuroblig: (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
       nombre3a: json['nombre3a'] ?? 0,
       totalEpargne3a: (json['totalEpargne3a'] as num?)?.toDouble() ?? 0,
@@ -235,9 +244,12 @@ class PrevoyanceProfile {
     'renteAVSEstimeeMensuelle': renteAVSEstimeeMensuelle,
     'nomCaisse': nomCaisse,
     'avoirLppTotal': avoirLppTotal,
+    'avoirLppObligatoire': avoirLppObligatoire,
+    'avoirLppSurobligatoire': avoirLppSurobligatoire,
     'rachatMaximum': rachatMaximum,
     'rachatEffectue': rachatEffectue,
     'tauxConversion': tauxConversion,
+    'tauxConversionSuroblig': tauxConversionSuroblig,
     'rendementCaisse': rendementCaisse,
     'nombre3a': nombre3a,
     'totalEpargne3a': totalEpargne3a,

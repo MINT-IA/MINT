@@ -73,7 +73,7 @@ void main() {
 
     testWidgets('shows API key field', (tester) async {
       await openSheet(tester);
-      expect(find.text('Cle API'), findsOneWidget);
+      expect(find.text('Clé API'), findsOneWidget);
       // TextField for the API key (obscured)
       final textFields = find.byType(TextField);
       expect(textFields, findsWidgets);
@@ -81,7 +81,7 @@ void main() {
 
     testWidgets('shows model selector label', (tester) async {
       await openSheet(tester);
-      expect(find.text('Modele'), findsOneWidget);
+      expect(find.text('Modèle'), findsOneWidget);
     });
 
     testWidgets('shows test connection button', (tester) async {
@@ -120,7 +120,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should show message about missing key
-      expect(find.textContaining('cle API'), findsWidgets);
+      expect(find.textContaining('clé API'), findsWidgets);
     });
 
     testWidgets('save button calls onSave callback', (tester) async {

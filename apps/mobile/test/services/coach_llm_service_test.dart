@@ -180,6 +180,16 @@ void main() {
         'fiscal', 'lauren', 'conjoint', 'bonjour',
       ];
 
+      // Use French-aware word-boundary patterns matching ComplianceGuard logic,
+      // so "certains" or "incertain" don't false-positive on "certain".
+      final bannedPatterns = {
+        'garanti': RegExp(r'(?<![a-zA-ZÀ-ÿ])garanti(?![a-zA-ZÀ-ÿ])'),
+        'certain': RegExp(r'(?<![a-zA-ZÀ-ÿ])certain(?![a-zA-ZÀ-ÿ])'),
+        'sans risque': RegExp(r'sans risque', caseSensitive: false),
+        'optimal': RegExp(r'(?<![a-zA-ZÀ-ÿ])optimal(?![a-zA-ZÀ-ÿ])'),
+        'parfait': RegExp(r'(?<![a-zA-ZÀ-ÿ])parfait(?![a-zA-ZÀ-ÿ])'),
+      };
+
       for (final keyword in keywords) {
         final response = await CoachLlmService.chat(
           userMessage: keyword,
@@ -189,12 +199,10 @@ void main() {
         );
 
         final lower = response.message.toLowerCase();
-        expect(lower, isNot(contains('garanti')), reason: 'keyword: $keyword');
-        expect(lower, isNot(contains('certain')), reason: 'keyword: $keyword');
-        expect(lower, isNot(contains('sans risque')),
-            reason: 'keyword: $keyword');
-        expect(lower, isNot(contains('optimal')), reason: 'keyword: $keyword');
-        expect(lower, isNot(contains('parfait')), reason: 'keyword: $keyword');
+        for (final entry in bannedPatterns.entries) {
+          expect(entry.value.hasMatch(lower), isFalse,
+              reason: 'keyword: $keyword contains banned term "${entry.key}"');
+        }
       }
     });
   });

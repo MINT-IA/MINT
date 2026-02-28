@@ -311,7 +311,7 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('valeur locative'), findsWidgets);
-      expect(find.textContaining('proprietaires'), findsOneWidget);
+      expect(find.textContaining('propriétaires'), findsOneWidget);
     });
 
     testWidgets('displays chiffre choc with fiscal impact', (tester) async {
@@ -331,7 +331,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      expect(find.text('DECOMPOSITION'), findsOneWidget);
+      expect(find.text('DÉCOMPOSITION'), findsOneWidget);
     });
 
     testWidgets('displays valeur locative vs deductions bar', (tester) async {
@@ -341,7 +341,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      expect(find.textContaining('Deductions'), findsWidgets);
+      expect(find.textContaining('Déductions'), findsWidgets);
     });
 
     testWidgets('displays parameters section with sliders', (tester) async {
@@ -351,7 +351,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -700));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAMÈTRES'), findsOneWidget);
       expect(find.text('Canton'), findsOneWidget);
     });
 

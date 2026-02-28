@@ -451,7 +451,7 @@ void main() {
         dureeAnnees: 10,
       );
       expect(result.disclaimer, contains('OPP3'));
-      expect(result.disclaimer, contains('specialiste'));
+      expect(result.disclaimer, contains('spécialiste'));
     });
 
     test('chiffre choc positif quand gain vs epargne > 0', () {

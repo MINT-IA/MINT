@@ -7,6 +7,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
@@ -19,6 +20,12 @@ import 'package:mint_mobile/widgets/coach/low_confidence_card.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/pillar_decomposition.dart';
 import 'package:mint_mobile/widgets/coach/trajectory_card.dart';
+import 'package:mint_mobile/widgets/dashboard/arbitrage_teaser_card.dart';
+import 'package:mint_mobile/widgets/dashboard/budget_gap_card.dart';
+import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
+import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
+import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
+import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT DASHBOARD SCREEN — LOT 4 / MINT Coach
@@ -26,20 +33,23 @@ import 'package:mint_mobile/widgets/coach/trajectory_card.dart';
 //
 //  Orchestrateur du tableau de bord retraite a 3 etats :
 //
-//  STATE A (confiance >= 70%) — Tableau de bord complet
-//    ConfidenceBar + HeroRetirementCard (full) + TrajectoryCard
-//    + PillarDecomposition + ImpactMintCard + EarlyRetirementComparison
+//  STATE A (confiance >= 70%) — Tableau de bord complet (cockpit)
+//    ConfidenceBar + HeroRetirementCard (full) + ReplacementRatioBadge
+//    + TrajectoryCard + PillarDecomposition + BudgetGapCard
+//    + ArbitrageTeaserSection (age >= 45)
+//    + CouplePhaseTimeline (si couple)
+//    + RetirementChecklistCard
+//    + ImpactMintCard + EarlyRetirementComparison
 //    + MintScoreGauge + ExploreHub
 //
 //  STATE B (confiance 40-69%) — Projection partielle + enrichissement
-//    ConfidenceBar + HeroRetirementCard (range) + DataQualityCard
-//    + LowConfidenceCard + ExploreHub
+//    ConfidenceBar + HeroRetirementCard (range) + DocumentScanCta
+//    + DataQualityCard + LowConfidenceCard + ExploreHub
 //
 //  STATE C (confiance < 40% ou pas de profil) — Educatif, aucun chiffre
 //    HeroRetirementCard (educational) + ExploreHub
 //
-//  Remplace le monolithe coach_dashboard_screen.dart (5086 LOC)
-//  avec ~250 LOC en deleguant aux widgets composables.
+//  Chantier 2 : Retirement Cockpit — unified command center.
 //
 //  Aucun terme banni (garanti, certain, optimal, meilleur…).
 //  Tous les chiffres sont calcules a partir du profil reel.
@@ -59,6 +69,7 @@ class _RetirementDashboardScreenState
   FinancialFitnessScore? _score;
   ProjectionResult? _projection;
   ProjectionResult? _baselineProjection;
+  RetirementProjectionResult? _retirementProjection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
 
@@ -90,6 +101,10 @@ class _RetirementDashboardScreenState
       _projection = ForecasterService.project(profile: _profile!);
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+
+      // Detailed retirement projection (budget gap, phases, etc.)
+      _retirementProjection =
+          RetirementProjectionService.project(profile: _profile!);
 
       // Baseline sans contributions pour calcul delta MINT
       if (_profile!.plannedContributions.isNotEmpty) {
@@ -136,6 +151,7 @@ class _RetirementDashboardScreenState
     final proj = _projection!;
     final profile = _profile!;
     final score = _score!;
+    final retProj = _retirementProjection;
 
     // Revenu mensuel base scenario
     final monthlyIncome = proj.base.revenuAnnuelRetraite / 12;
@@ -157,6 +173,11 @@ class _RetirementDashboardScreenState
         : monthlyIncome;
     final impactDescription = _buildImpactDescription();
 
+    // Couple phase data
+    final isCouple = profile.isCouple && profile.conjoint?.birthYear != null;
+    final hasPhases =
+        retProj != null && retProj.phases.length >= 2;
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -169,6 +190,8 @@ class _RetirementDashboardScreenState
               delegate: SliverChildListDelegate([
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
+
+                // 1. Hero number (monthly income at retirement)
                 HeroRetirementCard(
                   mode: HeroCardMode.full,
                   monthlyIncome: monthlyIncome,
@@ -176,12 +199,28 @@ class _RetirementDashboardScreenState
                   rangeMin: monthlyPrudent,
                   rangeMax: monthlyOptimiste,
                 ),
+                const SizedBox(height: 12),
+
+                // 2. Replacement ratio badge (prominent)
+                ReplacementRatioBadge(
+                  ratio: proj.tauxRemplacementBase,
+                ),
                 const SizedBox(height: 16),
+
+                // 3. Budget gap card
+                if (retProj != null) ...[
+                  BudgetGapCard(budgetGap: retProj.budgetGap),
+                  const SizedBox(height: 16),
+                ],
+
+                // 4. Trajectory card
                 TrajectoryCard(
                   profile: profile,
                   projection: proj,
                 ),
                 const SizedBox(height: 16),
+
+                // 5. Pillar decomposition
                 PillarDecomposition(
                   avsMonthly: avsMonthly,
                   lppMonthly: lppMonthly,
@@ -189,6 +228,32 @@ class _RetirementDashboardScreenState
                   freeMonthly: freeMonthly,
                 ),
                 const SizedBox(height: 16),
+
+                // 6. Arbitrage teasers (age >= 45)
+                if (profile.age >= 45) ...[
+                  ArbitrageTeaserSection(profile: profile),
+                  const SizedBox(height: 16),
+                ],
+
+                // 7. Couple phase timeline
+                if (isCouple && hasPhases) ...[
+                  CouplePhaseTimeline(
+                    userName: profile.firstName ?? 'Toi',
+                    conjointName:
+                        profile.conjoint!.firstName ?? 'Conjoint\u00b7e',
+                    userRetirementYear: profile.birthYear + 65,
+                    conjointRetirementYear:
+                        profile.conjoint!.birthYear! + 65,
+                    phases: retProj.phases,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // 8. Personalized checklist
+                RetirementChecklistCard(profile: profile),
+                const SizedBox(height: 16),
+
+                // 9. Impact MINT card
                 ImpactMintCard(
                   withoutOptimization: baselineMonthly,
                   withOptimization: monthlyIncome,
@@ -199,6 +264,8 @@ class _RetirementDashboardScreenState
                   EarlyRetirementComparison(profile: profile),
                 ],
                 const SizedBox(height: 16),
+
+                // 10. MINT Score
                 MintScoreGauge(
                   score: score.global,
                   budgetScore: score.budget.score,
@@ -211,6 +278,8 @@ class _RetirementDashboardScreenState
                   onTap: () => context.push('/coach/dashboard'),
                 ),
                 const SizedBox(height: 16),
+
+                // 11. Explore hub
                 const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildDisclaimer(),
@@ -241,6 +310,12 @@ class _RetirementDashboardScreenState
         .take(3)
         .fold<int>(0, (sum, p) => sum + p.impact) ?? 0;
 
+    // Estimate confidence improvement from LPP scan
+    final hasLppData = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
+    final estimatedAfterScan = hasLppData
+        ? (_confidenceScore + 10).clamp(0.0, 95.0)
+        : (_confidenceScore + 20).clamp(0.0, 95.0);
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -259,6 +334,14 @@ class _RetirementDashboardScreenState
                   rangeMax: monthlyOptimiste,
                 ),
                 const SizedBox(height: 16),
+
+                // Document Scan CTA (prominent in State B)
+                DocumentScanCta(
+                  currentConfidence: _confidenceScore,
+                  estimatedConfidenceAfterScan: estimatedAfterScan,
+                ),
+                const SizedBox(height: 16),
+
                 DataQualityCard(
                   knownFields: knownFields,
                   missingFields: missingFields,

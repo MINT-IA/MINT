@@ -379,9 +379,23 @@ void main() {
     });
 
     test('detects fabricated score', () {
+      // Use a context where fri_total is closer to 95 so it passes
+      // relevance check (|95-70|=25 < 30pt threshold) but still triggers
+      // hallucination (|95-70|=25 > 2pt tolerance).
+      final scoreCtx = const CoachContext(
+        firstName: 'Julien',
+        age: 35,
+        canton: 'VD',
+        knownValues: {
+          'fri_total': 70.0,
+          'capital_final': 450000.0,
+          'replacement_ratio': 58.0,
+          'epargne_3a': 25000.0,
+        },
+      );
       final result = ComplianceGuard.validate(
         'Ton score de solidité est de 95/100. Excellent.',
-        context: ctx,
+        context: scoreCtx,
       );
       expect(result.violations, anyElement(contains('Hallucination')));
       expect(result.useFallback, isTrue);

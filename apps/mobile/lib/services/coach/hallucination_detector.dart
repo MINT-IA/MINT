@@ -70,6 +70,7 @@ class HallucinationDetector {
     15.0,   // Bonification LPP 45-54
     18.0,   // Bonification LPP 55-65
     20.0,   // Part revenu 3a sans LPP
+    60.0,   // Taux de remplacement cible minimum retraite
     70.0,   // Taux indemnité chômage standard
     80.0,   // Taux indemnité chômage avec charges
     100.0,  // Reference: "100% de ton capital" (completeness)

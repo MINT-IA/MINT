@@ -194,7 +194,7 @@ void main() {
       expect(find.text('RACHAT LPP ECHELONNE'), findsOneWidget);
       // Intro text
       expect(
-        find.textContaining('Pourquoi echelonner ses rachats'),
+        find.textContaining('Pourquoi échelonner ses rachats'),
         findsOneWidget,
       );
     });

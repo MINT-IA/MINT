@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 
@@ -194,7 +193,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           const SizedBox(height: 8),
           Text(
             'Les valeurs de ton ${widget.result.documentType.label} '
-            'ont ete integrees.',
+            'ont ete integrees dans tes projections.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 15,
@@ -336,6 +335,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     final lppTotal = _findField('lpp_total');
     final oblig = _findField('lpp_obligatoire');
     final suroblig = _findField('lpp_surobligatoire');
+    final convRate = _findField('conversion_rate_suroblig');
 
     if (lppTotal != null && oblig != null) {
       final total = lppTotal.value as double;
@@ -343,6 +343,10 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       final surobligVal =
           suroblig != null ? suroblig.value as double : total - obligVal;
       final rentableAt68 = obligVal * 0.068;
+      final surobligRate = convRate != null ? convRate.value as double : null;
+      final renteSuroblig = surobligRate != null
+          ? surobligVal * (surobligRate / 100)
+          : null;
 
       return Column(
         children: [
@@ -356,7 +360,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            'd\'avoir LPP (dont ${_formatChf(obligVal)} obligatoire)',
+            'd\'avoir LPP reel (dont ${_formatChf(obligVal)} obligatoire)',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
@@ -365,7 +369,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            'Rente minimum a 6.8% : CHF ${_formatChf(rentableAt68)}/an',
+            'Rente obligatoire a 6.8% : CHF ${_formatChf(rentableAt68)}/an',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -375,8 +379,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           if (surobligVal > 0) ...[
             const SizedBox(height: 4),
             Text(
-              'Part surobligatoire (${_formatChf(surobligVal)}) = taux de '
-              'conversion libre de la caisse',
+              renteSuroblig != null
+                  ? 'Part surobligatoire (CHF ${_formatChf(surobligVal)}) a '
+                    '${surobligRate!.toStringAsFixed(1)}% = CHF ${_formatChf(renteSuroblig)}/an'
+                  : 'Part surobligatoire (CHF ${_formatChf(surobligVal)}) = taux de '
+                    'conversion libre de la caisse',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 12,
@@ -389,7 +396,35 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       );
     }
 
-    // Fallback
+    // Fallback for AVS or other doc types
+    final avsYears = _findField('avs_contribution_years');
+    if (avsYears != null) {
+      final years = (avsYears.value as double).round();
+      final maxYears = 44;
+      final completionPct = ((years / maxYears) * 100).round();
+      return Column(
+        children: [
+          Text(
+            '$years ans de cotisation',
+            style: GoogleFonts.montserrat(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'sur $maxYears necessaires pour une rente AVS complete ($completionPct%)',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Text(
       'Tes projections sont maintenant basees sur des valeurs reelles.',
       textAlign: TextAlign.center,
@@ -474,15 +509,12 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         height: 56,
         child: FilledButton.icon(
           onPressed: () {
-            // Pop all the way back to root or profile
-            if (context.canPop()) {
-              // Pop back to wherever we came from
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            }
+            // Pop all the way back to root (dashboard)
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
-          icon: const Icon(Icons.person_outline, size: 22),
+          icon: const Icon(Icons.dashboard_outlined, size: 22),
           label: Text(
-            'Voir mon profil mis a jour',
+            'Retour au dashboard',
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w600,

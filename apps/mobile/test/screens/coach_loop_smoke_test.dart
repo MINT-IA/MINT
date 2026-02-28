@@ -207,7 +207,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text('Conversation educative'),
+        find.text('Conversation éducative'),
         findsOneWidget,
       );
     });
