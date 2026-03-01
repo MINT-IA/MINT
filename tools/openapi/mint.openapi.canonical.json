@@ -119,6 +119,32 @@
         "title": "AVSGapResponse",
         "type": "object"
       },
+      "AcceptRequest": {
+        "properties": {
+          "invitation_code": {
+            "title": "Invitation Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invitation_code"
+        ],
+        "title": "AcceptRequest",
+        "type": "object"
+      },
+      "AcceptResponse": {
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "AcceptResponse",
+        "type": "object"
+      },
       "ActionItemResponse": {
         "description": "A single action item.",
         "properties": {
@@ -162,6 +188,47 @@
           "description"
         ],
         "title": "ActionItemResponse",
+        "type": "object"
+      },
+      "AdminOverrideCooldownRequest": {
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "reason"
+        ],
+        "title": "AdminOverrideCooldownRequest",
+        "type": "object"
+      },
+      "AdminOverrideCooldownResponse": {
+        "properties": {
+          "overridden_count": {
+            "title": "Overridden Count",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "target_user_id": {
+            "title": "Target User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "target_user_id",
+          "overridden_count"
+        ],
+        "title": "AdminOverrideCooldownResponse",
         "type": "object"
       },
       "AgeCategory": {
@@ -7617,6 +7684,19 @@
         "title": "ExtractionResultResponse",
         "type": "object"
       },
+      "FeatureFlagsResponse": {
+        "properties": {
+          "enableCouplePlusTier": {
+            "title": "Enablecoupleplustier",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enableCouplePlusTier"
+        ],
+        "title": "FeatureFlagsResponse",
+        "type": "object"
+      },
       "FeatureGatesRequest": {
         "description": "Requete pour les feature gates (profil simplifie).",
         "properties": {
@@ -9060,6 +9140,144 @@
         "title": "HelpResourcesResponse",
         "type": "object"
       },
+      "HouseholdInfo": {
+        "properties": {
+          "billing_owner_user_id": {
+            "title": "Billing Owner User Id",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "household_owner_user_id": {
+            "title": "Household Owner User Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "household_owner_user_id",
+          "billing_owner_user_id"
+        ],
+        "title": "HouseholdInfo",
+        "type": "object"
+      },
+      "HouseholdMemberInfo": {
+        "properties": {
+          "accepted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted At"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "invited_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invited At"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "role",
+          "status"
+        ],
+        "title": "HouseholdMemberInfo",
+        "type": "object"
+      },
+      "HouseholdResponse": {
+        "properties": {
+          "household": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/HouseholdMemberInfo"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "title": "HouseholdResponse",
+        "type": "object"
+      },
       "HouseholdType": {
         "enum": [
           "single",
@@ -9768,6 +9986,42 @@
           "count"
         ],
         "title": "InsertListResponse",
+        "type": "object"
+      },
+      "InviteRequest": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "InviteRequest",
+        "type": "object"
+      },
+      "InviteResponse": {
+        "properties": {
+          "expires_at": {
+            "title": "Expires At",
+            "type": "string"
+          },
+          "invitation_code": {
+            "title": "Invitation Code",
+            "type": "string"
+          },
+          "partner_email": {
+            "title": "Partner Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invitation_code",
+          "partner_email",
+          "expires_at"
+        ],
+        "title": "InviteResponse",
         "type": "object"
       },
       "JobComparisonRequest": {
@@ -15793,6 +16047,19 @@
         "title": "RetirementBudgetResponse",
         "type": "object"
       },
+      "RevokeResponse": {
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "RevokeResponse",
+        "type": "object"
+      },
       "SalaryBreakdown": {
         "description": "Decomposition detaillee du salaire brut -> net.",
         "properties": {
@@ -18070,6 +18337,37 @@
           "cumulativeTaxImpact"
         ],
         "title": "TrajectoireOptionSchema",
+        "type": "object"
+      },
+      "TransferRequest": {
+        "properties": {
+          "new_owner_id": {
+            "title": "New Owner Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "new_owner_id"
+        ],
+        "title": "TransferRequest",
+        "type": "object"
+      },
+      "TransferResponse": {
+        "properties": {
+          "new_owner_id": {
+            "title": "New Owner Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "new_owner_id"
+        ],
+        "title": "TransferResponse",
         "type": "object"
       },
       "UnemploymentBenefitsRequest": {
@@ -21531,6 +21829,27 @@
         ]
       }
     },
+    "/api/v1/config/feature-flags": {
+      "get": {
+        "operationId": "get_feature_flags_api_v1_config_feature_flags_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureFlagsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Feature Flags",
+        "tags": [
+          "Config"
+        ]
+      }
+    },
     "/api/v1/debt/ratio": {
       "post": {
         "description": "Calculate the debt-to-income ratio and assess risk level.\n\nThresholds: < 15% green, 15-30% orange, > 30% red.\nAlso calculates the minimum vital insaisissable (LP art. 93).\n\nSources: LP art. 93; SchKG.",
@@ -23628,6 +23947,263 @@
         "summary": "Readiness Probe",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/api/v1/household": {
+      "get": {
+        "operationId": "get_household_api_v1_household_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HouseholdResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Household",
+        "tags": [
+          "Household P6"
+        ]
+      }
+    },
+    "/api/v1/household/accept": {
+      "post": {
+        "operationId": "accept_api_v1_household_accept_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Accept",
+        "tags": [
+          "Household P6"
+        ]
+      }
+    },
+    "/api/v1/household/admin/override-cooldown": {
+      "post": {
+        "operationId": "override_cooldown_api_v1_household_admin_override_cooldown_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOverrideCooldownRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverrideCooldownResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Override Cooldown",
+        "tags": [
+          "Household P6"
+        ]
+      }
+    },
+    "/api/v1/household/invite": {
+      "post": {
+        "operationId": "invite_api_v1_household_invite_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Invite",
+        "tags": [
+          "Household P6"
+        ]
+      }
+    },
+    "/api/v1/household/member/{user_id}": {
+      "delete": {
+        "operationId": "revoke_api_v1_household_member__user_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Revoke",
+        "tags": [
+          "Household P6"
+        ]
+      }
+    },
+    "/api/v1/household/transfer": {
+      "put": {
+        "operationId": "transfer_api_v1_household_transfer_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Transfer",
+        "tags": [
+          "Household P6"
         ]
       }
     },
