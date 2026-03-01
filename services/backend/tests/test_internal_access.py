@@ -169,6 +169,26 @@ def test_empty_allowlist_no_override():
 
 
 # ---------------------------------------------------------------------------
+# 5b. Wildcard "*" grants access to all authenticated users
+# ---------------------------------------------------------------------------
+
+
+@patch.object(settings, "INTERNAL_ACCESS_ENABLED", True)
+@patch.object(settings, "INTERNAL_ACCESS_ALLOWLIST", "*")
+@patch.object(settings, "INTERNAL_ACCESS_DEFAULT_TIER", "couple_plus")
+def test_wildcard_allowlist_grants_all_users():
+    """Wildcard '*' gives internal access to any authenticated user."""
+    db = TestingSessionLocal()
+    try:
+        _create_user(db, email="random@example.com", user_id="random-user")
+        assert _is_internal_access_user(db, "random-user")
+        tier = _compute_effective_tier(db, "random-user")
+        assert tier == "couple_plus"
+    finally:
+        db.close()
+
+
+# ---------------------------------------------------------------------------
 # 6. Non-regression: real subscription still works when not internal
 # ---------------------------------------------------------------------------
 

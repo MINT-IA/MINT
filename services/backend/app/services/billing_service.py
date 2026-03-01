@@ -123,14 +123,21 @@ def _stripe_price_to_tier(price_id: str) -> str:
 
 
 def _is_internal_access_user(db: Session, user_id: str) -> bool:
-    """Check if user qualifies for internal full access override."""
+    """Check if user qualifies for internal full access override.
+
+    Allowlist supports:
+    - "*" → all authenticated users (TestFlight/dev)
+    - "a@b.ch,c@d.ch" → specific emails only
+    - "" (empty) → no one (fail-closed)
+    """
     if not settings.INTERNAL_ACCESS_ENABLED:
         return False
-    allowlist = [
-        e.strip() for e in settings.INTERNAL_ACCESS_ALLOWLIST.split(",") if e.strip()
-    ]
-    if not allowlist:
+    raw = settings.INTERNAL_ACCESS_ALLOWLIST.strip()
+    if not raw:
         return False
+    if raw == "*":
+        return True
+    allowlist = [e.strip() for e in raw.split(",") if e.strip()]
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return False
