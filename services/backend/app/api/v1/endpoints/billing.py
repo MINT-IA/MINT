@@ -34,6 +34,7 @@ from app.services.billing_service import (
     recompute_entitlements,
     activate_apple_purchase,
     process_apple_notification,
+    tier_from_product_id,
 )
 from app.services.audit_service import log_audit_event
 
@@ -183,10 +184,11 @@ def verify_apple_purchase(
             "is_trial": body.is_trial,
         },
     )
+    resolved_tier = tier_from_product_id(body.product_id)
     db.commit()
     return AppleVerifyPurchaseResponse(
         status="verified",
-        tier="coach",
+        tier=resolved_tier,
         source="apple",
         features=features,
     )

@@ -34,6 +34,7 @@ class SubscriptionModel(Base):
     external_customer_id = Column(String, nullable=True, index=True)
     external_subscription_id = Column(String, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    last_event_at = Column(DateTime, nullable=True)
     updated_at = Column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
@@ -98,6 +99,8 @@ class BillingWebhookEventModel(Base):
     provider = Column(String, nullable=False, index=True)  # stripe | apple | google
     event_id = Column(String, nullable=False, index=True)
     event_type = Column(String, nullable=False, index=True)
+    subscription_id = Column(String, ForeignKey("subscriptions.id"), nullable=True, index=True)
+    outcome = Column(String, nullable=False, default="applied")  # applied | skipped_duplicate | skipped_stale
     is_processed = Column(Boolean, nullable=False, default=False)
     payload = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

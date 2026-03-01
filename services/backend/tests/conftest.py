@@ -68,6 +68,9 @@ def setup_test_database():
         EntitlementModel,
         BillingTransactionModel,
         BillingWebhookEventModel,
+        HouseholdModel,
+        HouseholdMemberModel,
+        AdminAuditEventModel,
         SnapshotModel,
         ConsentModel,
     )
@@ -93,6 +96,9 @@ def clean_database():
         BillingTransactionModel,
         BillingWebhookEventModel,
         AuditEventModel,
+        HouseholdModel,
+        HouseholdMemberModel,
+        AdminAuditEventModel,
         SnapshotModel,
         ConsentModel,
     )
@@ -104,10 +110,13 @@ def clean_database():
         db.query(EmailVerificationTokenModel).delete()
         db.query(PasswordResetTokenModel).delete()
         db.query(LoginSecurityStateModel).delete()
+        db.query(AdminAuditEventModel).delete()
         db.query(AuditEventModel).delete()
         db.query(BillingTransactionModel).delete()
         db.query(EntitlementModel).delete()
         db.query(SubscriptionModel).delete()
+        db.query(HouseholdMemberModel).delete()
+        db.query(HouseholdModel).delete()
         db.query(AnalyticsEvent).delete()
         db.query(SessionModel).delete()
         db.query(ProfileModel).delete()

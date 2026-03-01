@@ -48,7 +48,7 @@ def test_billing_debug_activate_grants_coach_features(client: TestClient):
     activate = auth_client.post(
         "/api/v1/billing/debug/activate",
         headers={"Authorization": f"Bearer {token}"},
-        json={"tier": "coach", "status": "active", "is_trial": False, "period_days": 30},
+        json={"tier": "premium", "status": "active", "is_trial": False, "period_days": 30},
     )
     assert activate.status_code == 200
     assert len(activate.json()["features"]) >= 5
@@ -59,7 +59,7 @@ def test_billing_debug_activate_grants_coach_features(client: TestClient):
     )
     assert entitlements.status_code == 200
     body = entitlements.json()
-    assert body["tier"] == "coach"
+    assert body["tier"] == "premium"
     assert body["is_active"] is True
     assert "dashboard" in body["features"]
     assert "vault" in body["features"]
@@ -74,7 +74,7 @@ def test_billing_debug_activate_disabled_in_production(client: TestClient):
         activate = auth_client.post(
             "/api/v1/billing/debug/activate",
             headers={"Authorization": f"Bearer {token}"},
-            json={"tier": "coach", "status": "active", "is_trial": False, "period_days": 30},
+            json={"tier": "premium", "status": "active", "is_trial": False, "period_days": 30},
         )
         assert activate.status_code == 404
     finally:
@@ -139,7 +139,7 @@ def test_apple_verify_purchase_activates_entitlements(client: TestClient):
         assert response.status_code == 200
         body = response.json()
         assert body["status"] == "verified"
-        assert body["tier"] == "coach"
+        assert body["tier"] == "premium"
         assert body["source"] == "apple"
         assert "dashboard" in body["features"]
     finally:
@@ -181,7 +181,7 @@ def test_apple_webhook_activates_subscription_and_is_idempotent(client: TestClie
     )
     assert entitlements.status_code == 200
     body = entitlements.json()
-    assert body["tier"] == "coach"
+    assert body["tier"] == "premium"
     assert body["is_active"] is True
     assert "dashboard" in body["features"]
 

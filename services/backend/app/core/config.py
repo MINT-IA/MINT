@@ -42,6 +42,16 @@ class Settings(BaseSettings):
     BILLING_ALLOW_CLIENT_APPLE_VERIFY: bool = False
     APPLE_WEBHOOK_SHARED_SECRET: str = ""
 
+    # Apple IAP Products (P6 multi-tier)
+    APPLE_IAP_PRODUCT_STARTER_MONTHLY: str = "ch.mint.starter.monthly"
+    APPLE_IAP_PRODUCT_PREMIUM_MONTHLY: str = "ch.mint.premium.monthly"
+    APPLE_IAP_PRODUCT_COUPLE_PLUS_MONTHLY: str = "ch.mint.couple_plus.monthly"
+
+    # Stripe Prices (P6 multi-tier)
+    STRIPE_PRICE_STARTER_MONTHLY: str = ""
+    STRIPE_PRICE_PREMIUM_MONTHLY: str = ""
+    STRIPE_PRICE_COUPLE_PLUS_MONTHLY: str = ""
+
     # Transactional email (SMTP)
     EMAIL_SEND_ENABLED: bool = False
     EMAIL_FROM: str = "no-reply@mint.ch"

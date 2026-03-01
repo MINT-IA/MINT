@@ -13,7 +13,7 @@ import 'package:mint_mobile/services/subscription_service.dart';
 /// Access in widgets:
 /// ```dart
 /// final sub = context.watch<SubscriptionProvider>();
-/// if (sub.isCoach) { ... }
+/// if (sub.isPaid) { ... }
 /// ```
 class SubscriptionProvider extends ChangeNotifier {
   SubscriptionState _state;
@@ -29,8 +29,12 @@ class SubscriptionProvider extends ChangeNotifier {
   /// Current tier.
   SubscriptionTier get tier => _state.tier;
 
-  /// Whether the user has Coach tier (paid or trial).
-  bool get isCoach => _state.tier == SubscriptionTier.coach && _state.isActive;
+  /// Whether the user has any paid tier active (starter, premium, or couplePlus).
+  bool get isPaid => _state.tier.isPaid && _state.isActive;
+
+  /// Legacy alias: whether the user has a paid subscription.
+  /// Kept for backward compatibility with existing UI code.
+  bool get isCoach => isPaid;
 
   /// Whether the user is on a free trial.
   bool get isTrial => _state.isTrialActive;
@@ -43,9 +47,9 @@ class SubscriptionProvider extends ChangeNotifier {
     return SubscriptionService.hasAccess(feature);
   }
 
-  /// Upgrade to Coach tier.
-  Future<bool> upgrade() async {
-    final success = await SubscriptionService.upgradeTo(SubscriptionTier.coach);
+  /// Upgrade to a specific tier (defaults to premium for backward compat).
+  Future<bool> upgrade([SubscriptionTier targetTier = SubscriptionTier.premium]) async {
+    final success = await SubscriptionService.upgradeTo(targetTier);
     if (success) {
       _state = SubscriptionService.currentState();
       notifyListeners();

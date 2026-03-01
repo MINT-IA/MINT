@@ -18,6 +18,11 @@ from app.models.billing import (
     BillingTransactionModel,
     BillingWebhookEventModel,
 )
+from app.models.household import (
+    HouseholdModel,
+    HouseholdMemberModel,
+    AdminAuditEventModel,
+)
 from app.models.snapshot import SnapshotModel
 from app.models.consent import ConsentModel
 
@@ -34,6 +39,9 @@ __all__ = [
     "EntitlementModel",
     "BillingTransactionModel",
     "BillingWebhookEventModel",
+    "HouseholdModel",
+    "HouseholdMemberModel",
+    "AdminAuditEventModel",
     "SnapshotModel",
     "ConsentModel",
 ]

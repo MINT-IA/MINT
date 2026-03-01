@@ -8,7 +8,7 @@ import 'package:mint_mobile/widgets/coach/coach_gate.dart';
 /// Widget tests for CoachGate (Sprint C9 — Paywall).
 ///
 /// Tests verify:
-///   - Child is shown when user has Coach tier
+///   - Child is shown when user has a paid tier
 ///   - Locked state is shown when user is on free tier
 ///   - Locked state shows "Debloquer" button
 ///   - Custom locked placeholder is used when provided
@@ -45,10 +45,20 @@ void main() {
   }
 
   group('CoachGate', () {
-    testWidgets('shows child when user has coach tier', (tester) async {
-      SubscriptionService.setMockTier(SubscriptionTier.coach);
+    testWidgets('shows child when user has premium tier', (tester) async {
+      SubscriptionService.setMockTier(SubscriptionTier.premium);
 
       await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      expect(find.text('Coach Content'), findsOneWidget);
+      expect(find.text('Debloquer'), findsNothing);
+    });
+
+    testWidgets('shows child when user has starter tier for starter feature', (tester) async {
+      SubscriptionService.setMockTier(SubscriptionTier.starter);
+
+      await tester.pumpWidget(buildTestWidget(feature: CoachFeature.dashboard));
       await tester.pump();
 
       expect(find.text('Coach Content'), findsOneWidget);
@@ -123,9 +133,9 @@ void main() {
     });
 
     testWidgets('shows child for trial user', (tester) async {
-      // Simulate active trial
+      // Simulate active trial (premium-level)
       SubscriptionService.setMockState(SubscriptionState(
-        tier: SubscriptionTier.coach,
+        tier: SubscriptionTier.premium,
         isTrialActive: true,
         trialDaysRemaining: 10,
         expiresAt: DateTime.now().add(const Duration(days: 10)),
@@ -141,7 +151,7 @@ void main() {
 
     testWidgets('shows locked state for expired trial', (tester) async {
       SubscriptionService.setMockState(SubscriptionState(
-        tier: SubscriptionTier.coach,
+        tier: SubscriptionTier.premium,
         isTrialActive: true,
         trialDaysRemaining: 0,
         expiresAt: DateTime.now().subtract(const Duration(days: 1)),

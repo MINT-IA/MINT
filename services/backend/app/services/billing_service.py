@@ -27,19 +27,44 @@ from app.models.billing import (
 from app.models.user import User
 
 
-COACH_FEATURES = [
-    "dashboard",
-    "forecast",
-    "checkin",
-    "scoreEvolution",
-    "alertesProactives",
-    "historique",
-    "profilCouple",
-    "coachLlm",
-    "scenariosEtSi",
-    "exportPdf",
-    "vault",
-]
+# Valid tiers
+VALID_TIERS = {"free", "starter", "premium", "couple_plus"}
+
+# Feature access levels
+# "Y" = full access, "basic" = limited, "-" = no access
+TIER_FEATURE_MATRIX: dict[str, dict[str, str]] = {
+    "dashboard":          {"free": "-", "starter": "Y", "premium": "Y", "couple_plus": "Y"},
+    "forecast":           {"free": "-", "starter": "Y", "premium": "Y", "couple_plus": "Y"},
+    "checkin":            {"free": "-", "starter": "Y", "premium": "Y", "couple_plus": "Y"},
+    "scoreEvolution":     {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "alertesProactives":  {"free": "-", "starter": "Y", "premium": "Y", "couple_plus": "Y"},
+    "historique":         {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "profilCouple":       {"free": "-", "starter": "basic", "premium": "Y", "couple_plus": "Y"},
+    "coachLlm":           {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "scenariosEtSi":      {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "exportPdf":          {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "vault":              {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "monteCarlo":         {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+    "arbitrageModules":   {"free": "-", "starter": "-", "premium": "Y", "couple_plus": "Y"},
+}
+
+ALL_FEATURES = list(TIER_FEATURE_MATRIX.keys())
+
+# Legacy alias — keep COACH_FEATURES for backward compatibility during migration
+COACH_FEATURES = ALL_FEATURES
+
+# Map store product IDs to tiers
+PRODUCT_TO_TIER: dict[str, str] = {
+    "ch.mint.starter.monthly": "starter",
+    "ch.mint.premium.monthly": "premium",
+    "ch.mint.couple_plus.monthly": "couple_plus",
+    "ch.mint.starter.annual": "starter",
+    "ch.mint.premium.annual": "premium",
+    "ch.mint.couple_plus.annual": "couple_plus",
+    # Legacy
+    "ch.mint.coach.monthly": "premium",
+}
+
 _JWT_COMPACT_RE = re.compile(r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$")
 
 
@@ -55,21 +80,95 @@ def _is_subscription_active(sub: SubscriptionModel) -> bool:
     return sub.current_period_end >= _now()
 
 
-def recompute_entitlements(db: Session, user_id: str) -> list[str]:
+def features_for_tier(tier: str) -> list[str]:
+    """Return list of features with access != '-' for given tier."""
+    if tier not in VALID_TIERS:
+        return []
+    return [
+        feature
+        for feature, access in TIER_FEATURE_MATRIX.items()
+        if access.get(tier, "-") != "-"
+    ]
+
+
+def tier_from_product_id(product_id: str) -> str:
+    """Map store product ID to tier. Defaults to premium for unknown products."""
+    return PRODUCT_TO_TIER.get(product_id, "premium")
+
+
+def recompute_entitlements(
+    db: Session,
+    user_id: str,
+    restricted_features: set[str] | None = None,
+) -> list[str]:
+    """
+    Recompute feature entitlements for a user.
+
+    1. Check user's direct subscription tier
+    2. If member of a household -> inherit billing_owner's tier
+    3. Higher tier wins (direct vs inherited)
+    4. Apply regulatory restrictions (FATCA etc.)
+    """
+    from app.models.household import HouseholdMemberModel, HouseholdModel
+
+    # 1. Direct subscription
     sub = (
         db.query(SubscriptionModel)
         .filter(SubscriptionModel.user_id == user_id)
         .order_by(SubscriptionModel.updated_at.desc())
         .first()
     )
-    active = bool(sub and sub.tier == "coach" and _is_subscription_active(sub))
-    active_features = COACH_FEATURES if active else []
+    direct_tier = "free"
+    if sub and _is_subscription_active(sub):
+        direct_tier = sub.tier if sub.tier in VALID_TIERS else "free"
 
+    # 2. Household inheritance
+    inherited_tier = "free"
+    membership = (
+        db.query(HouseholdMemberModel)
+        .filter(
+            HouseholdMemberModel.user_id == user_id,
+            HouseholdMemberModel.status == "active",
+        )
+        .first()
+    )
+    if membership:
+        household = (
+            db.query(HouseholdModel)
+            .filter(HouseholdModel.id == membership.household_id)
+            .first()
+        )
+        if household:
+            billing_sub = (
+                db.query(SubscriptionModel)
+                .filter(SubscriptionModel.user_id == household.billing_owner_user_id)
+                .order_by(SubscriptionModel.updated_at.desc())
+                .first()
+            )
+            if billing_sub and _is_subscription_active(billing_sub):
+                inherited_tier = billing_sub.tier if billing_sub.tier in VALID_TIERS else "free"
+
+    # 3. Higher tier wins
+    tier_rank = {"free": 0, "starter": 1, "premium": 2, "couple_plus": 3}
+    effective_tier = (
+        direct_tier
+        if tier_rank.get(direct_tier, 0) >= tier_rank.get(inherited_tier, 0)
+        else inherited_tier
+    )
+
+    # 4. Compute features for effective tier
+    active_features = features_for_tier(effective_tier)
+
+    # 5. Apply regulatory restrictions (INV-15: FATCA etc.)
+    if restricted_features:
+        active_features = [f for f in active_features if f not in restricted_features]
+
+    # 6. Upsert entitlements
     existing = (
         db.query(EntitlementModel).filter(EntitlementModel.user_id == user_id).all()
     )
     by_key = {e.feature_key: e for e in existing}
-    for feature in COACH_FEATURES:
+    for feature in ALL_FEATURES:
         row = by_key.get(feature)
         if row is None:
             db.add(
@@ -114,10 +213,12 @@ def get_entitlement_snapshot(db: Session, user: User) -> dict[str, Any]:
     sub = get_or_create_subscription(db, user)
     features = recompute_entitlements(db, user.id)
     sub = db.query(SubscriptionModel).filter(SubscriptionModel.id == sub.id).first()
+    effective_tier = sub.tier if sub.tier in VALID_TIERS else "free"
+    is_active = _is_subscription_active(sub) and effective_tier != "free"
     return {
-        "tier": sub.tier,
+        "tier": effective_tier,
         "status": sub.status,
-        "is_active": _is_subscription_active(sub) and sub.tier == "coach",
+        "is_active": is_active,
         "is_trial": sub.is_trial,
         "current_period_end": sub.current_period_end,
         "features": features,
@@ -233,6 +334,7 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
         event_type=event_type,
         payload=json.dumps(event),
         is_processed=False,
+        outcome="applied",
     )
     db.add(record)
     db.flush()
@@ -254,14 +356,18 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
         if sub.id is None:
             db.add(sub)
 
-        sub.tier = "coach"
+        # Resolve tier from product metadata or default to premium
+        sub.tier = "premium"
         sub.status = "active"
         sub.is_trial = False
         sub.external_customer_id = obj.get("customer")
         sub.external_subscription_id = obj.get("subscription")
         sub.current_period_end = _now() + timedelta(days=30)
+        sub.last_event_at = _now()
         sub.updated_at = _now()
         db.flush()
+
+        record.subscription_id = sub.id
 
         db.add(
             BillingTransactionModel(
@@ -284,10 +390,18 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 .first()
             )
             if sub:
+                # Monotone timestamp idempotence: skip stale events
+                now = _now()
+                if sub.last_event_at and sub.last_event_at > now:
+                    record.outcome = "skipped_stale"
+                    record.is_processed = True
+                    db.commit()
+                    return
+
                 stripe_status = obj.get("status", "canceled")
                 if stripe_status in {"active", "trialing"}:
                     sub.status = stripe_status
-                    sub.tier = "coach"
+                    sub.tier = "premium"
                     sub.is_trial = stripe_status == "trialing"
                 else:
                     sub.status = "canceled"
@@ -297,9 +411,11 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 sub.current_period_end = (
                     datetime.utcfromtimestamp(end_ts)
                     if end_ts
-                    else _now()
+                    else now
                 )
-                sub.updated_at = _now()
+                sub.last_event_at = now
+                sub.updated_at = now
+                record.subscription_id = sub.id
                 recompute_entitlements(db, sub.user_id)
 
     record.is_processed = True
@@ -319,22 +435,28 @@ def activate_apple_purchase(
     raw_payload: Optional[str],
 ) -> list[str]:
     """
-    Activate coach subscription from an Apple purchase signal.
+    Activate subscription from an Apple purchase signal.
 
     Note: in this foundation phase we accept client-transmitted purchase evidence.
     Full App Store Server API signature verification is handled in next phase.
     """
-    expected_product = settings.APPLE_IAP_PRODUCT_COACH_MONTHLY
-    if expected_product and product_id != expected_product:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Unknown Apple product_id",
-        )
+    # Accept any known product ID (multi-tier) or legacy coach product
+    known_products = set(PRODUCT_TO_TIER.keys())
+    if product_id not in known_products:
+        # Fallback: check legacy single-product setting
+        expected_product = settings.APPLE_IAP_PRODUCT_COACH_MONTHLY
+        if expected_product and product_id != expected_product:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Unknown Apple product_id",
+            )
     _validate_apple_signed_payload(
         signed_payload=raw_payload,
         expected_product_id=product_id,
         expected_transaction_id=transaction_id,
     )
+
+    resolved_tier = tier_from_product_id(product_id)
 
     sub = (
         db.query(SubscriptionModel)
@@ -345,12 +467,13 @@ def activate_apple_purchase(
     if sub.id is None:
         db.add(sub)
 
-    sub.tier = "coach"
+    sub.tier = resolved_tier
     sub.source = "apple"
     sub.status = "trialing" if is_trial else "active"
     sub.is_trial = is_trial
     sub.external_subscription_id = original_transaction_id or transaction_id
     sub.current_period_end = expires_at or (_now() + timedelta(days=30))
+    sub.last_event_at = _now()
     sub.updated_at = _now()
     db.flush()
 
@@ -415,23 +538,24 @@ def _map_apple_notification_status(
     notification_type: str,
     subtype: Optional[str],
     is_trial: bool,
+    current_tier: str = "premium",
 ) -> tuple[str, str, bool]:
     upper_type = notification_type.upper()
     upper_subtype = (subtype or "").upper()
 
     if upper_type in {"SUBSCRIBED", "DID_RENEW", "OFFER_REDEEMED"}:
-        return ("coach", "trialing" if is_trial else "active", is_trial)
+        return (current_tier, "trialing" if is_trial else "active", is_trial)
 
     if upper_type in {"DID_FAIL_TO_RENEW", "GRACE_PERIOD_EXPIRED"}:
-        return ("coach", "past_due", False)
+        return (current_tier, "past_due", False)
 
     if upper_type in {"EXPIRED", "REFUND", "REVOKE"}:
         return ("free", "canceled", False)
 
     if upper_type == "DID_CHANGE_RENEWAL_STATUS" and upper_subtype == "AUTO_RENEW_DISABLED":
-        return ("coach", "active", False)
+        return (current_tier, "active", False)
 
-    return ("coach", "trialing" if is_trial else "active", is_trial)
+    return (current_tier, "trialing" if is_trial else "active", is_trial)
 
 
 def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
@@ -467,6 +591,7 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
         event_type=notification_type,
         payload=json.dumps(payload),
         is_processed=False,
+        outcome="applied",
     )
     db.add(row)
     db.flush()
@@ -477,8 +602,12 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
     transaction_id = data.get("transaction_id")
     original_transaction_id = data.get("original_transaction_id")
     is_trial = data.get("is_trial") is True
+
+    # Resolve tier from product_id
+    resolved_tier = tier_from_product_id(product_id) if product_id else "premium"
+
     tier, mapped_status, mapped_trial = _map_apple_notification_status(
-        notification_type, payload.get("subtype"), is_trial
+        notification_type, payload.get("subtype"), is_trial, current_tier=resolved_tier
     )
     expires_at_raw = data.get("expires_at")
     expires_at = None
@@ -504,20 +633,32 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
     if user_id and product_id and transaction_id:
         user = db.query(User).filter(User.id == user_id).first()
         if user:
+            # Monotone timestamp idempotence
+            now = _now()
+            target_sub = sub or (
+                db.query(SubscriptionModel)
+                .filter(SubscriptionModel.user_id == user.id)
+                .order_by(SubscriptionModel.updated_at.desc())
+                .first()
+            )
+            if target_sub and target_sub.last_event_at and target_sub.last_event_at > now:
+                row.outcome = "skipped_stale"
+                row.subscription_id = target_sub.id
+                row.is_processed = True
+                db.commit()
+                return
+
             if tier == "free":
                 # Cancellation/refund path
-                current_sub = sub or (
-                    db.query(SubscriptionModel)
-                    .filter(SubscriptionModel.user_id == user.id)
-                    .order_by(SubscriptionModel.updated_at.desc())
-                    .first()
-                )
+                current_sub = target_sub
                 if current_sub:
                     current_sub.tier = "free"
                     current_sub.status = mapped_status
                     current_sub.is_trial = False
-                    current_sub.current_period_end = expires_at or _now()
-                    current_sub.updated_at = _now()
+                    current_sub.current_period_end = expires_at or now
+                    current_sub.last_event_at = now
+                    current_sub.updated_at = now
+                    row.subscription_id = current_sub.id
                     db.flush()
                     recompute_entitlements(db, user.id)
             else:
@@ -543,9 +684,11 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
                 )
                 if latest_sub:
                     latest_sub.status = mapped_status
-                    latest_sub.tier = "coach"
+                    latest_sub.tier = resolved_tier
                     latest_sub.is_trial = mapped_trial
-                    latest_sub.updated_at = _now()
+                    latest_sub.last_event_at = now
+                    latest_sub.updated_at = now
+                    row.subscription_id = latest_sub.id
                     db.flush()
                     recompute_entitlements(db, user.id)
 

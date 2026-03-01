@@ -46,6 +46,8 @@ from app.api.v1.endpoints import (
     precision,
     document_parser,
     confidence,
+    household,
+    config,
 )
 
 api_router = APIRouter()
@@ -169,4 +171,10 @@ api_router.include_router(
 )
 api_router.include_router(
     confidence.router, prefix="/confidence", tags=["Confidence S46"]
+)
+api_router.include_router(
+    household.router, prefix="/household", tags=["Household P6"]
+)
+api_router.include_router(
+    config.router, prefix="/config", tags=["Config"]
 )
