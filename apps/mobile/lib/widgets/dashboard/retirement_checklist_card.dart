@@ -208,7 +208,7 @@ class RetirementChecklistCard extends StatelessWidget {
         subtitle:
             'Gratuit sur inforegister.ch. Permet de v\u00e9rifier tes ann\u00e9es AVS.',
         timeline: 'D\u00e8s que possible',
-        route: '/expat/avs-gap',
+        route: '/document-scan/avs-guide',
       ));
     }
 
@@ -228,7 +228,7 @@ class RetirementChecklistCard extends StatelessWidget {
             'CHF\u00a0${_fmt(remaining3a)} restant avant le plafond '
             '${now.year}.',
         timeline: 'Avant le 31.12.${now.year}',
-        route: '/three-a-deep',
+        route: '/3a-deep/comparator',
       ));
     }
 
