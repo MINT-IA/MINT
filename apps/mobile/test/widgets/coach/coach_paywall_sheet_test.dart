@@ -5,17 +5,19 @@ import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
 
-/// Widget tests for CoachPaywallSheet (Sprint C9 — Paywall).
+/// Widget tests for CoachPaywallSheet (P6 — Multi-tier Paywall).
 ///
 /// Tests verify:
 ///   - Sheet renders without crashing
-///   - Price (4.90 CHF) is displayed
-///   - Feature list is shown
+///   - Multi-tier comparison (Starter / Premium / Couple+)
+///   - Prices are displayed (4.90, 9.90, 14.90)
+///   - Feature list is shown per tier
 ///   - CTA button is present
 ///   - Disclaimer is present (LSFin)
 ///   - Close button exists
 ///   - Restore purchases button exists
 ///   - Trial badge is shown
+///   - No banned terms
 void main() {
   setUp(() {
     SubscriptionService.setMockTier(SubscriptionTier.free);
@@ -61,10 +63,20 @@ void main() {
       expect(find.byType(CoachPaywallSheet), findsOneWidget);
     });
 
-    testWidgets('shows price 4.90 CHF', (tester) async {
+    testWidgets('shows tier names (Starter, Premium)', (tester) async {
       await openPaywall(tester);
-      expect(find.textContaining('4.90'), findsOneWidget);
-      expect(find.textContaining('/mois'), findsOneWidget);
+      expect(find.text('Starter'), findsOneWidget);
+      expect(find.text('Premium'), findsOneWidget);
+    });
+
+    testWidgets('shows Starter price 4.90 CHF', (tester) async {
+      await openPaywall(tester);
+      expect(find.textContaining('4.90'), findsWidgets);
+    });
+
+    testWidgets('shows Premium price 9.90 CHF', (tester) async {
+      await openPaywall(tester);
+      expect(find.textContaining('9.90'), findsWidgets);
     });
 
     testWidgets('shows title text', (tester) async {
@@ -79,11 +91,10 @@ void main() {
 
     testWidgets('shows feature list with checkmarks', (tester) async {
       await openPaywall(tester);
-      // Should show feature titles
-      expect(find.textContaining('Dashboard trajectoire'), findsOneWidget);
-      expect(find.textContaining('Forecast adaptatif'), findsOneWidget);
-      expect(find.textContaining('Check-in mensuel'), findsOneWidget);
-      expect(find.textContaining('Score evolutif'), findsOneWidget);
+      // Should show feature titles from Starter and Premium tiers
+      expect(find.textContaining('Dashboard trajectoire'), findsWidgets);
+      expect(find.textContaining('Forecast adaptatif'), findsWidgets);
+      expect(find.textContaining('Check-in mensuel'), findsWidgets);
       expect(find.textContaining('Coach LLM'), findsOneWidget);
       expect(find.textContaining('Export PDF'), findsOneWidget);
       // Check icons
@@ -92,6 +103,7 @@ void main() {
 
     testWidgets('shows CTA button', (tester) async {
       await openPaywall(tester);
+      // Non-iOS platform: shows trial start
       expect(find.textContaining('essai gratuit'), findsWidgets);
     });
 
@@ -124,6 +136,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(CoachPaywallSheet), findsNothing);
+    });
+
+    testWidgets('shows recommended badge on Premium', (tester) async {
+      await openPaywall(tester);
+      expect(find.text('Top'), findsOneWidget);
+    });
+
+    testWidgets('shows /mois price unit', (tester) async {
+      await openPaywall(tester);
+      expect(find.textContaining('/mois'), findsWidgets);
     });
 
     testWidgets('does not contain banned terms', (tester) async {

@@ -1,5 +1,4 @@
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -307,10 +306,25 @@ class SubscriptionService {
     return days < 0 ? 0 : days;
   }
 
+  /// Map a [SubscriptionTier] to its monthly Apple IAP product identifier.
+  static String _productIdForTier(SubscriptionTier tier) {
+    switch (tier) {
+      case SubscriptionTier.starter:
+        return 'ch.mint.starter.monthly';
+      case SubscriptionTier.premium:
+        return 'ch.mint.premium.monthly';
+      case SubscriptionTier.couplePlus:
+        return 'ch.mint.couple_plus.monthly';
+      case SubscriptionTier.free:
+        return 'ch.mint.starter.monthly'; // fallback
+    }
+  }
+
   static Future<bool> upgradeTo(SubscriptionTier tier) async {
     // IAP flow for paid tiers on iOS
     if (tier.isPaid && IosIapService.isSupportedPlatform) {
-      final purchased = await IosIapService.purchaseCoachMonthly();
+      final productId = _productIdForTier(tier);
+      final purchased = await IosIapService.purchaseProduct(productId);
       if (purchased) {
         await refreshFromBackend();
       }

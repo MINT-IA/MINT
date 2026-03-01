@@ -79,13 +79,13 @@ class IosIapService {
   static bool get isSupportedPlatform =>
       _platformCheckOverride ? _platformCheckOverrideValue : Platform.isIOS;
 
-  static Future<bool> purchaseCoachMonthly() async {
+  /// Purchase a specific product by ID (multi-tier support).
+  static Future<bool> purchaseProduct(String productId) async {
     if (!isSupportedPlatform) return false;
     final available = await _platform.isAvailable();
     if (!available) return false;
 
-    final productResp =
-        await _platform.queryProductDetails({coachMonthlyProductId});
+    final productResp = await _platform.queryProductDetails({productId});
     if (productResp.productDetails.isEmpty) return false;
     final product = productResp.productDetails.first;
 
@@ -94,7 +94,7 @@ class IosIapService {
     sub = _platform.purchaseStream.listen(
       (purchases) async {
         for (final purchase in purchases) {
-          if (purchase.productID != coachMonthlyProductId) continue;
+          if (purchase.productID != productId) continue;
           if (purchase.status == PurchaseStatus.pending) continue;
 
           if (purchase.status == PurchaseStatus.purchased ||
@@ -140,6 +140,10 @@ class IosIapService {
     await sub.cancel();
     return ok;
   }
+
+  /// Legacy method — purchase the coach monthly product.
+  static Future<bool> purchaseCoachMonthly() =>
+      purchaseProduct(coachMonthlyProductId);
 
   static Future<bool> restoreAndSync() async {
     if (!isSupportedPlatform) return false;

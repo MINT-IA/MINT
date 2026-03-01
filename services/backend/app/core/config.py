@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     STRIPE_PRICE_STARTER_MONTHLY: str = ""
     STRIPE_PRICE_PREMIUM_MONTHLY: str = ""
     STRIPE_PRICE_COUPLE_PLUS_MONTHLY: str = ""
+    STRIPE_PRICE_STARTER_ANNUAL: str = ""
+    STRIPE_PRICE_PREMIUM_ANNUAL: str = ""
+    STRIPE_PRICE_COUPLE_PLUS_ANNUAL: str = ""
 
     # Transactional email (SMTP)
     EMAIL_SEND_ENABLED: bool = False

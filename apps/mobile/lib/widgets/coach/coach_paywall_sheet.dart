@@ -5,12 +5,16 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/subscription_service.dart';
 
-/// Beautiful bottom sheet displayed when a free user taps a Coach-locked feature.
+/// Multi-tier paywall bottom sheet displayed when a free user taps a
+/// Coach-locked feature.
 ///
-/// Shows the value proposition of MINT Coach (4.90 CHF/mois):
-/// - Feature list with checkmarks
-/// - 14-day free trial CTA
+/// Shows a tier comparison (Starter / Premium / Couple+):
+/// - Feature highlights per tier
+/// - CTA button per tier
+/// - 14-day free trial badge
 /// - Restore purchases option
 /// - Required LSFin disclaimer
 ///
@@ -18,7 +22,7 @@ import 'package:mint_mobile/services/ios_iap_service.dart';
 /// ```dart
 /// CoachPaywallSheet.show(context);
 /// ```
-class CoachPaywallSheet extends StatelessWidget {
+class CoachPaywallSheet extends StatefulWidget {
   const CoachPaywallSheet({super.key});
 
   /// Show the paywall as a modal bottom sheet.
@@ -39,18 +43,12 @@ class CoachPaywallSheet extends StatelessWidget {
     );
   }
 
-  static const List<_FeatureItem> _features = [
-    _FeatureItem('Dashboard trajectoire', 'Score + projection dans le temps'),
-    _FeatureItem('Forecast adaptatif', '3 scenarios : prudent, base, favorable'),
-    _FeatureItem('Check-in mensuel', 'Point de situation personnalise'),
-    _FeatureItem('Score evolutif', 'Tendance et progression continue'),
-    _FeatureItem('Alertes proactives', 'Notifications sur tes finances'),
-    _FeatureItem('Historique progression', 'Suivi de ton parcours complet'),
-    _FeatureItem('Profil couple', 'Analyse financiere a deux'),
-    _FeatureItem('Coach LLM', 'Assistant IA personnel (BYOK)'),
-    _FeatureItem('Scenarios "Et si..."', 'Simule tes decisions de vie'),
-    _FeatureItem('Export PDF', 'Rapport complet a telecharger'),
-  ];
+  @override
+  State<CoachPaywallSheet> createState() => _CoachPaywallSheetState();
+}
+
+class _CoachPaywallSheetState extends State<CoachPaywallSheet> {
+  SubscriptionTier _selectedTier = SubscriptionTier.premium;
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +77,8 @@ class CoachPaywallSheet extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // Price badge
-                  _buildPriceBadge(),
-
-                  const SizedBox(height: 24),
-
-                  // Feature list
-                  ..._features.map(_buildFeatureRow),
+                  // Tier comparison cards
+                  _buildTierComparison(),
 
                   const SizedBox(height: 24),
 
@@ -197,83 +190,219 @@ class CoachPaywallSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildPriceBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-      decoration: BoxDecoration(
-        color: MintColors.coachBubble,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: MintColors.coachAccent.withValues(alpha: 0.2),
-        ),
-      ),
+  // ──────────────────────────────────────────────────────────────────
+  // Tier comparison
+  // ──────────────────────────────────────────────────────────────────
+
+  Widget _buildTierComparison() {
+    final showCouplePlus = FeatureFlags.enableCouplePlusTier;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '4.90 CHF',
-            style: GoogleFonts.montserrat(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: MintColors.primary,
-            ),
+          _buildTierCard(
+            tier: SubscriptionTier.starter,
+            name: 'Starter',
+            price: '4.90',
+            isRecommended: false,
+            features: const [
+              'Dashboard trajectoire',
+              'Forecast adaptatif',
+              'Check-in mensuel',
+              'Alertes proactives',
+            ],
           ),
-          const SizedBox(width: 6),
-          Text(
-            '/mois',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textSecondary,
-            ),
+          const SizedBox(width: 12),
+          _buildTierCard(
+            tier: SubscriptionTier.premium,
+            name: 'Premium',
+            price: '9.90',
+            isRecommended: true,
+            features: const [
+              'Tout Starter +',
+              'Score evolutif',
+              'Coach LLM',
+              'Scenarios "Et si..."',
+              'Export PDF',
+              'Monte Carlo',
+              'Modules arbitrage',
+            ],
           ),
+          if (showCouplePlus) ...[
+            const SizedBox(width: 12),
+            _buildTierCard(
+              tier: SubscriptionTier.couplePlus,
+              name: 'Couple+',
+              price: '14.90',
+              isRecommended: false,
+              features: const [
+                'Tout Premium +',
+                '2 profils actifs',
+                'Optimisation conjointe',
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildFeatureRow(_FeatureItem feature) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 2),
-            child: const Icon(
-              Icons.check_circle_rounded,
-              color: MintColors.scoreExcellent,
-              size: 20,
-            ),
+  Widget _buildTierCard({
+    required SubscriptionTier tier,
+    required String name,
+    required String price,
+    required bool isRecommended,
+    required List<String> features,
+  }) {
+    final isSelected = _selectedTier == tier;
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedTier = tier),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 180,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? MintColors.coachBubble
+              : MintColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? MintColors.primary
+                : MintColors.border,
+            width: isSelected ? 2 : 1,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Tier name + recommended badge
+            Row(
               children: [
-                Text(
-                  feature.title,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
+                Expanded(
+                  child: Text(
+                    name,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
+                    ),
                   ),
                 ),
-                Text(
-                  feature.subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textMuted,
-                    height: 1.3,
+                if (isRecommended)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: MintColors.scoreExcellent,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'Top',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
               ],
             ),
-          ),
-        ],
+
+            const SizedBox(height: 8),
+
+            // Price
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$price CHF',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: MintColors.primary,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' /mois',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Feature list
+            ...features.map(
+              (f) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: MintColors.scoreExcellent,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        f,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: MintColors.textPrimary,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Selection indicator
+            Center(
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? MintColors.primary
+                        : MintColors.border,
+                    width: 2,
+                  ),
+                  color: isSelected ? MintColors.primary : Colors.transparent,
+                ),
+                child: isSelected
+                    ? const Icon(Icons.check, color: Colors.white, size: 14)
+                    : null,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Trial badge
+  // ──────────────────────────────────────────────────────────────────
 
   Widget _buildTrialBadge() {
     return Container(
@@ -304,8 +433,19 @@ class CoachPaywallSheet extends StatelessWidget {
     );
   }
 
+  // ──────────────────────────────────────────────────────────────────
+  // Primary CTA
+  // ──────────────────────────────────────────────────────────────────
+
   Widget _buildPrimaryCTA(BuildContext context) {
     final isIosIap = IosIapService.isSupportedPlatform;
+    final tierLabel = switch (_selectedTier) {
+      SubscriptionTier.starter => 'Starter',
+      SubscriptionTier.premium => 'Premium',
+      SubscriptionTier.couplePlus => 'Couple+',
+      SubscriptionTier.free => 'Starter',
+    };
+
     return SizedBox(
       height: 52,
       child: ElevatedButton(
@@ -314,15 +454,24 @@ class CoachPaywallSheet extends StatelessWidget {
             isIosIap ? 'paywall_upgrade' : 'paywall_trial_start',
             screenName: 'coach_paywall',
           );
+          AnalyticsService().trackEvent(
+            'paywall_tier_selected',
+            category: 'conversion',
+            data: {'tier': _selectedTier.apiValue},
+            screenName: 'coach_paywall',
+          );
           final provider = context.read<SubscriptionProvider>();
           final success = isIosIap
-              ? await provider.upgrade()
+              ? await provider.upgrade(_selectedTier)
               : await provider.startTrial();
           if (success && context.mounted) {
             AnalyticsService().trackEvent(
               'paywall_conversion',
               category: 'conversion',
-              data: {'method': isIosIap ? 'iap' : 'trial'},
+              data: {
+                'method': isIosIap ? 'iap' : 'trial',
+                'tier': _selectedTier.apiValue,
+              },
               screenName: 'coach_paywall',
             );
             Navigator.of(context).pop();
@@ -330,7 +479,7 @@ class CoachPaywallSheet extends StatelessWidget {
               SnackBar(
                 content: Text(
                   isIosIap
-                      ? 'Abonnement activé avec succès.'
+                      ? 'Abonnement $tierLabel active avec succes.'
                       : 'Essai gratuit active ! Profite de MINT Coach pendant 14 jours.',
                 ),
               ),
@@ -346,7 +495,9 @@ class CoachPaywallSheet extends StatelessWidget {
           elevation: 0,
         ),
         child: Text(
-          isIosIap ? 'Débloquer MINT Coach' : 'Commencer l\'essai gratuit',
+          isIosIap
+              ? 'Choisir $tierLabel'
+              : 'Commencer l\'essai gratuit',
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -355,6 +506,10 @@ class CoachPaywallSheet extends StatelessWidget {
       ),
     );
   }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Restore button
+  // ──────────────────────────────────────────────────────────────────
 
   Widget _buildRestoreButton(BuildContext context) {
     return TextButton(
@@ -391,6 +546,10 @@ class CoachPaywallSheet extends StatelessWidget {
     );
   }
 
+  // ──────────────────────────────────────────────────────────────────
+  // Disclaimer
+  // ──────────────────────────────────────────────────────────────────
+
   Widget _buildDisclaimer() {
     return Text(
       'Outil educatif — ne constitue pas un conseil financier. LSFin. '
@@ -403,11 +562,4 @@ class CoachPaywallSheet extends StatelessWidget {
       ),
     );
   }
-}
-
-class _FeatureItem {
-  final String title;
-  final String subtitle;
-
-  const _FeatureItem(this.title, this.subtitle);
 }

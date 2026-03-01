@@ -92,26 +92,43 @@ def features_for_tier(tier: str) -> list[str]:
 
 
 def tier_from_product_id(product_id: str) -> str:
-    """Map store product ID to tier. Defaults to premium for unknown products."""
-    return PRODUCT_TO_TIER.get(product_id, "premium")
+    """Map store product ID to tier. Defaults to free for unknown products (fail-closed)."""
+    return PRODUCT_TO_TIER.get(product_id, "free")
 
 
-def recompute_entitlements(
-    db: Session,
-    user_id: str,
-    restricted_features: set[str] | None = None,
-) -> list[str]:
+def _stripe_price_to_tier(price_id: str) -> str:
+    """Resolve tier from Stripe price ID using configured price settings.
+
+    Returns "free" for unknown price IDs (fail-closed, not fail-open).
     """
-    Recompute feature entitlements for a user.
+    price_map: dict[str, str] = {}
+    # Monthly
+    if settings.STRIPE_PRICE_STARTER_MONTHLY:
+        price_map[settings.STRIPE_PRICE_STARTER_MONTHLY] = "starter"
+    if settings.STRIPE_PRICE_PREMIUM_MONTHLY:
+        price_map[settings.STRIPE_PRICE_PREMIUM_MONTHLY] = "premium"
+    if settings.STRIPE_PRICE_COUPLE_PLUS_MONTHLY:
+        price_map[settings.STRIPE_PRICE_COUPLE_PLUS_MONTHLY] = "couple_plus"
+    # Annual
+    if settings.STRIPE_PRICE_STARTER_ANNUAL:
+        price_map[settings.STRIPE_PRICE_STARTER_ANNUAL] = "starter"
+    if settings.STRIPE_PRICE_PREMIUM_ANNUAL:
+        price_map[settings.STRIPE_PRICE_PREMIUM_ANNUAL] = "premium"
+    if settings.STRIPE_PRICE_COUPLE_PLUS_ANNUAL:
+        price_map[settings.STRIPE_PRICE_COUPLE_PLUS_ANNUAL] = "couple_plus"
+    # Legacy
+    if settings.STRIPE_PRICE_COACH_MONTHLY:
+        price_map[settings.STRIPE_PRICE_COACH_MONTHLY] = "premium"
+    return price_map.get(price_id, "free")
 
-    1. Check user's direct subscription tier
-    2. If member of a household -> inherit billing_owner's tier
-    3. Higher tier wins (direct vs inherited)
-    4. Apply regulatory restrictions (FATCA etc.)
-    """
+
+def _compute_effective_tier(db: Session, user_id: str) -> str:
+    """Compute effective tier = max(direct subscription, household-inherited)."""
     from app.models.household import HouseholdMemberModel, HouseholdModel
 
-    # 1. Direct subscription
+    tier_rank = {"free": 0, "starter": 1, "premium": 2, "couple_plus": 3}
+
+    # Direct subscription
     sub = (
         db.query(SubscriptionModel)
         .filter(SubscriptionModel.user_id == user_id)
@@ -122,7 +139,7 @@ def recompute_entitlements(
     if sub and _is_subscription_active(sub):
         direct_tier = sub.tier if sub.tier in VALID_TIERS else "free"
 
-    # 2. Household inheritance
+    # Household inherited
     inherited_tier = "free"
     membership = (
         db.query(HouseholdMemberModel)
@@ -148,22 +165,42 @@ def recompute_entitlements(
             if billing_sub and _is_subscription_active(billing_sub):
                 inherited_tier = billing_sub.tier if billing_sub.tier in VALID_TIERS else "free"
 
-    # 3. Higher tier wins
-    tier_rank = {"free": 0, "starter": 1, "premium": 2, "couple_plus": 3}
-    effective_tier = (
+    return (
         direct_tier
         if tier_rank.get(direct_tier, 0) >= tier_rank.get(inherited_tier, 0)
         else inherited_tier
     )
 
-    # 4. Compute features for effective tier
+
+def recompute_entitlements(
+    db: Session,
+    user_id: str,
+    restricted_features: set[str] | None = None,
+) -> list[str]:
+    """
+    Recompute feature entitlements for a user.
+
+    1. Compute effective tier (direct vs household-inherited, higher wins)
+    2. Apply regulatory restrictions (FATCA etc.)
+    3. Upsert entitlement rows
+    """
+    effective_tier = _compute_effective_tier(db, user_id)
+
+    sub = (
+        db.query(SubscriptionModel)
+        .filter(SubscriptionModel.user_id == user_id)
+        .order_by(SubscriptionModel.updated_at.desc())
+        .first()
+    )
+
+    # Compute features for effective tier
     active_features = features_for_tier(effective_tier)
 
-    # 5. Apply regulatory restrictions (INV-15: FATCA etc.)
+    # Apply regulatory restrictions (INV-15: FATCA etc.)
     if restricted_features:
         active_features = [f for f in active_features if f not in restricted_features]
 
-    # 6. Upsert entitlements
+    # Upsert entitlements
     existing = (
         db.query(EntitlementModel).filter(EntitlementModel.user_id == user_id).all()
     )
@@ -212,17 +249,16 @@ def get_or_create_subscription(db: Session, user: User) -> SubscriptionModel:
 def get_entitlement_snapshot(db: Session, user: User) -> dict[str, Any]:
     sub = get_or_create_subscription(db, user)
     features = recompute_entitlements(db, user.id)
-    sub = db.query(SubscriptionModel).filter(SubscriptionModel.id == sub.id).first()
-    effective_tier = sub.tier if sub.tier in VALID_TIERS else "free"
-    is_active = _is_subscription_active(sub) and effective_tier != "free"
+    effective_tier = _compute_effective_tier(db, user.id)
+    is_active = effective_tier != "free"
     return {
         "tier": effective_tier,
-        "status": sub.status,
+        "status": sub.status if sub else "inactive",
         "is_active": is_active,
-        "is_trial": sub.is_trial,
-        "current_period_end": sub.current_period_end,
+        "is_trial": sub.is_trial if sub else False,
+        "current_period_end": sub.current_period_end if sub else None,
         "features": features,
-        "source": sub.source,
+        "source": sub.source if sub else "stripe",
     }
 
 
@@ -274,6 +310,7 @@ def create_stripe_checkout_session(
         "cancel_url": cancel_url,
         "client_reference_id": user.id,
         "metadata[user_id]": user.id,
+        "metadata[price_id]": final_price_id,
     }
     return _stripe_post("checkout/sessions", payload)
 
@@ -356,14 +393,20 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
         if sub.id is None:
             db.add(sub)
 
-        # Resolve tier from product metadata or default to premium
-        sub.tier = "premium"
+        # Resolve tier from price_id in checkout session metadata
+        checkout_price_id = obj.get("metadata", {}).get("price_id", "")
+        resolved_tier = _stripe_price_to_tier(checkout_price_id) if checkout_price_id else "free"
+
+        event_ts_raw = event.get("created")
+        event_ts = datetime.utcfromtimestamp(event_ts_raw) if event_ts_raw else _now()
+
+        sub.tier = resolved_tier
         sub.status = "active"
         sub.is_trial = False
         sub.external_customer_id = obj.get("customer")
         sub.external_subscription_id = obj.get("subscription")
         sub.current_period_end = _now() + timedelta(days=30)
-        sub.last_event_at = _now()
+        sub.last_event_at = event_ts
         sub.updated_at = _now()
         db.flush()
 
@@ -379,6 +422,14 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 raw_payload=json.dumps(obj),
             )
         )
+
+        # HIGH-3: Auto-create household on couple_plus purchase
+        if resolved_tier == "couple_plus":
+            from app.services.household_service import create_household_for_billing_owner
+            user_obj = db.query(User).filter(User.id == user_id).first()
+            if user_obj:
+                create_household_for_billing_owner(db, user_obj)
+
         recompute_entitlements(db, user_id)
 
     if event_type in {"customer.subscription.deleted", "customer.subscription.updated"}:
@@ -390,18 +441,28 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 .first()
             )
             if sub:
+                # HIGH-5: Use event timestamp for stale check (not processing time)
+                event_ts_raw = event.get("created")
+                event_ts = datetime.utcfromtimestamp(event_ts_raw) if event_ts_raw else _now()
+
                 # Monotone timestamp idempotence: skip stale events
-                now = _now()
-                if sub.last_event_at and sub.last_event_at > now:
+                if sub.last_event_at and sub.last_event_at > event_ts:
                     record.outcome = "skipped_stale"
                     record.is_processed = True
                     db.commit()
                     return
 
+                # HIGH-1: Resolve tier from subscription items price_id
+                items = obj.get("items", {}).get("data", [])
+                item_price_id = ""
+                if items:
+                    item_price_id = items[0].get("price", {}).get("id", "")
+                resolved_sub_tier = _stripe_price_to_tier(item_price_id) if item_price_id else "free"
+
                 stripe_status = obj.get("status", "canceled")
                 if stripe_status in {"active", "trialing"}:
                     sub.status = stripe_status
-                    sub.tier = "premium"
+                    sub.tier = resolved_sub_tier
                     sub.is_trial = stripe_status == "trialing"
                 else:
                     sub.status = "canceled"
@@ -411,10 +472,10 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 sub.current_period_end = (
                     datetime.utcfromtimestamp(end_ts)
                     if end_ts
-                    else now
+                    else event_ts
                 )
-                sub.last_event_at = now
-                sub.updated_at = now
+                sub.last_event_at = event_ts
+                sub.updated_at = _now()
                 record.subscription_id = sub.id
                 recompute_entitlements(db, sub.user_id)
 
@@ -487,6 +548,11 @@ def activate_apple_purchase(
             raw_payload=raw_payload,
         )
     )
+
+    # HIGH-3: Auto-create household on couple_plus purchase
+    if resolved_tier == "couple_plus":
+        from app.services.household_service import create_household_for_billing_owner
+        create_household_for_billing_owner(db, user)
 
     features = recompute_entitlements(db, user.id)
     return features
@@ -604,7 +670,7 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
     is_trial = data.get("is_trial") is True
 
     # Resolve tier from product_id
-    resolved_tier = tier_from_product_id(product_id) if product_id else "premium"
+    resolved_tier = tier_from_product_id(product_id) if product_id else "free"
 
     tier, mapped_status, mapped_trial = _map_apple_notification_status(
         notification_type, payload.get("subtype"), is_trial, current_tier=resolved_tier
@@ -633,15 +699,24 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
     if user_id and product_id and transaction_id:
         user = db.query(User).filter(User.id == user_id).first()
         if user:
+            # HIGH-5: Use Apple event timestamp (signedDate in millis) instead of processing time
+            signed_date = payload.get("signedDate")
+            if signed_date:
+                try:
+                    event_ts = datetime.utcfromtimestamp(signed_date / 1000)
+                except (ValueError, TypeError, OSError):
+                    event_ts = _now()
+            else:
+                event_ts = _now()
+
             # Monotone timestamp idempotence
-            now = _now()
             target_sub = sub or (
                 db.query(SubscriptionModel)
                 .filter(SubscriptionModel.user_id == user.id)
                 .order_by(SubscriptionModel.updated_at.desc())
                 .first()
             )
-            if target_sub and target_sub.last_event_at and target_sub.last_event_at > now:
+            if target_sub and target_sub.last_event_at and target_sub.last_event_at > event_ts:
                 row.outcome = "skipped_stale"
                 row.subscription_id = target_sub.id
                 row.is_processed = True
@@ -655,9 +730,9 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
                     current_sub.tier = "free"
                     current_sub.status = mapped_status
                     current_sub.is_trial = False
-                    current_sub.current_period_end = expires_at or now
-                    current_sub.last_event_at = now
-                    current_sub.updated_at = now
+                    current_sub.current_period_end = expires_at or event_ts
+                    current_sub.last_event_at = event_ts
+                    current_sub.updated_at = _now()
                     row.subscription_id = current_sub.id
                     db.flush()
                     recompute_entitlements(db, user.id)
@@ -686,8 +761,8 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
                     latest_sub.status = mapped_status
                     latest_sub.tier = resolved_tier
                     latest_sub.is_trial = mapped_trial
-                    latest_sub.last_event_at = now
-                    latest_sub.updated_at = now
+                    latest_sub.last_event_at = event_ts
+                    latest_sub.updated_at = _now()
                     row.subscription_id = latest_sub.id
                     db.flush()
                     recompute_entitlements(db, user.id)

@@ -89,9 +89,11 @@ def override_cooldown(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> AdminOverrideCooldownResponse:
-    # RBAC check: require support_admin role
+    # RBAC check: support both DB role and legacy email allowlist
+    has_role = getattr(current_user, 'role', None) == 'support_admin'
     admin_emails = [e.strip() for e in settings.AUTH_ADMIN_EMAIL_ALLOWLIST.split(",") if e.strip()]
-    if current_user.email not in admin_emails:
+    has_email = current_user.email in admin_emails
+    if not has_role and not has_email:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Role support_admin requis",
