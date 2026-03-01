@@ -39,7 +39,7 @@ void main() {
         retirementAgeUser: 65,
       );
       final ageVar = result.firstWhere(
-        (v) => v.label == 'Age de depart',
+        (v) => v.label == '\u00C2ge de d\u00E9part',
       );
       // Retiring earlier vs later should produce a significant difference
       expect(ageVar.swing, greaterThan(0));
@@ -72,13 +72,13 @@ void main() {
       // No investissements = skip
       expect(labels, isNot(contains('Investissements libres')));
       // No epargne liquide = skip
-      expect(labels, isNot(contains('Epargne liquide')));
+      expect(labels, isNot(contains('\u00C9pargne liquide')));
       // No 3a = skip
       expect(labels, isNot(contains('Capital 3e pilier')));
       // No 3a mensuel = skip
-      expect(labels, isNot(contains('Epargne 3a mensuelle')));
+      expect(labels, isNot(contains('\u00C9pargne 3a mensuelle')));
       // No epargne libre mensuelle = skip
-      expect(labels, isNot(contains('Epargne libre mensuelle')));
+      expect(labels, isNot(contains('\u00C9pargne libre mensuelle')));
     });
 
     test('all labels are non-empty', () {

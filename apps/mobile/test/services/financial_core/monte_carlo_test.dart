@@ -219,7 +219,7 @@ void main() {
       );
       expect(result.disclaimer, isNotEmpty);
       expect(result.disclaimer, contains('LSFin'));
-      expect(result.disclaimer, contains('pedagogique'));
+      expect(result.disclaimer, contains('p\u00e9dagogique'));
     });
 
     // ── 11. numSimulations est correctement rapporte ───────

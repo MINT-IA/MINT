@@ -90,7 +90,7 @@ class TornadoSensitivityService {
 
     final variables = <TornadoVariable>[];
 
-    // ── 1. Age de depart (strategy) ──────────────────────
+    // ── 1. Âge de départ (strategy) ──────────────────────
     {
       final lowAge = max(58, retirementAgeUser - 2);
       final highAge = min(70, retirementAgeUser + 2);
@@ -111,7 +111,7 @@ class TornadoSensitivityService {
           lppCapitalPct: lppCapitalPct,
         );
         variables.add(_buildVariable(
-          label: 'Age de depart',
+          label: '\u00C2ge de d\u00E9part',
           category: 'strategy',
           base: base,
           low: low,
@@ -122,7 +122,7 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 2. Strategie LPP rente vs capital (strategy) ─────
+    // ── 2. Stratégie LPP rente vs capital (strategy) ─────
     {
       final low = _project(
         profile: profile,
@@ -139,7 +139,7 @@ class TornadoSensitivityService {
         lppCapitalPct: 1.0,
       );
       variables.add(_buildVariable(
-        label: 'Strategie LPP (rente vs capital)',
+        label: 'Strat\u00E9gie LPP (rente vs capital)',
         category: 'strategy',
         base: base,
         low: low,
@@ -292,7 +292,7 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 8. Epargne 3a mensuelle (0 vs capped 2x) ────────
+    // ── 8. Épargne 3a mensuelle (0 vs capped 2x) ────────
     {
       final base3aMensuel = profile.total3aMensuel;
       if (base3aMensuel > 0) {
@@ -326,7 +326,7 @@ class TornadoSensitivityService {
             depensesMensuelles, lppCapitalPct,
           );
           variables.add(_buildVariable(
-            label: 'Epargne 3a mensuelle',
+            label: '\u00C9pargne 3a mensuelle',
             category: '3a',
             base: base,
             low: low,
@@ -338,7 +338,7 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 9. Annees AVS cotisees (±5 ans) ─────────────────
+    // ── 9. Années AVS cotisées (±5 ans) ─────────────────
     {
       final baseYears = profile.prevoyance.anneesContribuees;
       if (baseYears != null && baseYears > 0) {
@@ -359,7 +359,7 @@ class TornadoSensitivityService {
           depensesMensuelles, lppCapitalPct,
         );
         variables.add(_buildVariable(
-          label: 'Annees AVS cotisees',
+          label: 'Années AVS cotisées',
           category: 'avs',
           base: base,
           low: low,
@@ -440,7 +440,7 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 12. Epargne liquide (±50%) ──────────────────────
+    // ── 12. Épargne liquide (±50%) ──────────────────────
     {
       final baseEpargne = profile.patrimoine.epargneLiquide;
       if (baseEpargne > 0) {
@@ -471,7 +471,7 @@ class TornadoSensitivityService {
           depensesMensuelles, lppCapitalPct,
         );
         variables.add(_buildVariable(
-          label: 'Epargne liquide',
+          label: '\u00C9pargne liquide',
           category: 'libre',
           base: base,
           low: low,
@@ -482,7 +482,7 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 13. Epargne libre mensuelle (±50%) ──────────────
+    // ── 13. Épargne libre mensuelle (±50%) ──────────────
     {
       final baseLibreMensuel = profile.totalEpargneLibreMensuel;
       if (baseLibreMensuel > 0) {
@@ -510,7 +510,7 @@ class TornadoSensitivityService {
           depensesMensuelles, lppCapitalPct,
         );
         variables.add(_buildVariable(
-          label: 'Epargne libre mensuelle',
+          label: '\u00C9pargne libre mensuelle',
           category: 'libre',
           base: base,
           low: low,

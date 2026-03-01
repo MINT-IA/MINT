@@ -10,6 +10,9 @@ import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
+import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
+import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
@@ -27,6 +30,8 @@ import 'package:mint_mobile/widgets/coach/impact_mint_card.dart';
 import 'package:mint_mobile/widgets/coach/low_confidence_card.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/pillar_decomposition.dart';
+import 'package:mint_mobile/widgets/coach/monte_carlo_toggle_section.dart';
+import 'package:mint_mobile/widgets/coach/sensitivity_snippet.dart';
 import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
 import 'package:mint_mobile/widgets/coach/trajectory_card.dart';
 import 'package:mint_mobile/widgets/dashboard/arbitrage_teaser_card.dart';
@@ -80,6 +85,10 @@ class _RetirementDashboardScreenState
   List<CuratedCard> _curatedCards = const [];
   List<TemporalItem> _temporalItems = const [];
 
+  // ── P4: Monte Carlo + Tornado state ─────────────────────
+  MonteCarloResult? _monteCarloResult;
+  List<TornadoVariable> _tornadoVariables = const [];
+
   // ── Cockpit expand state (P3: 3-4 cards gate) ──────────
   bool _cockpitExpanded = false;
 
@@ -102,6 +111,8 @@ class _RetirementDashboardScreenState
       _narrative = null;
       _curatedCards = const [];
       _temporalItems = const [];
+      _monteCarloResult = null;
+      _tornadoVariables = const [];
       return;
     }
 
@@ -137,6 +148,9 @@ class _RetirementDashboardScreenState
       // ── P3: Curate cards + temporal items ──────────────
       _curateDashboardContent(tips);
 
+      // ── P4: Monte Carlo + Tornado (State A only, conf >= 70%) ──
+      _computeMonteCarloAndTornado(_profile!);
+
       // ── P3: Generate narrative (async, non-blocking) ───
       unawaited(_generateNarrative(tips));
     } catch (e) {
@@ -150,6 +164,8 @@ class _RetirementDashboardScreenState
       _narrative = null;
       _curatedCards = const [];
       _temporalItems = const [];
+      _monteCarloResult = null;
+      _tornadoVariables = const [];
     }
   }
 
@@ -232,6 +248,39 @@ class _RetirementDashboardScreenState
       friTotal: friScore,
       friDelta: friDelta,
     );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  P4: MONTE CARLO + TORNADO COMPUTATION
+  // ────────────────────────────────────────────────────────────
+
+  void _computeMonteCarloAndTornado(CoachProfile profile) {
+    // Only compute for State A (confidence >= 70%)
+    if (_confidenceScore < 70) {
+      _monteCarloResult = null;
+      _tornadoVariables = const [];
+      return;
+    }
+
+    try {
+      _monteCarloResult = MonteCarloProjectionService.simulate(
+        profile: profile,
+        retirementAgeUser: profile.effectiveRetirementAge,
+      );
+    } catch (e) {
+      debugPrint('RetirementDashboard: Monte Carlo error: $e');
+      _monteCarloResult = null;
+    }
+
+    try {
+      _tornadoVariables = TornadoSensitivityService.compute(
+        profile: profile,
+        retirementAgeUser: profile.effectiveRetirementAge,
+      );
+    } catch (e) {
+      debugPrint('RetirementDashboard: Tornado error: $e');
+      _tornadoVariables = const [];
+    }
   }
 
   double _estimateMarginalRate(CoachProfile profile) {
@@ -359,11 +408,26 @@ class _RetirementDashboardScreenState
                     const SizedBox(height: 16),
                   ],
 
-                  TrajectoryCard(
-                    profile: profile,
-                    projection: proj,
+                  // ── P4: Toggle 3-Scenarios / Monte Carlo ──
+                  MonteCarloToggleSection(
+                    monteCarloResult: _monteCarloResult,
+                    currentMonthlyIncome:
+                        profile.salaireBrutMensuel * 0.87,
+                    monteCarloAvailable: _monteCarloResult != null,
+                    scenariosChild: TrajectoryCard(
+                      profile: profile,
+                      projection: proj,
+                    ),
                   ),
                   const SizedBox(height: 16),
+
+                  // ── P4: Sensitivity Snippet (top 3) ────────
+                  if (_tornadoVariables.isNotEmpty)
+                    SensitivitySnippet(
+                      variables: _tornadoVariables,
+                    ),
+                  if (_tornadoVariables.isNotEmpty)
+                    const SizedBox(height: 16),
 
                   PillarDecomposition(
                     avsMonthly: avsMonthly,
@@ -499,6 +563,22 @@ class _RetirementDashboardScreenState
                 DocumentScanCta(
                   currentConfidence: _confidenceScore,
                   estimatedConfidenceAfterScan: estimatedAfterScan,
+                ),
+                const SizedBox(height: 16),
+
+                // ── P4: Monte Carlo Teaser (State B, non personnalisé) ──
+                MonteCarloTeaser(
+                  onEnrich: () => context.push('/onboarding/smart'),
+                  missingCategories: _confidence?.prompts
+                          .map((p) => p.category)
+                          .where((c) => const {
+                            'lpp', 'avs', '3a', 'patrimoine',
+                            'logement', 'foreign_pension', 'depenses',
+                          }.contains(c))
+                          .toSet()
+                          .take(3)
+                          .toList() ??
+                      const [],
                 ),
                 const SizedBox(height: 16),
 

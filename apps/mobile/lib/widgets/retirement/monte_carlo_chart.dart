@@ -50,7 +50,7 @@ class MonteCarloChart extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '${result.numSimulations} simulations avec rendements aleatoires',
+          '${result.numSimulations} simulations avec rendements al\u00e9atoires',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,
@@ -86,8 +86,8 @@ class MonteCarloChart extends StatelessWidget {
 
         // ── Disclaimer ────────────────────────────────────────
         Text(
-          'Les rendements passes ne presagent pas les rendements '
-          'futurs. Simulation a titre pedagogique (LSFin).',
+          'Les rendements pass\u00e9s ne pr\u00e9sagent pas les rendements '
+          'futurs. Simulation \u00e0 titre p\u00e9dagogique (LSFin).',
           style: GoogleFonts.inter(
             fontSize: 10,
             color: MintColors.textMuted,
@@ -114,7 +114,7 @@ class MonteCarloChart extends StatelessWidget {
         MintColors.primary.withValues(alpha: 0.25),
         border: MintColors.primary.withValues(alpha: 0.40),
       ),
-      _legendItem('Mediane (P50)', MintColors.primary, isLine: true),
+      _legendItem('M\u00e9diane (P50)', MintColors.primary, isLine: true),
     ];
 
     if (currentMonthlyIncome != null) {
@@ -202,9 +202,9 @@ class MonteCarloChart extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           children: [
-            // ── Mediane a l'age de retraite ────────────────
+            // ── M\u00e9diane \u00e0 l'\u00e2ge de retraite ────────────────
             _summaryRow(
-              'Mediane a ${result.retirementAge} ans',
+              'M\u00e9diane \u00e0 ${result.retirementAge} ans',
               '${_formatChf(result.medianAt65)}/mois',
             ),
             const SizedBox(height: 10),
@@ -223,7 +223,7 @@ class MonteCarloChart extends StatelessWidget {
                 Expanded(
                   flex: 5,
                   child: Text(
-                    "Risque d'epuisement du\ncapital avant 90 ans",
+                    "Risque d'\u00e9puisement du\ncapital avant 90 ans",
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.textSecondary,

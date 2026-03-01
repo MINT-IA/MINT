@@ -35,11 +35,11 @@ class MonteCarloProjectionService {
   static const double _3aDrawdownYears = 20.0;
 
   static const String _disclaimer =
-      'Simulation Monte Carlo a titre pedagogique. '
-      'Les rendements passes ne presagent pas des rendements futurs. '
-      'Base : 500 simulations, tirages annuels independants '
-      '(LPP, marche, inflation, croissance salariale). '
-      'Ne constitue pas un conseil en placement ou prevoyance (LSFin).';
+      'Simulation Monte Carlo \u00e0 titre p\u00e9dagogique. '
+      'Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. '
+      'Base\u00a0: 500 simulations, tirages annuels ind\u00e9pendants '
+      '(LPP, march\u00e9, inflation, croissance salariale). '
+      'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin).';
 
   static const List<String> _sources = [
     'LPP art. 14, 16 (taux de conversion)',
@@ -435,20 +435,20 @@ class MonteCarloProjectionService {
     final alertes = <String>[];
     if (ruinProbability > 0.30) {
       alertes.add(
-        'Probabilite de deficit elevee (>30%). '
-        'Envisage d\'augmenter ton epargne ou de repousser ta retraite.',
+        'Probabilit\u00e9 de d\u00e9ficit \u00e9lev\u00e9e (>30\u00a0%). '
+        'Envisage d\'augmenter ton \u00e9pargne ou de repousser ta retraite.',
       );
     }
     if (retirementAgeUser < 63) {
       alertes.add(
-        'Retraite anticipee avant 63 ans : aucune rente AVS durant '
-        '${63 - retirementAgeUser} an(s). Prevois une epargne-relais.',
+        'Retraite anticip\u00e9e avant 63 ans\u00a0: aucune rente AVS durant '
+        '${63 - retirementAgeUser} an(s). Pr\u00e9vois une \u00e9pargne-relais.',
       );
     }
     if (ruinProbability > 0.15 && ruinProbability <= 0.30) {
       alertes.add(
-        'Risque d\'epuisement modere (${(ruinProbability * 100).round()}%). '
-        'Un rachat LPP ou un versement 3a supplementaire pourrait aider.',
+        'Risque d\'\u00e9puisement mod\u00e9r\u00e9 (${(ruinProbability * 100).round()}\u00a0%). '
+        'Un rachat LPP ou un versement 3a suppl\u00e9mentaire pourrait aider.',
       );
     }
 
