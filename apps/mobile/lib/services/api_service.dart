@@ -18,13 +18,15 @@ class ApiException implements Exception {
 }
 
 class ApiService {
+  static const String _definedApiBaseUrl =
+      String.fromEnvironment('API_BASE_URL');
+
   /// Base URL candidates ordered by priority.
   /// Override with:
   ///   flutter run --dart-define=API_BASE_URL=https://<your-api>/api/v1
   static final List<String> _baseUrlCandidates = (() {
-    const defined = String.fromEnvironment('API_BASE_URL');
     final candidates = <String>[
-      if (defined.isNotEmpty) defined,
+      if (_definedApiBaseUrl.isNotEmpty) _definedApiBaseUrl,
       if (kReleaseMode) 'https://api.mint.ch/api/v1',
       if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',
       if (!kReleaseMode) 'http://localhost:8888/api/v1',
@@ -63,6 +65,11 @@ class ApiService {
   /// Probe known backend URLs and keep the first reachable one.
   /// Prevents release builds from getting stuck on a dead domain.
   static Future<void> ensureReachableBaseUrl() async {
+    // In tests/dev without explicit API_BASE_URL, avoid network probing.
+    if (!kReleaseMode && _definedApiBaseUrl.isEmpty) {
+      return;
+    }
+
     for (final candidate in _baseUrlCandidates) {
       try {
         final response = await http
