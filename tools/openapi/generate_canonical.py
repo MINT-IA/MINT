@@ -119,6 +119,25 @@ def _normalize_validation_error_schema(spec: dict) -> dict:
     return spec
 
 
+def _normalize_binary_file_schema(node):
+    """Normalize binary upload field shape across FastAPI versions.
+
+    Older versions emit {"type":"string","format":"binary"} while newer ones
+    emit {"type":"string","contentMediaType":"application/octet-stream"}.
+    Canonicalize to contentMediaType.
+    """
+    if isinstance(node, dict):
+        if node.get("type") == "string" and node.get("format") == "binary":
+            node.pop("format", None)
+            node.setdefault("contentMediaType", "application/octet-stream")
+        for value in node.values():
+            _normalize_binary_file_schema(value)
+        return
+    if isinstance(node, list):
+        for item in node:
+            _normalize_binary_file_schema(item)
+
+
 def generate():
     from app.main import app  # noqa: E402
 
@@ -135,6 +154,7 @@ def generate():
     # Stabilize schema names
     spec = _stabilize_schema_names(spec)
     spec = _normalize_validation_error_schema(spec)
+    _normalize_binary_file_schema(spec)
 
     # Deterministic output
     canonical = json.dumps(spec, sort_keys=True, indent=2, ensure_ascii=False)
