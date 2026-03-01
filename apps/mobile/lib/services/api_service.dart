@@ -18,17 +18,68 @@ class ApiException implements Exception {
 }
 
 class ApiService {
-  /// Base URL — override at build time with:
+  /// Base URL candidates ordered by priority.
+  /// Override with:
   ///   flutter run --dart-define=API_BASE_URL=https://<your-api>/api/v1
-  static final String baseUrl = (() {
+  static final List<String> _baseUrlCandidates = (() {
     const defined = String.fromEnvironment('API_BASE_URL');
-    if (defined.isNotEmpty) return defined;
-    // Safe fallback: release builds must never point to localhost.
-    // Keep this aligned with backend deploy workflow default URL.
-    return kReleaseMode
-        ? 'https://mint-api.up.railway.app/api/v1'
-        : 'http://localhost:8888/api/v1';
+    final candidates = <String>[
+      if (defined.isNotEmpty) defined,
+      if (kReleaseMode) 'https://api.mint.ch/api/v1',
+      if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',
+      if (!kReleaseMode) 'http://localhost:8888/api/v1',
+    ];
+    final normalized = <String>[];
+    for (final raw in candidates) {
+      final value = _normalizeBaseUrl(raw);
+      if (!normalized.contains(value)) normalized.add(value);
+    }
+    return normalized;
   })();
+
+  static String _activeBaseUrl = _baseUrlCandidates.first;
+
+  static String get baseUrl => _activeBaseUrl;
+
+  static String _normalizeBaseUrl(String raw) {
+    var value = raw.trim();
+    while (value.endsWith('/')) {
+      value = value.substring(0, value.length - 1);
+    }
+    if (!value.endsWith('/api/v1')) {
+      value = '$value/api/v1';
+    }
+    return value;
+  }
+
+  static bool _isUnavailableEndpoint(http.Response response) {
+    if (response.statusCode != 404) return false;
+    final body = response.body.toLowerCase();
+    return body.contains('application not found') ||
+        body.contains('<html') ||
+        body.contains('not found');
+  }
+
+  /// Probe known backend URLs and keep the first reachable one.
+  /// Prevents release builds from getting stuck on a dead domain.
+  static Future<void> ensureReachableBaseUrl() async {
+    for (final candidate in _baseUrlCandidates) {
+      try {
+        final response = await http
+            .get(Uri.parse('$candidate/health'))
+            .timeout(const Duration(seconds: 2));
+        if (_isUnavailableEndpoint(response)) {
+          continue;
+        }
+        if (response.statusCode >= 200 && response.statusCode < 500) {
+          _activeBaseUrl = candidate;
+          return;
+        }
+      } catch (_) {
+        // Try next candidate.
+      }
+    }
+  }
 
   // Helper method to get auth headers with JWT token
   static Future<Map<String, String>> _authHeaders() async {
