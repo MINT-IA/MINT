@@ -45,7 +45,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
-import 'package:mint_mobile/screens/coaching_screen.dart';
+// coaching_screen.dart import removed — route superseded by coach/*
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/independant_screen.dart';
@@ -105,9 +105,7 @@ import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 // Timeline
 import 'package:mint_mobile/screens/timeline_screen.dart';
 // Coach screens (Sprint C5-C10)
-import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
@@ -171,9 +169,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/dashboard',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => FeatureFlags.useNewDashboard
-          ? const RetirementDashboardScreen()
-          : const CoachDashboardScreen(),
+      builder: (context, state) => const RetirementDashboardScreen(),
     ),
     GoRoute(
       path: '/coach/agir',
@@ -392,12 +388,7 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ToolsLibraryScreen(),
     ),
-    // Coaching Proactif
-    GoRoute(
-      path: '/coaching',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachingScreen(),
-    ),
+    // /coaching route removed — CoachingScreen superseded by coach/dashboard + coach/agir
     // Segments sociologiques
     GoRoute(
       path: '/segments/gender-gap',

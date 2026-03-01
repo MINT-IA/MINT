@@ -3,10 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -18,7 +16,7 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 /// Shell principal de navigation MINT Coach
 ///
 /// Architecture 4 tabs — Sprint C10 :
-/// - DASHBOARD : Tableau de bord coach (CoachDashboardScreen)
+/// - DASHBOARD : Tableau de bord coach (RetirementDashboardScreen)
 /// - AGIR : Timeline d'actions et check-in (CoachAgirScreen)
 /// - APPRENDRE : Simulateurs, evenements de vie, education (ExploreTab)
 /// - PROFIL : Profil utilisateur (ProfileScreen)
@@ -113,9 +111,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   }
 
   List<Widget> get _tabs => [
-    FeatureFlags.useNewDashboard
-        ? const RetirementDashboardScreen()
-        : const CoachDashboardScreen(),
+    const RetirementDashboardScreen(),
     const CoachAgirScreen(),
     const ExploreTab(),
     const ProfileScreen(),

@@ -5,10 +5,6 @@
 class FeatureFlags {
   // ── Existing (migration) ──────────────────────────────────
 
-  /// Use the new 3-state RetirementDashboardScreen instead of
-  /// the monolith CoachDashboardScreen.
-  static bool useNewDashboard = true;
-
   /// Use the new SmartOnboardingScreen instead of the legacy onboarding.
   static bool useNewOnboarding = true;
 
