@@ -122,13 +122,38 @@ def _stripe_price_to_tier(price_id: str) -> str:
     return price_map.get(price_id, "free")
 
 
+def _is_internal_access_user(db: Session, user_id: str) -> bool:
+    """Check if user qualifies for internal full access override."""
+    if not settings.INTERNAL_ACCESS_ENABLED:
+        return False
+    allowlist = [
+        e.strip() for e in settings.INTERNAL_ACCESS_ALLOWLIST.split(",") if e.strip()
+    ]
+    if not allowlist:
+        return False
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return False
+    return user.email in allowlist
+
+
 def _compute_effective_tier(db: Session, user_id: str) -> str:
-    """Compute effective tier = max(direct subscription, household-inherited)."""
+    """Compute effective tier: internal override > direct subscription > household.
+
+    Pure read — no side effects, no commits.
+    """
     from app.models.household import HouseholdMemberModel, HouseholdModel
 
     tier_rank = {"free": 0, "starter": 1, "premium": 2, "couple_plus": 3}
 
-    # Direct subscription
+    # Priority 1: Internal access override
+    if _is_internal_access_user(db, user_id):
+        override_tier = settings.INTERNAL_ACCESS_DEFAULT_TIER
+        if override_tier not in VALID_TIERS:
+            override_tier = "premium"
+        return override_tier
+
+    # Priority 2: Direct subscription
     sub = (
         db.query(SubscriptionModel)
         .filter(SubscriptionModel.user_id == user_id)
@@ -176,15 +201,29 @@ def recompute_entitlements(
     db: Session,
     user_id: str,
     restricted_features: set[str] | None = None,
-) -> list[str]:
+) -> tuple[str, list[str]]:
     """
     Recompute feature entitlements for a user.
 
     1. Compute effective tier (direct vs household-inherited, higher wins)
-    2. Apply regulatory restrictions (FATCA etc.)
-    3. Upsert entitlement rows
+    2. Log internal access override (single audit point)
+    3. Apply regulatory restrictions (FATCA etc.)
+    4. Upsert entitlement rows
+
+    Returns (effective_tier, active_features).
     """
+    from app.models.household import AdminAuditEventModel
+
     effective_tier = _compute_effective_tier(db, user_id)
+
+    # Audit log for internal access — single point, inside the commit below
+    if _is_internal_access_user(db, user_id):
+        db.add(AdminAuditEventModel(
+            admin_user_id=user_id,
+            action="internal_access_override",
+            target_user_id=user_id,
+            reason=f"Internal full access ({effective_tier}) — INTERNAL_ACCESS_ENABLED=true",
+        ))
 
     sub = (
         db.query(SubscriptionModel)
@@ -221,7 +260,7 @@ def recompute_entitlements(
             row.is_active = feature in active_features
             row.updated_at = _now()
     db.commit()
-    return active_features
+    return effective_tier, active_features
 
 
 def get_or_create_subscription(db: Session, user: User) -> SubscriptionModel:
@@ -248,8 +287,7 @@ def get_or_create_subscription(db: Session, user: User) -> SubscriptionModel:
 
 def get_entitlement_snapshot(db: Session, user: User) -> dict[str, Any]:
     sub = get_or_create_subscription(db, user)
-    features = recompute_entitlements(db, user.id)
-    effective_tier = _compute_effective_tier(db, user.id)
+    effective_tier, features = recompute_entitlements(db, user.id)
     is_active = effective_tier != "free"
     return {
         "tier": effective_tier,
@@ -554,7 +592,7 @@ def activate_apple_purchase(
         from app.services.household_service import create_household_for_billing_owner
         create_household_for_billing_owner(db, user)
 
-    features = recompute_entitlements(db, user.id)
+    _, features = recompute_entitlements(db, user.id)
     return features
 
 

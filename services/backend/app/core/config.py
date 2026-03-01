@@ -55,6 +55,11 @@ class Settings(BaseSettings):
     STRIPE_PRICE_PREMIUM_ANNUAL: str = ""
     STRIPE_PRICE_COUPLE_PLUS_ANNUAL: str = ""
 
+    # Internal full access (dev/TestFlight testing)
+    INTERNAL_ACCESS_ENABLED: bool = False
+    INTERNAL_ACCESS_ALLOWLIST: str = ""  # comma-separated emails
+    INTERNAL_ACCESS_DEFAULT_TIER: str = "premium"
+
     # Transactional email (SMTP)
     EMAIL_SEND_ENABLED: bool = False
     EMAIL_FROM: str = "no-reply@mint.ch"

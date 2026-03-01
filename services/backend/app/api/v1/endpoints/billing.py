@@ -126,7 +126,7 @@ def debug_activate_subscription(
     sub.current_period_end = datetime.utcnow() + timedelta(days=body.period_days)
     db.commit()
     db.refresh(sub)
-    features = recompute_entitlements(db, current_user.id)
+    _, features = recompute_entitlements(db, current_user.id)
     return BillingDebugActivateResponse(
         user_id=current_user.id,
         tier=sub.tier,
