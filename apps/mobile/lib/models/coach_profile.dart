@@ -89,6 +89,33 @@ class ConjointProfile {
   }
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
+    final isFatca = json['isFatcaResident'] ?? false;
+    final topCanContribute = json['canContribute3a'] ?? !isFatca;
+    // Ensure prevoyance.canContribute3a is consistent with FATCA status.
+    PrevoyanceProfile? prev;
+    if (json['prevoyance'] != null) {
+      prev = PrevoyanceProfile.fromJson(json['prevoyance']);
+      // If FATCA but prevoyance.canContribute3a defaulted to true, fix it.
+      if (isFatca && prev.canContribute3a) {
+        prev = PrevoyanceProfile(
+          nomCaisse: prev.nomCaisse,
+          avoirLppObligatoire: prev.avoirLppObligatoire,
+          avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
+          avoirLppTotal: prev.avoirLppTotal,
+          rachatMaximum: prev.rachatMaximum,
+          rachatEffectue: prev.rachatEffectue,
+          tauxConversion: prev.tauxConversion,
+          tauxConversionSuroblig: prev.tauxConversionSuroblig,
+          rendementCaisse: prev.rendementCaisse,
+          anneesContribuees: prev.anneesContribuees,
+          lacunesAVS: prev.lacunesAVS,
+          nombre3a: prev.nombre3a,
+          totalEpargne3a: prev.totalEpargne3a,
+          comptes3a: prev.comptes3a,
+          canContribute3a: false,
+        );
+      }
+    }
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
@@ -97,11 +124,9 @@ class ConjointProfile {
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] as String?,
       nationality: json['nationality'] as String?,
-      isFatcaResident: json['isFatcaResident'] ?? false,
-      canContribute3a: json['canContribute3a'] ?? true,
-      prevoyance: json['prevoyance'] != null
-          ? PrevoyanceProfile.fromJson(json['prevoyance'])
-          : null,
+      isFatcaResident: isFatca,
+      canContribute3a: topCanContribute,
+      prevoyance: prev,
       arrivalAge: json['arrivalAge'] as int?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
     );
@@ -1527,10 +1552,17 @@ class CoachProfile {
           ? _estimateLppAvoir(conjAge, partnerBrut, arrivalAge: conjointArrivalAge)
           : 0.0;
 
+      // === Conjoint FATCA / nationality detection ===
+      final conjNationality = answers['q_partner_nationality'] as String?;
+      final conjIsFatca = conjNationality == 'US';
+
       // === Conjoint prevoyance profile ===
+      // Propagate FATCA → canContribute3a on PrevoyanceProfile
+      // (canonical source for all engines)
       final conjointPrevoyance = PrevoyanceProfile(
         lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,
+        canContribute3a: !conjIsFatca,
       );
 
       conjoint = ConjointProfile(
@@ -1539,6 +1571,9 @@ class CoachProfile {
         salaireBrutMensuel: partnerBrut,
         employmentStatus: conjEmployment,
         arrivalAge: conjointArrivalAge,
+        nationality: conjNationality,
+        isFatcaResident: conjIsFatca,
+        canContribute3a: !conjIsFatca,
         prevoyance: conjointPrevoyance,
       );
     }
