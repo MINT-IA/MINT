@@ -1,30 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
-//  COUPLE PHASE TIMELINE — Chantier 2 / Retirement Cockpit
+//  COUPLE PHASE TIMELINE — P5 / Couple Interactif
 // ────────────────────────────────────────────────────────────
 //
 //  Affiche la timeline des phases de retraite en couple :
-//    Phase 1 : Un·e partenaire a la retraite, l'autre travaille
-//    Phase 2 : Les deux a la retraite
+//    Phase 1 : Un·e partenaire à la retraite, l'autre travaille
+//    Phase 2 : Les deux à la retraite
 //
-//  Montre le changement de revenu a chaque transition.
-//  Visible uniquement si profile.conjoint != null.
+//  P5 : slider interactif "Et si [conjoint] à X ans ?"
+//  Recalcul temps réel via RetirementProjectionService.project().
 //
-//  Source : RetirementProjectionResult.phases
-//  Widget pur — aucune dependance Provider.
 //  Aucun terme banni (garanti, certain, optimal, meilleur…).
 // ────────────────────────────────────────────────────────────
 
-class CouplePhaseTimeline extends StatelessWidget {
+class CouplePhaseTimeline extends StatefulWidget {
   final String userName;
   final String conjointName;
   final int userRetirementYear;
   final int conjointRetirementYear;
   final List<RetirementPhase> phases;
+
+  /// Profile for "Et si" recalculation (optional).
+  /// If null, slider is hidden.
+  final CoachProfile? profile;
 
   const CouplePhaseTimeline({
     super.key,
@@ -33,11 +38,107 @@ class CouplePhaseTimeline extends StatelessWidget {
     required this.userRetirementYear,
     required this.conjointRetirementYear,
     required this.phases,
+    this.profile,
   });
 
   @override
+  State<CouplePhaseTimeline> createState() => _CouplePhaseTimelineState();
+}
+
+class _CouplePhaseTimelineState extends State<CouplePhaseTimeline> {
+  /// Current conjoint retirement age for the slider.
+  late double _sliderAge;
+
+  /// Default conjoint retirement age (from profile).
+  late int _defaultAge;
+
+  /// Recalculated phases when slider moves (null = use original).
+  List<RetirementPhase>? _recalcPhases;
+
+  /// Debounce timer for slider recalculation.
+  Timer? _recalcTimer;
+
+  /// Whether the slider has been moved from default.
+  bool get _isModified => _sliderAge.round() != _defaultAge;
+
+  @override
+  void initState() {
+    super.initState();
+    _defaultAge = widget.profile?.conjoint?.effectiveRetirementAge ?? 65;
+    _sliderAge = _defaultAge.toDouble();
+  }
+
+  @override
+  void didUpdateWidget(covariant CouplePhaseTimeline oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.conjointRetirementYear != widget.conjointRetirementYear) {
+      _defaultAge = widget.profile?.conjoint?.effectiveRetirementAge ?? 65;
+      _sliderAge = _defaultAge.toDouble();
+      _recalcPhases = null;
+    }
+  }
+
+  List<RetirementPhase> get _activePhases => _recalcPhases ?? widget.phases;
+
+  int get _activeConjointYear {
+    if (_recalcPhases != null && widget.profile?.conjoint?.birthYear != null) {
+      return widget.profile!.conjoint!.birthYear! + _sliderAge.round();
+    }
+    return widget.conjointRetirementYear;
+  }
+
+  void _onSliderChanged(double value) {
+    setState(() {
+      _sliderAge = value;
+    });
+    _recalcTimer?.cancel();
+    _recalcTimer = Timer(const Duration(milliseconds: 200), _recalculate);
+  }
+
+  @override
+  void dispose() {
+    _recalcTimer?.cancel();
+    super.dispose();
+  }
+
+  void _recalculate() {
+    final profile = widget.profile;
+    if (profile == null || profile.conjoint == null) return;
+
+    final newAge = _sliderAge.round();
+    if (newAge == _defaultAge) {
+      setState(() => _recalcPhases = null);
+      return;
+    }
+
+    try {
+      final result = RetirementProjectionService.project(
+        profile: profile,
+        retirementAgeConjoint: newAge,
+      );
+      if (mounted) {
+        setState(() {
+          _recalcPhases = result.phases.length >= 2 ? result.phases : null;
+        });
+      }
+    } catch (_) {
+      // Projection error — keep original phases
+    }
+  }
+
+  void _resetSlider() {
+    setState(() {
+      _sliderAge = _defaultAge.toDouble();
+      _recalcPhases = null;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (phases.length < 2) return const SizedBox.shrink();
+    if (widget.phases.length < 2) return const SizedBox.shrink();
+
+    final phases = _activePhases;
+    final conjYear = _activeConjointYear;
 
     return Container(
       width: double.infinity,
@@ -89,17 +190,24 @@ class CouplePhaseTimeline extends StatelessWidget {
 
           // Retirement dates summary
           _buildRetirementDate(
-            name: userName,
-            year: userRetirementYear,
+            name: widget.userName,
+            year: widget.userRetirementYear,
             color: MintColors.info,
           ),
           const SizedBox(height: 6),
           _buildRetirementDate(
-            name: conjointName,
-            year: conjointRetirementYear,
+            name: widget.conjointName,
+            year: conjYear,
             color: MintColors.purple,
+            isModified: _isModified,
           ),
           const SizedBox(height: 16),
+
+          // ── P5: "Et si" slider ──────────────────────────
+          if (widget.profile != null) ...[
+            _buildEtSiSlider(),
+            const SizedBox(height: 16),
+          ],
 
           // Phase timeline
           ...phases.asMap().entries.map((entry) {
@@ -124,10 +232,116 @@ class CouplePhaseTimeline extends StatelessWidget {
     );
   }
 
+  Widget _buildEtSiSlider() {
+    final conjName = widget.conjointName;
+    final currentAge = _sliderAge.round();
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.purple.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _isModified
+              ? MintColors.purple.withValues(alpha: 0.20)
+              : MintColors.lightBorder,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.tune_rounded,
+                size: 16,
+                color: MintColors.purple,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Et si $conjName \u00e0 $currentAge\u00a0ans\u00a0?',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: _isModified
+                        ? MintColors.purple
+                        : MintColors.textPrimary,
+                  ),
+                ),
+              ),
+              if (_isModified)
+                GestureDetector(
+                  onTap: _resetSlider,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: MintColors.surface,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'R\u00e9initialiser',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: MintColors.purple,
+              inactiveTrackColor: MintColors.purple.withValues(alpha: 0.15),
+              thumbColor: MintColors.purple,
+              overlayColor: MintColors.purple.withValues(alpha: 0.08),
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            ),
+            child: Slider(
+              value: _sliderAge,
+              min: 58,
+              max: 70,
+              divisions: 12,
+              label: '$currentAge ans',
+              onChanged: _onSliderChanged,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '58 ans',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: MintColors.textMuted,
+                ),
+              ),
+              Text(
+                '70 ans',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: MintColors.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRetirementDate({
     required String name,
     required int year,
     required Color color,
+    bool isModified = false,
   }) {
     return Row(
       children: [
@@ -146,10 +360,26 @@ class CouplePhaseTimeline extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
+              color: isModified ? MintColors.purple : MintColors.textPrimary,
             ),
           ),
         ),
+        if (isModified)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            decoration: BoxDecoration(
+              color: MintColors.purple.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              'modifi\u00e9',
+              style: GoogleFonts.inter(
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                color: MintColors.purple,
+              ),
+            ),
+          ),
       ],
     );
   }

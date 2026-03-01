@@ -36,6 +36,8 @@ import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
 import 'package:mint_mobile/widgets/coach/trajectory_card.dart';
 import 'package:mint_mobile/widgets/dashboard/arbitrage_teaser_card.dart';
 import 'package:mint_mobile/widgets/dashboard/budget_gap_card.dart';
+import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
+import 'package:mint_mobile/widgets/dashboard/couple_action_plan.dart';
 import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
 import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
@@ -294,6 +296,43 @@ class _RetirementDashboardScreenState
   }
 
   // ────────────────────────────────────────────────────────────
+  //  P5: COUPLE HERO CARD — reads per-partner AVS from
+  //  ForecasterService decomposition (single source of truth)
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildCoupleHeroCard(
+    CoachProfile profile,
+    Map<String, double> decoBase,
+    ProjectionResult proj,
+  ) {
+    final conj = profile.conjoint!;
+
+    // Per-partner AVS directly from ForecasterService decomposition
+    // (avs_user / avs_conjoint are annual values, already couple-capped).
+    final avsUserMonthly = (decoBase['avs_user'] ?? 0) / 12;
+    final avsConjMonthly = (decoBase['avs_conjoint'] ?? 0) / 12;
+
+    // 3a + libre are household totals from ForecasterService.
+    // Attribute to user column (conjoint 3a handled separately in
+    // CoupleActionPlan). This is consistent with the forecaster
+    // model where 3a withdrawal is modelled as user's income.
+    return HeroCoupleCard(
+      userName: profile.firstName ?? 'Toi',
+      conjointName: conj.firstName ?? 'Conjoint\u00b7e',
+      userMonthlyIncome: avsUserMonthly +
+          (decoBase['lpp_user'] ?? 0) / 12 +
+          (decoBase['3a'] ?? 0) / 12 +
+          (decoBase['libre'] ?? 0) / 12,
+      conjointMonthlyIncome: avsConjMonthly +
+          (decoBase['lpp_conjoint'] ?? 0) / 12,
+      userReplacementRatio: proj.tauxRemplacementBase,
+      conjointReplacementRatio: null,
+      userRetirementAge: profile.effectiveRetirementAge,
+      conjointRetirementAge: conj.effectiveRetirementAge,
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
   //  BUILD — DISPATCH SELON L'ETAT
   // ────────────────────────────────────────────────────────────
 
@@ -383,14 +422,18 @@ class _RetirementDashboardScreenState
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
 
-                // ── Compact hero summary (always visible) ──
-                HeroRetirementCard(
-                  mode: HeroCardMode.full,
-                  monthlyIncome: monthlyIncome,
-                  replacementRatio: proj.tauxRemplacementBase,
-                  rangeMin: monthlyPrudent,
-                  rangeMax: monthlyOptimiste,
-                ),
+                // ── P5: Couple hero card OR single hero ──
+                if (isCouple) ...[
+                  _buildCoupleHeroCard(profile, decoBase, proj),
+                ] else ...[
+                  HeroRetirementCard(
+                    mode: HeroCardMode.full,
+                    monthlyIncome: monthlyIncome,
+                    replacementRatio: proj.tauxRemplacementBase,
+                    rangeMin: monthlyPrudent,
+                    rangeMax: monthlyOptimiste,
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // ── Cockpit d\u00e9taill\u00e9 (collapsed by default) ──
@@ -451,9 +494,15 @@ class _RetirementDashboardScreenState
                       conjointRetirementYear:
                           profile.conjoint!.birthYear! + profile.conjoint!.effectiveRetirementAge,
                       phases: retProj.phases,
+                      profile: profile,
                     ),
                     const SizedBox(height: 16),
                   ],
+
+                  // ── P5: Couple Action Plan ────────────────
+                  if (isCouple)
+                    CoupleActionPlan(profile: profile),
+                  if (isCouple) const SizedBox(height: 16),
 
                   RetirementChecklistCard(profile: profile),
                   const SizedBox(height: 16),

@@ -690,7 +690,7 @@ class ForecasterService {
       grossAnnualSalary: grossAnnualSalary,
     );
 
-    // AVS conjoint
+    // AVS conjoint — pass anneesContribuees (LAVS art. 29bis)
     double avsConjointMonthly = 0;
     if (profile.conjoint != null) {
       final conjAge = profile.conjoint!.age ?? profile.age;
@@ -699,6 +699,7 @@ class ForecasterService {
         currentAge: conjAge,
         retirementAge: retirementAge,
         arrivalAge: profile.conjoint!.arrivalAge,
+        anneesContribuees: profile.conjoint!.prevoyance?.anneesContribuees,
         lacunes: profile.conjoint!.prevoyance?.lacunesAVS ?? 0,
         grossAnnualSalary: conjSalary,
       );
@@ -752,6 +753,8 @@ class ForecasterService {
       revenuAnnuelRetraite: revenuRetraiteAnnuel,
       decomposition: {
         'avs': renteAvsAnnuelle,
+        'avs_user': coupleAvs.user * 12,
+        'avs_conjoint': coupleAvs.conjoint * 12,
         'lpp_user': renteLppUser,
         'lpp_conjoint': renteLppConjoint,
         '3a': retrait3aAnnualise,
