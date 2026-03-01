@@ -88,34 +88,40 @@ class ConjointProfile {
     return (effectiveRetirementAge - a).clamp(0, 99);
   }
 
+  /// If FATCA resident but prevoyance.canContribute3a is still true,
+  /// returns a corrected copy with canContribute3a = false.
+  static PrevoyanceProfile? _enforceFatca3a(
+    bool isFatca,
+    PrevoyanceProfile? prev,
+  ) {
+    if (!isFatca || prev == null || !prev.canContribute3a) return prev;
+    return PrevoyanceProfile(
+      nomCaisse: prev.nomCaisse,
+      avoirLppObligatoire: prev.avoirLppObligatoire,
+      avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
+      avoirLppTotal: prev.avoirLppTotal,
+      rachatMaximum: prev.rachatMaximum,
+      rachatEffectue: prev.rachatEffectue,
+      tauxConversion: prev.tauxConversion,
+      tauxConversionSuroblig: prev.tauxConversionSuroblig,
+      rendementCaisse: prev.rendementCaisse,
+      anneesContribuees: prev.anneesContribuees,
+      lacunesAVS: prev.lacunesAVS,
+      nombre3a: prev.nombre3a,
+      totalEpargne3a: prev.totalEpargne3a,
+      comptes3a: prev.comptes3a,
+      canContribute3a: false,
+    );
+  }
+
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
     final topCanContribute = json['canContribute3a'] ?? !isFatca;
-    // Ensure prevoyance.canContribute3a is consistent with FATCA status.
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
-      // If FATCA but prevoyance.canContribute3a defaulted to true, fix it.
-      if (isFatca && prev.canContribute3a) {
-        prev = PrevoyanceProfile(
-          nomCaisse: prev.nomCaisse,
-          avoirLppObligatoire: prev.avoirLppObligatoire,
-          avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
-          avoirLppTotal: prev.avoirLppTotal,
-          rachatMaximum: prev.rachatMaximum,
-          rachatEffectue: prev.rachatEffectue,
-          tauxConversion: prev.tauxConversion,
-          tauxConversionSuroblig: prev.tauxConversionSuroblig,
-          rendementCaisse: prev.rendementCaisse,
-          anneesContribuees: prev.anneesContribuees,
-          lacunesAVS: prev.lacunesAVS,
-          nombre3a: prev.nombre3a,
-          totalEpargne3a: prev.totalEpargne3a,
-          comptes3a: prev.comptes3a,
-          canContribute3a: false,
-        );
-      }
     }
+    prev = _enforceFatca3a(isFatca, prev);
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
@@ -161,6 +167,13 @@ class ConjointProfile {
     int? arrivalAge,
     int? targetRetirementAge,
   }) {
+    final effectiveFatca = isFatcaResident ?? this.isFatcaResident;
+    final effectiveCan = canContribute3a ??
+        (effectiveFatca ? false : this.canContribute3a);
+    final effectivePrev = _enforceFatca3a(
+      effectiveFatca,
+      prevoyance ?? this.prevoyance,
+    );
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
@@ -169,9 +182,9 @@ class ConjointProfile {
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
       employmentStatus: employmentStatus ?? this.employmentStatus,
       nationality: nationality ?? this.nationality,
-      isFatcaResident: isFatcaResident ?? this.isFatcaResident,
-      canContribute3a: canContribute3a ?? this.canContribute3a,
-      prevoyance: prevoyance ?? this.prevoyance,
+      isFatcaResident: effectiveFatca,
+      canContribute3a: effectiveCan,
+      prevoyance: effectivePrev,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
     );

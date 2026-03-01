@@ -144,6 +144,44 @@ void main() {
       expect(noFatca.canContribute3a, true);
     });
 
+    test('FATCA propagates canContribute3a to prevoyance via fromJson', () {
+      final json = {
+        'isFatcaResident': true,
+        'prevoyance': {
+          'avoirLppTotal': 80000,
+          // canContribute3a intentionally NOT set (defaults true)
+        },
+      };
+      final conj = ConjointProfile.fromJson(json);
+      expect(conj.isFatcaResident, true);
+      expect(conj.canContribute3a, false);
+      expect(conj.prevoyance?.canContribute3a, false,
+          reason: 'FATCA must propagate to prevoyance.canContribute3a');
+    });
+
+    test('FATCA propagates canContribute3a to prevoyance via copyWith', () {
+      const conj = ConjointProfile(
+        prevoyance: PrevoyanceProfile(avoirLppTotal: 50000),
+      );
+      // Before: not FATCA
+      expect(conj.prevoyance?.canContribute3a, true);
+
+      // After: set FATCA
+      final fatca = conj.copyWith(isFatcaResident: true);
+      expect(fatca.canContribute3a, false);
+      expect(fatca.prevoyance?.canContribute3a, false,
+          reason: 'copyWith(isFatcaResident: true) must cascade to prevoyance');
+    });
+
+    test('non-FATCA preserves canContribute3a true on prevoyance', () {
+      final json = {
+        'isFatcaResident': false,
+        'prevoyance': {'avoirLppTotal': 80000},
+      };
+      final conj = ConjointProfile.fromJson(json);
+      expect(conj.prevoyance?.canContribute3a, true);
+    });
+
     test('age and anneesAvantRetraite computed', () {
       final conj = ConjointProfile(birthYear: DateTime.now().year - 45);
       expect(conj.age, 45);
