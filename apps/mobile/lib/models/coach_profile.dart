@@ -116,7 +116,10 @@ class ConjointProfile {
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
-    final topCanContribute = json['canContribute3a'] ?? !isFatca;
+    // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
+    final topCanContribute = isFatca
+        ? false
+        : (json['canContribute3a'] ?? true);
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -168,8 +171,10 @@ class ConjointProfile {
     int? targetRetirementAge,
   }) {
     final effectiveFatca = isFatcaResident ?? this.isFatcaResident;
-    final effectiveCan = canContribute3a ??
-        (effectiveFatca ? false : this.canContribute3a);
+    // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
+    final effectiveCan = effectiveFatca
+        ? false
+        : (canContribute3a ?? this.canContribute3a);
     final effectivePrev = _enforceFatca3a(
       effectiveFatca,
       prevoyance ?? this.prevoyance,

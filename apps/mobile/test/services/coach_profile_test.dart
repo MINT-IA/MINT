@@ -182,6 +182,32 @@ void main() {
       expect(conj.prevoyance?.canContribute3a, true);
     });
 
+    test('FATCA invariant: explicit canContribute3a=true is overridden', () {
+      // fromJson: even if payload says canContribute3a=true, FATCA wins
+      final json = {
+        'isFatcaResident': true,
+        'canContribute3a': true, // explicit but invalid
+        'prevoyance': {
+          'avoirLppTotal': 80000,
+          'canContribute3a': true, // explicit but invalid
+        },
+      };
+      final conj = ConjointProfile.fromJson(json);
+      expect(conj.canContribute3a, false,
+          reason: 'FATCA must override explicit canContribute3a=true');
+      expect(conj.prevoyance?.canContribute3a, false,
+          reason: 'FATCA must override prevoyance canContribute3a=true');
+
+      // copyWith: same invariant
+      const base = ConjointProfile(
+        isFatcaResident: true,
+        canContribute3a: false,
+      );
+      final broken = base.copyWith(canContribute3a: true);
+      expect(broken.canContribute3a, false,
+          reason: 'copyWith cannot break FATCA invariant');
+    });
+
     test('age and anneesAvantRetraite computed', () {
       final conj = ConjointProfile(birthYear: DateTime.now().year - 45);
       expect(conj.age, 45);
