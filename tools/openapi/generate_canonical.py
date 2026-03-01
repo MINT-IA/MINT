@@ -90,6 +90,35 @@ def _stabilize_schema_names(spec: dict) -> dict:
     return spec
 
 
+def _normalize_validation_error_schema(spec: dict) -> dict:
+    """Normalize framework-level ValidationError schema across FastAPI versions.
+
+    FastAPI/Pydantic sometimes adds transient fields (e.g. `input`, `ctx`) that
+    are not relevant to our API contract and cause CI drift across environments.
+    Keep only stable, contract-relevant fields.
+    """
+    schemas = spec.get("components", {}).get("schemas", {})
+    validation_error = schemas.get("ValidationError")
+    if not isinstance(validation_error, dict):
+        return spec
+
+    properties = validation_error.get("properties")
+    if not isinstance(properties, dict):
+        return spec
+
+    stable_fields = {"loc", "msg", "type"}
+    filtered = {k: v for k, v in properties.items() if k in stable_fields}
+    validation_error["properties"] = filtered
+
+    required = validation_error.get("required")
+    if isinstance(required, list):
+        validation_error["required"] = sorted(
+            field for field in required if field in stable_fields
+        )
+
+    return spec
+
+
 def generate():
     from app.main import app  # noqa: E402
 
@@ -105,6 +134,7 @@ def generate():
 
     # Stabilize schema names
     spec = _stabilize_schema_names(spec)
+    spec = _normalize_validation_error_schema(spec)
 
     # Deterministic output
     canonical = json.dumps(spec, sort_keys=True, indent=2, ensure_ascii=False)
