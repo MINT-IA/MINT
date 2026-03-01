@@ -28,7 +28,6 @@ import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
-import 'package:mint_mobile/screens/simulator_rente_capital_screen.dart';
 import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
@@ -68,9 +67,6 @@ import 'package:mint_mobile/screens/unemployment_screen.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 // Fiscalite cantonale (Sprint S20)
 import 'package:mint_mobile/screens/fiscal_comparator_screen.dart';
-// Retraite complete (Sprint S21)
-import 'package:mint_mobile/screens/retirement_screen.dart';
-import 'package:mint_mobile/screens/retirement_projection_screen.dart';
 // Famille & Concubinage (Sprint S22)
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
@@ -317,7 +313,8 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/rente-capital',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SimulatorRenteCapitalScreen(),
+      redirect: (context, state) => '/arbitrage/rente-vs-capital',
+      builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
       path: '/simulator/disability-gap',
@@ -495,12 +492,14 @@ final _router = GoRouter(
     GoRoute(
       path: '/retirement',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RetirementScreen(),
+      redirect: (context, state) => '/coach/dashboard',
+      builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
       path: '/retirement/projection',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RetirementProjectionScreen(),
+      redirect: (context, state) => '/coach/dashboard',
+      builder: (context, state) => const SizedBox.shrink(),
     ),
     // Famille & Concubinage (Sprint S22)
     GoRoute(

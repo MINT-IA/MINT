@@ -96,7 +96,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           icon: Icons.account_balance,
           title: 'Rente vs Capital',
           subtitle: 'Compare rente LPP et retrait du capital',
-          route: '/simulator/rente-capital',
+          route: '/arbitrage/rente-vs-capital',
           color: const Color(0xFF4F46E5),
         ),
         _ToolItem(
@@ -532,8 +532,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: MintColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
@@ -549,8 +549,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: MintColors.surface,
                       borderRadius: BorderRadius.circular(8),
@@ -633,8 +633,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
             fontSize: 15,
             color: MintColors.textMuted,
           ),
-          prefixIcon: const Icon(Icons.search,
-              color: MintColors.textMuted, size: 20),
+          prefixIcon:
+              const Icon(Icons.search, color: MintColors.textMuted, size: 20),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.close,
@@ -715,8 +715,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       color: category.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(category.icon,
-                        color: category.color, size: 18),
+                    child: Icon(category.icon, color: category.color, size: 18),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -731,8 +730,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: MintColors.surface,
                       borderRadius: BorderRadius.circular(8),

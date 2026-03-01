@@ -81,12 +81,12 @@ String tipRoute(CoachingTip tip) {
       return '/budget';
     case 'retraite':
       if (tip.id.contains('rente') || tip.id.contains('capital')) {
-        return '/simulator/rente-capital';
+        return '/arbitrage/rente-vs-capital';
       }
       if (tip.id.contains('projection')) {
-        return '/retirement/projection';
+        return '/coach/dashboard';
       }
-      return '/retirement';
+      return '/coach/dashboard';
     default:
       return '/report';
   }

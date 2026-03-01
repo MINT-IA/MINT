@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/models/minimal_profile_models.dart';
@@ -20,13 +19,14 @@ class ApiException implements Exception {
 
 class ApiService {
   /// Base URL — override at build time with:
-  ///   flutter run --dart-define=API_BASE_URL=https://api.mint.ch/api/v1
+  ///   flutter run --dart-define=API_BASE_URL=https://<your-api>/api/v1
   static final String baseUrl = (() {
     const defined = String.fromEnvironment('API_BASE_URL');
     if (defined.isNotEmpty) return defined;
     // Safe fallback: release builds must never point to localhost.
+    // Keep this aligned with backend deploy workflow default URL.
     return kReleaseMode
-        ? 'https://api.mint.ch/api/v1'
+        ? 'https://mint-api.up.railway.app/api/v1'
         : 'http://localhost:8888/api/v1';
   })();
 
@@ -386,7 +386,8 @@ class ApiService {
       if (existingLpp != null) 'existing_lpp': existingLpp,
       if (lppCaisseType != null) 'lpp_caisse_type': lppCaisseType,
       if (totalDebts != null) 'total_debts': totalDebts,
-      if (monthlyDebtService != null) 'monthly_debt_service': monthlyDebtService,
+      if (monthlyDebtService != null)
+        'monthly_debt_service': monthlyDebtService,
     });
 
     final estimatedMonthlyExpenses = _readDouble(
@@ -478,7 +479,8 @@ class ApiService {
       if (existingLpp != null) 'existing_lpp': existingLpp,
       if (lppCaisseType != null) 'lpp_caisse_type': lppCaisseType,
       if (totalDebts != null) 'total_debts': totalDebts,
-      if (monthlyDebtService != null) 'monthly_debt_service': monthlyDebtService,
+      if (monthlyDebtService != null)
+        'monthly_debt_service': monthlyDebtService,
     });
 
     final category = _readString(

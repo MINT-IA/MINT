@@ -19,11 +19,13 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 class StepQuestions extends StatefulWidget {
   final SmartOnboardingViewModel viewModel;
   final VoidCallback onNext;
+  final VoidCallback onInputChanged;
 
   const StepQuestions({
     super.key,
     required this.viewModel,
     required this.onNext,
+    required this.onInputChanged,
   });
 
   @override
@@ -71,6 +73,7 @@ class _StepQuestionsState extends State<StepQuestions> {
   void _setAge(int value) {
     final clamped = value.clamp(_minAge, _maxAge);
     widget.viewModel.setAge(clamped);
+    widget.onInputChanged();
     final text = clamped.toString();
     _ageController.value = TextEditingValue(
       text: text,
@@ -159,8 +162,7 @@ class _StepQuestionsState extends State<StepQuestions> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -176,13 +178,16 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 1. SALAIRE ────────────────────────────────────────────
-                  _SectionTitle(label: 'Ton salaire brut annuel'),
+                  const _SectionTitle(label: 'Ton salaire brut annuel'),
                   const SizedBox(height: 12),
                   _SalarySelector(
                     presets: _salaryPresets,
                     labels: _salaryLabels,
                     selectedValue: widget.viewModel.grossSalary,
-                    onChanged: (v) => widget.viewModel.setGrossSalary(v),
+                    onChanged: (v) {
+                      widget.viewModel.setGrossSalary(v);
+                      widget.onInputChanged();
+                    },
                   ),
                   const SizedBox(height: 8),
                   Center(
@@ -198,7 +203,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 2. AGE ────────────────────────────────────────────────
-                  _SectionTitle(label: 'Ton \u00e2ge'),
+                  const _SectionTitle(label: 'Ton \u00e2ge'),
                   const SizedBox(height: 12),
                   _AgePicker(
                     value: widget.viewModel.age,
@@ -250,11 +255,14 @@ class _StepQuestionsState extends State<StepQuestions> {
                   const SizedBox(height: 32),
 
                   // ── 3. CANTON ─────────────────────────────────────────────
-                  _SectionTitle(label: 'Ton canton'),
+                  const _SectionTitle(label: 'Ton canton'),
                   const SizedBox(height: 12),
                   _CantonPicker(
                     value: widget.viewModel.canton,
-                    onChanged: (v) => widget.viewModel.setCanton(v),
+                    onChanged: (v) {
+                      widget.viewModel.setCanton(v);
+                      widget.onInputChanged();
+                    },
                   ),
 
                   const SizedBox(height: 48),
@@ -304,7 +312,6 @@ class _StepQuestionsState extends State<StepQuestions> {
       ),
     );
   }
-
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -389,8 +396,7 @@ class _SalarySelector extends StatelessWidget {
                 entry.value,
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
                       ? MintColors.textPrimary
                       : MintColors.textMuted,
@@ -474,11 +480,11 @@ class _AgePicker extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('18',
-                    style: TextStyle(
-                        fontSize: 11, color: MintColors.textMuted)),
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
                 Text('70',
-                    style: TextStyle(
-                        fontSize: 11, color: MintColors.textMuted)),
+                    style:
+                        TextStyle(fontSize: 11, color: MintColors.textMuted)),
               ],
             ),
           ),
@@ -589,8 +595,7 @@ class _CantonPicker extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextField(
                       autofocus: true,
-                      onChanged: (v) =>
-                          setModalState(() => query = v.trim()),
+                      onChanged: (v) => setModalState(() => query = v.trim()),
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search),
                         hintText: 'Rechercher (ex: VD, Vaud)',
@@ -635,8 +640,7 @@ class _CantonPicker extends StatelessWidget {
                                 final name = cantonFullNames[code] ?? code;
                                 final isSelected = code == value;
                                 return ListTile(
-                                  onTap: () =>
-                                      Navigator.of(context).pop(code),
+                                  onTap: () => Navigator.of(context).pop(code),
                                   title: Text(
                                     '$code — $name',
                                     style: GoogleFonts.inter(
@@ -688,8 +692,7 @@ class _CantonPicker extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () => _open(context),
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
               const Icon(Icons.search, size: 18, color: MintColors.textMuted),
@@ -702,9 +705,8 @@ class _CantonPicker extends StatelessWidget {
                     color: value == null
                         ? MintColors.textMuted
                         : MintColors.textPrimary,
-                    fontWeight: value == null
-                        ? FontWeight.w400
-                        : FontWeight.w600,
+                    fontWeight:
+                        value == null ? FontWeight.w400 : FontWeight.w600,
                   ),
                 ),
               ),

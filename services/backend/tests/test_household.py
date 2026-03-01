@@ -580,7 +580,10 @@ def test_feature_flags_endpoint(client: TestClient):
     assert resp.status_code == 200
     body = resp.json()
     assert "enableCouplePlusTier" in body
-    assert body["enableCouplePlusTier"] is True
+    assert "enableSlmNarratives" in body
+    assert "enableDecisionScaffold" in body
+    assert "valeurLocative2028Reform" in body
+    assert "safeModeDegraded" in body
 
 
 # ---------------------------------------------------------------------------
