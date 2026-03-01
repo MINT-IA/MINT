@@ -12,7 +12,7 @@ class FeatureFlags {
 
   /// Enable SLM-generated narratives (Track B, Phase P3).
   /// Requires ComplianceGuard validation.
-  static bool enableSlmNarratives = false;
+  static bool enableSlmNarratives = true;
 
   // ── P2: Housing model ─────────────────────────────────────
 
@@ -24,7 +24,7 @@ class FeatureFlags {
 
   /// Enable the 5 arbitrage modules (DECIDER pillar).
   /// Activated progressively per module.
-  static bool enableDecisionScaffold = false;
+  static bool enableDecisionScaffold = true;
 
   // ── P6: Billing tiers ─────────────────────────────────────
 
@@ -33,6 +33,30 @@ class FeatureFlags {
   /// If false, paywall shows only Free/Starter/Premium.
   static bool enableCouplePlusTier = true;
 
+  // ── P7: SafeMode degraded fallback ────────────────────────
+
+  /// When true, narratives use templates-only degraded mode.
+  static bool safeModeDegraded = false;
+
+  /// Apply flags from a backend response map.
+  static void applyFromMap(Map<String, dynamic> data) {
+    if (data.containsKey('enableCouplePlusTier')) {
+      enableCouplePlusTier = data['enableCouplePlusTier'] == true;
+    }
+    if (data.containsKey('enableSlmNarratives')) {
+      enableSlmNarratives = data['enableSlmNarratives'] == true;
+    }
+    if (data.containsKey('enableDecisionScaffold')) {
+      enableDecisionScaffold = data['enableDecisionScaffold'] == true;
+    }
+    if (data.containsKey('valeurLocative2028Reform')) {
+      valeurLocative2028Reform = data['valeurLocative2028Reform'] == true;
+    }
+    if (data.containsKey('safeModeDegraded')) {
+      safeModeDegraded = data['safeModeDegraded'] == true;
+    }
+  }
+
   // ── Server-driven refresh ─────────────────────────────────
 
   /// Refresh server-driven flags from backend.
@@ -40,18 +64,7 @@ class FeatureFlags {
   static Future<void> refreshFromBackend() async {
     try {
       final data = await ApiService.get('/config/feature-flags');
-      if (data.containsKey('enableCouplePlusTier')) {
-        enableCouplePlusTier = data['enableCouplePlusTier'] == true;
-      }
-      if (data.containsKey('enableSlmNarratives')) {
-        enableSlmNarratives = data['enableSlmNarratives'] == true;
-      }
-      if (data.containsKey('enableDecisionScaffold')) {
-        enableDecisionScaffold = data['enableDecisionScaffold'] == true;
-      }
-      if (data.containsKey('valeurLocative2028Reform')) {
-        valeurLocative2028Reform = data['valeurLocative2028Reform'] == true;
-      }
+      applyFromMap(data);
     } catch (_) {
       // Keep current values on failure — safe fallback
     }

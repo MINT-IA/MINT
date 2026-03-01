@@ -7689,10 +7689,30 @@
           "enableCouplePlusTier": {
             "title": "Enablecoupleplustier",
             "type": "boolean"
+          },
+          "enableDecisionScaffold": {
+            "title": "Enabledecisionscaffold",
+            "type": "boolean"
+          },
+          "enableSlmNarratives": {
+            "title": "Enableslmnarratives",
+            "type": "boolean"
+          },
+          "safeModeDegraded": {
+            "title": "Safemodedegraded",
+            "type": "boolean"
+          },
+          "valeurLocative2028Reform": {
+            "title": "Valeurlocative2028Reform",
+            "type": "boolean"
           }
         },
         "required": [
-          "enableCouplePlusTier"
+          "enableCouplePlusTier",
+          "enableSlmNarratives",
+          "enableDecisionScaffold",
+          "valeurLocative2028Reform",
+          "safeModeDegraded"
         ],
         "title": "FeatureFlagsResponse",
         "type": "object"
@@ -18687,13 +18707,6 @@
       },
       "ValidationError": {
         "properties": {
-          "ctx": {
-            "title": "Context",
-            "type": "object"
-          },
-          "input": {
-            "title": "Input"
-          },
           "loc": {
             "items": {
               "anyOf": [

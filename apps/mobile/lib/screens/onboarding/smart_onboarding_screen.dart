@@ -5,6 +5,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
+import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 
 // ZERO-PERSISTENCE GUARANTEE (P1):
 // All onboarding inputs stay in-memory until the user explicitly saves.
@@ -36,16 +37,114 @@ class SmartOnboardingScreen extends StatefulWidget {
 class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   final _viewModel = SmartOnboardingViewModel();
   final _pageController = PageController();
+  bool _consentPromptOpen = false;
+  bool? _onboardingConsent;
+  bool _consentDeclinedThisSession = false;
 
   /// Incrementing counter — [StepChiffreChoc] listens to this to trigger
   /// its reveal animation without needing cross-file private state access.
   final _animTrigger = ValueNotifier<int>(0);
 
   @override
+  void initState() {
+    super.initState();
+    _loadDraft();
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     _animTrigger.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadDraft() async {
+    _onboardingConsent = await SmartOnboardingDraftService.isConsentGiven();
+    if (_onboardingConsent != true) return;
+    final draft = await SmartOnboardingDraftService.loadDraft();
+    if (!mounted || draft.isEmpty) return;
+
+    final age = draft['age'];
+    if (age is int) _viewModel.setAge(age);
+
+    final grossSalary = draft['grossSalary'];
+    if (grossSalary is num) _viewModel.setGrossSalary(grossSalary.toDouble());
+
+    final canton = draft['canton'];
+    if (canton is String && canton.isNotEmpty) _viewModel.setCanton(canton);
+  }
+
+  Future<void> _onInputChanged() async {
+    if (_onboardingConsent != true) {
+      _onboardingConsent ??= await SmartOnboardingDraftService.isConsentGiven();
+    }
+
+    if (_onboardingConsent == false && _consentDeclinedThisSession) return;
+
+    if (_onboardingConsent != true) {
+      final granted = await _showOnboardingConsentSheet();
+      _onboardingConsent = granted;
+      if (!granted) _consentDeclinedThisSession = true;
+      if (!granted) return;
+    }
+
+    await SmartOnboardingDraftService.saveDraft(
+      age: _viewModel.age,
+      grossSalary: _viewModel.grossSalary,
+      canton: _viewModel.canton,
+    );
+  }
+
+  Future<bool> _showOnboardingConsentSheet() async {
+    if (_consentPromptOpen || !mounted) return false;
+    _consentPromptOpen = true;
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sauvegarde locale des reponses',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Tes reponses peuvent etre sauvegardees localement sur ton appareil '
+                  'pour reprendre plus tard. Aucune donnee n est envoyee sans ton accord.',
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('Autoriser'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Continuer sans sauvegarde'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    _consentPromptOpen = false;
+    final granted = result == true;
+    await SmartOnboardingDraftService.setConsent(granted);
+    return granted;
   }
 
   void _goToPage(int page) {
@@ -66,11 +165,13 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
 
   Future<void> _saveThenGo(BuildContext context) async {
     _saveProfile(context);
+    await SmartOnboardingDraftService.clearDraft();
     if (context.mounted) context.go('/home');
   }
 
   Future<void> _saveThenEnrich(BuildContext context) async {
     _saveProfile(context);
+    await SmartOnboardingDraftService.clearDraft();
     if (context.mounted) context.push('/onboarding/enrichment');
   }
 
@@ -98,6 +199,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               StepQuestions(
                 viewModel: _viewModel,
                 onNext: _onStepQuestionsNext,
+                onInputChanged: _onInputChanged,
               ),
 
               // ── Page 1: Chiffre choc reveal ──────────────────────────────

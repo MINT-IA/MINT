@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/app.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
@@ -12,9 +13,12 @@ import 'package:mint_mobile/data/commune_data.dart';
 ///
 /// Démarre l'app immédiatement (Progressive Disclosure)
 /// et charge les services en arrière-plan
-void main() {
+Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Select a reachable API endpoint (defined URL first, then fallbacks).
+  await ApiService.ensureReachableBaseUrl();
 
   // Chargement des données critiques en arrière-plan (non-bloquant)
   Future.wait([

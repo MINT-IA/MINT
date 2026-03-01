@@ -61,6 +61,8 @@ jobs:
             echo "OpenAPI spec is up to date."
           else
             echo "OpenAPI spec has drifted."
+            echo "OpenAPI drift preview:"
+            git --no-pager diff -- ../../tools/openapi/mint.openapi.canonical.json | sed -n '1,220p'
             echo "OPENAPI_CHANGED=true" >> "$GITHUB_ENV"
           fi
 

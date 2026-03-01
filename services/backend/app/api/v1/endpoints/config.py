@@ -11,10 +11,19 @@ router = APIRouter()
 
 class FeatureFlagsResponse(BaseModel):
     enableCouplePlusTier: bool
+    enableSlmNarratives: bool
+    enableDecisionScaffold: bool
+    valeurLocative2028Reform: bool
+    safeModeDegraded: bool
 
 
 @router.get("/feature-flags", response_model=FeatureFlagsResponse)
 def get_feature_flags() -> FeatureFlagsResponse:
+    flags = FeatureFlags.get_flags()
     return FeatureFlagsResponse(
-        enableCouplePlusTier=FeatureFlags.enable_couple_plus_tier,
+        enableCouplePlusTier=flags["enable_couple_plus_tier"],
+        enableSlmNarratives=flags["enable_slm_narratives"],
+        enableDecisionScaffold=flags["enable_decision_scaffold"],
+        valeurLocative2028Reform=flags["valeur_locative_2028_reform"],
+        safeModeDegraded=flags["safe_mode_degraded"],
     )

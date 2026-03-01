@@ -11,6 +11,7 @@
 #   APP_STORE_CONNECT_API_KEY_CONTENT  (base64-encoded .p8 file)
 #   MATCH_GIT_URL                      (private repo for certs)
 #   MATCH_PASSWORD                     (decrypt certs)
+#   API_BASE_URL                       (e.g. https://your-api-domain/api/v1)
 
 name: TestFlight
 
@@ -54,9 +55,37 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
+      - name: Validate backend URL secret
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          [[ -n "$API_BASE_URL" ]] || { echo "::error::Missing secret: API_BASE_URL"; exit 1; }
+          echo "API_BASE_URL is configured"
+
+      - name: Backend health precheck
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          HEALTH_URL="${API_BASE_URL%/}/health"
+          echo "Checking backend health: $HEALTH_URL"
+          curl -fsS "$HEALTH_URL" >/dev/null || {
+            echo "::error::Backend not reachable on $HEALTH_URL"
+            exit 1
+          }
+          echo "Backend health precheck OK"
+
       # ── Pre-build Flutter iOS (generates Xcode project + runs pod install) ──
       - name: Flutter build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_BASE_URL
+
+      - name: Prepare DART_DEFINES for Xcode/Fastlane
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          encoded="$(printf 'API_BASE_URL=%s' "$API_BASE_URL" | base64 | tr -d '\n')"
+          echo "DART_DEFINES=$encoded" >> "$GITHUB_ENV"
 
       # ── Ruby + Fastlane ──
       - name: Setup Ruby
@@ -110,5 +139,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          DART_DEFINES: ${{ env.DART_DEFINES }}
           CI: "true"
         run: bundle exec fastlane beta
