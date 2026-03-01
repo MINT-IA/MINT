@@ -301,7 +301,7 @@ PROFIL :
 - Charges fixes : CHF ${profile.chargesFixesMensuelles.toStringAsFixed(0)}/mois
 
 INSTRUCTIONS :
-Reecris le message en 3-4 phrases max. Personnalise en croisant la situation familiale, l'emploi, l'age et les chiffres. Tutoiement. Ton chaleureux et educatif. JAMAIS : garanti, certain, assure, sans risque, optimal, meilleur, parfait. Retourne UNIQUEMENT le nouveau message.''';
+R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la situation familiale, l'emploi, l'\u00e2ge et les chiffres. Tutoiement. Ton chaleureux et \u00e9ducatif. JAMAIS : garanti, certain, assur\u00e9, sans risque, optimal, meilleur, parfait. Retourne UNIQUEMENT le nouveau message.''';
   }
 
   static String _buildFinancialSummary(
@@ -757,13 +757,13 @@ Reecris le message en 3-4 phrases max. Personnalise en croisant la situation fam
       priority: ratio > 0.40
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
-      title: 'Depenses exceptionnelles elevees',
+      title: 'D\u00e9penses exceptionnelles \u00e9lev\u00e9es',
       message:
-          'Tes depenses exceptionnelles du dernier mois representent '
+          'Tes d\u00e9penses exceptionnelles du dernier mois repr\u00e9sentent '
           '$ratioPct% de ton revenu mensuel (${_formatChf(depExc)}). '
-          'Verifie que ton budget reste sur les rails et ajuste '
-          'si necessaire.',
-      action: 'Verifier mon budget',
+          'V\u00e9rifie que ton budget reste sur les rails et ajuste '
+          'si n\u00e9cessaire.',
+      action: 'V\u00e9rifier mon budget',
       estimatedImpactChf: depExc,
       source: 'Recommandation Budget-conseil Suisse',
       icon: Icons.trending_down,
