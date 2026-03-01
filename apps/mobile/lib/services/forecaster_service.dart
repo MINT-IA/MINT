@@ -692,12 +692,14 @@ class ForecasterService {
 
     // AVS conjoint — pass anneesContribuees (LAVS art. 29bis)
     double avsConjointMonthly = 0;
+    final conjRetirementAge =
+        profile.conjoint?.effectiveRetirementAge ?? retirementAge;
     if (profile.conjoint != null) {
       final conjAge = profile.conjoint!.age ?? profile.age;
       final conjSalary = (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
       avsConjointMonthly = AvsCalculator.computeMonthlyRente(
         currentAge: conjAge,
-        retirementAge: retirementAge,
+        retirementAge: conjRetirementAge,
         arrivalAge: profile.conjoint!.arrivalAge,
         anneesContribuees: profile.conjoint!.prevoyance?.anneesContribuees,
         lacunes: profile.conjoint!.prevoyance?.lacunesAVS ?? 0,
@@ -721,7 +723,7 @@ class ForecasterService {
     final renteLppUser = lppBalance * userConvRate;
     final conjConvRate = LppCalculator.adjustedConversionRate(
       baseRate: profile.conjoint?.prevoyance?.tauxConversion ?? 0.068,
-      retirementAge: retirementAge,
+      retirementAge: conjRetirementAge,
     );
     final renteLppConjoint = conjLppBalance * conjConvRate;
 
