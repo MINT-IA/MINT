@@ -32,9 +32,84 @@ The `SessionReport` is upgraded to a professional-grade document:
 - **Conflict Disclosure**: "We are partnered with Bank X for 3a; here are 2 non-partner alternatives."
 - **Top 3 Actions**: Structured "If-Then" logic for empowerment.
 
-## 4. Open Banking "Consent Dashboard"
+## 4. Écosystème de connectivité financière
+
+### 4.1 Open Banking "Consent Dashboard" (bLink/SFTI — S14, implémenté)
 - **Reward Flow**: Suggest connection *after* the first interactive report.
 - **Visibility**: Single screen showing: "Who sees what" (Partner X, Partner Y) + Global "Revoke All" button.
+- **9 banques suisses**: UBS, PostFinance, Raiffeisen, Credit Suisse (UBS), BCV, BCGE, ZKB, Neon, Yuh.
+- **Données obtenues**: Soldes, transactions, catégorisation marchands suisses, détection salaire/hypothèque.
+- **Gate FINMA**: Mode sandbox actif. Production nécessite consultation réglementaire formelle.
+- **nLPD**: Opt-in explicite, scopes granulaires, 90j max, révocation immédiate, audit log.
+
+### 4.2 APIs Institutionnelles (S47+, vision long terme)
+
+#### Écran: Connexions Institutionnelles Hub
+| Field | Value |
+|-------|-------|
+| **Intention** | Connecter ses comptes de prévoyance directement aux institutions |
+| **Widgets** | `InstitutionConnectionCard`, `ConfidenceImpactBadge`, `ConsentScopeSelector` |
+| **Events** | `onConnectInstitution(institutionId)`, `onDisconnect(institutionId)` |
+| **Data Written** | `profile.institutionalConnections[]` |
+| **CTA Label** | "Connecter ma caisse de pension" |
+
+#### Écran: Données Caisse de Pension (LPP temps réel)
+| Field | Value |
+|-------|-------|
+| **Intention** | Afficher les données LPP réelles importées depuis la caisse |
+| **Widgets** | `LppRealDataCard`, `ObligSurobligSplitChart`, `BuybackPotentialGauge`, `ConfidenceBoostBanner` |
+| **Events** | `onRefreshData()`, `onDisconnect()` |
+| **Data Written** | `profile.lpp_obligatoire`, `profile.lpp_surobligatoire`, `profile.conversion_rate_oblig`, `profile.buyback_potential` |
+| **CTA Label** | "Rafraîchir mes données" |
+
+#### Écran: Extrait AVS Guidé
+| Field | Value |
+|-------|-------|
+| **Intention** | Guider l'utilisateur pour obtenir et importer son extrait CI |
+| **Widgets** | `AvsGuideSteps`, `PdfUploader`, `ExtractionReviewForm`, `ConfidenceImpactBadge` |
+| **Events** | `onRequestExtract()` (lien www.ahv-iv.ch), `onUploadPdf()`, `onConfirmExtraction()` |
+| **Data Written** | `profile.avs_contribution_years`, `profile.avs_ramd`, `profile.avs_gaps` |
+| **CTA Label** | "Importer mon extrait AVS" |
+
+#### Parcours de connectivité (flux utilisateur)
+```
+1. Hub "Mes connexions"
+   ├── Open Banking (bLink) — banques et comptes
+   ├── Caisse de pension — LPP temps réel
+   ├── Extrait AVS — compte individuel
+   └── Documents scannés — certificats, attestations
+
+2. Pour chaque connexion:
+   ├── Explication de la valeur ajoutée ("+30 points de précision")
+   ├── Sélection des scopes (lecture seule, explicite)
+   ├── Authentification (portail institutionnel ou eID)
+   ├── Import et revue des données
+   └── Impact visible ("Ta confiance est passée de 55% à 87%")
+
+3. Gestion centralisée:
+   ├── Statut de chaque connexion (active, expirée, révoquée)
+   ├── Date de dernière synchronisation
+   ├── Bouton "Déconnecter" par institution
+   └── Export/suppression de toutes les données importées
+```
+
+#### Caisses de pension ciblées pour le pilote
+| Caisse | Type | Marché | Valeur pour MINT |
+|--------|------|--------|-----------------|
+| **Publica** | Public (Confédération) | National | Portail existant, plus grande caisse publique |
+| **BVK** | Public (Zurich) | Alémanique | Portail membre existant |
+| **CPEV** | Public (Vaud) | Romand | Marché francophone |
+| **Swisscanto** | Privé | National | Large base, infrastructure digitale |
+| **Tellco** | Infrastructure | Multi-caisses | Fournisseur de plateforme pension |
+| **Profond** | Privé | National | Innovation-friendly |
+| **CPEG** | Public (Genève) | Romand | Marché genevois |
+
+#### Modèle B2B (proposition de valeur pour les caisses)
+- **Offre**: MINT comme outil "financial wellness" en marque blanche
+- **Prix**: 5-15 CHF/employé/an (licence annuelle)
+- **Valeur pour la caisse**: Engagement des assurés, réduction des appels support, outil d'éducation 2e pilier
+- **Valeur pour MINT**: Accès API aux données LPP, distribution via base d'assurés
+- **En échange**: Feed API temps réel des données de prévoyance (solde, taux, rachat, rente projetée)
 
 ## 5. Safe Mode (Debt & Risk)
 Proactive protection for the 22-35 segment:

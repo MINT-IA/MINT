@@ -33,6 +33,43 @@ Open Banking comme **récompense après valeur** (Reward Flow).
 - **Read-Only**: Notifications proactives pour "ajuster le plan", jamais pour initier des mouvements d'argent.
 - Cette séquence évite de "demander le mariage au premier rendez-vous".
 
+**Horizon 4 — Données institutionnelles (Partenariats B2B)**
+Connexion directe aux institutions financières suisses pour une précision maximale.
+
+### 4A. Caisses de pension (LPP temps réel) — Le Graal
+- **Réalité**: Aucune API standardisée parmi les ~1'400 caisses suisses. Quelques grandes caisses ont des portails membres (Publica, BVK, CPEV). Initiative SwissPensions en cours de standardisation.
+- **Stratégie**: Pilote avec 2-3 grandes caisses → démontrer la valeur → attirer l'écosystème.
+- **Caisses ciblées**: Swisscanto, Tellco, Profond, CPEG, CIA, Publica, BVK.
+- **Données obtenues**: Solde LPP réel (oblig + suroblig), taux de conversion effectifs, potentiel de rachat, rente projetée, couverture invalidité/décès.
+- **Impact ConfidenceScore**: +30-35 points. Rend les arbitrages rente vs capital fiables.
+- **Modèle B2B**: MINT comme outil "financial wellness" proposé aux caisses elles-mêmes (5-15 CHF/employé/an), en échange d'un accès API aux données de prévoyance.
+
+### 4B. Extrait AVS (Compte individuel)
+- **Réalité**: Extrait CI disponible sur www.ahv-iv.ch, mais pas d'API publique. Le citoyen doit le demander manuellement (PDF).
+- **Court terme**: Guidage in-app + parsing OCR du PDF (déjà implémenté).
+- **Moyen terme**: Authentification eID (identité électronique suisse) → accès direct automatisé.
+- **Données obtenues**: Années de cotisation exactes, RAMD, lacunes, bonifications éducatives.
+- **Impact ConfidenceScore**: +20-25 points. La rente AVS est la plus grande composante du revenu retraite.
+
+### 4C. Barèmes cantonaux (AFC / administrations fiscales)
+- **Réalité**: Données publiques, certains cantons offrent des calculateurs avec APIs.
+- **Statut**: Déjà couvert par TaxCalculator (26 cantons, S20). Amélioration possible avec barèmes communaux précis.
+
+### 4D. Attestations assurance (LAMal, risque)
+- **Réalité**: Aucune API standard parmi les assureurs. Certains (CSS, Helsana, Swica) offrent des attestations digitales.
+- **Priorité basse**: Données moins dynamiques que LPP/AVS.
+- **Approche**: Scan OCR des polices d'assurance (même pipeline que certificats LPP).
+
+### Séquence d'acquisition des données (parcours utilisateur)
+```
+Onboarding (30 sec)    → 3 questions (âge, salaire, canton)           → Confiance ~25%
+Première session       → Enrichissement progressif (famille, épargne) → Confiance ~40-50%
+Première semaine       → Scan certificat LPP + attestation 3a         → Confiance ~65-75%
+Premier mois           → Open Banking + extrait AVS                    → Confiance ~80-90%
+Annuel                 → Scan déclaration fiscale + certificat LPP     → Confiance maintenue > 75%
+Long terme             → APIs institutionnelles (caisses de pension)   → Confiance > 95%
+```
+
 ## Core Capabilities
 - **Pedagogical Simulators**: "Real Interest" combining tax savings + yield, and "Staggered Buybacks" visualization (Always with education-first, non-prescriptive scenarios).
 - **Administrative Empowerment**: "Letter Generator" for rulings, pension fund requests, and social benefits (PC) inquiries.
