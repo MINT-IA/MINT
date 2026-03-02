@@ -18,6 +18,14 @@ import 'package:mint_mobile/services/coaching_service.dart';
 /// Etat civil pour le coach
 enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
 
+/// Source d'une donnee financiere dans le profil.
+/// Permet de distinguer les valeurs saisies, estimees ou certifiees.
+enum ProfileDataSource {
+  estimated,   // Defaut calcule par MINT
+  userInput,   // Saisi manuellement
+  certificate, // Extrait d'un certificat scanne
+}
+
 /// Type d'objectif principal (Goal A)
 enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 
@@ -224,6 +232,9 @@ class PrevoyanceProfile {
   final List<Compte3a> comptes3a;
   final bool canContribute3a; // false si US citizen/FATCA
 
+  // --- Libre passage ---
+  final List<LibrePassageCompte> librePassage;
+
   const PrevoyanceProfile({
     this.anneesContribuees,
     this.lacunesAVS,
@@ -243,7 +254,12 @@ class PrevoyanceProfile {
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
     this.canContribute3a = true,
+    this.librePassage = const [],
   });
+
+  /// Total avoir libre passage
+  double get totalLibrePassage =>
+      librePassage.fold(0.0, (sum, lp) => sum + lp.solde);
 
   /// Lacune de rachat LPP restante
   double get lacuneRachatRestante {
@@ -286,6 +302,10 @@ class PrevoyanceProfile {
               .toList() ??
           const [],
       canContribute3a: json['canContribute3a'] ?? true,
+      librePassage: (json['librePassage'] as List?)
+              ?.map((lp) => LibrePassageCompte.fromJson(lp))
+              .toList() ??
+          const [],
     );
   }
 
@@ -308,6 +328,7 @@ class PrevoyanceProfile {
     'totalEpargne3a': totalEpargne3a,
     'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
     'canContribute3a': canContribute3a,
+    'librePassage': librePassage.map((lp) => lp.toJson()).toList(),
   };
 }
 
@@ -335,6 +356,36 @@ class Compte3a {
     'provider': provider,
     'solde': solde,
     'rendementEstime': rendementEstime,
+  };
+}
+
+/// Compte de libre passage (apres changement d'emploi ou lacune LPP).
+/// Souvent 10-20% du patrimoine prevoyance des 45-60 ans.
+class LibrePassageCompte {
+  final String? institution; // ex: "Fondation Libre Passage UBS"
+  final double solde;
+  final DateTime? dateOuverture;
+
+  const LibrePassageCompte({
+    this.institution,
+    required this.solde,
+    this.dateOuverture,
+  });
+
+  factory LibrePassageCompte.fromJson(Map<String, dynamic> json) {
+    return LibrePassageCompte(
+      institution: json['institution'] as String?,
+      solde: (json['solde'] as num).toDouble(),
+      dateOuverture: json['dateOuverture'] != null
+          ? DateTime.parse(json['dateOuverture'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'institution': institution,
+    'solde': solde,
+    'dateOuverture': dateOuverture?.toIso8601String(),
   };
 }
 
@@ -701,6 +752,7 @@ class CoachProfile {
   final int birthYear;
   final String canton;
   final String? commune;
+  final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
   final CoachCivilStatus etatCivil;
   final int nombreEnfants;
 
@@ -766,11 +818,16 @@ class CoachProfile {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Source tracking per field (key = field path, value = source).
+  /// Ex: {'prevoyance.avoirLppTotal': ProfileDataSource.certificate}
+  final Map<String, ProfileDataSource> dataSources;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
     required this.canton,
     this.commune,
+    this.nationality,
     this.etatCivil = CoachCivilStatus.celibataire,
     this.nombreEnfants = 0,
     this.conjoint,
@@ -794,6 +851,7 @@ class CoachProfile {
     this.residencePermit,
     this.familyChange,
     this.targetRetirementAge,
+    this.dataSources = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -886,6 +944,7 @@ class CoachProfile {
     int? birthYear,
     String? canton,
     String? commune,
+    String? nationality,
     CoachCivilStatus? etatCivil,
     int? nombreEnfants,
     ConjointProfile? conjoint,
@@ -909,6 +968,7 @@ class CoachProfile {
     String? residencePermit,
     String? familyChange,
     int? targetRetirementAge,
+    Map<String, ProfileDataSource>? dataSources,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -917,6 +977,7 @@ class CoachProfile {
       birthYear: birthYear ?? this.birthYear,
       canton: canton ?? this.canton,
       commune: commune ?? this.commune,
+      nationality: nationality ?? this.nationality,
       etatCivil: etatCivil ?? this.etatCivil,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
       conjoint: conjoint ?? this.conjoint,
@@ -940,6 +1001,7 @@ class CoachProfile {
       residencePermit: residencePermit ?? this.residencePermit,
       familyChange: familyChange ?? this.familyChange,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
+      dataSources: dataSources ?? this.dataSources,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -952,6 +1014,7 @@ class CoachProfile {
       birthYear: birthYear,
       canton: canton,
       commune: commune,
+      nationality: nationality,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
@@ -975,6 +1038,7 @@ class CoachProfile {
       residencePermit: residencePermit,
       familyChange: familyChange,
       targetRetirementAge: targetRetirementAge,
+      dataSources: dataSources,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -987,6 +1051,7 @@ class CoachProfile {
       birthYear: birthYear,
       canton: canton,
       commune: commune,
+      nationality: nationality,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
@@ -1010,6 +1075,7 @@ class CoachProfile {
       arrivalAge: arrivalAge,
       residencePermit: residencePermit,
       familyChange: familyChange,
+      dataSources: dataSources,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -1118,6 +1184,7 @@ class CoachProfile {
       birthYear: json['birthYear'] as int,
       canton: json['canton'] as String,
       commune: json['commune'] as String?,
+      nationality: json['nationality'] as String?,
       etatCivil: CoachCivilStatus.values.firstWhere(
         (e) => e.name == json['etatCivil'],
         orElse: () => CoachCivilStatus.celibataire,
@@ -1166,6 +1233,16 @@ class CoachProfile {
       residencePermit: json['residencePermit'] as String?,
       familyChange: json['familyChange'] as String?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
+      dataSources: (json['dataSources'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(
+              k,
+              ProfileDataSource.values.firstWhere(
+                (e) => e.name == v,
+                orElse: () => ProfileDataSource.estimated,
+              ),
+            ),
+          ) ??
+          const {},
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -1180,6 +1257,7 @@ class CoachProfile {
     'birthYear': birthYear,
     'canton': canton,
     'commune': commune,
+    'nationality': nationality,
     'etatCivil': etatCivil.name,
     'nombreEnfants': nombreEnfants,
     'conjoint': conjoint?.toJson(),
@@ -1203,6 +1281,7 @@ class CoachProfile {
     'residencePermit': residencePermit,
     'familyChange': familyChange,
     'targetRetirementAge': targetRetirementAge,
+    'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
   };
@@ -1607,6 +1686,7 @@ class CoachProfile {
       firstName: firstName,
       birthYear: birthYear,
       canton: canton,
+      nationality: answers['q_nationality'] as String?,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,

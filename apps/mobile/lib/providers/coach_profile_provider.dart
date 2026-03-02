@@ -610,10 +610,22 @@ class CoachProfileProvider extends ChangeNotifier {
       totalEpargne3a: p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
+      librePassage: p.prevoyance.librePassage,
     );
+
+    // Tag data sources as certificate-confirmed
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (avoirTotal != null) updatedSources['prevoyance.avoirLppTotal'] = ProfileDataSource.certificate;
+    if (avoirOblig != null) updatedSources['prevoyance.avoirLppObligatoire'] = ProfileDataSource.certificate;
+    if (avoirSuroblig != null) updatedSources['prevoyance.avoirLppSurobligatoire'] = ProfileDataSource.certificate;
+    if (tauxConvOblig != null) updatedSources['prevoyance.tauxConversion'] = ProfileDataSource.certificate;
+    if (tauxConvSuroblig != null) updatedSources['prevoyance.tauxConversionSuroblig'] = ProfileDataSource.certificate;
+    if (lacuneRachat != null) updatedSources['prevoyance.rachatMaximum'] = ProfileDataSource.certificate;
+    if (salaireAssure != null) updatedSources['prevoyance.salaireAssure'] = ProfileDataSource.certificate;
 
     _profile = p.copyWith(
       prevoyance: updatedPrevoyance,
+      dataSources: updatedSources,
       updatedAt: DateTime.now(),
     );
 
@@ -686,10 +698,19 @@ class CoachProfileProvider extends ChangeNotifier {
       totalEpargne3a: p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
+      librePassage: p.prevoyance.librePassage,
     );
+
+    // Tag data sources as certificate-confirmed
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (anneesContrib != null) updatedSources['prevoyance.anneesContribuees'] = ProfileDataSource.certificate;
+    if (lacunesCotisation != null) updatedSources['prevoyance.lacunesAVS'] = ProfileDataSource.certificate;
+    if (renteEstimee != null) updatedSources['prevoyance.renteAVSEstimeeMensuelle'] = ProfileDataSource.certificate;
+    if (ramd != null) updatedSources['prevoyance.ramd'] = ProfileDataSource.certificate;
 
     _profile = p.copyWith(
       prevoyance: updatedPrevoyance,
+      dataSources: updatedSources,
       updatedAt: DateTime.now(),
     );
 

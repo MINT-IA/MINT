@@ -23,6 +23,7 @@ import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
 import 'package:mint_mobile/screens/advisor/advisor_onboarding_screen.dart';
 import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
+import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
@@ -247,6 +248,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'slm',
           builder: (context, state) => const SlmSettingsScreen(),
+        ),
+        GoRoute(
+          path: 'bilan',
+          builder: (context, state) => const FinancialSummaryScreen(),
         ),
       ],
     ),

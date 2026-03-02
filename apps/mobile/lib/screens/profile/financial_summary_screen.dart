@@ -1,0 +1,569 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
+
+/// Ecran "Mon apercu financier" — vue consolidee de toutes les donnees
+/// du CoachProfile, organisees par section.
+///
+/// Accessible depuis /profile/bilan et depuis le ProfileScreen.
+/// Read-only V1: pas d'edition inline.
+class FinancialSummaryScreen extends StatelessWidget {
+  const FinancialSummaryScreen({super.key});
+
+  static final _chf = NumberFormat('#,##0', 'fr_CH');
+  static final _pct = NumberFormat('0.0', 'fr_CH');
+
+  String _formatChf(double? value) {
+    if (value == null || value == 0) return '\u2014';
+    return "${_chf.format(value)} CHF";
+  }
+
+  String _formatChfMonth(double? value) {
+    if (value == null || value == 0) return '\u2014';
+    return "${_chf.format(value)} CHF/mois";
+  }
+
+  String _formatPct(double? value) {
+    if (value == null) return '\u2014';
+    return '${_pct.format(value * 100)}%';
+  }
+
+  ProfileDataSource _source(CoachProfile p, String field) {
+    return p.dataSources[field] ?? ProfileDataSource.estimated;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final profile = coachProvider.profile;
+
+    return Scaffold(
+      backgroundColor: MintColors.background,
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(context),
+          if (profile == null)
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.person_off_outlined,
+                        size: 48, color: MintColors.textMuted),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Aucun profil renseigne',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: () => context.push('/onboarding/smart'),
+                      child: const Text('Commencer le diagnostic'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSourceLegend(),
+                    const SizedBox(height: 16),
+                    if (profile.isCouple) _buildCoupleToggle(context, profile),
+                    _buildRevenusCard(profile),
+                    _buildPrevoyanceCard(profile),
+                    _buildPatrimoineCard(profile),
+                    _buildDepensesCard(profile),
+                    _buildDettesCard(profile),
+                    const SizedBox(height: 16),
+                    _buildDisclaimer(),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext context) {
+    return SliverAppBar(
+      pinned: true,
+      backgroundColor: MintColors.background,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.pop(),
+      ),
+      title: Text(
+        'APERCU FINANCIER',
+        style: GoogleFonts.montserrat(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceLegend() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _legendItem('\u2713', 'saisi', MintColors.success),
+          _legendItem('~', 'estime', MintColors.warning),
+          _legendItem('\u2B06', 'certifie', MintColors.info),
+        ],
+      ),
+    );
+  }
+
+  Widget _legendItem(String symbol, String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 18,
+          height: 18,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            symbol,
+            style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.w700, color: color),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+              fontSize: 11, color: MintColors.textSecondary),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCoupleToggle(BuildContext context, CoachProfile profile) {
+    final conjoint = profile.conjoint;
+    if (conjoint == null) return const SizedBox.shrink();
+    final name1 = profile.firstName ?? 'Toi';
+    final name2 = conjoint.firstName ?? 'Conjoint\u00b7e';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: MintColors.coachBubble,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.people_outline, size: 18, color: MintColors.info),
+            const SizedBox(width: 10),
+            Text(
+              'Couple: $name1 + $name2',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  REVENUS
+  // ══════════════════════════════════════════════════════════════
+
+  FinancialSummaryCard _buildRevenusCard(CoachProfile p) {
+    final lines = <FinancialLine>[
+      FinancialLine(
+        label: 'Salaire brut mensuel',
+        formattedValue: _formatChfMonth(p.salaireBrutMensuel),
+        source: _source(p, 'salaireBrutMensuel'),
+      ),
+      FinancialLine(
+        label: '\u00d7 ${p.nombreDeMois} mois${p.bonusPourcentage != null && p.bonusPourcentage! > 0 ? " + ${_pct.format(p.bonusPourcentage)}% bonus" : ""}',
+        formattedValue: '',
+      ),
+    ];
+
+    // Conjoint
+    if (p.isCouple && p.conjoint?.salaireBrutMensuel != null) {
+      lines.add(FinancialLine(
+        label: '${p.conjoint?.firstName ?? "Conjoint\u00b7e"} brut mensuel',
+        formattedValue: _formatChfMonth(p.conjoint!.salaireBrutMensuel),
+        source: _source(p, 'conjoint.salaireBrutMensuel'),
+      ));
+    }
+
+    return FinancialSummaryCard(
+      title: 'Revenus',
+      icon: Icons.account_balance_wallet_outlined,
+      iconColor: MintColors.primary,
+      lines: lines,
+      totalLine: FinancialLine(
+        label: p.isCouple ? 'Total couple / an' : 'Total / an',
+        formattedValue: _formatChf(
+            p.isCouple ? p.revenuBrutAnnuelCouple : p.revenuBrutAnnuel),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  PREVOYANCE (AVS + LPP + 3a + Libre passage)
+  // ══════════════════════════════════════════════════════════════
+
+  FinancialSummaryCard _buildPrevoyanceCard(CoachProfile p) {
+    final prev = p.prevoyance;
+    final lines = <FinancialLine>[];
+
+    // --- AVS ---
+    lines.add(const FinancialLine(
+      label: 'AVS (1er pilier)',
+      formattedValue: '',
+    ));
+    lines.add(FinancialLine(
+      label: 'Annees cotisees',
+      formattedValue: prev.anneesContribuees != null
+          ? '${prev.anneesContribuees} ans'
+          : '\u2014',
+      source: _source(p, 'prevoyance.anneesContribuees'),
+      indent: true,
+    ));
+    if (prev.lacunesAVS != null && prev.lacunesAVS! > 0) {
+      lines.add(FinancialLine(
+        label: 'Lacunes',
+        formattedValue: '${prev.lacunesAVS} ans',
+        source: _source(p, 'prevoyance.lacunesAVS'),
+        indent: true,
+      ));
+    }
+    lines.add(FinancialLine(
+      label: 'Rente estimee',
+      formattedValue: prev.renteAVSEstimeeMensuelle != null
+          ? _formatChfMonth(prev.renteAVSEstimeeMensuelle)
+          : '\u2014',
+      source: _source(p, 'prevoyance.renteAVSEstimeeMensuelle'),
+      indent: true,
+      isLast: true,
+    ));
+
+    // --- LPP ---
+    lines.add(const FinancialLine(
+      label: 'LPP (2e pilier)',
+      formattedValue: '',
+    ));
+    lines.add(FinancialLine(
+      label: 'Avoir total',
+      formattedValue: _formatChf(prev.avoirLppTotal),
+      source: _source(p, 'prevoyance.avoirLppTotal'),
+      indent: true,
+    ));
+    if (prev.avoirLppObligatoire != null) {
+      lines.add(FinancialLine(
+        label: 'Obligatoire',
+        formattedValue: _formatChf(prev.avoirLppObligatoire),
+        indent: true,
+      ));
+    }
+    if (prev.avoirLppSurobligatoire != null) {
+      lines.add(FinancialLine(
+        label: 'Surobligatoire',
+        formattedValue: _formatChf(prev.avoirLppSurobligatoire),
+        indent: true,
+      ));
+    }
+    lines.add(FinancialLine(
+      label: 'Taux de conversion',
+      formattedValue: _formatPct(prev.tauxConversion),
+      source: _source(p, 'prevoyance.tauxConversion'),
+      indent: true,
+    ));
+    if (prev.lacuneRachatRestante > 0) {
+      lines.add(FinancialLine(
+        label: 'Rachat possible',
+        formattedValue: _formatChf(prev.lacuneRachatRestante),
+        indent: true,
+      ));
+    }
+    if (prev.nomCaisse != null) {
+      lines.add(FinancialLine(
+        label: 'Caisse',
+        formattedValue: prev.nomCaisse!,
+        indent: true,
+        isLast: true,
+      ));
+    }
+
+    // --- 3a ---
+    lines.add(const FinancialLine(
+      label: '3a (3e pilier)',
+      formattedValue: '',
+    ));
+    if (prev.comptes3a.isNotEmpty) {
+      for (int i = 0; i < prev.comptes3a.length; i++) {
+        final c = prev.comptes3a[i];
+        lines.add(FinancialLine(
+          label: c.provider,
+          formattedValue: _formatChf(c.solde),
+          indent: true,
+          isLast: i == prev.comptes3a.length - 1 && prev.librePassage.isEmpty,
+        ));
+      }
+    } else {
+      lines.add(FinancialLine(
+        label: '${prev.nombre3a} compte(s)',
+        formattedValue: _formatChf(prev.totalEpargne3a),
+        source: _source(p, 'prevoyance.totalEpargne3a'),
+        indent: true,
+        isLast: prev.librePassage.isEmpty,
+      ));
+    }
+
+    // --- Libre passage ---
+    if (prev.librePassage.isNotEmpty) {
+      lines.add(const FinancialLine(
+        label: 'Libre passage',
+        formattedValue: '',
+      ));
+      for (int i = 0; i < prev.librePassage.length; i++) {
+        final lp = prev.librePassage[i];
+        lines.add(FinancialLine(
+          label: lp.institution ?? 'Compte ${i + 1}',
+          formattedValue: _formatChf(lp.solde),
+          indent: true,
+          isLast: i == prev.librePassage.length - 1,
+        ));
+      }
+    }
+
+    // Conjoint prevoyance summary
+    if (p.isCouple && p.conjoint?.prevoyance != null) {
+      final cp = p.conjoint!.prevoyance!;
+      lines.add(FinancialLine(
+        label: '${p.conjoint?.firstName ?? "Conjoint\u00b7e"} \u2014 LPP',
+        formattedValue: _formatChf(cp.avoirLppTotal),
+      ));
+      if (cp.totalEpargne3a > 0) {
+        lines.add(FinancialLine(
+          label: '${p.conjoint?.firstName ?? "Conjoint\u00b7e"} \u2014 3a',
+          formattedValue: _formatChf(cp.totalEpargne3a),
+        ));
+      }
+    }
+
+    return FinancialSummaryCard(
+      title: 'Prevoyance',
+      icon: Icons.security_outlined,
+      iconColor: MintColors.info,
+      lines: lines,
+      onScanCertificate: () {},
+      scanLabel: 'Scanner certificat LPP / AVS',
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  PATRIMOINE
+  // ══════════════════════════════════════════════════════════════
+
+  FinancialSummaryCard _buildPatrimoineCard(CoachProfile p) {
+    final pat = p.patrimoine;
+    return FinancialSummaryCard(
+      title: 'Patrimoine',
+      icon: Icons.savings_outlined,
+      iconColor: MintColors.success,
+      lines: [
+        FinancialLine(
+          label: 'Epargne liquide',
+          formattedValue: _formatChf(pat.epargneLiquide),
+          source: _source(p, 'patrimoine.epargneLiquide'),
+        ),
+        FinancialLine(
+          label: 'Investissements',
+          formattedValue: _formatChf(pat.investissements),
+          source: _source(p, 'patrimoine.investissements'),
+        ),
+        if (pat.immobilier != null && pat.immobilier! > 0)
+          FinancialLine(
+            label: 'Immobilier (valeur)',
+            formattedValue: _formatChf(pat.immobilier),
+            source: _source(p, 'patrimoine.immobilier'),
+          ),
+      ],
+      totalLine: FinancialLine(
+        label: 'Total patrimoine',
+        formattedValue: _formatChf(pat.totalPatrimoine),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  DEPENSES FIXES
+  // ══════════════════════════════════════════════════════════════
+
+  FinancialSummaryCard _buildDepensesCard(CoachProfile p) {
+    final dep = p.depenses;
+    final lines = <FinancialLine>[];
+
+    if (dep.loyer > 0) {
+      lines.add(FinancialLine(
+        label: 'Loyer / charges',
+        formattedValue: _formatChfMonth(dep.loyer),
+        source: _source(p, 'depenses.loyer'),
+      ));
+    }
+    if (dep.assuranceMaladie > 0) {
+      lines.add(FinancialLine(
+        label: 'Assurance maladie',
+        formattedValue: _formatChfMonth(dep.assuranceMaladie),
+        source: _source(p, 'depenses.assuranceMaladie'),
+      ));
+    }
+    if (dep.transport != null && dep.transport! > 0) {
+      lines.add(FinancialLine(
+        label: 'Transport',
+        formattedValue: _formatChfMonth(dep.transport),
+      ));
+    }
+    if (dep.telecom != null && dep.telecom! > 0) {
+      lines.add(FinancialLine(
+        label: 'Telecom',
+        formattedValue: _formatChfMonth(dep.telecom),
+      ));
+    }
+    if (dep.autresDepensesFixes != null && dep.autresDepensesFixes! > 0) {
+      lines.add(FinancialLine(
+        label: 'Autres frais fixes',
+        formattedValue: _formatChfMonth(dep.autresDepensesFixes),
+      ));
+    }
+
+    if (lines.isEmpty) {
+      lines.add(const FinancialLine(
+        label: 'Aucune depense renseignee',
+        formattedValue: '\u2014',
+      ));
+    }
+
+    return FinancialSummaryCard(
+      title: 'Depenses fixes',
+      icon: Icons.receipt_long_outlined,
+      iconColor: MintColors.warning,
+      lines: lines,
+      totalLine: dep.totalMensuel > 0
+          ? FinancialLine(
+              label: 'Total mensuel',
+              formattedValue: _formatChfMonth(dep.totalMensuel),
+            )
+          : null,
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  DETTES
+  // ══════════════════════════════════════════════════════════════
+
+  FinancialSummaryCard _buildDettesCard(CoachProfile p) {
+    final det = p.dettes;
+    if (!det.hasDette) {
+      return FinancialSummaryCard(
+        title: 'Dettes',
+        icon: Icons.credit_card_outlined,
+        iconColor: MintColors.textMuted,
+        lines: const [
+          FinancialLine(
+            label: 'Aucune dette declaree',
+            formattedValue: '\u2014',
+          ),
+        ],
+      );
+    }
+
+    final lines = <FinancialLine>[];
+    if (det.hypotheque != null && det.hypotheque! > 0) {
+      lines.add(FinancialLine(
+        label: 'Hypotheque',
+        formattedValue: _formatChf(det.hypotheque),
+        source: _source(p, 'dettes.hypotheque'),
+      ));
+    }
+    if (det.leasing != null && det.leasing! > 0) {
+      lines.add(FinancialLine(
+        label: 'Leasing',
+        formattedValue: _formatChf(det.leasing),
+      ));
+    }
+    if (det.creditConsommation != null && det.creditConsommation! > 0) {
+      lines.add(FinancialLine(
+        label: 'Credit consommation',
+        formattedValue: _formatChf(det.creditConsommation),
+      ));
+    }
+    if (det.autresDettes != null && det.autresDettes! > 0) {
+      lines.add(FinancialLine(
+        label: 'Autres dettes',
+        formattedValue: _formatChf(det.autresDettes),
+      ));
+    }
+
+    return FinancialSummaryCard(
+      title: 'Dettes',
+      icon: Icons.credit_card_outlined,
+      iconColor: MintColors.error,
+      lines: lines,
+      totalLine: FinancialLine(
+        label: 'Total dettes',
+        formattedValue: _formatChf(det.totalDettes),
+      ),
+    );
+  }
+
+  Widget _buildDisclaimer() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Text(
+        'Outil educatif \u2014 ne constitue pas un conseil financier (LSFin). '
+        'Les valeurs estimees (~) sont calculees a partir de moyennes suisses. '
+        'Scanne tes certificats pour affiner la precision de tes projections.',
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          color: MintColors.textMuted,
+          height: 1.4,
+        ),
+      ),
+    );
+  }
+}
