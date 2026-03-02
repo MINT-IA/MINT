@@ -30,6 +30,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   bool _isLoading = true;
   bool _isProcessing = false;
   StreamSubscription<DownloadState>? _downloadSub;
+  int _loadSeq = 0;
 
   @override
   void initState() {
@@ -47,8 +48,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   }
 
   Future<void> _loadModelInfo() async {
+    final seq = ++_loadSeq;
     final info = await _downloadService.getModelInfo();
-    if (mounted) {
+    if (seq == _loadSeq && mounted) {
       setState(() {
         _modelInfo = info;
         _isLoading = false;
@@ -446,7 +448,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               ),
 
             // ── State: Model ready ──
-            if (!isDownloading && info.isReady) ...[
+            if (!isDownloading && !isFailed && info.isReady) ...[
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -471,7 +473,8 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
   /// Format downloaded size as "X Mo / 2.3 Go".
   String _formatDownloadedSize(double progress) {
-    final downloaded = progress * SlmDownloadService.expectedSizeBytes;
+    final downloaded =
+        progress.clamp(0.0, 1.0) * SlmDownloadService.expectedSizeBytes;
     final totalGo =
         SlmDownloadService.expectedSizeBytes / (1024 * 1024 * 1024);
     if (downloaded < 1024 * 1024) {
