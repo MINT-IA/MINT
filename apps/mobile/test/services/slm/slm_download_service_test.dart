@@ -118,5 +118,19 @@ void main() {
       final b = SlmDownloadService.modelSizeFormatted;
       expect(a, equals(b));
     });
+
+    test('13. expectedSizeBytes matches modelSizeFormatted', () {
+      final bytes = SlmDownloadService.expectedSizeBytes;
+      expect(bytes, greaterThan(2000000000)); // > 2 GB
+      expect(bytes, lessThan(3000000000)); // < 3 GB
+      final gb = bytes / (1024 * 1024 * 1024);
+      expect(SlmDownloadService.modelSizeFormatted,
+          '${gb.toStringAsFixed(1)} Go');
+    });
+
+    test('14. lastError is null initially', () {
+      final service = SlmDownloadService.instance;
+      expect(service.lastError, isNull);
+    });
   });
 }

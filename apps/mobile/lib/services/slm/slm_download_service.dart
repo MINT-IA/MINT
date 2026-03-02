@@ -135,6 +135,13 @@ class SlmDownloadService {
   double _progress = 0.0;
   double get progress => _progress;
 
+  /// Last error message (null if no error).
+  String? _lastError;
+  String? get lastError => _lastError;
+
+  /// Expected model size in bytes (for UI display).
+  static int get expectedSizeBytes => _expectedSizeBytes;
+
   /// Active cancel token for in-progress downloads.
   CancelToken? _cancelToken;
 
@@ -194,6 +201,7 @@ class SlmDownloadService {
 
     _state = DownloadState.downloading;
     _progress = 0.0;
+    _lastError = null;
     _cancelToken = CancelToken();
     _stateController.add(_state);
 
@@ -248,6 +256,7 @@ class SlmDownloadService {
         debugPrint('[SLM] Download cancelled by user');
       } else {
         debugPrint('[SLM] Model download failed: $e');
+        _lastError = e.toString();
         _state = DownloadState.failed;
       }
       _cancelToken = null;
