@@ -105,7 +105,12 @@ class FallbackTemplates {
           'Explore les options pour combler l\'écart dans le simulateur.';
     }
 
-    // Default: encourage profile completion
+    // Default: encourage profile completion with specific enrichment action
+    final enrichment = _topEnrichmentAction(ctx);
+    if (enrichment != null) {
+      return 'Ton score de solidité est de '
+          '${ctx.friTotal.toStringAsFixed(0)}/100. $enrichment';
+    }
     return 'Ton score de solidité est de '
         '${ctx.friTotal.toStringAsFixed(0)}/100. '
         'Continue à affiner ton profil pour des estimations plus précises.';
@@ -116,11 +121,48 @@ class FallbackTemplates {
   // ═══════════════════════════════════════════════════════════════
 
   /// Contextualizes a shock figure with confidence level and
-  /// encourages profile enrichment.
+  /// encourages profile enrichment based on data reliability.
   static String chiffreChocReframe(CoachContext ctx) {
     final confidence = ctx.knownValues['confidence_score'] ?? 30;
+    final hasCertifiedData = ctx.dataReliability.values
+        .any((v) => v == 'certified');
+
+    if (hasCertifiedData) {
+      return 'Ce chiffre s\'appuie sur des données certifiées '
+          '(confiance : ${confidence.toStringAsFixed(0)}%). '
+          'Continue à enrichir ton profil pour affiner l\'estimation.';
+    }
+    final enrichment = _topEnrichmentAction(ctx);
     return 'Ce chiffre est basé sur '
         '${confidence.toStringAsFixed(0)}% de données concrètes. '
-        'Plus tu précises ton profil, plus l\'estimation s\'affine.';
+        '${enrichment ?? 'Plus tu précises ton profil, plus l\'estimation s\'affine.'}';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Helpers
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Returns the single most impactful enrichment action based on
+  /// which key data is still missing or estimated.
+  static String? _topEnrichmentAction(CoachContext ctx) {
+    final rel = ctx.dataReliability;
+    // Priority 1: no certified LPP → suggest scan
+    final hasLpp = rel.entries.any(
+        (e) => e.key.contains('avoirLpp') && e.value == 'certified');
+    if (!hasLpp) {
+      return 'Scanne ton certificat LPP pour des projections plus fiables.';
+    }
+    // Priority 2: no certified AVS → suggest scan
+    final hasAvs = rel.entries.any(
+        (e) => e.key.contains('anneesContribuees') && e.value == 'certified');
+    if (!hasAvs) {
+      return 'Scanne ton extrait AVS pour affiner ta rente estimée.';
+    }
+    // Priority 3: no salary data
+    final hasSalary = rel.containsKey('salaireBrutMensuel');
+    if (!hasSalary) {
+      return 'Renseigne ton salaire brut pour des projections personnalisées.';
+    }
+    return null;
   }
 }
