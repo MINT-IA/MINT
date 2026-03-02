@@ -100,28 +100,34 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
       },
     );
 
-    if (mounted) {
-      await _loadModelInfo();
-      setState(() => _isProcessing = false);
+    if (!mounted) return;
+    if (success) {
+      // Auto-init after a successful install so SLM can be used immediately.
+      await _engine.initialize();
+    }
+    await _loadModelInfo();
+    if (!mounted) return;
 
-      if (!success && _downloadService.state == DownloadState.failed) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Echec du telechargement. '
-              'Verifie ta connexion WiFi et l\'espace disponible.',
-              style: GoogleFonts.inter(),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 6),
-            action: SnackBarAction(
-              label: 'Reessayer',
-              textColor: Colors.white,
-              onPressed: _startDownload,
-            ),
+    setState(() => _isProcessing = false);
+
+    if (!success && _downloadService.state == DownloadState.failed) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      messenger?.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Echec du telechargement. '
+            'Verifie ta connexion WiFi et l\'espace disponible.',
+            style: GoogleFonts.inter(),
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: 'Reessayer',
+            textColor: Colors.white,
+            onPressed: _startDownload,
+          ),
+        ),
+      );
     }
   }
 
@@ -194,7 +200,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
             ),
             flexibleSpace: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -232,7 +238,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
       ),
       child: Row(
         children: [
-          Icon(Icons.shield, color: MintColors.primary, size: 28),
+          const Icon(Icons.shield, color: MintColors.primary, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -316,7 +322,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             if (_isProcessing && !isDownloading && !info.isReady) ...[
               Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
@@ -362,16 +368,15 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                   ),
                   Text(
                     _formatDownloadedSize(_downloadService.progress),
-                    style:
-                        GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
                 '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi',
-                style:
-                    GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
               ),
               const SizedBox(height: 14),
               SizedBox(
@@ -391,8 +396,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                 decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,10 +432,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             ],
 
             // ── State: Not started (initial) ──
-            if (!isDownloading &&
-                !isFailed &&
-                !info.isReady &&
-                !_isProcessing)
+            if (!isDownloading && !isFailed && !info.isReady && !_isProcessing)
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -475,8 +476,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   String _formatDownloadedSize(double progress) {
     final downloaded =
         progress.clamp(0.0, 1.0) * SlmDownloadService.expectedSizeBytes;
-    final totalGo =
-        SlmDownloadService.expectedSizeBytes / (1024 * 1024 * 1024);
+    final totalGo = SlmDownloadService.expectedSizeBytes / (1024 * 1024 * 1024);
     if (downloaded < 1024 * 1024) {
       return '${(downloaded / 1024).toStringAsFixed(0)} Ko / '
           '${totalGo.toStringAsFixed(1)} Go';

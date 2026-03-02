@@ -10,12 +10,30 @@ import 'package:http/http.dart' as http;
 /// - Revoking a household member
 /// - Transferring household ownership
 class HouseholdService {
-  static const String _basePath = '/api/v1/household';
+  static const String _basePath = '/household';
+
+  static String _normalizeBaseUrl(String raw) {
+    var value = raw.trim();
+    while (value.endsWith('/')) {
+      value = value.substring(0, value.length - 1);
+    }
+    if (!value.endsWith('/api/v1')) {
+      value = '$value/api/v1';
+    }
+    return value;
+  }
+
+  static Uri _uri(String baseUrl, String suffix) {
+    return Uri.parse('${_normalizeBaseUrl(baseUrl)}$_basePath$suffix');
+  }
 
   /// Get household details for current user.
-  static Future<Map<String, dynamic>?> getHousehold(String token, String baseUrl) async {
+  static Future<Map<String, dynamic>?> getHousehold(
+    String token,
+    String baseUrl,
+  ) async {
     final response = await http.get(
-      Uri.parse('$baseUrl$_basePath'),
+      _uri(baseUrl, ''),
       headers: {'Authorization': 'Bearer $token'},
     );
     if (response.statusCode != 200) return null;
@@ -29,7 +47,7 @@ class HouseholdService {
     String email,
   ) async {
     final response = await http.post(
-      Uri.parse('$baseUrl$_basePath/invite'),
+      _uri(baseUrl, '/invite'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -37,7 +55,13 @@ class HouseholdService {
       body: json.encode({'email': email}),
     );
     if (response.statusCode != 201) {
-      throw Exception(json.decode(response.body)['detail'] ?? 'Erreur invitation');
+      String detail;
+      try {
+        detail = json.decode(response.body)['detail'] ?? 'Erreur invitation';
+      } catch (_) {
+        detail = response.body;
+      }
+      throw Exception('HTTP ${response.statusCode}: $detail');
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }
@@ -49,7 +73,7 @@ class HouseholdService {
     String invitationCode,
   ) async {
     final response = await http.post(
-      Uri.parse('$baseUrl$_basePath/accept'),
+      _uri(baseUrl, '/accept'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -57,7 +81,13 @@ class HouseholdService {
       body: json.encode({'invitation_code': invitationCode}),
     );
     if (response.statusCode != 200) {
-      throw Exception(json.decode(response.body)['detail'] ?? 'Erreur acceptation');
+      String detail;
+      try {
+        detail = json.decode(response.body)['detail'] ?? 'Erreur acceptation';
+      } catch (_) {
+        detail = response.body;
+      }
+      throw Exception('HTTP ${response.statusCode}: $detail');
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }
@@ -69,11 +99,17 @@ class HouseholdService {
     String userId,
   ) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl$_basePath/member/$userId'),
+      _uri(baseUrl, '/member/$userId'),
       headers: {'Authorization': 'Bearer $token'},
     );
     if (response.statusCode != 200) {
-      throw Exception(json.decode(response.body)['detail'] ?? 'Erreur revocation');
+      String detail;
+      try {
+        detail = json.decode(response.body)['detail'] ?? 'Erreur revocation';
+      } catch (_) {
+        detail = response.body;
+      }
+      throw Exception('HTTP ${response.statusCode}: $detail');
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }
@@ -85,7 +121,7 @@ class HouseholdService {
     String newOwnerId,
   ) async {
     final response = await http.put(
-      Uri.parse('$baseUrl$_basePath/transfer'),
+      _uri(baseUrl, '/transfer'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -93,7 +129,13 @@ class HouseholdService {
       body: json.encode({'new_owner_id': newOwnerId}),
     );
     if (response.statusCode != 200) {
-      throw Exception(json.decode(response.body)['detail'] ?? 'Erreur transfert');
+      String detail;
+      try {
+        detail = json.decode(response.body)['detail'] ?? 'Erreur transfert';
+      } catch (_) {
+        detail = response.body;
+      }
+      throw Exception('HTTP ${response.statusCode}: $detail');
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }

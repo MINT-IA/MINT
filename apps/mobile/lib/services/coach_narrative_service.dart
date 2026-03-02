@@ -208,7 +208,11 @@ class CoachNarrativeService {
 
     // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
     //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
-    CoachNarrative narrative;
+    var narrative = _generateStatic(
+      profile: profile,
+      scoreHistory: scoreHistory,
+      tips: tips,
+    );
 
     if (FeatureFlags.safeModeDegraded) {
       // Emergency fallback mode: deterministic templates only.
@@ -217,41 +221,70 @@ class CoachNarrativeService {
         scoreHistory: scoreHistory,
         tips: tips,
       );
-    } else if (FeatureFlags.enableSlmNarratives &&
-        SlmEngine.instance.isAvailable) {
+    } else if (FeatureFlags.enableSlmNarratives) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
-      try {
-        narrative = await _generateViaSlm(
-          profile: profile,
-          scoreHistory: scoreHistory,
-          tips: tips,
-        );
-      } catch (_) {
-        // Fallback vers templates enrichis si SLM echoue
+      // Only attempt SLM if flutter_gemma plugin initialized successfully.
+      final slm = SlmEngine.instance;
+      var slmReady = false;
+      if (FeatureFlags.slmPluginReady) {
+        slmReady = slm.isAvailable;
+        if (!slmReady) {
+          try {
+            slmReady = await slm.initialize();
+          } catch (_) {
+            slmReady = false;
+          }
+        }
+      }
+
+      if (slmReady) {
+        try {
+          narrative = await _generateViaSlm(
+            profile: profile,
+            scoreHistory: scoreHistory,
+            tips: tips,
+          );
+        } catch (_) {
+          // Fallback vers templates enrichis si SLM echoue
+          narrative = _generateStatic(
+            profile: profile,
+            scoreHistory: scoreHistory,
+            tips: tips,
+          );
+        }
+      } else {
+        // Tier 2: Templates enrichis (zero LLM, toujours disponible)
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
           tips: tips,
         );
+
+        // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
+        // Tente d'ameliorer le narratif statique si BYOK est configure.
+        // En cas d'echec, le narratif statique reste intact.
+        if (byokConfig != null && byokConfig.hasApiKey) {
+          try {
+            narrative = await _generateViaLlm(
+              profile: profile,
+              scoreHistory: scoreHistory,
+              tips: tips,
+              config: byokConfig,
+            );
+          } catch (_) {
+            // Resilience: garde le narratif statique deja genere
+          }
+        }
       }
-    } else if (!FeatureFlags.enableSlmNarratives) {
-      // Server kill-switch: templates-only mode.
-      narrative = _generateStatic(
-        profile: profile,
-        scoreHistory: scoreHistory,
-        tips: tips,
-      );
     } else {
-      // Tier 2: Templates enrichis (zero LLM, toujours disponible)
+      // SLM disabled (server kill-switch): templates + BYOK fallback.
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
       );
 
-      // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
-      // Tente d'ameliorer le narratif statique si BYOK est configure.
-      // En cas d'echec, le narratif statique reste intact.
+      // BYOK is still available even when SLM is disabled.
       if (byokConfig != null && byokConfig.hasApiKey) {
         try {
           narrative = await _generateViaLlm(
@@ -912,20 +945,16 @@ class CoachNarrativeService {
     final buffer = StringBuffer();
     buffer.writeln('FIABILITE DES DONNEES :');
     if (certified.isNotEmpty) {
-      buffer.writeln(
-          '- CERTIFIE (document scanne) : ${certified.join(', ')}');
+      buffer.writeln('- CERTIFIE (document scanne) : ${certified.join(', ')}');
       buffer.writeln(
           '  → Utilise ces chiffres avec confiance dans la narration.');
     }
     if (userInput.isNotEmpty) {
-      buffer.writeln(
-          '- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
+      buffer.writeln('- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
     }
     if (estimated.isNotEmpty) {
-      buffer.writeln(
-          '- ESTIME (calcul MINT) : ${estimated.join(', ')}');
-      buffer.writeln(
-          '  → Utilise "environ" ou "estime" pour ces valeurs. '
+      buffer.writeln('- ESTIME (calcul MINT) : ${estimated.join(', ')}');
+      buffer.writeln('  → Utilise "environ" ou "estime" pour ces valeurs. '
           'Suggere d\'affiner via wizard ou scan.');
     }
     // Key missing data

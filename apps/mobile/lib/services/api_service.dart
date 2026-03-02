@@ -27,6 +27,8 @@ class ApiService {
   static final List<String> _baseUrlCandidates = (() {
     final candidates = <String>[
       if (_definedApiBaseUrl.isNotEmpty) _definedApiBaseUrl,
+      // Active Railway production domain (kept before legacy fallbacks).
+      if (kReleaseMode) 'https://mint-production-3a41.up.railway.app/api/v1',
       if (kReleaseMode) 'https://api.mint.ch/api/v1',
       if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',
       if (!kReleaseMode) 'http://localhost:8888/api/v1',

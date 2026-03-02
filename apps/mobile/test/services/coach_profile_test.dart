@@ -137,7 +137,8 @@ void main() {
     });
 
     test('FATCA resident canContribute3a defaults correctly', () {
-      const fatca = ConjointProfile(isFatcaResident: true, canContribute3a: false);
+      const fatca =
+          ConjointProfile(isFatcaResident: true, canContribute3a: false);
       expect(fatca.canContribute3a, false);
 
       const noFatca = ConjointProfile();
@@ -218,6 +219,84 @@ void main() {
       const conj = ConjointProfile();
       expect(conj.age, isNull);
       expect(conj.anneesAvantRetraite, isNull);
+    });
+  });
+
+  group('CoachProfile.dataSources', () {
+    test('marks LPP as estimated when no certificate signals are present', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050, 1, 1),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 120000,
+        ),
+      );
+
+      expect(
+        profile.dataSources['prevoyance.avoirLppTotal'],
+        ProfileDataSource.estimated,
+      );
+    });
+
+    test('marks LPP as certificate when certificate signals are present', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050, 1, 1),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 120000,
+          avoirLppObligatoire: 70000,
+          avoirLppSurobligatoire: 50000,
+          salaireAssure: 85000,
+        ),
+      );
+
+      expect(
+        profile.dataSources['prevoyance.avoirLppTotal'],
+        ProfileDataSource.certificate,
+      );
+      expect(
+        profile.dataSources['prevoyance.salaireAssure'],
+        ProfileDataSource.certificate,
+      );
+    });
+
+    test('marks AVS fields as certificate when RAMD is present', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050, 1, 1),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(
+          anneesContribuees: 24,
+          lacunesAVS: 1,
+          ramd: 88000,
+        ),
+      );
+
+      expect(
+        profile.dataSources['prevoyance.anneesContribuees'],
+        ProfileDataSource.certificate,
+      );
+      expect(
+        profile.dataSources['prevoyance.ramd'],
+        ProfileDataSource.certificate,
+      );
     });
   });
 
@@ -368,12 +447,16 @@ void main() {
       expect(restored.salaireBrutMensuel, demo.salaireBrutMensuel);
       expect(restored.nombreDeMois, demo.nombreDeMois);
       expect(restored.conjoint?.firstName, demo.conjoint?.firstName);
-      expect(restored.conjoint?.isFatcaResident, demo.conjoint?.isFatcaResident);
+      expect(
+          restored.conjoint?.isFatcaResident, demo.conjoint?.isFatcaResident);
       expect(restored.prevoyance.nombre3a, demo.prevoyance.nombre3a);
-      expect(restored.prevoyance.totalEpargne3a, demo.prevoyance.totalEpargne3a);
-      expect(restored.patrimoine.investissements, demo.patrimoine.investissements);
+      expect(
+          restored.prevoyance.totalEpargne3a, demo.prevoyance.totalEpargne3a);
+      expect(
+          restored.patrimoine.investissements, demo.patrimoine.investissements);
       expect(restored.goalA.type, demo.goalA.type);
-      expect(restored.plannedContributions.length, demo.plannedContributions.length);
+      expect(restored.plannedContributions.length,
+          demo.plannedContributions.length);
     });
 
     test('ConjointProfile JSON round-trip', () {

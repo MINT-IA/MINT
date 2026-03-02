@@ -33,6 +33,12 @@ class FeatureFlags {
   /// If false, paywall shows only Free/Starter/Premium.
   static bool enableCouplePlusTier = true;
 
+  // ── SLM runtime state ─────────────────────────────────────
+
+  /// Set once at startup after FlutterGemma.initialize().
+  /// Guards SLM narrative attempts — if false, skip SLM entirely.
+  static bool slmPluginReady = false;
+
   // ── P7: SafeMode degraded fallback ────────────────────────
 
   /// When true, narratives use templates-only degraded mode.

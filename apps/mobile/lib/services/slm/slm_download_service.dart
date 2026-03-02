@@ -302,7 +302,7 @@ class SlmDownloadService {
       _state = DownloadState.notStarted;
       _progress = 0.0;
       _emitState();
-      debugPrint('[SLM] Model deleted — ~${modelSizeFormatted} liberes');
+      debugPrint('[SLM] Model deleted — ~$modelSizeFormatted liberes');
       return true;
     } catch (e) {
       debugPrint('[SLM] Model state clear failed: $e');
@@ -323,7 +323,7 @@ class SlmDownloadService {
 
   /// Human-readable model size.
   static String get modelSizeFormatted {
-    final gb = _expectedSizeBytes / (1024 * 1024 * 1024);
+    const gb = _expectedSizeBytes / (1024 * 1024 * 1024);
     return '${gb.toStringAsFixed(1)} Go';
   }
 
