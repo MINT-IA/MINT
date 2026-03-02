@@ -258,7 +258,7 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Mon apercu financier',
+                    'Mon aperçu financier',
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -268,8 +268,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     hasProfile
-                        ? 'Revenus, prevoyance, patrimoine, dettes'
-                        : 'Complete ton profil pour voir tes chiffres',
+                        ? 'Revenus, prévoyance, patrimoine, dettes'
+                        : 'Complète ton profil pour voir tes chiffres',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: Colors.white70,

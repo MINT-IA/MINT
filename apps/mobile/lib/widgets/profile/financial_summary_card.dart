@@ -5,8 +5,8 @@ import 'package:mint_mobile/theme/colors.dart';
 
 /// Generic card for displaying a financial summary section.
 ///
-/// Used in FinancialSummaryScreen — each section (Revenus, Prevoyance,
-/// Patrimoine, Depenses, Dettes) uses this same widget with different data.
+/// Used in FinancialSummaryScreen — each section (Revenus, Prévoyance,
+/// Patrimoine, Dépenses, Dettes) uses this same widget with different data.
 class FinancialSummaryCard extends StatelessWidget {
   final String title;
   final IconData icon;

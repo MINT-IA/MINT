@@ -467,33 +467,15 @@ class CoachProfileProvider extends ChangeNotifier {
       totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
+      librePassage: p.prevoyance.librePassage,
     );
 
-    _profile = CoachProfile(
-      firstName: p.firstName,
-      birthYear: p.birthYear,
-      canton: p.canton,
-      commune: p.commune,
-      etatCivil: p.etatCivil,
-      nombreEnfants: p.nombreEnfants,
-      conjoint: p.conjoint,
+    _profile = p.copyWith(
       salaireBrutMensuel: salaireBrutMensuel ?? p.salaireBrutMensuel,
-      nombreDeMois: p.nombreDeMois,
-      bonusPourcentage: p.bonusPourcentage,
       employmentStatus: employmentStatus ?? p.employmentStatus,
-      depenses: p.depenses,
       prevoyance: updatedPrevoyance,
-      patrimoine: p.patrimoine,
-      dettes: p.dettes,
-      goalA: p.goalA,
-      goalsB: p.goalsB,
-      plannedContributions: p.plannedContributions,
-      checkIns: p.checkIns,
-      housingStatus: p.housingStatus,
       riskTolerance: riskTolerance ?? p.riskTolerance,
       realEstateProject: realEstateProject ?? p.realEstateProject,
-      providers3a: p.providers3a,
-      createdAt: p.createdAt,
       updatedAt: DateTime.now(),
     );
 

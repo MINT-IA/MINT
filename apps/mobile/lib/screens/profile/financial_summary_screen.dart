@@ -9,11 +9,11 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
 
-/// Ecran "Mon apercu financier" — vue consolidee de toutes les donnees
-/// du CoachProfile, organisees par section.
+/// Écran "Mon aperçu financier" — vue consolidée de toutes les données
+/// du CoachProfile, organisées par section.
 ///
 /// Accessible depuis /profile/bilan et depuis le ProfileScreen.
-/// Read-only V1: pas d'edition inline.
+/// Read-only V1 : pas d'édition inline.
 class FinancialSummaryScreen extends StatelessWidget {
   const FinancialSummaryScreen({super.key});
 
@@ -21,12 +21,14 @@ class FinancialSummaryScreen extends StatelessWidget {
   static final _pct = NumberFormat('0.0', 'fr_CH');
 
   String _formatChf(double? value) {
-    if (value == null || value == 0) return '\u2014';
+    if (value == null) return '\u2014';
+    if (value == 0) return '0 CHF';
     return "${_chf.format(value)} CHF";
   }
 
   String _formatChfMonth(double? value) {
-    if (value == null || value == 0) return '\u2014';
+    if (value == null) return '\u2014';
+    if (value == 0) return '0 CHF/mois';
     return "${_chf.format(value)} CHF/mois";
   }
 
@@ -59,7 +61,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                         size: 48, color: MintColors.textMuted),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucun profil renseigne',
+                      'Aucun profil renseigné',
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         color: MintColors.textSecondary,
@@ -85,9 +87,9 @@ class FinancialSummaryScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     if (profile.isCouple) _buildCoupleToggle(context, profile),
                     _buildRevenusCard(profile),
-                    _buildPrevoyanceCard(profile),
+                    _buildPrevoyanceCard(context, profile),
                     _buildPatrimoineCard(profile),
-                    _buildDepensesCard(profile),
+                    _buildDépensesCard(profile),
                     _buildDettesCard(profile),
                     const SizedBox(height: 16),
                     _buildDisclaimer(),
@@ -104,17 +106,34 @@ class FinancialSummaryScreen extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: MintColors.background,
+      expandedHeight: 80,
+      backgroundColor: MintColors.primary,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => context.pop(),
       ),
-      title: Text(
-        'APERCU FINANCIER',
-        style: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                MintColors.primary,
+                MintColors.primary.withValues(alpha: 0.85),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
+        title: Text(
+          'APERÇU FINANCIER',
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -131,8 +150,8 @@ class FinancialSummaryScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _legendItem('\u2713', 'saisi', MintColors.success),
-          _legendItem('~', 'estime', MintColors.warning),
-          _legendItem('\u2B06', 'certifie', MintColors.info),
+          _legendItem('~', 'estimé', MintColors.warning),
+          _legendItem('\u2B06', 'certifié', MintColors.info),
         ],
       ),
     );
@@ -185,7 +204,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             const Icon(Icons.people_outline, size: 18, color: MintColors.info),
             const SizedBox(width: 10),
             Text(
-              'Couple: $name1 + $name2',
+              'Couple : $name1 + $name2',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -238,10 +257,10 @@ class FinancialSummaryScreen extends StatelessWidget {
   }
 
   // ══════════════════════════════════════════════════════════════
-  //  PREVOYANCE (AVS + LPP + 3a + Libre passage)
+  //  PRÉVOYANCE (AVS + LPP + 3a + Libre passage)
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildPrevoyanceCard(CoachProfile p) {
+  FinancialSummaryCard _buildPrevoyanceCard(BuildContext context, CoachProfile p) {
     final prev = p.prevoyance;
     final lines = <FinancialLine>[];
 
@@ -251,7 +270,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       formattedValue: '',
     ));
     lines.add(FinancialLine(
-      label: 'Annees cotisees',
+      label: 'Années cotisées',
       formattedValue: prev.anneesContribuees != null
           ? '${prev.anneesContribuees} ans'
           : '\u2014',
@@ -267,7 +286,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       ));
     }
     lines.add(FinancialLine(
-      label: 'Rente estimee',
+      label: 'Rente estimée',
       formattedValue: prev.renteAVSEstimeeMensuelle != null
           ? _formatChfMonth(prev.renteAVSEstimeeMensuelle)
           : '\u2014',
@@ -365,7 +384,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       }
     }
 
-    // Conjoint prevoyance summary
+    // Conjoint prévoyance summary
     if (p.isCouple && p.conjoint?.prevoyance != null) {
       final cp = p.conjoint!.prevoyance!;
       lines.add(FinancialLine(
@@ -381,11 +400,11 @@ class FinancialSummaryScreen extends StatelessWidget {
     }
 
     return FinancialSummaryCard(
-      title: 'Prevoyance',
+      title: 'Prévoyance',
       icon: Icons.security_outlined,
       iconColor: MintColors.info,
       lines: lines,
-      onScanCertificate: () {},
+      onScanCertificate: () => context.push('/document-scan'),
       scanLabel: 'Scanner certificat LPP / AVS',
     );
   }
@@ -402,7 +421,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       iconColor: MintColors.success,
       lines: [
         FinancialLine(
-          label: 'Epargne liquide',
+          label: 'Épargne liquide',
           formattedValue: _formatChf(pat.epargneLiquide),
           source: _source(p, 'patrimoine.epargneLiquide'),
         ),
@@ -426,10 +445,10 @@ class FinancialSummaryScreen extends StatelessWidget {
   }
 
   // ══════════════════════════════════════════════════════════════
-  //  DEPENSES FIXES
+  //  DÉPENSES FIXES
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildDepensesCard(CoachProfile p) {
+  FinancialSummaryCard _buildDépensesCard(CoachProfile p) {
     final dep = p.depenses;
     final lines = <FinancialLine>[];
 
@@ -455,7 +474,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     }
     if (dep.telecom != null && dep.telecom! > 0) {
       lines.add(FinancialLine(
-        label: 'Telecom',
+        label: 'Télécom',
         formattedValue: _formatChfMonth(dep.telecom),
       ));
     }
@@ -468,13 +487,13 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     if (lines.isEmpty) {
       lines.add(const FinancialLine(
-        label: 'Aucune depense renseignee',
+        label: 'Aucune dépense renseignée',
         formattedValue: '\u2014',
       ));
     }
 
     return FinancialSummaryCard(
-      title: 'Depenses fixes',
+      title: 'Dépenses fixes',
       icon: Icons.receipt_long_outlined,
       iconColor: MintColors.warning,
       lines: lines,
@@ -500,7 +519,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         iconColor: MintColors.textMuted,
         lines: const [
           FinancialLine(
-            label: 'Aucune dette declaree',
+            label: 'Aucune dette déclarée',
             formattedValue: '\u2014',
           ),
         ],
@@ -510,7 +529,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     final lines = <FinancialLine>[];
     if (det.hypotheque != null && det.hypotheque! > 0) {
       lines.add(FinancialLine(
-        label: 'Hypotheque',
+        label: 'Hypothèque',
         formattedValue: _formatChf(det.hypotheque),
         source: _source(p, 'dettes.hypotheque'),
       ));
@@ -523,7 +542,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     }
     if (det.creditConsommation != null && det.creditConsommation! > 0) {
       lines.add(FinancialLine(
-        label: 'Credit consommation',
+        label: 'Crédit consommation',
         formattedValue: _formatChf(det.creditConsommation),
       ));
     }
@@ -555,9 +574,9 @@ class FinancialSummaryScreen extends StatelessWidget {
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Text(
-        'Outil educatif \u2014 ne constitue pas un conseil financier (LSFin). '
-        'Les valeurs estimees (~) sont calculees a partir de moyennes suisses. '
-        'Scanne tes certificats pour affiner la precision de tes projections.',
+        'Outil éducatif \u2014 ne constitue pas un conseil financier (LSFin, LAVS, LPP, LIFD). '
+        'Les valeurs estimées (~) sont calculées à partir de moyennes suisses. '
+        'Scanne tes certificats pour affiner la précision de tes projections.',
         style: GoogleFonts.inter(
           fontSize: 11,
           color: MintColors.textMuted,
