@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Noms des mois en francais (utilise par Check-in + Agir)
@@ -81,6 +82,7 @@ String tipRoute(CoachingTip tip) {
       return '/budget';
     case 'retraite':
       if (tip.id.contains('rente') || tip.id.contains('capital')) {
+        if (!FeatureFlags.enableDecisionScaffold) return '/coach/dashboard';
         return '/arbitrage/rente-vs-capital';
       }
       if (tip.id.contains('projection')) {

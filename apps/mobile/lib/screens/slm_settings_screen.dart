@@ -30,6 +30,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   bool _isLoading = true;
   bool _isProcessing = false;
   StreamSubscription<DownloadState>? _downloadSub;
+  int _loadSeq = 0;
 
   @override
   void initState() {
@@ -47,8 +48,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
   }
 
   Future<void> _loadModelInfo() async {
+    final seq = ++_loadSeq;
     final info = await _downloadService.getModelInfo();
-    if (mounted) {
+    if (seq == _loadSeq && mounted) {
       setState(() {
         _modelInfo = info;
         _isLoading = false;
@@ -70,7 +72,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
         content: Text(
           'Le modele fait ${SlmDownloadService.modelSizeFormatted}. '
           'Assure-toi d\'etre connecte en WiFi pour eviter '
-          'une consommation importante de donnees mobiles.',
+          'une consommation importante de donnees mobiles.\n\n'
+          '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi. '
+          'Compatible : iPhone 13+ / Pixel 7+.',
           style: GoogleFonts.inter(),
         ),
         actions: [
@@ -78,7 +82,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Annuler'),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Telecharger'),
           ),
@@ -90,15 +94,40 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
     setState(() => _isProcessing = true);
 
-    await _downloadService.downloadModel(
+    final success = await _downloadService.downloadModel(
       onProgress: (progress, downloaded, total) {
         if (mounted) setState(() {});
       },
     );
 
-    if (mounted) {
-      await _loadModelInfo();
-      setState(() => _isProcessing = false);
+    if (!mounted) return;
+    if (success) {
+      // Auto-init after a successful install so SLM can be used immediately.
+      await _engine.initialize();
+    }
+    await _loadModelInfo();
+    if (!mounted) return;
+
+    setState(() => _isProcessing = false);
+
+    if (!success && _downloadService.state == DownloadState.failed) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      messenger?.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Echec du telechargement. '
+            'Verifie ta connexion WiFi et l\'espace disponible.',
+            style: GoogleFonts.inter(),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: 'Reessayer',
+            textColor: Colors.white,
+            onPressed: _startDownload,
+          ),
+        ),
+      );
     }
   }
 
@@ -171,7 +200,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
             ),
             flexibleSpace: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -209,7 +238,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
       ),
       child: Row(
         children: [
-          Icon(Icons.shield, color: MintColors.primary, size: 28),
+          const Icon(Icons.shield, color: MintColors.primary, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -240,6 +269,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     final info = _modelInfo!;
     final downloadState = _downloadService.state;
     final isDownloading = downloadState == DownloadState.downloading;
+    final isFailed = downloadState == DownloadState.failed;
 
     return Card(
       elevation: 2,
@@ -252,8 +282,16 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             Row(
               children: [
                 Icon(
-                  info.isReady ? Icons.check_circle : Icons.cloud_download,
-                  color: info.isReady ? Colors.green : MintColors.primary,
+                  info.isReady
+                      ? Icons.check_circle
+                      : isFailed
+                          ? Icons.error_outline
+                          : Icons.cloud_download,
+                  color: info.isReady
+                      ? Colors.green
+                      : isFailed
+                          ? Colors.red
+                          : MintColors.primary,
                   size: 24,
                 ),
                 const SizedBox(width: 8),
@@ -280,34 +318,125 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Download progress bar
-            if (isDownloading) ...[
-              LinearProgressIndicator(
-                value: _downloadService.progress,
-                backgroundColor: Colors.grey[200],
-                color: MintColors.primary,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${(_downloadService.progress * 100).toStringAsFixed(1)}% — '
-                '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi',
-                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () {
-                  _downloadService.cancelDownload();
-                },
-                child: const Text('Annuler'),
+            // ── State: Starting download (processing, not yet downloading) ──
+            if (_isProcessing && !isDownloading && !info.isReady) ...[
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: MintColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Demarrage du telechargement...',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: MintColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ],
 
-            // Download button
-            if (!isDownloading && !info.isReady)
+            // ── State: Download in progress ──
+            if (isDownloading) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: _downloadService.progress,
+                  backgroundColor: Colors.grey[200],
+                  color: MintColors.primary,
+                  minHeight: 8,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${(_downloadService.progress * 100).toStringAsFixed(1)}%',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.primary,
+                    ),
+                  ),
+                  Text(
+                    _formatDownloadedSize(_downloadService.progress),
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi',
+                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _downloadService.cancelDownload(),
+                  icon: const Icon(Icons.close, size: 18),
+                  label: const Text('Annuler le telechargement'),
+                ),
+              ),
+            ],
+
+            // ── State: Download failed ──
+            if (isFailed && !_isProcessing) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        color: Colors.red, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Le telechargement a echoue. '
+                        'Verifie ta connexion WiFi et '
+                        'l\'espace disponible sur ton appareil.',
+                        style: GoogleFonts.inter(
+                            fontSize: 13, color: Colors.red[700]),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _isProcessing ? null : _startDownload,
+                  onPressed: _startDownload,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reessayer le telechargement'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+            ],
+
+            // ── State: Not started (initial) ──
+            if (!isDownloading && !isFailed && !info.isReady && !_isProcessing)
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _startDownload,
                   icon: const Icon(Icons.download),
                   label: Text(
                     'Telecharger (${SlmDownloadService.modelSizeFormatted})',
@@ -319,8 +448,8 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                 ),
               ),
 
-            // Delete button
-            if (!isDownloading && info.isReady) ...[
+            // ── State: Model ready ──
+            if (!isDownloading && !isFailed && info.isReady) ...[
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -341,6 +470,23 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
         ),
       ),
     );
+  }
+
+  /// Format downloaded size as "X Mo / 2.3 Go".
+  String _formatDownloadedSize(double progress) {
+    final downloaded =
+        progress.clamp(0.0, 1.0) * SlmDownloadService.expectedSizeBytes;
+    final totalGo = SlmDownloadService.expectedSizeBytes / (1024 * 1024 * 1024);
+    if (downloaded < 1024 * 1024) {
+      return '${(downloaded / 1024).toStringAsFixed(0)} Ko / '
+          '${totalGo.toStringAsFixed(1)} Go';
+    }
+    if (downloaded < 1024 * 1024 * 1024) {
+      return '${(downloaded / (1024 * 1024)).toStringAsFixed(0)} Mo / '
+          '${totalGo.toStringAsFixed(1)} Go';
+    }
+    return '${(downloaded / (1024 * 1024 * 1024)).toStringAsFixed(1)} Go / '
+        '${totalGo.toStringAsFixed(1)} Go';
   }
 
   Widget _buildStatusCard() {

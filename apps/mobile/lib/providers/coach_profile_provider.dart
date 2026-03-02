@@ -469,31 +469,13 @@ class CoachProfileProvider extends ChangeNotifier {
       canContribute3a: p.prevoyance.canContribute3a,
     );
 
-    _profile = CoachProfile(
-      firstName: p.firstName,
-      birthYear: p.birthYear,
-      canton: p.canton,
-      commune: p.commune,
-      etatCivil: p.etatCivil,
-      nombreEnfants: p.nombreEnfants,
-      conjoint: p.conjoint,
+    _profile = p.copyWith(
       salaireBrutMensuel: salaireBrutMensuel ?? p.salaireBrutMensuel,
-      nombreDeMois: p.nombreDeMois,
-      bonusPourcentage: p.bonusPourcentage,
       employmentStatus: employmentStatus ?? p.employmentStatus,
-      depenses: p.depenses,
       prevoyance: updatedPrevoyance,
-      patrimoine: p.patrimoine,
-      dettes: p.dettes,
-      goalA: p.goalA,
-      goalsB: p.goalsB,
-      plannedContributions: p.plannedContributions,
-      checkIns: p.checkIns,
-      housingStatus: p.housingStatus,
       riskTolerance: riskTolerance ?? p.riskTolerance,
       realEstateProject: realEstateProject ?? p.realEstateProject,
-      providers3a: p.providers3a,
-      createdAt: p.createdAt,
+      familyChange: familyChange ?? p.familyChange,
       updatedAt: DateTime.now(),
     );
 
@@ -598,11 +580,13 @@ class CoachProfileProvider extends ChangeNotifier {
       nomCaisse: p.prevoyance.nomCaisse,
       avoirLppTotal: avoirTotal ?? p.prevoyance.avoirLppTotal,
       avoirLppObligatoire: avoirOblig ?? p.prevoyance.avoirLppObligatoire,
-      avoirLppSurobligatoire: avoirSuroblig ?? p.prevoyance.avoirLppSurobligatoire,
+      avoirLppSurobligatoire:
+          avoirSuroblig ?? p.prevoyance.avoirLppSurobligatoire,
       rachatMaximum: lacuneRachat ?? p.prevoyance.rachatMaximum,
       rachatEffectue: p.prevoyance.rachatEffectue,
       tauxConversion: tauxConvOblig ?? p.prevoyance.tauxConversion,
-      tauxConversionSuroblig: tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
+      tauxConversionSuroblig:
+          tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
       rendementCaisse: p.prevoyance.rendementCaisse,
       salaireAssure: salaireAssure ?? p.prevoyance.salaireAssure,
       ramd: p.prevoyance.ramd,
@@ -621,9 +605,12 @@ class CoachProfileProvider extends ChangeNotifier {
     final answers = await ReportPersistenceService.loadAnswers();
     if (avoirTotal != null) answers['_coach_avoir_lpp'] = avoirTotal;
     if (avoirOblig != null) answers['_coach_avoir_lpp_oblig'] = avoirOblig;
-    if (avoirSuroblig != null) answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
-    if (tauxConvOblig != null) answers['_coach_taux_conversion'] = tauxConvOblig;
-    if (tauxConvSuroblig != null) answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
+    if (avoirSuroblig != null)
+      answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
+    if (tauxConvOblig != null)
+      answers['_coach_taux_conversion'] = tauxConvOblig;
+    if (tauxConvSuroblig != null)
+      answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
     if (lacuneRachat != null) answers['_coach_rachat_maximum'] = lacuneRachat;
     if (salaireAssure != null) answers['_coach_salaire_assure'] = salaireAssure;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
@@ -670,7 +657,8 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedPrevoyance = PrevoyanceProfile(
       anneesContribuees: anneesContrib ?? p.prevoyance.anneesContribuees,
       lacunesAVS: lacunesCotisation ?? p.prevoyance.lacunesAVS,
-      renteAVSEstimeeMensuelle: renteEstimee ?? p.prevoyance.renteAVSEstimeeMensuelle,
+      renteAVSEstimeeMensuelle:
+          renteEstimee ?? p.prevoyance.renteAVSEstimeeMensuelle,
       nomCaisse: p.prevoyance.nomCaisse,
       avoirLppTotal: p.prevoyance.avoirLppTotal,
       avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
@@ -695,9 +683,12 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Persist to wizard answers
     final answers = await ReportPersistenceService.loadAnswers();
-    if (anneesContrib != null) answers['q_avs_contribution_years'] = anneesContrib;
-    if (lacunesCotisation != null) answers['_coach_avs_lacunes'] = lacunesCotisation;
-    if (renteEstimee != null) answers['_coach_avs_rente_estimee'] = renteEstimee;
+    if (anneesContrib != null)
+      answers['q_avs_contribution_years'] = anneesContrib;
+    if (lacunesCotisation != null)
+      answers['_coach_avs_lacunes'] = lacunesCotisation;
+    if (renteEstimee != null)
+      answers['_coach_avs_rente_estimee'] = renteEstimee;
     if (ramd != null) answers['_coach_avs_ramd'] = ramd;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
     answers['_coach_avs_source'] = 'document_scan';

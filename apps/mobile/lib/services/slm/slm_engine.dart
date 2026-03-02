@@ -139,7 +139,14 @@ class SlmEngine {
     if (_status == SlmStatus.running && _model != null) return true;
 
     // Use flutter_gemma's native check instead of SharedPreferences path.
-    final isInstalled = await FlutterGemma.isModelInstalled(modelId);
+    bool isInstalled;
+    try {
+      isInstalled = await FlutterGemma.isModelInstalled(modelId);
+    } catch (e) {
+      debugPrint('[SLM] Model availability check failed: $e');
+      // Don't persist error — allow retry on next call.
+      return false;
+    }
     if (!isInstalled) {
       _status = SlmStatus.notDownloaded;
       return false;

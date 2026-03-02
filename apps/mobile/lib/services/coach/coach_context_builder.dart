@@ -63,6 +63,9 @@ class CoachContextBuilder {
   ///   - [fiscalSeason]: Current fiscal season code
   ///   - [checkInStreak]: Consecutive months of check-ins
   ///   - [lastMilestone]: Last achieved milestone label
+  /// [dataSources]: Map from profile field key to source enum name
+  ///   (e.g. {'prevoyance.avoirLppTotal': 'certificate'}).
+  ///   Passed through as simplified dataReliability map for SLM prompting.
   static CoachContext build({
     String firstName = 'utilisateur',
     int age = 30,
@@ -83,6 +86,7 @@ class CoachContextBuilder {
     String fiscalSeason = '',
     int checkInStreak = 0,
     String lastMilestone = '',
+    Map<String, String> dataSources = const {},
   }) {
     // Build grounding values map — only include non-zero values
     // so HallucinationDetector doesn't false-positive on missing data.
@@ -116,6 +120,7 @@ class CoachContextBuilder {
       checkInStreak: checkInStreak,
       lastMilestone: lastMilestone,
       knownValues: knownValues,
+      dataReliability: dataSources,
     );
   }
 }

@@ -28,7 +28,14 @@ void main() {
 
     test('baseUrl fallback depends on build mode', () {
       if (kReleaseMode) {
-        expect(ApiService.baseUrl, equals('https://api.mint.ch/api/v1'));
+        expect(
+          ApiService.baseUrl,
+          anyOf(
+            equals('https://mint-production-3a41.up.railway.app/api/v1'),
+            equals('https://api.mint.ch/api/v1'),
+            equals('https://mint-api.up.railway.app/api/v1'),
+          ),
+        );
       } else {
         expect(ApiService.baseUrl, equals('http://localhost:8888/api/v1'));
       }

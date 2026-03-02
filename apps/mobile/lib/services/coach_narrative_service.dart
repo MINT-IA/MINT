@@ -155,6 +155,7 @@ class CoachNarrativeService {
 
   static const _cacheKeyPrefix = 'coach_narrative';
   static const _cacheTtlHours = 24;
+  static const _cacheModeSignatureKey = '${_cacheKeyPrefix}_mode_signature';
 
   /// Disclaimer standard
   static const disclaimer =
@@ -201,13 +202,17 @@ class CoachNarrativeService {
     required List<CoachingTip> tips,
     LlmConfig? byokConfig,
   }) async {
-    // 1. Verifier le cache
+    // 1. Verifier le cache (mode-aware: invalidation immediate des kill-switches)
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
     // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
     //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
-    CoachNarrative narrative;
+    var narrative = _generateStatic(
+      profile: profile,
+      scoreHistory: scoreHistory,
+      tips: tips,
+    );
 
     if (FeatureFlags.safeModeDegraded) {
       // Emergency fallback mode: deterministic templates only.
@@ -216,41 +221,70 @@ class CoachNarrativeService {
         scoreHistory: scoreHistory,
         tips: tips,
       );
-    } else if (FeatureFlags.enableSlmNarratives &&
-        SlmEngine.instance.isAvailable) {
+    } else if (FeatureFlags.enableSlmNarratives) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
-      try {
-        narrative = await _generateViaSlm(
-          profile: profile,
-          scoreHistory: scoreHistory,
-          tips: tips,
-        );
-      } catch (_) {
-        // Fallback vers templates enrichis si SLM echoue
+      // Only attempt SLM if flutter_gemma plugin initialized successfully.
+      final slm = SlmEngine.instance;
+      var slmReady = false;
+      if (FeatureFlags.slmPluginReady) {
+        slmReady = slm.isAvailable;
+        if (!slmReady) {
+          try {
+            slmReady = await slm.initialize();
+          } catch (_) {
+            slmReady = false;
+          }
+        }
+      }
+
+      if (slmReady) {
+        try {
+          narrative = await _generateViaSlm(
+            profile: profile,
+            scoreHistory: scoreHistory,
+            tips: tips,
+          );
+        } catch (_) {
+          // Fallback vers templates enrichis si SLM echoue
+          narrative = _generateStatic(
+            profile: profile,
+            scoreHistory: scoreHistory,
+            tips: tips,
+          );
+        }
+      } else {
+        // Tier 2: Templates enrichis (zero LLM, toujours disponible)
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
           tips: tips,
         );
+
+        // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
+        // Tente d'ameliorer le narratif statique si BYOK est configure.
+        // En cas d'echec, le narratif statique reste intact.
+        if (byokConfig != null && byokConfig.hasApiKey) {
+          try {
+            narrative = await _generateViaLlm(
+              profile: profile,
+              scoreHistory: scoreHistory,
+              tips: tips,
+              config: byokConfig,
+            );
+          } catch (_) {
+            // Resilience: garde le narratif statique deja genere
+          }
+        }
       }
-    } else if (!FeatureFlags.enableSlmNarratives) {
-      // Server kill-switch: templates-only mode.
-      narrative = _generateStatic(
-        profile: profile,
-        scoreHistory: scoreHistory,
-        tips: tips,
-      );
     } else {
-      // Tier 2: Templates enrichis (zero LLM, toujours disponible)
+      // SLM disabled (server kill-switch): templates + BYOK fallback.
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
       );
 
-      // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
-      // Tente d'ameliorer le narratif statique si BYOK est configure.
-      // En cas d'echec, le narratif statique reste intact.
+      // BYOK is still available even when SLM is disabled.
       if (byokConfig != null && byokConfig.hasApiKey) {
         try {
           narrative = await _generateViaLlm(
@@ -657,6 +691,9 @@ class CoachNarrativeService {
         '- Streak check-in : ${streak.currentStreak} mois consecutifs');
     buffer.writeln('- Dernier check-in : $dernierCheckIn');
     buffer.writeln();
+    // Data reliability section — tells the SLM which data is certified vs estimated
+    buffer.write(_buildDataReliabilitySection(profile));
+
     // Retirement context for 45-60 age group
     buffer.write(_buildRetirementContext(profile));
 
@@ -848,6 +885,97 @@ class CoachNarrativeService {
     return buffer.toString();
   }
 
+  /// Build data reliability section for the SLM prompt.
+  ///
+  /// Tells the SLM which data points are certified (from document scan),
+  /// user-input (from wizard), or estimated (MINT defaults).
+  /// This allows the SLM to:
+  ///   - Use certified numbers confidently in narration
+  ///   - Hedge language around estimated data ("environ", "estime")
+  ///   - Suggest specific enrichment actions for the weakest data
+  static String _buildDataReliabilitySection(CoachProfile profile) {
+    final sources = profile.dataSources;
+    if (sources.isEmpty) {
+      return 'FIABILITE DES DONNEES :\n'
+          '- Aucune donnee certifiee par document. '
+          'Toutes les projections sont basees sur des estimations.\n'
+          '- Suggere a l\'utilisateur de scanner son certificat LPP ou '
+          'son extrait AVS pour ameliorer la precision.\n\n';
+    }
+
+    final certified = <String>[];
+    final userInput = <String>[];
+    final estimated = <String>[];
+
+    // Categorize known data fields
+    final fieldLabels = <String, String>{
+      'prevoyance.avoirLppTotal': 'Avoir LPP',
+      'prevoyance.avoirLppObligatoire': 'LPP obligatoire',
+      'prevoyance.avoirLppSurobligatoire': 'LPP surobligatoire',
+      'prevoyance.tauxConversion': 'Taux de conversion',
+      'prevoyance.tauxConversionSuroblig': 'Taux conv. suroblig.',
+      'prevoyance.rachatMaximum': 'Lacune rachat LPP',
+      'prevoyance.salaireAssure': 'Salaire assure LPP',
+      'prevoyance.anneesContribuees': 'Annees AVS cotisees',
+      'prevoyance.lacunesAVS': 'Lacunes AVS',
+      'prevoyance.renteAVSEstimeeMensuelle': 'Rente AVS estimee',
+      'prevoyance.ramd': 'RAMD',
+      'prevoyance.totalEpargne3a': 'Epargne 3a',
+      'salaireBrutMensuel': 'Salaire brut',
+      'patrimoine.epargneLiquide': 'Epargne liquide',
+      'patrimoine.investissements': 'Investissements',
+      'patrimoine.immobilier': 'Immobilier',
+      'depenses.loyer': 'Loyer',
+      'depenses.assuranceMaladie': 'Assurance maladie',
+      'dettes.hypotheque': 'Hypotheque',
+    };
+
+    for (final entry in sources.entries) {
+      final label = fieldLabels[entry.key] ?? entry.key;
+      switch (entry.value) {
+        case ProfileDataSource.certificate:
+          certified.add(label);
+        case ProfileDataSource.userInput:
+          userInput.add(label);
+        case ProfileDataSource.estimated:
+          estimated.add(label);
+      }
+    }
+
+    final buffer = StringBuffer();
+    buffer.writeln('FIABILITE DES DONNEES :');
+    if (certified.isNotEmpty) {
+      buffer.writeln('- CERTIFIE (document scanne) : ${certified.join(', ')}');
+      buffer.writeln(
+          '  → Utilise ces chiffres avec confiance dans la narration.');
+    }
+    if (userInput.isNotEmpty) {
+      buffer.writeln('- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
+    }
+    if (estimated.isNotEmpty) {
+      buffer.writeln('- ESTIME (calcul MINT) : ${estimated.join(', ')}');
+      buffer.writeln('  → Utilise "environ" ou "estime" pour ces valeurs. '
+          'Suggere d\'affiner via wizard ou scan.');
+    }
+    // Key missing data
+    final hasCertifiedLpp = sources.entries.any((e) =>
+        e.key.startsWith('prevoyance.avoirLpp') &&
+        e.value == ProfileDataSource.certificate);
+    final hasCertifiedAvs = sources.entries.any((e) =>
+        e.key.startsWith('prevoyance.anneesContribuees') &&
+        e.value == ProfileDataSource.certificate);
+    if (!hasCertifiedLpp) {
+      buffer.writeln(
+          '- MANQUE: Certificat LPP non scanne — l\'avoir LPP est estime.');
+    }
+    if (!hasCertifiedAvs) {
+      buffer.writeln(
+          '- MANQUE: Extrait AVS non scanne — les annees de cotisation sont estimees.');
+    }
+    buffer.writeln();
+    return buffer.toString();
+  }
+
   /// Construit le contexte profil pour le RAG backend
   /// (reprend le pattern de CoachLlmService._buildProfileContext).
   static Map<String, dynamic> _buildProfileContext(CoachProfile profile) {
@@ -1016,10 +1144,20 @@ class CoachNarrativeService {
   /// Cle secondaire pour invalider si nouveau check-in.
   static String get _cacheCheckInCountKey => '${_cacheKeyPrefix}_checkin_count';
 
+  /// Signature du mode narratif courant.
+  ///
+  /// Permet d'invalider immediatement le cache si un kill-switch change
+  /// (safe mode degrade, SLM on/off), meme avant expiration TTL.
+  static String get _currentModeSignature =>
+      'safe:${FeatureFlags.safeModeDegraded}|slm:${FeatureFlags.enableSlmNarratives}';
+
   /// Charge le narratif depuis le cache si valide (< 24h, meme nombre de check-ins).
   static Future<CoachNarrative?> _loadFromCache(CoachProfile profile) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final cachedMode = prefs.getString(_cacheModeSignatureKey);
+      if (cachedMode != _currentModeSignature) return null;
+
       final key = _cacheKey(profile);
       final jsonStr = prefs.getString(key);
       if (jsonStr == null) return null;
@@ -1054,6 +1192,7 @@ class CoachNarrativeService {
       final jsonStr = jsonEncode(narrative.toJson());
       await prefs.setString(key, jsonStr);
       await prefs.setInt(_cacheCheckInCountKey, profile.checkIns.length);
+      await prefs.setString(_cacheModeSignatureKey, _currentModeSignature);
     } catch (_) {
       // Silently fail — cache is optional
     }
@@ -1080,6 +1219,7 @@ class CoachNarrativeService {
         }
       }
       await prefs.remove(_cacheCheckInCountKey);
+      await prefs.remove(_cacheModeSignatureKey);
     } catch (_) {
       // Silently fail
     }

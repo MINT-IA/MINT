@@ -131,9 +131,21 @@ class SlmDownloadService {
   final _stateController = StreamController<DownloadState>.broadcast();
   Stream<DownloadState> get stateStream => _stateController.stream;
 
+  /// Safe emit — avoids crash if controller was closed.
+  void _emitState() {
+    if (!_stateController.isClosed) _stateController.add(_state);
+  }
+
   /// Download progress (0.0 to 1.0).
   double _progress = 0.0;
   double get progress => _progress;
+
+  /// Last error message (null if no error).
+  String? _lastError;
+  String? get lastError => _lastError;
+
+  /// Expected model size in bytes (for UI display).
+  static int get expectedSizeBytes => _expectedSizeBytes;
 
   /// Active cancel token for in-progress downloads.
   CancelToken? _cancelToken;
@@ -163,10 +175,20 @@ class SlmDownloadService {
   }
 
   /// Get model information.
+  ///
+  /// Also reconciles service state vs filesystem: if the service thinks
+  /// the download completed but the model file is missing, resets to failed.
   Future<ModelInfo> getModelInfo() async {
     final installed = await isModelReady;
     final prefs = await SharedPreferences.getInstance();
     final version = prefs.getString(_prefKeyVersion) ?? _modelVersion;
+
+    // Reconcile: service says completed but filesystem disagrees.
+    if (_state == DownloadState.completed && !installed) {
+      _state = DownloadState.failed;
+      _lastError = 'Model file missing after download';
+      _emitState();
+    }
 
     return ModelInfo(
       modelId: modelId,
@@ -194,8 +216,9 @@ class SlmDownloadService {
 
     _state = DownloadState.downloading;
     _progress = 0.0;
+    _lastError = null;
     _cancelToken = CancelToken();
-    _stateController.add(_state);
+    _emitState();
 
     try {
       final url = modelUrl ?? _defaultModelUrl;
@@ -219,16 +242,6 @@ class SlmDownloadService {
           .withCancelToken(_cancelToken!)
           .install();
 
-      // Check if cancelled during install.
-      if (_cancelToken?.isCancelled == true) {
-        _state = DownloadState.notStarted;
-        _progress = 0.0;
-        _cancelToken = null;
-        _stateController.add(_state);
-        debugPrint('[SLM] Download was cancelled');
-        return false;
-      }
-
       // Persist version for future cache invalidation checks.
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefKeyVersion, _modelVersion);
@@ -236,7 +249,7 @@ class SlmDownloadService {
       _state = DownloadState.completed;
       _progress = 1.0;
       _cancelToken = null;
-      _stateController.add(_state);
+      _emitState();
 
       debugPrint('[SLM] Model download complete');
       return true;
@@ -248,10 +261,11 @@ class SlmDownloadService {
         debugPrint('[SLM] Download cancelled by user');
       } else {
         debugPrint('[SLM] Model download failed: $e');
+        _lastError = e.toString();
         _state = DownloadState.failed;
       }
       _cancelToken = null;
-      _stateController.add(_state);
+      _emitState();
       return false;
     }
   }
@@ -287,8 +301,8 @@ class SlmDownloadService {
 
       _state = DownloadState.notStarted;
       _progress = 0.0;
-      _stateController.add(_state);
-      debugPrint('[SLM] Model deleted — ~${modelSizeFormatted} liberes');
+      _emitState();
+      debugPrint('[SLM] Model deleted — ~$modelSizeFormatted liberes');
       return true;
     } catch (e) {
       debugPrint('[SLM] Model state clear failed: $e');
@@ -309,7 +323,7 @@ class SlmDownloadService {
 
   /// Human-readable model size.
   static String get modelSizeFormatted {
-    final gb = _expectedSizeBytes / (1024 * 1024 * 1024);
+    const gb = _expectedSizeBytes / (1024 * 1024 * 1024);
     return '${gb.toStringAsFixed(1)} Go';
   }
 

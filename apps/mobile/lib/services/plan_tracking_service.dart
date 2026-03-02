@@ -29,6 +29,11 @@ class PlanStatus {
   final double monthlyPlanned;
   final double monthlyActual;
   final double adherenceRate;
+
+  /// Linear indicative extrapolation of monthly gap to retirement horizon.
+  ///
+  /// Educational estimate only: excludes rendement, inflation, fiscalite,
+  /// and rente/capital conversion effects.
   final double projectedImpactChf;
   final List<ContributionGap> topGaps;
 
@@ -102,22 +107,23 @@ class PlanTrackingService {
 
     for (final key in monthKeys) {
       final ci = checkinsByMonth[key];
-      final monthActual = ci?.versements.values
-              .where((v) => v.isFinite)
-              .fold<double>(0.0, (sum, v) => sum + v) ??
-          0.0;
-      totalActual += monthActual;
-
-      if (monthActual < monthlyPlanned * 0.70) {
-        monthsBehind++;
-      }
+      var monthActual = 0.0;
 
       if (ci != null) {
         for (final entry in ci.versements.entries) {
           if (!actualByContribution.containsKey(entry.key)) continue;
+          if (!entry.value.isFinite) continue;
+          final amount = max(0.0, entry.value);
+          monthActual += amount;
           actualByContribution[entry.key] =
-              (actualByContribution[entry.key] ?? 0) + entry.value;
+              (actualByContribution[entry.key] ?? 0) + amount;
         }
+      }
+
+      totalActual += monthActual;
+
+      if (monthActual < monthlyPlanned * 0.70) {
+        monthsBehind++;
       }
     }
 

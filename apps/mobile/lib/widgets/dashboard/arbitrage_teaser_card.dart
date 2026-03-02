@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -30,6 +31,10 @@ class ArbitrageTeaserSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!FeatureFlags.enableDecisionScaffold) {
+      return const SizedBox.shrink();
+    }
+
     final teasers = _computeTeasers(profile);
     if (teasers.isEmpty) return const SizedBox.shrink();
 
@@ -97,8 +102,9 @@ class ArbitrageTeaserSection extends StatelessWidget {
 
       final diff = (monthlyMixed - monthlyFullRente).abs();
       if (diff > 50) {
-        final betterOption =
-            monthlyMixed > monthlyFullRente ? '60% rente + 40% capital' : '100% rente';
+        final betterOption = monthlyMixed > monthlyFullRente
+            ? '60% rente + 40% capital'
+            : '100% rente';
         teasers.add(_TeaserData(
           icon: Icons.compare_arrows_rounded,
           color: MintColors.purple,

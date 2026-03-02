@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -103,6 +104,8 @@ void main() {
   // Reset SharedPreferences before each test to ensure isolation
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FeatureFlags.safeModeDegraded = false;
+    FeatureFlags.enableSlmNarratives = true;
   });
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -128,7 +131,8 @@ void main() {
       expect(narrative.generatedAt, isNotNull);
     });
 
-    test('generate() sans BYOK retourne les memes textes que le mode statique', () async {
+    test('generate() sans BYOK retourne les memes textes que le mode statique',
+        () async {
       final profile = _buildTestProfile();
       final tips = _generateTips(profile);
       final scoreHistory = _buildScoreHistory(scores: [55, 58, 62]);
@@ -154,7 +158,8 @@ void main() {
       } else {
         expect(narrative.urgentAlert, isNull);
       }
-      expect(narrative.milestoneMessage, isNull); // Milestones: async, handled in generate()
+      expect(narrative.milestoneMessage,
+          isNull); // Milestones: async, handled in generate()
       expect(narrative.scenarioNarrations, isNotNull);
       expect(narrative.scenarioNarrations!.length, 3);
     });
@@ -309,6 +314,33 @@ void main() {
       expect(second.greeting, equals('Bonjour Julien'));
       expect(second.isLlmGenerated, isFalse);
     });
+
+    test('cache est invalide immediatement quand safe mode est active',
+        () async {
+      final profile = _buildTestProfile();
+      final tips = _generateTips(profile);
+      final scoreHistory = _buildScoreHistory(scores: [55, 58, 62]);
+
+      final first = await CoachNarrativeService.generate(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+        byokConfig: null,
+      );
+
+      FeatureFlags.safeModeDegraded = true;
+
+      final second = await CoachNarrativeService.generate(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+        byokConfig: null,
+      );
+
+      // Must regenerate in degraded mode, not reuse previous cached narrative.
+      expect(second.generatedAt, isNot(equals(first.generatedAt)));
+      expect(second.isLlmGenerated, isFalse);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -392,13 +424,11 @@ void main() {
       );
 
       // Aucun champ ne doit contenir de termes bannis
-      expect(
-          CoachNarrativeService.containsBannedTerms(narrative.greeting), isFalse);
-      expect(
-          CoachNarrativeService.containsBannedTerms(narrative.scoreSummary),
+      expect(CoachNarrativeService.containsBannedTerms(narrative.greeting),
           isFalse);
-      expect(
-          CoachNarrativeService.containsBannedTerms(narrative.trendMessage),
+      expect(CoachNarrativeService.containsBannedTerms(narrative.scoreSummary),
+          isFalse);
+      expect(CoachNarrativeService.containsBannedTerms(narrative.trendMessage),
           isFalse);
       if (narrative.topTipNarrative != null) {
         expect(
@@ -409,12 +439,11 @@ void main() {
     });
 
     test('containsBannedTerms detecte correctement les termes bannis', () {
-      expect(CoachNarrativeService.containsBannedTerms('c\'est garanti'),
-          isTrue);
+      expect(
+          CoachNarrativeService.containsBannedTerms('c\'est garanti'), isTrue);
       expect(CoachNarrativeService.containsBannedTerms('resultat certain'),
           isTrue);
-      expect(
-          CoachNarrativeService.containsBannedTerms('placement sans risque'),
+      expect(CoachNarrativeService.containsBannedTerms('placement sans risque'),
           isTrue);
       expect(CoachNarrativeService.containsBannedTerms('la solution optimal'),
           isTrue);
@@ -504,7 +533,8 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.trendMessage, equals('En progression — continue comme ca'));
+      expect(
+          narrative.trendMessage, equals('En progression — continue comme ca'));
     });
 
     test('trendMessage "Attention" quand score baisse > 3', () async {
@@ -548,8 +578,7 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.trendMessage,
-          contains('Pas encore assez de donnees'));
+      expect(narrative.trendMessage, contains('Pas encore assez de donnees'));
     });
 
     test('trendMessage fallback quand scoreHistory est null', () async {
@@ -563,8 +592,7 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.trendMessage,
-          contains('Pas encore assez de donnees'));
+      expect(narrative.trendMessage, contains('Pas encore assez de donnees'));
     });
   });
 

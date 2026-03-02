@@ -377,7 +377,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.event,
         title: 'Tu t’eloignes de ton plan',
         body: 'Adherence a $adherence% sur ${planStatus.monthsAnalyzed} mois. '
-            'Impact projete: CHF $impact si rien ne change.',
+            'Indication lineaire (hors rendement/fiscalite): ~CHF $impact.',
         deeplink: '/coach/checkin',
         scheduledDate: now,
         personalNumber: '$adherence%',
