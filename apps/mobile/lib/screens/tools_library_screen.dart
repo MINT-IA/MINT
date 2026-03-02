@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Data model for a single tool entry.
@@ -50,6 +51,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final Set<int> _collapsedCategories = {};
+
+  static bool _isDecisionRoute(String route) => route.startsWith('/arbitrage/');
 
   static final List<_ToolCategory> _categories = [
     _ToolCategory(
@@ -453,13 +456,31 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
     ),
   ];
 
+  List<_ToolCategory> get _visibleCategories {
+    final visible = <_ToolCategory>[];
+    for (final category in _categories) {
+      final tools = FeatureFlags.enableDecisionScaffold
+          ? category.tools
+          : category.tools.where((t) => !_isDecisionRoute(t.route)).toList();
+      if (tools.isEmpty) continue;
+      visible.add(_ToolCategory(
+        icon: category.icon,
+        title: category.title,
+        color: category.color,
+        tools: tools,
+      ));
+    }
+    return visible;
+  }
+
   List<_ToolCategory> get _filteredCategories {
-    if (_searchQuery.isEmpty) return _categories;
+    final base = _visibleCategories;
+    if (_searchQuery.isEmpty) return base;
 
     final query = _searchQuery.toLowerCase();
     final result = <_ToolCategory>[];
 
-    for (final category in _categories) {
+    for (final category in base) {
       final matchingTools = category.tools
           .where((tool) =>
               tool.title.toLowerCase().contains(query) ||
@@ -480,7 +501,9 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   }
 
   int get _totalToolCount =>
-      _categories.fold(0, (sum, cat) => sum + cat.tools.length);
+      _visibleCategories.fold(0, (sum, cat) => sum + cat.tools.length);
+
+  int get _visibleCategoryCount => _visibleCategories.length;
 
   @override
   void dispose() {
@@ -556,7 +579,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${_categories.length} categories',
+                      '$_visibleCategoryCount categories',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

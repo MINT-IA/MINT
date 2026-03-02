@@ -131,5 +131,40 @@ void main() {
       expect(status.topGaps, isNotEmpty);
       expect(status.topGaps.first.gapMonthly, greaterThan(0));
     });
+
+    test('ignores non-planned versements for adherence and off-track detection',
+        () {
+      const planned = [
+        PlannedMonthlyContribution(
+          id: '3a_julien',
+          label: '3a Julien',
+          amount: 600,
+          category: '3a',
+        ),
+      ];
+
+      // The unrelated "bonus" versement must not compensate planned shortfall.
+      final checkIns = [
+        for (final month in [10, 9, 8])
+          MonthlyCheckIn(
+            month: DateTime(2026, month, 1),
+            versements: const {
+              '3a_julien': 200,
+              'bonus_non_planifie': 1000,
+            },
+            completedAt: DateTime(2026, month, 5),
+          ),
+      ];
+
+      final profile = _profileWith(planned: planned, checkIns: checkIns);
+      final status = PlanTrackingService.evaluate(
+        profile: profile,
+        today: DateTime(2026, 10, 15),
+      );
+
+      expect(status.monthlyActual, closeTo(200, 0.001));
+      expect(status.adherenceRate, closeTo((200 / 600) * 100, 0.001));
+      expect(status.isOffTrack, isTrue);
+    });
   });
 }

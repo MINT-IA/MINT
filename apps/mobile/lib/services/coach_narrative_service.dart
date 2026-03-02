@@ -155,6 +155,7 @@ class CoachNarrativeService {
 
   static const _cacheKeyPrefix = 'coach_narrative';
   static const _cacheTtlHours = 24;
+  static const _cacheModeSignatureKey = '${_cacheKeyPrefix}_mode_signature';
 
   /// Disclaimer standard
   static const disclaimer =
@@ -201,7 +202,7 @@ class CoachNarrativeService {
     required List<CoachingTip> tips,
     LlmConfig? byokConfig,
   }) async {
-    // 1. Verifier le cache
+    // 1. Verifier le cache (mode-aware: invalidation immediate des kill-switches)
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
@@ -1016,10 +1017,20 @@ class CoachNarrativeService {
   /// Cle secondaire pour invalider si nouveau check-in.
   static String get _cacheCheckInCountKey => '${_cacheKeyPrefix}_checkin_count';
 
+  /// Signature du mode narratif courant.
+  ///
+  /// Permet d'invalider immediatement le cache si un kill-switch change
+  /// (safe mode degrade, SLM on/off), meme avant expiration TTL.
+  static String get _currentModeSignature =>
+      'safe:${FeatureFlags.safeModeDegraded}|slm:${FeatureFlags.enableSlmNarratives}';
+
   /// Charge le narratif depuis le cache si valide (< 24h, meme nombre de check-ins).
   static Future<CoachNarrative?> _loadFromCache(CoachProfile profile) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final cachedMode = prefs.getString(_cacheModeSignatureKey);
+      if (cachedMode != _currentModeSignature) return null;
+
       final key = _cacheKey(profile);
       final jsonStr = prefs.getString(key);
       if (jsonStr == null) return null;
@@ -1054,6 +1065,7 @@ class CoachNarrativeService {
       final jsonStr = jsonEncode(narrative.toJson());
       await prefs.setString(key, jsonStr);
       await prefs.setInt(_cacheCheckInCountKey, profile.checkIns.length);
+      await prefs.setString(_cacheModeSignatureKey, _currentModeSignature);
     } catch (_) {
       // Silently fail — cache is optional
     }
@@ -1080,6 +1092,7 @@ class CoachNarrativeService {
         }
       }
       await prefs.remove(_cacheCheckInCountKey);
+      await prefs.remove(_cacheModeSignatureKey);
     } catch (_) {
       // Silently fail
     }

@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
@@ -84,6 +85,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ── Coach narrative state (P3) ──────────────────────────
   CoachNarrative? _narrative;
   int _narrativeGeneration = 0;
+  String? _scoreHistorySignature;
   List<CuratedCard> _curatedCards = const [];
   List<TemporalItem> _temporalItems = const [];
 
@@ -102,11 +104,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = context.watch<CoachProfileProvider>();
+    final newScoreHistorySignature =
+        _computeScoreHistorySignature(provider.scoreHistory);
     if (!provider.hasProfile) {
       _profile = null;
       _projection = null;
       _confidence = null;
       _confidenceScore = 0;
+      _scoreHistorySignature = null;
       // Invalidate any in-flight narrative generation to prevent
       // stale personal content from overwriting null after profile loss.
       _narrativeGeneration++;
@@ -119,9 +124,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
 
     final newProfile = provider.profile!;
-    if (identical(_profile, newProfile)) return;
+    if (identical(_profile, newProfile)) {
+      // Profile instance unchanged, but score history can evolve independently
+      // via saveCurrentScore(). Refresh narrative trend context in that case.
+      if (_scoreHistorySignature == newScoreHistorySignature) return;
+      _scoreHistorySignature = newScoreHistorySignature;
+      final tips = _buildCoachingTips(newProfile);
+      unawaited(_generateNarrative(tips, provider.scoreHistory));
+      return;
+    }
 
     _profile = newProfile;
+    _scoreHistorySignature = newScoreHistorySignature;
     try {
       _score = FinancialFitnessService.calculate(
         profile: _profile!,
@@ -478,7 +492,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  if (profile.age >= 45) ...[
+                  if (profile.age >= 45 &&
+                      FeatureFlags.enableDecisionScaffold) ...[
                     ArbitrageTeaserSection(profile: profile),
                     const SizedBox(height: 16),
                   ],
@@ -878,8 +893,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   /// Description de l'impact MINT (bases sur les contributions planifiees).
   String _buildImpactDescription() {
     final profile = _profile;
-    if (profile == null)
+    if (profile == null) {
       return 'gr\u00e2ce \u00e0 tes actions de pr\u00e9voyance';
+    }
 
     final has3a = profile.total3aMensuel > 0;
     final hasLpp = profile.totalLppBuybackMensuel > 0;
@@ -1102,5 +1118,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
 
     return widgets;
+  }
+
+  static String _computeScoreHistorySignature(
+    List<Map<String, dynamic>>? scoreHistory,
+  ) {
+    if (scoreHistory == null || scoreHistory.isEmpty) return 'empty';
+    final last = scoreHistory.last;
+    return '${scoreHistory.length}:${last['date']}:${last['score']}';
   }
 }
