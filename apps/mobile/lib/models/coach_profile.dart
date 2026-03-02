@@ -1007,76 +1007,18 @@ class CoachProfile {
     );
   }
 
-  /// Copie le profil avec une nouvelle liste de contributions
+  /// Copie le profil avec une nouvelle liste de contributions.
   CoachProfile copyWithContributions(List<PlannedMonthlyContribution> contributions) {
-    return CoachProfile(
-      firstName: firstName,
-      birthYear: birthYear,
-      canton: canton,
-      commune: commune,
-      nationality: nationality,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-      conjoint: conjoint,
-      salaireBrutMensuel: salaireBrutMensuel,
-      nombreDeMois: nombreDeMois,
-      bonusPourcentage: bonusPourcentage,
-      employmentStatus: employmentStatus,
-      depenses: depenses,
-      prevoyance: prevoyance,
-      patrimoine: patrimoine,
-      dettes: dettes,
-      goalA: goalA,
-      goalsB: goalsB,
+    return copyWith(
       plannedContributions: contributions,
-      checkIns: checkIns,
-      housingStatus: housingStatus,
-      riskTolerance: riskTolerance,
-      realEstateProject: realEstateProject,
-      providers3a: providers3a,
-      arrivalAge: arrivalAge,
-      residencePermit: residencePermit,
-      familyChange: familyChange,
-      targetRetirementAge: targetRetirementAge,
-      dataSources: dataSources,
-      createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
   }
 
-  /// Copie le profil avec une nouvelle liste de check-ins
+  /// Copie le profil avec une nouvelle liste de check-ins.
   CoachProfile copyWithCheckIns(List<MonthlyCheckIn> newCheckIns) {
-    return CoachProfile(
-      firstName: firstName,
-      birthYear: birthYear,
-      canton: canton,
-      commune: commune,
-      nationality: nationality,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-      conjoint: conjoint,
-      salaireBrutMensuel: salaireBrutMensuel,
-      nombreDeMois: nombreDeMois,
-      bonusPourcentage: bonusPourcentage,
-      employmentStatus: employmentStatus,
-      targetRetirementAge: targetRetirementAge,
-      depenses: depenses,
-      prevoyance: prevoyance,
-      patrimoine: patrimoine,
-      dettes: dettes,
-      goalA: goalA,
-      goalsB: goalsB,
-      plannedContributions: plannedContributions,
+    return copyWith(
       checkIns: newCheckIns,
-      housingStatus: housingStatus,
-      riskTolerance: riskTolerance,
-      realEstateProject: realEstateProject,
-      providers3a: providers3a,
-      arrivalAge: arrivalAge,
-      residencePermit: residencePermit,
-      familyChange: familyChange,
-      dataSources: dataSources,
-      createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
   }

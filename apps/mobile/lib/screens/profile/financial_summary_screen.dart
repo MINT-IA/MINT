@@ -89,7 +89,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                     _buildRevenusCard(profile),
                     _buildPrevoyanceCard(context, profile),
                     _buildPatrimoineCard(profile),
-                    _buildDépensesCard(profile),
+                    _buildDepensesCard(profile),
                     _buildDettesCard(profile),
                     const SizedBox(height: 16),
                     _buildDisclaimer(),
@@ -448,7 +448,7 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  DÉPENSES FIXES
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildDépensesCard(CoachProfile p) {
+  FinancialSummaryCard _buildDepensesCard(CoachProfile p) {
     final dep = p.depenses;
     final lines = <FinancialLine>[];
 
