@@ -16,6 +16,8 @@
 /// - All French, informal "tu"
 library;
 
+import 'package:mint_mobile/services/plan_tracking_service.dart';
+
 // ────────────────────────────────────────────────────────────
 //  NOTIFICATION SCHEDULER SERVICE — S36 / Notifications + Milestones
 // ────────────────────────────────────────────────────────────
@@ -61,6 +63,9 @@ enum NotificationCategory {
 
   /// Profil mis a jour — nouvelles projections.
   profileUpdate,
+
+  /// Plan vs realite: trajectory drift detected.
+  offTrack,
 
   /// Nouveaux plafonds de l'annee.
   newYearPlafonds,
@@ -158,8 +163,7 @@ class NotificationSchedulerService {
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
         title: 'Deadline 3a',
-        body:
-            'Il reste 61 jours. Économie estimée : CHF $savingStr.',
+        body: 'Il reste 61 jours. Économie estimée : CHF $savingStr.',
         deeplink: '/simulator/3a',
         scheduledDate: nov1,
         personalNumber: 'CHF $savingStr',
@@ -174,8 +178,7 @@ class NotificationSchedulerService {
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
         title: 'Deadline 3a',
-        body:
-            'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
+        body: 'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
         deeplink: '/simulator/3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',
@@ -273,8 +276,7 @@ class NotificationSchedulerService {
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
         title: 'Declaration fiscale',
-        body:
-            'Déclaration fiscale dans 16 jours. Commence à la remplir.',
+        body: 'Déclaration fiscale dans 16 jours. Commence à la remplir.',
         deeplink: '/home',
         scheduledDate: mar15,
         personalNumber: savingStr,
@@ -289,8 +291,7 @@ class NotificationSchedulerService {
         category: NotificationCategory.taxDeclaration,
         tier: NotificationTier.calendar,
         title: 'Declaration fiscale',
-        body:
-            'Déclaration à rendre avant le 31 mars. Dernière semaine.',
+        body: 'Déclaration à rendre avant le 31 mars. Dernière semaine.',
         deeplink: '/home',
         scheduledDate: mar25,
         personalNumber: savingStr,
@@ -315,6 +316,7 @@ class NotificationSchedulerService {
     double friDelta = 0,
     bool profileUpdated = false,
     bool checkInCompleted = false,
+    PlanStatus? planStatus,
     DateTime? today,
   }) {
     final now = today ?? DateTime.now();
@@ -342,8 +344,7 @@ class NotificationSchedulerService {
         category: NotificationCategory.profileUpdate,
         tier: NotificationTier.event,
         title: 'Profil mis à jour',
-        body:
-            'Ton profil a été mis à jour. Nouvelles projections disponibles.',
+        body: 'Ton profil a été mis à jour. Nouvelles projections disponibles.',
         deeplink: '/coach/dashboard',
         scheduledDate: now,
         personalNumber: 'nouvelles projections',
@@ -364,6 +365,23 @@ class NotificationSchedulerService {
         scheduledDate: now,
         personalNumber: '$deltaStr points',
         timeReference: 'récemment',
+      ));
+    }
+
+    // Plan-vs-reality drift alert
+    if (planStatus != null && planStatus.isOffTrack) {
+      final adherence = planStatus.adherenceRate.toStringAsFixed(0);
+      final impact = _formatChf(planStatus.projectedImpactChf);
+      notifications.add(ScheduledNotification(
+        category: NotificationCategory.offTrack,
+        tier: NotificationTier.event,
+        title: 'Tu t’eloignes de ton plan',
+        body: 'Adherence a $adherence% sur ${planStatus.monthsAnalyzed} mois. '
+            'Impact projete: CHF $impact si rien ne change.',
+        deeplink: '/coach/checkin',
+        scheduledDate: now,
+        personalNumber: '$adherence%',
+        timeReference: '${planStatus.monthsBehind} mois en retard',
       ));
     }
 

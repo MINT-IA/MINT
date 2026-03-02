@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -208,7 +209,15 @@ class CoachNarrativeService {
     //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
     CoachNarrative narrative;
 
-    if (SlmEngine.instance.isAvailable) {
+    if (FeatureFlags.safeModeDegraded) {
+      // Emergency fallback mode: deterministic templates only.
+      narrative = _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
+    } else if (FeatureFlags.enableSlmNarratives &&
+        SlmEngine.instance.isAvailable) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
       try {
         narrative = await _generateViaSlm(
@@ -224,6 +233,13 @@ class CoachNarrativeService {
           tips: tips,
         );
       }
+    } else if (!FeatureFlags.enableSlmNarratives) {
+      // Server kill-switch: templates-only mode.
+      narrative = _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
     } else {
       // Tier 2: Templates enrichis (zero LLM, toujours disponible)
       narrative = _generateStatic(
@@ -283,9 +299,10 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName = (profile.firstName != null && profile.firstName!.isNotEmpty)
-        ? profile.firstName!
-        : 'toi';
+    final firstName =
+        (profile.firstName != null && profile.firstName!.isNotEmpty)
+            ? profile.firstName!
+            : 'toi';
 
     // Score calculation
     FinancialFitnessScore? score;
@@ -570,9 +587,10 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName = (profile.firstName != null && profile.firstName!.isNotEmpty)
-        ? profile.firstName!
-        : 'toi';
+    final firstName =
+        (profile.firstName != null && profile.firstName!.isNotEmpty)
+            ? profile.firstName!
+            : 'toi';
     final age = profile.age;
     final etatCivil = profile.etatCivil.name;
     final employmentStatus = profile.employmentStatus;
@@ -646,14 +664,14 @@ class CoachNarrativeService {
     buffer.write(_buildEducationalSnippets(profile));
 
     buffer.writeln('CONSTANTES SUISSES (grounding — valeurs 2025) :');
-    buffer.writeln('- Rente AVS max individuelle : 2\'520 CHF/mois (LAVS art. 34)');
+    buffer.writeln(
+        '- Rente AVS max individuelle : 2\'520 CHF/mois (LAVS art. 34)');
     buffer.writeln('- Taux conversion LPP min : 6.8% (LPP art. 14)');
     buffer.writeln(
         '- Reduction taux conversion par annee anticipee : ~0.2% (LPP art. 13 al. 2)');
     buffer.writeln('- Plafond 3a salarie : 7\'258 CHF/an (OPP3 art. 7)');
     buffer.writeln('- Seuil LPP : 22\'680 CHF/an (LPP art. 7)');
-    buffer.writeln(
-        '- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
+    buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
     buffer.writeln();
 
     buffer.writeln('TIPS ACTIFS (par priorite) :');
@@ -716,8 +734,7 @@ class CoachNarrativeService {
 
     buffer.writeln('CONTEXTE RETRAITE :');
     buffer.writeln('- Age de retraite cible : $retirementAge ans');
-    buffer.writeln(
-        '- Countdown : Plus que $yearsLeft ans ($monthsLeft mois)');
+    buffer.writeln('- Countdown : Plus que $yearsLeft ans ($monthsLeft mois)');
     buffer.writeln('- Niveau d\'urgence : $urgency');
     if (replacementRate > 0) {
       buffer.writeln(
@@ -760,10 +777,10 @@ class CoachNarrativeService {
     // AVS gaps
     final lacunesAvs = profile.prevoyance.lacunesAVS ?? 0;
     if (lacunesAvs > 0) {
-      snippets.add(
-          'SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
-          'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
-          'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
+      snippets
+          .add('SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
+              'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
+              'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
     }
 
     // Close to retirement — coordination reminder
@@ -821,13 +838,11 @@ class CoachNarrativeService {
 
     final buffer = StringBuffer('TIME MACHINE 3A: ');
     if (yearsIfStarted30 > 0 && regretBalance > 10000) {
-      buffer.write(
-          'Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
+      buffer.write('Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
           'CHF ${regretBalance.toStringAsFixed(0)} aujourd\'hui. ');
     }
     if (yearsForward > 0) {
-      buffer.write(
-          'En versant le max pendant $yearsForward ans → '
+      buffer.write('En versant le max pendant $yearsForward ans → '
           '+CHF ${hopeBalance.toStringAsFixed(0)} a la retraite.');
     }
     return buffer.toString();

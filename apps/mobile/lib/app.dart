@@ -42,6 +42,7 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 // coaching_screen.dart import removed — route superseded by coach/*
@@ -128,6 +129,11 @@ import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+String? _guardDecisionScaffold() {
+  if (FeatureFlags.enableDecisionScaffold) return null;
+  return '/tools';
+}
 
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -313,7 +319,9 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/rente-capital',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/arbitrage/rente-vs-capital',
+      redirect: (context, state) => FeatureFlags.enableDecisionScaffold
+          ? '/arbitrage/rente-vs-capital'
+          : '/tools',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
@@ -654,27 +662,32 @@ final _router = GoRouter(
     GoRoute(
       path: '/arbitrage/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
     GoRoute(
       path: '/arbitrage/allocation-annuelle',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const AllocationAnnuelleScreen(),
     ),
     // Arbitrage Phase 2 (Sprint S33)
     GoRoute(
       path: '/arbitrage/location-vs-propriete',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
     GoRoute(
       path: '/arbitrage/rachat-vs-marche',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const RachatVsMarcheScreen(),
     ),
     GoRoute(
       path: '/arbitrage/calendrier-retraits',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const CalendrierRetraitsScreen(),
     ),
   ],

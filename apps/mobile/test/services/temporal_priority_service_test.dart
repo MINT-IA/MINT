@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
 /// Unit tests for TemporalPriorityService (P3).
@@ -80,7 +81,8 @@ void main() {
           final next = items[i + 1].urgency.index;
           // If same urgency, daysUntil should be ascending
           if (current == next) {
-            expect(items[i].daysUntil, lessThanOrEqualTo(items[i + 1].daysUntil));
+            expect(
+                items[i].daysUntil, lessThanOrEqualTo(items[i + 1].daysUntil));
           } else {
             expect(current, lessThanOrEqualTo(next));
           }
@@ -117,7 +119,8 @@ void main() {
       // January should not have critical 3a
       if (janItems.isNotEmpty) {
         final has3aCritical = janItems.any(
-          (i) => i.urgency == TemporalUrgency.critical &&
+          (i) =>
+              i.urgency == TemporalUrgency.critical &&
               i.title.toLowerCase().contains('3a'),
         );
         expect(
@@ -143,9 +146,11 @@ void main() {
         friDelta: 3,
       );
 
-      final threeAItems = items.where(
-        (i) => i.title.toLowerCase().contains('3a'),
-      ).toList();
+      final threeAItems = items
+          .where(
+            (i) => i.title.toLowerCase().contains('3a'),
+          )
+          .toList();
 
       // At most 1 3a-related item thanks to dedup
       expect(
@@ -164,11 +169,14 @@ void main() {
         friDelta: 3,
       );
 
-      final taxItems = items.where(
-        (i) => i.title.toLowerCase().contains('fiscal') ||
-            i.title.toLowerCase().contains('imp\u00f4') ||
-            i.title.toLowerCase().contains('tax'),
-      ).toList();
+      final taxItems = items
+          .where(
+            (i) =>
+                i.title.toLowerCase().contains('fiscal') ||
+                i.title.toLowerCase().contains('imp\u00f4') ||
+                i.title.toLowerCase().contains('tax'),
+          )
+          .toList();
 
       expect(
         taxItems.length,
@@ -257,6 +265,29 @@ void main() {
       );
       expect(items.length, lessThanOrEqualTo(5));
     });
+
+    test('includes off-track item when plan status is off-track', () {
+      const planStatus = PlanStatus(
+        hasPlan: true,
+        monthsAnalyzed: 3,
+        monthsBehind: 2,
+        monthlyPlanned: 1000,
+        monthlyActual: 550,
+        adherenceRate: 55,
+        projectedImpactChf: 24000,
+        topGaps: [],
+      );
+
+      final items = TemporalPriorityService.prioritize(
+        today: DateTime(2026, 10, 15),
+        planStatus: planStatus,
+      );
+
+      expect(
+        items.any((i) => i.body.contains('Adherence a 55%')),
+        isTrue,
+      );
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -266,17 +297,21 @@ void main() {
   group('Enums', () {
     test('TemporalUrgency has 4 levels', () {
       expect(TemporalUrgency.values.length, 4);
-      expect(TemporalUrgency.values, containsAll([
-        TemporalUrgency.critical,
-        TemporalUrgency.high,
-        TemporalUrgency.medium,
-        TemporalUrgency.low,
-      ]));
+      expect(
+          TemporalUrgency.values,
+          containsAll([
+            TemporalUrgency.critical,
+            TemporalUrgency.high,
+            TemporalUrgency.medium,
+            TemporalUrgency.low,
+          ]));
     });
 
     test('TemporalUrgency order: critical < high < medium < low', () {
-      expect(TemporalUrgency.critical.index, lessThan(TemporalUrgency.high.index));
-      expect(TemporalUrgency.high.index, lessThan(TemporalUrgency.medium.index));
+      expect(
+          TemporalUrgency.critical.index, lessThan(TemporalUrgency.high.index));
+      expect(
+          TemporalUrgency.high.index, lessThan(TemporalUrgency.medium.index));
       expect(TemporalUrgency.medium.index, lessThan(TemporalUrgency.low.index));
     });
 

@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
@@ -70,8 +71,7 @@ class RetirementDashboardScreen extends StatefulWidget {
       _RetirementDashboardScreenState();
 }
 
-class _RetirementDashboardScreenState
-    extends State<RetirementDashboardScreen> {
+class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ── Core state ──────────────────────────────────────────
   CoachProfile? _profile;
   FinancialFitnessScore? _score;
@@ -138,8 +138,7 @@ class _RetirementDashboardScreenState
       // Baseline sans contributions pour calcul delta MINT
       if (_profile!.plannedContributions.isNotEmpty) {
         final profileSans = _profile!.copyWithContributions(const []);
-        _baselineProjection =
-            ForecasterService.project(profile: profileSans);
+        _baselineProjection = ForecasterService.project(profile: profileSans);
       } else {
         _baselineProjection = null;
       }
@@ -154,7 +153,7 @@ class _RetirementDashboardScreenState
       _computeMonteCarloAndTornado(_profile!);
 
       // ── P3: Generate narrative (async, non-blocking) ───
-      unawaited(_generateNarrative(tips));
+      unawaited(_generateNarrative(tips, provider.scoreHistory));
     } catch (e) {
       debugPrint('RetirementDashboard: projection error: $e');
       _projection = null;
@@ -175,7 +174,10 @@ class _RetirementDashboardScreenState
   //  P3: NARRATIVE GENERATION
   // ────────────────────────────────────────────────────────────
 
-  Future<void> _generateNarrative(List<CoachingTip> tips) async {
+  Future<void> _generateNarrative(
+    List<CoachingTip> tips,
+    List<Map<String, dynamic>>? scoreHistory,
+  ) async {
     final gen = ++_narrativeGeneration;
     final profile = _profile;
     if (profile == null) {
@@ -186,7 +188,7 @@ class _RetirementDashboardScreenState
     try {
       final narrative = await CoachNarrativeService.generate(
         profile: profile,
-        scoreHistory: null,
+        scoreHistory: scoreHistory,
         tips: tips,
         byokConfig: null,
       );
@@ -222,6 +224,7 @@ class _RetirementDashboardScreenState
   void _curateDashboardContent(List<CoachingTip> tips) {
     final profile = _profile;
     if (profile == null) return;
+    final planStatus = PlanTrackingService.evaluate(profile: profile);
 
     // Reengagement messages
     final taxSaving3a = profile.salaireBrutMensuel > 0
@@ -249,6 +252,7 @@ class _RetirementDashboardScreenState
       taxSaving3a: taxSaving3a,
       friTotal: friScore,
       friDelta: friDelta,
+      planStatus: planStatus,
     );
   }
 
@@ -323,8 +327,8 @@ class _RetirementDashboardScreenState
           (decoBase['lpp_user'] ?? 0) / 12 +
           (decoBase['3a'] ?? 0) / 12 +
           (decoBase['libre'] ?? 0) / 12,
-      conjointMonthlyIncome: avsConjMonthly +
-          (decoBase['lpp_conjoint'] ?? 0) / 12,
+      conjointMonthlyIncome:
+          avsConjMonthly + (decoBase['lpp_conjoint'] ?? 0) / 12,
       userReplacementRatio: proj.tauxRemplacementBase,
       conjointReplacementRatio: null,
       userRetirementAge: profile.effectiveRetirementAge,
@@ -370,8 +374,7 @@ class _RetirementDashboardScreenState
 
     // Decomposition par pilier (scenario base)
     final decoBase = proj.base.decomposition;
-    final avsMonthly =
-        ((decoBase['avs'] ?? 0)) / 12;
+    final avsMonthly = ((decoBase['avs'] ?? 0)) / 12;
     final lppMonthly =
         (((decoBase['lpp_user'] ?? 0) + (decoBase['lpp_conjoint'] ?? 0))) / 12;
     final threeAMonthly = ((decoBase['3a'] ?? 0)) / 12;
@@ -385,8 +388,7 @@ class _RetirementDashboardScreenState
 
     // Couple phase data
     final isCouple = profile.isCouple && profile.conjoint?.birthYear != null;
-    final hasPhases =
-        retProj != null && retProj.phases.length >= 2;
+    final hasPhases = retProj != null && retProj.phases.length >= 2;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -394,16 +396,14 @@ class _RetirementDashboardScreenState
         slivers: [
           _buildAppBar(profile.firstName),
           SliverPadding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P3: Coach Briefing Card ──────────────
                 CoachBriefingCard(
                   narrative: _narrative,
-                  topCard: _curatedCards.isNotEmpty
-                      ? _curatedCards.first
-                      : null,
+                  topCard:
+                      _curatedCards.isNotEmpty ? _curatedCards.first : null,
                   confidenceScore: _confidenceScore,
                   isLlmGenerated: _narrative?.isLlmGenerated ?? false,
                   onEnrich: () => context.push('/onboarding/smart'),
@@ -454,8 +454,7 @@ class _RetirementDashboardScreenState
                   // ── P4: Toggle 3-Scenarios / Monte Carlo ──
                   MonteCarloToggleSection(
                     monteCarloResult: _monteCarloResult,
-                    currentMonthlyIncome:
-                        profile.salaireBrutMensuel * 0.87,
+                    currentMonthlyIncome: profile.salaireBrutMensuel * 0.87,
                     monteCarloAvailable: _monteCarloResult != null,
                     scenariosChild: TrajectoryCard(
                       profile: profile,
@@ -469,8 +468,7 @@ class _RetirementDashboardScreenState
                     SensitivitySnippet(
                       variables: _tornadoVariables,
                     ),
-                  if (_tornadoVariables.isNotEmpty)
-                    const SizedBox(height: 16),
+                  if (_tornadoVariables.isNotEmpty) const SizedBox(height: 16),
 
                   PillarDecomposition(
                     avsMonthly: avsMonthly,
@@ -490,9 +488,10 @@ class _RetirementDashboardScreenState
                       userName: profile.firstName ?? 'Toi',
                       conjointName:
                           profile.conjoint!.firstName ?? 'Conjoint\u00b7e',
-                      userRetirementYear: profile.birthYear + profile.effectiveRetirementAge,
-                      conjointRetirementYear:
-                          profile.conjoint!.birthYear! + profile.conjoint!.effectiveRetirementAge,
+                      userRetirementYear:
+                          profile.birthYear + profile.effectiveRetirementAge,
+                      conjointRetirementYear: profile.conjoint!.birthYear! +
+                          profile.conjoint!.effectiveRetirementAge,
                       phases: retProj.phases,
                       profile: profile,
                     ),
@@ -500,8 +499,7 @@ class _RetirementDashboardScreenState
                   ],
 
                   // ── P5: Couple Action Plan ────────────────
-                  if (isCouple)
-                    CoupleActionPlan(profile: profile),
+                  if (isCouple) CoupleActionPlan(profile: profile),
                   if (isCouple) const SizedBox(height: 16),
 
                   RetirementChecklistCard(profile: profile),
@@ -558,9 +556,9 @@ class _RetirementDashboardScreenState
 
     final knownFields = _buildKnownFields(profile);
     final missingFields = _buildMissingFields();
-    final totalImpact = _confidence?.prompts
-        .take(3)
-        .fold<int>(0, (sum, p) => sum + p.impact) ?? 0;
+    final totalImpact =
+        _confidence?.prompts.take(3).fold<int>(0, (sum, p) => sum + p.impact) ??
+            0;
 
     // Estimate confidence improvement from LPP scan
     final hasLppData = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
@@ -574,16 +572,14 @@ class _RetirementDashboardScreenState
         slivers: [
           _buildAppBar(profile.firstName),
           SliverPadding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P3: Coach Briefing Card ──────────────
                 CoachBriefingCard(
                   narrative: _narrative,
-                  topCard: _curatedCards.isNotEmpty
-                      ? _curatedCards.first
-                      : null,
+                  topCard:
+                      _curatedCards.isNotEmpty ? _curatedCards.first : null,
                   confidenceScore: _confidenceScore,
                   isLlmGenerated: _narrative?.isLlmGenerated ?? false,
                   onEnrich: () => context.push('/onboarding/smart'),
@@ -621,9 +617,14 @@ class _RetirementDashboardScreenState
                   missingCategories: _confidence?.prompts
                           .map((p) => p.category)
                           .where((c) => const {
-                            'lpp', 'avs', '3a', 'patrimoine',
-                            'logement', 'foreign_pension', 'depenses',
-                          }.contains(c))
+                                'lpp',
+                                'avs',
+                                '3a',
+                                'patrimoine',
+                                'logement',
+                                'foreign_pension',
+                                'depenses',
+                              }.contains(c))
                           .toSet()
                           .take(3)
                           .toList() ??
@@ -638,8 +639,9 @@ class _RetirementDashboardScreenState
                   DataQualityCard(
                     knownFields: knownFields,
                     missingFields: missingFields,
-                    enrichImpact:
-                        totalImpact > 0 ? '+$totalImpact% pr\u00e9cision' : null,
+                    enrichImpact: totalImpact > 0
+                        ? '+$totalImpact% pr\u00e9cision'
+                        : null,
                     onEnrich: () => context.push('/onboarding/smart'),
                   ),
                   const SizedBox(height: 16),
@@ -682,8 +684,7 @@ class _RetirementDashboardScreenState
         slivers: [
           _buildAppBar(null),
           SliverPadding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P3: Coach Briefing Card (State C) ──
@@ -782,21 +783,24 @@ class _RetirementDashboardScreenState
             icon: Icons.shield_outlined,
             color: MintColors.retirementAvs,
             title: '1er pilier \u2014 AVS',
-            text: 'Base obligatoire pour tous. Financ\u00e9 par tes cotisations (LAVS art. 21).',
+            text:
+                'Base obligatoire pour tous. Financ\u00e9 par tes cotisations (LAVS art. 21).',
           ),
           const SizedBox(height: 8),
           _buildEducationalPoint(
             icon: Icons.account_balance_outlined,
             color: MintColors.retirementLpp,
             title: '2\u00e8me pilier \u2014 LPP',
-            text: 'Pr\u00e9voyance professionnelle via ta caisse de pension (LPP art. 14).',
+            text:
+                'Pr\u00e9voyance professionnelle via ta caisse de pension (LPP art. 14).',
           ),
           const SizedBox(height: 8),
           _buildEducationalPoint(
             icon: Icons.savings_outlined,
             color: MintColors.retirement3a,
             title: '3\u00e8me pilier \u2014 3a',
-            text: '\u00c9pargne volontaire avec d\u00e9duction fiscale (OPP3 art. 7).',
+            text:
+                '\u00c9pargne volontaire avec d\u00e9duction fiscale (OPP3 art. 7).',
           ),
         ],
       ),
@@ -874,7 +878,8 @@ class _RetirementDashboardScreenState
   /// Description de l'impact MINT (bases sur les contributions planifiees).
   String _buildImpactDescription() {
     final profile = _profile;
-    if (profile == null) return 'gr\u00e2ce \u00e0 tes actions de pr\u00e9voyance';
+    if (profile == null)
+      return 'gr\u00e2ce \u00e0 tes actions de pr\u00e9voyance';
 
     final has3a = profile.total3aMensuel > 0;
     final hasLpp = profile.totalLppBuybackMensuel > 0;
@@ -918,10 +923,7 @@ class _RetirementDashboardScreenState
   /// Champs manquants a partir des prompts de confiance.
   List<String> _buildMissingFields() {
     if (_confidence == null) return [];
-    return _confidence!.prompts
-        .take(4)
-        .map((p) => p.label)
-        .toList();
+    return _confidence!.prompts.take(4).map((p) => p.label).toList();
   }
 
   // ────────────────────────────────────────────────────────────
@@ -996,9 +998,8 @@ class _RetirementDashboardScreenState
 
       widgets.add(
         GestureDetector(
-          onTap: card.deeplink != null
-              ? () => context.push(card.deeplink!)
-              : null,
+          onTap:
+              card.deeplink != null ? () => context.push(card.deeplink!) : null,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(14),
@@ -1046,13 +1047,11 @@ class _RetirementDashboardScreenState
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color:
-                                    urgencyColor.withValues(alpha: 0.10),
+                                color: urgencyColor.withValues(alpha: 0.10),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                DashboardCuratorService
-                                    .computeDeadlineText(
+                                DashboardCuratorService.computeDeadlineText(
                                         card.source is CoachingTip
                                             ? card.source as CoachingTip
                                             : null) ??

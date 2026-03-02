@@ -1,5 +1,6 @@
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/notification_scheduler_service.dart';
+import 'package:mint_mobile/services/plan_tracking_service.dart';
 
 /// Temporal priority service (P3).
 ///
@@ -23,6 +24,7 @@ class TemporalPriorityService {
     double friDelta = 0,
     bool profileUpdated = false,
     bool checkInCompleted = false,
+    PlanStatus? planStatus,
     int limit = 5,
   }) {
     final now = today ?? DateTime.now();
@@ -61,6 +63,7 @@ class TemporalPriorityService {
       friDelta: friDelta,
       profileUpdated: profileUpdated,
       checkInCompleted: checkInCompleted,
+      planStatus: planStatus,
       today: now,
     );
 
@@ -176,6 +179,8 @@ class TemporalPriorityService {
         return TemporalUrgency.low;
       case NotificationCategory.newYearPlafonds:
         return TemporalUrgency.low;
+      case NotificationCategory.offTrack:
+        return TemporalUrgency.high;
     }
   }
 }
