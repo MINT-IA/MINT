@@ -68,6 +68,9 @@ class CoachContext {
   final String lastMilestone;
   // Known numerical values for hallucination detection
   final Map<String, double> knownValues;
+  // Data reliability by field: 'certified', 'userInput', or 'estimated'
+  // e.g. {'avoirLpp': 'certified', 'patrimoine': 'estimated'}
+  final Map<String, String> dataReliability;
 
   const CoachContext({
     this.firstName = 'utilisateur',
@@ -87,6 +90,7 @@ class CoachContext {
     this.checkInStreak = 0,
     this.lastMilestone = '',
     this.knownValues = const {},
+    this.dataReliability = const {},
   });
 }
 

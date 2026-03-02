@@ -639,6 +639,9 @@ class CoachNarrativeService {
         '- Streak check-in : ${streak.currentStreak} mois consecutifs');
     buffer.writeln('- Dernier check-in : $dernierCheckIn');
     buffer.writeln();
+    // Data reliability section — tells the SLM which data is certified vs estimated
+    buffer.write(_buildDataReliabilitySection(profile));
+
     // Retirement context for 45-60 age group
     buffer.write(_buildRetirementContext(profile));
 
@@ -830,6 +833,101 @@ class CoachNarrativeService {
           'En versant le max pendant $yearsForward ans → '
           '+CHF ${hopeBalance.toStringAsFixed(0)} a la retraite.');
     }
+    return buffer.toString();
+  }
+
+  /// Build data reliability section for the SLM prompt.
+  ///
+  /// Tells the SLM which data points are certified (from document scan),
+  /// user-input (from wizard), or estimated (MINT defaults).
+  /// This allows the SLM to:
+  ///   - Use certified numbers confidently in narration
+  ///   - Hedge language around estimated data ("environ", "estime")
+  ///   - Suggest specific enrichment actions for the weakest data
+  static String _buildDataReliabilitySection(CoachProfile profile) {
+    final sources = profile.dataSources;
+    if (sources.isEmpty) {
+      return 'FIABILITE DES DONNEES :\n'
+          '- Aucune donnee certifiee par document. '
+          'Toutes les projections sont basees sur des estimations.\n'
+          '- Suggere a l\'utilisateur de scanner son certificat LPP ou '
+          'son extrait AVS pour ameliorer la precision.\n\n';
+    }
+
+    final certified = <String>[];
+    final userInput = <String>[];
+    final estimated = <String>[];
+
+    // Categorize known data fields
+    final fieldLabels = <String, String>{
+      'prevoyance.avoirLppTotal': 'Avoir LPP',
+      'prevoyance.avoirLppObligatoire': 'LPP obligatoire',
+      'prevoyance.avoirLppSurobligatoire': 'LPP surobligatoire',
+      'prevoyance.tauxConversion': 'Taux de conversion',
+      'prevoyance.tauxConversionSuroblig': 'Taux conv. suroblig.',
+      'prevoyance.rachatMaximum': 'Lacune rachat LPP',
+      'prevoyance.salaireAssure': 'Salaire assure LPP',
+      'prevoyance.anneesContribuees': 'Annees AVS cotisees',
+      'prevoyance.lacunesAVS': 'Lacunes AVS',
+      'prevoyance.renteAVSEstimeeMensuelle': 'Rente AVS estimee',
+      'prevoyance.ramd': 'RAMD',
+      'prevoyance.totalEpargne3a': 'Epargne 3a',
+      'salaireBrutMensuel': 'Salaire brut',
+      'patrimoine.epargneLiquide': 'Epargne liquide',
+      'patrimoine.investissements': 'Investissements',
+      'patrimoine.immobilier': 'Immobilier',
+      'depenses.loyer': 'Loyer',
+      'depenses.assuranceMaladie': 'Assurance maladie',
+      'dettes.hypotheque': 'Hypotheque',
+    };
+
+    for (final entry in sources.entries) {
+      final label = fieldLabels[entry.key] ?? entry.key;
+      switch (entry.value) {
+        case ProfileDataSource.certificate:
+          certified.add(label);
+        case ProfileDataSource.userInput:
+          userInput.add(label);
+        case ProfileDataSource.estimated:
+          estimated.add(label);
+      }
+    }
+
+    final buffer = StringBuffer();
+    buffer.writeln('FIABILITE DES DONNEES :');
+    if (certified.isNotEmpty) {
+      buffer.writeln(
+          '- CERTIFIE (document scanne) : ${certified.join(', ')}');
+      buffer.writeln(
+          '  → Utilise ces chiffres avec confiance dans la narration.');
+    }
+    if (userInput.isNotEmpty) {
+      buffer.writeln(
+          '- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
+    }
+    if (estimated.isNotEmpty) {
+      buffer.writeln(
+          '- ESTIME (calcul MINT) : ${estimated.join(', ')}');
+      buffer.writeln(
+          '  → Utilise "environ" ou "estime" pour ces valeurs. '
+          'Suggere d\'affiner via wizard ou scan.');
+    }
+    // Key missing data
+    final hasCertifiedLpp = sources.entries.any((e) =>
+        e.key.startsWith('prevoyance.avoirLpp') &&
+        e.value == ProfileDataSource.certificate);
+    final hasCertifiedAvs = sources.entries.any((e) =>
+        e.key.startsWith('prevoyance.anneesContribuees') &&
+        e.value == ProfileDataSource.certificate);
+    if (!hasCertifiedLpp) {
+      buffer.writeln(
+          '- MANQUE: Certificat LPP non scanne — l\'avoir LPP est estime.');
+    }
+    if (!hasCertifiedAvs) {
+      buffer.writeln(
+          '- MANQUE: Extrait AVS non scanne — les annees de cotisation sont estimees.');
+    }
+    buffer.writeln();
     return buffer.toString();
   }
 
