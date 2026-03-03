@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
@@ -74,7 +75,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
     // Annual contribution capacity: 3a max for salaried
     if (profile.salaireBrutMensuel > 0) {
-      _montantCtrl.text = '7258'; // Max 3a for salaried with LPP
+      _montantCtrl.text = pilier3aPlafondAvecLpp.round().toString();
       _hasEstimatedValues = true;
     }
     if (profile.prevoyance.avoirLppTotal != null) {
@@ -115,6 +116,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       rendementLpp: (_hypotheses['rendement_lpp'] ?? 1.25) / 100,
       rendementMarche: (_hypotheses['rendement_marche'] ?? 4.0) / 100,
       canton: 'VD',
+      dataSources: _dataSources,
     );
 
     setState(() => _result = result);

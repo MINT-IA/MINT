@@ -76,7 +76,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     final lpp = profile.prevoyance.avoirLppTotal;
     if (lpp != null && lpp > 0) {
-      // Split 70/30 obligatoire/surobligatoire (industry average)
+      // MINT default: 70% obligatoire / 30% surobligatoire (moyenne industrie
+      // suisse, pas de source legale — valeur indicative, l'utilisateur peut
+      // modifier les champs).
       final oblig = (lpp * 0.7).round();
       final surob = (lpp * 0.3).round();
       _capitalObligCtrl.text = oblig.toString();
@@ -152,6 +154,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
         horizon: 25,
         isMarried: _isMarried,
+        dataSources: _dataSources,
       );
 
       if (!mounted || requestId != _requestCounter) return;
