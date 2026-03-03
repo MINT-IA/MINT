@@ -156,7 +156,9 @@ class MinimalProfileService {
     String householdType,
     bool isPropertyOwner,
   ) {
-    // Approximate net income (~75% of gross for employee)
+    // Expense base ≈ 75% of gross — intentionally different from NetIncomeBreakdown
+    // (which computes actual net payslip). Here 0.75 approximates disposable spending
+    // capacity for the minimal profile expense estimator, not salary net.
     final netMonthly = grossAnnualSalary * 0.75 / 12;
 
     // Expense ratio depends on household type

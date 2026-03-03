@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:mint_mobile/screens/coach/coach_dashboard_screen.dart';
+import 'package:mint_mobile/screens/_archive/coach_dashboard_screen.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 

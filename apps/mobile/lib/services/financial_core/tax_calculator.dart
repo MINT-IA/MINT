@@ -111,6 +111,11 @@ class NetIncomeBreakdown {
   ///
   /// Uses inverse of social charges + LPP approximation.
   /// More accurate than the old / 0.87 because it accounts for age-based LPP.
+  ///
+  /// **Limitation**: assumes linear LPP deduction (ignores coordination deduction
+  /// of 26'460 CHF and salaire coordonné clamp 3'780–64'260). Accuracy is best
+  /// for gross salaries > 50k CHF; for lower salaries the result may overestimate.
+  /// For precise net→gross, use a Newton-Raphson solver over [compute()].
   static double estimateBrutFromNet(double netAnnual, {int age = 45}) {
     if (netAnnual <= 0) return 0;
     // gross * (1 - socialRate - lppRate/2) ≈ net

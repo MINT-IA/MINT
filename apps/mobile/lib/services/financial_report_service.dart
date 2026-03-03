@@ -302,7 +302,7 @@ class FinancialReportService {
 
     // Rentes
     final monthlyAvsRent = _estimateAvsRent(profile);
-    final lppConversionRate = 0.06; // 6% taux conversion (hypothèse prudente)
+    final lppConversionRate = lppTauxConversionMin / 100; // LPP art. 14: 6.8% minimum légal
     final monthlyLppRent = (lppCapital * lppConversionRate) / 12;
 
     return RetirementProjection(
@@ -609,7 +609,7 @@ class FinancialReportService {
 
   double _estimateEffectiveRate(
       double taxableIncome, String canton, bool isMarried) {
-    // Simplification grossière - à remplacer par vrai calcul cantonal
+    // TODO(P8-Phase2): migrate to FiscalService.estimateTax() for canton-aware rates
     final baseRate = isMarried ? 0.12 : 0.15;
 
     if (taxableIncome > 150000) return baseRate + 0.10;
