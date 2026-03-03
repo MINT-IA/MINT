@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -130,7 +131,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrompts(dynamic profile, String type) {
+  Widget _buildPrompts(CoachProfile profile, String type) {
     final confidence = ConfidenceScorer.score(profile);
     final relevant = confidence.prompts
         .where((p) => _categoryMatchesBlock(p.category, type))
@@ -232,7 +233,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
       'avs': ['avs'],
       '3a': ['3a'],
       'patrimoine': ['patrimoine'],
-      'objectifRetraite': ['objectif_retraite'],
+      'objectifRetraite': ['objectif_retraite', 'retirement_urgency'],
       'compositionMenage': ['menage'],
       'foreign_pension': ['foreign_pension'],
     };
@@ -243,9 +244,9 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
   String? _enrichmentRoute(String type) {
     const routes = {
       'revenu': '/onboarding/enrichment',
-      'lpp': '/onboarding/enrichment',
-      'avs': '/onboarding/enrichment',
-      '3a': '/onboarding/enrichment',
+      'lpp': '/document-scan',
+      'avs': '/document-scan/avs-guide',
+      '3a': '/3a-deep/comparator',
       'patrimoine': '/onboarding/enrichment',
       'objectifRetraite': '/onboarding/enrichment',
       'compositionMenage': '/onboarding/enrichment',

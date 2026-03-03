@@ -143,9 +143,8 @@ class ConfidenceScorer {
     }
 
     // --- Objectif retraite (10 pts) — LAVS art. 21 ---
-    // Non-default retirement age means the user has thought about it.
-    if (profile.targetRetirementAge != null &&
-        profile.targetRetirementAge != 65) {
+    // Any explicit choice (including 65) means the user has considered it.
+    if (profile.targetRetirementAge != null) {
       total += _wObjectifRetraite;
     } else {
       total += 3;
@@ -407,13 +406,12 @@ class ConfidenceScorer {
     );
 
     // --- Objectif retraite ---
-    final hasCustomRetirement = profile.targetRetirementAge != null &&
-        profile.targetRetirementAge != 65;
-    final objectifScore = hasCustomRetirement ? _wObjectifRetraite.toDouble() : 3.0;
+    final hasExplicitRetirement = profile.targetRetirementAge != null;
+    final objectifScore = hasExplicitRetirement ? _wObjectifRetraite.toDouble() : 3.0;
     blocs['objectifRetraite'] = BlockScore(
       score: objectifScore,
       maxScore: _wObjectifRetraite.toDouble(),
-      status: hasCustomRetirement ? 'complete' : 'partial',
+      status: hasExplicitRetirement ? 'complete' : 'partial',
     );
 
     // --- Composition menage ---
@@ -520,6 +518,38 @@ class ConfidenceScorer {
       maxScore: _wForeignPension.toDouble(),
       status: isExpat ? 'missing' : 'complete',
     );
+
+    // ── Age-weighted penalties for 50+ (distribute to affected blocs) ──
+    // Mirrors score() penalties: -5 LPP, -5 AVS, -3 taux for missing data.
+    if (profile.age >= 50) {
+      if (lppDeclared == null || lppDeclared <= 0) {
+        if (!isIndepSansLpp) {
+          final lpp = blocs['lpp']!;
+          blocs['lpp'] = BlockScore(
+            score: (lpp.score - 5).clamp(0, lpp.maxScore),
+            maxScore: lpp.maxScore,
+            status: lpp.score - 5 <= 0 ? 'missing' : lpp.status,
+          );
+        }
+      }
+      if (!hasAvsData) {
+        final avs = blocs['avs']!;
+        blocs['avs'] = BlockScore(
+          score: (avs.score - 5).clamp(0, avs.maxScore),
+          maxScore: avs.maxScore,
+          status: avs.score - 5 <= 0 ? 'missing' : avs.status,
+        );
+      }
+      if (!isIndepSansLpp &&
+          profile.prevoyance.tauxConversion == 0.068) {
+        final taux = blocs['taux_conversion']!;
+        blocs['taux_conversion'] = BlockScore(
+          score: (taux.score - 3).clamp(0, taux.maxScore),
+          maxScore: taux.maxScore,
+          status: taux.score - 3 <= 0 ? 'missing' : taux.status,
+        );
+      }
+    }
 
     return blocs;
   }
