@@ -1,14 +1,17 @@
 import 'dart:math';
 
+import 'package:mint_mobile/models/coach_profile.dart';
+
 // ────────────────────────────────────────────────────────────
 //  PLAN TRACKING SERVICE — Phase 5 / Dashboard Assembly
 // ────────────────────────────────────────────────────────────
 //
-// Évalue l'adhérence du plan financier de l'utilisateur
-// (check-ins mensuels, actions planifiées, etc.).
+// Évalue l'adhérence du plan financier de l'utilisateur en
+// comparant les versements réels (MonthlyCheckIn.versements)
+// aux contributions planifiées (PlannedMonthlyContribution).
 //
 // compoundProjectedImpact() calcule l'impact composé FV
-// d'une action régulière sur N mois (FV annuity formula).
+// du gap mensuel non-versé sur N mois (FV annuity formula).
 //
 // Outil éducatif — ne constitue pas un conseil financier (LSFin).
 // ────────────────────────────────────────────────────────────
@@ -20,34 +23,46 @@ class PlanStatus {
   final int totalActions;
   final List<String> nextActions;
 
+  /// Total CHF réellement versé par mois (moyenne des check-ins).
+  final double averageMonthlyActual;
+
+  /// Total CHF planifié par mois.
+  final double totalMonthlyPlanned;
+
   const PlanStatus({
     required this.score,
     required this.completedActions,
     required this.totalActions,
     required this.nextActions,
+    this.averageMonthlyActual = 0,
+    this.totalMonthlyPlanned = 0,
   });
 
   /// Taux d'adhérence (0.0 - 1.0).
   double get adherenceRate =>
       totalActions > 0 ? completedActions / totalActions : 0;
+
+  /// Gap mensuel CHF non-versé (planned - actual).
+  double get monthlyGapChf =>
+      (totalMonthlyPlanned - averageMonthlyActual).clamp(0, double.infinity);
 }
 
 /// Service d'évaluation du plan et projection de l'impact composé.
 class PlanTrackingService {
   PlanTrackingService._();
 
-  /// Évalue le plan de l'utilisateur à partir des check-ins et actions.
+  /// Évalue l'adhérence du plan en comparant check-ins réels aux contributions planifiées.
   ///
-  /// [checkIns] : liste de check-ins mensuels (chaque map contient
-  /// 'completed': bool et 'actions': List<String>).
-  /// [plannedActions] : liste des actions planifiées pour le mois courant.
+  /// Pour chaque [PlannedMonthlyContribution], cherche dans les [MonthlyCheckIn]
+  /// les versements correspondants (par contribution.id dans versements keys).
+  /// Un plan est "complété" si le versement moyen >= 80% du montant planifié.
   ///
-  /// Retourne un [PlanStatus] avec score, adhérence, et prochaines actions.
+  /// Retourne un [PlanStatus] avec score, adhérence, CHF réels et gap.
   static PlanStatus evaluate({
-    required List<Map<String, dynamic>> checkIns,
-    required List<String> plannedActions,
+    required List<MonthlyCheckIn> checkIns,
+    required List<PlannedMonthlyContribution> contributions,
   }) {
-    if (plannedActions.isEmpty) {
+    if (contributions.isEmpty) {
       return const PlanStatus(
         score: 0,
         completedActions: 0,
@@ -56,49 +71,65 @@ class PlanTrackingService {
       );
     }
 
-    // Comptage des actions complétées à travers les check-ins
+    final totalPlanned = contributions.fold(0.0, (s, c) => s + c.amount);
     int completed = 0;
-    final completedSet = <String>{};
+    double totalActualMonthlyAvg = 0;
+    final pendingActions = <String>[];
 
-    for (final ci in checkIns) {
-      final isCompleted = ci['completed'] as bool? ?? false;
-      if (isCompleted) completed++;
+    for (final contrib in contributions) {
+      // Find all check-in versements matching this contribution ID
+      double sumActual = 0;
+      int matchCount = 0;
 
-      final actions = ci['actions'] as List<dynamic>? ?? [];
-      for (final a in actions) {
-        if (a is String) completedSet.add(a);
+      for (final ci in checkIns) {
+        final actual = ci.versements[contrib.id];
+        if (actual != null) {
+          sumActual += actual;
+          matchCount++;
+        }
+      }
+
+      final avgActual = matchCount > 0 ? sumActual / matchCount : 0.0;
+      totalActualMonthlyAvg += avgActual;
+
+      // Contribution is "completed" if average >= 80% of planned
+      if (avgActual >= contrib.amount * 0.8) {
+        completed++;
+      } else {
+        final gap = contrib.amount - avgActual;
+        pendingActions.add(
+          '${contrib.label} : +${gap.round()} CHF/mois',
+        );
       }
     }
 
-    // Actions restantes
-    final remaining = plannedActions
-        .where((a) => !completedSet.contains(a))
-        .toList();
-
-    // Score basé sur le taux d'adhérence (0-100)
-    final rate = plannedActions.isNotEmpty
-        ? completedSet.length / plannedActions.length
-        : 0.0;
+    final rate = completed / contributions.length;
     final score = (rate * 100).clamp(0, 100).toDouble();
 
     return PlanStatus(
       score: score,
-      completedActions: completedSet.length,
-      totalActions: plannedActions.length,
-      nextActions: remaining.take(3).toList(),
+      completedActions: completed,
+      totalActions: contributions.length,
+      nextActions: pendingActions.take(3).toList(),
+      averageMonthlyActual: totalActualMonthlyAvg,
+      totalMonthlyPlanned: totalPlanned,
     );
   }
 
-  /// Calcule l'impact composé projeté d'actions régulières (FV annuity).
+  /// Calcule l'impact composé projeté du gap mensuel (FV annuity).
   ///
-  /// Formule: PMT × ((1+r)^n - 1) / r
+  /// Formule: monthlyGapChf × ((1+r)^n - 1) / r
   /// avec r = rendement mensuel, n = nombre de mois.
   ///
-  /// [status] : résultat de evaluate().
+  /// Le PMT est le gap réel en CHF entre planifié et versé.
+  /// Si le gap est 0 (tout est versé), l'impact est 0.
+  ///
+  /// [status] : résultat de evaluate() (contient monthlyGapChf).
   /// [monthsToRetirement] : nombre de mois jusqu'à la retraite.
   /// [annualReturn] : rendement réel annuel (défaut 2%, conservateur).
   ///
-  /// Retourne le montant total accumulé (CHF).
+  /// Retourne le montant composé du gap (CHF) — ce que l'utilisateur
+  /// pourrait accumuler en comblant le gap.
   ///
   /// Sources: LPP art. 15-16 (bonifications), OPP3 art. 7 (3a).
   /// Outil éducatif — ne constitue pas un conseil financier.
@@ -107,14 +138,13 @@ class PlanTrackingService {
     required int monthsToRetirement,
     double annualReturn = 0.02, // 2% real return (conservative estimate)
   }) {
-    if (monthsToRetirement <= 0 || status.nextActions.isEmpty) return 0;
+    if (monthsToRetirement <= 0) return 0;
+
+    final monthlyGap = status.monthlyGapChf;
+    if (monthlyGap <= 0) return 0;
 
     final monthlyRate = annualReturn / 12;
     final n = monthsToRetirement.toDouble();
-
-    // Monthly gap = contribution proportionnelle à l'adhérence
-    final monthlyGap =
-        status.score > 0 ? (status.completedActions * 100.0) : 0.0;
 
     // FV annuity formula: PMT × ((1+r)^n - 1) / r
     if (monthlyRate == 0) return monthlyGap * n;

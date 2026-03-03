@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
@@ -44,6 +45,7 @@ import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
 import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
 
+import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
 import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
@@ -105,6 +107,8 @@ class _RetirementDashboardScreenState
   ProjectionResult? _initialProjection;
   PlanStatus? _planStatus;
   double _compoundImpact = 0;
+  FriBreakdown? _friBreakdown;
+  bool _snapshotPersisted = false; // WARN-2: guard against re-entry loop
 
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
@@ -165,7 +169,8 @@ class _RetirementDashboardScreenState
       // ── P4: Monte Carlo + Tornado (State A only, conf >= 70%) ──
       _computeMonteCarloAndTornado(_profile!);
 
-      // ── P5: Snapshot persistence + Plan tracking ─────────
+      // ── P5: FRI + Plan tracking + Snapshot persistence ──
+      _computeFri(_profile!);
       _computePlanTracking(_profile!);
       _persistInitialSnapshot(_profile!);
 
@@ -303,29 +308,31 @@ class _RetirementDashboardScreenState
   }
 
   // ────────────────────────────────────────────────────────────
-  //  P5: PLAN TRACKING + SNAPSHOT PERSISTENCE
+  //  P5: FRI + PLAN TRACKING + SNAPSHOT PERSISTENCE
   // ────────────────────────────────────────────────────────────
+
+  void _computeFri(CoachProfile profile) {
+    if (_projection == null) {
+      _friBreakdown = null;
+      return;
+    }
+    try {
+      _friBreakdown = FriComputationService.compute(
+        profile: profile,
+        projection: _projection!,
+        confidenceScore: _confidenceScore,
+      );
+    } catch (e) {
+      debugPrint('RetirementDashboard: FRI computation error: $e');
+      _friBreakdown = null;
+    }
+  }
 
   void _computePlanTracking(CoachProfile profile) {
     try {
-      // Build check-in data from profile's MonthlyCheckIn records
-      final checkInMaps = profile.checkIns.map((ci) => <String, dynamic>{
-            'completed': true,
-            'actions': <String>[],
-          }).toList();
-
-      // Planned actions from contributions + goals
-      final plannedActions = <String>[];
-      for (final c in profile.plannedContributions) {
-        plannedActions.add('Versement ${c.category} : ${c.amount.round()} CHF/mois');
-      }
-      if (profile.goalA.label.isNotEmpty) {
-        plannedActions.add('Objectif : ${profile.goalA.label}');
-      }
-
       _planStatus = PlanTrackingService.evaluate(
-        checkIns: checkInMaps,
-        plannedActions: plannedActions,
+        checkIns: profile.checkIns,
+        contributions: profile.plannedContributions,
       );
 
       final monthsToRetirement = profile.anneesAvantRetraite * 12;
@@ -341,8 +348,11 @@ class _RetirementDashboardScreenState
   }
 
   void _persistInitialSnapshot(CoachProfile profile) {
-    // On first dashboard load, snapshot the current projection for
-    // before/after comparison (Task 5.6).
+    // WARN-2 fix: guard against re-entry loop. updateProfile() triggers
+    // didChangeDependencies → full recomputation cycle. Without this
+    // flag, loop runs twice (2nd pass exits because snapshot is non-null).
+    if (_snapshotPersisted) return;
+
     if (profile.initialProjectionSnapshot != null && _projection != null) {
       try {
         _initialProjection =
@@ -354,9 +364,9 @@ class _RetirementDashboardScreenState
     } else if (_projection != null &&
         profile.initialProjectionSnapshot == null) {
       // First time: save snapshot to profile
+      _snapshotPersisted = true;
       _initialProjection = _projection;
-      final provider =
-          context.read<CoachProfileProvider>();
+      final provider = context.read<CoachProfileProvider>();
       provider.updateProfile(
         profile.copyWith(
           initialProjectionSnapshot: _projection!.toJson(),
@@ -567,14 +577,16 @@ class _RetirementDashboardScreenState
                     const SizedBox(height: 16),
                   ],
 
-                  // ── P5: FRI Radar Chart (mapped from FFS sub-scores) ──
-                  FriRadarChart(
-                    liquidity: score.budget.score * 0.25,
-                    fiscal: score.patrimoine.score * 0.25,
-                    retirement: score.prevoyance.score * 0.25,
-                    structural: (score.global * 0.25).clamp(0, 25),
-                  ),
-                  const SizedBox(height: 16),
+                  // ── P5: FRI Radar Chart (real FRI from FriCalculator) ──
+                  if (_friBreakdown != null) ...[
+                    FriRadarChart(
+                      liquidity: _friBreakdown!.liquidite,
+                      fiscal: _friBreakdown!.fiscalite,
+                      retirement: _friBreakdown!.retraite,
+                      structural: _friBreakdown!.risque,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // ── P5: Plan Reality Card ──────────────────
                   if (_planStatus != null)

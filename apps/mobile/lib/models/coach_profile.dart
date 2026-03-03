@@ -866,8 +866,17 @@ class CoachProfile {
         updatedAt = updatedAt ?? DateTime.now();
 
   // ════════════════════════════════════════════════════════════════
-  //  EQUALITY (value equality for lifecycle dedup — Phase 5)
+  //  EQUALITY (version-check for lifecycle dedup — Phase 5)
   // ════════════════════════════════════════════════════════════════
+  //
+  // Intentional version-check equality for lifecycle dedup.
+  // updatedAt changes on every copyWith() call, acting as a version
+  // token. This ensures didChangeDependencies() correctly detects
+  // ANY profile mutation (even to fields not listed here).
+  //
+  // Trade-off accepted: two profiles with identical data but different
+  // updatedAt are treated as different (causes recomputation). This is
+  // preferred over missing a genuine data change.
 
   @override
   bool operator ==(Object other) =>
