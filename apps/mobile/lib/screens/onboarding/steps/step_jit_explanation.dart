@@ -12,7 +12,7 @@ import 'package:mint_mobile/theme/colors.dart';
 ///
 /// Design: Material 3, Montserrat headings, Inter body, MintColors.
 /// Compliance: educational tone, no banned terms, French informal "tu".
-class StepJitExplanation extends StatelessWidget {
+class StepJitExplanation extends StatefulWidget {
   final ChiffreChoc? chiffreChoc;
   final VoidCallback onNext;
   final VoidCallback onBack;
@@ -25,14 +25,31 @@ class StepJitExplanation extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  State<StepJitExplanation> createState() => _StepJitExplanationState();
+}
+
+class _StepJitExplanationState extends State<StepJitExplanation> {
+  bool _tracked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _trackView();
+  }
+
+  void _trackView() {
+    if (_tracked) return;
+    _tracked = true;
     AnalyticsService().trackEvent(
       kEventJitExplanationViewed,
       category: 'engagement',
       screenName: 'smart_onboarding_jit',
     );
+  }
 
-    final explanation = _explanationForType(chiffreChoc?.type);
+  @override
+  Widget build(BuildContext context) {
+    final explanation = _explanationForType(widget.chiffreChoc?.type);
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -135,7 +152,7 @@ class StepJitExplanation extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: onNext,
+                  onPressed: widget.onNext,
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     foregroundColor: Colors.white,
@@ -156,7 +173,7 @@ class StepJitExplanation extends StatelessWidget {
               const SizedBox(height: 8),
               Center(
                 child: TextButton(
-                  onPressed: onBack,
+                  onPressed: widget.onBack,
                   child: Text(
                     'Retour',
                     style: GoogleFonts.inter(
@@ -165,6 +182,19 @@ class StepJitExplanation extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              // ── DISCLAIMER ──────────────────────────────────────────
+              Text(
+                'Outil educatif simplifie. Ne constitue pas un conseil '
+                'financier (LSFin).',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: MintColors.textMuted,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
             ],

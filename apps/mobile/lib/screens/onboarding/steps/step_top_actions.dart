@@ -60,7 +60,18 @@ class StepTopActions extends StatelessWidget {
 
               // ── ACTION CARDS ───────────────────────────────────────
               Expanded(
-                child: ListView.separated(
+                child: top3.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Complete ton profil pour recevoir des actions personnalisees.',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: MintColors.textMuted,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : ListView.separated(
                   itemCount: top3.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
@@ -120,6 +131,20 @@ class StepTopActions extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 12),
+
+              // ── DISCLAIMER ──────────────────────────────────────────
+              Text(
+                'Suggestions educatives. Ne constitue pas un conseil '
+                'financier (LSFin). Consulte un·e specialiste pour un '
+                'plan personnalise.',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: MintColors.textMuted,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
             ],

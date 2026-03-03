@@ -1193,6 +1193,7 @@ class CoachProfile {
       residencePermit: json['residencePermit'] as String?,
       familyChange: json['familyChange'] as String?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
+      initialProjectionSnapshot: json['initialProjectionSnapshot'] as Map<String, dynamic>?,
       dataSources: (json['dataSources'] as Map<String, dynamic>?)?.map(
             (k, v) => MapEntry(
               k,
@@ -1241,6 +1242,7 @@ class CoachProfile {
     'residencePermit': residencePermit,
     'familyChange': familyChange,
     'targetRetirementAge': targetRetirementAge,
+    'initialProjectionSnapshot': initialProjectionSnapshot,
     'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),

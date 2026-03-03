@@ -51,6 +51,10 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   /// its reveal animation without needing cross-file private state access.
   final _animTrigger = ValueNotifier<int>(0);
 
+  /// Cached tips to avoid recomputation on every rebuild.
+  List<CoachingTip>? _cachedTips;
+  int _lastTipsHash = 0;
+
   @override
   void initState() {
     super.initState();
@@ -170,9 +174,21 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   }
 
   /// Generate coaching tips from the current minimal profile.
+  /// Memoized: only recomputes when inputs change.
   List<CoachingTip> _generateTips() {
     final profile = _viewModel.profile;
     if (profile == null) return [];
+
+    // Simple cache key based on relevant inputs
+    final hash = Object.hash(
+      _viewModel.age,
+      _viewModel.canton,
+      _viewModel.grossSalary,
+      _viewModel.existing3a,
+      _viewModel.existingLpp,
+      _viewModel.currentSavings,
+    );
+    if (hash == _lastTipsHash && _cachedTips != null) return _cachedTips!;
 
     final coachingProfile = CoachingProfile(
       age: _viewModel.age,
@@ -188,8 +204,9 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     );
 
     final allTips = CoachingService.generateTips(profile: coachingProfile);
-    // filterByStressType defaults to all categories (stress_general)
-    return CoachingService.filterByStressType(allTips, 'stress_general');
+    _cachedTips = CoachingService.filterByStressType(allTips, 'stress_general');
+    _lastTipsHash = hash;
+    return _cachedTips!;
   }
 
   Future<void> _saveThenGo(BuildContext context) async {
