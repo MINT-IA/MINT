@@ -73,8 +73,11 @@ class FriComputationService {
     // Rachat: use rachatMaximum (total buyback gap) and rachatEffectue
     final potentielRachat = profile.prevoyance.rachatMaximum ?? 0.0;
     final rachatEffectue = profile.prevoyance.rachatEffectue ?? 0.0;
-    // Estimate marginal tax rate from canton (simplified)
-    final tauxMarginal = _estimateMarginalRate(profile);
+    // Marginal tax rate from centralized TaxCalculator
+    final tauxMarginal = TaxCalculator.estimateMarginalRate(
+      monthlyGross * profile.nombreDeMois,
+      profile.canton,
+    );
     final isPropertyOwner =
         (profile.patrimoine.immobilier ?? 0) > 0 ||
             (profile.patrimoine.propertyMarketValue ?? 0) > 0;
@@ -166,14 +169,4 @@ class FriComputationService {
     return 'swiss_native';
   }
 
-  /// Simplified marginal tax rate estimation.
-  /// Real rates should come from TaxCalculator — this is a fallback.
-  static double _estimateMarginalRate(CoachProfile profile) {
-    final revenu = profile.salaireBrutMensuel * profile.nombreDeMois;
-    if (revenu > 200000) return 0.38;
-    if (revenu > 150000) return 0.33;
-    if (revenu > 100000) return 0.28;
-    if (revenu > 75000) return 0.23;
-    return 0.18;
-  }
 }
