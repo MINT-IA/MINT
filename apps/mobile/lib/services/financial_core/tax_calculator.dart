@@ -107,23 +107,60 @@ class NetIncomeBreakdown {
     );
   }
 
-  /// Estimate brut from net when going backwards (net -> gross).
+  /// Estimate brut from net payslip using Newton-Raphson iteration.
   ///
-  /// Uses inverse of social charges + LPP approximation.
-  /// More accurate than the old / 0.87 because it accounts for age-based LPP.
+  /// Iterates over [NetIncomeBreakdown.compute] to find the gross salary
+  /// that produces the target net payslip. Converges in 3-5 iterations
+  /// to within ±1 CHF accuracy.
   ///
-  /// **Limitation**: assumes linear LPP deduction (ignores coordination deduction
-  /// of 26'460 CHF and salaire coordonné clamp 3'780–64'260). Accuracy is best
-  /// for gross salaries > 50k CHF; for lower salaries the result may overestimate.
-  /// For precise net→gross, use a Newton-Raphson solver over [compute()].
-  static double estimateBrutFromNet(double netAnnual, {int age = 45}) {
+  /// Much more accurate than the old linear approximation because it
+  /// correctly accounts for the LPP coordination deduction (26'460 CHF)
+  /// and the coordinated salary clamp (3'780–64'260 CHF).
+  static double estimateBrutFromNet(
+    double netAnnual, {
+    int age = 45,
+    String canton = 'ZH',
+    String etatCivil = 'celibataire',
+    int nombreEnfants = 0,
+    int maxIterations = 10,
+    double tolerance = 1.0,
+  }) {
     if (netAnnual <= 0) return 0;
-    // gross * (1 - socialRate - lppRate/2) ≈ net
-    // gross ≈ net / (1 - socialRate - lppRate/2)
+
+    // Initial guess using linear approximation
     final lppRate = getLppBonificationRate(age);
-    final totalDeductionRate = cotisationsSalarieTotal + lppRate / 2;
-    final denominator = max(0.5, 1 - totalDeductionRate); // safety floor
-    return netAnnual / denominator;
+    final approxDeductionRate = cotisationsSalarieTotal + lppRate / 2;
+    double guess = netAnnual / max(0.5, 1 - approxDeductionRate);
+
+    for (int i = 0; i < maxIterations; i++) {
+      final breakdown = NetIncomeBreakdown.compute(
+        grossSalary: guess,
+        canton: canton,
+        age: age,
+        etatCivil: etatCivil,
+        nombreEnfants: nombreEnfants,
+      );
+      final error = breakdown.netPayslip - netAnnual;
+      if (error.abs() < tolerance) break;
+
+      // Numerical derivative: d(netPayslip)/d(gross) ≈ Δnet/Δgross
+      const delta = 100.0;
+      final breakdownPlus = NetIncomeBreakdown.compute(
+        grossSalary: guess + delta,
+        canton: canton,
+        age: age,
+        etatCivil: etatCivil,
+        nombreEnfants: nombreEnfants,
+      );
+      final derivative =
+          (breakdownPlus.netPayslip - breakdown.netPayslip) / delta;
+      if (derivative.abs() < 0.01) break; // Safeguard against division by ~0
+
+      guess -= error / derivative;
+      if (guess < 0) guess = netAnnual; // Reset if diverged
+    }
+
+    return guess;
   }
 
   Map<String, dynamic> toJson() => {

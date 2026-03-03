@@ -7,6 +7,7 @@ import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_jit_explanation.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_next_step.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_stress_selector.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_top_actions.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
@@ -17,12 +18,13 @@ import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 
 /// Smart Onboarding — Value-First Flow (Lot 2 + P8-2).
 ///
-/// Orchestrates the 5-step onboarding experience:
-///   0: [StepQuestions]       — 3 inputs: salary, age, canton
-///   1: [StepChiffreChoc]     — reveal of the first impactful number
-///   2: [StepJitExplanation]  — SI...ALORS mini-explanation
-///   3: [StepTopActions]      — Top 3 coaching tips
-///   4: [StepNextStep]        — Enrich profile or go to dashboard
+/// Orchestrates the 6-step onboarding experience:
+///   0: [StepStressSelector]  — intention selector (tap, auto-advance)
+///   1: [StepQuestions]        — 3 inputs: salary, age, canton
+///   2: [StepChiffreChoc]      — reveal of the first impactful number
+///   3: [StepJitExplanation]   — SI...ALORS mini-explanation
+///   4: [StepTopActions]       — Top 3 coaching tips
+///   5: [StepNextStep]         — Enrich profile or go to dashboard
 ///
 /// Uses a [PageView] with programmatic (non-swipeable) navigation so the user
 /// always follows the intentional sequence.
@@ -30,7 +32,7 @@ import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 /// The ViewModel is owned here and passed down to each step.
 /// State is managed via [ListenableBuilder] over the ViewModel.
 ///
-/// The reveal animation on page 1 is triggered via [_animTrigger],
+/// The reveal animation on page 2 is triggered via [_animTrigger],
 /// a [ValueNotifier<int>] whose counter increments each time we navigate
 /// to the chiffre choc step.
 class SmartOnboardingScreen extends StatefulWidget {
@@ -166,7 +168,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   }
 
   void _onStepQuestionsNext() {
-    _goToPage(1);
+    _goToPage(2);
     // Increment trigger so StepChiffreChoc fires its animation
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _animTrigger.value++;
@@ -187,6 +189,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       _viewModel.existing3a,
       _viewModel.existingLpp,
       _viewModel.currentSavings,
+      _viewModel.stressType,
     );
     if (hash == _lastTipsHash && _cachedTips != null) return _cachedTips!;
 
@@ -204,7 +207,10 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     );
 
     final allTips = CoachingService.generateTips(profile: coachingProfile);
-    _cachedTips = CoachingService.filterByStressType(allTips, 'stress_general');
+    _cachedTips = CoachingService.filterByStressType(
+      allTips,
+      _viewModel.stressType ?? 'stress_general',
+    );
     _lastTipsHash = hash;
     return _cachedTips!;
   }
@@ -243,36 +249,42 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
             // Disable swipe — navigation is controlled programmatically.
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              // ── Page 0: 3 questions ──────────────────────────────────────
+              // ── Page 0: Stress intention ────────────────────────────────
+              StepStressSelector(
+                viewModel: _viewModel,
+                onNext: () => _goToPage(1),
+              ),
+
+              // ── Page 1: 3 questions ──────────────────────────────────────
               StepQuestions(
                 viewModel: _viewModel,
                 onNext: _onStepQuestionsNext,
                 onInputChanged: _onInputChanged,
               ),
 
-              // ── Page 1: Chiffre choc reveal ──────────────────────────────
+              // ── Page 2: Chiffre choc reveal ──────────────────────────────
               StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
-                onEnrich: () => _goToPage(2),
-                onDashboard: () => _goToPage(2),
+                onEnrich: () => _goToPage(3),
+                onDashboard: () => _goToPage(3),
               ),
 
-              // ── Page 2: JIT explanation (SI...ALORS) ─────────────────────
+              // ── Page 3: JIT explanation (SI...ALORS) ─────────────────────
               StepJitExplanation(
                 chiffreChoc: _viewModel.chiffreChoc,
-                onNext: () => _goToPage(3),
-                onBack: () => _goToPage(1),
-              ),
-
-              // ── Page 3: Top 3 actions ────────────────────────────────────
-              StepTopActions(
-                tips: tips,
                 onNext: () => _goToPage(4),
                 onBack: () => _goToPage(2),
               ),
 
-              // ── Page 4: Next step (enrich or dashboard) ──────────────────
+              // ── Page 4: Top 3 actions ────────────────────────────────────
+              StepTopActions(
+                tips: tips,
+                onNext: () => _goToPage(5),
+                onBack: () => _goToPage(3),
+              ),
+
+              // ── Page 5: Next step (enrich or dashboard) ──────────────────
               StepNextStep(
                 confidenceScore: _viewModel.confidenceScore,
                 onEnrich: () => _saveThenEnrich(context),

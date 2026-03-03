@@ -21,6 +21,10 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   int age = 35;
   String? canton;
 
+  /// User's stress intention (tap selector, not a data question).
+  /// Used to filter coaching tips by relevance.
+  String? stressType;
+
   // ─── Computed results (populated after step 1) ──────────────────────────
 
   MinimalProfileResult? profile;
@@ -63,6 +67,11 @@ class SmartOnboardingViewModel extends ChangeNotifier {
 
   void setCanton(String? value) {
     canton = value;
+    notifyListeners();
+  }
+
+  void setStressType(String? value) {
+    stressType = value;
     notifyListeners();
   }
 

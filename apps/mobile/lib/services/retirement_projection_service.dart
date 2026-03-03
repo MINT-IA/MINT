@@ -217,7 +217,7 @@ class RetirementProjectionService {
         ? NetIncomeBreakdown.compute(
             grossSalary: profile.conjoint!.revenuBrutAnnuel,
             canton: profile.canton,
-            age: profile.conjoint!.age,
+            age: profile.conjoint!.age ?? 45,
           )
         : null;
     final revenuPreRetraite = userBreakdown.monthlyNetPayslip +
@@ -750,7 +750,7 @@ class RetirementProjectionService {
       final conjNet = NetIncomeBreakdown.compute(
         grossSalary: profile.conjoint!.revenuBrutAnnuel,
         canton: profile.canton,
-        age: profile.conjoint!.age,
+        age: profile.conjoint!.age ?? 45,
       ).monthlyNetPayslip;
       if (conjNet > 0) {
         sources.add(RetirementIncomeSource(
@@ -1020,7 +1020,7 @@ class RetirementProjectionService {
         ? NetIncomeBreakdown.compute(
             grossSalary: profile.conjoint!.revenuBrutAnnuel,
             canton: profile.canton,
-            age: profile.conjoint!.age,
+            age: profile.conjoint!.age ?? 45,
           )
         : null;
     final revenuPreRetraite =

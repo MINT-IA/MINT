@@ -287,11 +287,14 @@ class ForecasterService {
       age: profile.age,
     );
     final revenuNetMensuel = mainBreakdown.monthlyNetPayslip;
-    final partnerNetMensuel = profile.conjoint != null
+    final conjoint = profile.conjoint;
+    final partnerNetMensuel = conjoint != null &&
+            conjoint.salaireBrutMensuel != null &&
+            conjoint.age != null
         ? NetIncomeBreakdown.compute(
-            grossSalary: profile.conjoint!.salaireBrutMensuel * 12,
+            grossSalary: conjoint.salaireBrutMensuel! * 12,
             canton: profile.canton,
-            age: profile.conjoint!.age,
+            age: conjoint.age!,
           ).monthlyNetPayslip
         : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
@@ -417,11 +420,14 @@ class ForecasterService {
       age: profile.age,
     );
     final revenuNetMensuel = mainBreakdownCustom.monthlyNetPayslip;
-    final partnerNetMensuel = profile.conjoint != null
+    final conjointCustom = profile.conjoint;
+    final partnerNetMensuel = conjointCustom != null &&
+            conjointCustom.salaireBrutMensuel != null &&
+            conjointCustom.age != null
         ? NetIncomeBreakdown.compute(
-            grossSalary: profile.conjoint!.salaireBrutMensuel * 12,
+            grossSalary: conjointCustom.salaireBrutMensuel! * 12,
             canton: profile.canton,
-            age: profile.conjoint!.age,
+            age: conjointCustom.age!,
           ).monthlyNetPayslip
         : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
@@ -24,6 +25,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
 import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
+import 'package:mint_mobile/widgets/coach/confidence_blocks_bar.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/coach/data_quality_card.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
 import 'package:mint_mobile/widgets/coach/explore_hub.dart';
@@ -89,6 +92,7 @@ class _RetirementDashboardScreenState
   RetirementProjectionResult? _retirementProjection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  Map<String, BlockScore> _confidenceBlocs = const {};
 
   // ── Coach narrative state (P3) ──────────────────────────
   CoachNarrative? _narrative;
@@ -123,6 +127,7 @@ class _RetirementDashboardScreenState
       _projection = null;
       _confidence = null;
       _confidenceScore = 0;
+      _confidenceBlocs = const {};
       // Invalidate any in-flight narrative generation to prevent
       // stale personal content from overwriting null after profile loss.
       _narrativeGeneration++;
@@ -146,6 +151,7 @@ class _RetirementDashboardScreenState
       _projection = ForecasterService.project(profile: _profile!);
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+      _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
 
       // Detailed retirement projection (budget gap, phases, etc.)
       _retirementProjection =
@@ -181,6 +187,7 @@ class _RetirementDashboardScreenState
       _projection = null;
       _confidence = null;
       _confidenceScore = 0;
+      _confidenceBlocs = const {};
       // Invalidate in-flight narrative generation before clearing state,
       // so any pending async result is discarded on completion.
       _narrativeGeneration++;
@@ -246,7 +253,7 @@ class _RetirementDashboardScreenState
 
     // Reengagement messages
     final taxSaving3a = profile.salaireBrutMensuel > 0
-        ? 7258.0 * RetirementTaxCalculator.estimateMarginalRate(
+        ? pilier3aPlafondAvecLpp * RetirementTaxCalculator.estimateMarginalRate(
             profile.salaireBrutMensuel * 12, profile.canton)
         : 0.0;
     final friScore = _score?.global.toDouble() ?? 0.0;
@@ -478,6 +485,14 @@ class _RetirementDashboardScreenState
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Indicatif Banner (hidden when >= 70%) ──
+                IndicatifBanner(
+                  confidenceScore: _confidenceScore,
+                  topEnrichmentCategory: _confidence?.prompts.isNotEmpty == true
+                      ? _confidence!.prompts.first.category
+                      : null,
+                ),
+
                 // ── P3: Coach Briefing Card ──────────────
                 CoachBriefingCard(
                   narrative: _narrative,
@@ -524,7 +539,13 @@ class _RetirementDashboardScreenState
                     rangeMax: monthlyOptimiste,
                   ),
                 ],
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+
+                // ── Confidence Blocks Bar (per-category progress) ──
+                if (_confidenceBlocs.isNotEmpty) ...[
+                  ConfidenceBlocksBar(blocs: _confidenceBlocs),
+                  const SizedBox(height: 16),
+                ],
 
                 // ── Cockpit d\u00e9taill\u00e9 (collapsed by default) ──
                 _buildCockpitToggle(),
@@ -703,6 +724,14 @@ class _RetirementDashboardScreenState
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Indicatif Banner (visible when < 70%) ──
+                IndicatifBanner(
+                  confidenceScore: _confidenceScore,
+                  topEnrichmentCategory: _confidence?.prompts.isNotEmpty == true
+                      ? _confidence!.prompts.first.category
+                      : null,
+                ),
+
                 // ── P3: Coach Briefing Card ──────────────
                 CoachBriefingCard(
                   narrative: _narrative,
@@ -731,7 +760,13 @@ class _RetirementDashboardScreenState
                   rangeMin: monthlyPrudent,
                   rangeMax: monthlyOptimiste,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+
+                // ── Confidence Blocks Bar (per-category progress) ──
+                if (_confidenceBlocs.isNotEmpty) ...[
+                  ConfidenceBlocksBar(blocs: _confidenceBlocs),
+                  const SizedBox(height: 16),
+                ],
 
                 // Document Scan CTA (prominent in State B)
                 DocumentScanCta(

@@ -20,7 +20,7 @@ import 'package:mint_mobile/screens/consent_dashboard_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
-import 'package:mint_mobile/screens/advisor/advisor_onboarding_screen.dart';
+import 'package:mint_mobile/screens/_archive/advisor_onboarding_screen.dart';
 import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';

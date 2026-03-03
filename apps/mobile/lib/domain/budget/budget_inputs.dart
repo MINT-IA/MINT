@@ -60,11 +60,14 @@ class BudgetInputs {
       age: profile.age,
     );
     final ownNet = ownBreakdown.monthlyNetPayslip;
-    final partnerNet = profile.conjoint != null
+    final conjointBudget = profile.conjoint;
+    final partnerNet = conjointBudget != null &&
+            conjointBudget.salaireBrutMensuel != null &&
+            conjointBudget.age != null
         ? NetIncomeBreakdown.compute(
-            grossSalary: profile.conjoint!.salaireBrutMensuel * 12,
+            grossSalary: conjointBudget.salaireBrutMensuel! * 12,
             canton: profile.canton,
-            age: profile.conjoint!.age,
+            age: conjointBudget.age!,
           ).monthlyNetPayslip
         : 0.0;
     final monthlyNet = ownNet + partnerNet;

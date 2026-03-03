@@ -1,6 +1,40 @@
+import 'dart:math' show max;
+
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+
+// ── FRI computation defaults ────────────────────────────────────
+// Values documented here for traceability. When real data is available
+// from LPP certificates, these defaults are not used.
+
+/// Fallback monthly expense ratio when no depenses data is available.
+/// Applied to gross monthly salary (not net). Approximate.
+const double kFriDefaultExpenseRatioGross = 0.85;
+
+/// Conservative disability gap ratio when no LPP certificate data.
+/// LPP AI covers ~40-60% of insured salary; gap ≈ 30%.
+const double kFriDefaultDisabilityGapRatio = 0.30;
+
+/// Conservative death protection gap ratio without certificate data.
+const double kFriDefaultDeathProtectionGapRatio = 0.40;
+
+/// FINMA theoretical mortgage rate (Tragbarkeitsrechnung).
+/// Source: FINMA circular 2008/21, ASB guidelines.
+const double kFriMortgageTauxTheorique = 0.05;
+
+/// Annual mortgage amortization rate (ASB standard: 1%/year).
+const double kFriMortgageAmortissementRate = 0.01;
+
+/// Annual accessory costs rate on property value (ASB standard: 1%/year).
+const double kFriMortgageFraisAccessoires = 0.01;
+
+/// Employer dependency ratio for salaried workers.
+const double kFriEmployerDependencySalarie = 0.9;
+
+/// Employer dependency ratio for non-salaried workers.
+const double kFriEmployerDependencyAutre = 0.5;
 
 // ────────────────────────────────────────────────────────────
 //  FRI COMPUTATION SERVICE — Phase 5 fix (CRIT-3)
@@ -49,10 +83,10 @@ class FriComputationService {
     // ── L: Liquidity ─────────────────────────────────
     final liquidAssets = profile.patrimoine.epargneLiquide;
     final monthlyGross = profile.salaireBrutMensuel;
-    // Approximate monthly fixed costs from depenses or 85% of net
+    // Approximate monthly fixed costs from depenses or estimated from gross
     final monthlyFixedCosts = profile.depenses.totalMensuel > 0
         ? profile.depenses.totalMensuel
-        : monthlyGross * 0.85;
+        : monthlyGross * kFriDefaultExpenseRatioGross;
     final totalDebt = profile.dettes.totalDettes;
     final annualIncome = monthlyGross * profile.nombreDeMois;
     final shortTermDebtRatio =
@@ -69,12 +103,12 @@ class FriComputationService {
     final isIndependantNoLpp =
         profile.employmentStatus == 'independant' &&
             (profile.prevoyance.avoirLppTotal ?? 0) <= 0;
-    final max3a = isIndependantNoLpp ? 36288.0 : 7258.0;
+    final max3a = isIndependantNoLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     // Rachat: use rachatMaximum (total buyback gap) and rachatEffectue
     final potentielRachat = profile.prevoyance.rachatMaximum ?? 0.0;
     final rachatEffectue = profile.prevoyance.rachatEffectue ?? 0.0;
-    // Marginal tax rate from centralized TaxCalculator
-    final tauxMarginal = TaxCalculator.estimateMarginalRate(
+    // Marginal tax rate from centralized RetirementTaxCalculator
+    final tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
       monthlyGross * profile.nombreDeMois,
       profile.canton,
     );
@@ -93,21 +127,21 @@ class FriComputationService {
     // Disability gap: estimated from LPP coverage vs income.
     // LPP AI covers ~40-60% of insured salary. Without detailed
     // certificate data, use conservative 30% gap default.
-    const disabilityGapRatio = 0.30;
+    const disabilityGapRatio = kFriDefaultDisabilityGapRatio;
     final hasDependents = profile.nombreEnfants > 0 ||
         profile.etatCivil == CoachCivilStatus.marie;
     // Death protection gap: similar conservative default.
     // Real value would come from LPP certificate parsing.
-    const deathProtectionGapRatio = 0.40;
+    const deathProtectionGapRatio = kFriDefaultDeathProtectionGapRatio;
     // Mortgage stress = mortgage payments / gross income
     final mortgageBalance =
         profile.patrimoine.mortgageBalance ?? 0;
-    final mortgageRate = profile.patrimoine.mortgageRate ?? 0.05;
+    final mortgageRate = profile.patrimoine.mortgageRate ?? kFriMortgageTauxTheorique;
     final propertyValue =
         profile.patrimoine.propertyMarketValue ?? 0;
     final annualMortgageCost = mortgageBalance * mortgageRate +
-        mortgageBalance * 0.01 + // amortissement 1%
-        propertyValue * 0.01; // frais accessoires 1%
+        mortgageBalance * kFriMortgageAmortissementRate + // amortissement 1%
+        propertyValue * kFriMortgageFraisAccessoires; // frais accessoires 1%
     final mortgageStressRatio =
         annualIncome > 0 ? annualMortgageCost / annualIncome : 0.0;
     // Concentration: largest single asset / total patrimoine
@@ -121,7 +155,7 @@ class FriComputationService {
         totalPatrimoine > 0 ? largestAsset / totalPatrimoine : 0.0;
     // Employer dependency: salary as % of total income (simplified at 1.0 for salariés)
     final employerDependencyRatio =
-        profile.employmentStatus == 'salarie' ? 0.9 : 0.5;
+        profile.employmentStatus == 'salarie' ? kFriEmployerDependencySalarie : kFriEmployerDependencyAutre;
 
     return FriInput(
       liquidAssets: liquidAssets,
