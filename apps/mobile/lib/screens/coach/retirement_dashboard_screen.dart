@@ -44,8 +44,14 @@ import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
 import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
 
+import 'package:mint_mobile/services/plan_tracking_service.dart';
+import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
+import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
+import 'package:mint_mobile/widgets/coach/trajectory_comparison_card.dart';
+import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
+
 // ────────────────────────────────────────────────────────────
-//  RETIREMENT DASHBOARD SCREEN — P3 / Coach IA Vivante
+//  RETIREMENT DASHBOARD SCREEN — P5 / Dashboard Assembly
 // ────────────────────────────────────────────────────────────
 //
 //  Orchestrateur du tableau de bord retraite a 3 etats.
@@ -95,6 +101,11 @@ class _RetirementDashboardScreenState
   // ── Cockpit expand state (P3: 3-4 cards gate) ──────────
   bool _cockpitExpanded = false;
 
+  // ── P5: Dashboard Assembly state ──────────────────────────
+  ProjectionResult? _initialProjection;
+  PlanStatus? _planStatus;
+  double _compoundImpact = 0;
+
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
   // ────────────────────────────────────────────────────────────
@@ -120,7 +131,7 @@ class _RetirementDashboardScreenState
     }
 
     final newProfile = provider.profile!;
-    if (identical(_profile, newProfile)) return;
+    if (_profile != null && _profile == newProfile) return;
 
     _profile = newProfile;
     try {
@@ -153,6 +164,10 @@ class _RetirementDashboardScreenState
 
       // ── P4: Monte Carlo + Tornado (State A only, conf >= 70%) ──
       _computeMonteCarloAndTornado(_profile!);
+
+      // ── P5: Snapshot persistence + Plan tracking ─────────
+      _computePlanTracking(_profile!);
+      _persistInitialSnapshot(_profile!);
 
       // ── P3: Generate narrative (async, non-blocking) ───
       unawaited(_generateNarrative(tips));
@@ -288,6 +303,69 @@ class _RetirementDashboardScreenState
   }
 
   // ────────────────────────────────────────────────────────────
+  //  P5: PLAN TRACKING + SNAPSHOT PERSISTENCE
+  // ────────────────────────────────────────────────────────────
+
+  void _computePlanTracking(CoachProfile profile) {
+    try {
+      // Build check-in data from profile's MonthlyCheckIn records
+      final checkInMaps = profile.checkIns.map((ci) => <String, dynamic>{
+            'completed': true,
+            'actions': <String>[],
+          }).toList();
+
+      // Planned actions from contributions + goals
+      final plannedActions = <String>[];
+      for (final c in profile.plannedContributions) {
+        plannedActions.add('Versement ${c.category} : ${c.amount.round()} CHF/mois');
+      }
+      if (profile.goalA.label.isNotEmpty) {
+        plannedActions.add('Objectif : ${profile.goalA.label}');
+      }
+
+      _planStatus = PlanTrackingService.evaluate(
+        checkIns: checkInMaps,
+        plannedActions: plannedActions,
+      );
+
+      final monthsToRetirement = profile.anneesAvantRetraite * 12;
+      _compoundImpact = PlanTrackingService.compoundProjectedImpact(
+        status: _planStatus!,
+        monthsToRetirement: monthsToRetirement,
+      );
+    } catch (e) {
+      debugPrint('RetirementDashboard: PlanTracking error: $e');
+      _planStatus = null;
+      _compoundImpact = 0;
+    }
+  }
+
+  void _persistInitialSnapshot(CoachProfile profile) {
+    // On first dashboard load, snapshot the current projection for
+    // before/after comparison (Task 5.6).
+    if (profile.initialProjectionSnapshot != null && _projection != null) {
+      try {
+        _initialProjection =
+            ProjectionResult.fromJson(profile.initialProjectionSnapshot!);
+      } catch (e) {
+        debugPrint('RetirementDashboard: snapshot parse error: $e');
+        _initialProjection = null;
+      }
+    } else if (_projection != null &&
+        profile.initialProjectionSnapshot == null) {
+      // First time: save snapshot to profile
+      _initialProjection = _projection;
+      final provider =
+          context.read<CoachProfileProvider>();
+      provider.updateProfile(
+        profile.copyWith(
+          initialProjectionSnapshot: _projection!.toJson(),
+        ),
+      );
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────
   //  P5: COUPLE HERO CARD — reads per-partner AVS from
   //  ForecasterService decomposition (single source of truth)
   // ────────────────────────────────────────────────────────────
@@ -414,6 +492,16 @@ class _RetirementDashboardScreenState
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
 
+                // ── P5: Patrimoine Snapshot ──────────────
+                PatrimoineSnapshotCard(
+                  lppCapital: decoBase['lpp_user'] ?? 0,
+                  avsCapitalEquivalent: decoBase['avs'] ?? 0,
+                  threeACapital: decoBase['3a'] ?? 0,
+                  epargne: decoBase['libre'] ?? 0,
+                  immobilier: profile.patrimoine.immobilier ?? 0,
+                ),
+                const SizedBox(height: 16),
+
                 // ── P5: Couple hero card OR single hero ──
                 if (isCouple) ...[
                   _buildCoupleHeroCard(profile, decoBase, proj),
@@ -466,6 +554,36 @@ class _RetirementDashboardScreenState
                     ),
                   if (_tornadoVariables.isNotEmpty)
                     const SizedBox(height: 16),
+
+                  // ── P5: Trajectory Comparison (day-1 vs current) ──
+                  if (_initialProjection != null) ...[
+                    TrajectoryComparisonCard(
+                      initialMonthly:
+                          _initialProjection!.base.revenuAnnuelRetraite / 12,
+                      currentMonthly: monthlyIncome,
+                      initialCapital: _initialProjection!.base.capitalFinal,
+                      currentCapital: proj.base.capitalFinal,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // ── P5: FRI Radar Chart (mapped from FFS sub-scores) ──
+                  FriRadarChart(
+                    liquidity: score.budget.score * 0.25,
+                    fiscal: score.patrimoine.score * 0.25,
+                    retirement: score.prevoyance.score * 0.25,
+                    structural: (score.global * 0.25).clamp(0, 25),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── P5: Plan Reality Card ──────────────────
+                  if (_planStatus != null)
+                    PlanRealityCard(
+                      status: _planStatus!,
+                      compoundImpact: _compoundImpact,
+                      monthsToRetirement: profile.anneesAvantRetraite * 12,
+                    ),
+                  if (_planStatus != null) const SizedBox(height: 16),
 
                   PillarDecomposition(
                     avsMonthly: avsMonthly,

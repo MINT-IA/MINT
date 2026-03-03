@@ -866,6 +866,36 @@ class CoachProfile {
         updatedAt = updatedAt ?? DateTime.now();
 
   // ════════════════════════════════════════════════════════════════
+  //  EQUALITY (value equality for lifecycle dedup — Phase 5)
+  // ════════════════════════════════════════════════════════════════
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CoachProfile &&
+          runtimeType == other.runtimeType &&
+          birthYear == other.birthYear &&
+          canton == other.canton &&
+          salaireBrutMensuel == other.salaireBrutMensuel &&
+          employmentStatus == other.employmentStatus &&
+          etatCivil == other.etatCivil &&
+          nombreEnfants == other.nombreEnfants &&
+          targetRetirementAge == other.targetRetirementAge &&
+          updatedAt == other.updatedAt;
+
+  @override
+  int get hashCode => Object.hash(
+        birthYear,
+        canton,
+        salaireBrutMensuel,
+        employmentStatus,
+        etatCivil,
+        nombreEnfants,
+        targetRetirementAge,
+        updatedAt,
+      );
+
+  // ════════════════════════════════════════════════════════════════
   //  COMPUTED PROPERTIES
   // ════════════════════════════════════════════════════════════════
 

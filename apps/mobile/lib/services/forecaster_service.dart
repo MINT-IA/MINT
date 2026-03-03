@@ -105,6 +105,16 @@ class ProjectionPoint {
         'contributionMensuelle': contributionMensuelle,
         'rendementCumule': rendementCumule,
       };
+
+  factory ProjectionPoint.fromJson(Map<String, dynamic> json) {
+    return ProjectionPoint(
+      date: DateTime.parse(json['date'] as String),
+      capitalCumule: (json['capitalCumule'] as num?)?.toDouble() ?? 0,
+      contributionMensuelle:
+          (json['contributionMensuelle'] as num?)?.toDouble() ?? 0,
+      rendementCumule: (json['rendementCumule'] as num?)?.toDouble() ?? 0,
+    );
+  }
 }
 
 /// Jalon de progression (ex: "100k de capital prevoyance atteint")
@@ -150,6 +160,19 @@ class ProjectionScenario {
         'decomposition': decomposition,
         'pointsCount': points.length,
       };
+
+  factory ProjectionScenario.fromJson(Map<String, dynamic> json) {
+    return ProjectionScenario(
+      label: json['label'] as String? ?? '',
+      points: const [], // points not persisted in snapshots
+      capitalFinal: (json['capitalFinal'] as num?)?.toDouble() ?? 0,
+      revenuAnnuelRetraite:
+          (json['revenuAnnuelRetraite'] as num?)?.toDouble() ?? 0,
+      decomposition: (json['decomposition'] as Map<String, dynamic>?)
+              ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
+          const {},
+    );
+  }
 }
 
 /// Resultat complet de projection (3 scenarios)
