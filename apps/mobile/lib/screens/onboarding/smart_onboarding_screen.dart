@@ -4,22 +4,28 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_jit_explanation.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_next_step.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_top_actions.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 
 // ZERO-PERSISTENCE GUARANTEE (P1):
 // All onboarding inputs stay in-memory until the user explicitly saves.
 // No SharedPreferences, no analytics payload, no auto-save before consent.
 
-/// Smart Onboarding — Value-First Flow (Lot 2).
+/// Smart Onboarding — Value-First Flow (Lot 2 + P8-2).
 ///
-/// Orchestrates the 3-question → chiffre choc → action flow.
+/// Orchestrates the 5-step onboarding experience:
+///   0: [StepQuestions]       — 3 inputs: salary, age, canton
+///   1: [StepChiffreChoc]     — reveal of the first impactful number
+///   2: [StepJitExplanation]  — SI...ALORS mini-explanation
+///   3: [StepTopActions]      — Top 3 coaching tips
+///   4: [StepNextStep]        — Enrich profile or go to dashboard
+///
 /// Uses a [PageView] with programmatic (non-swipeable) navigation so the user
 /// always follows the intentional sequence.
-///
-/// Pages:
-///   0: [StepQuestions]    — 3 inputs: salary, age, canton
-///   1: [StepChiffreChoc]  — reveal of the first impactful number
 ///
 /// The ViewModel is owned here and passed down to each step.
 /// State is managed via [ListenableBuilder] over the ViewModel.
@@ -163,6 +169,29 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     });
   }
 
+  /// Generate coaching tips from the current minimal profile.
+  List<CoachingTip> _generateTips() {
+    final profile = _viewModel.profile;
+    if (profile == null) return [];
+
+    final coachingProfile = CoachingProfile(
+      age: _viewModel.age,
+      canton: _viewModel.canton ?? 'ZH',
+      revenuAnnuel: _viewModel.grossSalary,
+      has3a: _viewModel.existing3a != null && _viewModel.existing3a! > 0,
+      montant3a: _viewModel.existing3a ?? 0,
+      hasLpp: true,
+      avoirLpp: _viewModel.existingLpp ?? 0,
+      lacuneLpp: 0,
+      chargesFixesMensuelles: profile.estimatedMonthlyExpenses,
+      epargneDispo: _viewModel.currentSavings ?? 0,
+    );
+
+    final allTips = CoachingService.generateTips(profile: coachingProfile);
+    // filterByStressType defaults to all categories (stress_general)
+    return CoachingService.filterByStressType(allTips, 'stress_general');
+  }
+
   Future<void> _saveThenGo(BuildContext context) async {
     _saveProfile(context);
     await SmartOnboardingDraftService.clearDraft();
@@ -189,6 +218,8 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     return ListenableBuilder(
       listenable: _viewModel,
       builder: (context, _) {
+        final tips = _generateTips();
+
         return Scaffold(
           body: PageView(
             controller: _pageController,
@@ -206,10 +237,28 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
-                onEnrich: () {
-                  // Save current profile first, then navigate to enrichment
-                  _saveThenEnrich(context);
-                },
+                onEnrich: () => _goToPage(2),
+                onDashboard: () => _goToPage(2),
+              ),
+
+              // ── Page 2: JIT explanation (SI...ALORS) ─────────────────────
+              StepJitExplanation(
+                chiffreChoc: _viewModel.chiffreChoc,
+                onNext: () => _goToPage(3),
+                onBack: () => _goToPage(1),
+              ),
+
+              // ── Page 3: Top 3 actions ────────────────────────────────────
+              StepTopActions(
+                tips: tips,
+                onNext: () => _goToPage(4),
+                onBack: () => _goToPage(2),
+              ),
+
+              // ── Page 4: Next step (enrich or dashboard) ──────────────────
+              StepNextStep(
+                confidenceScore: _viewModel.confidenceScore,
+                onEnrich: () => _saveThenEnrich(context),
                 onDashboard: () => _saveThenGo(context),
               ),
             ],

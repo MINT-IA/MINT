@@ -181,6 +181,44 @@ class ProjectionResult {
         'disclaimer': disclaimer,
         'sources': sources,
       };
+
+  /// Reconstruct a [ProjectionResult] from a JSON map (e.g. stored snapshot).
+  ///
+  /// Used by the day-1 snapshot comparison on the dashboard (Phase 5).
+  /// Only restores aggregate figures (capitalFinal, revenuAnnuelRetraite,
+  /// decomposition) — monthly [points] are NOT serialised to keep
+  /// the snapshot lightweight.
+  factory ProjectionResult.fromJson(Map<String, dynamic> json) {
+    ProjectionScenario _scenarioFromJson(Map<String, dynamic> s) {
+      return ProjectionScenario(
+        label: s['label'] as String? ?? '',
+        points: const [], // points are not persisted in snapshots
+        capitalFinal: (s['capitalFinal'] as num?)?.toDouble() ?? 0,
+        revenuAnnuelRetraite:
+            (s['revenuAnnuelRetraite'] as num?)?.toDouble() ?? 0,
+        decomposition: (s['decomposition'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
+            const {},
+      );
+    }
+
+    return ProjectionResult(
+      prudent: _scenarioFromJson(
+          json['prudent'] as Map<String, dynamic>? ?? const {}),
+      base: _scenarioFromJson(
+          json['base'] as Map<String, dynamic>? ?? const {}),
+      optimiste: _scenarioFromJson(
+          json['optimiste'] as Map<String, dynamic>? ?? const {}),
+      tauxRemplacementBase:
+          (json['tauxRemplacementBase'] as num?)?.toDouble() ?? 0,
+      milestones: const [], // milestones are not persisted in snapshots
+      disclaimer: json['disclaimer'] as String? ?? '',
+      sources: (json['sources'] as List<dynamic>?)
+              ?.map((s) => s as String)
+              .toList() ??
+          const [],
+    );
+  }
 }
 
 /// Service de projection financiere.

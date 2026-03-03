@@ -815,6 +815,12 @@ class CoachProfile {
   /// Certaines caisses LPP permettent des 58 ans.
   final int? targetRetirementAge;
 
+  // === SNAPSHOT ===
+  /// Day-1 projection snapshot captured at onboarding completion.
+  /// Enables before/after comparison on the dashboard (Phase 5).
+  /// Null until the first projection is run post-onboarding.
+  final Map<String, dynamic>? initialProjectionSnapshot;
+
   // === META ===
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -852,6 +858,7 @@ class CoachProfile {
     this.residencePermit,
     this.familyChange,
     this.targetRetirementAge,
+    this.initialProjectionSnapshot,
     this.dataSources = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -972,6 +979,7 @@ class CoachProfile {
     String? residencePermit,
     String? familyChange,
     int? targetRetirementAge,
+    Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1005,6 +1013,7 @@ class CoachProfile {
       residencePermit: residencePermit ?? this.residencePermit,
       familyChange: familyChange ?? this.familyChange,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
+      initialProjectionSnapshot: initialProjectionSnapshot ?? this.initialProjectionSnapshot,
       dataSources: dataSources ?? this.dataSources,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
