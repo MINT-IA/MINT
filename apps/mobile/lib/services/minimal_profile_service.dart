@@ -91,7 +91,7 @@ class MinimalProfileService {
     final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core via FiscalService for marginal rate) ---
-    final marginalRate = _estimateMarginalRate(grossSalary, canton, effectiveHousehold);
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(grossSalary, canton);
     final taxSaving3a = marginalRate * pilier3aPlafondAvecLpp;
 
     // --- Liquidity analysis ---
@@ -143,34 +143,6 @@ class MinimalProfileService {
       balance += salaireCoord * getLppBonificationRate(a);
     }
     return balance;
-  }
-
-  /// Estimate marginal tax rate using FiscalService.
-  ///
-  /// Computes effective rate at current income, then adds 1 CHF bracket
-  /// to approximate the marginal rate.
-  static double _estimateMarginalRate(
-    double grossAnnualSalary,
-    String canton,
-    String householdType,
-  ) {
-    final etatCivil = (householdType == 'couple' || householdType == 'family')
-        ? 'marie'
-        : 'celibataire';
-    final nombreEnfants = householdType == 'family' ? 1 : 0;
-
-    final result = FiscalService.estimateTax(
-      revenuBrut: grossAnnualSalary,
-      canton: canton,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-    );
-
-    final tauxEffectif = (result['tauxEffectif'] as double) / 100;
-
-    // Marginal rate is typically 1.3-1.5x the effective rate in Swiss
-    // progressive tax system. Use 1.4x as a reasonable approximation.
-    return (tauxEffectif * 1.4).clamp(0.05, 0.45);
   }
 
   /// Estimate monthly expenses from gross salary and household type.

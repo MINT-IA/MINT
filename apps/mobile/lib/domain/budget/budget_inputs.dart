@@ -1,4 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 enum PayFrequency {
@@ -49,12 +50,23 @@ class BudgetInputs {
   ///
   /// Utilise pour synchroniser le budget quand le profil change
   /// (wizard, annual refresh, mini-onboarding).
-  /// Le revenu net est estime a 87% du brut (charges sociales).
+  /// Le revenu net utilise NetIncomeBreakdown (canton + age).
   /// Les dettes sont reparties sur 36 mois de remboursement.
   static BudgetInputs fromCoachProfile(CoachProfile profile) {
-    // Revenu net du ménage (utilisateur + conjoint si couple)
-    final ownNet = profile.salaireBrutMensuel * 0.87;
-    final partnerNet = (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    // Revenu net du menage (utilisateur + conjoint si couple)
+    final ownBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final ownNet = ownBreakdown.monthlyNetPayslip;
+    final partnerNet = profile.conjoint != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: profile.conjoint!.salaireBrutMensuel * 12,
+            canton: profile.canton,
+            age: profile.conjoint!.age,
+          ).monthlyNetPayslip
+        : 0.0;
     final monthlyNet = ownNet + partnerNet;
     final monthlyDebt =
         profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;

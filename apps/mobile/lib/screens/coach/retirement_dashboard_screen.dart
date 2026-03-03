@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
@@ -225,7 +226,8 @@ class _RetirementDashboardScreenState
 
     // Reengagement messages
     final taxSaving3a = profile.salaireBrutMensuel > 0
-        ? 7258.0 * _estimateMarginalRate(profile)
+        ? 7258.0 * RetirementTaxCalculator.estimateMarginalRate(
+            profile.salaireBrutMensuel * 12, profile.canton)
         : 0.0;
     final friScore = _score?.global.toDouble() ?? 0.0;
 
@@ -283,16 +285,6 @@ class _RetirementDashboardScreenState
       debugPrint('RetirementDashboard: Tornado error: $e');
       _tornadoVariables = const [];
     }
-  }
-
-  double _estimateMarginalRate(CoachProfile profile) {
-    // Simplified marginal rate estimation (full version in FiscalService)
-    final gross = profile.salaireBrutMensuel * 12;
-    if (gross <= 0) return 0.25;
-    if (gross < 50000) return 0.15;
-    if (gross < 100000) return 0.25;
-    if (gross < 150000) return 0.32;
-    return 0.38;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -454,8 +446,11 @@ class _RetirementDashboardScreenState
                   // ── P4: Toggle 3-Scenarios / Monte Carlo ──
                   MonteCarloToggleSection(
                     monteCarloResult: _monteCarloResult,
-                    currentMonthlyIncome:
-                        profile.salaireBrutMensuel * 0.87,
+                    currentMonthlyIncome: NetIncomeBreakdown.compute(
+                      grossSalary: profile.salaireBrutMensuel * 12,
+                      canton: profile.canton,
+                      age: profile.age,
+                    ).monthlyNetPayslip,
                     monteCarloAvailable: _monteCarloResult != null,
                     scenariosChild: TrajectoryCard(
                       profile: profile,

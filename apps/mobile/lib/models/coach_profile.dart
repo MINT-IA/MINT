@@ -10,6 +10,7 @@ library;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -886,9 +887,12 @@ class CoachProfile {
 
   /// Reste a vivre mensuel estime (brut - depenses - cotisations sociales)
   double get resteAVivreMensuel {
-    // Approximation: 13% de charges sociales
-    final netMensuel = salaireBrutMensuel * 0.87;
-    return netMensuel - totalDepensesMensuelles;
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: salaireBrutMensuel * 12,
+      canton: canton,
+      age: age,
+    );
+    return breakdown.monthlyNetPayslip - totalDepensesMensuelles;
   }
 
   /// Nombre de check-ins completes
@@ -1030,10 +1034,15 @@ class CoachProfile {
   /// Convertit le CoachProfile en BudgetInputs.
   ///
   /// Utile quand on a un CoachProfile mais pas les réponses wizard brutes.
-  /// Le revenu net est estimé à 87% du brut (charges sociales).
+  /// Le revenu net utilise NetIncomeBreakdown (canton + age).
   /// Les dettes mensuelles sont estimées sur 36 mois de remboursement.
   BudgetInputs toBudgetInputs() {
-    final netMensuel = salaireBrutMensuel * 0.87;
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: salaireBrutMensuel * 12,
+      canton: canton,
+      age: age,
+    );
+    final netMensuel = breakdown.monthlyNetPayslip;
     final monthlyDebt = dettes.totalDettes > 0
         ? dettes.totalDettes / 36
         : 0.0;

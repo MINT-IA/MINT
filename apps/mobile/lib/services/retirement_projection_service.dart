@@ -207,9 +207,21 @@ class RetirementProjectionService {
     final revenuMensuel =
         incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
-    // Pre-retirement income (net)
-    final revenuPreRetraite = profile.revenuBrutAnnuel * 0.87 / 12 +
-        (profile.conjoint?.revenuBrutAnnuel ?? 0) * 0.87 / 12;
+    // Pre-retirement income (net) via NetIncomeBreakdown
+    final userBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: profile.revenuBrutAnnuel,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final conjBreakdown = profile.conjoint != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: profile.conjoint!.revenuBrutAnnuel,
+            canton: profile.canton,
+            age: profile.conjoint!.age,
+          )
+        : null;
+    final revenuPreRetraite = userBreakdown.monthlyNetPayslip +
+        (conjBreakdown?.monthlyNetPayslip ?? 0);
     final tauxRemplacement =
         revenuPreRetraite > 0 ? revenuMensuel / revenuPreRetraite * 100 : 0.0;
 
@@ -735,7 +747,11 @@ class RetirementProjectionService {
       ));
 
       // Conjoint salary (still working)
-      final conjNet = profile.conjoint!.revenuBrutAnnuel * 0.87 / 12;
+      final conjNet = NetIncomeBreakdown.compute(
+        grossSalary: profile.conjoint!.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.conjoint!.age,
+      ).monthlyNetPayslip;
       if (conjNet > 0) {
         sources.add(RetirementIncomeSource(
           id: 'salary_conjoint',
@@ -804,7 +820,11 @@ class RetirementProjectionService {
       }
 
       // User salary (still working)
-      final userNet = profile.revenuBrutAnnuel * 0.87 / 12;
+      final userNet = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.age,
+      ).monthlyNetPayslip;
       if (userNet > 0) {
         sources.add(RetirementIncomeSource(
           id: 'salary_user',
@@ -991,8 +1011,20 @@ class RetirementProjectionService {
           : 'celibataire',
     );
 
-    final revenuPreRetraite = profile.revenuBrutAnnuel * 0.87 / 12 +
-        (profile.conjoint?.revenuBrutAnnuel ?? 0) * 0.87 / 12;
+    final userBkdn = NetIncomeBreakdown.compute(
+      grossSalary: profile.revenuBrutAnnuel,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final conjBkdn = profile.conjoint != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: profile.conjoint!.revenuBrutAnnuel,
+            canton: profile.canton,
+            age: profile.conjoint!.age,
+          )
+        : null;
+    final revenuPreRetraite =
+        userBkdn.monthlyNetPayslip + (conjBkdn?.monthlyNetPayslip ?? 0);
     final tauxRemplacement =
         revenuPreRetraite > 0 ? totalRevenus / revenuPreRetraite * 100 : 0.0;
 

@@ -220,9 +220,19 @@ class ForecasterService {
 
     // Taux de remplacement base sur le scenario base
     // Use household income (main + partner) when conjoint exists
-    final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
-    final partnerNetMensuel =
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final mainBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final revenuNetMensuel = mainBreakdown.monthlyNetPayslip;
+    final partnerNetMensuel = profile.conjoint != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: profile.conjoint!.salaireBrutMensuel * 12,
+            canton: profile.canton,
+            age: profile.conjoint!.age,
+          ).monthlyNetPayslip
+        : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
     final tauxRemplacement = _safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
@@ -340,9 +350,19 @@ class ForecasterService {
     );
 
     // Taux de remplacement base (household income for couples)
-    final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
-    final partnerNetMensuel =
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final mainBreakdownCustom = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final revenuNetMensuel = mainBreakdownCustom.monthlyNetPayslip;
+    final partnerNetMensuel = profile.conjoint != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: profile.conjoint!.salaireBrutMensuel * 12,
+            canton: profile.canton,
+            age: profile.conjoint!.age,
+          ).monthlyNetPayslip
+        : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
     final tauxRemplacement = _safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,

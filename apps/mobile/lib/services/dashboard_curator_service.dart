@@ -6,7 +6,7 @@ import 'package:mint_mobile/services/reengagement_engine.dart';
 /// Selects and prioritizes the cards shown on the retirement dashboard.
 /// Max 3-4 cards, sorted by: urgency > impact CHF > deadline proximity.
 ///
-/// Extracts urgency/deadline logic from coach_dashboard_screen.dart monolith
+/// Extracts urgency/deadline logic from legacy dashboard monolith (archived) monolith
 /// into a reusable, testable service.
 class DashboardCuratorService {
   DashboardCuratorService._();
@@ -22,7 +22,7 @@ class DashboardCuratorService {
   /// Compute urgency level for a coaching tip.
   ///
   /// Returns [AlertUrgency.urgent] if high priority AND deadline <= 30 days.
-  /// Extracted from coach_dashboard_screen.dart L2824-2835.
+  /// Extracted from legacy dashboard monolith (archived) L2824-2835.
   static AlertUrgency computeAlertUrgency(CoachingTip? tip) {
     if (tip == null) return AlertUrgency.info;
     if (tip.priority != CoachingPriority.haute) return AlertUrgency.info;
@@ -37,7 +37,7 @@ class DashboardCuratorService {
   /// Format deadline countdown text for a coaching tip.
   ///
   /// Returns "Aujourd'hui", "Demain", or "J-{days}".
-  /// Extracted from coach_dashboard_screen.dart L2837-2844.
+  /// Extracted from legacy dashboard monolith (archived) L2837-2844.
   static String? computeDeadlineText(CoachingTip? tip) {
     if (tip == null) return null;
     final days = getDeadlineDaysForTip(tip);
@@ -53,7 +53,7 @@ class DashboardCuratorService {
   /// - 'deadline_3a' → Dec 31
   /// - 'tax_deadline' → Mar 31
   ///
-  /// Extracted from coach_dashboard_screen.dart L2846-2862.
+  /// Extracted from legacy dashboard monolith (archived) L2846-2862.
   static int? getDeadlineDaysForTip(CoachingTip tip, {DateTime? today}) {
     final now = today ?? DateTime.now();
 

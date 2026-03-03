@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
@@ -482,8 +483,13 @@ class CoachProfileProvider extends ChangeNotifier {
     // Persist updated wizard answers with refreshed fields
     final answers = await ReportPersistenceService.loadAnswers();
     if (salaireBrutMensuel != null) {
-      // Convert back to net for wizard format (brut * 0.87)
-      answers['q_net_income_period_chf'] = salaireBrutMensuel * 0.87;
+      // Convert brut to net for wizard format using NetIncomeBreakdown
+      final breakdown = NetIncomeBreakdown.compute(
+        grossSalary: salaireBrutMensuel * 12,
+        canton: _profile?.canton ?? 'ZH',
+        age: _profile?.age ?? 45,
+      );
+      answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
     }
     if (employmentStatus != null) {
       answers['q_employment_status'] = employmentStatus;
