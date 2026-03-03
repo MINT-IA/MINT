@@ -7,15 +7,18 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 //  PATRIMOINE SNAPSHOT CARD — Phase 5 / Dashboard Assembly
 // ────────────────────────────────────────────────────────────
 //
-// Carte résumé du patrimoine total avec barre empilée 5 segments :
-// LPP, AVS (capital équivalent), 3a, Épargne, Immobilier.
+// Carte résumé du patrimoine total avec barre empilée 4 segments :
+// LPP, 3a, Épargne, Immobilier.
+//
+// NOTE: AVS excluded — AVS is a pay-as-you-go (répartition) system
+// (LAVS art. 18). It's a right to a rente, not owned capital.
+// Showing a "capital equivalent" for AVS would be misleading.
 //
 // Outil éducatif — ne constitue pas un conseil financier (LSFin).
 // ────────────────────────────────────────────────────────────
 
 class PatrimoineSnapshotCard extends StatelessWidget {
   final double lppCapital;
-  final double avsCapitalEquivalent;
   final double threeACapital;
   final double epargne;
   final double immobilier;
@@ -23,14 +26,12 @@ class PatrimoineSnapshotCard extends StatelessWidget {
   const PatrimoineSnapshotCard({
     super.key,
     required this.lppCapital,
-    required this.avsCapitalEquivalent,
     required this.threeACapital,
     required this.epargne,
     required this.immobilier,
   });
 
-  double get _total =>
-      lppCapital + avsCapitalEquivalent + threeACapital + epargne + immobilier;
+  double get _total => lppCapital + threeACapital + epargne + immobilier;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,6 @@ class PatrimoineSnapshotCard extends StatelessWidget {
 
     final segments = [
       _Segment('LPP', lppCapital, MintColors.primary),
-      _Segment('AVS', avsCapitalEquivalent, MintColors.info),
       _Segment('3a', threeACapital, const Color(0xFF4CAF50)),
       _Segment('Épargne', epargne, const Color(0xFFFFA726)),
       _Segment('Immobilier', immobilier, const Color(0xFF78909C)),

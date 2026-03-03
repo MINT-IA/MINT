@@ -50,6 +50,7 @@ import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
 
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
+import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
 import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
 import 'package:mint_mobile/widgets/coach/trajectory_comparison_card.dart';
@@ -113,6 +114,7 @@ class _RetirementDashboardScreenState
   double _compoundImpact = 0;
   FriBreakdown? _friBreakdown;
   bool _snapshotPersisted = false; // WARN-2: guard against re-entry loop
+  bool _slmPromptChecked = false;
 
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
@@ -121,6 +123,15 @@ class _RetirementDashboardScreenState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // SLM auto-prompt: trigger once on first dashboard visit (native only).
+    if (!_slmPromptChecked) {
+      _slmPromptChecked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) SlmAutoPromptService.checkAndPrompt(context);
+      });
+    }
+
     final provider = context.watch<CoachProfileProvider>();
     if (!provider.hasProfile) {
       _profile = null;
@@ -272,13 +283,25 @@ class _RetirementDashboardScreenState
       reengagementMessages: reengagementMessages,
     );
 
-    // Temporal items
-    _temporalItems = TemporalPriorityService.prioritize(
+    // Temporal items — filter out categories already covered by curated cards
+    final rawTemporalItems = TemporalPriorityService.prioritize(
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       taxSaving3a: taxSaving3a,
       friTotal: friScore,
       friDelta: friDelta,
     );
+    // Remove fiscal temporal items when curated cards already show tax_deadline
+    final hasTaxCard = _curatedCards.any((c) {
+      final src = c.source;
+      return src is CoachingTip && src.id == 'tax_deadline';
+    });
+    _temporalItems = hasTaxCard
+        ? rawTemporalItems
+            .where((t) =>
+                !t.title.toLowerCase().contains('fiscal') &&
+                !t.title.toLowerCase().contains('déclaration'))
+            .toList()
+        : rawTemporalItems;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -370,15 +393,18 @@ class _RetirementDashboardScreenState
       }
     } else if (_projection != null &&
         profile.initialProjectionSnapshot == null) {
-      // First time: save snapshot to profile
+      // First time: save snapshot to profile.
+      // Deferred to post-frame to avoid setState() during build phase.
       _snapshotPersisted = true;
       _initialProjection = _projection;
-      final provider = context.read<CoachProfileProvider>();
-      provider.updateProfile(
-        profile.copyWith(
-          initialProjectionSnapshot: _projection!.toJson(),
-        ),
-      );
+      final snapshotJson = _projection!.toJson();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final provider = context.read<CoachProfileProvider>();
+        provider.updateProfile(
+          profile.copyWith(initialProjectionSnapshot: snapshotJson),
+        );
+      });
     }
   }
 
@@ -520,7 +546,6 @@ class _RetirementDashboardScreenState
                 // ── P5: Patrimoine Snapshot ──────────────
                 PatrimoineSnapshotCard(
                   lppCapital: decoBase['lpp_user'] ?? 0,
-                  avsCapitalEquivalent: decoBase['avs'] ?? 0,
                   threeACapital: decoBase['3a'] ?? 0,
                   epargne: decoBase['libre'] ?? 0,
                   immobilier: profile.patrimoine.immobilier ?? 0,

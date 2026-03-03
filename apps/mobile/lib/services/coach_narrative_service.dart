@@ -354,16 +354,8 @@ class CoachNarrativeService {
       }
     }
 
-    // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID)
-    if (urgentAlert == null && now.month >= 2 && now.month <= 3) {
-      final deadline = DateTime(now.year, 3, 31);
-      final joursRestants = deadline.difference(now).inDays;
-      if (joursRestants >= 0) {
-        urgentAlert = 'Declaration fiscale a rendre avant le 31 mars '
-            '($joursRestants jours restants). '
-            '\u2014 LIFD / LHID';
-      }
-    }
+    // Feb-Mar: declaration fiscale — handled by CoachingService 'tax_deadline'
+    // tip (curated cards). Removed here to avoid 4× duplication on dashboard.
 
     // ── chiffreChocNarration + retirementCountdown (static fallback) ──
     String? chiffreChocNarration;

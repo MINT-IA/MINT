@@ -87,9 +87,11 @@ void main() {
     });
 
     test('80% threshold: contribution at exactly 80% counts as completed', () {
+      // 483.86 / 604.83 = 0.79993... (floating point < 0.80), so use 484.0
+      // 484.0 / 604.83 = 0.80016... which is unambiguously >= 0.80
       final status = PlanTrackingService.evaluate(
         checkIns: [
-          _checkIn({'3a_julien': 483.86}), // 80% of 604.83
+          _checkIn({'3a_julien': 484.0}), // >= 80% of 604.83
         ],
         contributions: [
           _contrib('3a_julien', 604.83, '3a'),

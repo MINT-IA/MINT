@@ -122,8 +122,16 @@ class DashboardCuratorService {
       ));
     }
 
-    // Add reengagement message cards
+    // Detect if coaching tips already cover fiscal deadline
+    final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');
+
+    // Add reengagement message cards (skip fiscal if already in tips)
     for (final msg in reengagementMessages) {
+      if (hasTaxTip &&
+          (msg.trigger == ReengagementTrigger.taxPrep ||
+              msg.trigger == ReengagementTrigger.taxDeadline)) {
+        continue;
+      }
       cards.add(CuratedCard(
         type: CuratedCardType.reengagement,
         title: msg.title,
