@@ -36,15 +36,76 @@ class ProjectionConfidence {
   });
 }
 
-/// Confidence scorer for retirement projections.
+/// Score for a single data block (used by UI to show per-bloc progress).
+class BlockScore {
+  final double score;
+  final double maxScore;
+  final String status; // 'complete', 'partial', 'missing'
+
+  const BlockScore({
+    required this.score,
+    required this.maxScore,
+    required this.status,
+  });
+}
+
+/// Confidence scorer for retirement projections — V2.
 ///
 /// Scores 0-100 based on data completeness per profile.
 /// Each missing data point reduces the score and generates
 /// an enrichment prompt to guide the user.
 ///
+/// V2 changes (P8 Phase 3):
+/// - Added objectifRetraite (10 pts) — LAVS art. 21 (age legal)
+/// - Added compositionMenage (15 pts) — LPP art. 19 (rente survivant)
+/// - Redistributed weights: total remains 100
+/// - Added scoreAsBlocs() for per-block UI display
+///
+/// Weight table (V2):
+/// | Component          | Max | Source              |
+/// |--------------------|-----|---------------------|
+/// | Salaire            |  12 | —                   |
+/// | Age + Canton       |   8 | —                   |
+/// | Archetype          |   5 | —                   |
+/// | Objectif retraite  |  10 | LAVS art. 21        |
+/// | Menage (couple)    |  15 | LPP art. 19         |
+/// | LPP avoir reel     |  18 | LPP art. 15         |
+/// | Taux conversion    |   5 | LPP art. 14         |
+/// | AVS extrait        |  10 | LAVS art. 29        |
+/// | 3a soldes          |   8 | OPP3 art. 7         |
+/// | Patrimoine         |   7 | —                   |
+/// | Foreign pension    |   2 | —                   |
+/// | **Total**          | 100 |                     |
+///
 /// Reference: ADR-20260223-archetype-driven-retirement.md
 class ConfidenceScorer {
   ConfidenceScorer._();
+
+  // ── Component weights (V2) ─────────────────────────────────────
+  static const int _wSalaire = 12;
+  static const int _wAgeCanton = 8;
+  static const int _wArchetype = 5;
+  static const int _wObjectifRetraite = 10;
+  static const int _wMenage = 15;
+  static const int _wLpp = 18;
+  static const int _wTauxConversion = 5;
+  static const int _wAvs = 10;
+  static const int _w3a = 8;
+  static const int _wPatrimoine = 7;
+  static const int _wForeignPension = 2;
+
+  /// Sum of all weights — invariant = 100.
+  static const int totalWeight = _wSalaire +
+      _wAgeCanton +
+      _wArchetype +
+      _wObjectifRetraite +
+      _wMenage +
+      _wLpp +
+      _wTauxConversion +
+      _wAvs +
+      _w3a +
+      _wPatrimoine +
+      _wForeignPension;
 
   /// Minimum confidence score (0-100) to display projections.
   /// Below this threshold, show enrichment prompts instead.
@@ -56,74 +117,123 @@ class ConfidenceScorer {
     final prompts = <EnrichmentPrompt>[];
     final assumptions = <String>[];
 
-    // --- Salary (15 pts) ---
+    // --- Salaire (12 pts) ---
     if (profile.salaireBrutMensuel > 0) {
-      total += 15;
+      total += _wSalaire;
     } else {
       assumptions.add('Salaire non renseigne — estimation impossible');
       prompts.add(const EnrichmentPrompt(
         label: 'Ajoute ton salaire',
-        impact: 15,
+        impact: _wSalaire,
         category: 'income',
         action: 'Renseigne ton salaire brut mensuel',
       ));
     }
 
-    // --- Age + canton (10 pts) ---
+    // --- Age + canton (8 pts) ---
     if (profile.age > 0 && profile.canton.isNotEmpty) {
-      total += 10;
+      total += _wAgeCanton;
     } else {
       assumptions.add('Age ou canton manquant');
     }
 
     // --- Archetype detectable (5 pts) ---
-    // Without FinancialArchetype enum, use proxy signals
     if (_hasArchetypeSignals(profile)) {
-      total += 5;
+      total += _wArchetype;
     }
 
-    // --- LPP avoir reel (20 pts) ---
+    // --- Objectif retraite (10 pts) — LAVS art. 21 ---
+    // Non-default retirement age means the user has thought about it.
+    if (profile.targetRetirementAge != null &&
+        profile.targetRetirementAge != 65) {
+      total += _wObjectifRetraite;
+    } else {
+      total += 3;
+      prompts.add(const EnrichmentPrompt(
+        label: 'Fixe un objectif retraite',
+        impact: 7,
+        category: 'objectif_retraite',
+        action: 'A quel age souhaites-tu prendre ta retraite ? (58-70)',
+      ));
+    }
+
+    // --- Composition menage (15 pts) — LPP art. 19 ---
+    final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
+        profile.etatCivil == CoachCivilStatus.concubinage;
+    if (!isCoupled) {
+      // Single/divorced/widowed: full points (not applicable)
+      total += _wMenage;
+    } else if (profile.conjoint == null) {
+      // Coupled but no partner data at all
+      prompts.add(const EnrichmentPrompt(
+        label: 'Ajoute les infos de ton\u00b7ta partenaire',
+        impact: _wMenage,
+        category: 'menage',
+        action: 'Revenu et age de ton\u00b7ta partenaire pour des projections couple',
+      ));
+    } else {
+      final hasRevenu = profile.conjoint!.salaireBrutMensuel != null &&
+          profile.conjoint!.salaireBrutMensuel! > 0;
+      final hasAge = profile.conjoint!.birthYear != null;
+      if (hasRevenu && hasAge) {
+        total += _wMenage;
+      } else if (hasRevenu || hasAge) {
+        total += 8;
+        prompts.add(const EnrichmentPrompt(
+          label: 'Complete le profil partenaire',
+          impact: 7,
+          category: 'menage',
+          action: 'Ajoute le revenu et l\'age de ton\u00b7ta partenaire',
+        ));
+      } else {
+        prompts.add(const EnrichmentPrompt(
+          label: 'Ajoute les infos de ton\u00b7ta partenaire',
+          impact: _wMenage,
+          category: 'menage',
+          action: 'Revenu et age pour des projections couple fiables',
+        ));
+      }
+    }
+
+    // --- LPP avoir reel (18 pts) — LPP art. 15 ---
     final lppDeclared = profile.prevoyance.avoirLppTotal;
+    final isIndepSansLpp = profile.employmentStatus == 'independant' &&
+        (lppDeclared == null || lppDeclared <= 0);
     if (lppDeclared != null && lppDeclared > 0) {
-      // Has declared LPP — but is it real or estimated?
-      // If the user manually entered it (vs estimation from salary), give full points.
-      // For now, give partial credit since we can't distinguish.
-      total += 12;
+      // Declared LPP — partial credit (estimated from salary)
+      total += 11;
       prompts.add(const EnrichmentPrompt(
         label: 'Confirme ton solde LPP',
-        impact: 8,
+        impact: 7,
         category: 'lpp',
         action: 'Ajoute ton certificat de prevoyance (solde exact)',
       ));
       assumptions.add('LPP estime depuis le salaire — peut varier de +-30%');
-    } else if (profile.employmentStatus == 'independant') {
-      // Independent without LPP: no penalty
-      total += 20;
+    } else if (isIndepSansLpp) {
+      // Independent without LPP: not applicable
+      total += _wLpp;
     } else {
       assumptions.add('Avoir LPP non renseigne — estimation depuis le salaire');
       prompts.add(const EnrichmentPrompt(
         label: 'Ajoute ton solde LPP',
-        impact: 20,
+        impact: _wLpp,
         category: 'lpp',
         action: 'Ajoute ton certificat de prevoyance (solde exact)',
       ));
     }
 
-    // --- Taux conversion reel (10 pts) ---
-    // Only relevant if user has LPP
-    final isIndepSansLpp = profile.employmentStatus == 'independant' &&
-        (lppDeclared == null || lppDeclared <= 0);
+    // --- Taux conversion reel (5 pts) — LPP art. 14 ---
     if (isIndepSansLpp) {
-      total += 10; // Not applicable → full points
+      total += _wTauxConversion; // Not applicable
     } else {
       final tauxConv = profile.prevoyance.tauxConversion;
       if (tauxConv != 0.068) {
-        total += 10;
+        total += _wTauxConversion;
       } else {
-        total += 3;
+        total += 1;
         prompts.add(const EnrichmentPrompt(
           label: 'Taux de conversion reel',
-          impact: 7,
+          impact: 4,
           category: 'lpp',
           action: 'Lis ton certificat de prevoyance (taux enveloppe)',
         ));
@@ -132,63 +242,61 @@ class ConfidenceScorer {
       }
     }
 
-    // --- Extrait AVS (15 pts) ---
+    // --- Extrait AVS (10 pts) — LAVS art. 29 ---
     final hasAvsData = profile.prevoyance.anneesContribuees != null;
     if (hasAvsData) {
-      total += 15;
+      total += _wAvs;
     } else {
-      total += 5; // Basic AVS estimate from age
+      total += 3; // Basic AVS estimate from age
       prompts.add(const EnrichmentPrompt(
         label: 'Commande ton extrait AVS',
-        impact: 10,
+        impact: 7,
         category: 'avs',
         action: 'Gratuit sur inforegister.ch — annees effectives',
       ));
       assumptions.add('Annees AVS estimees depuis l\'age — lacunes possibles');
     }
 
-    // --- Soldes 3a reels (10 pts) ---
+    // --- Soldes 3a reels (8 pts) — OPP3 art. 7 ---
     final has3a = profile.prevoyance.totalEpargne3a > 0;
     if (has3a) {
-      total += 10;
+      total += _w3a;
     } else {
-      total += 2;
+      total += 1;
       prompts.add(const EnrichmentPrompt(
         label: 'Ajoute tes soldes 3a',
-        impact: 8,
+        impact: 7,
         category: '3a',
         action: 'Saisis tes soldes 3e pilier (chaque compte)',
       ));
     }
 
-    // --- Patrimoine detaille (10 pts) ---
+    // --- Patrimoine detaille (7 pts) ---
     final hasPatrimoine = profile.patrimoine.totalPatrimoine > 0;
     if (hasPatrimoine) {
-      total += 10;
+      total += _wPatrimoine;
     } else {
-      total += 2;
+      total += 1;
       prompts.add(const EnrichmentPrompt(
         label: 'Renseigne ton patrimoine',
-        impact: 8,
+        impact: 6,
         category: 'patrimoine',
         action: 'Epargne, investissements, immobilier',
       ));
     }
 
-    // --- Foreign pension (5 pts, only for expats) ---
+    // --- Foreign pension (2 pts, only for expats) ---
     final isExpat = profile.arrivalAge != null && profile.arrivalAge! > 21;
     if (isExpat) {
-      // Expat: foreign pension data would help
-      total += 0;
       prompts.add(const EnrichmentPrompt(
         label: 'Pension etrangere',
-        impact: 5,
+        impact: _wForeignPension,
         category: 'foreign_pension',
         action: 'As-tu des droits a une retraite dans ton pays d\'origine?',
       ));
       assumptions.add('Pension etrangere non modelisee');
     } else {
-      total += 5;
+      total += _wForeignPension;
     }
 
     // ── Age-weighted penalties for 50+ ──────────────────────
@@ -258,6 +366,162 @@ class ConfidenceScorer {
       assumptions: assumptions,
       bayesianResult: bayesianResult,
     );
+  }
+
+  /// Return the score decomposed by data block (for UI display).
+  ///
+  /// Keys: 'revenu', 'age_canton', 'archetype', 'objectifRetraite',
+  ///        'compositionMenage', 'lpp', 'taux_conversion', 'avs',
+  ///        '3a', 'patrimoine', 'foreign_pension'.
+  static Map<String, BlockScore> scoreAsBlocs(CoachProfile profile) {
+    final blocs = <String, BlockScore>{};
+
+    // --- Salaire ---
+    final salaire = profile.salaireBrutMensuel > 0
+        ? _wSalaire.toDouble()
+        : 0.0;
+    blocs['revenu'] = BlockScore(
+      score: salaire,
+      maxScore: _wSalaire.toDouble(),
+      status: salaire == _wSalaire ? 'complete' : 'missing',
+    );
+
+    // --- Age + Canton ---
+    final ageCanton = (profile.age > 0 && profile.canton.isNotEmpty)
+        ? _wAgeCanton.toDouble()
+        : 0.0;
+    blocs['age_canton'] = BlockScore(
+      score: ageCanton,
+      maxScore: _wAgeCanton.toDouble(),
+      status: ageCanton == _wAgeCanton ? 'complete' : 'missing',
+    );
+
+    // --- Archetype ---
+    final archetype = _hasArchetypeSignals(profile)
+        ? _wArchetype.toDouble()
+        : 0.0;
+    blocs['archetype'] = BlockScore(
+      score: archetype,
+      maxScore: _wArchetype.toDouble(),
+      status: archetype == _wArchetype ? 'complete' : 'missing',
+    );
+
+    // --- Objectif retraite ---
+    final hasCustomRetirement = profile.targetRetirementAge != null &&
+        profile.targetRetirementAge != 65;
+    final objectifScore = hasCustomRetirement ? _wObjectifRetraite.toDouble() : 3.0;
+    blocs['objectifRetraite'] = BlockScore(
+      score: objectifScore,
+      maxScore: _wObjectifRetraite.toDouble(),
+      status: hasCustomRetirement ? 'complete' : 'partial',
+    );
+
+    // --- Composition menage ---
+    final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
+        profile.etatCivil == CoachCivilStatus.concubinage;
+    double menageScore;
+    String menageStatus;
+    if (!isCoupled) {
+      menageScore = _wMenage.toDouble();
+      menageStatus = 'complete';
+    } else if (profile.conjoint == null) {
+      menageScore = 0;
+      menageStatus = 'missing';
+    } else {
+      final hasRevenu = profile.conjoint!.salaireBrutMensuel != null &&
+          profile.conjoint!.salaireBrutMensuel! > 0;
+      final hasAge = profile.conjoint!.birthYear != null;
+      if (hasRevenu && hasAge) {
+        menageScore = _wMenage.toDouble();
+        menageStatus = 'complete';
+      } else if (hasRevenu || hasAge) {
+        menageScore = 8;
+        menageStatus = 'partial';
+      } else {
+        menageScore = 0;
+        menageStatus = 'missing';
+      }
+    }
+    blocs['compositionMenage'] = BlockScore(
+      score: menageScore,
+      maxScore: _wMenage.toDouble(),
+      status: menageStatus,
+    );
+
+    // --- LPP ---
+    final lppDeclared = profile.prevoyance.avoirLppTotal;
+    final isIndepSansLpp = profile.employmentStatus == 'independant' &&
+        (lppDeclared == null || lppDeclared <= 0);
+    double lppScore;
+    String lppStatus;
+    if (lppDeclared != null && lppDeclared > 0) {
+      lppScore = 11;
+      lppStatus = 'partial';
+    } else if (isIndepSansLpp) {
+      lppScore = _wLpp.toDouble();
+      lppStatus = 'complete';
+    } else {
+      lppScore = 0;
+      lppStatus = 'missing';
+    }
+    blocs['lpp'] = BlockScore(
+      score: lppScore,
+      maxScore: _wLpp.toDouble(),
+      status: lppStatus,
+    );
+
+    // --- Taux conversion ---
+    double tauxScore;
+    String tauxStatus;
+    if (isIndepSansLpp) {
+      tauxScore = _wTauxConversion.toDouble();
+      tauxStatus = 'complete';
+    } else if (profile.prevoyance.tauxConversion != 0.068) {
+      tauxScore = _wTauxConversion.toDouble();
+      tauxStatus = 'complete';
+    } else {
+      tauxScore = 1;
+      tauxStatus = 'partial';
+    }
+    blocs['taux_conversion'] = BlockScore(
+      score: tauxScore,
+      maxScore: _wTauxConversion.toDouble(),
+      status: tauxStatus,
+    );
+
+    // --- AVS ---
+    final hasAvsData = profile.prevoyance.anneesContribuees != null;
+    blocs['avs'] = BlockScore(
+      score: hasAvsData ? _wAvs.toDouble() : 3.0,
+      maxScore: _wAvs.toDouble(),
+      status: hasAvsData ? 'complete' : 'partial',
+    );
+
+    // --- 3a ---
+    final has3a = profile.prevoyance.totalEpargne3a > 0;
+    blocs['3a'] = BlockScore(
+      score: has3a ? _w3a.toDouble() : 1.0,
+      maxScore: _w3a.toDouble(),
+      status: has3a ? 'complete' : 'partial',
+    );
+
+    // --- Patrimoine ---
+    final hasPatrimoine = profile.patrimoine.totalPatrimoine > 0;
+    blocs['patrimoine'] = BlockScore(
+      score: hasPatrimoine ? _wPatrimoine.toDouble() : 1.0,
+      maxScore: _wPatrimoine.toDouble(),
+      status: hasPatrimoine ? 'complete' : 'partial',
+    );
+
+    // --- Foreign pension ---
+    final isExpat = profile.arrivalAge != null && profile.arrivalAge! > 21;
+    blocs['foreign_pension'] = BlockScore(
+      score: isExpat ? 0.0 : _wForeignPension.toDouble(),
+      maxScore: _wForeignPension.toDouble(),
+      status: isExpat ? 'missing' : 'complete',
+    );
+
+    return blocs;
   }
 
   /// Check if profile has enough data to determine archetype.

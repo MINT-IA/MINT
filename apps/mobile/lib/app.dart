@@ -116,6 +116,7 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -634,6 +635,15 @@ final _router = GoRouter(
       path: '/onboarding/enrichment',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ProgressiveEnrichmentScreen(),
+    ),
+    // Data Block Enrichment (P8 Phase 3)
+    GoRoute(
+      path: '/data-block/:type',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final type = state.pathParameters['type'] ?? 'revenu';
+        return DataBlockEnrichmentScreen(blockType: type);
+      },
     ),
     GoRoute(
       path: '/confidence',
