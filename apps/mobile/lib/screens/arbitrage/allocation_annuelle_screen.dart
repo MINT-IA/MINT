@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -8,6 +11,7 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Allocation annuelle arbitrage screen — compare 3a, rachat LPP,
 /// amortissement indirect, and investissement libre.
@@ -44,9 +48,43 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   ArbitrageResult? _result;
 
+  // ── CoachProfile auto-fill (P8 Phase 4) ──
+  bool _didAutoFill = false;
+  Map<String, ProfileDataSource> _dataSources = {};
+  bool _hasEstimatedValues = false;
+
   @override
   void initState() {
     super.initState();
+    _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didAutoFill) {
+      _didAutoFill = true;
+      _autoFillFromProfile();
+    }
+  }
+
+  void _autoFillFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    // Annual contribution capacity: 3a max for salaried
+    if (profile.salaireBrutMensuel > 0) {
+      _montantCtrl.text = '7258'; // Max 3a for salaried with LPP
+      _hasEstimatedValues = true;
+    }
+    if (profile.prevoyance.avoirLppTotal != null) {
+      // Estimate potential rachat (simplified: ~20% of current LPP)
+      final potentiel = (profile.prevoyance.avoirLppTotal! * 0.2).round();
+      _potentielRachatCtrl.text = potentiel.toString();
+      _hasRachatLpp = potentiel > 0;
+    }
+    _anneesAvantRetraite = profile.anneesAvantRetraite;
+    _dataSources = profile.dataSources;
     _recalculate();
   }
 
@@ -125,6 +163,38 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  if (_result!.confidenceScore < 70)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: MintColors.warning.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: MintColors.warning.withAlpha(60)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
+                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_hasEstimatedValues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   Text(
                     'Trajectoires comparees',
                     style: GoogleFonts.montserrat(

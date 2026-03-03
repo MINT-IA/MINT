@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -17,6 +18,29 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 /// LIFD art. 38 (capital withdrawal), OPP3 art. 7 (3a limits).
 class ArbitrageEngine {
   ArbitrageEngine._();
+
+  /// Compute dynamic confidence for an arbitrage result based on data sources.
+  ///
+  /// [inputKeys] The input field names used in this arbitrage.
+  /// [dataSources] Data quality per field (from CoachProfile.dataSources).
+  /// Returns 50 in standalone mode (no profile), 30-95 otherwise.
+  static double _computeArbitrageConfidence(
+    List<String> inputKeys,
+    Map<String, ProfileDataSource>? dataSources,
+  ) {
+    if (dataSources == null || dataSources.isEmpty) return 50.0;
+    int known = 0;
+    final total = inputKeys.length;
+    if (total == 0) return 50.0;
+    for (final key in inputKeys) {
+      if (dataSources[key] == ProfileDataSource.certificate) {
+        known += 2;
+      } else if (dataSources[key] == ProfileDataSource.userInput) {
+        known += 1;
+      }
+    }
+    return (known / (total * 2) * 100).clamp(30, 95);
+  }
 
   // ════════════════════════════════════════════════════════════
   //  1. RENTE VS CAPITAL
@@ -48,6 +72,7 @@ class ArbitrageEngine {
     double inflation = 0.02,
     int horizon = 25,
     bool isMarried = false,
+    Map<String, ProfileDataSource>? dataSources,
   }) {
     final startYear = DateTime.now().year;
 
@@ -286,7 +311,10 @@ class ArbitrageEngine {
         'LIFD art. 22 (imposition des rentes)',
         'LIFD art. 38 (impot sur retrait en capital)',
       ],
-      confidenceScore: 65.0,
+      confidenceScore: _computeArbitrageConfidence(
+        ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
+        dataSources,
+      ),
       sensitivity: sensitivity,
     );
   }
@@ -311,6 +339,7 @@ class ArbitrageEngine {
     double rendementLpp = 0.0125,
     double rendementMarche = 0.04,
     String canton = 'VD',
+    Map<String, ProfileDataSource>? dataSources,
   }) {
     final startYear = DateTime.now().year;
     final options = <TrajectoireOption>[];
@@ -679,7 +708,10 @@ class ArbitrageEngine {
         'LPP art. 79b al. 3 (blocage rachat 3 ans)',
         'LIFD art. 33 (deductions)',
       ],
-      confidenceScore: 60.0,
+      confidenceScore: _computeArbitrageConfidence(
+        ['montantDisponible', 'tauxMarginal', 'potentielRachatLpp', 'canton'],
+        dataSources,
+      ),
       sensitivity: sensitivity,
     );
   }
@@ -707,6 +739,7 @@ class ArbitrageEngine {
     double tauxHypotheque = 0.02,
     double tauxEntretien = 0.01,
     bool isMarried = false,
+    Map<String, ProfileDataSource>? dataSources,
   }) {
     final startYear = DateTime.now().year;
 
@@ -917,7 +950,10 @@ class ArbitrageEngine {
         'LIFD art. 21 (valeur locative)',
         'LIFD art. 33 (deduction des interets hypothecaires)',
       ],
-      confidenceScore: 55.0,
+      confidenceScore: _computeArbitrageConfidence(
+        ['capitalDisponible', 'loyerMensuel', 'prixBien', 'canton'],
+        dataSources,
+      ),
       sensitivity: sensitivity,
     );
   }
@@ -940,6 +976,7 @@ class ArbitrageEngine {
     double tauxConversion = 0.068,
     String canton = 'VD',
     bool isMarried = false,
+    Map<String, ProfileDataSource>? dataSources,
   }) {
     final startYear = DateTime.now().year;
 
@@ -1187,7 +1224,10 @@ class ArbitrageEngine {
         'LIFD art. 33 (deduction rachat)',
         'LIFD art. 38 (impot retrait capital)',
       ],
-      confidenceScore: 60.0,
+      confidenceScore: _computeArbitrageConfidence(
+        ['montant', 'tauxMarginal', 'capitalLpp', 'canton'],
+        dataSources,
+      ),
       sensitivity: sensitivity,
     );
   }
@@ -1208,6 +1248,7 @@ class ArbitrageEngine {
     int ageRetraite = 65,
     String canton = 'VD',
     bool isMarried = false,
+    Map<String, ProfileDataSource>? dataSources,
   }) {
     if (assets.isEmpty) {
       return const ArbitrageResult(
@@ -1404,7 +1445,10 @@ class ArbitrageEngine {
         'LIFD art. 38 (impot progressif sur retrait en capital)',
         'Legislations fiscales cantonales',
       ],
-      confidenceScore: 70.0,
+      confidenceScore: _computeArbitrageConfidence(
+        ['capitaux3a', 'capitalLpp', 'canton', 'ageRetraite'],
+        dataSources,
+      ),
       sensitivity: sensitivity,
     );
   }
