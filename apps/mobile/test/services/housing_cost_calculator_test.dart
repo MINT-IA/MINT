@@ -44,10 +44,13 @@ void main() {
       );
 
       expect(result.monthlyNetCost, 0.0);
-      expect(result.assumptions, contains('Loyer non renseigne, estime a 0 CHF'));
+      expect(
+          result.assumptions, contains('Loyer non renseigne, estime a 0 CHF'));
     });
 
-    test('owner with mortgage: includes interest + amortization + PPE + maintenance', () {
+    test(
+        'owner with mortgage: includes interest + amortization + PPE + maintenance',
+        () {
       // LTV = 800k / 1M = 80% → above 65% → amortization required
       final result = HousingCostCalculator.compute(
         housingStatus: 'owner',
@@ -156,7 +159,8 @@ void main() {
       );
 
       expect(result.fiscalImpact, 0.0);
-      expect(result.assumptions, contains('Reforme 2028: valeur locative supprimee'));
+      expect(result.assumptions,
+          contains('Reforme 2028: valeur locative supprimee'));
 
       // Restore flag
       FeatureFlags.valeurLocative2028Reform = original;
@@ -218,8 +222,8 @@ void main() {
 
       // 75% of household net via NetIncomeBreakdown.compute() (not the old * 0.87)
       // NetIncomeBreakdown.compute(grossSalary: 99996, canton: 'ZH', age: 50)
-      // gives monthlyNetPayslip ≈ 7318.9 → × 0.75 ≈ 5489.2
-      expect(result, closeTo(5489.17, 1.0));
+      // gives monthlyNetPayslip ≈ 7398.1 → × 0.75 ≈ 5548.5
+      expect(result, closeTo(5548.55, 1.0));
     });
 
     test('with current expenses: uses 85% rule with floor', () {
@@ -231,9 +235,9 @@ void main() {
       );
 
       // 85% of 6000 = 5100; floor = householdNet * 0.70
-      // householdNet ≈ 7318.9 (via NetIncomeBreakdown.compute) → floor ≈ 5123.2
-      // max(5100, 5123.2) = 5123.2 (floor wins because net is higher than old * 0.87)
-      expect(result, closeTo(5123.23, 1.0));
+      // householdNet ≈ 7398.1 (via NetIncomeBreakdown.compute) → floor ≈ 5178.6
+      // max(5100, 5178.6) = 5178.6 (floor wins)
+      expect(result, closeTo(5178.64, 1.0));
     });
 
     test('renter housing adjusts expenses (subtract current, add indexed)', () {

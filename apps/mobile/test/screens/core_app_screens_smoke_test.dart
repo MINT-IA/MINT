@@ -33,7 +33,10 @@ import 'package:mint_mobile/models/profile.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      // Prevent SLM onboarding modal from interfering with shell tests.
+      'slm_auto_prompt_shown': true,
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -67,7 +70,8 @@ void main() {
         ChangeNotifierProvider<CoachProfileProvider>(
             create: (_) => CoachProfileProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider<UserActivityProvider>(create: (_) => UserActivityProvider()),
+        ChangeNotifierProvider<UserActivityProvider>(
+            create: (_) => UserActivityProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -356,7 +360,7 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Tes finances'), findsOneWidget);
+      expect(find.textContaining('ta retraite commence'), findsOneWidget);
     });
 
     testWidgets('shows beta badge', (tester) async {
@@ -370,16 +374,16 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.speed_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.show_chart_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
     });
 
     testWidgets('shows diagnostic CTA button', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('score'), findsWidgets);
+      expect(find.text('Ton plan en 30 secondes'), findsOneWidget);
     });
 
     testWidgets('shows login button', (tester) async {

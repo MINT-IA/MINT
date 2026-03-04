@@ -12,6 +12,9 @@
 #   MATCH_GIT_URL                      (private repo for certs)
 #   MATCH_PASSWORD                     (decrypt certs)
 #   API_BASE_URL                       (e.g. https://your-api-domain/api/v1)
+# Optional:
+#   HUGGINGFACE_TOKEN                  (required for gated Gemma 3n download)
+#   SLM_MODEL_URL                      (custom model URL override)
 
 name: TestFlight
 
@@ -99,14 +102,39 @@ jobs:
       - name: Flutter build iOS (no codesign)
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
-        run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_BASE_URL
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+          SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
+        run: |
+          EXTRA_DEFINES=""
+          if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
+            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN"
+          fi
+          if [[ -n "$SLM_MODEL_URL" ]]; then
+            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
+          fi
+          flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_BASE_URL $EXTRA_DEFINES
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+          SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
-          encoded="$(printf 'API_BASE_URL=%s' "$API_BASE_URL" | base64 | tr -d '\n')"
-          echo "DART_DEFINES=$encoded" >> "$GITHUB_ENV"
+          defines=("API_BASE_URL=$API_BASE_URL")
+          if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
+            defines+=("HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN")
+          fi
+          if [[ -n "$SLM_MODEL_URL" ]]; then
+            defines+=("SLM_MODEL_URL=$SLM_MODEL_URL")
+          fi
+
+          encoded_list=()
+          for def in "${defines[@]}"; do
+            encoded_list+=("$(printf '%s' "$def" | base64 | tr -d '\n')")
+          done
+
+          joined="$(IFS=,; echo "${encoded_list[*]}")"
+          echo "DART_DEFINES=$joined" >> "$GITHUB_ENV"
 
       # ── Ruby + Fastlane ──
       - name: Setup Ruby

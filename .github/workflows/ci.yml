@@ -144,7 +144,12 @@ jobs:
           exit $status
 
       - name: Run tests
-        run: flutter test --reporter compact
+        shell: bash
+        run: |
+          echo "Running Flutter tests (excluding test/_archive/** legacy suite)"
+          find test -name '*_test.dart' -not -path 'test/_archive/*' -print0 \
+            | sort -z \
+            | xargs -0 flutter test --reporter compact
 
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:

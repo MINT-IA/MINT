@@ -307,10 +307,10 @@ void main() {
           if (c.deeplink != null) c.title: c.deeplink!,
       };
 
-      expect(deeplinks['Tip missing_3a'], '/3a-deep/comparator');
-      expect(deeplinks['Tip lpp_buyback'], '/lpp-deep/rachat');
-      expect(deeplinks['Tip retirement_countdown'], '/coach/projection');
-      expect(deeplinks['Tip debt_ratio'], '/budget');
+      expect(deeplinks['Tip missing_3a'], '/simulator/3a');
+      expect(deeplinks['Tip lpp_buyback'], '/arbitrage/rachat-vs-marche');
+      expect(deeplinks['Tip retirement_countdown'], '/coach/dashboard');
+      expect(deeplinks['Tip debt_ratio'], isNull);
     });
 
     test('unknown tip ID keeps null deeplink', () {

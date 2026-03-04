@@ -111,12 +111,13 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     setState(() => _isProcessing = false);
 
     if (!success && _downloadService.state == DownloadState.failed) {
+      final reason = _downloadService.lastError ??
+          'Verifie ta connexion WiFi et l\'espace disponible.';
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
         SnackBar(
           content: Text(
-            'Echec du telechargement. '
-            'Verifie ta connexion WiFi et l\'espace disponible.',
+            'Echec du telechargement. $reason',
             style: GoogleFonts.inter(),
           ),
           backgroundColor: Colors.red,
@@ -406,9 +407,10 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Le telechargement a echoue. '
-                        'Verifie ta connexion WiFi et '
-                        'l\'espace disponible sur ton appareil.',
+                        _downloadService.lastError ??
+                            'Le telechargement a echoue. '
+                                'Verifie ta connexion WiFi et '
+                                'l\'espace disponible sur ton appareil.',
                         style: GoogleFonts.inter(
                             fontSize: 13, color: Colors.red[700]),
                       ),
@@ -622,6 +624,16 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               'Reponses en 2-4 secondes sur un appareil recent',
             ),
             const Divider(height: 24),
+            _buildInfoRow(
+              Icons.link,
+              'Source modele : ${SlmDownloadService.modelId}',
+            ),
+            _buildInfoRow(
+              _downloadService.hasAuthToken ? Icons.key : Icons.key_off,
+              _downloadService.hasAuthToken
+                  ? 'Authentification HuggingFace : configuree'
+                  : 'Authentification HuggingFace : non configuree (modele Gemma 3n peut echouer)',
+            ),
             Text(
               'Compatibilite : iPhone 13+ / Pixel 7+ / equivalent recent.\n'
               'Le modele necessite ~3 Go d\'espace disque et ~2 Go de RAM.',

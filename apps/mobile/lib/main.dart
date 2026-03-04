@@ -6,6 +6,7 @@ import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
+import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 
@@ -19,6 +20,17 @@ Future<void> main() async {
 
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
+
+  // Initialize SLM plugin runtime once at startup.
+  try {
+    final ready = await SlmDownloadService.instance
+        .initializePlugin()
+        .timeout(const Duration(seconds: 3));
+    FeatureFlags.slmPluginReady = ready;
+  } catch (e) {
+    FeatureFlags.slmPluginReady = false;
+    if (kDebugMode) debugPrint('Err SLM init: $e');
+  }
 
   // Pull server feature flags before first frame so kill-switches
   // apply immediately (especially narrative degradation flags).

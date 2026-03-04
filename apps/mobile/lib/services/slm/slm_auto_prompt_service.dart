@@ -145,7 +145,7 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -208,7 +208,8 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
             // Size + time info
             Row(
               children: [
-                const Icon(Icons.storage, size: 16, color: MintColors.textMuted),
+                const Icon(Icons.storage,
+                    size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(
                   SlmDownloadService.modelSizeFormatted,
@@ -265,7 +266,8 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: MintColors.success, size: 20),
+                    const Icon(Icons.check_circle,
+                        color: MintColors.success, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

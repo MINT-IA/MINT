@@ -100,14 +100,31 @@ class SlmDownloadService {
   /// HuggingFace model URL (Gemma 3n E4B IT in .task format).
   /// In production, configure via remote config.
   static const String _defaultModelUrl =
-      'https://huggingface.co/litert-community/gemma-3n-E4B-it-litert-preview/resolve/main/gemma3n-E4B-it-multi.task';
+      'https://huggingface.co/google/gemma-3n-E4B-it-litert-preview/resolve/main/gemma-3n-E4B-it-int4.task';
+
+  /// Build-time override for the model URL (CI/CD).
+  ///
+  /// Example:
+  ///   --dart-define=SLM_MODEL_URL=https://cdn.mint.ch/models/gemma.task
+  static const String _buildModelUrl = String.fromEnvironment('SLM_MODEL_URL');
+
+  /// Build-time HuggingFace token for gated repositories.
+  ///
+  /// Example:
+  ///   --dart-define=HUGGINGFACE_TOKEN=hf_xxx
+  static const String _buildHfToken =
+      String.fromEnvironment('HUGGINGFACE_TOKEN');
 
   /// Model identifier as registered by flutter_gemma.
   ///
   /// Derived from the URL filename to stay in sync automatically:
   ///   Uri.parse(url).pathSegments.last → 'gemma3n-E4B-it-multi.task'
   /// This MUST match the URL filename for isModelInstalled() to work.
-  static final String modelId = Uri.parse(_defaultModelUrl).pathSegments.last;
+  static String get modelUrl => _buildModelUrl.trim().isNotEmpty
+      ? _buildModelUrl.trim()
+      : _defaultModelUrl;
+
+  static String get modelId => Uri.parse(modelUrl).pathSegments.last;
 
   /// Expected model size (~2.3 GB).
   static const int _expectedSizeBytes = 2400000000;
@@ -144,6 +161,18 @@ class SlmDownloadService {
   String? _lastError;
   String? get lastError => _lastError;
 
+  String? _lastErrorRaw;
+  String? get lastErrorRaw => _lastErrorRaw;
+
+  String? _runtimeHfToken;
+
+  bool _pluginInitialized = false;
+
+  /// True if a HuggingFace token is configured (build-time or runtime).
+  bool get hasAuthToken =>
+      (_runtimeHfToken != null && _runtimeHfToken!.trim().isNotEmpty) ||
+      _buildHfToken.trim().isNotEmpty;
+
   /// Expected model size in bytes (for UI display).
   static int get expectedSizeBytes => _expectedSizeBytes;
 
@@ -154,11 +183,35 @@ class SlmDownloadService {
   //  Public API
   // ═══════════════════════════════════════════════════════════════
 
+  /// Initialize flutter_gemma runtime once.
+  ///
+  /// Must be called before model install/check APIs for reliable behavior.
+  Future<bool> initializePlugin({String? huggingFaceToken}) async {
+    if (_pluginInitialized) return true;
+    try {
+      final token = _resolveToken(huggingFaceToken);
+      _runtimeHfToken = token;
+      await FlutterGemma.initialize(
+        huggingFaceToken: token,
+        maxDownloadRetries: 3,
+      );
+      _pluginInitialized = true;
+      return true;
+    } catch (e) {
+      debugPrint('[SLM] FlutterGemma.initialize failed: $e');
+      _pluginInitialized = false;
+      return false;
+    }
+  }
+
   /// Check if model is installed via flutter_gemma's native check.
   ///
   /// This is the authoritative source of truth — not SharedPreferences.
   Future<bool> get isModelReady async {
     try {
+      if (!_pluginInitialized) {
+        await initializePlugin();
+      }
       return await FlutterGemma.isModelInstalled(modelId);
     } catch (_) {
       return false;
@@ -221,7 +274,30 @@ class SlmDownloadService {
     _emitState();
 
     try {
-      final url = modelUrl ?? _defaultModelUrl;
+      final initialized = await initializePlugin(huggingFaceToken: hfToken);
+      if (!initialized) {
+        _lastError = 'Initialisation du moteur SLM impossible.';
+        _lastErrorRaw = 'FlutterGemma.initialize failed';
+        _state = DownloadState.failed;
+        _emitState();
+        return false;
+      }
+
+      final url = modelUrl?.trim().isNotEmpty == true
+          ? modelUrl!.trim()
+          : SlmDownloadService.modelUrl;
+      final token = _resolveToken(hfToken);
+
+      // Gemma 3n repos on HuggingFace are typically gated.
+      // Fail fast with an actionable message instead of a generic network error.
+      if (_isLikelyGatedGemmaUrl(url) && (token == null || token.isEmpty)) {
+        _lastErrorRaw = 'Missing HuggingFace token for gated Gemma 3n URL';
+        _lastError = 'Authentification HuggingFace manquante pour Gemma 3n. '
+            'Ajoute HUGGINGFACE_TOKEN dans le build CI/CD.';
+        _state = DownloadState.failed;
+        _emitState();
+        return false;
+      }
 
       debugPrint('[SLM] Starting model download from: $url');
       debugPrint('[SLM] Expected size: $modelSizeFormatted');
@@ -233,7 +309,7 @@ class SlmDownloadService {
       await FlutterGemma.installModel(
         modelType: ModelType.gemmaIt,
       )
-          .fromNetwork(url, token: hfToken)
+          .fromNetwork(url, token: token)
           .withProgress((percentInt) {
             _progress = percentInt / 100.0;
             final downloadedBytes = (_progress * _expectedSizeBytes).toInt();
@@ -261,7 +337,8 @@ class SlmDownloadService {
         debugPrint('[SLM] Download cancelled by user');
       } else {
         debugPrint('[SLM] Model download failed: $e');
-        _lastError = e.toString();
+        _lastErrorRaw = e.toString();
+        _lastError = _toUserFacingError(e);
         _state = DownloadState.failed;
       }
       _cancelToken = null;
@@ -286,6 +363,9 @@ class SlmDownloadService {
   /// and flutter_gemma metadata. Also clears our version tracking.
   Future<bool> deleteModel() async {
     try {
+      if (!_pluginInitialized) {
+        await initializePlugin();
+      }
       // Uninstall via flutter_gemma — deletes files + metadata.
       await FlutterGemma.uninstallModel(modelId);
       debugPrint('[SLM] Model uninstalled via flutter_gemma');
@@ -325,6 +405,46 @@ class SlmDownloadService {
   static String get modelSizeFormatted {
     const gb = _expectedSizeBytes / (1024 * 1024 * 1024);
     return '${gb.toStringAsFixed(1)} Go';
+  }
+
+  String? _resolveToken(String? overrideToken) {
+    if (overrideToken != null && overrideToken.trim().isNotEmpty) {
+      return overrideToken.trim();
+    }
+    if (_runtimeHfToken != null && _runtimeHfToken!.trim().isNotEmpty) {
+      return _runtimeHfToken!.trim();
+    }
+    if (_buildHfToken.trim().isNotEmpty) {
+      return _buildHfToken.trim();
+    }
+    return null;
+  }
+
+  String _toUserFacingError(Object error) {
+    final raw = error.toString();
+    final lower = raw.toLowerCase();
+    if (lower.contains('http 401') ||
+        lower.contains('authentication required') ||
+        lower.contains('unauthorized')) {
+      return 'Acces refuse au modele (HuggingFace). '
+          'Le build doit inclure un token valide et l\'acces au repo Gemma 3n.';
+    }
+    if (lower.contains('http 403') || lower.contains('forbidden')) {
+      return 'Token HuggingFace invalide ou sans acces au repo Gemma 3n.';
+    }
+    if (lower.contains('http 404') || lower.contains('not found')) {
+      return 'Fichier modele introuvable. Verifie l\'URL SLM_MODEL_URL.';
+    }
+    if (lower.contains('network') || lower.contains('socket')) {
+      return 'Erreur reseau pendant le telechargement. Verifie WiFi et stabilite reseau.';
+    }
+    return 'Le telechargement du modele a echoue. Reessaye dans quelques minutes.';
+  }
+
+  bool _isLikelyGatedGemmaUrl(String url) {
+    final lower = url.toLowerCase();
+    return lower.contains('huggingface.co/google/gemma-3n') ||
+        lower.contains('huggingface.co/litert-community/gemma-3n');
   }
 
   /// Release resources.

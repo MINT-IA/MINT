@@ -202,8 +202,13 @@ class CoachNarrativeService {
     required List<CoachingTip> tips,
     LlmConfig? byokConfig,
   }) async {
+    final slmAvailableNow = await _resolveSlmAvailability();
+
     // 1. Verifier le cache (mode-aware for kill switches)
-    final cached = await _loadFromCache(profile);
+    final cached = await _loadFromCache(
+      profile,
+      slmAvailableNow: slmAvailableNow,
+    );
     if (cached != null) return cached;
 
     // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
@@ -217,8 +222,7 @@ class CoachNarrativeService {
         scoreHistory: scoreHistory,
         tips: tips,
       );
-    } else if (FeatureFlags.enableSlmNarratives &&
-        SlmEngine.instance.isAvailable) {
+    } else if (FeatureFlags.enableSlmNarratives && slmAvailableNow) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
       try {
         narrative = await _generateViaSlm(
@@ -264,7 +268,11 @@ class CoachNarrativeService {
     narrative = _applyGuardrails(narrative);
 
     // 5. Sauvegarder en cache
-    await _saveToCache(narrative, profile);
+    await _saveToCache(
+      narrative,
+      profile,
+      slmAvailableNow: slmAvailableNow,
+    );
 
     return narrative;
   }
@@ -1109,15 +1117,22 @@ class CoachNarrativeService {
   /// Signature du mode narratif courant.
   ///
   /// Permet d'invalider immediatement le cache si un kill-switch change.
-  static String get _currentModeSignature =>
-      'safe:${FeatureFlags.safeModeDegraded}|slm:${FeatureFlags.enableSlmNarratives}';
+  static String _modeSignature({required bool slmAvailableNow}) =>
+      'safe:${FeatureFlags.safeModeDegraded}'
+      '|slmEnabled:${FeatureFlags.enableSlmNarratives}'
+      '|slmRuntime:$slmAvailableNow';
 
   /// Charge le narratif depuis le cache si valide (< 24h, meme nombre de check-ins).
-  static Future<CoachNarrative?> _loadFromCache(CoachProfile profile) async {
+  static Future<CoachNarrative?> _loadFromCache(
+    CoachProfile profile, {
+    required bool slmAvailableNow,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cachedMode = prefs.getString(_cacheModeSignatureKey);
-      if (cachedMode != _currentModeSignature) return null;
+      if (cachedMode != _modeSignature(slmAvailableNow: slmAvailableNow)) {
+        return null;
+      }
 
       final key = _cacheKey(profile);
       final jsonStr = prefs.getString(key);
@@ -1145,18 +1160,35 @@ class CoachNarrativeService {
   /// Sauvegarde le narratif dans le cache.
   static Future<void> _saveToCache(
     CoachNarrative narrative,
-    CoachProfile profile,
-  ) async {
+    CoachProfile profile, {
+    required bool slmAvailableNow,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final key = _cacheKey(profile);
       final jsonStr = jsonEncode(narrative.toJson());
       await prefs.setString(key, jsonStr);
       await prefs.setInt(_cacheCheckInCountKey, profile.checkIns.length);
-      await prefs.setString(_cacheModeSignatureKey, _currentModeSignature);
+      await prefs.setString(
+        _cacheModeSignatureKey,
+        _modeSignature(slmAvailableNow: slmAvailableNow),
+      );
     } catch (_) {
       // Silently fail — cache is optional
     }
+  }
+
+  static Future<bool> _resolveSlmAvailability() async {
+    if (!FeatureFlags.enableSlmNarratives || FeatureFlags.safeModeDegraded) {
+      return false;
+    }
+    if (!FeatureFlags.slmPluginReady) {
+      return false;
+    }
+    if (SlmEngine.instance.isAvailable) {
+      return true;
+    }
+    return SlmEngine.instance.initialize();
   }
 
   /// Invalide le cache (utile apres resume de l'app depuis un long background).

@@ -107,8 +107,8 @@ The `SessionReport` is upgraded to a professional-grade document:
 #### Modèle B2B (proposition de valeur pour les caisses)
 - **Offre**: MINT comme outil "financial wellness" en marque blanche
 - **Prix**: 5-15 CHF/employé/an (licence annuelle)
-- **Valeur pour la caisse**: Engagement des assurés, réduction des appels support, outil d'éducation 2e pilier
-- **Valeur pour MINT**: Accès API aux données LPP, distribution via base d'assurés
+- **Valeur pour la caisse**: Engagement des personnes couvertes, réduction des appels support, outil d'éducation 2e pilier
+- **Valeur pour MINT**: Accès API aux données LPP, distribution via base de personnes couvertes
 - **En échange**: Feed API temps réel des données de prévoyance (solde, taux, rachat, rente projetée)
 
 ## 5. Safe Mode (Debt & Risk)
