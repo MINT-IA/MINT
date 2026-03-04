@@ -7,6 +7,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
 
 /// Écran "Mon aperçu financier" — vue consolidée de toutes les données
@@ -99,9 +101,13 @@ class FinancialSummaryScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: OutlinedButton.icon(
-                        onPressed: () {
+                        onPressed: () async {
                           context.read<CoachProfileProvider>().clear();
-                          context.push('/onboarding/smart');
+                          await ReportPersistenceService.clear();
+                          await SmartOnboardingDraftService.clearDraft();
+                          if (context.mounted) {
+                            context.push('/onboarding/smart');
+                          }
                         },
                         icon: const Icon(Icons.refresh, size: 18),
                         label: Text(

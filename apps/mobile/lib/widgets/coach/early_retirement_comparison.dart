@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
@@ -203,7 +204,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           ...rows.map((r) => _buildRow(r)),
           const SizedBox(height: 10),
           InkWell(
-            onTap: null, // CTA disabled — cockpit detail screen coming in Pass 2
+            onTap: () => context.push('/coach/cockpit'),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

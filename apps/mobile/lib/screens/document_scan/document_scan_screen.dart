@@ -1,38 +1,70 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/theme/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
-import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
+import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
+import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
-//  DOCUMENT SCAN SCREEN — Sprint S42-S43
+//  DOCUMENT SCAN SCREEN — production flow
 // ────────────────────────────────────────────────────────────
 //
-//  Entry point for scanning financial documents.
-//  User selects document type, then captures or picks an image.
+//  Real flow:
+//    1) Camera/Gallery input
+//    2) OCR extraction when available (mobile)
+//    3) Manual OCR text fallback (web/unreadable file)
+//    4) Parser by document type
+//    5) Extraction review + confirmation
 //
-//  Prototype: no real OCR — "Simuler un scan" injects sample text.
-//  Production: integrate image_picker + google_mlkit_text_recognition.
+//  Supported parsers today:
+//    - LPP certificate
+//    - Tax declaration
+//    - AVS extract
 //
-//  Privacy: "L'image n'est jamais stockee ni envoyee."
-//
-//  Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1
+//  Privacy:
+//    - image bytes are not persisted
+//    - only confirmed structured values are saved to profile
 // ────────────────────────────────────────────────────────────
 
 class DocumentScanScreen extends StatefulWidget {
-  const DocumentScanScreen({super.key});
+  final DocumentType? initialType;
+
+  const DocumentScanScreen({super.key, this.initialType});
 
   @override
   State<DocumentScanScreen> createState() => _DocumentScanScreenState();
 }
 
 class _DocumentScanScreenState extends State<DocumentScanScreen> {
+  static const _supportedTypes = <DocumentType>{
+    DocumentType.lppCertificate,
+    DocumentType.taxDeclaration,
+    DocumentType.avsExtract,
+  };
+
+  final _imagePicker = ImagePicker();
   DocumentType _selectedType = DocumentType.lppCertificate;
   bool _isProcessing = false;
 
-  // ── Build ────────────────────────────────────────────────
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialType;
+    if (initial != null && _supportedTypes.contains(initial)) {
+      _selectedType = initial;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +85,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 _buildDocumentDescription(),
                 const SizedBox(height: 32),
                 _buildCaptureButtons(),
-                const SizedBox(height: 24),
-                _buildSimulateButton(),
+                const SizedBox(height: 12),
+                _buildPasteTextButton(),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 12),
+                  _buildDebugExampleButton(),
+                ],
                 const SizedBox(height: 32),
                 _buildPrivacyNote(),
                 const SizedBox(height: 100),
@@ -65,8 +101,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       ),
     );
   }
-
-  // ── AppBar ───────────────────────────────────────────────
 
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
@@ -90,8 +124,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  // ── Header ───────────────────────────────────────────────
-
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +140,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         const SizedBox(height: 8),
         Text(
           'Photographie un document financier et on extrait les chiffres '
-          'pour toi. Plus besoin de chercher dans tes papiers.',
+          'pour toi. Tu verifies ensuite chaque valeur avant confirmation.',
           style: GoogleFonts.inter(
             fontSize: 15,
             color: MintColors.textSecondary,
@@ -119,9 +151,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  // ── Document type selector ───────────────────────────────
-
   Widget _buildDocumentTypeSelector() {
+    final selectable = DocumentType.values
+        .where((type) => _supportedTypes.contains(type))
+        .toList(growable: false);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -137,7 +171,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: DocumentType.values.map((type) {
+          children: selectable.map((type) {
             final isSelected = type == _selectedType;
             return ChoiceChip(
               label: Text(
@@ -154,8 +188,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               selectedColor: MintColors.primary,
               backgroundColor: MintColors.surface,
               side: BorderSide(
-                color:
-                    isSelected ? MintColors.primary : MintColors.lightBorder,
+                color: isSelected ? MintColors.primary : MintColors.lightBorder,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -169,8 +202,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       ],
     );
   }
-
-  // ── Document description card ────────────────────────────
 
   Widget _buildDocumentDescription() {
     return Container(
@@ -186,7 +217,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, color: MintColors.info, size: 18),
+              const Icon(Icons.info_outline, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -212,7 +243,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.trending_up, color: MintColors.success, size: 16),
+              const Icon(Icons.trending_up,
+                  color: MintColors.success, size: 16),
               const SizedBox(width: 6),
               Text(
                 '+${_selectedType.confidenceImpact} points de confiance',
@@ -229,12 +261,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  // ── Capture buttons ──────────────────────────────────────
-
   Widget _buildCaptureButtons() {
     return Column(
       children: [
-        // Camera button
         SizedBox(
           width: double.infinity,
           height: 56,
@@ -242,7 +271,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             onPressed: _isProcessing ? null : _onCameraPressed,
             icon: const Icon(Icons.camera_alt_outlined, size: 22),
             label: Text(
-              'Prendre une photo',
+              _isProcessing ? 'Extraction en cours...' : 'Prendre une photo',
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -258,7 +287,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // Gallery button
         SizedBox(
           width: double.infinity,
           height: 56,
@@ -285,79 +313,53 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  // ── Simulate button (prototype) ──────────────────────────
-
-  Widget _buildSimulateButton() {
-    return Container(
+  Widget _buildPasteTextButton() {
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.purple.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.purple.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'MODE PROTOTYPE',
-            style: GoogleFonts.montserrat(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.5,
-              color: MintColors.purple,
-            ),
+      height: 52,
+      child: TextButton.icon(
+        onPressed: _isProcessing ? null : _onPasteTextPressed,
+        icon: const Icon(Icons.text_snippet_outlined, size: 20),
+        label: Text(
+          'Coller le texte OCR',
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Pas de document sous la main ? Simule un scan '
-            'avec un certificat LPP de test.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
+        ),
+        style: TextButton.styleFrom(
+          foregroundColor: MintColors.info,
+          backgroundColor: MintColors.info.withValues(alpha: 0.08),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: MintColors.info.withValues(alpha: 0.22)),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: _isProcessing
-                ? const Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: MintColors.purple,
-                      ),
-                    ),
-                  )
-                : FilledButton.icon(
-                    onPressed: _onSimulateScan,
-                    icon: const Icon(Icons.science_outlined, size: 20),
-                    label: Text(
-                      'Simuler un scan',
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.purple,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  // ── Privacy note ─────────────────────────────────────────
+  Widget _buildDebugExampleButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: _isProcessing ? null : _onUseExamplePressed,
+        icon: const Icon(Icons.science_outlined, size: 20),
+        label: Text(
+          'Utiliser un exemple de test',
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: MintColors.purple,
+          side: BorderSide(color: MintColors.purple.withValues(alpha: 0.5)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildPrivacyNote() {
     return Container(
@@ -375,8 +377,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           Expanded(
             child: Text(
               "L'image n'est jamais stockee ni envoyee. "
-              "L'extraction se fait sur ton appareil. "
-              "Seules les valeurs que tu confirmes sont conservees dans ton profil.",
+              'Seules les valeurs confirmees sont conservees dans ton profil.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -389,88 +390,276 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  // ── Actions ──────────────────────────────────────────────
+  Future<void> _onCameraPressed() async {
+    if (kIsWeb) {
+      // On web we fallback to file upload to avoid a dead-end camera path.
+      await _onGalleryPressed();
+      return;
+    }
 
-  void _onCameraPressed() {
-    // Production: integrate image_picker with ImageSource.camera
-    // For prototype, show info dialog
-    _showPrototypeDialog(
-      'Camera',
-      'En production, cette fonctionnalite utilisera image_picker '
-          'pour capturer une photo de ton document.',
+    try {
+      final image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 90,
+      );
+      if (image == null) return;
+      await _processImageFile(image);
+    } catch (e) {
+      _showErrorSnack('Impossible d\'ouvrir la camera. Utilise la galerie.');
+    }
+  }
+
+  Future<void> _onGalleryPressed() async {
+    try {
+      final picked = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        type: FileType.custom,
+        withData: kIsWeb,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'heic', 'pdf', 'txt'],
+      );
+
+      if (picked == null || picked.files.isEmpty) return;
+      final file = picked.files.first;
+      final ext = (file.extension ?? '').toLowerCase();
+
+      if (ext == 'txt') {
+        final text = await _readTextFile(file);
+        if (text.trim().isEmpty) {
+          _showErrorSnack('Le fichier texte est vide.');
+          return;
+        }
+        await _processOcrText(text);
+        return;
+      }
+
+      if (ext == 'pdf') {
+        await _requestManualOcrText(
+          title: 'PDF detecte',
+          hint:
+              'Colle ici le texte OCR de ton PDF (issu de ton scanner ou export).',
+        );
+        return;
+      }
+
+      if (file.path == null || file.path!.isEmpty) {
+        await _requestManualOcrText(
+          title: 'Image selectionnee',
+          hint: 'Impossible de lire directement cette image sur cet appareil.',
+        );
+        return;
+      }
+
+      await _processImageFile(XFile(file.path!));
+    } catch (e) {
+      _showErrorSnack('Impossible d\'importer le fichier: $e');
+    }
+  }
+
+  Future<void> _onPasteTextPressed() async {
+    await _requestManualOcrText(
+      title: 'Texte OCR',
+      hint: 'Colle le texte extrait du document pour lancer le parsing.',
     );
   }
 
-  void _onGalleryPressed() {
-    // Production: integrate image_picker with ImageSource.gallery
-    _showPrototypeDialog(
-      'Galerie',
-      'En production, cette fonctionnalite permettra de selectionner '
-          'une image existante de ton document.',
-    );
+  Future<void> _onUseExamplePressed() async {
+    await _processOcrText(_sampleTextForType(_selectedType));
   }
 
-  void _onSimulateScan() async {
+  Future<void> _processImageFile(XFile file) async {
     setState(() => _isProcessing = true);
 
-    // Simulate processing delay (OCR would take 2-5 seconds)
-    await Future.delayed(const Duration(milliseconds: 1500));
+    try {
+      String extractedText = '';
 
-    if (!mounted) return;
+      if (!kIsWeb) {
+        final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
+        try {
+          final input = InputImage.fromFilePath(file.path);
+          final result = await recognizer.processImage(input);
+          extractedText = result.text;
+        } finally {
+          recognizer.close();
+        }
+      }
 
-    // Parse the sample OCR text
-    final result = LppCertificateParser.parseLppCertificate(
-      LppCertificateParser.sampleOcrText,
-    );
+      if (extractedText.trim().length < 12) {
+        if (!mounted) return;
+        setState(() => _isProcessing = false);
+        await _requestManualOcrText(
+          title: 'Texte non detecte',
+          hint:
+              'Nous n\'avons pas pu lire suffisamment de texte automatiquement. Colle le texte OCR pour continuer.',
+        );
+        return;
+      }
 
-    setState(() => _isProcessing = false);
-
-    // Navigate to extraction review
-    if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ExtractionReviewScreen(result: result),
-      ),
-    );
+      await _processOcrText(extractedText);
+    } catch (e) {
+      _showErrorSnack('Extraction OCR impossible: $e');
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 
-  void _showPrototypeDialog(String title, String message) {
-    showDialog(
+  Future<void> _processOcrText(String text) async {
+    if (!mounted) return;
+
+    setState(() => _isProcessing = true);
+    try {
+      final result = _parseByDocumentType(text);
+      if (result.fields.isEmpty) {
+        _showErrorSnack(
+          'Aucun champ reconnu. Verifie le type de document ou colle un texte OCR plus complet.',
+        );
+        return;
+      }
+
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ExtractionReviewScreen(result: result),
+        ),
+      );
+    } catch (e) {
+      _showErrorSnack('Parsing impossible pour ce document: $e');
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  Future<void> _requestManualOcrText({
+    required String title,
+    required String hint,
+  }) async {
+    final controller = TextEditingController();
+
+    final submitted = await showModalBottomSheet<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          title,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        content: Text(
-          message,
-          style: GoogleFonts.inter(fontSize: 14, height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _onSimulateScan();
-            },
-            child: Text(
-              'Simuler un scan a la place',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                color: MintColors.purple,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (ctx) {
+        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, bottomInset + 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                hint,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                maxLines: 8,
+                minLines: 5,
+                decoration: InputDecoration(
+                  hintText: 'Colle ici le texte OCR brut... ',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      child: const Text('Annuler'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      child: const Text('Analyser'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(
-              'Fermer',
-              style: GoogleFonts.inter(color: MintColors.textSecondary),
-            ),
-          ),
-        ],
+        );
+      },
+    );
+
+    final text = controller.text.trim();
+    controller.dispose();
+
+    if (submitted == true && text.isNotEmpty) {
+      await _processOcrText(text);
+    }
+  }
+
+  ExtractionResult _parseByDocumentType(String text) {
+    switch (_selectedType) {
+      case DocumentType.lppCertificate:
+        return LppCertificateParser.parseLppCertificate(text);
+      case DocumentType.taxDeclaration:
+        return TaxDeclarationParser.parseTaxDeclaration(text);
+      case DocumentType.avsExtract:
+        final age = context.read<CoachProfileProvider>().hasProfile
+            ? context.read<CoachProfileProvider>().profile!.age
+            : null;
+        return AvsExtractParser.parseAvsExtract(text, userAge: age);
+      case DocumentType.threeAAttestation:
+      case DocumentType.mortgageAttestation:
+        throw UnsupportedError(
+          'Type non supporte pour le moment: ${_selectedType.label}',
+        );
+    }
+  }
+
+  String _sampleTextForType(DocumentType type) {
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return LppCertificateParser.sampleOcrText;
+      case DocumentType.taxDeclaration:
+        return TaxDeclarationParser.sampleOcrText;
+      case DocumentType.avsExtract:
+        return AvsExtractParser.sampleOcrText;
+      case DocumentType.threeAAttestation:
+      case DocumentType.mortgageAttestation:
+        return LppCertificateParser.sampleOcrText;
+    }
+  }
+
+  Future<String> _readTextFile(PlatformFile file) async {
+    if (file.bytes != null) {
+      return utf8.decode(file.bytes!, allowMalformed: true);
+    }
+    if (file.path != null && file.path!.isNotEmpty) {
+      final bytes = await XFile(file.path!).readAsBytes();
+      return utf8.decode(bytes, allowMalformed: true);
+    }
+    return '';
+  }
+
+  void _showErrorSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.inter(fontSize: 13)),
+        backgroundColor: MintColors.error,
       ),
     );
   }

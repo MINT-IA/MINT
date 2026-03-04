@@ -1,4 +1,5 @@
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 
 /// Dashboard content curation service (P3).
@@ -173,7 +174,9 @@ class DashboardCuratorService {
       case '3a_not_maxed':
         return '/simulator/3a';
       case 'lpp_buyback':
-        return '/arbitrage/rachat-vs-marche';
+        return FeatureFlags.enableDecisionScaffold
+            ? '/arbitrage/rachat-vs-marche'
+            : null;
       case 'tax_deadline':
         return '/tools';
       case 'retirement_countdown':

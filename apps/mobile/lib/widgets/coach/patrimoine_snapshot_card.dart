@@ -52,7 +52,7 @@ class PatrimoineSnapshotCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
+      color: MintColors.card,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

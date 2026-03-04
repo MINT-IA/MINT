@@ -204,7 +204,8 @@ final _router = GoRouter(
     // Feature Routes (Full Screen)
     GoRoute(
       path: '/advisor',
-      redirect: (context, state) => '/advisor/wizard',
+      redirect: (context, state) =>
+          state.uri.path == '/advisor' ? '/advisor/wizard' : null,
       builder: (context, state) => const SizedBox.shrink(),
       routes: [
         GoRoute(

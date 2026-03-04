@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:go_router/go_router.dart';
 
 /// Trajectory chart section — wraps MintTrajectoryChart with title.
 ///
@@ -54,7 +55,7 @@ class TrajectoryCard extends StatelessWidget {
             goalALabel: profile.goalA.label,
             goalAType: profile.goalA.type,
             initialDebt: profile.dettes.totalDettes,
-            onTap: null, // CTA disabled — cockpit detail screen coming in Pass 2
+            onTap: () => context.push('/coach/cockpit'),
           ),
         ),
         const SizedBox(height: 8),
