@@ -197,9 +197,14 @@ const double pilier3aTauxRevenuSansLpp = 0.20;
 // Cotisations totales salarie (resume)
 // ══════════════════════════════════════════════════════════════════════════════
 
-/// Total cotisations sociales part salarie (hors LPP): 7.35%.
+/// Total cotisations sociales part salarie (hors LPP): 6.4%.
+///
+/// avsCotisationSalarie (5.3%) = combined AVS (4.35%) + AI (0.70%) + APG (0.25%)
+/// — matching OFAS "taux AVS/AI/APG" (10.6% total, 5.3% per side).
+/// aiCotisationSalarie & apgCotisationSalarie are kept separately for
+/// disability-gap and APG-specific calculations, but must NOT be added again here.
 const double cotisationsSalarieTotal =
-    avsCotisationSalarie + aiCotisationSalarie + apgCotisationSalarie + acCotisationSalarie;
+    avsCotisationSalarie + acCotisationSalarie;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // Impot sur retrait de capital (2e/3e pilier) — par canton

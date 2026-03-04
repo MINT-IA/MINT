@@ -289,10 +289,10 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
     // Decomposition par pilier (scenario base)
     final decoBase = proj.base.decomposition;
-    final avsMonthly =
-        ((decoBase['avs'] ?? 0)) / 12;
-    final lppMonthly =
-        (((decoBase['lpp_user'] ?? 0) + (decoBase['lpp_conjoint'] ?? 0))) / 12;
+    final avsUserMonthly = ((decoBase['avs_user'] ?? decoBase['avs'] ?? 0)) / 12;
+    final avsConjointMonthly = ((decoBase['avs_conjoint'] ?? 0)) / 12;
+    final lppUserMonthly = ((decoBase['lpp_user'] ?? 0)) / 12;
+    final lppConjointMonthly = ((decoBase['lpp_conjoint'] ?? 0)) / 12;
     final threeAMonthly = ((decoBase['3a'] ?? 0)) / 12;
     final freeMonthly = ((decoBase['libre'] ?? 0)) / 12;
 
@@ -398,10 +398,12 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
                 // ── Pillar Decomposition ────────────────────
                 PillarDecomposition(
-                  avsMonthly: avsMonthly,
-                  lppMonthly: lppMonthly,
+                  avsMonthly: avsUserMonthly,
+                  lppMonthly: lppUserMonthly,
                   threeAMonthly: threeAMonthly,
                   freeMonthly: freeMonthly,
+                  avsConjointMonthly: avsConjointMonthly,
+                  lppConjointMonthly: lppConjointMonthly,
                 ),
                 const SizedBox(height: 16),
 

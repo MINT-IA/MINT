@@ -470,6 +470,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
     final monthlyOptimiste = proj.optimiste.revenuAnnuelRetraite / 12;
 
+    // Couple hero card
+    final isCouple = profile.isCouple && profile.conjoint?.birthYear != null;
+    final decoBase = proj.base.decomposition;
+
     // Estimate confidence improvement from LPP scan
     final hasLppData = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
     final estimatedAfterScan = hasLppData
@@ -515,11 +519,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
-                HeroRetirementCard(
-                  mode: HeroCardMode.range,
-                  rangeMin: monthlyPrudent,
-                  rangeMax: monthlyOptimiste,
-                ),
+
+                // ── Hero card: couple or single ──
+                if (isCouple) ...[
+                  _buildCoupleHeroCard(profile, decoBase, proj),
+                ] else ...[
+                  HeroRetirementCard(
+                    mode: HeroCardMode.range,
+                    rangeMin: monthlyPrudent,
+                    rangeMax: monthlyOptimiste,
+                  ),
+                ],
                 const SizedBox(height: 8),
 
                 // ── Confidence Blocks Bar (per-category progress) ──

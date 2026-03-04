@@ -254,13 +254,8 @@ class TestCotisationsTotal:
     """Verifie le total des cotisations."""
 
     def test_total_salarie_formula(self):
-        """Total == AVS + AI + APG + AC."""
-        expected = (
-            AVS_COTISATION_SALARIE
-            + AI_COTISATION_SALARIE
-            + APG_COTISATION_SALARIE
-            + AC_COTISATION_SALARIE
-        )
+        """Total == AVS (incl AI+APG) + AC — no double-count."""
+        expected = AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE
         assert COTISATIONS_SALARIE_TOTAL == pytest.approx(expected)
 
     def test_total_salarie_reasonable(self):

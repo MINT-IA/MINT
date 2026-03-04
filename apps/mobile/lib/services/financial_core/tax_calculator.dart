@@ -52,7 +52,7 @@ class NetIncomeBreakdown {
   /// Factory: compute dynamically from gross, canton, age.
   ///
   /// Formulas:
-  /// - socialCharges = brut * cotisationsSalarieTotal (7.35%)
+  /// - socialCharges = brut * cotisationsSalarieTotal (6.4%)
   /// - salaireCoord = clamp(brut - lppDeductionCoordination, lppSalaireCoordMin, lppSalaireCoordMax)
   /// - lppEmployee = salaireCoord * getLppBonificationRate(age) / 2
   ///   (LPP art. 66: employeur paie min 50%, employe ~50%)
@@ -75,7 +75,7 @@ class NetIncomeBreakdown {
       );
     }
 
-    // 1. Charges sociales (AVS + AI + APG + AC) — hors LPP
+    // 1. Charges sociales (AVS/AI/APG combined + AC) — hors LPP
     final socialCharges = grossSalary * cotisationsSalarieTotal;
 
     // 2. LPP employe (~50% de la bonification totale sur salaire coordonne)

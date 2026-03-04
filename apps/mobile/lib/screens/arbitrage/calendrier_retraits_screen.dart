@@ -78,6 +78,30 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       _assets[1].amountCtrl.text = lpp.round().toString();
       changed = true;
     }
+    // Pre-fill conjoint assets if couple
+    if (profile.isCouple && profile.conjoint != null) {
+      final conj = profile.conjoint!;
+      final conjLpp = conj.prevoyance?.avoirLppTotal;
+      if (conjLpp != null && conjLpp > 0) {
+        _assets.add(_AssetEntry(
+          type: 'lpp',
+          amountCtrl: TextEditingController(text: conjLpp.round().toString()),
+          age: conj.effectiveRetirementAge,
+          label: 'LPP ${conj.firstName ?? "conjoint\u00b7e"}',
+        ));
+        changed = true;
+      }
+      final conj3a = conj.prevoyance?.totalEpargne3a ?? 0;
+      if (conj3a > 0) {
+        _assets.add(_AssetEntry(
+          type: '3a',
+          amountCtrl: TextEditingController(text: conj3a.round().toString()),
+          age: conj.effectiveRetirementAge - 2,
+          label: '3a ${conj.firstName ?? "conjoint\u00b7e"}',
+        ));
+        changed = true;
+      }
+    }
     if (profile.canton.isNotEmpty) {
       _canton = profile.canton;
     }
@@ -818,7 +842,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
     required bool isLast,
   }) {
     final typeColor = _colorForType(asset.type);
-    final typeLabel = _labelForType(asset.type);
+    final typeLabel = asset.label ?? _labelForType(asset.type);
     final amount =
         double.tryParse(asset.amountCtrl.text.replaceAll("'", '')) ?? 0;
 
@@ -1064,10 +1088,12 @@ class _AssetEntry {
   String type;
   final TextEditingController amountCtrl;
   int age;
+  String? label; // Optional display label (e.g. "LPP Lauren")
 
   _AssetEntry({
     required this.type,
     required this.amountCtrl,
     required this.age,
+    this.label,
   });
 }

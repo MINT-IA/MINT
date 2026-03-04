@@ -7,14 +7,14 @@ void main() {
     // Golden test: Julien (50, 100k, ZH)
     // ──────────────────────────────────────────────
 
-    test('Julien (50, 100k, ZH) — socialCharges = 7350', () {
+    test('Julien (50, 100k, ZH) — socialCharges = 6400', () {
       final b = NetIncomeBreakdown.compute(
         grossSalary: 100000,
         canton: 'ZH',
         age: 50,
       );
-      // cotisationsSalarieTotal = 0.0735
-      expect(b.socialCharges, closeTo(7350, 1));
+      // cotisationsSalarieTotal = 0.064 (AVS/AI/APG 5.3% + AC 1.1%)
+      expect(b.socialCharges, closeTo(6400, 1));
     });
 
     test('Julien (50, 100k, ZH) — lppEmployee ≈ 5516', () {
@@ -61,7 +61,7 @@ void main() {
       // bonif 45-54 = 0.15, /2 = 0.075
       // lppEmployee = 33540 * 0.075 = 2515.50
       expect(b.lppEmployee, closeTo(2515.5, 1));
-      expect(b.socialCharges, closeTo(60000 * 0.0735, 1));
+      expect(b.socialCharges, closeTo(60000 * 0.064, 1));
     });
 
     // ──────────────────────────────────────────────
@@ -75,7 +75,7 @@ void main() {
         age: 45,
       );
       expect(b.lppEmployee, 0);
-      expect(b.socialCharges, closeTo(20000 * 0.0735, 1));
+      expect(b.socialCharges, closeTo(20000 * 0.064, 1));
     });
 
     test('Age < 25 — lppEmployee = 0', () {
