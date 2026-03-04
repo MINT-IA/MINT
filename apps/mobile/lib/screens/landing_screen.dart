@@ -38,16 +38,35 @@ class _LandingScreenState extends State<LandingScreen> {
   // Uses AvsCalculator + LppCalculator — same formulas as the dashboard.
   // Simplified inputs (no canton, no lacunes) but NEVER duplicates logic.
   // ---------------------------------------------------------------------------
+  /// Estimate LPP capital accumulated from age 25 to [currentAge].
+  ///
+  /// Uses current salary as proxy for career-long earnings (standard
+  /// simplification — same as most Swiss online calculators).
+  /// Bonification rates from LPP art. 16, caisse return 1% (LPP art. 15 min).
+  double _estimatedLppBalance(int currentAge, double grossAnnualSalary) {
+    if (grossAnnualSalary < lppSeuilEntree) return 0.0;
+    final salaireBase = (grossAnnualSalary - lppDeductionCoordination)
+        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    double balance = 0;
+    for (int a = 25; a < currentAge && a < 65; a++) {
+      balance *= 1.01;
+      balance += salaireBase * getLppBonificationRate(a);
+    }
+    return balance;
+  }
+
   Map<String, double> _estimateRetirement() {
     final age = _age.round();
 
     // AVS (1er pilier) — LAVS art. 34, echelle 44
     final avsMonthly = AvsCalculator.renteFromRAMD(_salary);
 
-    // LPP (2e pilier) — projected to 65
-    // currentBalance = 0 (unknown on landing page), caisseReturn = 1% conservative
+    // LPP (2e pilier) — estimate past accumulation + project to 65
+    // Past: bonifications from 25 to current age (career proxy)
+    // Future: projectToRetirement handles currentAge to 65
+    final pastBalance = _estimatedLppBalance(age, _salary);
     final lppAnnualRente = LppCalculator.projectToRetirement(
-      currentBalance: 0,
+      currentBalance: pastBalance,
       currentAge: age,
       retirementAge: 65,
       grossAnnualSalary: _salary,
@@ -306,7 +325,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
           // --- Salary slider ---
           _buildSliderRow(
-            label: 'Ton salaire',
+            label: 'Ton salaire brut',
             formattedValue: "${formatChf(_salary)} CHF/an",
             slider: Slider(
               value: _salary,
@@ -380,8 +399,8 @@ class _LandingScreenState extends State<LandingScreen> {
           const SizedBox(height: 10),
 
           Text(
-            '*Estimation indicative (1er + 2e pilier) \u2014 '
-            'ne constitue pas un conseil financier',
+            '*Estimation indicative (1er + 2e pilier), basee '
+            'sur ton salaire actuel \u2014 ne constitue pas un conseil financier',
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
