@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -154,6 +155,7 @@ class CoachNarrativeService {
 
   static const _cacheKeyPrefix = 'coach_narrative';
   static const _cacheTtlHours = 24;
+  static const _cacheModeSignatureKey = '${_cacheKeyPrefix}_mode_signature';
 
   /// Disclaimer standard
   static const disclaimer =
@@ -200,7 +202,7 @@ class CoachNarrativeService {
     required List<CoachingTip> tips,
     LlmConfig? byokConfig,
   }) async {
-    // 1. Verifier le cache
+    // 1. Verifier le cache (mode-aware for kill switches)
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
@@ -208,7 +210,15 @@ class CoachNarrativeService {
     //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
     CoachNarrative narrative;
 
-    if (SlmEngine.instance.isAvailable) {
+    if (FeatureFlags.safeModeDegraded) {
+      // Emergency degraded mode: deterministic templates only.
+      narrative = _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
+    } else if (FeatureFlags.enableSlmNarratives &&
+        SlmEngine.instance.isAvailable) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
       try {
         narrative = await _generateViaSlm(
@@ -217,7 +227,6 @@ class CoachNarrativeService {
           tips: tips,
         );
       } catch (_) {
-        // Fallback vers templates enrichis si SLM echoue
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
@@ -235,7 +244,9 @@ class CoachNarrativeService {
       // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
       // Tente d'ameliorer le narratif statique si BYOK est configure.
       // En cas d'echec, le narratif statique reste intact.
-      if (byokConfig != null && byokConfig.hasApiKey) {
+      if (byokConfig != null &&
+          byokConfig.hasApiKey &&
+          !FeatureFlags.safeModeDegraded) {
         try {
           narrative = await _generateViaLlm(
             profile: profile,
@@ -283,9 +294,10 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName = (profile.firstName != null && profile.firstName!.isNotEmpty)
-        ? profile.firstName!
-        : 'toi';
+    final firstName =
+        (profile.firstName != null && profile.firstName!.isNotEmpty)
+            ? profile.firstName!
+            : 'toi';
 
     // Score calculation
     FinancialFitnessScore? score;
@@ -354,8 +366,17 @@ class CoachNarrativeService {
       }
     }
 
-    // Feb-Mar: declaration fiscale — handled by CoachingService 'tax_deadline'
-    // tip (curated cards). Removed here to avoid 4× duplication on dashboard.
+    // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID).
+    // Keep this alert in narrative to maintain explicit urgency in briefing.
+    if (urgentAlert == null && now.month >= 2 && now.month <= 3) {
+      final deadline = DateTime(now.year, 3, 31);
+      final joursRestants = deadline.difference(now).inDays;
+      if (joursRestants >= 0) {
+        urgentAlert = 'Declaration fiscale a rendre avant le 31 mars '
+            '($joursRestants jours restants). '
+            '\u2014 LIFD / LHID';
+      }
+    }
 
     // ── chiffreChocNarration + retirementCountdown (static fallback) ──
     String? chiffreChocNarration;
@@ -562,9 +583,10 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName = (profile.firstName != null && profile.firstName!.isNotEmpty)
-        ? profile.firstName!
-        : 'toi';
+    final firstName =
+        (profile.firstName != null && profile.firstName!.isNotEmpty)
+            ? profile.firstName!
+            : 'toi';
     final age = profile.age;
     final etatCivil = profile.etatCivil.name;
     final employmentStatus = profile.employmentStatus;
@@ -641,14 +663,14 @@ class CoachNarrativeService {
     buffer.write(_buildEducationalSnippets(profile));
 
     buffer.writeln('CONSTANTES SUISSES (grounding — valeurs 2025) :');
-    buffer.writeln('- Rente AVS max individuelle : 2\'520 CHF/mois (LAVS art. 34)');
+    buffer.writeln(
+        '- Rente AVS max individuelle : 2\'520 CHF/mois (LAVS art. 34)');
     buffer.writeln('- Taux conversion LPP min : 6.8% (LPP art. 14)');
     buffer.writeln(
         '- Reduction taux conversion par annee anticipee : ~0.2% (LPP art. 13 al. 2)');
     buffer.writeln('- Plafond 3a salarie : 7\'258 CHF/an (OPP3 art. 7)');
     buffer.writeln('- Seuil LPP : 22\'680 CHF/an (LPP art. 7)');
-    buffer.writeln(
-        '- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
+    buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
     buffer.writeln();
 
     buffer.writeln('TIPS ACTIFS (par priorite) :');
@@ -711,8 +733,7 @@ class CoachNarrativeService {
 
     buffer.writeln('CONTEXTE RETRAITE :');
     buffer.writeln('- Age de retraite cible : $retirementAge ans');
-    buffer.writeln(
-        '- Countdown : Plus que $yearsLeft ans ($monthsLeft mois)');
+    buffer.writeln('- Countdown : Plus que $yearsLeft ans ($monthsLeft mois)');
     buffer.writeln('- Niveau d\'urgence : $urgency');
     if (replacementRate > 0) {
       buffer.writeln(
@@ -755,10 +776,10 @@ class CoachNarrativeService {
     // AVS gaps
     final lacunesAvs = profile.prevoyance.lacunesAVS ?? 0;
     if (lacunesAvs > 0) {
-      snippets.add(
-          'SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
-          'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
-          'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
+      snippets
+          .add('SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
+              'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
+              'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
     }
 
     // Close to retirement — coordination reminder
@@ -816,13 +837,11 @@ class CoachNarrativeService {
 
     final buffer = StringBuffer('TIME MACHINE 3A: ');
     if (yearsIfStarted30 > 0 && regretBalance > 10000) {
-      buffer.write(
-          'Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
+      buffer.write('Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
           'CHF ${regretBalance.toStringAsFixed(0)} aujourd\'hui. ');
     }
     if (yearsForward > 0) {
-      buffer.write(
-          'En versant le max pendant $yearsForward ans → '
+      buffer.write('En versant le max pendant $yearsForward ans → '
           '+CHF ${hopeBalance.toStringAsFixed(0)} a la retraite.');
     }
     return buffer.toString();
@@ -888,20 +907,16 @@ class CoachNarrativeService {
     final buffer = StringBuffer();
     buffer.writeln('FIABILITE DES DONNEES :');
     if (certified.isNotEmpty) {
-      buffer.writeln(
-          '- CERTIFIE (document scanne) : ${certified.join(', ')}');
+      buffer.writeln('- CERTIFIE (document scanne) : ${certified.join(', ')}');
       buffer.writeln(
           '  → Utilise ces chiffres avec confiance dans la narration.');
     }
     if (userInput.isNotEmpty) {
-      buffer.writeln(
-          '- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
+      buffer.writeln('- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
     }
     if (estimated.isNotEmpty) {
-      buffer.writeln(
-          '- ESTIME (calcul MINT) : ${estimated.join(', ')}');
-      buffer.writeln(
-          '  → Utilise "environ" ou "estime" pour ces valeurs. '
+      buffer.writeln('- ESTIME (calcul MINT) : ${estimated.join(', ')}');
+      buffer.writeln('  → Utilise "environ" ou "estime" pour ces valeurs. '
           'Suggere d\'affiner via wizard ou scan.');
     }
     // Key missing data
@@ -1091,10 +1106,19 @@ class CoachNarrativeService {
   /// Cle secondaire pour invalider si nouveau check-in.
   static String get _cacheCheckInCountKey => '${_cacheKeyPrefix}_checkin_count';
 
+  /// Signature du mode narratif courant.
+  ///
+  /// Permet d'invalider immediatement le cache si un kill-switch change.
+  static String get _currentModeSignature =>
+      'safe:${FeatureFlags.safeModeDegraded}|slm:${FeatureFlags.enableSlmNarratives}';
+
   /// Charge le narratif depuis le cache si valide (< 24h, meme nombre de check-ins).
   static Future<CoachNarrative?> _loadFromCache(CoachProfile profile) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final cachedMode = prefs.getString(_cacheModeSignatureKey);
+      if (cachedMode != _currentModeSignature) return null;
+
       final key = _cacheKey(profile);
       final jsonStr = prefs.getString(key);
       if (jsonStr == null) return null;
@@ -1129,6 +1153,7 @@ class CoachNarrativeService {
       final jsonStr = jsonEncode(narrative.toJson());
       await prefs.setString(key, jsonStr);
       await prefs.setInt(_cacheCheckInCountKey, profile.checkIns.length);
+      await prefs.setString(_cacheModeSignatureKey, _currentModeSignature);
     } catch (_) {
       // Silently fail — cache is optional
     }
@@ -1155,6 +1180,7 @@ class CoachNarrativeService {
         }
       }
       await prefs.remove(_cacheCheckInCountKey);
+      await prefs.remove(_cacheModeSignatureKey);
     } catch (_) {
       // Silently fail
     }

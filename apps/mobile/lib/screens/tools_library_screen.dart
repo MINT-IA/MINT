@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Data model for a single tool entry.
@@ -453,13 +454,37 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
     ),
   ];
 
+  List<_ToolCategory> get _effectiveCategories {
+    if (FeatureFlags.enableDecisionScaffold) return _categories;
+
+    return _categories
+        .map((category) {
+          final tools = category.tools
+              .where(
+                (tool) =>
+                    !tool.route.startsWith('/arbitrage/') &&
+                    tool.route != '/simulator/rente-capital',
+              )
+              .toList();
+          return _ToolCategory(
+            icon: category.icon,
+            title: category.title,
+            color: category.color,
+            tools: tools,
+          );
+        })
+        .where((category) => category.tools.isNotEmpty)
+        .toList();
+  }
+
   List<_ToolCategory> get _filteredCategories {
-    if (_searchQuery.isEmpty) return _categories;
+    final baseCategories = _effectiveCategories;
+    if (_searchQuery.isEmpty) return baseCategories;
 
     final query = _searchQuery.toLowerCase();
     final result = <_ToolCategory>[];
 
-    for (final category in _categories) {
+    for (final category in baseCategories) {
       final matchingTools = category.tools
           .where((tool) =>
               tool.title.toLowerCase().contains(query) ||
@@ -480,7 +505,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   }
 
   int get _totalToolCount =>
-      _categories.fold(0, (sum, cat) => sum + cat.tools.length);
+      _effectiveCategories.fold(0, (sum, cat) => sum + cat.tools.length);
 
   @override
   void dispose() {
@@ -556,7 +581,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${_categories.length} categories',
+                      '${_effectiveCategories.length} categories',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -594,8 +619,10 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final category = filtered[index];
-                  final globalIndex = _categories.indexOf(
-                    _categories.firstWhere((c) => c.title == category.title),
+                  final globalIndex = _effectiveCategories.indexOf(
+                    _effectiveCategories.firstWhere(
+                      (c) => c.title == category.title,
+                    ),
                   );
                   return _buildCategorySection(
                       category, globalIndex, index == filtered.length - 1);

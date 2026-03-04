@@ -79,17 +79,18 @@ class PlanTrackingService {
     for (final contrib in contributions) {
       // Find all check-in versements matching this contribution ID
       double sumActual = 0;
-      int matchCount = 0;
 
       for (final ci in checkIns) {
         final actual = ci.versements[contrib.id];
         if (actual != null) {
           sumActual += actual;
-          matchCount++;
         }
       }
 
-      final avgActual = matchCount > 0 ? sumActual / matchCount : 0.0;
+      // Missing key in a monthly check-in means 0 for this contribution.
+      // Divide by total check-ins (not only matched entries) to avoid
+      // inflating adherence when some months were skipped.
+      final avgActual = checkIns.isNotEmpty ? sumActual / checkIns.length : 0.0;
       totalActualMonthlyAvg += avgActual;
 
       // Contribution is "completed" if average >= 80% of planned

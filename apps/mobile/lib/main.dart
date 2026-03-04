@@ -20,14 +20,30 @@ Future<void> main() async {
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
 
+  // Pull server feature flags before first frame so kill-switches
+  // apply immediately (especially narrative degradation flags).
+  try {
+    await FeatureFlags.refreshFromBackend().timeout(
+      const Duration(seconds: 2),
+    );
+  } catch (_) {
+    // Keep local defaults when backend is unavailable.
+  }
+
   // Chargement des données critiques en arrière-plan (non-bloquant)
   Future.wait([
-    Pillar3aCalculator.loadLimits()
-        .catchError((e) { if (kDebugMode) debugPrint('Err 3a: $e'); }),
-    TaxScalesLoader.load().catchError((e) { if (kDebugMode) debugPrint('Err Tax: $e'); }),
-    CommuneData.load().catchError((e) { if (kDebugMode) debugPrint('Err Communes: $e'); }),
-    FeatureFlags.refreshFromBackend()
-        .catchError((e) { if (kDebugMode) debugPrint('Err Flags: $e'); }),
+    Pillar3aCalculator.loadLimits().catchError((e) {
+      if (kDebugMode) debugPrint('Err 3a: $e');
+    }),
+    TaxScalesLoader.load().catchError((e) {
+      if (kDebugMode) debugPrint('Err Tax: $e');
+    }),
+    CommuneData.load().catchError((e) {
+      if (kDebugMode) debugPrint('Err Communes: $e');
+    }),
+    FeatureFlags.refreshFromBackend().catchError((e) {
+      if (kDebugMode) debugPrint('Err Flags: $e');
+    }),
   ]);
 
   // Periodic refresh of server-driven feature flags (every 6 hours)
