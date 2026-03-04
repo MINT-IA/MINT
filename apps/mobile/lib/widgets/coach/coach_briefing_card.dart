@@ -46,18 +46,11 @@ class CoachBriefingCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            MintColors.primary.withValues(alpha: 0.08),
-            MintColors.surface,
-          ],
-        ),
+        color: MintColors.coachBubble, // subtle blue, clearly visible
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: MintColors.primary.withValues(alpha: 0.15),
-          width: 1,
+          color: const Color(0xFF2196F3).withValues(alpha: 0.20), // blue accent
+          width: 1.5,
         ),
       ),
       child: Column(
@@ -70,7 +63,7 @@ class CoachBriefingCard extends StatelessWidget {
                 child: Text(
                   narr?.greeting ?? 'Bonjour',
                   style: GoogleFonts.montserrat(
-                    fontSize: 17,
+                    fontSize: 19,
                     fontWeight: FontWeight.w700,
                     color: MintColors.textPrimary,
                   ),
@@ -87,8 +80,8 @@ class CoachBriefingCard extends StatelessWidget {
             Text(
               narr.scoreSummary,
               style: GoogleFonts.inter(
-                fontSize: 13,
-                color: MintColors.textSecondary,
+                fontSize: 14,
+                color: MintColors.textPrimary,
                 height: 1.5,
               ),
             ),

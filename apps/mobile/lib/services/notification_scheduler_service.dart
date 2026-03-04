@@ -369,19 +369,23 @@ class NotificationSchedulerService {
     }
 
     // Plan-vs-reality drift alert
-    if (planStatus != null && planStatus.isOffTrack) {
-      final adherence = planStatus.adherenceRate.toStringAsFixed(0);
-      final impact = _formatChf(planStatus.projectedImpactChf);
+    if (planStatus != null &&
+        planStatus.totalActions > 0 &&
+        planStatus.adherenceRate < 0.8) {
+      final adherence = (planStatus.adherenceRate * 100).toStringAsFixed(0);
+      final impact = _formatChf(planStatus.monthlyGapChf * 12);
+      final actionsBehind =
+          (planStatus.totalActions - planStatus.completedActions).clamp(0, 999);
       notifications.add(ScheduledNotification(
         category: NotificationCategory.offTrack,
         tier: NotificationTier.event,
         title: 'Tu t’eloignes de ton plan',
-        body: 'Adherence a $adherence% sur ${planStatus.monthsAnalyzed} mois. '
+        body: 'Adherence a $adherence% sur ${planStatus.totalActions} actions. '
             'Indication lineaire (hors rendement/fiscalite): ~CHF $impact.',
         deeplink: '/coach/checkin',
         scheduledDate: now,
         personalNumber: '$adherence%',
-        timeReference: '${planStatus.monthsBehind} mois en retard',
+        timeReference: '$actionsBehind actions en retard',
       ));
     }
 

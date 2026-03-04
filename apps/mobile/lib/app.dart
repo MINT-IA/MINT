@@ -20,9 +20,9 @@ import 'package:mint_mobile/screens/consent_dashboard_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
-import 'package:mint_mobile/screens/advisor/advisor_onboarding_screen.dart';
 import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
+import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
@@ -42,7 +42,6 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 // coaching_screen.dart import removed — route superseded by coach/*
@@ -107,6 +106,7 @@ import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
+import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -116,6 +116,7 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -125,9 +126,10 @@ import 'package:mint_mobile/screens/arbitrage/rachat_vs_marche_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/calendrier_retraits_screen.dart';
 import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
-import 'package:mint_mobile/screens/retirement_projection_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -185,11 +187,6 @@ final _router = GoRouter(
       builder: (context, state) => const CoachCheckinScreen(),
     ),
     GoRoute(
-      path: '/coach/projection',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RetirementProjectionScreen(),
-    ),
-    GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoachChatScreen(),
@@ -199,10 +196,17 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
+    GoRoute(
+      path: '/coach/cockpit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CockpitDetailScreen(),
+    ),
     // Feature Routes (Full Screen)
     GoRoute(
       path: '/advisor',
-      builder: (context, state) => const AdvisorOnboardingScreen(),
+      redirect: (context, state) =>
+          state.uri.path == '/advisor' ? '/advisor/wizard' : null,
+      builder: (context, state) => const SizedBox.shrink(),
       routes: [
         GoRoute(
           path: 'plan-30-days',
@@ -260,6 +264,10 @@ final _router = GoRouter(
           path: 'slm',
           builder: (context, state) => const SlmSettingsScreen(),
         ),
+        GoRoute(
+          path: 'bilan',
+          builder: (context, state) => const FinancialSummaryScreen(),
+        ),
       ],
     ),
     GoRoute(
@@ -284,7 +292,11 @@ final _router = GoRouter(
     GoRoute(
       path: '/document-scan',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const DocumentScanScreen(),
+      builder: (context, state) {
+        final extra = state.extra;
+        final initialType = extra is DocumentType ? extra : null;
+        return DocumentScanScreen(initialType: initialType);
+      },
     ),
     GoRoute(
       path: '/document-scan/avs-guide',
@@ -325,9 +337,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/rente-capital',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => FeatureFlags.enableDecisionScaffold
-          ? '/arbitrage/rente-vs-capital'
-          : '/tools',
+      redirect: (context, state) => '/arbitrage/rente-vs-capital',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
@@ -512,7 +522,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/retirement/projection',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/coach/projection',
+      redirect: (context, state) => '/coach/cockpit',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     // Famille & Concubinage (Sprint S22)
@@ -643,6 +653,15 @@ final _router = GoRouter(
       path: '/onboarding/enrichment',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ProgressiveEnrichmentScreen(),
+    ),
+    // Data Block Enrichment (P8 Phase 3)
+    GoRoute(
+      path: '/data-block/:type',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final type = state.pathParameters['type'] ?? 'revenu';
+        return DataBlockEnrichmentScreen(blockType: type);
+      },
     ),
     GoRoute(
       path: '/confidence',

@@ -1,5 +1,6 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FINANCIAL FITNESS SERVICE — Sprint C2 / MINT Coach
@@ -221,7 +222,11 @@ class FinancialFitnessService {
 
     // 1. Reste a vivre > 20% du revenu (0-25 points)
     final resteAVivre = profile.resteAVivreMensuel;
-    final revenuNet = profile.salaireBrutMensuel * 0.87;
+    final revenuNet = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton,
+      age: profile.age,
+    ).monthlyNetPayslip;
     final ratioResteAVivre = revenuNet > 0 ? resteAVivre / revenuNet : 0.0;
     final pointsResteAVivre = ratioResteAVivre >= 0.20
         ? 25

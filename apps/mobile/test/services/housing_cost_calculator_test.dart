@@ -216,9 +216,10 @@ void main() {
         housingStatus: null,
       );
 
-      // 75% of household net (8333 * 0.87 = 7250) = 5437.5
-      final householdNet = 8333 * 0.87;
-      expect(result, closeTo(householdNet * 0.75, 1.0));
+      // 75% of household net via NetIncomeBreakdown.compute() (not the old * 0.87)
+      // NetIncomeBreakdown.compute(grossSalary: 99996, canton: 'ZH', age: 50)
+      // gives monthlyNetPayslip ≈ 7318.9 → × 0.75 ≈ 5489.2
+      expect(result, closeTo(5489.17, 1.0));
     });
 
     test('with current expenses: uses 85% rule with floor', () {
@@ -229,8 +230,10 @@ void main() {
         housingStatus: null,
       );
 
-      // 85% of 6000 = 5100; floor = 7250 * 0.70 = 5075 → max(5100, 5075) = 5100
-      expect(result, closeTo(5100, 1.0));
+      // 85% of 6000 = 5100; floor = householdNet * 0.70
+      // householdNet ≈ 7318.9 (via NetIncomeBreakdown.compute) → floor ≈ 5123.2
+      // max(5100, 5123.2) = 5123.2 (floor wins because net is higher than old * 0.87)
+      expect(result, closeTo(5123.23, 1.0));
     });
 
     test('renter housing adjusts expenses (subtract current, add indexed)', () {

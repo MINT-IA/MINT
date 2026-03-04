@@ -9,6 +9,8 @@
 /// - ADR-20260223-unified-financial-engine.md
 library;
 
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+
 /// Contextual help for a financial field — tells the user exactly
 /// where to find the number and what it is called on the document.
 class FieldHelp {
@@ -501,7 +503,7 @@ class PrecisionService {
     ));
 
     // --- Taux marginal estimation ---
-    final tauxEstimate = _estimateMarginalRate(annualSalary, canton);
+    final tauxEstimate = RetirementTaxCalculator.estimateMarginalRate(annualSalary, canton);
     defaults.add(SmartDefault(
       fieldName: 'taux_marginal',
       value: (tauxEstimate * 100).roundToDouble(),
@@ -726,29 +728,4 @@ class PrecisionService {
     return 0.78; // median
   }
 
-  /// Rough marginal rate estimation from annual salary and canton.
-  static double _estimateMarginalRate(double annualSalary, String canton) {
-    // Simplified progressive brackets (federal + cantonal combined)
-    double base;
-    if (annualSalary < 50000) {
-      base = 0.10;
-    } else if (annualSalary < 80000) {
-      base = 0.18;
-    } else if (annualSalary < 120000) {
-      base = 0.25;
-    } else if (annualSalary < 180000) {
-      base = 0.30;
-    } else if (annualSalary < 300000) {
-      base = 0.35;
-    } else {
-      base = 0.40;
-    }
-
-    // Canton adjustment
-    const lowTax = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
-    const highTax = {'GE', 'VD', 'NE', 'BS', 'BE', 'JU', 'FR'};
-    if (lowTax.contains(canton.toUpperCase())) return base * 0.80;
-    if (highTax.contains(canton.toUpperCase())) return base * 1.15;
-    return base;
-  }
 }

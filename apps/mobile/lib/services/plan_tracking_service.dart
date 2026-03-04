@@ -2,173 +2,153 @@ import 'dart:math';
 
 import 'package:mint_mobile/models/coach_profile.dart';
 
-/// Gap analysis for one planned contribution.
-class ContributionGap {
-  final String id;
-  final String label;
-  final double plannedMonthly;
-  final double actualMonthly;
-  final double gapMonthly;
-  final double gapPercent;
+// ────────────────────────────────────────────────────────────
+//  PLAN TRACKING SERVICE — Phase 5 / Dashboard Assembly
+// ────────────────────────────────────────────────────────────
+//
+// Évalue l'adhérence du plan financier de l'utilisateur en
+// comparant les versements réels (MonthlyCheckIn.versements)
+// aux contributions planifiées (PlannedMonthlyContribution).
+//
+// compoundProjectedImpact() calcule l'impact composé FV
+// du gap mensuel non-versé sur N mois (FV annuity formula).
+//
+// Outil éducatif — ne constitue pas un conseil financier (LSFin).
+// ────────────────────────────────────────────────────────────
 
-  const ContributionGap({
-    required this.id,
-    required this.label,
-    required this.plannedMonthly,
-    required this.actualMonthly,
-    required this.gapMonthly,
-    required this.gapPercent,
-  });
-}
-
-/// Aggregated plan-vs-reality status over a rolling window.
+/// Résultat d'évaluation du plan financier.
 class PlanStatus {
-  final bool hasPlan;
-  final int monthsAnalyzed;
-  final int monthsBehind;
-  final double monthlyPlanned;
-  final double monthlyActual;
-  final double adherenceRate;
+  final double score;
+  final int completedActions;
+  final int totalActions;
+  final List<String> nextActions;
 
-  /// Linear indicative extrapolation of monthly gap to retirement horizon.
-  ///
-  /// Educational estimate only: excludes rendement, inflation, fiscalite,
-  /// and rente/capital conversion effects.
-  final double projectedImpactChf;
-  final List<ContributionGap> topGaps;
+  /// Total CHF réellement versé par mois (moyenne des check-ins).
+  final double averageMonthlyActual;
+
+  /// Total CHF planifié par mois.
+  final double totalMonthlyPlanned;
 
   const PlanStatus({
-    required this.hasPlan,
-    required this.monthsAnalyzed,
-    required this.monthsBehind,
-    required this.monthlyPlanned,
-    required this.monthlyActual,
-    required this.adherenceRate,
-    required this.projectedImpactChf,
-    required this.topGaps,
+    required this.score,
+    required this.completedActions,
+    required this.totalActions,
+    required this.nextActions,
+    this.averageMonthlyActual = 0,
+    this.totalMonthlyPlanned = 0,
   });
 
-  bool get isOffTrack => hasPlan && monthsBehind >= 2 && adherenceRate < 70.0;
+  /// Taux d'adhérence (0.0 - 1.0).
+  double get adherenceRate =>
+      totalActions > 0 ? completedActions / totalActions : 0;
+
+  /// Gap mensuel CHF non-versé (planned - actual).
+  double get monthlyGapChf =>
+      (totalMonthlyPlanned - averageMonthlyActual).clamp(0, double.infinity);
 }
 
-/// Deterministic plan tracker (no network, no AI).
+/// Service d'évaluation du plan et projection de l'impact composé.
 class PlanTrackingService {
   PlanTrackingService._();
 
-  /// Compare planned monthly contributions with actual check-ins.
+  /// Évalue l'adhérence du plan en comparant check-ins réels aux contributions planifiées.
   ///
-  /// `lookbackMonths` defaults to 3 to smooth one-off noise.
+  /// Pour chaque [PlannedMonthlyContribution], cherche dans les [MonthlyCheckIn]
+  /// les versements correspondants (par contribution.id dans versements keys).
+  /// Un plan est "complété" si le versement moyen >= 80% du montant planifié.
+  ///
+  /// Retourne un [PlanStatus] avec score, adhérence, CHF réels et gap.
   static PlanStatus evaluate({
-    required CoachProfile profile,
-    int lookbackMonths = 3,
-    DateTime? today,
+    required List<MonthlyCheckIn> checkIns,
+    required List<PlannedMonthlyContribution> contributions,
   }) {
-    final months = max(1, lookbackMonths);
-    final planned = profile.plannedContributions;
-
-    if (planned.isEmpty) {
+    if (contributions.isEmpty) {
       return const PlanStatus(
-        hasPlan: false,
-        monthsAnalyzed: 0,
-        monthsBehind: 0,
-        monthlyPlanned: 0,
-        monthlyActual: 0,
-        adherenceRate: 0,
-        projectedImpactChf: 0,
-        topGaps: [],
+        score: 0,
+        completedActions: 0,
+        totalActions: 0,
+        nextActions: [],
       );
     }
 
-    final now = today ?? DateTime.now();
-    final monthKeys = List<String>.generate(
-      months,
-      (i) => _monthKey(DateTime(now.year, now.month - i)),
-    );
-    final keySet = monthKeys.toSet();
+    final totalPlanned = contributions.fold(0.0, (s, c) => s + c.amount);
+    int completed = 0;
+    double totalActualMonthlyAvg = 0;
+    final pendingActions = <String>[];
 
-    final checkinsByMonth = <String, MonthlyCheckIn>{};
-    for (final ci in profile.checkIns) {
-      final key = _monthKey(ci.month);
-      if (!keySet.contains(key)) continue;
-      final existing = checkinsByMonth[key];
-      if (existing == null || ci.completedAt.isAfter(existing.completedAt)) {
-        checkinsByMonth[key] = ci;
-      }
-    }
+    for (final contrib in contributions) {
+      // Find all check-in versements matching this contribution ID
+      double sumActual = 0;
 
-    final monthlyPlanned =
-        planned.fold<double>(0.0, (sum, c) => sum + c.amount);
-
-    double totalActual = 0;
-    int monthsBehind = 0;
-    final actualByContribution = <String, double>{
-      for (final c in planned) c.id: 0.0,
-    };
-
-    for (final key in monthKeys) {
-      final ci = checkinsByMonth[key];
-      var monthActual = 0.0;
-
-      if (ci != null) {
-        for (final entry in ci.versements.entries) {
-          if (!actualByContribution.containsKey(entry.key)) continue;
-          if (!entry.value.isFinite) continue;
-          final amount = max(0.0, entry.value);
-          monthActual += amount;
-          actualByContribution[entry.key] =
-              (actualByContribution[entry.key] ?? 0) + amount;
+      for (final ci in checkIns) {
+        final actual = ci.versements[contrib.id];
+        if (actual != null) {
+          sumActual += actual;
         }
       }
 
-      totalActual += monthActual;
+      // Missing key in a monthly check-in means 0 for this contribution.
+      // Divide by total check-ins (not only matched entries) to avoid
+      // inflating adherence when some months were skipped.
+      final avgActual = checkIns.isNotEmpty ? sumActual / checkIns.length : 0.0;
+      totalActualMonthlyAvg += avgActual;
 
-      if (monthActual < monthlyPlanned * 0.70) {
-        monthsBehind++;
+      // Contribution is "completed" if average >= 80% of planned
+      if (avgActual >= contrib.amount * 0.8) {
+        completed++;
+      } else {
+        final gap = contrib.amount - avgActual;
+        pendingActions.add(
+          '${contrib.label} : +${gap.round()} CHF/mois',
+        );
       }
     }
 
-    final expectedTotal = monthlyPlanned * months;
-    final monthlyActual = totalActual / months;
-    final adherence = expectedTotal > 0
-        ? (totalActual / expectedTotal * 100).clamp(0.0, 200.0)
-        : 100.0;
-
-    final gaps = planned.map((c) {
-      final actualMonthly = (actualByContribution[c.id] ?? 0) / months;
-      final gap = c.amount - actualMonthly;
-      final pct = c.amount > 0 ? (gap / c.amount) * 100 : 0.0;
-      return ContributionGap(
-        id: c.id,
-        label: c.label,
-        plannedMonthly: c.amount,
-        actualMonthly: actualMonthly,
-        gapMonthly: gap,
-        gapPercent: pct,
-      );
-    }).toList()
-      ..sort((a, b) => b.gapMonthly.compareTo(a.gapMonthly));
-
-    final totalGapMonthly = gaps
-        .where((g) => g.gapMonthly > 0)
-        .fold<double>(0.0, (sum, g) => sum + g.gapMonthly);
-    final monthsToRetirement = max(
-      0,
-      (profile.effectiveRetirementAge - profile.age) * 12,
-    );
-    final projectedImpact = totalGapMonthly * monthsToRetirement;
+    final rate = completed / contributions.length;
+    final score = (rate * 100).clamp(0, 100).toDouble();
 
     return PlanStatus(
-      hasPlan: true,
-      monthsAnalyzed: months,
-      monthsBehind: monthsBehind,
-      monthlyPlanned: monthlyPlanned,
-      monthlyActual: monthlyActual,
-      adherenceRate: adherence,
-      projectedImpactChf: projectedImpact,
-      topGaps: gaps.take(3).toList(),
+      score: score,
+      completedActions: completed,
+      totalActions: contributions.length,
+      nextActions: pendingActions.take(3).toList(),
+      averageMonthlyActual: totalActualMonthlyAvg,
+      totalMonthlyPlanned: totalPlanned,
     );
   }
 
-  static String _monthKey(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}';
+  /// Calcule l'impact composé projeté du gap mensuel (FV annuity).
+  ///
+  /// Formule: monthlyGapChf × ((1+r)^n - 1) / r
+  /// avec r = rendement mensuel, n = nombre de mois.
+  ///
+  /// Le PMT est le gap réel en CHF entre planifié et versé.
+  /// Si le gap est 0 (tout est versé), l'impact est 0.
+  ///
+  /// [status] : résultat de evaluate() (contient monthlyGapChf).
+  /// [monthsToRetirement] : nombre de mois jusqu'à la retraite.
+  /// [annualReturn] : rendement réel annuel (défaut 2%, conservateur).
+  ///
+  /// Retourne le montant composé du gap (CHF) — ce que l'utilisateur
+  /// pourrait accumuler en comblant le gap.
+  ///
+  /// Sources: LPP art. 15-16 (bonifications), OPP3 art. 7 (3a).
+  /// Outil éducatif — ne constitue pas un conseil financier.
+  static double compoundProjectedImpact({
+    required PlanStatus status,
+    required int monthsToRetirement,
+    double annualReturn = 0.02, // 2% real return (conservative estimate)
+  }) {
+    if (monthsToRetirement <= 0) return 0;
+
+    final monthlyGap = status.monthlyGapChf;
+    if (monthlyGap <= 0) return 0;
+
+    final monthlyRate = annualReturn / 12;
+    final n = monthsToRetirement.toDouble();
+
+    // FV annuity formula: PMT × ((1+r)^n - 1) / r
+    if (monthlyRate == 0) return monthlyGap * n;
+    return monthlyGap * ((pow(1 + monthlyRate, n) - 1) / monthlyRate);
+  }
 }

@@ -2,42 +2,135 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/retirement_projection_service.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Early retirement comparison mini-table for 45-60 age group.
 ///
-/// Shows replacement rate estimates at ages 63, 64, 65, 67, 70.
+/// Shows household replacement rate estimates at ages 63, 64, 65, 67, 70.
+/// Includes conjoint AVS+LPP when couple profile is present.
 /// Only displayed for users aged 45+.
 class EarlyRetirementComparison extends StatelessWidget {
   final CoachProfile profile;
+  final double baseThreeAMonthly;
+  final double baseLibreMonthly;
 
-  const EarlyRetirementComparison({super.key, required this.profile});
+  const EarlyRetirementComparison({
+    super.key,
+    required this.profile,
+    this.baseThreeAMonthly = 0,
+    this.baseLibreMonthly = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (profile.age < 45) return const SizedBox.shrink();
 
-    final projection = RetirementProjectionService.project(profile: profile);
-    final preRetirementMonthly = projection.revenuPreRetraiteMensuel;
-    if (preRetirementMonthly <= 0) return const SizedBox.shrink();
+    final grossMonthlySalary = profile.revenuBrutAnnuel / 12;
+    if (grossMonthlySalary <= 0) return const SizedBox.shrink();
 
-    const ages = [63, 64, 65, 67, 70];
-    final scenarioByAge = <int, EarlyRetirementScenario>{
-      for (final s in projection.earlyRetirementComparisons) s.retirementAge: s,
-    };
+    final isCouple = profile.isCouple &&
+        profile.conjoint?.birthYear != null &&
+        (profile.conjoint?.salaireBrutMensuel ?? 0) > 0;
+
+    final ages = [63, 64, 65, 67, 70];
     final rows = <_ComparisonRow>[];
 
     for (final retAge in ages) {
       if (retAge <= profile.age) continue;
-      final scenario = scenarioByAge[retAge];
-      if (scenario == null) continue;
 
-      final replacementRate = scenario.totalMonthly / preRetirementMonthly;
+      // ── User AVS (with lacunes + arrivalAge — LAVS art. 29) ──
+      double avsUserMonthly = AvsCalculator.computeMonthlyRente(
+        currentAge: profile.age,
+        retirementAge: retAge,
+        grossAnnualSalary: profile.revenuBrutAnnuel,
+        lacunes: profile.prevoyance.lacunesAVS ?? 0,
+        anneesContribuees: profile.prevoyance.anneesContribuees,
+        arrivalAge: profile.arrivalAge,
+      );
+
+      // ── User LPP ──
+      final lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
+      final lppRente = LppCalculator.projectToRetirement(
+        currentBalance: lppBalance,
+        currentAge: profile.age,
+        retirementAge: retAge,
+        grossAnnualSalary: profile.revenuBrutAnnuel,
+        caisseReturn: profile.prevoyance.rendementCaisse,
+        conversionRate: profile.prevoyance.tauxConversion,
+      );
+      final lppUserMonthly = lppRente / 12;
+
+      // ── Conjoint AVS + LPP (if couple) ──
+      double avsConjMonthly = 0;
+      double lppConjMonthly = 0;
+      if (isCouple) {
+        final conj = profile.conjoint!;
+        final conjAge = conj.age ?? profile.age;
+        // Conjoint retires at their own effective age; project at same retAge
+        // only if it's above their current age
+        if (retAge > conjAge) {
+          avsConjMonthly = AvsCalculator.computeMonthlyRente(
+            currentAge: conjAge,
+            retirementAge: retAge.clamp(conjAge + 1, 70),
+            grossAnnualSalary: (conj.salaireBrutMensuel ?? 0) * 12,
+            lacunes: conj.prevoyance?.lacunesAVS ?? 0,
+            anneesContribuees: conj.prevoyance?.anneesContribuees,
+            arrivalAge: conj.arrivalAge,
+          );
+          final conjLpp = conj.prevoyance?.avoirLppTotal ?? 0;
+          if (conjLpp > 0) {
+            final conjLppRente = LppCalculator.projectToRetirement(
+              currentBalance: conjLpp,
+              currentAge: conjAge,
+              retirementAge: retAge.clamp(conjAge + 1, 70),
+              grossAnnualSalary: (conj.salaireBrutMensuel ?? 0) * 12,
+              caisseReturn: conj.prevoyance?.rendementCaisse ?? 0.02,
+              conversionRate: conj.prevoyance?.tauxConversion ?? 0.068,
+            );
+            lppConjMonthly = conjLppRente / 12;
+          }
+        }
+      }
+
+      // ── Couple AVS cap (LAVS art. 35: married 150% max = 3780 CHF) ──
+      if (isCouple && avsConjMonthly > 0) {
+        final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+        final capped = AvsCalculator.computeCouple(
+          avsUser: avsUserMonthly,
+          avsConjoint: avsConjMonthly,
+          isMarried: isMarried,
+        );
+        avsUserMonthly = capped.user;
+        avsConjMonthly = capped.conjoint;
+      }
+
+      final totalMonthly = avsUserMonthly + lppUserMonthly +
+          avsConjMonthly + lppConjMonthly +
+          baseThreeAMonthly + baseLibreMonthly;
+
+      // Replacement rate on household NET salary
+      final userNet = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.age,
+      ).monthlyNetPayslip;
+      final conjNet = isCouple
+          ? NetIncomeBreakdown.compute(
+              grossSalary: (profile.conjoint!.salaireBrutMensuel ?? 0) * 12,
+              canton: profile.canton,
+              age: profile.conjoint!.age ?? profile.age,
+            ).monthlyNetPayslip
+          : 0.0;
+      final householdNet = userNet + conjNet;
+      final replacementRate =
+          householdNet > 0 ? totalMonthly / householdNet : 0.0;
 
       rows.add(_ComparisonRow(
         age: retAge,
-        totalMonthly: scenario.totalMonthly,
+        totalMonthly: totalMonthly,
         replacementRate: replacementRate,
         isTarget: retAge == profile.effectiveRetirementAge,
       ));
@@ -66,7 +159,9 @@ class EarlyRetirementComparison extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Estimation du taux de remplacement par \u00e2ge de d\u00e9part',
+            isCouple
+                ? 'Taux de remplacement m\u00e9nage par \u00e2ge de d\u00e9part'
+                : 'Estimation du taux de remplacement par \u00e2ge de d\u00e9part',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -109,7 +204,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           ...rows.map((r) => _buildRow(r)),
           const SizedBox(height: 10),
           InkWell(
-            onTap: () => context.push('/coach/projection'),
+            onTap: () => context.push('/coach/cockpit'),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -122,7 +217,8 @@ class EarlyRetirementComparison extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                Icon(Icons.arrow_forward, size: 16, color: MintColors.primary),
+                Icon(Icons.arrow_forward,
+                    size: 16, color: MintColors.primary),
               ],
             ),
           ),
@@ -169,8 +265,8 @@ class EarlyRetirementComparison extends StatelessWidget {
                 if (r.isTarget)
                   Padding(
                     padding: const EdgeInsets.only(left: 4),
-                    child:
-                        Icon(Icons.star, size: 12, color: MintColors.primary),
+                    child: Icon(Icons.star,
+                        size: 12, color: MintColors.primary),
                   ),
               ],
             ),

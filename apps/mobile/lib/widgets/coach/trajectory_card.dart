@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:go_router/go_router.dart';
 
 /// Trajectory chart section — wraps MintTrajectoryChart with title.
 ///
@@ -55,7 +55,7 @@ class TrajectoryCard extends StatelessWidget {
             goalALabel: profile.goalA.label,
             goalAType: profile.goalA.type,
             initialDebt: profile.dettes.totalDettes,
-            onTap: () => context.push('/coach/projection'),
+            onTap: () => context.push('/coach/cockpit'),
           ),
         ),
         const SizedBox(height: 8),

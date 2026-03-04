@@ -80,13 +80,15 @@ void main() {
       };
 
       final report = service.generateReport(answersSingleGap);
-      // grossAnnualSalary = 5000 * 12 / 0.87 = ~68965.5
-      // renteFromRAMD(68965.5) = ~2190.25 (linear interpolation)
+      // grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(60000)
+      //   uses Newton-Raphson iteration (not the old / 0.87 linear approx)
+      //   → ~68299 CHF (slightly lower than old 68965.5)
+      // renteFromRAMD(~68299) = ~2176 (linear interpolation)
       // With anneesContribuees=40 + futureYears=19 = 44 total => gapFactor=1.0
-      // So rente = ~2190.25
+      // So rente = ~2176
 
       expect(report.retirementProjection?.monthlyAvsRent,
-          closeTo(2190.27, 1.0));
+          closeTo(2176.0, 1.0));
     });
 
     test('Married AVS Rent calculation with spouse gaps', () {

@@ -34,7 +34,6 @@ class ArbitrageTeaserSection extends StatelessWidget {
     if (!FeatureFlags.enableDecisionScaffold) {
       return const SizedBox.shrink();
     }
-
     final teasers = _computeTeasers(profile);
     if (teasers.isEmpty) return const SizedBox.shrink();
 
@@ -70,9 +69,6 @@ class ArbitrageTeaserSection extends StatelessWidget {
     final teasers = <_TeaserData>[];
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
-    final targetRetirementAge = profile.effectiveRetirementAge > profile.age
-        ? profile.effectiveRetirementAge
-        : 65;
 
     // 1. Rente vs Capital
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
@@ -81,7 +77,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
       final annualRente = LppCalculator.projectToRetirement(
         currentBalance: lppAvoir,
         currentAge: profile.age,
-        retirementAge: targetRetirementAge,
+        retirementAge: 65,
         grossAnnualSalary: profile.revenuBrutAnnuel,
         caisseReturn: profile.prevoyance.rendementCaisse,
         conversionRate: convRate,

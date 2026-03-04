@@ -105,6 +105,16 @@ class ProjectionPoint {
         'contributionMensuelle': contributionMensuelle,
         'rendementCumule': rendementCumule,
       };
+
+  factory ProjectionPoint.fromJson(Map<String, dynamic> json) {
+    return ProjectionPoint(
+      date: DateTime.parse(json['date'] as String),
+      capitalCumule: (json['capitalCumule'] as num?)?.toDouble() ?? 0,
+      contributionMensuelle:
+          (json['contributionMensuelle'] as num?)?.toDouble() ?? 0,
+      rendementCumule: (json['rendementCumule'] as num?)?.toDouble() ?? 0,
+    );
+  }
 }
 
 /// Jalon de progression (ex: "100k de capital prevoyance atteint")
@@ -150,6 +160,19 @@ class ProjectionScenario {
         'decomposition': decomposition,
         'pointsCount': points.length,
       };
+
+  factory ProjectionScenario.fromJson(Map<String, dynamic> json) {
+    return ProjectionScenario(
+      label: json['label'] as String? ?? '',
+      points: const [], // points not persisted in snapshots
+      capitalFinal: (json['capitalFinal'] as num?)?.toDouble() ?? 0,
+      revenuAnnuelRetraite:
+          (json['revenuAnnuelRetraite'] as num?)?.toDouble() ?? 0,
+      decomposition: (json['decomposition'] as Map<String, dynamic>?)
+              ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
+          const {},
+    );
+  }
 }
 
 /// Resultat complet de projection (3 scenarios)
@@ -181,6 +204,44 @@ class ProjectionResult {
         'disclaimer': disclaimer,
         'sources': sources,
       };
+
+  /// Reconstruct a [ProjectionResult] from a JSON map (e.g. stored snapshot).
+  ///
+  /// Used by the day-1 snapshot comparison on the dashboard (Phase 5).
+  /// Only restores aggregate figures (capitalFinal, revenuAnnuelRetraite,
+  /// decomposition) — monthly [points] are NOT serialised to keep
+  /// the snapshot lightweight.
+  factory ProjectionResult.fromJson(Map<String, dynamic> json) {
+    ProjectionScenario _scenarioFromJson(Map<String, dynamic> s) {
+      return ProjectionScenario(
+        label: s['label'] as String? ?? '',
+        points: const [], // points are not persisted in snapshots
+        capitalFinal: (s['capitalFinal'] as num?)?.toDouble() ?? 0,
+        revenuAnnuelRetraite:
+            (s['revenuAnnuelRetraite'] as num?)?.toDouble() ?? 0,
+        decomposition: (s['decomposition'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
+            const {},
+      );
+    }
+
+    return ProjectionResult(
+      prudent: _scenarioFromJson(
+          json['prudent'] as Map<String, dynamic>? ?? const {}),
+      base: _scenarioFromJson(
+          json['base'] as Map<String, dynamic>? ?? const {}),
+      optimiste: _scenarioFromJson(
+          json['optimiste'] as Map<String, dynamic>? ?? const {}),
+      tauxRemplacementBase:
+          (json['tauxRemplacementBase'] as num?)?.toDouble() ?? 0,
+      milestones: const [], // milestones are not persisted in snapshots
+      disclaimer: json['disclaimer'] as String? ?? '',
+      sources: (json['sources'] as List<dynamic>?)
+              ?.map((s) => s as String)
+              .toList() ??
+          const [],
+    );
+  }
 }
 
 /// Service de projection financiere.
@@ -220,9 +281,22 @@ class ForecasterService {
 
     // Taux de remplacement base sur le scenario base
     // Use household income (main + partner) when conjoint exists
-    final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
-    final partnerNetMensuel =
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final mainBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final revenuNetMensuel = mainBreakdown.monthlyNetPayslip;
+    final conjoint = profile.conjoint;
+    final partnerNetMensuel = conjoint != null &&
+            conjoint.salaireBrutMensuel != null &&
+            conjoint.age != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: conjoint.salaireBrutMensuel! * 12,
+            canton: profile.canton,
+            age: conjoint.age!,
+          ).monthlyNetPayslip
+        : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
     final tauxRemplacement = _safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
@@ -340,9 +414,22 @@ class ForecasterService {
     );
 
     // Taux de remplacement base (household income for couples)
-    final revenuNetMensuel = profile.salaireBrutMensuel * 0.87;
-    final partnerNetMensuel =
-        (profile.conjoint?.salaireBrutMensuel ?? 0) * 0.87;
+    final mainBreakdownCustom = NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton,
+      age: profile.age,
+    );
+    final revenuNetMensuel = mainBreakdownCustom.monthlyNetPayslip;
+    final conjointCustom = profile.conjoint;
+    final partnerNetMensuel = conjointCustom != null &&
+            conjointCustom.salaireBrutMensuel != null &&
+            conjointCustom.age != null
+        ? NetIncomeBreakdown.compute(
+            grossSalary: conjointCustom.salaireBrutMensuel! * 12,
+            canton: profile.canton,
+            age: conjointCustom.age!,
+          ).monthlyNetPayslip
+        : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
     final tauxRemplacement = _safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,

@@ -1,4 +1,5 @@
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 
 /// Dashboard content curation service (P3).
@@ -6,7 +7,7 @@ import 'package:mint_mobile/services/reengagement_engine.dart';
 /// Selects and prioritizes the cards shown on the retirement dashboard.
 /// Max 3-4 cards, sorted by: urgency > impact CHF > deadline proximity.
 ///
-/// Extracts urgency/deadline logic from coach_dashboard_screen.dart monolith
+/// Extracts urgency/deadline logic from legacy dashboard monolith (archived) monolith
 /// into a reusable, testable service.
 class DashboardCuratorService {
   DashboardCuratorService._();
@@ -22,7 +23,7 @@ class DashboardCuratorService {
   /// Compute urgency level for a coaching tip.
   ///
   /// Returns [AlertUrgency.urgent] if high priority AND deadline <= 30 days.
-  /// Extracted from coach_dashboard_screen.dart L2824-2835.
+  /// Extracted from legacy dashboard monolith (archived) L2824-2835.
   static AlertUrgency computeAlertUrgency(CoachingTip? tip) {
     if (tip == null) return AlertUrgency.info;
     if (tip.priority != CoachingPriority.haute) return AlertUrgency.info;
@@ -37,7 +38,7 @@ class DashboardCuratorService {
   /// Format deadline countdown text for a coaching tip.
   ///
   /// Returns "Aujourd'hui", "Demain", or "J-{days}".
-  /// Extracted from coach_dashboard_screen.dart L2837-2844.
+  /// Extracted from legacy dashboard monolith (archived) L2837-2844.
   static String? computeDeadlineText(CoachingTip? tip) {
     if (tip == null) return null;
     final days = getDeadlineDaysForTip(tip);
@@ -53,7 +54,7 @@ class DashboardCuratorService {
   /// - 'deadline_3a' → Dec 31
   /// - 'tax_deadline' → Mar 31
   ///
-  /// Extracted from coach_dashboard_screen.dart L2846-2862.
+  /// Extracted from legacy dashboard monolith (archived) L2846-2862.
   static int? getDeadlineDaysForTip(CoachingTip tip, {DateTime? today}) {
     final now = today ?? DateTime.now();
 
@@ -117,13 +118,21 @@ class DashboardCuratorService {
         urgency: urgency,
         deadlineDays: deadlineDays,
         impactChf: tip.estimatedImpactChf,
-        deeplink: _deeplinkForTip(tip),
+        deeplink: _deeplinkForTip(tip.id),
         source: tip,
       ));
     }
 
-    // Add reengagement message cards
+    // Detect if coaching tips already cover fiscal deadline
+    final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');
+
+    // Add reengagement message cards (skip fiscal if already in tips)
     for (final msg in reengagementMessages) {
+      if (hasTaxTip &&
+          (msg.trigger == ReengagementTrigger.taxPrep ||
+              msg.trigger == ReengagementTrigger.taxDeadline)) {
+        continue;
+      }
       cards.add(CuratedCard(
         type: CuratedCardType.reengagement,
         title: msg.title,
@@ -155,39 +164,25 @@ class DashboardCuratorService {
     return cards.take(limit).toList();
   }
 
-  /// Map known coaching tip IDs to actionable dashboard deeplinks.
+  /// Map coaching tip IDs to actionable deeplinks.
   ///
-  /// Keep this mapping deterministic and route only to active screens.
-  static String? _deeplinkForTip(CoachingTip tip) {
-    switch (tip.id) {
+  /// Returns null if no natural navigation target exists for the tip.
+  static String? _deeplinkForTip(String tipId) {
+    switch (tipId) {
       case 'deadline_3a':
       case 'missing_3a':
       case '3a_not_maxed':
-        return '/3a-deep/comparator';
+        return '/simulator/3a';
       case 'lpp_buyback':
-        return '/lpp-deep/rachat';
+        return FeatureFlags.enableDecisionScaffold
+            ? '/arbitrage/rachat-vs-marche'
+            : null;
       case 'tax_deadline':
-        return '/document-scan';
+        return '/tools';
       case 'retirement_countdown':
-      case 'age_milestone_25':
-      case 'age_milestone_35':
-      case 'age_milestone_45':
-      case 'age_milestone_50':
-      case 'age_milestone_58':
-      case 'age_milestone_60':
-      case 'age_milestone_63':
-      case 'age_milestone_64':
-      case 'age_milestone_65':
-        return '/coach/projection';
+        return '/coach/dashboard';
       case 'emergency_fund':
-      case 'budget_missing':
-      case 'budget_drift':
-      case 'debt_ratio':
         return '/budget';
-      case 'part_time_gap':
-        return '/onboarding/smart';
-      case 'independant_alert':
-        return '/segments/independant';
       default:
         return null;
     }

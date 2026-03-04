@@ -23,7 +23,7 @@ class PillarDecomposition extends StatefulWidget {
   /// Rente AVS mensuelle (1er pilier). CHF/mois.
   final double avsMonthly;
 
-  /// Rente LPP mensuelle (2eme pilier). CHF/mois.
+  /// Rente LPP mensuelle (2eme pilier, user). CHF/mois.
   final double lppMonthly;
 
   /// Revenu mensuel 3a annualise. CHF/mois.
@@ -32,12 +32,20 @@ class PillarDecomposition extends StatefulWidget {
   /// Revenu mensuel libre (epargne / investissements). CHF/mois.
   final double freeMonthly;
 
+  /// Rente AVS conjoint (couple only). CHF/mois.
+  final double avsConjointMonthly;
+
+  /// Rente LPP conjoint (couple only). CHF/mois.
+  final double lppConjointMonthly;
+
   const PillarDecomposition({
     super.key,
     required this.avsMonthly,
     required this.lppMonthly,
     required this.threeAMonthly,
     required this.freeMonthly,
+    this.avsConjointMonthly = 0,
+    this.lppConjointMonthly = 0,
   });
 
   @override
@@ -69,7 +77,9 @@ class _PillarDecompositionState extends State<PillarDecomposition>
     if (oldWidget.avsMonthly != widget.avsMonthly ||
         oldWidget.lppMonthly != widget.lppMonthly ||
         oldWidget.threeAMonthly != widget.threeAMonthly ||
-        oldWidget.freeMonthly != widget.freeMonthly) {
+        oldWidget.freeMonthly != widget.freeMonthly ||
+        oldWidget.avsConjointMonthly != widget.avsConjointMonthly ||
+        oldWidget.lppConjointMonthly != widget.lppConjointMonthly) {
       _controller.forward(from: 0);
     }
   }
@@ -80,11 +90,16 @@ class _PillarDecompositionState extends State<PillarDecomposition>
     super.dispose();
   }
 
+  bool get _hasConjoint =>
+      widget.avsConjointMonthly > 0 || widget.lppConjointMonthly > 0;
+
   double get _total =>
       widget.avsMonthly +
       widget.lppMonthly +
       widget.threeAMonthly +
-      widget.freeMonthly;
+      widget.freeMonthly +
+      widget.avsConjointMonthly +
+      widget.lppConjointMonthly;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +142,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
               return Column(
                 children: [
                   _buildPillarRow(
-                    label: '1er pilier (AVS)',
+                    label: _hasConjoint ? '1er pilier (AVS toi)' : '1er pilier (AVS)',
                     amount: widget.avsMonthly,
                     total: total,
                     color: MintColors.retirementAvs,
@@ -136,13 +151,35 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                   ),
                   const SizedBox(height: 10),
                   _buildPillarRow(
-                    label: '2\u00e8me pilier (LPP)',
+                    label: _hasConjoint ? '2\u00e8me pilier (LPP toi)' : '2\u00e8me pilier (LPP)',
                     amount: widget.lppMonthly,
                     total: total,
                     color: MintColors.retirementLpp,
                     icon: Icons.account_balance_outlined,
                     progress: _animation.value,
                   ),
+                  if (_hasConjoint && widget.avsConjointMonthly > 0) ...[
+                    const SizedBox(height: 10),
+                    _buildPillarRow(
+                      label: '1er pilier (AVS conjoint\u00b7e)',
+                      amount: widget.avsConjointMonthly,
+                      total: total,
+                      color: MintColors.retirementAvs.withValues(alpha: 0.65),
+                      icon: Icons.shield_outlined,
+                      progress: _animation.value,
+                    ),
+                  ],
+                  if (_hasConjoint && widget.lppConjointMonthly > 0) ...[
+                    const SizedBox(height: 10),
+                    _buildPillarRow(
+                      label: '2\u00e8me pilier (LPP conjoint\u00b7e)',
+                      amount: widget.lppConjointMonthly,
+                      total: total,
+                      color: const Color(0xFF5C6BC0),
+                      icon: Icons.account_balance_outlined,
+                      progress: _animation.value,
+                    ),
+                  ],
                   const SizedBox(height: 10),
                   _buildPillarRow(
                     label: '3\u00e8me pilier (3a)',

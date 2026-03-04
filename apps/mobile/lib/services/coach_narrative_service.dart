@@ -202,90 +202,51 @@ class CoachNarrativeService {
     required List<CoachingTip> tips,
     LlmConfig? byokConfig,
   }) async {
-    // 1. Verifier le cache (mode-aware: invalidation immediate des kill-switches)
+    // 1. Verifier le cache (mode-aware for kill switches)
     final cached = await _loadFromCache(profile);
     if (cached != null) return cached;
 
     // 2. Generer le narratif (priorite privacy-first : SLM > Templates > BYOK)
     //    Ref: BRIEFING_AUDIT_EXTERNE:170,231 — architecture cible adoptee.
-    var narrative = _generateStatic(
-      profile: profile,
-      scoreHistory: scoreHistory,
-      tips: tips,
-    );
+    CoachNarrative narrative;
 
     if (FeatureFlags.safeModeDegraded) {
-      // Emergency fallback mode: deterministic templates only.
+      // Emergency degraded mode: deterministic templates only.
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
       );
-    } else if (FeatureFlags.enableSlmNarratives) {
+    } else if (FeatureFlags.enableSlmNarratives &&
+        SlmEngine.instance.isAvailable) {
       // Tier 1: SLM on-device (zero reseau, privacy totale)
-      // Only attempt SLM if flutter_gemma plugin initialized successfully.
-      final slm = SlmEngine.instance;
-      var slmReady = false;
-      if (FeatureFlags.slmPluginReady) {
-        slmReady = slm.isAvailable;
-        if (!slmReady) {
-          try {
-            slmReady = await slm.initialize();
-          } catch (_) {
-            slmReady = false;
-          }
-        }
-      }
-
-      if (slmReady) {
-        try {
-          narrative = await _generateViaSlm(
-            profile: profile,
-            scoreHistory: scoreHistory,
-            tips: tips,
-          );
-        } catch (_) {
-          // Fallback vers templates enrichis si SLM echoue
-          narrative = _generateStatic(
-            profile: profile,
-            scoreHistory: scoreHistory,
-            tips: tips,
-          );
-        }
-      } else {
-        // Tier 2: Templates enrichis (zero LLM, toujours disponible)
+      try {
+        narrative = await _generateViaSlm(
+          profile: profile,
+          scoreHistory: scoreHistory,
+          tips: tips,
+        );
+      } catch (_) {
         narrative = _generateStatic(
           profile: profile,
           scoreHistory: scoreHistory,
           tips: tips,
         );
-
-        // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
-        // Tente d'ameliorer le narratif statique si BYOK est configure.
-        // En cas d'echec, le narratif statique reste intact.
-        if (byokConfig != null && byokConfig.hasApiKey) {
-          try {
-            narrative = await _generateViaLlm(
-              profile: profile,
-              scoreHistory: scoreHistory,
-              tips: tips,
-              config: byokConfig,
-            );
-          } catch (_) {
-            // Resilience: garde le narratif statique deja genere
-          }
-        }
       }
     } else {
-      // SLM disabled (server kill-switch): templates + BYOK fallback.
+      // Tier 2: Templates enrichis (zero LLM, toujours disponible)
       narrative = _generateStatic(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
       );
 
-      // BYOK is still available even when SLM is disabled.
-      if (byokConfig != null && byokConfig.hasApiKey) {
+      // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
+      // Tente d'ameliorer le narratif statique si BYOK est configure.
+      // En cas d'echec, le narratif statique reste intact.
+      if (byokConfig != null &&
+          byokConfig.hasApiKey &&
+          !FeatureFlags.safeModeDegraded) {
         try {
           narrative = await _generateViaLlm(
             profile: profile,
@@ -405,7 +366,8 @@ class CoachNarrativeService {
       }
     }
 
-    // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID)
+    // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID).
+    // Keep this alert in narrative to maintain explicit urgency in briefing.
     if (urgentAlert == null && now.month >= 2 && now.month <= 3) {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
@@ -1146,8 +1108,7 @@ class CoachNarrativeService {
 
   /// Signature du mode narratif courant.
   ///
-  /// Permet d'invalider immediatement le cache si un kill-switch change
-  /// (safe mode degrade, SLM on/off), meme avant expiration TTL.
+  /// Permet d'invalider immediatement le cache si un kill-switch change.
   static String get _currentModeSignature =>
       'safe:${FeatureFlags.safeModeDegraded}|slm:${FeatureFlags.enableSlmNarratives}';
 

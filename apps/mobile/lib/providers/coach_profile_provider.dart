@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
@@ -467,6 +468,7 @@ class CoachProfileProvider extends ChangeNotifier {
       totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
+      librePassage: p.prevoyance.librePassage,
     );
 
     _profile = p.copyWith(
@@ -475,15 +477,19 @@ class CoachProfileProvider extends ChangeNotifier {
       prevoyance: updatedPrevoyance,
       riskTolerance: riskTolerance ?? p.riskTolerance,
       realEstateProject: realEstateProject ?? p.realEstateProject,
-      familyChange: familyChange ?? p.familyChange,
       updatedAt: DateTime.now(),
     );
 
     // Persist updated wizard answers with refreshed fields
     final answers = await ReportPersistenceService.loadAnswers();
     if (salaireBrutMensuel != null) {
-      // Convert back to net for wizard format (brut * 0.87)
-      answers['q_net_income_period_chf'] = salaireBrutMensuel * 0.87;
+      // Convert brut to net for wizard format using NetIncomeBreakdown
+      final breakdown = NetIncomeBreakdown.compute(
+        grossSalary: salaireBrutMensuel * 12,
+        canton: _profile?.canton ?? 'ZH',
+        age: _profile?.age ?? 45,
+      );
+      answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
     }
     if (employmentStatus != null) {
       answers['q_employment_status'] = employmentStatus;
@@ -580,13 +586,11 @@ class CoachProfileProvider extends ChangeNotifier {
       nomCaisse: p.prevoyance.nomCaisse,
       avoirLppTotal: avoirTotal ?? p.prevoyance.avoirLppTotal,
       avoirLppObligatoire: avoirOblig ?? p.prevoyance.avoirLppObligatoire,
-      avoirLppSurobligatoire:
-          avoirSuroblig ?? p.prevoyance.avoirLppSurobligatoire,
+      avoirLppSurobligatoire: avoirSuroblig ?? p.prevoyance.avoirLppSurobligatoire,
       rachatMaximum: lacuneRachat ?? p.prevoyance.rachatMaximum,
       rachatEffectue: p.prevoyance.rachatEffectue,
       tauxConversion: tauxConvOblig ?? p.prevoyance.tauxConversion,
-      tauxConversionSuroblig:
-          tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
+      tauxConversionSuroblig: tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
       rendementCaisse: p.prevoyance.rendementCaisse,
       salaireAssure: salaireAssure ?? p.prevoyance.salaireAssure,
       ramd: p.prevoyance.ramd,
@@ -594,10 +598,22 @@ class CoachProfileProvider extends ChangeNotifier {
       totalEpargne3a: p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
+      librePassage: p.prevoyance.librePassage,
     );
+
+    // Tag data sources as certificate-confirmed
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (avoirTotal != null) updatedSources['prevoyance.avoirLppTotal'] = ProfileDataSource.certificate;
+    if (avoirOblig != null) updatedSources['prevoyance.avoirLppObligatoire'] = ProfileDataSource.certificate;
+    if (avoirSuroblig != null) updatedSources['prevoyance.avoirLppSurobligatoire'] = ProfileDataSource.certificate;
+    if (tauxConvOblig != null) updatedSources['prevoyance.tauxConversion'] = ProfileDataSource.certificate;
+    if (tauxConvSuroblig != null) updatedSources['prevoyance.tauxConversionSuroblig'] = ProfileDataSource.certificate;
+    if (lacuneRachat != null) updatedSources['prevoyance.rachatMaximum'] = ProfileDataSource.certificate;
+    if (salaireAssure != null) updatedSources['prevoyance.salaireAssure'] = ProfileDataSource.certificate;
 
     _profile = p.copyWith(
       prevoyance: updatedPrevoyance,
+      dataSources: updatedSources,
       updatedAt: DateTime.now(),
     );
 
@@ -605,12 +621,9 @@ class CoachProfileProvider extends ChangeNotifier {
     final answers = await ReportPersistenceService.loadAnswers();
     if (avoirTotal != null) answers['_coach_avoir_lpp'] = avoirTotal;
     if (avoirOblig != null) answers['_coach_avoir_lpp_oblig'] = avoirOblig;
-    if (avoirSuroblig != null)
-      answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
-    if (tauxConvOblig != null)
-      answers['_coach_taux_conversion'] = tauxConvOblig;
-    if (tauxConvSuroblig != null)
-      answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
+    if (avoirSuroblig != null) answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
+    if (tauxConvOblig != null) answers['_coach_taux_conversion'] = tauxConvOblig;
+    if (tauxConvSuroblig != null) answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
     if (lacuneRachat != null) answers['_coach_rachat_maximum'] = lacuneRachat;
     if (salaireAssure != null) answers['_coach_salaire_assure'] = salaireAssure;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
@@ -657,8 +670,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedPrevoyance = PrevoyanceProfile(
       anneesContribuees: anneesContrib ?? p.prevoyance.anneesContribuees,
       lacunesAVS: lacunesCotisation ?? p.prevoyance.lacunesAVS,
-      renteAVSEstimeeMensuelle:
-          renteEstimee ?? p.prevoyance.renteAVSEstimeeMensuelle,
+      renteAVSEstimeeMensuelle: renteEstimee ?? p.prevoyance.renteAVSEstimeeMensuelle,
       nomCaisse: p.prevoyance.nomCaisse,
       avoirLppTotal: p.prevoyance.avoirLppTotal,
       avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
@@ -674,21 +686,27 @@ class CoachProfileProvider extends ChangeNotifier {
       totalEpargne3a: p.prevoyance.totalEpargne3a,
       comptes3a: p.prevoyance.comptes3a,
       canContribute3a: p.prevoyance.canContribute3a,
+      librePassage: p.prevoyance.librePassage,
     );
+
+    // Tag data sources as certificate-confirmed
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (anneesContrib != null) updatedSources['prevoyance.anneesContribuees'] = ProfileDataSource.certificate;
+    if (lacunesCotisation != null) updatedSources['prevoyance.lacunesAVS'] = ProfileDataSource.certificate;
+    if (renteEstimee != null) updatedSources['prevoyance.renteAVSEstimeeMensuelle'] = ProfileDataSource.certificate;
+    if (ramd != null) updatedSources['prevoyance.ramd'] = ProfileDataSource.certificate;
 
     _profile = p.copyWith(
       prevoyance: updatedPrevoyance,
+      dataSources: updatedSources,
       updatedAt: DateTime.now(),
     );
 
     // Persist to wizard answers
     final answers = await ReportPersistenceService.loadAnswers();
-    if (anneesContrib != null)
-      answers['q_avs_contribution_years'] = anneesContrib;
-    if (lacunesCotisation != null)
-      answers['_coach_avs_lacunes'] = lacunesCotisation;
-    if (renteEstimee != null)
-      answers['_coach_avs_rente_estimee'] = renteEstimee;
+    if (anneesContrib != null) answers['q_avs_contribution_years'] = anneesContrib;
+    if (lacunesCotisation != null) answers['_coach_avs_lacunes'] = lacunesCotisation;
+    if (renteEstimee != null) answers['_coach_avs_rente_estimee'] = renteEstimee;
     if (ramd != null) answers['_coach_avs_ramd'] = ramd;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
     answers['_coach_avs_source'] = 'document_scan';
@@ -696,6 +714,40 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _profileUpdatedSinceBudget = true;
     notifyListeners();
+  }
+
+  /// Returns a map of pre-filled values from the existing profile for
+  /// the Smart Onboarding flow. Keys match the onboarding field names.
+  ///
+  /// Returns an empty map if no profile exists. Only includes non-null
+  /// values so the caller can skip fields without data.
+  Map<String, dynamic> getSmartFlowDefaults() {
+    final p = _profile;
+    if (p == null) return const {};
+
+    final defaults = <String, dynamic>{};
+
+    defaults['age'] = p.age;
+    defaults['grossSalary'] = p.revenuBrutAnnuel;
+    defaults['canton'] = p.canton;
+    defaults['situationFamiliale'] = p.etatCivil.name;
+
+    final lppBalance = p.prevoyance.avoirLppTotal;
+    if (lppBalance != null && lppBalance > 0) {
+      defaults['lppBalance'] = lppBalance;
+    }
+
+    final epargne3a = p.prevoyance.totalEpargne3a;
+    if (epargne3a > 0) {
+      defaults['epargne3a'] = epargne3a;
+    }
+
+    final epargneLiquide = p.patrimoine.epargneLiquide;
+    if (epargneLiquide > 0) {
+      defaults['epargneLiquide'] = epargneLiquide;
+    }
+
+    return defaults;
   }
 
   /// Reset le profil (logout / reset).

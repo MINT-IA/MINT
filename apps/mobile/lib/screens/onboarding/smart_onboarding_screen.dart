@@ -4,27 +4,35 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_jit_explanation.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_next_step.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_stress_selector.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_top_actions.dart';
+import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 
 // ZERO-PERSISTENCE GUARANTEE (P1):
 // All onboarding inputs stay in-memory until the user explicitly saves.
 // No SharedPreferences, no analytics payload, no auto-save before consent.
 
-/// Smart Onboarding — Value-First Flow (Lot 2).
+/// Smart Onboarding — Value-First Flow (Lot 2 + P8-2).
 ///
-/// Orchestrates the 3-question → chiffre choc → action flow.
+/// Orchestrates the 6-step onboarding experience:
+///   0: [StepStressSelector]  — intention selector (tap, auto-advance)
+///   1: [StepQuestions]        — 3 inputs: salary, age, canton
+///   2: [StepChiffreChoc]      — reveal of the first impactful number
+///   3: [StepJitExplanation]   — SI...ALORS mini-explanation
+///   4: [StepTopActions]       — Top 3 coaching tips
+///   5: [StepNextStep]         — Enrich profile or go to dashboard
+///
 /// Uses a [PageView] with programmatic (non-swipeable) navigation so the user
 /// always follows the intentional sequence.
-///
-/// Pages:
-///   0: [StepQuestions]    — 3 inputs: salary, age, canton
-///   1: [StepChiffreChoc]  — reveal of the first impactful number
 ///
 /// The ViewModel is owned here and passed down to each step.
 /// State is managed via [ListenableBuilder] over the ViewModel.
 ///
-/// The reveal animation on page 1 is triggered via [_animTrigger],
+/// The reveal animation on page 2 is triggered via [_animTrigger],
 /// a [ValueNotifier<int>] whose counter increments each time we navigate
 /// to the chiffre choc step.
 class SmartOnboardingScreen extends StatefulWidget {
@@ -45,10 +53,62 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   /// its reveal animation without needing cross-file private state access.
   final _animTrigger = ValueNotifier<int>(0);
 
+  /// Cached tips to avoid recomputation on every rebuild.
+  List<CoachingTip>? _cachedTips;
+  int _lastTipsHash = 0;
+
+  /// Guard so profile pre-fill runs only once.
+  bool _didPrefillFromProfile = false;
+
   @override
   void initState() {
     super.initState();
     _loadDraft();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didPrefillFromProfile) {
+      _didPrefillFromProfile = true;
+      _prefillFromProfile();
+    }
+  }
+
+  /// Pre-fill ViewModel from existing CoachProfile data (one-time).
+  ///
+  /// Uses Provider.read (not watch) since this is initialization-only.
+  /// Draft data loaded in [_loadDraft] will override these defaults if present.
+  void _prefillFromProfile() {
+    final defaults =
+        context.read<CoachProfileProvider>().getSmartFlowDefaults();
+    if (defaults.isEmpty) return;
+
+    final age = defaults['age'];
+    if (age is int) _viewModel.setAge(age);
+
+    final grossSalary = defaults['grossSalary'];
+    if (grossSalary is num && grossSalary > 0) {
+      _viewModel.setGrossSalary(grossSalary.toDouble());
+    }
+
+    final canton = defaults['canton'];
+    if (canton is String && canton.isNotEmpty) _viewModel.setCanton(canton);
+
+    final lppBalance = defaults['lppBalance'];
+    if (lppBalance is num && lppBalance > 0) {
+      _viewModel.setExistingLpp(lppBalance.toDouble());
+    }
+
+    final epargne3a = defaults['epargne3a'];
+    if (epargne3a is num && epargne3a > 0) {
+      _viewModel.setExisting3a(epargne3a.toDouble());
+    }
+
+    final epargneLiquide = defaults['epargneLiquide'];
+    if (epargneLiquide is num && epargneLiquide > 0) {
+      _viewModel.setCurrentSavings(epargneLiquide.toDouble());
+    }
   }
 
   @override
@@ -156,11 +216,51 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   }
 
   void _onStepQuestionsNext() {
-    _goToPage(1);
+    _goToPage(2);
     // Increment trigger so StepChiffreChoc fires its animation
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _animTrigger.value++;
     });
+  }
+
+  /// Generate coaching tips from the current minimal profile.
+  /// Memoized: only recomputes when inputs change.
+  List<CoachingTip> _generateTips() {
+    final profile = _viewModel.profile;
+    if (profile == null) return [];
+
+    // Simple cache key based on relevant inputs
+    final hash = Object.hash(
+      _viewModel.age,
+      _viewModel.canton,
+      _viewModel.grossSalary,
+      _viewModel.existing3a,
+      _viewModel.existingLpp,
+      _viewModel.currentSavings,
+      _viewModel.stressType,
+    );
+    if (hash == _lastTipsHash && _cachedTips != null) return _cachedTips!;
+
+    final coachingProfile = CoachingProfile(
+      age: _viewModel.age,
+      canton: _viewModel.canton ?? 'ZH',
+      revenuAnnuel: _viewModel.grossSalary,
+      has3a: _viewModel.existing3a != null && _viewModel.existing3a! > 0,
+      montant3a: _viewModel.existing3a ?? 0,
+      hasLpp: true,
+      avoirLpp: _viewModel.existingLpp ?? 0,
+      lacuneLpp: 0,
+      chargesFixesMensuelles: profile.estimatedMonthlyExpenses,
+      epargneDispo: _viewModel.currentSavings ?? 0,
+    );
+
+    final allTips = CoachingService.generateTips(profile: coachingProfile);
+    _cachedTips = CoachingService.filterByStressType(
+      allTips,
+      _viewModel.stressType ?? 'stress_general',
+    );
+    _lastTipsHash = hash;
+    return _cachedTips!;
   }
 
   Future<void> _saveThenGo(BuildContext context) async {
@@ -189,27 +289,53 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
     return ListenableBuilder(
       listenable: _viewModel,
       builder: (context, _) {
+        final tips = _generateTips();
+
         return Scaffold(
           body: PageView(
             controller: _pageController,
             // Disable swipe — navigation is controlled programmatically.
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              // ── Page 0: 3 questions ──────────────────────────────────────
+              // ── Page 0: Stress intention ────────────────────────────────
+              StepStressSelector(
+                viewModel: _viewModel,
+                onNext: () => _goToPage(1),
+              ),
+
+              // ── Page 1: 3 questions ──────────────────────────────────────
               StepQuestions(
                 viewModel: _viewModel,
                 onNext: _onStepQuestionsNext,
                 onInputChanged: _onInputChanged,
               ),
 
-              // ── Page 1: Chiffre choc reveal ──────────────────────────────
+              // ── Page 2: Chiffre choc reveal ──────────────────────────────
               StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
-                onEnrich: () {
-                  // Save current profile first, then navigate to enrichment
-                  _saveThenEnrich(context);
-                },
+                onEnrich: () => _goToPage(3),
+                onDashboard: () => _goToPage(3),
+              ),
+
+              // ── Page 3: JIT explanation (SI...ALORS) ─────────────────────
+              StepJitExplanation(
+                chiffreChoc: _viewModel.chiffreChoc,
+                onNext: () => _goToPage(4),
+                onBack: () => _goToPage(2),
+              ),
+
+              // ── Page 4: Top 3 actions ────────────────────────────────────
+              StepTopActions(
+                tips: tips,
+                onNext: () => _goToPage(5),
+                onBack: () => _goToPage(3),
+              ),
+
+              // ── Page 5: Next step (enrich or dashboard) ──────────────────
+              StepNextStep(
+                confidenceScore: _viewModel.confidenceScore,
+                onEnrich: () => _saveThenEnrich(context),
                 onDashboard: () => _saveThenGo(context),
               ),
             ],

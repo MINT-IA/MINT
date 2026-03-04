@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
@@ -10,6 +13,7 @@ import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rente vs Capital arbitrage screen — compare full rente, full capital,
 /// and mixed strategies with real-time recalculation.
@@ -46,9 +50,49 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   ArbitrageResult? _result;
   static const int _ageRetraiteReference = 65;
 
+  // ── CoachProfile auto-fill (P8 Phase 4) ──
+  bool _didAutoFill = false;
+  Map<String, ProfileDataSource> _dataSources = {};
+  bool _hasEstimatedValues = false;
+
   @override
   void initState() {
     super.initState();
+    _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didAutoFill) {
+      _didAutoFill = true;
+      _autoFillFromProfile();
+    }
+  }
+
+  void _autoFillFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    final lpp = profile.prevoyance.avoirLppTotal;
+    if (lpp != null && lpp > 0) {
+      // MINT default: 70% obligatoire / 30% surobligatoire (moyenne industrie
+      // suisse, pas de source legale — valeur indicative, l'utilisateur peut
+      // modifier les champs).
+      final oblig = (lpp * 0.7).round();
+      final surob = (lpp * 0.3).round();
+      _capitalObligCtrl.text = oblig.toString();
+      _capitalSurobCtrl.text = surob.toString();
+      // Estimate rente from obligatory part at 6.8%
+      final rente = (oblig * (lppTauxConversionMin / 100)).round();
+      _renteCtrl.text = rente.toString();
+      _hasEstimatedValues = true;
+    }
+    if (profile.canton.isNotEmpty) {
+      _canton = profile.canton;
+    }
+    _isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    _dataSources = profile.dataSources;
     _recalculate();
   }
 
@@ -110,6 +154,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
         horizon: 25,
         isMarried: _isMarried,
+        dataSources: _dataSources,
       );
 
       if (!mounted || requestId != _requestCounter) return;
@@ -199,6 +244,38 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 if (_result != null) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  if (_result!.confidenceScore < 70)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: MintColors.warning.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: MintColors.warning.withAlpha(60)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
+                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_hasEstimatedValues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   Text(
                     'Trajectoires comparees',
                     style: GoogleFonts.montserrat(

@@ -4,49 +4,35 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
-import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
-import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
-import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
-import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
 import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
-import 'package:mint_mobile/widgets/coach/data_quality_card.dart';
-import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
+import 'package:mint_mobile/widgets/coach/confidence_blocks_bar.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/coach/explore_hub.dart';
 import 'package:mint_mobile/widgets/coach/hero_retirement_card.dart';
-import 'package:mint_mobile/widgets/coach/impact_mint_card.dart';
-import 'package:mint_mobile/widgets/coach/low_confidence_card.dart';
-import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
-import 'package:mint_mobile/widgets/coach/pillar_decomposition.dart';
 import 'package:mint_mobile/widgets/coach/monte_carlo_toggle_section.dart';
-import 'package:mint_mobile/widgets/coach/sensitivity_snippet.dart';
 import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
-import 'package:mint_mobile/widgets/coach/trajectory_card.dart';
-import 'package:mint_mobile/widgets/dashboard/arbitrage_teaser_card.dart';
-import 'package:mint_mobile/widgets/dashboard/budget_gap_card.dart';
 import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
-import 'package:mint_mobile/widgets/dashboard/couple_action_plan.dart';
-import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
 import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
-import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
-import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
+import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
+import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
 
 // ────────────────────────────────────────────────────────────
-//  RETIREMENT DASHBOARD SCREEN — P3 / Coach IA Vivante
+//  RETIREMENT DASHBOARD SCREEN — P5 / Dashboard Assembly
 // ────────────────────────────────────────────────────────────
 //
 //  Orchestrateur du tableau de bord retraite a 3 etats.
@@ -77,10 +63,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   CoachProfile? _profile;
   FinancialFitnessScore? _score;
   ProjectionResult? _projection;
-  ProjectionResult? _baselineProjection;
-  RetirementProjectionResult? _retirementProjection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  Map<String, BlockScore> _confidenceBlocs = const {};
 
   // ── Coach narrative state (P3) ──────────────────────────
   CoachNarrative? _narrative;
@@ -89,12 +74,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   List<CuratedCard> _curatedCards = const [];
   List<TemporalItem> _temporalItems = const [];
 
-  // ── P4: Monte Carlo + Tornado state ─────────────────────
-  MonteCarloResult? _monteCarloResult;
-  List<TornadoVariable> _tornadoVariables = const [];
-
-  // ── Cockpit expand state (P3: 3-4 cards gate) ──────────
-  bool _cockpitExpanded = false;
+  // ── P5: Snapshot persistence ──────────────────────────────
+  bool _snapshotPersisted = false; // WARN-2: guard against re-entry loop
+  bool _slmPromptChecked = false;
 
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
@@ -103,6 +85,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // SLM auto-prompt: trigger once on first dashboard visit (native only).
+    if (!_slmPromptChecked) {
+      _slmPromptChecked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) SlmAutoPromptService.checkAndPrompt(context);
+      });
+    }
+
     final provider = context.watch<CoachProfileProvider>();
     final newScoreHistorySignature =
         _computeScoreHistorySignature(provider.scoreHistory);
@@ -111,6 +102,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _projection = null;
       _confidence = null;
       _confidenceScore = 0;
+      _confidenceBlocs = const {};
       _scoreHistorySignature = null;
       // Invalidate any in-flight narrative generation to prevent
       // stale personal content from overwriting null after profile loss.
@@ -118,15 +110,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _narrative = null;
       _curatedCards = const [];
       _temporalItems = const [];
-      _monteCarloResult = null;
-      _tornadoVariables = const [];
       return;
     }
 
     final newProfile = provider.profile!;
-    if (identical(_profile, newProfile)) {
-      // Profile instance unchanged, but score history can evolve independently
-      // via saveCurrentScore(). Refresh narrative trend context in that case.
+    if (_profile != null && _profile == newProfile) {
+      // Profile object unchanged, but score history can evolve independently
+      // via saveCurrentScore(). Regenerate narrative trend when it changes.
       if (_scoreHistorySignature == newScoreHistorySignature) return;
       _scoreHistorySignature = newScoreHistorySignature;
       final tips = _buildCoachingTips(newProfile);
@@ -144,18 +134,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _projection = ForecasterService.project(profile: _profile!);
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
-
-      // Detailed retirement projection (budget gap, phases, etc.)
-      _retirementProjection =
-          RetirementProjectionService.project(profile: _profile!);
-
-      // Baseline sans contributions pour calcul delta MINT
-      if (_profile!.plannedContributions.isNotEmpty) {
-        final profileSans = _profile!.copyWithContributions(const []);
-        _baselineProjection = ForecasterService.project(profile: profileSans);
-      } else {
-        _baselineProjection = null;
-      }
+      _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
 
       // ── P3: Compute tips once, share across curation + narrative ──
       final tips = _buildCoachingTips(_profile!);
@@ -163,8 +142,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       // ── P3: Curate cards + temporal items ──────────────
       _curateDashboardContent(tips);
 
-      // ── P4: Monte Carlo + Tornado (State A only, conf >= 70%) ──
-      _computeMonteCarloAndTornado(_profile!);
+      // ── P5: Persist initial snapshot (side effect) ──
+      _persistInitialSnapshot(_profile!);
 
       // ── P3: Generate narrative (async, non-blocking) ───
       unawaited(_generateNarrative(tips, provider.scoreHistory));
@@ -173,14 +152,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _projection = null;
       _confidence = null;
       _confidenceScore = 0;
+      _confidenceBlocs = const {};
       // Invalidate in-flight narrative generation before clearing state,
       // so any pending async result is discarded on completion.
       _narrativeGeneration++;
       _narrative = null;
       _curatedCards = const [];
       _temporalItems = const [];
-      _monteCarloResult = null;
-      _tornadoVariables = const [];
     }
   }
 
@@ -190,7 +168,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   Future<void> _generateNarrative(
     List<CoachingTip> tips,
-    List<Map<String, dynamic>>? scoreHistory,
+    List<Map<String, dynamic>> scoreHistory,
   ) async {
     final gen = ++_narrativeGeneration;
     final profile = _profile;
@@ -231,6 +209,19 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
   }
 
+  String _computeScoreHistorySignature(List<Map<String, dynamic>> history) {
+    if (history.isEmpty) return 'empty';
+    final buffer = StringBuffer('${history.length}|');
+    for (final entry in history) {
+      buffer
+        ..write(entry['month'] ?? '')
+        ..write(':')
+        ..write(entry['score'] ?? '')
+        ..write(';');
+    }
+    return buffer.toString();
+  }
+
   // ────────────────────────────────────────────────────────────
   //  P3: DASHBOARD CONTENT CURATION
   // ────────────────────────────────────────────────────────────
@@ -238,11 +229,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   void _curateDashboardContent(List<CoachingTip> tips) {
     final profile = _profile;
     if (profile == null) return;
-    final planStatus = PlanTrackingService.evaluate(profile: profile);
 
     // Reengagement messages
     final taxSaving3a = profile.salaireBrutMensuel > 0
-        ? 7258.0 * _estimateMarginalRate(profile)
+        ? pilier3aPlafondAvecLpp *
+            RetirementTaxCalculator.estimateMarginalRate(
+                profile.salaireBrutMensuel * 12, profile.canton)
         : 0.0;
     final friScore = _score?.global.toDouble() ?? 0.0;
 
@@ -260,57 +252,50 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       reengagementMessages: reengagementMessages,
     );
 
-    // Temporal items
-    _temporalItems = TemporalPriorityService.prioritize(
+    // Temporal items — filter out categories already covered by curated cards
+    final rawTemporalItems = TemporalPriorityService.prioritize(
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       taxSaving3a: taxSaving3a,
       friTotal: friScore,
       friDelta: friDelta,
-      planStatus: planStatus,
     );
+    // Remove fiscal temporal items when curated cards already show tax_deadline
+    final hasTaxCard = _curatedCards.any((c) {
+      final src = c.source;
+      return src is CoachingTip && src.id == 'tax_deadline';
+    });
+    _temporalItems = hasTaxCard
+        ? rawTemporalItems
+            .where((t) =>
+                !t.title.toLowerCase().contains('fiscal') &&
+                !t.title.toLowerCase().contains('déclaration'))
+            .toList()
+        : rawTemporalItems;
   }
 
   // ────────────────────────────────────────────────────────────
-  //  P4: MONTE CARLO + TORNADO COMPUTATION
+  //  P5: SNAPSHOT PERSISTENCE (side effect — saves initial projection)
   // ────────────────────────────────────────────────────────────
 
-  void _computeMonteCarloAndTornado(CoachProfile profile) {
-    // Only compute for State A (confidence >= 70%)
-    if (_confidenceScore < 70) {
-      _monteCarloResult = null;
-      _tornadoVariables = const [];
-      return;
-    }
+  void _persistInitialSnapshot(CoachProfile profile) {
+    // WARN-2 fix: guard against re-entry loop. updateProfile() triggers
+    // didChangeDependencies → full recomputation cycle. Without this
+    // flag, loop runs twice (2nd pass exits because snapshot is non-null).
+    if (_snapshotPersisted) return;
 
-    try {
-      _monteCarloResult = MonteCarloProjectionService.simulate(
-        profile: profile,
-        retirementAgeUser: profile.effectiveRetirementAge,
-      );
-    } catch (e) {
-      debugPrint('RetirementDashboard: Monte Carlo error: $e');
-      _monteCarloResult = null;
+    if (profile.initialProjectionSnapshot == null && _projection != null) {
+      // First time: save snapshot to profile.
+      // Deferred to post-frame to avoid setState() during build phase.
+      _snapshotPersisted = true;
+      final snapshotJson = _projection!.toJson();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final provider = context.read<CoachProfileProvider>();
+        provider.updateProfile(
+          profile.copyWith(initialProjectionSnapshot: snapshotJson),
+        );
+      });
     }
-
-    try {
-      _tornadoVariables = TornadoSensitivityService.compute(
-        profile: profile,
-        retirementAgeUser: profile.effectiveRetirementAge,
-      );
-    } catch (e) {
-      debugPrint('RetirementDashboard: Tornado error: $e');
-      _tornadoVariables = const [];
-    }
-  }
-
-  double _estimateMarginalRate(CoachProfile profile) {
-    // Simplified marginal rate estimation (full version in FiscalService)
-    final gross = profile.salaireBrutMensuel * 12;
-    if (gross <= 0) return 0.25;
-    if (gross < 50000) return 0.15;
-    if (gross < 100000) return 0.25;
-    if (gross < 150000) return 0.32;
-    return 0.38;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -378,34 +363,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildStateA() {
     final proj = _projection!;
     final profile = _profile!;
-    final score = _score!;
-    final retProj = _retirementProjection;
 
     // Revenu mensuel base scenario
     final monthlyIncome = proj.base.revenuAnnuelRetraite / 12;
     final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
     final monthlyOptimiste = proj.optimiste.revenuAnnuelRetraite / 12;
-    final currentMonthlyIncome = (profile.salaireBrutMensuel +
-            (profile.conjoint?.salaireBrutMensuel ?? 0)) *
-        0.87;
 
-    // Decomposition par pilier (scenario base)
+    // Decomposition par pilier (pour couple hero card)
     final decoBase = proj.base.decomposition;
-    final avsMonthly = ((decoBase['avs'] ?? 0)) / 12;
-    final lppMonthly =
-        (((decoBase['lpp_user'] ?? 0) + (decoBase['lpp_conjoint'] ?? 0))) / 12;
-    final threeAMonthly = ((decoBase['3a'] ?? 0)) / 12;
-    final freeMonthly = ((decoBase['libre'] ?? 0)) / 12;
 
-    // ImpactMintCard
-    final baselineMonthly = _baselineProjection != null
-        ? _baselineProjection!.base.revenuAnnuelRetraite / 12
-        : monthlyIncome;
-    final impactDescription = _buildImpactDescription();
-
-    // Couple phase data
+    // Couple hero card
     final isCouple = profile.isCouple && profile.conjoint?.birthYear != null;
-    final hasPhases = retProj != null && retProj.phases.length >= 2;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -416,6 +384,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Indicatif Banner (hidden when >= 70%) ──
+                IndicatifBanner(
+                  confidenceScore: _confidenceScore,
+                  topEnrichmentCategory: _confidence?.prompts.isNotEmpty == true
+                      ? _confidence!.prompts.first.category
+                      : null,
+                ),
+
                 // ── P3: Coach Briefing Card ──────────────
                 CoachBriefingCard(
                   narrative: _narrative,
@@ -423,7 +399,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       _curatedCards.isNotEmpty ? _curatedCards.first : null,
                   confidenceScore: _confidenceScore,
                   isLlmGenerated: _narrative?.isLlmGenerated ?? false,
-                  onEnrich: () => context.push('/onboarding/smart'),
+                  onEnrich: () => context.push('/profile/bilan'),
                 ),
                 const SizedBox(height: 16),
 
@@ -439,6 +415,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
 
+                // ── P5: Patrimoine Snapshot ──────────────
+                PatrimoineSnapshotCard(
+                  lppCapital: profile.prevoyance.avoirLppTotal ?? 0,
+                  lppCapitalConjoint: profile.conjoint?.prevoyance?.avoirLppTotal ?? 0,
+                  threeACapital: profile.prevoyance.totalEpargne3a,
+                  epargne: profile.patrimoine.epargneLiquide + profile.patrimoine.investissements + profile.prevoyance.totalLibrePassage,
+                  immobilier: profile.patrimoine.immobilier ?? 0,
+                ),
+                const SizedBox(height: 16),
+
                 // ── P5: Couple hero card OR single hero ──
                 if (isCouple) ...[
                   _buildCoupleHeroCard(profile, decoBase, proj),
@@ -451,102 +437,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     rangeMax: monthlyOptimiste,
                   ),
                 ],
+                const SizedBox(height: 8),
+
+                // ── Link to cockpit d\u00e9taill\u00e9 ──
+                _buildCockpitLink(),
+                const SizedBox(height: 8),
+
+                // ── Link to profile/data ──
+                _buildProfileLink(),
                 const SizedBox(height: 16),
-
-                // ── Cockpit d\u00e9taill\u00e9 (collapsed by default) ──
-                _buildCockpitToggle(),
-                if (_cockpitExpanded) ...[
-                  const SizedBox(height: 12),
-
-                  ReplacementRatioBadge(
-                    ratio: proj.tauxRemplacementBase,
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (retProj != null) ...[
-                    BudgetGapCard(budgetGap: retProj.budgetGap),
-                    const SizedBox(height: 16),
-                  ],
-
-                  // ── P4: Toggle 3-Scenarios / Monte Carlo ──
-                  MonteCarloToggleSection(
-                    monteCarloResult: _monteCarloResult,
-                    currentMonthlyIncome: currentMonthlyIncome,
-                    monteCarloAvailable: _monteCarloResult != null,
-                    scenariosChild: TrajectoryCard(
-                      profile: profile,
-                      projection: proj,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── P4: Sensitivity Snippet (top 3) ────────
-                  if (_tornadoVariables.isNotEmpty)
-                    SensitivitySnippet(
-                      variables: _tornadoVariables,
-                    ),
-                  if (_tornadoVariables.isNotEmpty) const SizedBox(height: 16),
-
-                  PillarDecomposition(
-                    avsMonthly: avsMonthly,
-                    lppMonthly: lppMonthly,
-                    threeAMonthly: threeAMonthly,
-                    freeMonthly: freeMonthly,
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (profile.age >= 45 &&
-                      FeatureFlags.enableDecisionScaffold) ...[
-                    ArbitrageTeaserSection(profile: profile),
-                    const SizedBox(height: 16),
-                  ],
-
-                  if (isCouple && hasPhases) ...[
-                    CouplePhaseTimeline(
-                      userName: profile.firstName ?? 'Toi',
-                      conjointName:
-                          profile.conjoint!.firstName ?? 'Conjoint\u00b7e',
-                      userRetirementYear:
-                          profile.birthYear + profile.effectiveRetirementAge,
-                      conjointRetirementYear: profile.conjoint!.birthYear! +
-                          profile.conjoint!.effectiveRetirementAge,
-                      phases: retProj.phases,
-                      profile: profile,
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-
-                  // ── P5: Couple Action Plan ────────────────
-                  if (isCouple) CoupleActionPlan(profile: profile),
-                  if (isCouple) const SizedBox(height: 16),
-
-                  RetirementChecklistCard(profile: profile),
-                  const SizedBox(height: 16),
-
-                  ImpactMintCard(
-                    withoutOptimization: baselineMonthly,
-                    withOptimization: monthlyIncome,
-                    description: impactDescription,
-                  ),
-                  if (profile.age >= 45) ...[
-                    const SizedBox(height: 16),
-                    EarlyRetirementComparison(profile: profile),
-                  ],
-                  const SizedBox(height: 16),
-
-                  MintScoreGauge(
-                    score: score.global,
-                    budgetScore: score.budget.score,
-                    prevoyanceScore: score.prevoyance.score,
-                    patrimoineScore: score.patrimoine.score,
-                    trend: score.trend.name,
-                    previousScore: score.deltaVsPreviousMonth != null
-                        ? score.global - (score.deltaVsPreviousMonth ?? 0)
-                        : null,
-                    onTap: null,
-                  ),
-                  const SizedBox(height: 16),
-                ],
 
                 const ExploreHub(),
                 const SizedBox(height: 24),
@@ -567,16 +466,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildStateB() {
     final proj = _projection!;
     final profile = _profile!;
-    final score = _score!;
 
     final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
     final monthlyOptimiste = proj.optimiste.revenuAnnuelRetraite / 12;
 
-    final knownFields = _buildKnownFields(profile);
-    final missingFields = _buildMissingFields();
-    final totalImpact =
-        _confidence?.prompts.take(3).fold<int>(0, (sum, p) => sum + p.impact) ??
-            0;
+    // Couple hero card
+    final isCouple = profile.isCouple && profile.conjoint?.birthYear != null;
+    final decoBase = proj.base.decomposition;
 
     // Estimate confidence improvement from LPP scan
     final hasLppData = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
@@ -593,6 +489,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Indicatif Banner (visible when < 70%) ──
+                IndicatifBanner(
+                  confidenceScore: _confidenceScore,
+                  topEnrichmentCategory: _confidence?.prompts.isNotEmpty == true
+                      ? _confidence!.prompts.first.category
+                      : null,
+                ),
+
                 // ── P3: Coach Briefing Card ──────────────
                 CoachBriefingCard(
                   narrative: _narrative,
@@ -600,7 +504,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       _curatedCards.isNotEmpty ? _curatedCards.first : null,
                   confidenceScore: _confidenceScore,
                   isLlmGenerated: _narrative?.isLlmGenerated ?? false,
-                  onEnrich: () => context.push('/onboarding/smart'),
+                  onEnrich: () => context.push('/profile/bilan'),
                 ),
                 const SizedBox(height: 16),
 
@@ -615,12 +519,24 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
-                HeroRetirementCard(
-                  mode: HeroCardMode.range,
-                  rangeMin: monthlyPrudent,
-                  rangeMax: monthlyOptimiste,
-                ),
-                const SizedBox(height: 16),
+
+                // ── Hero card: couple or single ──
+                if (isCouple) ...[
+                  _buildCoupleHeroCard(profile, decoBase, proj),
+                ] else ...[
+                  HeroRetirementCard(
+                    mode: HeroCardMode.range,
+                    rangeMin: monthlyPrudent,
+                    rangeMax: monthlyOptimiste,
+                  ),
+                ],
+                const SizedBox(height: 8),
+
+                // ── Confidence Blocks Bar (per-category progress) ──
+                if (_confidenceBlocs.isNotEmpty) ...[
+                  ConfidenceBlocksBar(blocs: _confidenceBlocs),
+                  const SizedBox(height: 16),
+                ],
 
                 // Document Scan CTA (prominent in State B)
                 DocumentScanCta(
@@ -631,7 +547,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                 // ── P4: Monte Carlo Teaser (State B, non personnalisé) ──
                 MonteCarloTeaser(
-                  onEnrich: () => context.push('/onboarding/smart'),
+                  onEnrich: () => context.push('/data-block/lpp'),
                   missingCategories: _confidence?.prompts
                           .map((p) => p.category)
                           .where((c) => const {
@@ -650,34 +566,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // ── Cockpit d\u00e9taill\u00e9 (collapsed by default) ──
-                _buildCockpitToggle(),
-                if (_cockpitExpanded) ...[
-                  const SizedBox(height: 12),
-                  DataQualityCard(
-                    knownFields: knownFields,
-                    missingFields: missingFields,
-                    enrichImpact: totalImpact > 0
-                        ? '+$totalImpact% pr\u00e9cision'
-                        : null,
-                    onEnrich: () => context.push('/onboarding/smart'),
-                  ),
-                  const SizedBox(height: 16),
-                  LowConfidenceCard(profile: profile),
-                  const SizedBox(height: 16),
-                  MintScoreGauge(
-                    score: score.global,
-                    budgetScore: score.budget.score,
-                    prevoyanceScore: score.prevoyance.score,
-                    patrimoineScore: score.patrimoine.score,
-                    trend: score.trend.name,
-                    previousScore: score.deltaVsPreviousMonth != null
-                        ? score.global - (score.deltaVsPreviousMonth ?? 0)
-                        : null,
-                    onTap: null,
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                // ── Link to cockpit d\u00e9taill\u00e9 ──
+                _buildCockpitLink(),
+                const SizedBox(height: 8),
+
+                // ── Link to profile/data ──
+                _buildProfileLink(),
+                const SizedBox(height: 16),
 
                 const ExploreHub(),
                 const SizedBox(height: 24),
@@ -763,10 +658,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.settings_outlined,
+          icon: const Icon(Icons.edit_note_outlined,
               color: MintColors.textSecondary),
-          onPressed: () => context.push('/profile'),
-          tooltip: 'Modifier le profil',
+          onPressed: () => context.push('/profile/bilan'),
+          tooltip: 'Mes donn\u00e9es',
         ),
         const SizedBox(width: 4),
       ],
@@ -894,67 +789,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ────────────────────────────────────────────────────────────
 
   /// Description de l'impact MINT (bases sur les contributions planifiees).
-  String _buildImpactDescription() {
-    final profile = _profile;
-    if (profile == null) {
-      return 'gr\u00e2ce \u00e0 tes actions de pr\u00e9voyance';
-    }
-
-    final has3a = profile.total3aMensuel > 0;
-    final hasLpp = profile.totalLppBuybackMensuel > 0;
-
-    if (has3a && hasLpp) {
-      return 'gr\u00e2ce au 3e pilier et au rachat LPP';
-    } else if (has3a) {
-      return 'gr\u00e2ce au 3e pilier';
-    } else if (hasLpp) {
-      return 'gr\u00e2ce au rachat LPP';
-    }
-    return 'gr\u00e2ce \u00e0 tes contributions planifi\u00e9es';
-  }
-
-  /// Champs connus du profil pour DataQualityCard.
-  List<String> _buildKnownFields(CoachProfile profile) {
-    final fields = <String>[];
-
-    if (profile.salaireBrutMensuel > 0) {
-      fields.add(
-          'Salaire\u00a0: CHF\u00a0${formatChf(profile.salaireBrutMensuel)}/mois');
-    }
-    if (profile.canton.isNotEmpty) {
-      fields.add('Canton\u00a0: ${profile.canton}');
-    }
-    if (profile.age > 0) {
-      fields.add('Age\u00a0: ${profile.age} ans');
-    }
-    if ((profile.prevoyance.avoirLppTotal ?? 0) > 0) {
-      fields.add(
-          'LPP\u00a0: CHF\u00a0${formatChf(profile.prevoyance.avoirLppTotal!)}');
-    }
-    if (profile.prevoyance.totalEpargne3a > 0) {
-      fields.add(
-          '3e pilier\u00a0: CHF\u00a0${formatChf(profile.prevoyance.totalEpargne3a)}');
-    }
-
-    return fields;
-  }
-
-  /// Champs manquants a partir des prompts de confiance.
-  List<String> _buildMissingFields() {
-    if (_confidence == null) return [];
-    return _confidence!.prompts.take(4).map((p) => p.label).toList();
-  }
-
   // ────────────────────────────────────────────────────────────
-  //  P3: COCKPIT EXPAND TOGGLE
+  //  NAVIGATION LINKS (cockpit + profile)
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildCockpitToggle() {
+  Widget _buildCockpitLink() {
     return GestureDetector(
-      onTap: () => setState(() => _cockpitExpanded = !_cockpitExpanded),
+      onTap: () => context.push('/coach/cockpit'),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: MintColors.surface,
           borderRadius: BorderRadius.circular(12),
@@ -965,24 +809,52 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              _cockpitExpanded
-                  ? Icons.keyboard_arrow_up
-                  : Icons.keyboard_arrow_down,
-              size: 18,
-              color: MintColors.primary,
-            ),
-            const SizedBox(width: 6),
+            Icon(Icons.dashboard_outlined, size: 18, color: MintColors.primary),
+            const SizedBox(width: 8),
             Text(
-              _cockpitExpanded
-                  ? 'Masquer le cockpit d\u00e9taill\u00e9'
-                  : 'Voir le cockpit d\u00e9taill\u00e9',
+              'Cockpit d\u00e9taill\u00e9',
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: MintColors.primary,
               ),
             ),
+            const Spacer(),
+            Icon(Icons.arrow_forward_ios, size: 14, color: MintColors.primary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileLink() {
+    return GestureDetector(
+      onTap: () => context.push('/profile/bilan'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: MintColors.lightBorder,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.edit_note_outlined, size: 18, color: MintColors.textSecondary),
+            const SizedBox(width: 8),
+            Text(
+              'Mes donn\u00e9es',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textSecondary,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.arrow_forward_ios, size: 14, color: MintColors.textMuted),
           ],
         ),
       ),
@@ -1121,13 +993,5 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
 
     return widgets;
-  }
-
-  static String _computeScoreHistorySignature(
-    List<Map<String, dynamic>>? scoreHistory,
-  ) {
-    if (scoreHistory == null || scoreHistory.isEmpty) return 'empty';
-    final last = scoreHistory.last;
-    return '${scoreHistory.length}:${last['date']}:${last['score']}';
   }
 }

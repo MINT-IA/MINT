@@ -64,6 +64,8 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _buildPrecisionCard(context, precision),
                   const SizedBox(height: 12),
+                  _buildBilanLink(context, coachProfile != null),
+                  const SizedBox(height: 12),
                   if (precision >= 1.0) ...[
                     const SizedBox(height: 12),
                     Container(
@@ -231,6 +233,55 @@ class ProfileScreen extends StatelessWidget {
               fontSize: isCompact ? 13 : 14,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2)),
+    );
+  }
+
+  Widget _buildBilanLink(BuildContext context, bool hasProfile) {
+    return InkWell(
+      onTap: () => context.push('/profile/bilan'),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1D1D1F), Color(0xFF2C2C2E)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.bar_chart_rounded, color: Colors.white, size: 22),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Mon aperçu financier',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hasProfile
+                        ? 'Revenus, prévoyance, patrimoine, dettes'
+                        : 'Complète ton profil pour voir tes chiffres',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.white54, size: 20),
+          ],
+        ),
+      ),
     );
   }
 

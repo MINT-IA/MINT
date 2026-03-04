@@ -313,5 +313,11 @@ AVS_RENTE_MAX_ANNUELLE: float = 30_240.0
 # Cotisations totales salarie (resume)
 # ══════════════════════════════════════════════════════════════════════════════
 
-COTISATIONS_SALARIE_TOTAL: float = AVS_COTISATION_SALARIE + AI_COTISATION_SALARIE + APG_COTISATION_SALARIE + AC_COTISATION_SALARIE
-"""Total cotisations sociales part salarie (hors LPP): 5.3% + 0.7% + 0.25% + 1.1% = 7.35%."""
+COTISATIONS_SALARIE_TOTAL: float = AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE
+"""Total cotisations sociales part salarie (hors LPP): 5.3% + 1.1% = 6.4%.
+
+AVS_COTISATION_SALARIE (5.3%) = combined AVS (4.35%) + AI (0.70%) + APG (0.25%)
+— matching OFAS "taux AVS/AI/APG" (10.6% total, 5.3% per side).
+AI_COTISATION_SALARIE & APG_COTISATION_SALARIE are kept separately for
+disability-gap and APG-specific calculations, but must NOT be added again here.
+"""

@@ -10,6 +10,7 @@ library;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -18,11 +19,12 @@ import 'package:mint_mobile/services/coaching_service.dart';
 /// Etat civil pour le coach
 enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
 
-/// Provenance of a profile value used to modulate narrative confidence.
+/// Source d'une donnee financiere dans le profil.
+/// Permet de distinguer les valeurs saisies, estimees ou certifiees.
 enum ProfileDataSource {
-  certificate,
-  userInput,
-  estimated,
+  estimated,   // Defaut calcule par MINT
+  userInput,   // Saisi manuellement
+  certificate, // Extrait d'un certificat scanne
 }
 
 /// Type d'objectif principal (Goal A)
@@ -42,8 +44,7 @@ class ConjointProfile {
   final double? salaireBrutMensuel;
   final int nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
-  final String?
-      employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
+  final String? employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
   final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
   final bool isFatcaResident; // US citizen/green card → FATCA restrictions
   final bool canContribute3a; // false si FATCA resident (certains providers)
@@ -125,8 +126,9 @@ class ConjointProfile {
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
     // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
-    final topCanContribute =
-        isFatca ? false : (json['canContribute3a'] ?? true);
+    final topCanContribute = isFatca
+        ? false
+        : (json['canContribute3a'] ?? true);
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -149,19 +151,19 @@ class ConjointProfile {
   }
 
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'birthYear': birthYear,
-        'salaireBrutMensuel': salaireBrutMensuel,
-        'nombreDeMois': nombreDeMois,
-        'bonusPourcentage': bonusPourcentage,
-        'employmentStatus': employmentStatus,
-        'nationality': nationality,
-        'isFatcaResident': isFatcaResident,
-        'canContribute3a': canContribute3a,
-        'prevoyance': prevoyance?.toJson(),
-        'arrivalAge': arrivalAge,
-        'targetRetirementAge': targetRetirementAge,
-      };
+    'firstName': firstName,
+    'birthYear': birthYear,
+    'salaireBrutMensuel': salaireBrutMensuel,
+    'nombreDeMois': nombreDeMois,
+    'bonusPourcentage': bonusPourcentage,
+    'employmentStatus': employmentStatus,
+    'nationality': nationality,
+    'isFatcaResident': isFatcaResident,
+    'canContribute3a': canContribute3a,
+    'prevoyance': prevoyance?.toJson(),
+    'arrivalAge': arrivalAge,
+    'targetRetirementAge': targetRetirementAge,
+  };
 
   ConjointProfile copyWith({
     String? firstName,
@@ -179,8 +181,9 @@ class ConjointProfile {
   }) {
     final effectiveFatca = isFatcaResident ?? this.isFatcaResident;
     // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
-    final effectiveCan =
-        effectiveFatca ? false : (canContribute3a ?? this.canContribute3a);
+    final effectiveCan = effectiveFatca
+        ? false
+        : (canContribute3a ?? this.canContribute3a);
     final effectivePrev = _enforceFatca3a(
       effectiveFatca,
       prevoyance ?? this.prevoyance,
@@ -230,6 +233,9 @@ class PrevoyanceProfile {
   final List<Compte3a> comptes3a;
   final bool canContribute3a; // false si US citizen/FATCA
 
+  // --- Libre passage ---
+  final List<LibrePassageCompte> librePassage;
+
   const PrevoyanceProfile({
     this.anneesContribuees,
     this.lacunesAVS,
@@ -249,12 +255,16 @@ class PrevoyanceProfile {
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
     this.canContribute3a = true,
+    this.librePassage = const [],
   });
+
+  /// Total avoir libre passage
+  double get totalLibrePassage =>
+      librePassage.fold(0.0, (sum, lp) => sum + lp.solde);
 
   /// Lacune de rachat LPP restante
   double get lacuneRachatRestante {
-    return ((rachatMaximum ?? 0) - (rachatEffectue ?? 0))
-        .clamp(0, double.infinity);
+    return ((rachatMaximum ?? 0) - (rachatEffectue ?? 0)).clamp(0, double.infinity);
   }
 
   /// Rendement moyen pondere des comptes 3a.
@@ -274,18 +284,15 @@ class PrevoyanceProfile {
     return PrevoyanceProfile(
       anneesContribuees: json['anneesContribuees'] as int?,
       lacunesAVS: json['lacunesAVS'] as int?,
-      renteAVSEstimeeMensuelle:
-          (json['renteAVSEstimeeMensuelle'] as num?)?.toDouble(),
+      renteAVSEstimeeMensuelle: (json['renteAVSEstimeeMensuelle'] as num?)?.toDouble(),
       nomCaisse: json['nomCaisse'] as String?,
       avoirLppTotal: (json['avoirLppTotal'] as num?)?.toDouble(),
       avoirLppObligatoire: (json['avoirLppObligatoire'] as num?)?.toDouble(),
-      avoirLppSurobligatoire:
-          (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
+      avoirLppSurobligatoire: (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
       tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
-      tauxConversionSuroblig:
-          (json['tauxConversionSuroblig'] as num?)?.toDouble(),
+      tauxConversionSuroblig: (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
       salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
       ramd: (json['ramd'] as num?)?.toDouble(),
@@ -296,29 +303,34 @@ class PrevoyanceProfile {
               .toList() ??
           const [],
       canContribute3a: json['canContribute3a'] ?? true,
+      librePassage: (json['librePassage'] as List?)
+              ?.map((lp) => LibrePassageCompte.fromJson(lp))
+              .toList() ??
+          const [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'anneesContribuees': anneesContribuees,
-        'lacunesAVS': lacunesAVS,
-        'renteAVSEstimeeMensuelle': renteAVSEstimeeMensuelle,
-        'nomCaisse': nomCaisse,
-        'avoirLppTotal': avoirLppTotal,
-        'avoirLppObligatoire': avoirLppObligatoire,
-        'avoirLppSurobligatoire': avoirLppSurobligatoire,
-        'rachatMaximum': rachatMaximum,
-        'rachatEffectue': rachatEffectue,
-        'tauxConversion': tauxConversion,
-        'tauxConversionSuroblig': tauxConversionSuroblig,
-        'rendementCaisse': rendementCaisse,
-        'salaireAssure': salaireAssure,
-        'ramd': ramd,
-        'nombre3a': nombre3a,
-        'totalEpargne3a': totalEpargne3a,
-        'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
-        'canContribute3a': canContribute3a,
-      };
+    'anneesContribuees': anneesContribuees,
+    'lacunesAVS': lacunesAVS,
+    'renteAVSEstimeeMensuelle': renteAVSEstimeeMensuelle,
+    'nomCaisse': nomCaisse,
+    'avoirLppTotal': avoirLppTotal,
+    'avoirLppObligatoire': avoirLppObligatoire,
+    'avoirLppSurobligatoire': avoirLppSurobligatoire,
+    'rachatMaximum': rachatMaximum,
+    'rachatEffectue': rachatEffectue,
+    'tauxConversion': tauxConversion,
+    'tauxConversionSuroblig': tauxConversionSuroblig,
+    'rendementCaisse': rendementCaisse,
+    'salaireAssure': salaireAssure,
+    'ramd': ramd,
+    'nombre3a': nombre3a,
+    'totalEpargne3a': totalEpargne3a,
+    'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
+    'canContribute3a': canContribute3a,
+    'librePassage': librePassage.map((lp) => lp.toJson()).toList(),
+  };
 }
 
 /// Compte 3a individuel
@@ -342,10 +354,40 @@ class Compte3a {
   }
 
   Map<String, dynamic> toJson() => {
-        'provider': provider,
-        'solde': solde,
-        'rendementEstime': rendementEstime,
-      };
+    'provider': provider,
+    'solde': solde,
+    'rendementEstime': rendementEstime,
+  };
+}
+
+/// Compte de libre passage (apres changement d'emploi ou lacune LPP).
+/// Souvent 10-20% du patrimoine prevoyance des 45-60 ans.
+class LibrePassageCompte {
+  final String? institution; // ex: "Fondation Libre Passage UBS"
+  final double solde;
+  final DateTime? dateOuverture;
+
+  const LibrePassageCompte({
+    this.institution,
+    required this.solde,
+    this.dateOuverture,
+  });
+
+  factory LibrePassageCompte.fromJson(Map<String, dynamic> json) {
+    return LibrePassageCompte(
+      institution: json['institution'] as String?,
+      solde: (json['solde'] as num).toDouble(),
+      dateOuverture: json['dateOuverture'] != null
+          ? DateTime.parse(json['dateOuverture'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'institution': institution,
+    'solde': solde,
+    'dateOuverture': dateOuverture?.toIso8601String(),
+  };
 }
 
 /// Patrimoine (epargne + investissements + immobilier)
@@ -409,10 +451,8 @@ class PatrimoineProfile {
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
       investissements: investissements ?? this.investissements,
       immobilier: immobilier ?? this.immobilier,
-      deviseInvestissements:
-          deviseInvestissements ?? this.deviseInvestissements,
-      plateformeInvestissement:
-          plateformeInvestissement ?? this.plateformeInvestissement,
+      deviseInvestissements: deviseInvestissements ?? this.deviseInvestissements,
+      plateformeInvestissement: plateformeInvestissement ?? this.plateformeInvestissement,
       propertyMarketValue: propertyMarketValue ?? this.propertyMarketValue,
       mortgageBalance: mortgageBalance ?? this.mortgageBalance,
       mortgageRate: mortgageRate ?? this.mortgageRate,
@@ -421,16 +461,16 @@ class PatrimoineProfile {
   }
 
   Map<String, dynamic> toJson() => {
-        'epargneLiquide': epargneLiquide,
-        'investissements': investissements,
-        'immobilier': immobilier,
-        'deviseInvestissements': deviseInvestissements.name,
-        'plateformeInvestissement': plateformeInvestissement,
-        'propertyMarketValue': propertyMarketValue,
-        'mortgageBalance': mortgageBalance,
-        'mortgageRate': mortgageRate,
-        'monthlyRent': monthlyRent,
-      };
+    'epargneLiquide': epargneLiquide,
+    'investissements': investissements,
+    'immobilier': immobilier,
+    'deviseInvestissements': deviseInvestissements.name,
+    'plateformeInvestissement': plateformeInvestissement,
+    'propertyMarketValue': propertyMarketValue,
+    'mortgageBalance': mortgageBalance,
+    'mortgageRate': mortgageRate,
+    'monthlyRent': monthlyRent,
+  };
 }
 
 /// Dettes
@@ -465,11 +505,11 @@ class DetteProfile {
   }
 
   Map<String, dynamic> toJson() => {
-        'creditConsommation': creditConsommation,
-        'leasing': leasing,
-        'hypotheque': hypotheque,
-        'autresDettes': autresDettes,
-      };
+    'creditConsommation': creditConsommation,
+    'leasing': leasing,
+    'hypotheque': hypotheque,
+    'autresDettes': autresDettes,
+  };
 }
 
 /// Depenses fixes mensuelles
@@ -514,14 +554,14 @@ class DepensesProfile {
   }
 
   Map<String, dynamic> toJson() => {
-        'loyer': loyer,
-        'assuranceMaladie': assuranceMaladie,
-        'electricite': electricite,
-        'transport': transport,
-        'telecom': telecom,
-        'fraisMedicaux': fraisMedicaux,
-        'autresDepensesFixes': autresDepensesFixes,
-      };
+    'loyer': loyer,
+    'assuranceMaladie': assuranceMaladie,
+    'electricite': electricite,
+    'transport': transport,
+    'telecom': telecom,
+    'fraisMedicaux': fraisMedicaux,
+    'autresDepensesFixes': autresDepensesFixes,
+  };
 }
 
 /// Objectif principal (Goal A)
@@ -558,11 +598,11 @@ class GoalA {
   }
 
   Map<String, dynamic> toJson() => {
-        'type': type.name,
-        'targetDate': targetDate.toIso8601String(),
-        'targetAmount': targetAmount,
-        'label': label,
-      };
+    'type': type.name,
+    'targetDate': targetDate.toIso8601String(),
+    'targetAmount': targetAmount,
+    'label': label,
+  };
 }
 
 /// Objectif secondaire (Goal B)
@@ -591,11 +631,11 @@ class GoalB {
   }
 
   Map<String, dynamic> toJson() => {
-        'label': label,
-        'targetAmount': targetAmount,
-        'targetDate': targetDate?.toIso8601String(),
-        'priority': priority,
-      };
+    'label': label,
+    'targetAmount': targetAmount,
+    'targetDate': targetDate?.toIso8601String(),
+    'priority': priority,
+  };
 }
 
 /// Check-in mensuel (une "activite" au sens TrainerRoad)
@@ -630,20 +670,21 @@ class MonthlyCheckIn {
       ),
       depensesExceptionnelles:
           (json['depensesExceptionnelles'] as num?)?.toDouble(),
-      revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
+      revenusExceptionnels:
+          (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
       completedAt: DateTime.parse(json['completedAt']),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'month': month.toIso8601String(),
-        'versements': versements,
-        'depensesExceptionnelles': depensesExceptionnelles,
-        'revenusExceptionnels': revenusExceptionnels,
-        'note': note,
-        'completedAt': completedAt.toIso8601String(),
-      };
+    'month': month.toIso8601String(),
+    'versements': versements,
+    'depensesExceptionnelles': depensesExceptionnelles,
+    'revenusExceptionnels': revenusExceptionnels,
+    'note': note,
+    'completedAt': completedAt.toIso8601String(),
+  };
 }
 
 /// Versement mensuel planifie (configuration recurrente)
@@ -651,8 +692,7 @@ class PlannedMonthlyContribution {
   final String id; // ex: '3a_julien', 'lpp_buyback_julien', 'ib_julien'
   final String label; // ex: '3a Julien (VIAC)'
   final double amount; // montant mensuel
-  final String
-      category; // '3a', 'lpp_buyback', 'epargne_libre', 'investissement'
+  final String category; // '3a', 'lpp_buyback', 'epargne_libre', 'investissement'
   final bool isAutomatic; // ordre permanent ou manuel
 
   const PlannedMonthlyContribution({
@@ -674,12 +714,12 @@ class PlannedMonthlyContribution {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'label': label,
-        'amount': amount,
-        'category': category,
-        'isAutomatic': isAutomatic,
-      };
+    'id': id,
+    'label': label,
+    'amount': amount,
+    'category': category,
+    'isAutomatic': isAutomatic,
+  };
 
   PlannedMonthlyContribution copyWith({
     String? id,
@@ -713,6 +753,7 @@ class CoachProfile {
   final int birthYear;
   final String canton;
   final String? commune;
+  final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
   final CoachCivilStatus etatCivil;
   final int nombreEnfants;
 
@@ -723,8 +764,7 @@ class CoachProfile {
   final double salaireBrutMensuel;
   final int nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
-  final String
-      employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
+  final String employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
 
   // === DEPENSES ===
   final DepensesProfile depenses;
@@ -775,15 +815,26 @@ class CoachProfile {
   /// Certaines caisses LPP permettent des 58 ans.
   final int? targetRetirementAge;
 
+  // === SNAPSHOT ===
+  /// Day-1 projection snapshot captured at onboarding completion.
+  /// Enables before/after comparison on the dashboard (Phase 5).
+  /// Null until the first projection is run post-onboarding.
+  final Map<String, dynamic>? initialProjectionSnapshot;
+
   // === META ===
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Source tracking per field (key = field path, value = source).
+  /// Ex: {'prevoyance.avoirLppTotal': ProfileDataSource.certificate}
+  final Map<String, ProfileDataSource> dataSources;
 
   CoachProfile({
     this.firstName,
     required this.birthYear,
     required this.canton,
     this.commune,
+    this.nationality,
     this.etatCivil = CoachCivilStatus.celibataire,
     this.nombreEnfants = 0,
     this.conjoint,
@@ -807,10 +858,51 @@ class CoachProfile {
     this.residencePermit,
     this.familyChange,
     this.targetRetirementAge,
+    this.initialProjectionSnapshot,
+    this.dataSources = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
+
+  // ════════════════════════════════════════════════════════════════
+  //  EQUALITY (version-check for lifecycle dedup — Phase 5)
+  // ════════════════════════════════════════════════════════════════
+  //
+  // Intentional version-check equality for lifecycle dedup.
+  // updatedAt changes on every copyWith() call, acting as a version
+  // token. This ensures didChangeDependencies() correctly detects
+  // ANY profile mutation (even to fields not listed here).
+  //
+  // Trade-off accepted: two profiles with identical data but different
+  // updatedAt are treated as different (causes recomputation). This is
+  // preferred over missing a genuine data change.
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CoachProfile &&
+          runtimeType == other.runtimeType &&
+          birthYear == other.birthYear &&
+          canton == other.canton &&
+          salaireBrutMensuel == other.salaireBrutMensuel &&
+          employmentStatus == other.employmentStatus &&
+          etatCivil == other.etatCivil &&
+          nombreEnfants == other.nombreEnfants &&
+          targetRetirementAge == other.targetRetirementAge &&
+          updatedAt == other.updatedAt;
+
+  @override
+  int get hashCode => Object.hash(
+        birthYear,
+        canton,
+        salaireBrutMensuel,
+        employmentStatus,
+        etatCivil,
+        nombreEnfants,
+        targetRetirementAge,
+        updatedAt,
+      );
 
   // ════════════════════════════════════════════════════════════════
   //  COMPUTED PROPERTIES
@@ -841,9 +933,12 @@ class CoachProfile {
 
   /// Reste a vivre mensuel estime (brut - depenses - cotisations sociales)
   double get resteAVivreMensuel {
-    // Approximation: 13% de charges sociales
-    final netMensuel = salaireBrutMensuel * 0.87;
-    return netMensuel - totalDepensesMensuelles;
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: salaireBrutMensuel * 12,
+      canton: canton,
+      age: age,
+    );
+    return breakdown.monthlyNetPayslip - totalDepensesMensuelles;
   }
 
   /// Nombre de check-ins completes
@@ -858,8 +953,7 @@ class CoachProfile {
     DateTime expected = DateTime(DateTime.now().year, DateTime.now().month);
     for (final ci in sorted) {
       final ciMonth = DateTime(ci.month.year, ci.month.month);
-      if (ciMonth == expected ||
-          ciMonth == DateTime(expected.year, expected.month - 1)) {
+      if (ciMonth == expected || ciMonth == DateTime(expected.year, expected.month - 1)) {
         count++;
         expected = DateTime(ciMonth.year, ciMonth.month - 1);
       } else {
@@ -885,8 +979,7 @@ class CoachProfile {
 
   /// Total epargne libre mensuelle planifiee
   double get totalEpargneLibreMensuel => plannedContributions
-      .where((c) =>
-          c.category == 'epargne_libre' || c.category == 'investissement')
+      .where((c) => c.category == 'epargne_libre' || c.category == 'investissement')
       .fold(0.0, (sum, c) => sum + c.amount);
 
   /// Est-ce un profil couple ?
@@ -901,6 +994,7 @@ class CoachProfile {
     int? birthYear,
     String? canton,
     String? commune,
+    String? nationality,
     CoachCivilStatus? etatCivil,
     int? nombreEnfants,
     ConjointProfile? conjoint,
@@ -924,6 +1018,8 @@ class CoachProfile {
     String? residencePermit,
     String? familyChange,
     int? targetRetirementAge,
+    Map<String, dynamic>? initialProjectionSnapshot,
+    Map<String, ProfileDataSource>? dataSources,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -932,6 +1028,7 @@ class CoachProfile {
       birthYear: birthYear ?? this.birthYear,
       canton: canton ?? this.canton,
       commune: commune ?? this.commune,
+      nationality: nationality ?? this.nationality,
       etatCivil: etatCivil ?? this.etatCivil,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
       conjoint: conjoint ?? this.conjoint,
@@ -955,160 +1052,27 @@ class CoachProfile {
       residencePermit: residencePermit ?? this.residencePermit,
       familyChange: familyChange ?? this.familyChange,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
+      initialProjectionSnapshot: initialProjectionSnapshot ?? this.initialProjectionSnapshot,
+      dataSources: dataSources ?? this.dataSources,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
-  /// Copie le profil avec une nouvelle liste de contributions
-  CoachProfile copyWithContributions(
-      List<PlannedMonthlyContribution> contributions) {
+  /// Copie le profil avec une nouvelle liste de contributions.
+  CoachProfile copyWithContributions(List<PlannedMonthlyContribution> contributions) {
     return copyWith(
       plannedContributions: contributions,
       updatedAt: DateTime.now(),
     );
   }
 
-  /// Copie le profil avec une nouvelle liste de check-ins
+  /// Copie le profil avec une nouvelle liste de check-ins.
   CoachProfile copyWithCheckIns(List<MonthlyCheckIn> newCheckIns) {
     return copyWith(
       checkIns: newCheckIns,
       updatedAt: DateTime.now(),
     );
-  }
-
-  /// Data reliability map for narrative confidence modulation.
-  ///
-  /// Heuristics:
-  /// - `certificate`: value likely extracted from document scan/import.
-  /// - `userInput`: explicitly entered by user.
-  /// - `estimated`: computed fallback/default likely used.
-  Map<String, ProfileDataSource> get dataSources {
-    final result = <String, ProfileDataSource>{};
-
-    // Certificate signals from LPP scan
-    final hasLppCertificate = prevoyance.salaireAssure != null ||
-        (prevoyance.avoirLppObligatoire != null &&
-            prevoyance.avoirLppSurobligatoire != null) ||
-        prevoyance.tauxConversionSuroblig != null;
-
-    // AVS extract signal
-    final hasAvsExtract = prevoyance.ramd != null;
-
-    void put(String key, ProfileDataSource source) {
-      result[key] = source;
-    }
-
-    if (prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0) {
-      put(
-        'prevoyance.avoirLppTotal',
-        hasLppCertificate
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.avoirLppObligatoire != null &&
-        prevoyance.avoirLppObligatoire! > 0) {
-      put(
-        'prevoyance.avoirLppObligatoire',
-        hasLppCertificate
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.avoirLppSurobligatoire != null &&
-        prevoyance.avoirLppSurobligatoire! > 0) {
-      put(
-        'prevoyance.avoirLppSurobligatoire',
-        hasLppCertificate
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.tauxConversion > 0) {
-      put(
-        'prevoyance.tauxConversion',
-        hasLppCertificate
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.tauxConversionSuroblig != null) {
-      put(
-        'prevoyance.tauxConversionSuroblig',
-        hasLppCertificate
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.rachatMaximum != null && prevoyance.rachatMaximum! > 0) {
-      put(
-        'prevoyance.rachatMaximum',
-        hasLppCertificate
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.salaireAssure != null && prevoyance.salaireAssure! > 0) {
-      put('prevoyance.salaireAssure', ProfileDataSource.certificate);
-    }
-
-    if (prevoyance.anneesContribuees != null &&
-        prevoyance.anneesContribuees! > 0) {
-      put(
-        'prevoyance.anneesContribuees',
-        hasAvsExtract
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.lacunesAVS != null && prevoyance.lacunesAVS! >= 0) {
-      put(
-        'prevoyance.lacunesAVS',
-        hasAvsExtract
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.renteAVSEstimeeMensuelle != null &&
-        prevoyance.renteAVSEstimeeMensuelle! > 0) {
-      put(
-        'prevoyance.renteAVSEstimeeMensuelle',
-        hasAvsExtract
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.estimated,
-      );
-    }
-    if (prevoyance.ramd != null && prevoyance.ramd! > 0) {
-      put('prevoyance.ramd', ProfileDataSource.certificate);
-    }
-
-    if (prevoyance.totalEpargne3a > 0) {
-      put('prevoyance.totalEpargne3a', ProfileDataSource.userInput);
-    }
-    if (salaireBrutMensuel > 0) {
-      put('salaireBrutMensuel', ProfileDataSource.userInput);
-    }
-    if (patrimoine.epargneLiquide > 0) {
-      put('patrimoine.epargneLiquide', ProfileDataSource.userInput);
-    }
-    if (patrimoine.investissements > 0) {
-      put('patrimoine.investissements', ProfileDataSource.userInput);
-    }
-    if ((patrimoine.immobilier ?? 0) > 0) {
-      put('patrimoine.immobilier', ProfileDataSource.userInput);
-    }
-    if (depenses.loyer > 0) {
-      put('depenses.loyer', ProfileDataSource.userInput);
-    }
-    if (depenses.assuranceMaladie > 0) {
-      put('depenses.assuranceMaladie', ProfileDataSource.userInput);
-    }
-    if ((dettes.hypotheque ?? 0) > 0) {
-      put('dettes.hypotheque', ProfileDataSource.userInput);
-    }
-
-    return result;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1118,17 +1082,25 @@ class CoachProfile {
   /// Convertit le CoachProfile en BudgetInputs.
   ///
   /// Utile quand on a un CoachProfile mais pas les réponses wizard brutes.
-  /// Le revenu net est estimé à 87% du brut (charges sociales).
+  /// Le revenu net utilise NetIncomeBreakdown (canton + age).
   /// Les dettes mensuelles sont estimées sur 36 mois de remboursement.
   BudgetInputs toBudgetInputs() {
-    final netMensuel = salaireBrutMensuel * 0.87;
-    final monthlyDebt = dettes.totalDettes > 0 ? dettes.totalDettes / 36 : 0.0;
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: salaireBrutMensuel * 12,
+      canton: canton,
+      age: age,
+    );
+    final netMensuel = breakdown.monthlyNetPayslip;
+    final monthlyDebt = dettes.totalDettes > 0
+        ? dettes.totalDettes / 36
+        : 0.0;
     // Estimer les mois de fonds d'urgence
     final monthlyExpenses = depenses.totalMensuel > 0
         ? depenses.totalMensuel
         : netMensuel * 0.6; // fallback: 60% du net
-    final emergencyMonths =
-        monthlyExpenses > 0 ? patrimoine.epargneLiquide / monthlyExpenses : 0.0;
+    final emergencyMonths = monthlyExpenses > 0
+        ? patrimoine.epargneLiquide / monthlyExpenses
+        : 0.0;
 
     return BudgetInputs(
       payFrequency: PayFrequency.monthly,
@@ -1195,8 +1167,9 @@ class CoachProfile {
       hasBudget: plannedContributions.isNotEmpty,
       employmentStatus: empStatus,
       etatCivil: civilStatus,
-      lastCheckInDepensesExceptionnelles:
-          checkIns.isNotEmpty ? checkIns.last.depensesExceptionnelles : null,
+      lastCheckInDepensesExceptionnelles: checkIns.isNotEmpty
+          ? checkIns.last.depensesExceptionnelles
+          : null,
     );
   }
 
@@ -1210,6 +1183,7 @@ class CoachProfile {
       birthYear: json['birthYear'] as int,
       canton: json['canton'] as String,
       commune: json['commune'] as String?,
+      nationality: json['nationality'] as String?,
       etatCivil: CoachCivilStatus.values.firstWhere(
         (e) => e.name == json['etatCivil'],
         orElse: () => CoachCivilStatus.celibataire,
@@ -1235,9 +1209,10 @@ class CoachProfile {
           ? DetteProfile.fromJson(json['dettes'])
           : const DetteProfile(),
       goalA: GoalA.fromJson(json['goalA']),
-      goalsB:
-          (json['goalsB'] as List?)?.map((g) => GoalB.fromJson(g)).toList() ??
-              const [],
+      goalsB: (json['goalsB'] as List?)
+              ?.map((g) => GoalB.fromJson(g))
+              .toList() ??
+          const [],
       plannedContributions: (json['plannedContributions'] as List?)
               ?.map((c) => PlannedMonthlyContribution.fromJson(c))
               .toList() ??
@@ -1249,52 +1224,68 @@ class CoachProfile {
       housingStatus: json['housingStatus'] as String?,
       riskTolerance: json['riskTolerance'] as String?,
       realEstateProject: json['realEstateProject'] as String?,
-      providers3a:
-          (json['providers3a'] as List?)?.map((e) => e as String).toList() ??
-              const [],
+      providers3a: (json['providers3a'] as List?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       arrivalAge: json['arrivalAge'] as int?,
       residencePermit: json['residencePermit'] as String?,
       familyChange: json['familyChange'] as String?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      initialProjectionSnapshot: json['initialProjectionSnapshot'] as Map<String, dynamic>?,
+      dataSources: (json['dataSources'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(
+              k,
+              ProfileDataSource.values.firstWhere(
+                (e) => e.name == v,
+                orElse: () => ProfileDataSource.estimated,
+              ),
+            ),
+          ) ??
+          const {},
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'birthYear': birthYear,
-        'canton': canton,
-        'commune': commune,
-        'etatCivil': etatCivil.name,
-        'nombreEnfants': nombreEnfants,
-        'conjoint': conjoint?.toJson(),
-        'salaireBrutMensuel': salaireBrutMensuel,
-        'nombreDeMois': nombreDeMois,
-        'bonusPourcentage': bonusPourcentage,
-        'employmentStatus': employmentStatus,
-        'depenses': depenses.toJson(),
-        'prevoyance': prevoyance.toJson(),
-        'patrimoine': patrimoine.toJson(),
-        'dettes': dettes.toJson(),
-        'goalA': goalA.toJson(),
-        'goalsB': goalsB.map((g) => g.toJson()).toList(),
-        'plannedContributions':
-            plannedContributions.map((c) => c.toJson()).toList(),
-        'checkIns': checkIns.map((c) => c.toJson()).toList(),
-        'housingStatus': housingStatus,
-        'riskTolerance': riskTolerance,
-        'realEstateProject': realEstateProject,
-        'providers3a': providers3a,
-        'arrivalAge': arrivalAge,
-        'residencePermit': residencePermit,
-        'familyChange': familyChange,
-        'targetRetirementAge': targetRetirementAge,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'firstName': firstName,
+    'birthYear': birthYear,
+    'canton': canton,
+    'commune': commune,
+    'nationality': nationality,
+    'etatCivil': etatCivil.name,
+    'nombreEnfants': nombreEnfants,
+    'conjoint': conjoint?.toJson(),
+    'salaireBrutMensuel': salaireBrutMensuel,
+    'nombreDeMois': nombreDeMois,
+    'bonusPourcentage': bonusPourcentage,
+    'employmentStatus': employmentStatus,
+    'depenses': depenses.toJson(),
+    'prevoyance': prevoyance.toJson(),
+    'patrimoine': patrimoine.toJson(),
+    'dettes': dettes.toJson(),
+    'goalA': goalA.toJson(),
+    'goalsB': goalsB.map((g) => g.toJson()).toList(),
+    'plannedContributions': plannedContributions.map((c) => c.toJson()).toList(),
+    'checkIns': checkIns.map((c) => c.toJson()).toList(),
+    'housingStatus': housingStatus,
+    'riskTolerance': riskTolerance,
+    'realEstateProject': realEstateProject,
+    'providers3a': providers3a,
+    'arrivalAge': arrivalAge,
+    'residencePermit': residencePermit,
+    'familyChange': familyChange,
+    'targetRetirementAge': targetRetirementAge,
+    'initialProjectionSnapshot': initialProjectionSnapshot,
+    'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   // ════════════════════════════════════════════════════════════════
   //  FACTORY: FROM WIZARD ANSWERS
@@ -1343,8 +1334,7 @@ class CoachProfile {
     final employmentStatus = _parseEmploymentStatus(employmentRaw);
 
     // ── Depenses ────────────────────────────────────────────
-    final housingCost =
-        _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
+    final housingCost = _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
     double monthlyHousing;
     if (payFrequency == 'yearly' || payFrequency == 'annuel') {
       monthlyHousing = housingCost / 12;
@@ -1353,10 +1343,8 @@ class CoachProfile {
     }
 
     // Use actual LAMal from onboarding if available, otherwise estimate
-    final lamalFromOnboarding =
-        _parseDouble(answers['q_lamal_premium_monthly_chf']);
-    final assuranceMaladie =
-        lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
+    final lamalFromOnboarding = _parseDouble(answers['q_lamal_premium_monthly_chf']);
+    final assuranceMaladie = lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
 
     // Tax provision and other fixed costs from onboarding
     final taxProvision = _parseDouble(answers['q_tax_provision_monthly_chf']);
@@ -1366,21 +1354,19 @@ class CoachProfile {
     final depenses = DepensesProfile(
       loyer: monthlyHousing,
       assuranceMaladie: assuranceMaladie,
-      autresDepensesFixes:
-          (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
-              ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
-              : null,
+      autresDepensesFixes: (taxProvision ?? 0) +
+          (otherFixed ?? 0) +
+          (debtPayments ?? 0) > 0
+        ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
+        : null,
     );
 
     // ── Prevoyance ──────────────────────────────────────────
     final hasPensionFund = _parseBool(answers['q_has_pension_fund']);
-    final lppBuybackAvailable =
-        _parseDouble(answers['q_lpp_buyback_available']);
+    final lppBuybackAvailable = _parseDouble(answers['q_lpp_buyback_available']);
     final has3a = _parseBool(answers['q_has_3a']);
-    final contribution3a =
-        _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
-    final nombre3a =
-        _parseInt(answers['q_3a_accounts_count']) ?? (has3a ? 1 : 0);
+    final contribution3a = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
+    final nombre3a = _parseInt(answers['q_3a_accounts_count']) ?? (has3a ? 1 : 0);
     final avsLacunesStatus = answers['q_avs_lacunes_status'] as String?;
     // Compute arrivalAge for expats who arrived late in Switzerland.
     // Used by _estimateLppAvoir() to start LPP bonification loop at
@@ -1408,16 +1394,13 @@ class CoachProfile {
 
     // ── Extraction-persisted fields (survive restart) ─────────
     final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);
-    final coachAvoirLppSuroblig =
-        _parseDouble(answers['_coach_avoir_lpp_suroblig']);
+    final coachAvoirLppSuroblig = _parseDouble(answers['_coach_avoir_lpp_suroblig']);
     final coachTauxConversion = _parseDouble(answers['_coach_taux_conversion']);
-    final coachTauxConvSuroblig =
-        _parseDouble(answers['_coach_taux_conversion_suroblig']);
+    final coachTauxConvSuroblig = _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
     final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
-    final coachAvsRenteEstimee =
-        _parseDouble(answers['_coach_avs_rente_estimee']);
+    final coachAvsRenteEstimee = _parseDouble(answers['_coach_avs_rente_estimee']);
     final coachAvsRamd = _parseDouble(answers['_coach_avs_ramd']);
 
     // Estimate LPP total based on age and salary (rough Swiss average).
@@ -1432,8 +1415,8 @@ class CoachProfile {
       // Independant sans LPP ou declaration explicite "pas de caisse"
       estimatedLpp = 0.0;
     } else {
-      estimatedLpp = _estimateLppAvoir(age, salaireBrutMensuel,
-          arrivalAge: computedArrivalAge);
+      estimatedLpp = _estimateLppAvoir(
+        age, salaireBrutMensuel, arrivalAge: computedArrivalAge);
     }
 
     // Estimate 3a total from contribution and age
@@ -1477,8 +1460,7 @@ class CoachProfile {
         case 'no':
           epargneLiquide = savingsMonthly * 1;
         default:
-          epargneLiquide =
-              _parseDouble(emergencyFundRaw) ?? (savingsMonthly * 3);
+          epargneLiquide = _parseDouble(emergencyFundRaw) ?? (savingsMonthly * 3);
       }
     } else {
       epargneLiquide = _parseDouble(emergencyFundRaw) ?? (savingsMonthly * 3);
@@ -1523,15 +1505,16 @@ class CoachProfile {
     // ── Goal A ──────────────────────────────────────────────
     final mainGoalRaw = answers['q_main_goal'] as String?;
     final targetRetAge = _parseInt(answers['q_target_retirement_age']);
-    final goalA =
-        _parseGoalA(mainGoalRaw, birthYear, targetRetirementAge: targetRetAge);
+    final goalA = _parseGoalA(mainGoalRaw, birthYear,
+        targetRetirementAge: targetRetAge);
 
     // ── Planned contributions ───────────────────────────────
     // Built from q_savings_allocation (multi-choice) + wizard data
     final contributions = <PlannedMonthlyContribution>[];
     final allocationRaw = answers['q_savings_allocation'];
-    final allocations =
-        allocationRaw is List ? allocationRaw.cast<String>() : <String>[];
+    final allocations = allocationRaw is List
+        ? allocationRaw.cast<String>()
+        : <String>[];
 
     if (allocations.isNotEmpty && savingsMonthly > 0) {
       // Smart allocation: distribute savings across selected categories
@@ -1540,9 +1523,7 @@ class CoachProfile {
 
       // 1. 3a — if selected and user has 3a contribution
       if (allocations.contains('3a')) {
-        final amount3a =
-            (monthly3a > 0 ? monthly3a : (remaining * 0.4).clamp(0.0, 604.83))
-                .toDouble();
+        final amount3a = (monthly3a > 0 ? monthly3a : (remaining * 0.4).clamp(0.0, 604.83)).toDouble();
         if (amount3a > 0) {
           contributions.add(PlannedMonthlyContribution(
             id: '3a_user',
@@ -1639,13 +1620,11 @@ class CoachProfile {
       // Parse spouse AVS lacunes — same logic as user AVS (LAVS art. 29bis)
       switch (spouseAvsStatus) {
         case 'arrived_late':
-          final spouseArrivalYear =
-              _parseInt(answers['q_spouse_avs_arrival_year']);
+          final spouseArrivalYear = _parseInt(answers['q_spouse_avs_arrival_year']);
           final spouseBirthYear = partnerBirthYear;
           if (spouseArrivalYear != null && spouseBirthYear != null) {
             conjointArrivalAge = spouseArrivalYear - spouseBirthYear;
-            spouseAvsGaps =
-                (spouseArrivalYear - (spouseBirthYear + 21)).clamp(0, 44);
+            spouseAvsGaps = (spouseArrivalYear - (spouseBirthYear + 21)).clamp(0, 44);
           }
         case 'lived_abroad':
           spouseAvsGaps = _parseInt(answers['q_spouse_avs_years_abroad']) ?? 0;
@@ -1656,9 +1635,7 @@ class CoachProfile {
       }
 
       // Fall back to user arrivalAge if no spouse-specific data
-      if (conjointArrivalAge == null &&
-          computedArrivalAge != null &&
-          partnerBirthYear != null) {
+      if (conjointArrivalAge == null && computedArrivalAge != null && partnerBirthYear != null) {
         final arrivalYear = birthYear + computedArrivalAge;
         conjointArrivalAge = (arrivalYear - partnerBirthYear).clamp(0, 65);
       }
@@ -1668,11 +1645,9 @@ class CoachProfile {
       final conjAge = partnerBirthYear != null
           ? DateTime.now().year - partnerBirthYear
           : 35;
-      final conjHasLpp =
-          conjEmployment != 'independant' && conjEmployment != 'inactive';
+      final conjHasLpp = conjEmployment != 'independant' && conjEmployment != 'inactive';
       final conjLppEstimate = conjHasLpp
-          ? _estimateLppAvoir(conjAge, partnerBrut,
-              arrivalAge: conjointArrivalAge)
+          ? _estimateLppAvoir(conjAge, partnerBrut, arrivalAge: conjointArrivalAge)
           : 0.0;
 
       // === Conjoint FATCA / nationality detection ===
@@ -1712,6 +1687,7 @@ class CoachProfile {
       firstName: firstName,
       birthYear: birthYear,
       canton: canton,
+      nationality: answers['q_nationality'] as String?,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
@@ -1733,10 +1709,12 @@ class CoachProfile {
       residencePermit: answers['q_residence_permit'] as String?,
       familyChange: familyChange,
       targetRetirementAge: targetRetAge,
-      updatedAt:
-          savedUpdatedAt != null ? DateTime.tryParse(savedUpdatedAt) : null,
-      createdAt:
-          savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
+      updatedAt: savedUpdatedAt != null
+          ? DateTime.tryParse(savedUpdatedAt)
+          : null,
+      createdAt: savedCreatedAt != null
+          ? DateTime.tryParse(savedCreatedAt)
+          : null,
     );
   }
 
@@ -1818,8 +1796,7 @@ class CoachProfile {
     }
   }
 
-  static GoalA _parseGoalA(String? raw, int birthYear,
-      {int? targetRetirementAge}) {
+  static GoalA _parseGoalA(String? raw, int birthYear, {int? targetRetirementAge}) {
     final effectiveAge = targetRetirementAge ?? 65;
     final retirementYear = birthYear + effectiveAge;
     final retirementDate = DateTime(retirementYear, 12, 31);
@@ -1893,8 +1870,7 @@ class CoachProfile {
   static double _estimateLppAvoir(int age, double salaireBrutMensuel,
       {int? arrivalAge}) {
     final salaireBrut = salaireBrutMensuel * 12;
-    final salaireCoordonne = (salaireBrut - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin.toDouble(), double.infinity);
+    final salaireCoordonne = (salaireBrut - lppDeductionCoordination).clamp(lppSalaireCoordMin.toDouble(), double.infinity);
     // LPP bonifications start at 25 (LPP art. 7), but only if the person
     // was contributing in Switzerland. Expats start at their arrival age.
     final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;
@@ -1931,31 +1907,11 @@ class CoachProfile {
   static double _estimateAssuranceMaladie(String canton) {
     // Moyennes approximatives 2025 (franchise 2500, 26+)
     const cantonalAverages = <String, double>{
-      'GE': 520,
-      'BS': 490,
-      'VD': 470,
-      'TI': 460,
-      'NE': 450,
-      'ZH': 440,
-      'BE': 410,
-      'LU': 380,
-      'AG': 400,
-      'SG': 370,
-      'VS': 380,
-      'FR': 390,
-      'SO': 400,
-      'TG': 370,
-      'GR': 350,
-      'BL': 430,
-      'ZG': 340,
-      'SZ': 350,
-      'NW': 340,
-      'OW': 340,
-      'UR': 330,
-      'GL': 360,
-      'SH': 400,
-      'AR': 360,
-      'AI': 340,
+      'GE': 520, 'BS': 490, 'VD': 470, 'TI': 460, 'NE': 450,
+      'ZH': 440, 'BE': 410, 'LU': 380, 'AG': 400, 'SG': 370,
+      'VS': 380, 'FR': 390, 'SO': 400, 'TG': 370, 'GR': 350,
+      'BL': 430, 'ZG': 340, 'SZ': 350, 'NW': 340, 'OW': 340,
+      'UR': 330, 'GL': 360, 'SH': 400, 'AR': 360, 'AI': 340,
       'JU': 420,
     };
     return cantonalAverages[canton.toUpperCase()] ?? 400;
@@ -1966,8 +1922,7 @@ class CoachProfile {
   // ════════════════════════════════════════════════════════════════
 
   /// Profil demo base sur le scenario Julien+Lauren (fondateur)
-  @Deprecated(
-      'Use CoachProfileProvider.profile instead. buildDemo() returns fake data.')
+  @Deprecated('Use CoachProfileProvider.profile instead. buildDemo() returns fake data.')
   static CoachProfile buildDemo() {
     return CoachProfile(
       firstName: 'Julien',

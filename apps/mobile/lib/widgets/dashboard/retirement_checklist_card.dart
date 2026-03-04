@@ -225,7 +225,8 @@ class RetirementChecklistCard extends StatelessWidget {
         icon: Icons.savings_outlined,
         color: MintColors.retirement3a,
         title: 'Verser ton 3a avant le 31 d\u00e9cembre',
-        subtitle: 'CHF\u00a0${_fmt(remaining3a)} restant avant le plafond '
+        subtitle:
+            'CHF\u00a0${_fmt(remaining3a)} restant avant le plafond '
             '${now.year}.',
         timeline: 'Avant le 31.12.${now.year}',
         route: '/3a-deep/comparator',
@@ -255,9 +256,8 @@ class RetirementChecklistCard extends StatelessWidget {
     }
 
     // 4. Rente vs Capital decision (5 years before retirement)
-    if (FeatureFlags.enableDecisionScaffold &&
-        yearsToRetirement <= 5 &&
-        yearsToRetirement > 0) {
+    if (yearsToRetirement <= 5 && yearsToRetirement > 0 &&
+        FeatureFlags.enableDecisionScaffold) {
       items.add(_ChecklistItem(
         icon: Icons.compare_arrows_rounded,
         color: MintColors.purple,
@@ -270,10 +270,10 @@ class RetirementChecklistCard extends StatelessWidget {
     }
 
     // 5. Couple coordination
-    final hasConjoint = profile.isCouple && profile.conjoint?.birthYear != null;
-    if (FeatureFlags.enableDecisionScaffold &&
-        hasConjoint &&
-        yearsToRetirement <= 10) {
+    final hasConjoint =
+        profile.isCouple && profile.conjoint?.birthYear != null;
+    if (hasConjoint && yearsToRetirement <= 10 &&
+        FeatureFlags.enableDecisionScaffold) {
       final conjName = profile.conjoint!.firstName ?? 'ton/ta partenaire';
       items.add(_ChecklistItem(
         icon: Icons.people_outline_rounded,

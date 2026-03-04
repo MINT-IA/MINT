@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,7 @@ import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart'
 //  Actions:
 //    - "Ouvrir ahv-iv.ch" (url_launcher)
 //    - "J'ai deja mon extrait -> Scanner"
-//    - Prototype: "Simuler un scan"
+//    - "Utiliser un exemple AVS" (debug / QA)
 //
 //  Reference:
 //    - DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
@@ -65,8 +66,10 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                 _buildOpenAhvButton(),
                 const SizedBox(height: 16),
                 _buildScanButton(),
-                const SizedBox(height: 16),
-                _buildSimulateButton(),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 16),
+                  _buildSimulateButton(),
+                ],
                 const SizedBox(height: 24),
                 _buildFreeNote(),
                 const SizedBox(height: 16),
@@ -154,8 +157,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
               color: MintColors.info.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.trending_up,
-                color: MintColors.info, size: 24),
+            child:
+                const Icon(Icons.trending_up, color: MintColors.info, size: 24),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -193,15 +196,13 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       _StepData(
         number: 1,
         title: 'Va sur www.ahv-iv.ch',
-        subtitle:
-            "C'est le site officiel de l'AVS/AI. Tu peux aussi demander "
+        subtitle: "C'est le site officiel de l'AVS/AI. Tu peux aussi demander "
             'ton extrait directement a ta caisse de compensation.',
       ),
       _StepData(
         number: 2,
         title: 'Connecte-toi avec ton eID ou cree un compte',
-        subtitle:
-            'Tu auras besoin de ton numero AVS '
+        subtitle: 'Tu auras besoin de ton numero AVS '
             '(756.XXXX.XXXX.XX, sur ta carte d\'assurance-maladie).',
       ),
       _StepData(
@@ -348,7 +349,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     );
   }
 
-  // ── Simulate button (prototype) ──────────────────────────
+  // ── Simulate button (debug/QA) ───────────────────────────
 
   Widget _buildSimulateButton() {
     return Container(
@@ -362,7 +363,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       child: Column(
         children: [
           Text(
-            'MODE PROTOTYPE',
+            'MODE TEST',
             style: GoogleFonts.montserrat(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -373,7 +374,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           const SizedBox(height: 8),
           Text(
             "Pas d'extrait AVS sous la main ? "
-            "Simule un scan avec un extrait de test.",
+            "Teste le flux avec un exemple d'extrait.",
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -400,7 +401,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                     onPressed: _onSimulateScan,
                     icon: const Icon(Icons.science_outlined, size: 20),
                     label: Text(
-                      'Simuler un scan',
+                      'Utiliser un exemple',
                       style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -466,8 +467,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.lock_outline,
-              size: 18, color: MintColors.textMuted),
+          const Icon(Icons.lock_outline, size: 18, color: MintColors.textMuted),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -512,14 +512,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   }
 
   void _onScanExtract() {
-    // Production: navigate to DocumentScanScreen pre-selected on avsExtract
-    // For prototype, show info dialog
-    _showPrototypeDialog(
-      'Scanner un extrait AVS',
-      "En production, cette fonctionnalite utilisera la camera pour "
-      "photographier ton extrait AVS et en extraire les chiffres. "
-      "Pour l'instant, tu peux simuler un scan avec des donnees de test.",
-    );
+    context.push('/document-scan', extra: DocumentType.avsExtract);
   }
 
   void _onSimulateScan() async {
@@ -543,47 +536,6 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ExtractionReviewScreen(result: result),
-      ),
-    );
-  }
-
-  void _showPrototypeDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          title,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        content: Text(
-          message,
-          style: GoogleFonts.inter(fontSize: 14, height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _onSimulateScan();
-            },
-            child: Text(
-              'Simuler un scan a la place',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                color: MintColors.purple,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(
-              'Fermer',
-              style: GoogleFonts.inter(color: MintColors.textSecondary),
-            ),
-          ),
-        ],
       ),
     );
   }

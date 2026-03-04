@@ -268,14 +268,12 @@ void main() {
 
     test('includes off-track item when plan status is off-track', () {
       const planStatus = PlanStatus(
-        hasPlan: true,
-        monthsAnalyzed: 3,
-        monthsBehind: 2,
-        monthlyPlanned: 1000,
-        monthlyActual: 550,
-        adherenceRate: 55,
-        projectedImpactChf: 24000,
-        topGaps: [],
+        score: 55,
+        completedActions: 11,
+        totalActions: 20,
+        nextActions: [],
+        totalMonthlyPlanned: 1000,
+        averageMonthlyActual: 550,
       );
 
       final items = TemporalPriorityService.prioritize(

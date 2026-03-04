@@ -29,7 +29,34 @@ Mint adopts the spirit of Swiss rules of conduct (LSFin) and clarifications from
 - **Implementation Intentions**: Use "IF... THEN..." (SI... ALORS...) to empower the user while maintaining a coaching distance.
 - **Reporting**: The final report must be durable (PDF available) and contain all mandatory disclosures.
 
-## Data Privacy (LPD)
+## Data Privacy (LPD / nLPD)
 - No storage of sensitive free-text identifiers (IBAN, etc.).
 - Minimal logs (no sensitive financial snapshots in server logs).
 - Progressive consent for any data enrichment (e.g., Phase 2 Open Banking).
+
+### Open Banking (bLink/SFTI)
+- **Lecture seule**: MINT ne déplace jamais d'argent, n'initie aucune transaction.
+- **Consentement nLPD**: Opt-in explicite (jamais pré-coché), scopes granulaires (comptes, soldes, transactions), durée max 90 jours (renouvelable), révocable à tout moment avec invalidation immédiate.
+- **Audit log**: Toutes les opérations de consentement sont tracées (création, renouvellement, révocation).
+- **Gate FINMA**: Tous les endpoints bloqués (HTTP 503) tant que `OPEN_BANKING_ENABLED=false`. Production nécessite consultation réglementaire formelle auprès de la FINMA.
+
+### APIs Institutionnelles (Caisses de pension, AVS, AFC)
+- **Authentification**: Via les credentials de l'utilisateur (eID ou login portail institutionnel). MINT ne stocke JAMAIS les identifiants institutionnels.
+- **Pull-only**: Données tirées à la demande de l'utilisateur, pas de monitoring continu.
+- **Consentement granulaire**: L'utilisateur choisit explicitement quelles données importer depuis chaque institution.
+- **Droit à l'oubli**: L'utilisateur peut supprimer toutes les données importées à tout moment.
+- **Pas de partage**: Les données institutionnelles ne sont jamais transmises à des tiers, ni envoyées au LLM (CoachContext exclut les données brutes institutionnelles).
+
+### Document Scanning (OCR)
+- **Image originale supprimée** immédiatement après extraction OCR (jamais stockée).
+- **OCR on-device par défaut** (google_mlkit_text_recognition / Apple Vision): le document ne quitte jamais l'appareil.
+- **Cloud OCR optionnel** (BYOK): consentement explicite, données supprimées côté fournisseur après traitement.
+- **Valeurs extraites**: stockées localement, chiffrées au repos (encrypted at rest).
+- **Source tracking**: Métadonnées de source (document, estimation, API) pour qualité interne uniquement, jamais partagées.
+
+### Règles transversales de connectivité
+1. **Read-only absolu**: Aucun canal ne permet de modifier, transférer, ou initier une opération financière.
+2. **Transparence des sources**: Chaque donnée affiche sa provenance et sa fraîcheur à l'utilisateur.
+3. **Consentement progressif**: Jamais de demande de connexion avant d'avoir démontré la valeur (Reward Flow).
+4. **Réversibilité totale**: L'utilisateur peut déconnecter, supprimer, ou révoquer à tout moment.
+5. **Pas de dark patterns**: Jamais de culpabilisation, d'urgence artificielle, ou de manipulation pour collecter des données.

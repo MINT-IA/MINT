@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Housing cost calculator for retirement projections (P2).
 ///
@@ -247,8 +248,19 @@ class HousingCostCalculator {
     double? monthlyRent,
     double marginalTaxRate = 0.25,
   }) {
-    final householdNet = salaireBrutMensuel * 0.87 +
-        conjointSalaireBrutMensuel * 0.87;
+    final mainNet = NetIncomeBreakdown.compute(
+      grossSalary: salaireBrutMensuel * 12,
+      canton: canton,
+      age: currentAge,
+    ).monthlyNetPayslip;
+    final partnerNet = conjointSalaireBrutMensuel > 0
+        ? NetIncomeBreakdown.compute(
+            grossSalary: conjointSalaireBrutMensuel * 12,
+            canton: canton,
+            age: currentAge,
+          ).monthlyNetPayslip
+        : 0.0;
+    final householdNet = mainNet + partnerNet;
     // Income-based floor: 70% of household net
     final incomeFloor = householdNet * 0.70;
 

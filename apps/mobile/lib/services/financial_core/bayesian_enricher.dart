@@ -20,6 +20,7 @@ library;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -560,6 +561,7 @@ class BayesianProfileEnricher {
       canton: canton,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
+      age: profile.age,
     );
     final priorSd = priorMean * 0.50; // 50% uncertainty — very high
 
@@ -582,9 +584,14 @@ class BayesianProfileEnricher {
     required String canton,
     required CoachCivilStatus etatCivil,
     required int nombreEnfants,
+    int age = 45,
   }) {
     // Estimate monthly expenses from salary (rough: ~60% of net)
-    final netMensuel = salary * 0.87;
+    final netMensuel = NetIncomeBreakdown.compute(
+      grossSalary: salary * 12,
+      canton: canton,
+      age: age,
+    ).monthlyNetPayslip;
     final estimatedMonthlyExpenses = netMensuel * 0.60;
 
     // Swiss median: 4.5 months of expenses

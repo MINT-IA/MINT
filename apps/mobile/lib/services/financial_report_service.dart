@@ -271,8 +271,11 @@ class FinancialReportService {
     // Year-by-year LPP growth using real age-band bonification rates (LPP art. 16)
     double estimatedLppGrowth = 0;
     // Note: LPP art. 8 uses gross insured salary; monthlyNetIncome is net.
-    // We approximate brut ≈ net / 0.87 (inverse of social charges deduction).
-    final annualGrossApprox = profile.monthlyNetIncome * 12 / 0.87;
+    // Inverse: net → gross via NetIncomeBreakdown.estimateBrutFromNet
+    final annualGrossApprox = NetIncomeBreakdown.estimateBrutFromNet(
+      profile.monthlyNetIncome * 12,
+      age: profile.age,
+    );
     // Use LPP constants for coordinated salary (LPP art. 8)
     // Guard: if gross < seuil d'accès LPP (22'680), no LPP coverage
     final double coordinatedSalary;
@@ -299,7 +302,7 @@ class FinancialReportService {
 
     // Rentes
     final monthlyAvsRent = _estimateAvsRent(profile);
-    final lppConversionRate = 0.06; // 6% taux conversion (hypothèse prudente)
+    final lppConversionRate = lppTauxConversionMin / 100; // LPP art. 14: 6.8% minimum légal
     final monthlyLppRent = (lppCapital * lppConversionRate) / 12;
 
     return RetirementProjection(
@@ -373,8 +376,8 @@ class FinancialReportService {
     if (buybackAvailable < 10000) return null;
 
     final yearsToRetirement = profile.yearsToRetirement;
-    final marginalRate =
-        _estimateMarginalRate(profile.annualIncome, profile.canton);
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+        profile.annualIncome, profile.canton);
 
     final plan = <AnnualBuyback>[];
     final currentYear = DateTime.now().year;
@@ -606,7 +609,7 @@ class FinancialReportService {
 
   double _estimateEffectiveRate(
       double taxableIncome, String canton, bool isMarried) {
-    // Simplification grossière - à remplacer par vrai calcul cantonal
+    // TODO(P8-Phase2): migrate to FiscalService.estimateTax() for canton-aware rates
     final baseRate = isMarried ? 0.12 : 0.15;
 
     if (taxableIncome > 150000) return baseRate + 0.10;
@@ -615,18 +618,13 @@ class FinancialReportService {
     return baseRate;
   }
 
-  double _estimateMarginalRate(double annualIncome, String canton) {
-    // Taux marginal ~ 25-35% selon revenu
-    if (annualIncome > 120000) return 0.35;
-    if (annualIncome > 90000) return 0.30;
-    if (annualIncome > 60000) return 0.25;
-    return 0.20;
-  }
-
   double _estimateAvsRent(UserProfile profile) {
     // Delegate to AvsCalculator for centralized AVS rente logic (LAVS art. 29, 34, 35).
-    // Approximate gross salary from net income (inverse of social charges deduction).
-    final grossAnnualSalary = profile.monthlyNetIncome * 12 / 0.87;
+    // Inverse: net → gross via NetIncomeBreakdown.estimateBrutFromNet
+    final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+      profile.monthlyNetIncome * 12,
+      age: profile.age,
+    );
 
     final userRente = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,

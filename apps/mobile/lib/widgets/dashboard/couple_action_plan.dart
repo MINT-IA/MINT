@@ -28,9 +28,7 @@ class CoupleActionPlan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!profile.isCouple ||
-        profile.conjoint == null ||
-        profile.conjoint?.birthYear == null) {
+    if (!profile.isCouple || profile.conjoint == null || profile.conjoint?.birthYear == null) {
       return const SizedBox.shrink();
     }
 
@@ -250,7 +248,7 @@ class CoupleActionPlan extends StatelessWidget {
     // ── 1. Staggered withdrawal coordination (household) ──
     final userRetYear = profile.birthYear + profile.effectiveRetirementAge;
     final conjRetYear = conj.birthYear! + conj.effectiveRetirementAge;
-    if (FeatureFlags.enableDecisionScaffold && userRetYear != conjRetYear) {
+    if (userRetYear != conjRetYear && FeatureFlags.enableDecisionScaffold) {
       final firstRetires = userRetYear < conjRetYear ? userName : conjName;
       final gap = (userRetYear - conjRetYear).abs();
       actions.add(_CoupleAction(
@@ -259,10 +257,10 @@ class CoupleActionPlan extends StatelessWidget {
         ownerColor: MintColors.primary,
         icon: Icons.calendar_month_outlined,
         title: '\u00c9chelonner les retraits sur $gap ans',
-        subtitle: '$firstRetires prend sa retraite en premier. '
+        subtitle:
+            '$firstRetires prend sa retraite en premier. '
             '\u00c9chelonner 3a/LPP peut r\u00e9duire la charge fiscale.',
-        impactLabel:
-            'Jusqu\u2019\u00e0 CHF\u00a015\u2019000\u201340\u2019000 d\u2019\u00e9conomie (estimation)',
+        impactLabel: 'Jusqu\u2019\u00e0 CHF\u00a015\u2019000\u201340\u2019000 d\u2019\u00e9conomie (estimation)',
         route: '/arbitrage/calendrier-retraits',
       ));
     }
@@ -279,26 +277,28 @@ class CoupleActionPlan extends StatelessWidget {
       // Naming convention: onboarding → '3a_user', golden → '3a_julien'.
       final conjNameLower = conj.firstName?.toLowerCase() ?? '';
       final userNameLower = (profile.firstName ?? '').toLowerCase();
-      final user3aMensuel = profile.plannedContributions.where((c) {
-        if (c.category != '3a') return false;
-        final idLow = c.id.toLowerCase();
-        final labelLow = c.label.toLowerCase();
-        // Positive match: explicitly user-owned
-        if (userNameLower.isNotEmpty &&
-            (idLow.contains(userNameLower) ||
-                labelLow.contains(userNameLower))) {
-          return true;
-        }
-        if (idLow.contains('_user')) return true;
-        // Negative match: exclude conjoint-owned
-        if (conjNameLower.isNotEmpty &&
-            (idLow.contains(conjNameLower) ||
-                labelLow.contains(conjNameLower))) {
-          return false;
-        }
-        // Ambiguous: no name match either way → include (conservative)
-        return true;
-      }).fold(0.0, (sum, c) => sum + c.amount);
+      final user3aMensuel = profile.plannedContributions
+          .where((c) {
+            if (c.category != '3a') return false;
+            final idLow = c.id.toLowerCase();
+            final labelLow = c.label.toLowerCase();
+            // Positive match: explicitly user-owned
+            if (userNameLower.isNotEmpty &&
+                (idLow.contains(userNameLower) ||
+                    labelLow.contains(userNameLower))) {
+              return true;
+            }
+            if (idLow.contains('_user')) return true;
+            // Negative match: exclude conjoint-owned
+            if (conjNameLower.isNotEmpty &&
+                (idLow.contains(conjNameLower) ||
+                    labelLow.contains(conjNameLower))) {
+              return false;
+            }
+            // Ambiguous: no name match either way → include (conservative)
+            return true;
+          })
+          .fold(0.0, (sum, c) => sum + c.amount);
       final annual3a = user3aMensuel * 12;
       final remaining = (plafond - annual3a).clamp(0.0, plafond);
       if (remaining > 100) {
@@ -319,7 +319,8 @@ class CoupleActionPlan extends StatelessWidget {
     // ── 3. Conjoint 3a action ──
     // Use prevoyance.canContribute3a (same source as ForecasterService,
     // RetirementProjectionService, MonteCarloService).
-    final conjCanContribute3a = conj.prevoyance?.canContribute3a ?? true;
+    final conjCanContribute3a =
+        conj.prevoyance?.canContribute3a ?? true;
     if (conjCanContribute3a) {
       final conjHasLpp = (conj.prevoyance?.avoirLppTotal ?? 0) > 0;
       final conjPlafond = conj.employmentStatus == 'independant' && !conjHasLpp
@@ -344,7 +345,8 @@ class CoupleActionPlan extends StatelessWidget {
         ownerColor: MintColors.purple,
         icon: Icons.block_outlined,
         title: '3a non disponible ($conjName)',
-        subtitle: 'Les r\u00e9sidents fiscaux US (FATCA) ne peuvent '
+        subtitle:
+            'Les r\u00e9sidents fiscaux US (FATCA) ne peuvent '
             'g\u00e9n\u00e9ralement pas ouvrir un 3a en Suisse.',
         impactLabel: null,
         route: null,
@@ -352,15 +354,16 @@ class CoupleActionPlan extends StatelessWidget {
     }
 
     // ── 4. Rente vs Capital couple coordination ──
-    if (FeatureFlags.enableDecisionScaffold &&
-        (userYearsToRetirement <= 7 || conjYearsToRetirement <= 7)) {
+    if ((userYearsToRetirement <= 7 || conjYearsToRetirement <= 7) &&
+        FeatureFlags.enableDecisionScaffold) {
       actions.add(_CoupleAction(
         owner: ActionOwner.household,
         ownerLabel: 'M\u00c9NAGE',
         ownerColor: MintColors.primary,
         icon: Icons.compare_arrows_rounded,
         title: 'Rente vs capital : coordonner \u00e0 deux',
-        subtitle: 'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
+        subtitle:
+            'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
             'peut \u00eatre diff\u00e9rente pour chaque partenaire.',
         impactLabel: null,
         route: '/arbitrage/rente-vs-capital',

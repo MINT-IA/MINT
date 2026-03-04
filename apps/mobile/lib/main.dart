@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -18,18 +17,18 @@ Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize flutter_gemma plugin once before any SLM call.
-  // Without this, isModelInstalled()/inference calls can throw at runtime.
-  try {
-    await FlutterGemma.initialize();
-    FeatureFlags.slmPluginReady = true;
-  } catch (e) {
-    FeatureFlags.slmPluginReady = false;
-    debugPrint('[SLM] flutter_gemma init failed: $e');
-  }
-
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
+
+  // Pull server feature flags before first frame so kill-switches
+  // apply immediately (especially narrative degradation flags).
+  try {
+    await FeatureFlags.refreshFromBackend().timeout(
+      const Duration(seconds: 2),
+    );
+  } catch (_) {
+    // Keep local defaults when backend is unavailable.
+  }
 
   // Chargement des données critiques en arrière-plan (non-bloquant)
   Future.wait([

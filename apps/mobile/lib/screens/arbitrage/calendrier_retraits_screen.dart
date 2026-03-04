@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Calendrier de retraits screen — compare withdrawing everything at once
 /// vs staggering withdrawals over multiple years.
@@ -37,10 +41,74 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
 
   ArbitrageResult? _result;
 
+  // ── CoachProfile auto-fill (P8 Phase 4) ──
+  bool _didAutoFill = false;
+  Map<String, ProfileDataSource> _dataSources = {};
+  bool _hasEstimatedValues = false;
+
   @override
   void initState() {
     super.initState();
     _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didAutoFill) {
+      _didAutoFill = true;
+      _autoFillFromProfile();
+    }
+  }
+
+  void _autoFillFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    bool changed = false;
+    // Pre-fill 3a from profile
+    final epargne3a = profile.prevoyance.totalEpargne3a;
+    if (epargne3a > 0 && _assets.isNotEmpty) {
+      _assets[0].amountCtrl.text = epargne3a.round().toString();
+      changed = true;
+    }
+    // Pre-fill LPP from profile
+    final lpp = profile.prevoyance.avoirLppTotal;
+    if (lpp != null && lpp > 0 && _assets.length >= 2) {
+      _assets[1].amountCtrl.text = lpp.round().toString();
+      changed = true;
+    }
+    // Pre-fill conjoint assets if couple
+    if (profile.isCouple && profile.conjoint != null) {
+      final conj = profile.conjoint!;
+      final conjLpp = conj.prevoyance?.avoirLppTotal;
+      if (conjLpp != null && conjLpp > 0) {
+        _assets.add(_AssetEntry(
+          type: 'lpp',
+          amountCtrl: TextEditingController(text: conjLpp.round().toString()),
+          age: conj.effectiveRetirementAge,
+          label: 'LPP ${conj.firstName ?? "conjoint\u00b7e"}',
+        ));
+        changed = true;
+      }
+      final conj3a = conj.prevoyance?.totalEpargne3a ?? 0;
+      if (conj3a > 0) {
+        _assets.add(_AssetEntry(
+          type: '3a',
+          amountCtrl: TextEditingController(text: conj3a.round().toString()),
+          age: conj.effectiveRetirementAge - 2,
+          label: '3a ${conj.firstName ?? "conjoint\u00b7e"}',
+        ));
+        changed = true;
+      }
+    }
+    if (profile.canton.isNotEmpty) {
+      _canton = profile.canton;
+    }
+    _isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    _dataSources = profile.dataSources;
+    _hasEstimatedValues = changed;
+    if (changed) _recalculate();
   }
 
   @override
@@ -67,6 +135,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       ageRetraite: _ageRetraite,
       canton: _canton,
       isMarried: _isMarried,
+      dataSources: _dataSources,
     );
 
     setState(() => _result = result);
@@ -139,6 +208,38 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
 
                 // ── Results ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  if (_result!.confidenceScore < 70)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: MintColors.warning.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: MintColors.warning.withAlpha(60)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
+                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_hasEstimatedValues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   // ── BIG CHIFFRE CHOC ──
                   _buildBigChiffreChoc(),
                   const SizedBox(height: 24),
@@ -741,7 +842,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
     required bool isLast,
   }) {
     final typeColor = _colorForType(asset.type);
-    final typeLabel = _labelForType(asset.type);
+    final typeLabel = asset.label ?? _labelForType(asset.type);
     final amount =
         double.tryParse(asset.amountCtrl.text.replaceAll("'", '')) ?? 0;
 
@@ -987,10 +1088,12 @@ class _AssetEntry {
   String type;
   final TextEditingController amountCtrl;
   int age;
+  String? label; // Optional display label (e.g. "LPP Lauren")
 
   _AssetEntry({
     required this.type,
     required this.amountCtrl,
     required this.age,
+    this.label,
   });
 }

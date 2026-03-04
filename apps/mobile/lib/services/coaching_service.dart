@@ -862,6 +862,25 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   //  Helpers
   // ──────────────────────────────────────────────────────────
 
+  /// Filter coaching tips by stress type selected during onboarding.
+  ///
+  /// Maps each stress type to relevant tip categories so the
+  /// onboarding flow (StepTopActions) shows only contextual tips.
+  static List<CoachingTip> filterByStressType(
+    List<CoachingTip> tips,
+    String stressType,
+  ) {
+    const stressToCategories = {
+      'stress_retraite': ['retraite', 'prevoyance'],
+      'stress_fiscal': ['fiscalite'],
+      'stress_budget': ['budget'],
+      'stress_general': ['retraite', 'fiscalite', 'budget', 'prevoyance'],
+    };
+    final categories = stressToCategories[stressType] ??
+        ['retraite', 'fiscalite', 'budget', 'prevoyance'];
+    return tips.where((t) => categories.contains(t.category)).toList();
+  }
+
   /// Get the estimated marginal tax rate for a canton.
   static double _getTauxMarginal(String canton) {
     return _tauxMarginalCantonal[canton.toUpperCase()] ?? 0.33;

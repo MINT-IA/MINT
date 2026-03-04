@@ -52,8 +52,6 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   String _searchQuery = '';
   final Set<int> _collapsedCategories = {};
 
-  static bool _isDecisionRoute(String route) => route.startsWith('/arbitrage/');
-
   static final List<_ToolCategory> _categories = [
     _ToolCategory(
       icon: Icons.elderly,
@@ -456,31 +454,37 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
     ),
   ];
 
-  List<_ToolCategory> get _visibleCategories {
-    final visible = <_ToolCategory>[];
-    for (final category in _categories) {
-      final tools = FeatureFlags.enableDecisionScaffold
-          ? category.tools
-          : category.tools.where((t) => !_isDecisionRoute(t.route)).toList();
-      if (tools.isEmpty) continue;
-      visible.add(_ToolCategory(
-        icon: category.icon,
-        title: category.title,
-        color: category.color,
-        tools: tools,
-      ));
-    }
-    return visible;
+  List<_ToolCategory> get _effectiveCategories {
+    if (FeatureFlags.enableDecisionScaffold) return _categories;
+
+    return _categories
+        .map((category) {
+          final tools = category.tools
+              .where(
+                (tool) =>
+                    !tool.route.startsWith('/arbitrage/') &&
+                    tool.route != '/simulator/rente-capital',
+              )
+              .toList();
+          return _ToolCategory(
+            icon: category.icon,
+            title: category.title,
+            color: category.color,
+            tools: tools,
+          );
+        })
+        .where((category) => category.tools.isNotEmpty)
+        .toList();
   }
 
   List<_ToolCategory> get _filteredCategories {
-    final base = _visibleCategories;
-    if (_searchQuery.isEmpty) return base;
+    final baseCategories = _effectiveCategories;
+    if (_searchQuery.isEmpty) return baseCategories;
 
     final query = _searchQuery.toLowerCase();
     final result = <_ToolCategory>[];
 
-    for (final category in base) {
+    for (final category in baseCategories) {
       final matchingTools = category.tools
           .where((tool) =>
               tool.title.toLowerCase().contains(query) ||
@@ -501,9 +505,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   }
 
   int get _totalToolCount =>
-      _visibleCategories.fold(0, (sum, cat) => sum + cat.tools.length);
-
-  int get _visibleCategoryCount => _visibleCategories.length;
+      _effectiveCategories.fold(0, (sum, cat) => sum + cat.tools.length);
 
   @override
   void dispose() {
@@ -579,7 +581,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '$_visibleCategoryCount categories',
+                      '${_effectiveCategories.length} categories',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -617,8 +619,10 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final category = filtered[index];
-                  final globalIndex = _categories.indexOf(
-                    _categories.firstWhere((c) => c.title == category.title),
+                  final globalIndex = _effectiveCategories.indexOf(
+                    _effectiveCategories.firstWhere(
+                      (c) => c.title == category.title,
+                    ),
                   );
                   return _buildCategorySection(
                       category, globalIndex, index == filtered.length - 1);
