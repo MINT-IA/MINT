@@ -55,11 +55,12 @@ class IndicatifBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, size: 18, color: MintColors.accent),
+              const Icon(Icons.info_outline,
+                  size: 18, color: MintColors.accent),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Resultat indicatif ($pct% de fiabilite)',
+                  'Résultat indicatif ($pct% de fiabilité)',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -86,7 +87,7 @@ class IndicatifBanner extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Precise tes donnees pour des projections personnalisees.',
+            'Précise tes données pour des projections personnalisées.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -100,7 +101,7 @@ class IndicatifBanner extends StatelessWidget {
               onPressed: () => context.push('/data-block/$route'),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
-                'Preciser',
+                'Préciser',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

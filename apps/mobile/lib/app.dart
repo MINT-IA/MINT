@@ -19,8 +19,6 @@ import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 import 'package:mint_mobile/screens/consent_dashboard_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
-import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
-import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
@@ -115,7 +113,6 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
-import 'package:mint_mobile/screens/onboarding/progressive_enrichment_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
@@ -204,41 +201,17 @@ final _router = GoRouter(
     // Feature Routes (Full Screen)
     GoRoute(
       path: '/advisor',
-      redirect: (context, state) =>
-          state.uri.path == '/advisor' ? '/advisor/wizard' : null,
+      redirect: (context, state) => '/onboarding/smart',
       builder: (context, state) => const SizedBox.shrink(),
-      routes: [
-        GoRoute(
-          path: 'plan-30-days',
-          builder: (context, state) {
-            final extra = state.extra;
-            Map<String, dynamic>? contextData;
-            if (extra is Map<String, dynamic>) {
-              contextData = extra;
-            }
-            return Onboarding30DayPlanScreen(
-              stressChoice: contextData?['stress_choice'] as String?,
-              mainGoal: contextData?['main_goal'] as String?,
-            );
-          },
-        ),
-      ],
+    ),
+    GoRoute(
+      path: '/advisor/plan-30-days',
+      redirect: (context, state) => '/coach/agir',
+      builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
       path: '/advisor/wizard',
-      builder: (context, state) {
-        final extra = state.extra;
-        Map<String, dynamic>? contextData;
-        if (extra is Map<String, dynamic>) {
-          contextData = extra;
-        }
-        final sectionFromQuery = state.uri.queryParameters['section'];
-        final section =
-            (contextData?['section'] as String?) ?? sectionFromQuery;
-        return AdvisorWizardScreenV2(
-          initialSection: section,
-        );
-      },
+      redirect: (context, state) => '/onboarding/smart',
     ),
     GoRoute(
       path: '/profile',
@@ -652,7 +625,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/onboarding/enrichment',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ProgressiveEnrichmentScreen(),
+      redirect: (context, state) => '/profile/bilan',
     ),
     // Data Block Enrichment (P8 Phase 3)
     GoRoute(

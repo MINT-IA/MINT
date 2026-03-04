@@ -272,7 +272,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   Future<void> _saveThenEnrich(BuildContext context) async {
     _saveProfile(context);
     await SmartOnboardingDraftService.clearDraft();
-    if (context.mounted) context.push('/onboarding/enrichment');
+    if (context.mounted) context.push('/profile/bilan');
   }
 
   void _saveProfile(BuildContext context) {

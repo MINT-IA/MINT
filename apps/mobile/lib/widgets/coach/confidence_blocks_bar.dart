@@ -32,7 +32,7 @@ class ConfidenceBlocksBar extends StatelessWidget {
     ),
     _DisplayBlock(
       keys: ['compositionMenage'],
-      label: 'Menage',
+      label: 'Ménage',
       icon: Icons.people,
       dataBlockType: 'compositionMenage',
     ),
@@ -44,7 +44,7 @@ class ConfidenceBlocksBar extends StatelessWidget {
     ),
     _DisplayBlock(
       keys: ['avs', '3a', 'patrimoine', 'foreign_pension'],
-      label: 'Epargne',
+      label: 'Épargne',
       icon: Icons.savings,
       dataBlockType: '3a',
     ),
@@ -118,7 +118,8 @@ class ConfidenceBlocksBar extends StatelessWidget {
                       db.label,
                       style: GoogleFonts.inter(
                         fontSize: 10,
-                        fontWeight: isComplete ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight:
+                            isComplete ? FontWeight.w600 : FontWeight.w400,
                         color: isComplete
                             ? MintColors.textPrimary
                             : MintColors.textMuted,

@@ -51,6 +51,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Extrait de compte AVS'), findsWidgets);
-    expect(find.text('Annees de cotisation, RAMD, lacunes'), findsOneWidget);
+    expect(find.text('Années de cotisation, RAMD, lacunes'), findsOneWidget);
   });
 }

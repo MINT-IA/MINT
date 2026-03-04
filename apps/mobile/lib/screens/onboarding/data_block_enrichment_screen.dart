@@ -16,6 +16,15 @@ import 'package:mint_mobile/theme/colors.dart';
 /// objectifRetraite, compositionMenage.
 class DataBlockEnrichmentScreen extends StatelessWidget {
   final String blockType;
+  static const Set<String> _supportedBlockTypes = {
+    'revenu',
+    'lpp',
+    'avs',
+    '3a',
+    'patrimoine',
+    'objectifRetraite',
+    'compositionMenage',
+  };
 
   const DataBlockEnrichmentScreen({
     super.key,
@@ -25,12 +34,14 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<CoachProfileProvider>().profile;
+    final canonicalBlockType = _canonicalBlockType(blockType);
+    final isKnownBlock = _supportedBlockTypes.contains(canonicalBlockType);
     final blocs = profile != null
         ? ConfidenceScorer.scoreAsBlocs(profile)
         : <String, BlockScore>{};
-    final bloc = blocs[blockType];
+    final bloc = isKnownBlock ? blocs[canonicalBlockType] : null;
 
-    final meta = _blockMeta(blockType);
+    final meta = _blockMeta(isKnownBlock ? canonicalBlockType : 'unknown');
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -75,7 +86,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
 
               // ── Enrichment prompts for this block ────────────────
               if (profile != null) ...[
-                _buildPrompts(profile, blockType),
+                _buildPrompts(profile, canonicalBlockType, bloc),
               ],
 
               const Spacer(),
@@ -86,7 +97,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () {
                     // Navigate to the appropriate enrichment flow
-                    final route = _enrichmentRoute(blockType);
+                    final route = _enrichmentRoute(canonicalBlockType);
                     if (route != null) {
                       context.push(route);
                     } else {
@@ -114,7 +125,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
 
               // ── Disclaimer ───────────────────────────────────────
               Text(
-                'Outil educatif simplifie. Ne constitue pas un conseil '
+                'Outil éducatif simplifié. Ne constitue pas un conseil '
                 'financier (LSFin).',
                 style: GoogleFonts.inter(
                   fontSize: 10,
@@ -131,13 +142,42 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrompts(CoachProfile profile, String type) {
+  Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {
     final confidence = ConfidenceScorer.score(profile);
     final relevant = confidence.prompts
         .where((p) => _categoryMatchesBlock(p.category, type))
         .toList();
 
     if (relevant.isEmpty) {
+      final isComplete = bloc?.status == 'complete';
+      if (!isComplete) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: MintColors.warning.withAlpha(12),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.warning.withAlpha(48)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline,
+                  color: MintColors.warning, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Ce bloc est encore incomplet. Ouvre la section dédiée pour '
+                  'ajouter les données manquantes.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: MintColors.textPrimary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -243,15 +283,89 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
 
   String? _enrichmentRoute(String type) {
     const routes = {
-      'revenu': '/onboarding/enrichment',
+      'revenu': '/profile/bilan',
       'lpp': '/document-scan',
       'avs': '/document-scan/avs-guide',
       '3a': '/3a-deep/comparator',
-      'patrimoine': '/onboarding/enrichment',
-      'objectifRetraite': '/onboarding/enrichment',
-      'compositionMenage': '/onboarding/enrichment',
+      'patrimoine': '/profile/bilan',
+      'objectifRetraite': '/profile/bilan',
+      'compositionMenage': '/profile/bilan',
     };
-    return routes[type];
+    return routes[type] ?? '/profile/bilan';
+  }
+
+  String _canonicalBlockType(String rawType) {
+    final normalized = _normalizeTypeToken(rawType);
+    return switch (normalized) {
+      'situation' ||
+      'income' ||
+      'salary' ||
+      'revenu' ||
+      'salaire' ||
+      'base' ||
+      'age_canton' =>
+        'revenu',
+      'couple' ||
+      'menage' ||
+      'household' ||
+      'composition_menage' ||
+      'compositionmenage' =>
+        'compositionMenage',
+      'pension' ||
+      'lpp' ||
+      'prevoyance' ||
+      'prevoyance_lpp' ||
+      'pension_lpp' ||
+      'lpp_balance' ||
+      'lpp_details' ||
+      'taux_conversion' =>
+        'lpp',
+      'avs' || 'avs_extract' || 'ci' => 'avs',
+      'goal' ||
+      'objectif' ||
+      'objectif_retraite' ||
+      'retirement_goal' ||
+      'retirement_urgency' =>
+        'objectifRetraite',
+      'housing' ||
+      'property' ||
+      'patrimoine' ||
+      'wealth' ||
+      'asset' ||
+      'assets' =>
+        'patrimoine',
+      '3a' || 'pilier_3a' || 'epargne_3a' => '3a',
+      _ => rawType.trim(),
+    };
+  }
+
+  String _normalizeTypeToken(String value) {
+    var normalized = value.trim().toLowerCase();
+    const accents = {
+      'à': 'a',
+      'â': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ê': 'e',
+      'ë': 'e',
+      'î': 'i',
+      'ï': 'i',
+      'ô': 'o',
+      'ö': 'o',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+    };
+    accents.forEach((source, target) {
+      normalized = normalized.replaceAll(source, target);
+    });
+    normalized = normalized
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+    return normalized;
   }
 
   _BlockMeta _blockMeta(String type) {
@@ -260,63 +374,69 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
           title: 'Revenu',
           description:
               'Ton salaire brut est la base de toutes les projections : '
-              'prevoyance, impots, budget. Plus il est precis, plus tes '
-              'resultats seront fiables.',
-          ctaLabel: 'Mettre a jour mon revenu',
+              'prévoyance, impôts, budget. Plus il est précis, plus tes '
+              'résultats seront fiables.',
+          ctaLabel: 'Mettre à jour mon revenu',
         ),
       'lpp' => const _BlockMeta(
-          title: 'Prevoyance LPP',
+          title: 'Prévoyance LPP',
           description:
-              'Ton avoir LPP (2e pilier) represente souvent le plus gros '
-              'capital de ta prevoyance. Un certificat de prevoyance donne '
-              'une valeur exacte vs une estimation.',
+              'Ton avoir LPP (2e pilier) représente souvent le plus gros '
+              'capital de ta prévoyance. Un certificat de prévoyance donne '
+              'une valeur exacte plutôt qu\'une estimation.',
           ctaLabel: 'Ajouter mon certificat LPP',
         ),
       'avs' => const _BlockMeta(
           title: 'Extrait AVS',
           description:
-              'L\'extrait AVS confirme tes annees de cotisation effectives. '
-              'Des lacunes (sejour a l\'etranger, annees manquantes) reduisent '
+              "L'extrait AVS confirme tes années de cotisation effectives. "
+              "Des lacunes (séjour à l'étranger, années manquantes) réduisent "
               'ta rente AVS.',
           ctaLabel: 'Commander mon extrait AVS',
         ),
       '3a' => const _BlockMeta(
           title: '3e pilier (3a)',
           description:
-              'Tes comptes 3a s\'ajoutent a ta prevoyance et offrent un '
+              "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un "
               'avantage fiscal. Renseigne les soldes actuels pour une vue '
-              'complete.',
+              'complète.',
           ctaLabel: 'Saisir mes soldes 3a',
         ),
       'patrimoine' => const _BlockMeta(
           title: 'Patrimoine',
           description:
-              'Epargne libre, investissements, immobilier : ces donnees '
-              'completent ta projection et permettent de calculer ton '
+              'Épargne libre, investissements, immobilier : ces données '
+              'complètent ta projection et permettent de calculer ton '
               'Financial Resilience Index.',
           ctaLabel: 'Renseigner mon patrimoine',
         ),
       'objectifRetraite' => const _BlockMeta(
           title: 'Objectif retraite',
-          description:
-              'A quel age souhaites-tu arreter de travailler ? '
-              'Un objectif clair permet de calculer l\'effort d\'epargne '
-              'necessaire et les options (anticipation, retraite partielle).',
-          ctaLabel: 'Definir mon objectif',
+          description: 'À quel âge souhaites-tu arrêter de travailler ? '
+              "Un objectif clair permet de calculer l'effort d'épargne "
+              'nécessaire et les options (anticipation, retraite partielle).',
+          ctaLabel: 'Définir mon objectif',
         ),
       'compositionMenage' => const _BlockMeta(
-          title: 'Composition du menage',
+          title: 'Composition du ménage',
           description:
-              'En couple, les projections changent : AVS plafonnee pour '
-              'les maries (LAVS art. 35), rente de survivant (LPP art. 19), '
-              'optimisation fiscale a deux.',
-          ctaLabel: 'Completer le profil couple',
+              'En couple, les projections changent : AVS plafonnée pour '
+              'les mariés (LAVS art. 35), rente de survivant (LPP art. 19), '
+              'optimisation fiscale à deux.',
+          ctaLabel: 'Compléter le profil couple',
+        ),
+      'unknown' => const _BlockMeta(
+          title: 'Données',
+          description:
+              'Ce lien de données n’est plus à jour. Utilise la section '
+              'recommandée pour compléter ton profil.',
+          ctaLabel: 'Ouvrir le diagnostic',
         ),
       _ => const _BlockMeta(
-          title: 'Donnees',
-          description: 'Complete ce bloc pour ameliorer la precision de '
+          title: 'Données',
+          description: 'Complète ce bloc pour améliorer la précision de '
               'tes projections.',
-          ctaLabel: 'Completer',
+          ctaLabel: 'Compléter',
         ),
     };
   }

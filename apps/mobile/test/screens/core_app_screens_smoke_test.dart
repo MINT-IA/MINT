@@ -16,6 +16,7 @@ import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
+import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -137,7 +138,8 @@ void main() {
       expect(find.textContaining('Supprimer'), findsOneWidget);
     });
 
-    testWidgets('navigates to wizard from FactFind CTAs (no grey error screen)',
+    testWidgets(
+        'navigates to smart onboarding from FactFind CTAs (no grey error screen)',
         (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
@@ -156,6 +158,10 @@ void main() {
           GoRoute(
             path: '/advisor/wizard',
             builder: (context, state) => const AdvisorWizardScreenV2(),
+          ),
+          GoRoute(
+            path: '/onboarding/smart',
+            builder: (context, state) => const SmartOnboardingScreen(),
           ),
         ],
       );
@@ -216,7 +222,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(AdvisorWizardScreenV2), findsOneWidget);
+      expect(find.byType(SmartOnboardingScreen), findsOneWidget);
       expect(find.textContaining('Cette page n'), findsNothing);
     });
   });

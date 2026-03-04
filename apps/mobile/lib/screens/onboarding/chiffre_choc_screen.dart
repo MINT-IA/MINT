@@ -287,7 +287,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.tune_rounded,
                         size: 18,
                         color: MintColors.textMuted,
@@ -295,8 +295,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Estimation basee sur $infoCount informations. '
-                          'Plus tu precises, plus c\'est fiable.',
+                          'Estimation basée sur $infoCount informations. '
+                          'Plus tu précises, plus c\'est fiable.',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: MintColors.textMuted,
@@ -319,10 +319,9 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                     // Navigate to relevant simulation based on chiffre choc type
                     final route = switch (choc.type) {
                       ChiffreChocType.liquidityAlert => '/home',
-                      ChiffreChocType.retirementGap => '/retirement/projection',
+                      ChiffreChocType.retirementGap => '/coach/cockpit',
                       ChiffreChocType.taxSaving3a => '/simulator/3a',
-                      ChiffreChocType.retirementIncome =>
-                        '/retirement/projection',
+                      ChiffreChocType.retirementIncome => '/coach/cockpit',
                     };
                     AnalyticsService().trackCTAClick(
                       'chiffre_choc_action',
@@ -363,10 +362,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                       screenName: 'chiffre_choc',
                       data: {'choc_type': choc.type.name},
                     );
-                    context.push(
-                      '/onboarding/enrichment',
-                      extra: _buildEnrichmentExtra(),
-                    );
+                    context.push('/profile/bilan');
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: MintColors.textPrimary,
@@ -412,16 +408,5 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         ),
       ),
     );
-  }
-
-  Map<String, dynamic> _buildEnrichmentExtra() {
-    final extra =
-        GoRouterState.of(context).extra as Map<String, dynamic>? ?? {};
-    return {
-      ...extra,
-      'age': _profile!.age,
-      'grossSalary': _profile!.grossAnnualSalary,
-      'canton': _profile!.canton,
-    };
   }
 }
