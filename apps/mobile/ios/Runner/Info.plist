@@ -55,5 +55,7 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>MINT a besoin d'accéder à ta galerie pour importer des documents financiers.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>MINT a besoin d'accéder à ta caméra pour scanner tes documents financiers.</string>
 </dict>
 </plist>
