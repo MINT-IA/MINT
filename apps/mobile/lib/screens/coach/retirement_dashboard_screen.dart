@@ -385,6 +385,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final monthlyIncome = proj.base.revenuAnnuelRetraite / 12;
     final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
     final monthlyOptimiste = proj.optimiste.revenuAnnuelRetraite / 12;
+    final currentMonthlyIncome = (profile.salaireBrutMensuel +
+            (profile.conjoint?.salaireBrutMensuel ?? 0)) *
+        0.87;
 
     // Decomposition par pilier (scenario base)
     final decoBase = proj.base.decomposition;
@@ -468,7 +471,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   // ── P4: Toggle 3-Scenarios / Monte Carlo ──
                   MonteCarloToggleSection(
                     monteCarloResult: _monteCarloResult,
-                    currentMonthlyIncome: profile.salaireBrutMensuel * 0.87,
+                    currentMonthlyIncome: currentMonthlyIncome,
                     monteCarloAvailable: _monteCarloResult != null,
                     scenariosChild: TrajectoryCard(
                       profile: profile,
@@ -762,7 +765,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         IconButton(
           icon: const Icon(Icons.settings_outlined,
               color: MintColors.textSecondary),
-          onPressed: () => context.push('/onboarding/smart'),
+          onPressed: () => context.push('/profile'),
           tooltip: 'Modifier le profil',
         ),
         const SizedBox(width: 4),

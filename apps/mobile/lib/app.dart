@@ -127,6 +127,7 @@ import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart'
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
+import 'package:mint_mobile/screens/retirement_projection_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -182,6 +183,11 @@ final _router = GoRouter(
       path: '/coach/checkin',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoachCheckinScreen(),
+    ),
+    GoRoute(
+      path: '/coach/projection',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RetirementProjectionScreen(),
     ),
     GoRoute(
       path: '/coach/chat',
@@ -506,7 +512,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/retirement/projection',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/coach/dashboard',
+      redirect: (context, state) => '/coach/projection',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     // Famille & Concubinage (Sprint S22)

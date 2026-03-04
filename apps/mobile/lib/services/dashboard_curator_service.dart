@@ -117,7 +117,7 @@ class DashboardCuratorService {
         urgency: urgency,
         deadlineDays: deadlineDays,
         impactChf: tip.estimatedImpactChf,
-        deeplink: null,
+        deeplink: _deeplinkForTip(tip),
         source: tip,
       ));
     }
@@ -153,6 +153,44 @@ class DashboardCuratorService {
     });
 
     return cards.take(limit).toList();
+  }
+
+  /// Map known coaching tip IDs to actionable dashboard deeplinks.
+  ///
+  /// Keep this mapping deterministic and route only to active screens.
+  static String? _deeplinkForTip(CoachingTip tip) {
+    switch (tip.id) {
+      case 'deadline_3a':
+      case 'missing_3a':
+      case '3a_not_maxed':
+        return '/3a-deep/comparator';
+      case 'lpp_buyback':
+        return '/lpp-deep/rachat';
+      case 'tax_deadline':
+        return '/document-scan';
+      case 'retirement_countdown':
+      case 'age_milestone_25':
+      case 'age_milestone_35':
+      case 'age_milestone_45':
+      case 'age_milestone_50':
+      case 'age_milestone_58':
+      case 'age_milestone_60':
+      case 'age_milestone_63':
+      case 'age_milestone_64':
+      case 'age_milestone_65':
+        return '/coach/projection';
+      case 'emergency_fund':
+      case 'budget_missing':
+      case 'budget_drift':
+      case 'debt_ratio':
+        return '/budget';
+      case 'part_time_gap':
+        return '/onboarding/smart';
+      case 'independant_alert':
+        return '/segments/independant';
+      default:
+        return null;
+    }
   }
 }
 

@@ -55,7 +55,7 @@ class TrajectoryCard extends StatelessWidget {
             goalALabel: profile.goalA.label,
             goalAType: profile.goalA.type,
             initialDebt: profile.dettes.totalDettes,
-            onTap: () => context.push('/retirement/projection'),
+            onTap: () => context.push('/coach/projection'),
           ),
         ),
         const SizedBox(height: 8),

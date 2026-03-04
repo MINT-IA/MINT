@@ -113,7 +113,8 @@ void main() {
       final text = DashboardCuratorService.computeDeadlineText(tip);
       // Should be non-null since deadline_3a has a date
       expect(text, isNotNull);
-      expect(text, anyOf(startsWith('J-'), equals("Aujourd'hui"), equals('Demain')));
+      expect(text,
+          anyOf(startsWith('J-'), equals("Aujourd'hui"), equals('Demain')));
     });
   });
 
@@ -292,6 +293,32 @@ void main() {
       final result = DashboardCuratorService.curate(tips: [tip]);
       expect(result.single.message, 'Message for test');
     });
+
+    test('maps known coaching tip IDs to active deeplinks', () {
+      final result = DashboardCuratorService.curate(tips: [
+        _makeTip(id: 'missing_3a'),
+        _makeTip(id: 'lpp_buyback'),
+        _makeTip(id: 'retirement_countdown'),
+        _makeTip(id: 'debt_ratio'),
+      ], limit: 10);
+
+      final deeplinks = {
+        for (final c in result)
+          if (c.deeplink != null) c.title: c.deeplink!,
+      };
+
+      expect(deeplinks['Tip missing_3a'], '/3a-deep/comparator');
+      expect(deeplinks['Tip lpp_buyback'], '/lpp-deep/rachat');
+      expect(deeplinks['Tip retirement_countdown'], '/coach/projection');
+      expect(deeplinks['Tip debt_ratio'], '/budget');
+    });
+
+    test('unknown tip ID keeps null deeplink', () {
+      final result = DashboardCuratorService.curate(
+        tips: [_makeTip(id: 'unknown_tip')],
+      );
+      expect(result.single.deeplink, isNull);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -315,7 +342,8 @@ void main() {
           today: DateTime(2026, 6, 15),
         );
         expect(days, isNotNull, reason: '$id should have a deadline');
-        expect(days, greaterThanOrEqualTo(0), reason: '$id days should be >= 0');
+        expect(days, greaterThanOrEqualTo(0),
+            reason: '$id days should be >= 0');
       }
     });
 
