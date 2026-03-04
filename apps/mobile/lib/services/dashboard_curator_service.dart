@@ -117,7 +117,7 @@ class DashboardCuratorService {
         urgency: urgency,
         deadlineDays: deadlineDays,
         impactChf: tip.estimatedImpactChf,
-        deeplink: null,
+        deeplink: _deeplinkForTip(tip.id),
         source: tip,
       ));
     }
@@ -161,6 +161,28 @@ class DashboardCuratorService {
     });
 
     return cards.take(limit).toList();
+  }
+
+  /// Map coaching tip IDs to actionable deeplinks.
+  ///
+  /// Returns null if no natural navigation target exists for the tip.
+  static String? _deeplinkForTip(String tipId) {
+    switch (tipId) {
+      case 'deadline_3a':
+      case 'missing_3a':
+      case '3a_not_maxed':
+        return '/simulator/3a';
+      case 'lpp_buyback':
+        return '/arbitrage/rachat-vs-marche';
+      case 'tax_deadline':
+        return '/tools';
+      case 'retirement_countdown':
+        return '/coach/dashboard';
+      case 'emergency_fund':
+        return '/budget';
+      default:
+        return null;
+    }
   }
 }
 

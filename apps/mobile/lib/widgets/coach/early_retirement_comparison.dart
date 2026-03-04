@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
@@ -13,8 +12,15 @@ import 'package:mint_mobile/theme/colors.dart';
 /// Only displayed for users aged 45+.
 class EarlyRetirementComparison extends StatelessWidget {
   final CoachProfile profile;
+  final double baseThreeAMonthly;
+  final double baseLibreMonthly;
 
-  const EarlyRetirementComparison({super.key, required this.profile});
+  const EarlyRetirementComparison({
+    super.key,
+    required this.profile,
+    this.baseThreeAMonthly = 0,
+    this.baseLibreMonthly = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class EarlyRetirementComparison extends StatelessWidget {
       );
       final lppMonthly = lppRente / 12;
 
-      final totalMonthly = avsMonthly + lppMonthly;
+      final totalMonthly = avsMonthly + lppMonthly + baseThreeAMonthly + baseLibreMonthly;
       // Replacement rate on NET salary (via NetIncomeBreakdown)
       final netMonthlySalary = NetIncomeBreakdown.compute(
         grossSalary: grossMonthlySalary * 12,
@@ -130,7 +136,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           ...rows.map((r) => _buildRow(r)),
           const SizedBox(height: 10),
           InkWell(
-            onTap: () => context.push('/retirement/projection'),
+            onTap: null, // CTA disabled — cockpit detail screen coming in Pass 2
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

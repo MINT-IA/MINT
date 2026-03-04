@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// "Explorer" hub — navigation rows to tools and simulators.
@@ -43,14 +44,15 @@ class ExploreHub extends StatelessWidget {
             icon: Icons.person_outline,
             title: 'Mon profil',
             subtitle: 'Compl\u00e9ter ou ajuster mes donn\u00e9es',
-            route: '/onboarding/smart',
+            route: '/profile/bilan',
           ),
-          _ExploreRow(
-            icon: Icons.balance,
-            title: 'Rente vs capital',
-            subtitle: 'Comparer les options de retrait LPP',
-            route: '/arbitrage/rente-vs-capital',
-          ),
+          if (FeatureFlags.enableDecisionScaffold)
+            _ExploreRow(
+              icon: Icons.balance,
+              title: 'Rente vs capital',
+              subtitle: 'Comparer les options de retrait LPP',
+              route: '/arbitrage/rente-vs-capital',
+            ),
           _ExploreRow(
             icon: Icons.chat_outlined,
             title: 'Coach & check-in',

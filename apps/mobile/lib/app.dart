@@ -20,7 +20,6 @@ import 'package:mint_mobile/screens/consent_dashboard_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
-import 'package:mint_mobile/screens/_archive/advisor_onboarding_screen.dart';
 import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
@@ -107,6 +106,7 @@ import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
+import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -126,10 +126,17 @@ import 'package:mint_mobile/screens/arbitrage/rachat_vs_marche_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/calendrier_retraits_screen.dart';
 import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+String? _guardDecisionScaffold() {
+  if (FeatureFlags.enableDecisionScaffold) return null;
+  return '/tools';
+}
 
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -189,10 +196,16 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
+    GoRoute(
+      path: '/coach/cockpit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CockpitDetailScreen(),
+    ),
     // Feature Routes (Full Screen)
     GoRoute(
       path: '/advisor',
-      builder: (context, state) => const AdvisorOnboardingScreen(),
+      redirect: (context, state) => '/advisor/wizard',
+      builder: (context, state) => const SizedBox.shrink(),
       routes: [
         GoRoute(
           path: 'plan-30-days',
@@ -278,7 +291,11 @@ final _router = GoRouter(
     GoRoute(
       path: '/document-scan',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const DocumentScanScreen(),
+      builder: (context, state) {
+        final extra = state.extra;
+        final initialType = extra is DocumentType ? extra : null;
+        return DocumentScanScreen(initialType: initialType);
+      },
     ),
     GoRoute(
       path: '/document-scan/avs-guide',
@@ -504,7 +521,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/retirement/projection',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/coach/dashboard',
+      redirect: (context, state) => '/coach/cockpit',
       builder: (context, state) => const SizedBox.shrink(),
     ),
     // Famille & Concubinage (Sprint S22)
@@ -669,27 +686,32 @@ final _router = GoRouter(
     GoRoute(
       path: '/arbitrage/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
     GoRoute(
       path: '/arbitrage/allocation-annuelle',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const AllocationAnnuelleScreen(),
     ),
     // Arbitrage Phase 2 (Sprint S33)
     GoRoute(
       path: '/arbitrage/location-vs-propriete',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
     GoRoute(
       path: '/arbitrage/rachat-vs-marche',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const RachatVsMarcheScreen(),
     ),
     GoRoute(
       path: '/arbitrage/calendrier-retraits',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
       builder: (context, state) => const CalendrierRetraitsScreen(),
     ),
   ],

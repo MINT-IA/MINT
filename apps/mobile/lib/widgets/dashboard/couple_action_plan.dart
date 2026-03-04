@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -247,7 +248,7 @@ class CoupleActionPlan extends StatelessWidget {
     // ── 1. Staggered withdrawal coordination (household) ──
     final userRetYear = profile.birthYear + profile.effectiveRetirementAge;
     final conjRetYear = conj.birthYear! + conj.effectiveRetirementAge;
-    if (userRetYear != conjRetYear) {
+    if (userRetYear != conjRetYear && FeatureFlags.enableDecisionScaffold) {
       final firstRetires = userRetYear < conjRetYear ? userName : conjName;
       final gap = (userRetYear - conjRetYear).abs();
       actions.add(_CoupleAction(
@@ -353,7 +354,8 @@ class CoupleActionPlan extends StatelessWidget {
     }
 
     // ── 4. Rente vs Capital couple coordination ──
-    if (userYearsToRetirement <= 7 || conjYearsToRetirement <= 7) {
+    if ((userYearsToRetirement <= 7 || conjYearsToRetirement <= 7) &&
+        FeatureFlags.enableDecisionScaffold) {
       actions.add(_CoupleAction(
         owner: ActionOwner.household,
         ownerLabel: 'M\u00c9NAGE',

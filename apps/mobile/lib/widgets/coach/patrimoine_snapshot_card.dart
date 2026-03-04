@@ -19,6 +19,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PatrimoineSnapshotCard extends StatelessWidget {
   final double lppCapital;
+  final double lppCapitalConjoint; // conjoint LPP capital (couple support)
   final double threeACapital;
   final double epargne;
   final double immobilier;
@@ -26,12 +27,13 @@ class PatrimoineSnapshotCard extends StatelessWidget {
   const PatrimoineSnapshotCard({
     super.key,
     required this.lppCapital,
+    this.lppCapitalConjoint = 0,
     required this.threeACapital,
     required this.epargne,
     required this.immobilier,
   });
 
-  double get _total => lppCapital + threeACapital + epargne + immobilier;
+  double get _total => lppCapital + lppCapitalConjoint + threeACapital + epargne + immobilier;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,8 @@ class PatrimoineSnapshotCard extends StatelessWidget {
 
     final segments = [
       _Segment('LPP', lppCapital, MintColors.primary),
+      if (lppCapitalConjoint > 0)
+        _Segment('LPP conjoint·e', lppCapitalConjoint, const Color(0xFF5C6BC0)),
       _Segment('3a', threeACapital, const Color(0xFF4CAF50)),
       _Segment('Épargne', epargne, const Color(0xFFFFA726)),
       _Segment('Immobilier', immobilier, const Color(0xFF78909C)),

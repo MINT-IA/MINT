@@ -13,7 +13,7 @@ import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
 /// du CoachProfile, organisées par section.
 ///
 /// Accessible depuis /profile/bilan et depuis le ProfileScreen.
-/// Read-only V1 : pas d'édition inline.
+/// Each section has an edit icon navigating to the appropriate data-block route.
 class FinancialSummaryScreen extends StatelessWidget {
   const FinancialSummaryScreen({super.key});
 
@@ -86,13 +86,39 @@ class FinancialSummaryScreen extends StatelessWidget {
                     _buildSourceLegend(),
                     const SizedBox(height: 16),
                     if (profile.isCouple) _buildCoupleToggle(context, profile),
-                    _buildRevenusCard(profile),
+                    _buildRevenusCard(context, profile),
                     _buildPrevoyanceCard(context, profile),
-                    _buildPatrimoineCard(profile),
-                    _buildDepensesCard(profile),
-                    _buildDettesCard(profile),
+                    _buildPatrimoineCard(context, profile),
+                    _buildDepensesCard(context, profile),
+                    _buildDettesCard(context, profile),
+                    if (profile.isCouple)
+                      _buildCoupleCard(context, profile),
                     const SizedBox(height: 16),
                     _buildDisclaimer(),
+                    const SizedBox(height: 32),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          context.read<CoachProfileProvider>().clear();
+                          context.push('/onboarding/smart');
+                        },
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: Text(
+                          'Recommencer le diagnostic',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: MintColors.error,
+                          side: BorderSide(color: MintColors.error.withValues(alpha: 0.3)),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -221,7 +247,7 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  REVENUS
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildRevenusCard(CoachProfile p) {
+  FinancialSummaryCard _buildRevenusCard(BuildContext context, CoachProfile p) {
     final lines = <FinancialLine>[
       FinancialLine(
         label: 'Salaire brut mensuel',
@@ -253,6 +279,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         formattedValue: _formatChf(
             p.isCouple ? p.revenuBrutAnnuelCouple : p.revenuBrutAnnuel),
       ),
+      onEdit: () => context.push('/data-block/situation'),
     );
   }
 
@@ -406,6 +433,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines: lines,
       onScanCertificate: () => context.push('/document-scan'),
       scanLabel: 'Scanner certificat LPP / AVS',
+      onEdit: () => context.push('/data-block/lpp'),
     );
   }
 
@@ -413,7 +441,7 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  PATRIMOINE
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildPatrimoineCard(CoachProfile p) {
+  FinancialSummaryCard _buildPatrimoineCard(BuildContext context, CoachProfile p) {
     final pat = p.patrimoine;
     return FinancialSummaryCard(
       title: 'Patrimoine',
@@ -441,6 +469,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         label: 'Total patrimoine',
         formattedValue: _formatChf(pat.totalPatrimoine),
       ),
+      onEdit: () => context.push('/data-block/patrimoine'),
     );
   }
 
@@ -448,7 +477,7 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  DÉPENSES FIXES
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildDepensesCard(CoachProfile p) {
+  FinancialSummaryCard _buildDepensesCard(BuildContext context, CoachProfile p) {
     final dep = p.depenses;
     final lines = <FinancialLine>[];
 
@@ -503,6 +532,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               formattedValue: _formatChfMonth(dep.totalMensuel),
             )
           : null,
+      onEdit: () => context.push('/data-block/situation'),
     );
   }
 
@@ -510,7 +540,7 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  DETTES
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildDettesCard(CoachProfile p) {
+  FinancialSummaryCard _buildDettesCard(BuildContext context, CoachProfile p) {
     final det = p.dettes;
     if (!det.hasDette) {
       return FinancialSummaryCard(
@@ -523,6 +553,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             formattedValue: '\u2014',
           ),
         ],
+        onEdit: () => context.push('/data-block/situation'),
       );
     }
 
@@ -562,6 +593,42 @@ class FinancialSummaryScreen extends StatelessWidget {
         label: 'Total dettes',
         formattedValue: _formatChf(det.totalDettes),
       ),
+      onEdit: () => context.push('/data-block/situation'),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  COUPLE (edit shortcut)
+  // ══════════════════════════════════════════════════════════════
+
+  FinancialSummaryCard _buildCoupleCard(BuildContext context, CoachProfile p) {
+    final conjoint = p.conjoint;
+    final lines = <FinancialLine>[];
+    if (conjoint != null) {
+      lines.add(FinancialLine(
+        label: conjoint.firstName ?? 'Conjoint\u00b7e',
+        formattedValue: conjoint.age != null ? '${conjoint.age} ans' : '\u2014',
+      ));
+      if (conjoint.salaireBrutMensuel != null) {
+        lines.add(FinancialLine(
+          label: 'Salaire brut mensuel',
+          formattedValue: _formatChfMonth(conjoint.salaireBrutMensuel),
+          indent: true,
+        ));
+      }
+    }
+    if (lines.isEmpty) {
+      lines.add(const FinancialLine(
+        label: 'Aucune donnée conjoint\u00b7e',
+        formattedValue: '\u2014',
+      ));
+    }
+    return FinancialSummaryCard(
+      title: 'Couple',
+      icon: Icons.people_outline,
+      iconColor: MintColors.info,
+      lines: lines,
+      onEdit: () => context.push('/data-block/couple'),
     );
   }
 

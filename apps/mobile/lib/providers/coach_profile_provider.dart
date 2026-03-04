@@ -716,6 +716,40 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns a map of pre-filled values from the existing profile for
+  /// the Smart Onboarding flow. Keys match the onboarding field names.
+  ///
+  /// Returns an empty map if no profile exists. Only includes non-null
+  /// values so the caller can skip fields without data.
+  Map<String, dynamic> getSmartFlowDefaults() {
+    final p = _profile;
+    if (p == null) return const {};
+
+    final defaults = <String, dynamic>{};
+
+    defaults['age'] = p.age;
+    defaults['grossSalary'] = p.revenuBrutAnnuel;
+    defaults['canton'] = p.canton;
+    defaults['situationFamiliale'] = p.etatCivil.name;
+
+    final lppBalance = p.prevoyance.avoirLppTotal;
+    if (lppBalance != null && lppBalance > 0) {
+      defaults['lppBalance'] = lppBalance;
+    }
+
+    final epargne3a = p.prevoyance.totalEpargne3a;
+    if (epargne3a > 0) {
+      defaults['epargne3a'] = epargne3a;
+    }
+
+    final epargneLiquide = p.patrimoine.epargneLiquide;
+    if (epargneLiquide > 0) {
+      defaults['epargneLiquide'] = epargneLiquide;
+    }
+
+    return defaults;
+  }
+
   /// Reset le profil (logout / reset).
   void clear() {
     _profile = null;

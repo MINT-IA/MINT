@@ -57,10 +57,58 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   List<CoachingTip>? _cachedTips;
   int _lastTipsHash = 0;
 
+  /// Guard so profile pre-fill runs only once.
+  bool _didPrefillFromProfile = false;
+
   @override
   void initState() {
     super.initState();
     _loadDraft();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didPrefillFromProfile) {
+      _didPrefillFromProfile = true;
+      _prefillFromProfile();
+    }
+  }
+
+  /// Pre-fill ViewModel from existing CoachProfile data (one-time).
+  ///
+  /// Uses Provider.read (not watch) since this is initialization-only.
+  /// Draft data loaded in [_loadDraft] will override these defaults if present.
+  void _prefillFromProfile() {
+    final defaults =
+        context.read<CoachProfileProvider>().getSmartFlowDefaults();
+    if (defaults.isEmpty) return;
+
+    final age = defaults['age'];
+    if (age is int) _viewModel.setAge(age);
+
+    final grossSalary = defaults['grossSalary'];
+    if (grossSalary is num && grossSalary > 0) {
+      _viewModel.setGrossSalary(grossSalary.toDouble());
+    }
+
+    final canton = defaults['canton'];
+    if (canton is String && canton.isNotEmpty) _viewModel.setCanton(canton);
+
+    final lppBalance = defaults['lppBalance'];
+    if (lppBalance is num && lppBalance > 0) {
+      _viewModel.setExistingLpp(lppBalance.toDouble());
+    }
+
+    final epargne3a = defaults['epargne3a'];
+    if (epargne3a is num && epargne3a > 0) {
+      _viewModel.setExisting3a(epargne3a.toDouble());
+    }
+
+    final epargneLiquide = defaults['epargneLiquide'];
+    if (epargneLiquide is num && epargneLiquide > 0) {
+      _viewModel.setCurrentSavings(epargneLiquide.toDouble());
+    }
   }
 
   @override

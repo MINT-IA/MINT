@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -55,7 +54,7 @@ class TrajectoryCard extends StatelessWidget {
             goalALabel: profile.goalA.label,
             goalAType: profile.goalA.type,
             initialDebt: profile.dettes.totalDettes,
-            onTap: () => context.push('/retirement/projection'),
+            onTap: null, // CTA disabled — cockpit detail screen coming in Pass 2
           ),
         ),
         const SizedBox(height: 8),

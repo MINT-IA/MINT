@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -255,7 +256,8 @@ class RetirementChecklistCard extends StatelessWidget {
     }
 
     // 4. Rente vs Capital decision (5 years before retirement)
-    if (yearsToRetirement <= 5 && yearsToRetirement > 0) {
+    if (yearsToRetirement <= 5 && yearsToRetirement > 0 &&
+        FeatureFlags.enableDecisionScaffold) {
       items.add(_ChecklistItem(
         icon: Icons.compare_arrows_rounded,
         color: MintColors.purple,
@@ -270,7 +272,8 @@ class RetirementChecklistCard extends StatelessWidget {
     // 5. Couple coordination
     final hasConjoint =
         profile.isCouple && profile.conjoint?.birthYear != null;
-    if (hasConjoint && yearsToRetirement <= 10) {
+    if (hasConjoint && yearsToRetirement <= 10 &&
+        FeatureFlags.enableDecisionScaffold) {
       final conjName = profile.conjoint!.firstName ?? 'ton/ta partenaire';
       items.add(_ChecklistItem(
         icon: Icons.people_outline_rounded,

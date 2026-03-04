@@ -15,6 +15,7 @@ class FinancialSummaryCard extends StatelessWidget {
   final FinancialLine? totalLine;
   final VoidCallback? onScanCertificate;
   final String? scanLabel;
+  final VoidCallback? onEdit;
 
   const FinancialSummaryCard({
     super.key,
@@ -25,6 +26,7 @@ class FinancialSummaryCard extends StatelessWidget {
     this.totalLine,
     this.onScanCertificate,
     this.scanLabel,
+    this.onEdit,
   });
 
   @override
@@ -46,14 +48,25 @@ class FinancialSummaryCard extends StatelessWidget {
               children: [
                 Icon(icon, size: 18, color: iconColor),
                 const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.textPrimary,
+                    ),
                   ),
                 ),
+                if (onEdit != null)
+                  GestureDetector(
+                    onTap: onEdit,
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: MintColors.primary,
+                    ),
+                  ),
               ],
             ),
           ),
