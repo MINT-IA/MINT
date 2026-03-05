@@ -1,9 +1,9 @@
-# MINT Backend — Deploy to Railway by branch
+# MINT Backend — Deploy to Railway on PR merge
 #
 # Branch strategy:
-#   - push staging -> deploy Railway STAGING + smoke tests
-#   - push main    -> deploy Railway PROD
-#   - PR staging/main -> tests only
+#   - PR merged into staging -> deploy Railway STAGING + smoke tests
+#   - PR merged into main    -> deploy Railway PROD
+#   - PR opened/sync/reopen  -> pre-deploy tests only
 #
 # Required secrets:
 #   RAILWAY_TOKEN
@@ -19,14 +19,13 @@
 name: Deploy Backend
 
 on:
-  push:
-    branches: [staging, main]
-    paths:
-      - "services/backend/**"
   pull_request:
     branches: [staging, main]
+    types: [opened, synchronize, reopened, ready_for_review, closed]
     paths:
       - "services/backend/**"
+      - ".github/workflows/deploy-backend.yml"
+      - "scripts/smoke_staging_api.sh"
   workflow_dispatch:
 
 concurrency:
@@ -37,12 +36,25 @@ jobs:
   # ─── Tests must pass first ──────────────────────────────────
   test:
     name: Pre-deploy tests
+    if: github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: services/backend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR branch
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        uses: actions/checkout@v4
+
+      - name: Checkout merged base branch
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Checkout branch (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -59,11 +71,16 @@ jobs:
           DATABASE_URL: "sqlite:///./test.db"
         run: python -m pytest tests/ -q --tb=short -x
 
-  # ─── Deploy STAGING (push staging only) ─────────────────────
+  # ─── Deploy STAGING (PR merged to staging only) ─────────────
   deploy-staging:
     name: Deploy to Staging
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'staging') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging')
     runs-on: ubuntu-latest
     environment:
       name: staging
@@ -80,6 +97,8 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref_name }}
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
@@ -106,7 +125,12 @@ jobs:
   smoke-staging:
     name: Smoke Staging
     needs: deploy-staging
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'staging') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -126,12 +150,15 @@ jobs:
           chmod +x scripts/smoke_staging_api.sh
           scripts/smoke_staging_api.sh "$URL"
 
-  # ─── Deploy PROD (push main only) ───────────────────────────
+  # ─── Deploy PROD (PR merged to main only) ───────────────────
   deploy-production:
     name: Deploy to Production
     needs: test
     if: >-
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'main') ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     environment:
@@ -149,6 +176,8 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref_name }}
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
