@@ -12,3 +12,4 @@ Règle: si un écart se répète, on modifie un .md (vision / règle / contrat),
 ## Démarrage dev
 Voir `AGENTS.md` pour le workflow.
 **Important** : Configurez votre IA avec le system prompt standard : `AGENT_SYSTEM_PROMPT.md`.
+
