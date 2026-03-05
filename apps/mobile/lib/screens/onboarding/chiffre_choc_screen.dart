@@ -318,7 +318,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                   onPressed: () {
                     // Navigate to relevant simulation based on chiffre choc type
                     final route = switch (choc.type) {
-                      ChiffreChocType.liquidityAlert => '/home',
+                      ChiffreChocType.liquidityAlert => '/budget',
                       ChiffreChocType.retirementGap => '/coach/cockpit',
                       ChiffreChocType.taxSaving3a => '/simulator/3a',
                       ChiffreChocType.retirementIncome => '/coach/cockpit',
@@ -383,8 +383,6 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 20),
                     ],
                   ),
                 ),

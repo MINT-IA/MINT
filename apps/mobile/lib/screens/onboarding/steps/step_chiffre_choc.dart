@@ -371,8 +371,6 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 20),
                     ],
                   ),
                 ),
@@ -445,7 +443,6 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
     return 'CHF\u00A0${formatChf(animValue)}$suffix';
   }
-
 }
 
 // ════════════════════════════════════════════════════════════════════════════

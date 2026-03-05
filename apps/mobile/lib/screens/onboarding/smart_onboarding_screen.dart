@@ -208,6 +208,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   }
 
   void _goToPage(int page) {
+    FocusManager.instance.primaryFocus?.unfocus();
     _pageController.animateToPage(
       page,
       duration: const Duration(milliseconds: 400),

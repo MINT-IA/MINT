@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/services/document_service.dart';
@@ -413,12 +414,21 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onGalleryPressed() async {
     try {
+      final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+      final allowedExtensions = <String>[
+        'jpg',
+        'jpeg',
+        'png',
+        'heic',
+        'txt',
+        if (isLoggedIn) 'pdf',
+      ];
       final picked = await FilePicker.platform.pickFiles(
         allowMultiple: false,
         type: FileType.custom,
         // On iOS Files provider can return bytes-only entries.
         withData: true,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'heic', 'pdf', 'txt'],
+        allowedExtensions: allowedExtensions,
       );
 
       if (picked == null || picked.files.isEmpty) return;
@@ -624,6 +634,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     PlatformFile file, {
     required String ext,
   }) async {
+    final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+    if (!isLoggedIn) {
+      await _showPdfAuthRequiredSheet();
+      return;
+    }
+
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
       await _showPdfImportFallback(
@@ -637,6 +653,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (!kIsWeb && _selectedType == DocumentType.lppCertificate) {
       final parse = await _processPdfViaBackend(localPath);
       if (parse.success) return;
+      if (parse.requiresAuthentication) {
+        await _showPdfAuthRequiredSheet();
+        return;
+      }
       await _showPdfImportFallback(
         title: 'Analyse PDF indisponible',
         message: parse.errorMessage ??
@@ -718,6 +738,71 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   },
                   icon: const Icon(Icons.text_snippet_outlined),
                   label: const Text('Coller un texte OCR'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showPdfAuthRequiredSheet() async {
+    if (!mounted) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Connexion requise pour le PDF',
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'L’analyse PDF automatique passe par le backend et nécessite '
+                'un compte connecté. Sans compte, tu peux scanner une photo.',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.go('/auth/register');
+                  },
+                  icon: const Icon(Icons.person_add_alt_1_outlined),
+                  label: const Text('Créer un compte'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _onCameraPressed();
+                  },
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Prendre une photo'),
                 ),
               ),
             ],
@@ -908,6 +993,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         ),
       );
       return const _PdfParseResult(success: true);
+    } on DocumentServiceException catch (e) {
+      final lower = e.message.toLowerCase();
+      final requiresAuthentication = lower.contains('authentication requise') ||
+          lower.contains('unauthorized') ||
+          lower.contains('forbidden');
+      debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
+      return _PdfParseResult(
+        success: false,
+        requiresAuthentication: requiresAuthentication,
+        errorMessage: 'Erreur backend pendant le parsing PDF: $e',
+      );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
@@ -1024,10 +1120,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
 class _PdfParseResult {
   final bool success;
+  final bool requiresAuthentication;
   final String? errorMessage;
 
   const _PdfParseResult({
     required this.success,
+    this.requiresAuthentication = false,
     this.errorMessage,
   });
 }

@@ -62,7 +62,8 @@ class AuthProvider extends ChangeNotifier {
         displayName: displayName,
       );
 
-      final requiresVerification = response['requires_email_verification'] == true;
+      final requiresVerification =
+          response['requires_email_verification'] == true;
       final token = response['access_token'] as String?;
       final userId = response['user_id']?.toString() ?? '';
       final userEmail = response['email']?.toString() ?? email;
@@ -266,6 +267,18 @@ class AuthProvider extends ChangeNotifier {
 
     if (lower.contains('incorrect')) {
       return 'E-mail ou mot de passe incorrect.';
+    }
+
+    if (lower.contains('registration failed') ||
+        lower.contains('inscription impossible') ||
+        lower.contains('service indisponible')) {
+      return 'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.';
+    }
+
+    if (lower.contains('authentication requise') ||
+        lower.contains('unauthorized') ||
+        lower.contains('forbidden')) {
+      return 'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.';
     }
 
     if (lower.contains('invalid') || lower.contains('invalide')) {
