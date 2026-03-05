@@ -181,11 +181,23 @@ def register_user(
     verification_token: Optional[str] = None
     verification_email_sent = False
     if verification_required:
-        verification_token = issue_email_verification_token(db, new_user.id)
-        verification_email_sent = send_email_verification_email(
-            to_email=new_user.email,
-            token=verification_token,
-        )
+        try:
+            verification_token = issue_email_verification_token(db, new_user.id)
+            verification_email_sent = send_email_verification_email(
+                to_email=new_user.email,
+                token=verification_token,
+            )
+        except Exception as exc:
+            # Degrade gracefully: never block registration on email-verification
+            # infrastructure issues (missing table/migration, SMTP, etc.).
+            logger.warning(
+                "Email verification bootstrap failed during register; "
+                "continuing without mandatory verification: %s",
+                exc,
+            )
+            verification_required = False
+            verification_token = None
+            verification_email_sent = False
     log_audit_event(
         db,
         event_type="auth.register",

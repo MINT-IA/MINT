@@ -594,6 +594,37 @@ def test_register_survives_audit_logging_failure(
     assert response.json().get("access_token")
 
 
+def test_register_falls_back_when_verification_infra_fails(
+    auth_client: TestClient, monkeypatch
+):
+    """Even with verification flag ON, infra failure must not return 500."""
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    previous = os.environ.get("AUTH_REQUIRE_EMAIL_VERIFICATION")
+    os.environ["AUTH_REQUIRE_EMAIL_VERIFICATION"] = "1"
+    monkeypatch.setattr(
+        auth_endpoint,
+        "issue_email_verification_token",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("verification table missing")
+        ),
+    )
+    try:
+        response = auth_client.post(
+            "/api/v1/auth/register",
+            json={"email": "verify-fallback@example.com", "password": "pass12345"},
+        )
+        assert response.status_code == 201
+        # Fallback path should issue regular tokens instead of hard-failing.
+        assert response.json().get("requires_email_verification") is False
+        assert response.json().get("access_token")
+    finally:
+        if previous is None:
+            os.environ.pop("AUTH_REQUIRE_EMAIL_VERIFICATION", None)
+        else:
+            os.environ["AUTH_REQUIRE_EMAIL_VERIFICATION"] = previous
+
+
 def test_admin_observability_requires_admin_role(auth_client: TestClient):
     """Admin observability endpoint should be restricted to explicit admin role."""
     user_register = auth_client.post(
