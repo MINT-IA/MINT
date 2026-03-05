@@ -60,6 +60,21 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
   Future<void> _startDownload() async {
     if (_isProcessing) return;
+    if (!_downloadService.canAttemptDownload) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      messenger?.showSnackBar(
+        SnackBar(
+          content: Text(
+            _downloadService.prerequisiteWarning ??
+                'Ce build ne permet pas le telechargement du modele.',
+            style: GoogleFonts.inter(),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 6),
+        ),
+      );
+      return;
+    }
 
     // Warn user about large download size before starting.
     final confirm = await showDialog<bool>(
@@ -113,6 +128,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     if (!success && _downloadService.state == DownloadState.failed) {
       final reason = _downloadService.lastError ??
           'Verifie ta connexion WiFi et l\'espace disponible.';
+      final canRetry = _downloadService.canAttemptDownload;
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
         SnackBar(
@@ -122,11 +138,13 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
           ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 6),
-          action: SnackBarAction(
-            label: 'Reessayer',
-            textColor: Colors.white,
-            onPressed: _startDownload,
-          ),
+          action: canRetry
+              ? SnackBarAction(
+                  label: 'Reessayer',
+                  textColor: Colors.white,
+                  onPressed: _startDownload,
+                )
+              : null,
         ),
       );
     }
@@ -271,6 +289,8 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     final downloadState = _downloadService.state;
     final isDownloading = downloadState == DownloadState.downloading;
     final isFailed = downloadState == DownloadState.failed;
+    final canAttemptDownload = _downloadService.canAttemptDownload;
+    final prerequisiteWarning = _downloadService.prerequisiteWarning;
 
     return Card(
       elevation: 2,
@@ -318,6 +338,34 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
+
+            if (!info.isReady && !canAttemptDownload && prerequisiteWarning != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.lock_outline,
+                        color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        prerequisiteWarning,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.orange[900],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
             // ── State: Starting download (processing, not yet downloading) ──
             if (_isProcessing && !isDownloading && !info.isReady) ...[
@@ -422,9 +470,13 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _startDownload,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Reessayer le telechargement'),
+                  onPressed: canAttemptDownload ? _startDownload : null,
+                  icon: Icon(canAttemptDownload ? Icons.refresh : Icons.lock),
+                  label: Text(
+                    canAttemptDownload
+                        ? 'Reessayer le telechargement'
+                        : 'Telechargement indisponible sur ce build',
+                  ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -438,10 +490,12 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _startDownload,
-                  icon: const Icon(Icons.download),
+                  onPressed: canAttemptDownload ? _startDownload : null,
+                  icon: Icon(canAttemptDownload ? Icons.download : Icons.lock),
                   label: Text(
-                    'Telecharger (${SlmDownloadService.modelSizeFormatted})',
+                    canAttemptDownload
+                        ? 'Telecharger (${SlmDownloadService.modelSizeFormatted})'
+                        : 'Telechargement indisponible sur ce build',
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -632,7 +686,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               _downloadService.hasAuthToken ? Icons.key : Icons.key_off,
               _downloadService.hasAuthToken
                   ? 'Authentification HuggingFace : configuree'
-                  : 'Authentification HuggingFace : non configuree (modele Gemma 3n peut echouer)',
+                  : 'Authentification HuggingFace : non configuree (download impossible si URL Gemma gated)',
             ),
             Text(
               'Compatibilite : iPhone 13+ / Pixel 7+ / equivalent recent.\n'

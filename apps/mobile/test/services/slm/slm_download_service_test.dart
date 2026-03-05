@@ -95,7 +95,7 @@ void main() {
 
     test('10. DownloadProgressCallback signature', () {
       // Verify the typedef accepts correct signature.
-      DownloadProgressCallback callback = (progress, downloaded, total) {};
+      void callback(double progress, int downloaded, int total) {}
       callback(0.5, 1200000000, 2400000000);
       // No assertion needed — if it compiles and runs, the typedef is correct.
       expect(callback, isNotNull);
@@ -131,6 +131,26 @@ void main() {
     test('14. lastError is null initially', () {
       final service = SlmDownloadService.instance;
       expect(service.lastError, isNull);
+    });
+
+    test('15. canAttemptDownload honors gated URL auth requirement', () {
+      final service = SlmDownloadService.instance;
+      if (service.requiresAuthForCurrentUrl) {
+        expect(service.canAttemptDownload, equals(service.hasAuthToken));
+      } else {
+        expect(service.canAttemptDownload, isTrue);
+      }
+    });
+
+    test('16. prerequisiteWarning is present only when download is blocked', () {
+      final service = SlmDownloadService.instance;
+      if (service.canAttemptDownload) {
+        expect(service.prerequisiteWarning, isNull);
+      } else {
+        final warning = service.prerequisiteWarning;
+        expect(warning, isNotNull);
+        expect(warning, contains('HUGGINGFACE_TOKEN'));
+      }
     });
   });
 }
