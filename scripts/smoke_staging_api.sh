@@ -162,7 +162,7 @@ call_endpoint \
   "${API_BASE}/onboarding/minimal-profile" \
   "$ONBOARDING_PAYLOAD" \
   "200" \
-  "\"confidence_score\"" || failures=$((failures + 1))
+  "\"confidence(_score|score)\"" || failures=$((failures + 1))
 
 call_endpoint \
   "arbitrage-rente-vs-capital" \

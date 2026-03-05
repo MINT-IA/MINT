@@ -3,7 +3,7 @@
 # Branch strategy:
 #   - PR merged into staging -> deploy Railway STAGING + smoke tests
 #   - PR merged into main    -> deploy Railway PROD
-#   - PR opened/sync/reopen  -> pre-deploy tests only
+#   - PR opened/sync/reopen  -> handled by CI workflow only
 #
 # Required secrets:
 #   RAILWAY_TOKEN
@@ -21,7 +21,7 @@ name: Deploy Backend
 on:
   pull_request:
     branches: [staging, main]
-    types: [opened, synchronize, reopened, ready_for_review, closed]
+    types: [closed]
     paths:
       - "services/backend/**"
       - ".github/workflows/deploy-backend.yml"
@@ -36,18 +36,16 @@ jobs:
   # ─── Tests must pass first ──────────────────────────────────
   test:
     name: Pre-deploy tests
-    if: github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: services/backend
     steps:
-      - name: Checkout PR branch
-        if: github.event_name == 'pull_request' && github.event.action != 'closed'
-        uses: actions/checkout@v4
-
       - name: Checkout merged base branch
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.ref }}
