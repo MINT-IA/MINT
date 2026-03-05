@@ -41,7 +41,7 @@ class MentorModal extends StatelessWidget {
       title: 'Lancer une session complète',
       subtitle: 'Diagnostic personnalisé en 5 min',
       color: MintColors.primary,
-      route: '/advisor',
+      route: '/onboarding/smart',
     );
     const rapport = _MentorAction(
       icon: Icons.assessment_outlined,
@@ -76,7 +76,7 @@ class MentorModal extends StatelessWidget {
       title: 'Enrichir mon profil',
       subtitle: 'Plus de precision = projections plus fiables',
       color: MintColors.primary,
-      route: '/advisor/wizard',
+      route: '/profile/bilan',
     );
     const documents = _MentorAction(
       icon: Icons.folder_outlined,

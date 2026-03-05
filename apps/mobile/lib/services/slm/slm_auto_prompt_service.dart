@@ -56,6 +56,13 @@ class SlmAutoPromptService {
       return;
     }
 
+    // Build not configured for model download (gated repo without token).
+    // Do NOT mark as prompted so a future properly configured build
+    // can still present the one-time auto-prompt.
+    if (!SlmDownloadService.instance.canAttemptDownload) {
+      return;
+    }
+
     // Small delay to let the dashboard fully render first.
     await Future<void>.delayed(const Duration(milliseconds: 800));
 
@@ -119,7 +126,7 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
         SlmEngine.instance.initialize();
       } else if (state == DownloadState.failed) {
         setState(() {
-          _error = 'Le telechargement a echoue. Reessaie depuis les reglages.';
+          _error = 'Le téléchargement a échoué. Réessaie depuis les réglages.';
           _downloading = false;
         });
       }
@@ -137,7 +144,7 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
       setState(() {
         _downloading = false;
         _error ??=
-            'Le telechargement a echoue. Tu peux reessayer depuis les reglages.';
+            'Le téléchargement a échoué. Tu peux réessayer depuis les réglages.';
       });
     }
   }

@@ -76,7 +76,8 @@ class TimelineItem {
       label: json['label'],
       description: json['description'],
       actionUrl: json['actionUrl'],
-      priority: ReminderPriority.values.firstWhere((e) => e.name == json['priority']),
+      priority:
+          ReminderPriority.values.firstWhere((e) => e.name == json['priority']),
       completed: json['completed'] ?? false,
       sourceSessionId: json['sourceSessionId'],
     );
@@ -96,13 +97,14 @@ class TimelineService {
     if (answers['q_mortgage_fixed_end_date'] != null) {
       final endDate = DateTime.parse(answers['q_mortgage_fixed_end_date']);
       final reminderDate = endDate.subtract(const Duration(days: 120));
-      
+
       items.add(TimelineItem(
         id: 'mortgage_renewal_$sessionId',
         date: reminderDate,
         category: 'housing',
         label: 'Renégociation hypothèque',
-        description: 'Comparer les offres du marché 90-180 jours avant échéance',
+        description:
+            'Comparer les offres du marché 90-180 jours avant échéance',
         actionUrl: '/mortgage/affordability',
         priority: ReminderPriority.high,
         sourceSessionId: sessionId,
@@ -113,13 +115,14 @@ class TimelineService {
     if (answers['q_leasing_end_date'] != null) {
       final endDate = DateTime.parse(answers['q_leasing_end_date']);
       final reminderDate = endDate.subtract(const Duration(days: 60));
-      
+
       items.add(TimelineItem(
         id: 'leasing_end_$sessionId',
         date: reminderDate,
         category: 'debt',
         label: 'Fin de leasing',
-        description: 'Planifier la suite : renouvellement, achat, ou autre véhicule',
+        description:
+            'Planifier la suite : renouvellement, achat, ou autre véhicule',
         actionUrl: '/check/debt',
         priority: ReminderPriority.medium,
         sourceSessionId: sessionId,
@@ -130,13 +133,14 @@ class TimelineService {
     if (answers['q_consumer_credit_end_date'] != null) {
       final endDate = DateTime.parse(answers['q_consumer_credit_end_date']);
       final reminderDate = endDate.subtract(const Duration(days: 30));
-      
+
       items.add(TimelineItem(
         id: 'credit_end_$sessionId',
         date: reminderDate,
         category: 'debt',
         label: 'Fin de crédit',
-        description: 'Libération de CHF ${answers['q_consumer_credit_monthly']}/mois dans ton budget',
+        description:
+            'Libération de CHF ${answers['q_consumer_credit_monthly']}/mois dans ton budget',
         actionUrl: '/check/debt',
         priority: ReminderPriority.medium,
         sourceSessionId: sessionId,
@@ -147,13 +151,14 @@ class TimelineService {
     if (answers['q_mid_housing_purchase_date'] != null) {
       final targetDate = DateTime.parse(answers['q_mid_housing_purchase_date']);
       final reminderDate = targetDate.subtract(const Duration(days: 365));
-      
+
       items.add(TimelineItem(
         id: 'housing_purchase_$sessionId',
         date: reminderDate,
         category: 'housing',
         label: 'Planifier apport logement',
-        description: 'Vérifier fonds disponibles (3a, épargne, apport familial)',
+        description:
+            'Vérifier fonds disponibles (3a, épargne, apport familial)',
         actionUrl: '/mortgage/affordability',
         priority: ReminderPriority.high,
         sourceSessionId: sessionId,
@@ -167,15 +172,16 @@ class TimelineService {
       final retirementYear = birthYear + targetAge;
       final reminderYear = retirementYear - 10;
       final reminderDate = DateTime(reminderYear, 1, 1);
-      
+
       if (reminderDate.isAfter(now)) {
         items.add(TimelineItem(
           id: 'retirement_plan_$sessionId',
           date: reminderDate,
           category: 'pension',
           label: 'Plan retraite complet',
-          description: 'Simuler scénarios retraite (60/62/65 ans, rente/capital)',
-          actionUrl: '/retirement/projection',
+          description:
+              'Simuler scénarios retraite (60/62/65 ans, rente/capital)',
+          actionUrl: '/coach/cockpit',
           priority: ReminderPriority.high,
           sourceSessionId: sessionId,
         ));
@@ -185,8 +191,9 @@ class TimelineService {
     // 6. Versement 3a : rappel annuel (décembre)
     if (answers['q_has_3a'] == true) {
       final december = DateTime(now.year, 12, 1);
-      final reminderDate = december.isAfter(now) ? december : DateTime(now.year + 1, 12, 1);
-      
+      final reminderDate =
+          december.isAfter(now) ? december : DateTime(now.year + 1, 12, 1);
+
       items.add(TimelineItem(
         id: '3a_annual_${sessionId}_${now.year}',
         date: reminderDate,
@@ -205,14 +212,14 @@ class TimelineService {
       final age = DateTime.now().year - birthYear;
       if (age >= 50) {
         final january = DateTime(now.year + 1, 1, 1);
-        
+
         items.add(TimelineItem(
           id: 'beneficiaries_${sessionId}_${now.year}',
           date: january,
           category: 'pension',
           label: 'Vérifier bénéficiaires',
           description: 'Mettre à jour bénéficiaires LPP/3a/assurances',
-          actionUrl: '/advisor/wizard',
+          actionUrl: '/onboarding/smart',
           priority: ReminderPriority.medium,
           sourceSessionId: sessionId,
         ));
@@ -226,7 +233,7 @@ class TimelineService {
   static List<TimelineItem> getUpcomingReminders(List<TimelineItem> timeline) {
     final now = DateTime.now();
     final in90Days = now.add(const Duration(days: 90));
-    
+
     return timeline
         .where((item) => !item.completed)
         .where((item) => item.date.isAfter(now) && item.date.isBefore(in90Days))
@@ -237,7 +244,7 @@ class TimelineService {
   /// Retourne les rappels en retard
   static List<TimelineItem> getOverdueReminders(List<TimelineItem> timeline) {
     final now = DateTime.now();
-    
+
     return timeline
         .where((item) => !item.completed)
         .where((item) => item.date.isBefore(now))
@@ -259,7 +266,7 @@ class TimelineService {
   ) {
     final items = <TimelineItem>[];
     final now = DateTime.now();
-    
+
     switch (event) {
       case LifeEventType.newJob:
         items.add(TimelineItem(
@@ -273,7 +280,7 @@ class TimelineService {
           sourceSessionId: sessionId,
         ));
         break;
-        
+
       case LifeEventType.birth:
         items.add(TimelineItem(
           id: 'birth_insurance_review_$sessionId',
@@ -286,11 +293,11 @@ class TimelineService {
           sourceSessionId: sessionId,
         ));
         break;
-        
+
       default:
         break;
     }
-    
+
     return items;
   }
 }

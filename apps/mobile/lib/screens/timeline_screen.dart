@@ -241,7 +241,7 @@ const _quickActions = <_QuickAction>[
     title: 'Check-up financier',
     subtitle: 'Lancer le diagnostic complet',
     icon: Icons.shield_outlined,
-    route: '/advisor',
+    route: '/onboarding/smart',
     color: MintColors.primary,
   ),
   _QuickAction(
@@ -514,8 +514,7 @@ class TimelineScreen extends StatelessWidget {
                   color: event.accentColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child:
-                    Icon(event.icon, color: event.accentColor, size: 18),
+                child: Icon(event.icon, color: event.accentColor, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -173,6 +173,20 @@ class SlmDownloadService {
       (_runtimeHfToken != null && _runtimeHfToken!.trim().isNotEmpty) ||
       _buildHfToken.trim().isNotEmpty;
 
+  /// True if current model URL is likely gated and requires auth token.
+  bool get requiresAuthForCurrentUrl => _isLikelyGatedGemmaUrl(modelUrl);
+
+  /// True if download can be attempted with current build configuration.
+  bool get canAttemptDownload => !requiresAuthForCurrentUrl || hasAuthToken;
+
+  /// User-facing prerequisite warning when download cannot start.
+  String? get prerequisiteWarning {
+    if (canAttemptDownload) return null;
+    return 'Ce build TestFlight ne contient pas l’authentification '
+        'requise pour télécharger Gemma 3n. '
+        'Demande un build avec HUGGINGFACE_TOKEN ou une URL CDN publique.';
+  }
+
   /// Expected model size in bytes (for UI display).
   static int get expectedSizeBytes => _expectedSizeBytes;
 
@@ -288,12 +302,9 @@ class SlmDownloadService {
           : SlmDownloadService.modelUrl;
       final token = _resolveToken(hfToken);
 
-      // Gemma 3n repos on HuggingFace are typically gated.
-      // Fail fast with an actionable message instead of a generic network error.
       if (_isLikelyGatedGemmaUrl(url) && (token == null || token.isEmpty)) {
         _lastErrorRaw = 'Missing HuggingFace token for gated Gemma 3n URL';
-        _lastError = 'Authentification HuggingFace manquante pour Gemma 3n. '
-            'Ajoute HUGGINGFACE_TOKEN dans le build CI/CD.';
+        _lastError = prerequisiteWarning;
         _state = DownloadState.failed;
         _emitState();
         return false;
@@ -426,19 +437,25 @@ class SlmDownloadService {
     if (lower.contains('http 401') ||
         lower.contains('authentication required') ||
         lower.contains('unauthorized')) {
-      return 'Acces refuse au modele (HuggingFace). '
-          'Le build doit inclure un token valide et l\'acces au repo Gemma 3n.';
+      return 'Accès refusé au modèle (HuggingFace). '
+          "Le build doit inclure un token valide et l'accès au repo Gemma 3n.";
     }
     if (lower.contains('http 403') || lower.contains('forbidden')) {
       return 'Token HuggingFace invalide ou sans acces au repo Gemma 3n.';
     }
     if (lower.contains('http 404') || lower.contains('not found')) {
-      return 'Fichier modele introuvable. Verifie l\'URL SLM_MODEL_URL.';
+      return 'Fichier modèle introuvable. Vérifie l\'URL SLM_MODEL_URL.';
+    }
+    if (lower.contains('missing huggingface token')) {
+      return 'Téléchargement impossible sur ce build : token HuggingFace manquant.';
+    }
+    if (lower.contains('timeout')) {
+      return 'Le téléchargement a expiré. Réessaie avec un réseau stable.';
     }
     if (lower.contains('network') || lower.contains('socket')) {
-      return 'Erreur reseau pendant le telechargement. Verifie WiFi et stabilite reseau.';
+      return 'Erreur réseau pendant le téléchargement. Vérifie le Wi-Fi et la stabilité réseau.';
     }
-    return 'Le telechargement du modele a echoue. Reessaye dans quelques minutes.';
+    return 'Le téléchargement du modèle a échoué. Vérifie la configuration de ce build et réessaie.';
   }
 
   bool _isLikelyGatedGemmaUrl(String url) {
