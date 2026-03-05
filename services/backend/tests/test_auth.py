@@ -543,6 +543,57 @@ def test_login_blocked_when_email_unverified_if_flag_enabled(auth_client: TestCl
             os.environ["AUTH_REQUIRE_EMAIL_VERIFICATION"] = previous
 
 
+def test_register_does_not_issue_verification_token_when_flag_disabled(
+    auth_client: TestClient, monkeypatch
+):
+    """Regression: register must not depend on verification token infra when flag is off."""
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    previous = os.environ.get("AUTH_REQUIRE_EMAIL_VERIFICATION")
+    os.environ["AUTH_REQUIRE_EMAIL_VERIFICATION"] = "0"
+    monkeypatch.setattr(
+        auth_endpoint,
+        "issue_email_verification_token",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("verification token infra unavailable")
+        ),
+    )
+    try:
+        register = auth_client.post(
+            "/api/v1/auth/register",
+            json={"email": "no-verify-token@example.com", "password": "pass12345"},
+        )
+        assert register.status_code == 201
+        assert register.json().get("access_token")
+        assert register.json().get("requires_email_verification") is False
+    finally:
+        if previous is None:
+            os.environ.pop("AUTH_REQUIRE_EMAIL_VERIFICATION", None)
+        else:
+            os.environ["AUTH_REQUIRE_EMAIL_VERIFICATION"] = previous
+
+
+def test_register_survives_audit_logging_failure(
+    auth_client: TestClient, monkeypatch
+):
+    """Audit persistence failure must not break user registration."""
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    monkeypatch.setattr(
+        auth_endpoint,
+        "_raw_log_audit_event",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("audit table unavailable")
+        ),
+    )
+    response = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "audit-failure-safe@example.com", "password": "pass12345"},
+    )
+    assert response.status_code == 201
+    assert response.json().get("access_token")
+
+
 def test_admin_observability_requires_admin_role(auth_client: TestClient):
     """Admin observability endpoint should be restricted to explicit admin role."""
     user_register = auth_client.post(

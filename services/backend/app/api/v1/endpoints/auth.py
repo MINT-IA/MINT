@@ -6,6 +6,7 @@ from uuid import uuid4
 from datetime import datetime, timezone, date, timedelta
 from typing import Optional
 import os
+import logging
 import csv
 import io
 from fastapi import APIRouter, HTTPException, Depends, Request, status
@@ -59,7 +60,7 @@ from app.services.auth_service import (
     create_refresh_token,
     decode_refresh_token,
 )
-from app.services.audit_service import log_audit_event
+from app.services.audit_service import log_audit_event as _raw_log_audit_event
 from app.services.auth_security_service import (
     get_login_block_seconds,
     record_failed_login,
@@ -82,6 +83,20 @@ from app.services.auth_admin_service import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+def log_audit_event(*args, **kwargs) -> None:
+    """
+    Best-effort audit logging.
+
+    Auth endpoints must not fail hard if the audit table or migration is not
+    available in a given environment.
+    """
+    try:
+        _raw_log_audit_event(*args, **kwargs)
+    except Exception as exc:  # pragma: no cover - defensive runtime guard
+        logger.warning("Audit logging skipped due to runtime error: %s", exc)
 
 
 def _request_ip(request: Request) -> Optional[str]:
@@ -162,11 +177,15 @@ def register_user(
     )
 
     db.add(new_user)
-    verification_token = issue_email_verification_token(db, new_user.id)
-    verification_email_sent = send_email_verification_email(
-        to_email=new_user.email,
-        token=verification_token,
-    )
+    verification_required = _email_verification_required()
+    verification_token: Optional[str] = None
+    verification_email_sent = False
+    if verification_required:
+        verification_token = issue_email_verification_token(db, new_user.id)
+        verification_email_sent = send_email_verification_email(
+            to_email=new_user.email,
+            token=verification_token,
+        )
     log_audit_event(
         db,
         event_type="auth.register",
@@ -177,25 +196,26 @@ def register_user(
         ip_address=_request_ip(request),
         user_agent=request.headers.get("user-agent"),
     )
-    log_audit_event(
-        db,
-        event_type="auth.email_verification_request",
-        status="success",
-        source="api",
-        user_id=new_user.id,
-        actor_email=new_user.email,
-        ip_address=_request_ip(request),
-        user_agent=request.headers.get("user-agent"),
-        details={
-            "reason": "post_register",
-            "debug_token_issued": bool(verification_token),
-            "email_sent": verification_email_sent,
-        },
-    )
+    if verification_required:
+        log_audit_event(
+            db,
+            event_type="auth.email_verification_request",
+            status="success",
+            source="api",
+            user_id=new_user.id,
+            actor_email=new_user.email,
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={
+                "reason": "post_register",
+                "debug_token_issued": bool(verification_token),
+                "email_sent": verification_email_sent,
+            },
+        )
     db.commit()
     db.refresh(new_user)
 
-    if _email_verification_required():
+    if verification_required:
         return RegisterResponse(
             status="verification_required",
             user_id=new_user.id,
