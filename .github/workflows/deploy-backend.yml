@@ -88,9 +88,10 @@ jobs:
         env:
           HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
           HAS_STAGING_SERVICE: ${{ secrets.RAILWAY_STAGING_SERVICE_ID != '' }}
+          HAS_STAGING_ENV: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID != '' }}
         run: |
-          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_STAGING_SERVICE" != "true" ]; then
-            echo "::error::Missing Railway staging secrets (RAILWAY_TOKEN and/or RAILWAY_STAGING_SERVICE_ID)."
+          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_STAGING_SERVICE" != "true" ] || [ "$HAS_STAGING_ENV" != "true" ]; then
+            echo "::error::Missing Railway staging secrets (RAILWAY_TOKEN, RAILWAY_STAGING_SERVICE_ID, RAILWAY_STAGING_ENVIRONMENT_ID)."
             exit 1
           fi
 
@@ -107,13 +108,11 @@ jobs:
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           RAILWAY_STAGING_ENVIRONMENT_ID: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID }}
         run: |
-          cmd=(railway up --service "${{ secrets.RAILWAY_STAGING_SERVICE_ID }}" --detach)
+          cmd=(railway up --service "${{ secrets.RAILWAY_STAGING_SERVICE_ID }}")
           if [ -n "$RAILWAY_PROJECT_ID" ]; then
             cmd+=(--project "$RAILWAY_PROJECT_ID")
           fi
-          if [ -n "$RAILWAY_STAGING_ENVIRONMENT_ID" ]; then
-            cmd+=(--environment "$RAILWAY_STAGING_ENVIRONMENT_ID")
-          fi
+          cmd+=(--environment "$RAILWAY_STAGING_ENVIRONMENT_ID")
 
           echo "Deploy command: ${cmd[*]}"
           "${cmd[@]}"
@@ -167,9 +166,10 @@ jobs:
         env:
           HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
           HAS_PROD_SERVICE: ${{ secrets.RAILWAY_SERVICE_ID != '' }}
+          HAS_PROD_ENV: ${{ secrets.RAILWAY_PROD_ENVIRONMENT_ID != '' }}
         run: |
-          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_PROD_SERVICE" != "true" ]; then
-            echo "::error::Missing Railway production secrets (RAILWAY_TOKEN and/or RAILWAY_SERVICE_ID)."
+          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_PROD_SERVICE" != "true" ] || [ "$HAS_PROD_ENV" != "true" ]; then
+            echo "::error::Missing Railway production secrets (RAILWAY_TOKEN, RAILWAY_SERVICE_ID, RAILWAY_PROD_ENVIRONMENT_ID)."
             exit 1
           fi
 
@@ -186,13 +186,11 @@ jobs:
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           RAILWAY_PROD_ENVIRONMENT_ID: ${{ secrets.RAILWAY_PROD_ENVIRONMENT_ID }}
         run: |
-          cmd=(railway up --service "${{ secrets.RAILWAY_SERVICE_ID }}" --detach)
+          cmd=(railway up --service "${{ secrets.RAILWAY_SERVICE_ID }}")
           if [ -n "$RAILWAY_PROJECT_ID" ]; then
             cmd+=(--project "$RAILWAY_PROJECT_ID")
           fi
-          if [ -n "$RAILWAY_PROD_ENVIRONMENT_ID" ]; then
-            cmd+=(--environment "$RAILWAY_PROD_ENVIRONMENT_ID")
-          fi
+          cmd+=(--environment "$RAILWAY_PROD_ENVIRONMENT_ID")
 
           echo "Deploy command: ${cmd[*]}"
           "${cmd[@]}"
