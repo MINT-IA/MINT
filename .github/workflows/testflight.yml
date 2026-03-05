@@ -11,7 +11,6 @@
 #   APP_STORE_CONNECT_API_KEY_CONTENT  (base64-encoded .p8 file)
 #   MATCH_GIT_URL                      (private repo for certs)
 #   MATCH_PASSWORD                     (decrypt certs)
-#   API_BASE_URL                       (e.g. https://your-api-domain/api/v1)
 # Optional:
 #   HUGGINGFACE_TOKEN                  (required for gated Gemma 3n download)
 #   SLM_MODEL_URL                      (custom model URL override)
@@ -34,10 +33,12 @@ jobs:
   build-and-upload:
     name: Build iOS + Upload TestFlight
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true)
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: macos-15
     timeout-minutes: 45
+    env:
+      PROD_API_BASE_URL: "https://api.mint.ch/api/v1"
 
     defaults:
       run:
@@ -79,12 +80,15 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
-      - name: Validate backend URL secret
+      - name: Validate production API URL
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_BASE_URL: ${{ env.PROD_API_BASE_URL }}
         run: |
-          [[ -n "$API_BASE_URL" ]] || { echo "::error::Missing secret: API_BASE_URL"; exit 1; }
-          echo "API_BASE_URL is configured"
+          if [ "$API_BASE_URL" != "https://api.mint.ch/api/v1" ]; then
+            echo "::error::Unexpected API_BASE_URL for TestFlight main build: $API_BASE_URL"
+            exit 1
+          fi
+          echo "API_BASE_URL is locked to production"
 
       - name: Validate SLM download configuration
         env:
@@ -112,7 +116,7 @@ jobs:
 
       - name: Backend health precheck
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_BASE_URL: ${{ env.PROD_API_BASE_URL }}
         run: |
           HEALTH_URL="${API_BASE_URL%/}/health"
           echo "Checking backend health: $HEALTH_URL"
@@ -125,7 +129,7 @@ jobs:
       # ── Pre-build Flutter iOS (generates Xcode project + runs pod install) ──
       - name: Flutter build iOS (no codesign)
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_BASE_URL: ${{ env.PROD_API_BASE_URL }}
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
@@ -140,7 +144,7 @@ jobs:
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_BASE_URL: ${{ env.PROD_API_BASE_URL }}
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
@@ -212,7 +216,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_BASE_URL: ${{ env.PROD_API_BASE_URL }}
           DART_DEFINES: ${{ env.DART_DEFINES }}
           CI: "true"
         run: bundle exec fastlane beta
