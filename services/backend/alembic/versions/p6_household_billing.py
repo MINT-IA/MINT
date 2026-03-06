@@ -64,13 +64,13 @@ def upgrade() -> None:
                     sa.Column('outcome', sa.String(), nullable=False, server_default='applied')
                 )
         if not _has_fk('billing_webhook_events', 'fk_billing_webhook_events_subscription_id'):
-            op.create_foreign_key(
-                'fk_billing_webhook_events_subscription_id',
-                'billing_webhook_events',
-                'subscriptions',
-                ['subscription_id'],
-                ['id'],
-            )
+            with op.batch_alter_table('billing_webhook_events', schema=None) as batch_op:
+                batch_op.create_foreign_key(
+                    'fk_billing_webhook_events_subscription_id',
+                    'subscriptions',
+                    ['subscription_id'],
+                    ['id'],
+                )
         if not _has_index('billing_webhook_events', 'ix_billing_webhook_events_subscription_id'):
             op.create_index(
                 'ix_billing_webhook_events_subscription_id',
