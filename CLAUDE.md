@@ -178,101 +178,11 @@ git push origin <current-branch>
 
 ---
 
-## SPRINT PROGRESS TRACKER
+## PROGRESS & CI/CD
 
-| Sprint | Module | Backend | Flutter | Tests | Commit |
-|--------|--------|---------|---------|-------|--------|
-| S0-S8 | Core + Budget + RAG + Bank Import | done | done | done | various |
-| S9 | Job Change LPP Comparator | done | done | done | `6e37675` |
-| S10 | Divorce + Succession | done | done | done | `92bb677` |
-| S11 | Proactive Coaching Engine | done | done | done | `8e2f2d3` |
-| S12 | Sociological Segments | done | done | done | `3eb7a00` |
-| S13 | LAMal Franchise Optimizer | done | done | done | `1ef929d` |
-| S14 | Open Banking bLink/SFTI | done | done | done | `49c64be` |
-| S15 | LPP Deep Dive | done | done | done | `8259894` |
-| S16 | 3a Deep + Debt Prevention | done | done | done | `aa9b607` |
-| S17 | Mortgage + Real Estate | done | done | 68 tests | `71460f9` |
-| S18 | Indépendants complet | done | done | 66 tests | `5ed7c24` |
-| S19 | Chômage + Premier emploi | done | done | 72 tests | `fb8a035` |
-| S20 | Fiscalité avancée (26 cantons) | done | done | 53 tests | `4bde23a` |
-| S21 | Retraite complète | done | done | 50 tests | `9005cfe` |
-| S22 | Mariage + Naissance + Concubinage | done | done | done | various |
-| S23 | Expatriation + Frontaliers | done | done | 87 tests | `868cb02` |
-| S24 | Housing Sale + Donation (18/18 events) | done | done | done | `a16d5eb` |
-| S25 | Integration & Discoverability | done | done | 1314 tests | `b59909f` |
-| S26 | Post-Wizard Routing + NextSteps | done | done | 1357 tests | `637854c` |
-| S27 | Educational Insert Wiring + Content | done | done | 1576 tests | `d1584e1` |
-| S28 | SafeMode Enforcement + Compliance Tests | done | done | 1596 tests | `54026e3` |
-| S29 | Smoke Test Coverage (26 screens) | done | done | 52 Flutter tests | `968f972` |
-| S30 | Disability Gap Service (Chantier 3) | done | done | 1629 tests | `4d6f317` |
+> Full sprint history: `docs/SPRINT_TRACKER.md` | CI/CD details: `docs/CICD_REFERENCE.md`
 
-**Backend test baseline**: 1965 passed, 0 failed, 80 skipped
-**Flutter analyze**: 0 errors (~896 info/warnings)
-**i18n**: 6 locales (fr, de, en, es, it, pt) — `2fc39a1`
-**QA fix**: LPP 3780 + AVS 2520 aligned — `750286b`
-**Financial Core**: unified AVS/LPP/Tax calculators + confidence scorer — `656e620`
-
-### CI/CD Pipeline (fully operational — `56701d2`)
-
-| Workflow | Trigger | Runner | Status |
-|----------|---------|--------|--------|
-| **CI** (`ci.yml`) | push (any branch) | ubuntu | Backend pytest + Flutter analyze/test |
-| **Deploy Backend** (`deploy-backend.yml`) | push main (`services/backend/**`) | ubuntu | Railway auto-deploy |
-| **TestFlight** (`testflight.yml`) | push main (`apps/mobile/**`) + manual | macos-15 | Build iOS + Upload TestFlight |
-
-**TestFlight pipeline details:**
-- **Signing**: Fastlane Match (git-based, repo `Julienbatt/mint-certificates`)
-- **Auth**: App Store Connect API key (Key ID `6TZCV5S346`)
-- **CI keychain**: `setup_ci` (Fastlane built-in)
-- **Build flow**: `flutter build ios --no-codesign` → Match → `update_code_signing_settings` → `build_app` → `upload_to_testflight`
-- **Provisioning**: Manual signing, profile `match AppStore ch.mint.app`
-- **TestFlight group**: "Beta Testeurs"
-
-**Required GitHub Secrets:**
-- `APP_STORE_CONNECT_API_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_API_KEY_CONTENT`
-- `MATCH_GIT_URL`, `MATCH_PASSWORD`, `MATCH_GIT_BASIC_AUTHORIZATION`
-- `KEYCHAIN_PASSWORD`
-
----
-
-## DREAM TEAM WORKFLOW
-
-### Sprint execution pattern
-```
-1. Plan sprint scope (read PLAN_ACTION_10_CHANTIERS.md)
-2. Launch 2 agents in parallel:
-   - Backend agent: services + schemas + endpoints + tests
-   - Flutter agent: service + screens
-3. Verify baseline (tests + analyze) before integration
-4. Senior audit: cross-check backend vs Flutter for divergences
-   - Constants must match exactly (rates, limits, brackets)
-   - Formulas must produce identical results
-   - Conventions must align (rounding, edge cases)
-5. Fix all CRIT divergences (backend = source of truth, except when Flutter is correct)
-6. Run all tests + flutter analyze
-7. Surgical git commit (only sprint-specific files)
-```
-
-### Financial Core (shared calculation engine)
-> **ADR**: `decisions/ADR-20260223-unified-financial-engine.md` — READ THIS before touching any calculator.
-
-All financial calculations MUST use the shared core in `lib/services/financial_core/`:
-- `AvsCalculator` — AVS rente (LAVS art. 21-29, 34, 35, 40)
-- `LppCalculator` — LPP projection + bonifications (LPP art. 15-16)
-- `TaxCalculator` — Capital withdrawal + income tax (LIFD art. 38)
-- `ThreeACalculator` — 3a projection (OPP3 art. 7)
-- `ConfidenceScorer` — Projection confidence score
-
-**NEVER duplicate formulas** in RetirementProjectionService or ForecasterService.
-Both services are thin adapters over the shared core.
-
-### Agent specs template (for spawning)
-When launching agents, always specify:
-- Swiss law sources and article references
-- Exact constants and formulas (barèmes, taux, plafonds)
-- Compliance rules (disclaimer, sources, chiffre_choc, banned terms)
-- Design system rules (fonts, colors, navigation, state)
-- Test requirements (minimum count, edge cases, compliance checks)
+**S0-S30 complete** (30 sprints, 1965 backend tests, 0 Flutter errors). See `AGENTS.md` for team workflow.
 
 ---
 
@@ -360,105 +270,17 @@ Every projection MUST include:
 
 ---
 
-## STRATEGIC EVOLUTION DIGEST (condensed from docs/)
+## STRATEGIC EVOLUTION
 
-> The 3 source documents are: `docs/MINT_COACH_VIVANT_ROADMAP.md`, `docs/UX_REDESIGN_COACH.md`, `docs/ONBOARDING_ARBITRAGE_ENGINE.md`. Read them for full specs.
+> **The Pivot**: Catalogue → Coach. Profil persistant → Trajectoire → Coach mensuel → LLM contextuel.
+> Analogy: Strava for Swiss finances. Aggregation + Intelligence + Coaching = 3 stacked moats.
 
-### The Pivot: Catalogue → Coach
+**Source docs** (read for full specs):
+- `docs/MINT_COACH_VIVANT_ROADMAP.md` — Tracks A/B/C, S31-S40, ComplianceGuard, Coach Narrative
+- `docs/UX_REDESIGN_COACH.md` — 4-tab dashboard, FRI, Julien+Lauren examples
+- `docs/ONBOARDING_ARBITRAGE_ENGINE.md` — 5 arbitrage modules, onboarding spec, FRI formula
 
-**Before**: Wizard → Rapport → 49 Simulateurs → user quits (no reason to return).
-**After**: Profil persistant → Trajectoire → Coach mensuel → LLM contextuel.
-Analogy: TrainerRoad for finances. Goal A + check-ins + FRI score + alerts.
-
-### 3 Execution Tracks (S31-S40)
-
-```
-Track A — FOUNDATION (S31-S33, no LLM)
-  S31: Value-first onboarding (3Q → chiffre choc → 1 action, 30 sec)
-  S32: Arbitrage Phase 1 (Rente vs Capital 3-option + Allocation Annuelle)
-  S33: Arbitrage Phase 2 (Calendrier Retraits + Location vs Propriété + Snapshots)
-
-Track B — COACH LAYER (S34-S37, BYOK LLM)
-  S34: ComplianceGuard 5-layer (BLOCKER for all LLM features)
-  S35: CoachNarrativeService (4 independent calls: greeting, score, tip, chiffre_choc)
-  S36: Notifications + Milestones (calendar-driven + event-driven + BYOK-enriched)
-  S37: Scenario Narration + Annual Refresh
-
-Track C — ENGAGEMENT (S38-S40)
-  S38: FRI shadow mode (compute, don't display)
-  S39: FRI beta display + longitudinal charts
-  S40: Reengagement + Consent hardening
-```
-
-### Onboarding Spec (S31)
-
-**MinimalProfileService**: 3 inputs (age, grossSalary, canton) → projection with Swiss defaults.
-Defaults: expenses = net×0.85, savings = (age-25)×salary×0.05, LPP from age 25. All flagged `isEstimated: true`.
-
-**ChiffreChocSelector** priority: 1) Liquidity < 2mo, 2) Replacement < 55%, 3) 3a unused > 1500, 4) Rachat LPP > 20k, 5) Mortgage stress > 38%. Returns ONE chiffre choc, never two.
-
-**Progressive Enrichment**: Round 2 (family, savings, property) → Round 3 (3a, LPP type, debts). Chiffre choc updates in real-time after each answer.
-
-### Arbitrage Engine (5 Modules)
-
-| Module | Key insight | Legal source |
-|--------|------------|-------------|
-| A: Location vs Propriété | Opportunity cost of locked equity, valeur locative trap | CO art. 253ss, LIFD art. 21/32 |
-| B: Rachat LPP vs Marché | Breakeven = (marginal rate - withdrawal tax) / horizon vs market | LPP art. 79b, LIFD art. 33/38 |
-| C: Rente vs Capital LPP | 3 options: full rente, full capital, MIXED (oblig rente 6.8% + suroblig capital) | LPP art. 14/37, LIFD art. 22/38 |
-| D: Allocation Annuelle | 4-way: 3a vs rachat vs amort indirect vs marché, same horizon | OPP3, LPP art. 79b, LIFD art. 33 |
-| E: Calendrier Retraits | Stagger 3a/LPP/LP over 3-5 years = CHF 15k-40k tax savings | LIFD art. 38, OPP3 art. 3 |
-
-**Compliance**: No ranking (side-by-side only), hypotheses visible & editable, crossover mandatory, sensitivity shown, conditional language ("Dans ce scénario simulé...").
-
-### Dashboard Structure (4 tabs)
-
-```
-Tab 1 — TABLEAU DE BORD (Home)
-  Financial Fitness Score (0-100, gauge) + 3 sub-scores (Budget/Prévoyance/Patrimoine)
-  Trajectoire Graph (3 scenarios, current position, Goal A marker)
-  Coach Alert Card (on-track / warning / red flag)
-  Quick Actions (max 3, prioritized by AdaptivePriorityService)
-
-Tab 2 — AGIR (Actions)
-  Ce mois: checklist (3a versement, LPP rachat, check-in budget)
-  Timeline: upcoming deadlines (3a dec, impots, LAMal, retraite)
-  Historique: completed actions
-
-Tab 3 — APPRENDRE (Explore)
-  Recommandés pour toi (archetype-driven)
-  Tous les simulateurs (49 outils, 8 catégories)
-  Événements de vie (18 types, relevance-sorted)
-
-Tab 4 — PROFIL
-  Mon profil financier (enrichissement progressif)
-  Mes documents (certificats LPP, extraits AVS)
-  Coach LLM (conversation BYOK)
-  Paramètres
-```
-
-### FRI — Financial Resilience Index (0-100)
-
-```
-FRI = L(0-25) + F(0-25) + R(0-25) + S(0-25)
-L = Liquidity:      sqrt(monthsCover/6) × 25, penalties: debt ratio > 30%, high volatility
-F = Fiscal:         0.6×3a_usage + 0.25×rachat_usage + 0.15×amort_indirect
-R = Retirement:     (replacementRatio/0.70)^1.5 × 25, uses AvsCalc + LppCalc
-S = Structural:     25 - penalties(disability gap, death gap, mortgage stress, concentration, employer dep)
-```
-Display only when confidence >= 50%. Never say "faible/mauvais". Compare user to own past only.
-
-### Coach Narrative (BYOK Architecture)
-
-4 independent LLM calls → ComplianceGuard each → fallback if fails:
-- `greeting` (30 words max, daily cache)
-- `scoreSummary` (80 words, cache until check-in)
-- `tipNarrative` (120 words, 7-day cache)
-- `chiffreChocReframe` (100 words, cache until profile change)
-
-**CoachContext** sent to LLM: firstName, age, canton, archetype, FRI score/delta, replacement ratio, months liquidity, tax saving potential, calendar context. NEVER: exact salary, savings, debts, employer, address.
-
-**ComplianceGuard 5 layers**: 1) Banned terms regex, 2) Prescriptive language, 3) Number verification (±5% CHF, ±2 pts %), 4) Disclaimer injection, 5) Length check.
+**Active chantiers**: See unified plan in `.claude/plans/`
 
 ### Golden Test Couple: Julien + Lauren
 
@@ -467,31 +289,9 @@ Display only when confidence >= 50%. Never say "faible/mauvais". Compare user to
 | Age | 50 | 45 |
 | Salaire | 100k CHF/an (ZH) | 60k CHF/an |
 | Nationalité | CH | US (FATCA) |
-| 3a | 7'258/an ✓ | IMPOSSIBLE (FATCA) |
-| AVS | Plein (44 ans) | Lacunes (~14 ans) |
-| LPP | Standard + rachat | Montant réduit |
-| Retraite | 65 (15 ans) | 63 (18 ans) |
 | Archetype | swiss_native | expat_us |
 
 Golden data file: `test/golden/julien_lauren.xlsx`
-
-### Current Gaps (Production Blockers)
-
-1. **Certificate dead-end**: Parsers work (LPP, AVS, Tax) but extracted data NEVER persists to CoachProfile → projections unchanged after scan
-2. **No archetype branching**: 8 archetypes defined but no logic in calculators (expats get same projections as swiss_native)
-3. **Forecaster tax hardcoded**: Uses 87% net conversion instead of FiscalService by canton
-4. **Monte Carlo + Bayesian unused**: 1'474 lines of advanced code never called from UI
-5. **No integrated cockpit**: Retirement features scattered across 15+ screens
-
-### Active Chantiers
-
-| # | Chantier | Status | Priority |
-|---|----------|--------|----------|
-| 1 | Certificate → CoachProfile → Projection wiring | IN PROGRESS | BLOCKER |
-| 2 | Retirement Cockpit Dashboard (unified) | IN PROGRESS | BLOCKER |
-| 3 | Coach IA (BYOK + narration contextuelle) | PLANNED | DIFFERENTIATOR |
-| 4 | Couple optimization (staggered withdrawals à deux) | PLANNED | HIGH |
-| 5 | Engagement loop (FRI + milestones + reengagement) | PLANNED | RETENTION |
 
 ---
 
