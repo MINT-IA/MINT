@@ -872,7 +872,7 @@ class BayesianProfileEnricher {
         label: 'Detaille tes depenses mensuelles',
         action:
             'Ajoute ton loyer, assurance maladie et depenses fixes. '
-            'Plus c\'est precis, meilleure sera la projection.',
+            'Plus c\'est precis, plus precise sera la projection.',
         category: 'depenses',
       ),
       'anneesContribuees': _PromptDef(

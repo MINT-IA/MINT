@@ -340,7 +340,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   Widget _buildProviderCard(ProviderResult result, double maxCapital) {
     final isWarning = result.hasWarning;
     final isBest = result.badge != null &&
-        result.badge!.contains('Meilleur rendement');
+        result.badge!.contains('Rendement le plus eleve');
 
     Color bgColor = Colors.white;
     Color borderColor = MintColors.border;
@@ -494,7 +494,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs meilleur',
+                '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs premier',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,

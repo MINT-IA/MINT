@@ -925,7 +925,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'MEILLEUR',
+                'LE PLUS ADAPTE',
                 style: GoogleFonts.montserrat(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,

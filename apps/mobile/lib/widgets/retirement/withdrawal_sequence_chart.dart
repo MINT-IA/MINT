@@ -61,7 +61,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       children: [
         // ── Titre ─────────────────────────────────────────────
         Text(
-          'Sequence de retrait optimale',
+          'Sequence de retrait suggeree',
           style: GoogleFonts.montserrat(
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -499,7 +499,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sequence optimale',
+          'Sequence suggeree',
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,

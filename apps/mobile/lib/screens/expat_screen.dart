@@ -831,7 +831,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHRONOLOGIE OPTIMALE',
+                'CHRONOLOGIE RECOMMANDEE',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

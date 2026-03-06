@@ -593,7 +593,7 @@ class ProviderComparator {
     // Attribuer les badges
     final badgedResults = results.map((r) {
       String? badge;
-      if (r.provider.nom == bestRendementNom) badge = 'Meilleur rendement net';
+      if (r.provider.nom == bestRendementNom) badge = 'Rendement le plus eleve';
       if (r.provider.nom == bestFraisNom) {
         badge = badge != null ? '$badge + Plus bas frais' : 'Plus bas frais';
       }

@@ -32,7 +32,7 @@ class FinancialExplanations {
             isPositive: false,
           ),
           const KeyPoint(
-            'Rachat échelonné : Tu restes dans ta tranche optimale, taux marginal constant',
+            'Rachat échelonné : Tu restes dans ta tranche adaptee, taux marginal constant',
           ),
           KeyPoint(
             'Gain supplémentaire : +CHF ${saving.toStringAsFixed(0)} juste en échelonnant !',

@@ -300,7 +300,7 @@
   "advisorMiniPreviewOptimistic": "Optimiste",
   "homeSafeModeActive": "MODE PROTECTION ACTIVÉ",
   "homeHide": "Masquer",
-  "homeSafeModeMessage": "Nous avons détecté des signaux de tension. MINT vous conseille de stabiliser votre budget avant tout investissement.",
+  "homeSafeModeMessage": "Nous avons detecte des signaux de tension. Il pourrait etre utile de stabiliser ton budget avant d'explorer d'autres options.",
   "homeSafeModeResources": "Ressources & Aides gratuites",
   "homeMentorAdvisor": "Mentor Advisor",
   "homeMentorDescription": "Lancez votre session personnalisée pour obtenir un diagnostic complet de votre situation financière.",

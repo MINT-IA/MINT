@@ -266,7 +266,7 @@ class MilestoneDetectionService {
         id: '3a_max_reached',
         title: '3a au plafond',
         description:
-            'Tu as atteint le plafond de CHF $plafondFormatted pour ton 3e pilier. C\'est la meilleure facon de combiner prevoyance et economie fiscale (OPP3 art. 7).',
+            'Tu as atteint le plafond de CHF $plafondFormatted pour ton 3e pilier. C\'est une facon efficace de combiner prevoyance et economie fiscale (OPP3 art. 7).',
         icon: Icons.savings,
         color: MintColors.indigo,
       ));
