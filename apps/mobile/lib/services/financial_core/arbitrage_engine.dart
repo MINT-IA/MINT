@@ -33,9 +33,11 @@ class ArbitrageEngine {
     final total = inputKeys.length;
     if (total == 0) return 50.0;
     for (final key in inputKeys) {
-      if (dataSources[key] == ProfileDataSource.certificate) {
+      if (dataSources[key] == ProfileDataSource.certificate ||
+          dataSources[key] == ProfileDataSource.openBanking) {
         known += 2;
-      } else if (dataSources[key] == ProfileDataSource.userInput) {
+      } else if (dataSources[key] == ProfileDataSource.userInput ||
+          dataSources[key] == ProfileDataSource.crossValidated) {
         known += 1;
       }
     }

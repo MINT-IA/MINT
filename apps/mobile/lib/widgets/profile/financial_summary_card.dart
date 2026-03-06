@@ -185,8 +185,10 @@ class FinancialSummaryCard extends StatelessWidget {
   Widget _sourceIndicator(ProfileDataSource source) {
     final (String label, Color color) = switch (source) {
       ProfileDataSource.userInput => ('\u2713', MintColors.success),
+      ProfileDataSource.crossValidated => ('\u2713', MintColors.success),
       ProfileDataSource.estimated => ('~', MintColors.warning),
       ProfileDataSource.certificate => ('\u2B06', MintColors.info),
+      ProfileDataSource.openBanking => ('\u2B06', MintColors.info),
     };
     return Container(
       width: 18,

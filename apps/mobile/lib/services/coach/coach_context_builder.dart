@@ -86,6 +86,7 @@ class CoachContextBuilder {
     String fiscalSeason = '',
     int checkInStreak = 0,
     String lastMilestone = '',
+    String upcomingEvent = '',
     Map<String, String> dataSources = const {},
   }) {
     // Build grounding values map — only include non-zero values
@@ -117,6 +118,7 @@ class CoachContextBuilder {
       confidenceScore: confidenceScore,
       daysSinceLastVisit: daysSinceLastVisit,
       fiscalSeason: fiscalSeason,
+      upcomingEvent: upcomingEvent,
       checkInStreak: checkInStreak,
       lastMilestone: lastMilestone,
       knownValues: knownValues,

@@ -66,6 +66,22 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
     );
 
     widget.animTrigger.addListener(_onAnimTrigger);
+
+    // Fix race condition: if the trigger already fired before this widget
+    // mounted (PageView builds lazily during scroll animation), auto-play
+    // the reveal animation on the next frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final choc = widget.viewModel.chiffreChoc;
+      if (choc != null && _controller.status == AnimationStatus.dismissed) {
+        setState(() {
+          _animatedTarget = choc.rawValue;
+          _lastTrigger = widget.animTrigger.value;
+        });
+        _controller.forward(from: 0);
+        _trackView(choc);
+      }
+    });
   }
 
   @override

@@ -8,13 +8,14 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
 
 /// Écran "Mon aperçu financier" — vue consolidée de toutes les données
 /// du CoachProfile, organisées par section.
 ///
 /// Accessible depuis /profile/bilan et depuis le ProfileScreen.
-/// Each section has an edit icon navigating to the appropriate data-block route.
+/// Each section has an edit icon that opens an inline edit dialog.
 class FinancialSummaryScreen extends StatelessWidget {
   const FinancialSummaryScreen({super.key});
 
@@ -88,6 +89,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     if (profile.isCouple) _buildCoupleToggle(context, profile),
                     _buildRevenusCard(context, profile),
+                    _buildFiscaliteCard(context, profile),
                     _buildPrevoyanceCard(context, profile),
                     _buildPatrimoineCard(context, profile),
                     _buildDepensesCard(context, profile),
@@ -284,7 +286,91 @@ class FinancialSummaryScreen extends StatelessWidget {
         formattedValue: _formatChf(
             p.isCouple ? p.revenuBrutAnnuelCouple : p.revenuBrutAnnuel),
       ),
-      onEdit: () => context.push('/data-block/situation'),
+      onEdit: () => _showEditSheet(
+        context,
+        title: 'Modifier le revenu',
+        fields: [
+          _EditField(
+            label: 'Salaire brut mensuel (CHF)',
+            initialValue: p.salaireBrutMensuel,
+            key: 'salaireBrutMensuel',
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  FISCALITÉ (décomposition brut → net)
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildFiscaliteCard(BuildContext context, CoachProfile p) {
+    final gross = p.revenuBrutAnnuel;
+    if (gross <= 0) {
+      return const SizedBox.shrink();
+    }
+
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: gross,
+      canton: p.canton,
+      age: p.age,
+    );
+
+    final lines = <FinancialLine>[
+      FinancialLine(
+        label: 'Charges sociales (AVS/AC)',
+        formattedValue: _formatChfMonth(breakdown.socialCharges / 12),
+      ),
+      FinancialLine(
+        label: 'Cotisation LPP employé·e',
+        formattedValue: _formatChfMonth(breakdown.lppEmployee / 12),
+      ),
+      FinancialLine(
+        label: 'Impôt sur le revenu',
+        formattedValue: _formatChfMonth(breakdown.incomeTaxEstimate / 12),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FinancialSummaryCard(
+          title: 'Fiscalité',
+          icon: Icons.receipt_long_outlined,
+          iconColor: MintColors.warning,
+          lines: lines,
+          totalLine: FinancialLine(
+            label: 'Net fiche de paie (avant impôt)',
+            formattedValue: _formatChfMonth(breakdown.monthlyNetPayslip),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Estimation simplifiée. L\'AANP et l\'IJM varient selon l\'employeur '
+            'et ne sont pas inclus. La LPP employé·e reflète le minimum légal '
+            '(50/50) \u2014 ta caisse peut appliquer un autre split.',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+              height: 1.3,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Disponible après impôt : ${_formatChfMonth(breakdown.disposableIncome / 12)}',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: MintColors.primary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 
@@ -438,7 +524,22 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines: lines,
       onScanCertificate: () => context.push('/document-scan'),
       scanLabel: 'Scanner certificat LPP / AVS',
-      onEdit: () => context.push('/data-block/lpp'),
+      onEdit: () => _showEditSheet(
+        context,
+        title: 'Modifier la prévoyance',
+        fields: [
+          _EditField(
+            label: 'Avoir LPP total (CHF)',
+            initialValue: prev.avoirLppTotal,
+            key: 'avoirLppTotal',
+          ),
+          _EditField(
+            label: 'Total épargne 3a (CHF)',
+            initialValue: prev.totalEpargne3a > 0 ? prev.totalEpargne3a : null,
+            key: 'totalEpargne3a',
+          ),
+        ],
+      ),
     );
   }
 
@@ -474,7 +575,23 @@ class FinancialSummaryScreen extends StatelessWidget {
         label: 'Total patrimoine',
         formattedValue: _formatChf(pat.totalPatrimoine),
       ),
-      onEdit: () => context.push('/data-block/patrimoine'),
+      onEdit: () => _showEditSheet(
+        context,
+        title: 'Modifier le patrimoine',
+        fields: [
+          _EditField(
+            label: 'Épargne liquide (CHF)',
+            initialValue: pat.epargneLiquide > 0 ? pat.epargneLiquide : null,
+            key: 'epargneLiquide',
+          ),
+          _EditField(
+            label: 'Investissements (CHF)',
+            initialValue:
+                pat.investissements > 0 ? pat.investissements : null,
+            key: 'investissements',
+          ),
+        ],
+      ),
     );
   }
 
@@ -500,22 +617,39 @@ class FinancialSummaryScreen extends StatelessWidget {
         source: _source(p, 'depenses.assuranceMaladie'),
       ));
     }
+    if (dep.electricite != null && dep.electricite! > 0) {
+      lines.add(FinancialLine(
+        label: 'Électricité / énergie',
+        formattedValue: _formatChfMonth(dep.electricite),
+        source: _source(p, 'depenses.electricite'),
+      ));
+    }
     if (dep.transport != null && dep.transport! > 0) {
       lines.add(FinancialLine(
         label: 'Transport',
         formattedValue: _formatChfMonth(dep.transport),
+        source: _source(p, 'depenses.transport'),
       ));
     }
     if (dep.telecom != null && dep.telecom! > 0) {
       lines.add(FinancialLine(
         label: 'Télécom',
         formattedValue: _formatChfMonth(dep.telecom),
+        source: _source(p, 'depenses.telecom'),
+      ));
+    }
+    if (dep.fraisMedicaux != null && dep.fraisMedicaux! > 0) {
+      lines.add(FinancialLine(
+        label: 'Frais médicaux',
+        formattedValue: _formatChfMonth(dep.fraisMedicaux),
+        source: _source(p, 'depenses.fraisMedicaux'),
       ));
     }
     if (dep.autresDepensesFixes != null && dep.autresDepensesFixes! > 0) {
       lines.add(FinancialLine(
         label: 'Autres frais fixes',
         formattedValue: _formatChfMonth(dep.autresDepensesFixes),
+        source: _source(p, 'depenses.autresDepensesFixes'),
       ));
     }
 
@@ -537,7 +671,47 @@ class FinancialSummaryScreen extends StatelessWidget {
               formattedValue: _formatChfMonth(dep.totalMensuel),
             )
           : null,
-      onEdit: () => context.push('/data-block/situation'),
+      onEdit: () => _showEditSheet(
+        context,
+        title: 'Modifier les dépenses',
+        fields: [
+          _EditField(
+            label: 'Loyer / charges (CHF/mois)',
+            initialValue: dep.loyer > 0 ? dep.loyer : null,
+            key: 'loyer',
+          ),
+          _EditField(
+            label: 'Assurance maladie (CHF/mois)',
+            initialValue: dep.assuranceMaladie > 0 ? dep.assuranceMaladie : null,
+            key: 'assuranceMaladie',
+          ),
+          _EditField(
+            label: 'Électricité / énergie (CHF/mois)',
+            initialValue: dep.electricite,
+            key: 'electricite',
+          ),
+          _EditField(
+            label: 'Transport (CHF/mois)',
+            initialValue: dep.transport,
+            key: 'transport',
+          ),
+          _EditField(
+            label: 'Télécom (CHF/mois)',
+            initialValue: dep.telecom,
+            key: 'telecom',
+          ),
+          _EditField(
+            label: 'Frais médicaux (CHF/mois)',
+            initialValue: dep.fraisMedicaux,
+            key: 'fraisMedicaux',
+          ),
+          _EditField(
+            label: 'Autres frais fixes (CHF/mois)',
+            initialValue: dep.autresDepensesFixes,
+            key: 'autresDepensesFixes',
+          ),
+        ],
+      ),
     );
   }
 
@@ -558,7 +732,17 @@ class FinancialSummaryScreen extends StatelessWidget {
             formattedValue: '\u2014',
           ),
         ],
-        onEdit: () => context.push('/data-block/situation'),
+        onEdit: () => _showEditSheet(
+          context,
+          title: 'Modifier les dettes',
+          fields: [
+            const _EditField(label: 'Hypothèque (CHF)', key: 'hypotheque'),
+            const _EditField(
+                label: 'Crédit consommation (CHF)', key: 'creditConsommation'),
+            const _EditField(label: 'Leasing (CHF)', key: 'leasing'),
+            const _EditField(label: 'Autres dettes (CHF)', key: 'autresDettes'),
+          ],
+        ),
       );
     }
 
@@ -574,18 +758,21 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines.add(FinancialLine(
         label: 'Leasing',
         formattedValue: _formatChf(det.leasing),
+        source: _source(p, 'dettes.leasing'),
       ));
     }
     if (det.creditConsommation != null && det.creditConsommation! > 0) {
       lines.add(FinancialLine(
         label: 'Crédit consommation',
         formattedValue: _formatChf(det.creditConsommation),
+        source: _source(p, 'dettes.creditConsommation'),
       ));
     }
     if (det.autresDettes != null && det.autresDettes! > 0) {
       lines.add(FinancialLine(
         label: 'Autres dettes',
         formattedValue: _formatChf(det.autresDettes),
+        source: _source(p, 'dettes.autresDettes'),
       ));
     }
 
@@ -598,7 +785,32 @@ class FinancialSummaryScreen extends StatelessWidget {
         label: 'Total dettes',
         formattedValue: _formatChf(det.totalDettes),
       ),
-      onEdit: () => context.push('/data-block/situation'),
+      onEdit: () => _showEditSheet(
+        context,
+        title: 'Modifier les dettes',
+        fields: [
+          _EditField(
+            label: 'Hypothèque (CHF)',
+            initialValue: det.hypotheque,
+            key: 'hypotheque',
+          ),
+          _EditField(
+            label: 'Crédit consommation (CHF)',
+            initialValue: det.creditConsommation,
+            key: 'creditConsommation',
+          ),
+          _EditField(
+            label: 'Leasing (CHF)',
+            initialValue: det.leasing,
+            key: 'leasing',
+          ),
+          _EditField(
+            label: 'Autres dettes (CHF)',
+            initialValue: det.autresDettes,
+            key: 'autresDettes',
+          ),
+        ],
+      ),
     );
   }
 
@@ -633,7 +845,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       icon: Icons.people_outline,
       iconColor: MintColors.info,
       lines: lines,
-      onEdit: () => context.push('/data-block/couple'),
+      onEdit: () => context.push('/data-block/couple'),  // Couple edit: separate flow
     );
   }
 
@@ -657,4 +869,149 @@ class FinancialSummaryScreen extends StatelessWidget {
       ),
     );
   }
+
+  // ══════════════════════════════════════════════════════════════
+  //  INLINE EDIT SHEET
+  // ══════════════════════════════════════════════════════════════
+
+  void _showEditSheet(
+    BuildContext context, {
+    required String title,
+    required List<_EditField> fields,
+  }) {
+    final controllers = <String, TextEditingController>{};
+    for (final f in fields) {
+      controllers[f.key] = TextEditingController(
+        text: f.initialValue != null ? _chf.format(f.initialValue!) : '',
+      );
+    }
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            24,
+            24,
+            24 + MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 20),
+              for (final f in fields) ...[
+                Text(
+                  f.label,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: controllers[f.key],
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: '0',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              const SizedBox(height: 8),
+              FilledButton(
+                onPressed: () {
+                  _applyEdits(context, controllers);
+                  Navigator.of(ctx).pop();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: Text(
+                  'Enregistrer',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    ).whenComplete(() {
+      for (final c in controllers.values) {
+        c.dispose();
+      }
+    });
+  }
+
+  void _applyEdits(
+    BuildContext context,
+    Map<String, TextEditingController> controllers,
+  ) {
+    double? parseVal(String key) {
+      final raw = controllers[key]?.text.replaceAll(RegExp(r'[^0-9.,]'), '');
+      if (raw == null || raw.isEmpty) return null;
+      return double.tryParse(raw.replaceAll("'", '').replaceAll(',', '.'));
+    }
+
+    context.read<CoachProfileProvider>().updateInline(
+          salaireBrutMensuel: parseVal('salaireBrutMensuel'),
+          avoirLppTotal: parseVal('avoirLppTotal'),
+          totalEpargne3a: parseVal('totalEpargne3a'),
+          epargneLiquide: parseVal('epargneLiquide'),
+          investissements: parseVal('investissements'),
+          loyer: parseVal('loyer'),
+          assuranceMaladie: parseVal('assuranceMaladie'),
+          electricite: parseVal('electricite'),
+          transport: parseVal('transport'),
+          telecom: parseVal('telecom'),
+          fraisMedicaux: parseVal('fraisMedicaux'),
+          autresDepensesFixes: parseVal('autresDepensesFixes'),
+          hypotheque: parseVal('hypotheque'),
+          creditConsommation: parseVal('creditConsommation'),
+          leasing: parseVal('leasing'),
+          autresDettes: parseVal('autresDettes'),
+        );
+  }
+}
+
+class _EditField {
+  final String label;
+  final double? initialValue;
+  final String key;
+
+  const _EditField({
+    required this.label,
+    this.initialValue,
+    required this.key,
+  });
 }

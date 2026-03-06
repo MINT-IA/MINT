@@ -861,6 +861,219 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met a jour un ou plusieurs champs du profil depuis l'edition inline
+  /// sur l'apercu financier. Persiste les answers wizard.
+  ///
+  /// Tags all updated fields as [ProfileDataSource.userInput].
+  Future<void> updateInline({
+    double? salaireBrutMensuel,
+    double? avoirLppTotal,
+    double? totalEpargne3a,
+    double? epargneLiquide,
+    double? investissements,
+    double? loyer,
+    double? assuranceMaladie,
+    double? electricite,
+    double? transport,
+    double? telecom,
+    double? fraisMedicaux,
+    double? autresDepensesFixes,
+    double? hypotheque,
+    double? creditConsommation,
+    double? leasing,
+    double? autresDettes,
+  }) async {
+    if (_profile == null) return;
+    final p = _profile!;
+
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+
+    PrevoyanceProfile? updatedPrev;
+    if (avoirLppTotal != null || totalEpargne3a != null) {
+      updatedPrev = PrevoyanceProfile(
+        anneesContribuees: p.prevoyance.anneesContribuees,
+        lacunesAVS: p.prevoyance.lacunesAVS,
+        renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
+        nomCaisse: p.prevoyance.nomCaisse,
+        avoirLppTotal: avoirLppTotal ?? p.prevoyance.avoirLppTotal,
+        avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
+        avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
+        rachatMaximum: p.prevoyance.rachatMaximum,
+        rachatEffectue: p.prevoyance.rachatEffectue,
+        tauxConversion: p.prevoyance.tauxConversion,
+        tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
+        rendementCaisse: p.prevoyance.rendementCaisse,
+        salaireAssure: p.prevoyance.salaireAssure,
+        ramd: p.prevoyance.ramd,
+        nombre3a: p.prevoyance.nombre3a,
+        totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
+        comptes3a: p.prevoyance.comptes3a,
+        canContribute3a: p.prevoyance.canContribute3a,
+        librePassage: p.prevoyance.librePassage,
+      );
+      if (avoirLppTotal != null) {
+        updatedSources['prevoyance.avoirLppTotal'] =
+            ProfileDataSource.userInput;
+      }
+      if (totalEpargne3a != null) {
+        updatedSources['prevoyance.totalEpargne3a'] =
+            ProfileDataSource.userInput;
+      }
+    }
+
+    PatrimoineProfile? updatedPat;
+    if (epargneLiquide != null || investissements != null) {
+      updatedPat = p.patrimoine.copyWith(
+        epargneLiquide: epargneLiquide,
+        investissements: investissements,
+      );
+      if (epargneLiquide != null) {
+        updatedSources['patrimoine.epargneLiquide'] =
+            ProfileDataSource.userInput;
+      }
+      if (investissements != null) {
+        updatedSources['patrimoine.investissements'] =
+            ProfileDataSource.userInput;
+      }
+    }
+
+    DepensesProfile? updatedDep;
+    if (loyer != null ||
+        assuranceMaladie != null ||
+        electricite != null ||
+        transport != null ||
+        telecom != null ||
+        fraisMedicaux != null ||
+        autresDepensesFixes != null) {
+      updatedDep = p.depenses.copyWith(
+        loyer: loyer,
+        assuranceMaladie: assuranceMaladie,
+        electricite: electricite,
+        transport: transport,
+        telecom: telecom,
+        fraisMedicaux: fraisMedicaux,
+        autresDepensesFixes: autresDepensesFixes,
+      );
+      if (loyer != null) {
+        updatedSources['depenses.loyer'] = ProfileDataSource.userInput;
+      }
+      if (assuranceMaladie != null) {
+        updatedSources['depenses.assuranceMaladie'] =
+            ProfileDataSource.userInput;
+      }
+      if (electricite != null) {
+        updatedSources['depenses.electricite'] = ProfileDataSource.userInput;
+      }
+      if (transport != null) {
+        updatedSources['depenses.transport'] = ProfileDataSource.userInput;
+      }
+      if (telecom != null) {
+        updatedSources['depenses.telecom'] = ProfileDataSource.userInput;
+      }
+      if (fraisMedicaux != null) {
+        updatedSources['depenses.fraisMedicaux'] = ProfileDataSource.userInput;
+      }
+      if (autresDepensesFixes != null) {
+        updatedSources['depenses.autresDepensesFixes'] =
+            ProfileDataSource.userInput;
+      }
+    }
+
+    DetteProfile? updatedDet;
+    if (hypotheque != null ||
+        creditConsommation != null ||
+        leasing != null ||
+        autresDettes != null) {
+      updatedDet = p.dettes.copyWith(
+        hypotheque: hypotheque,
+        creditConsommation: creditConsommation,
+        leasing: leasing,
+        autresDettes: autresDettes,
+      );
+      if (hypotheque != null) {
+        updatedSources['dettes.hypotheque'] = ProfileDataSource.userInput;
+      }
+      if (creditConsommation != null) {
+        updatedSources['dettes.creditConsommation'] =
+            ProfileDataSource.userInput;
+      }
+      if (leasing != null) {
+        updatedSources['dettes.leasing'] = ProfileDataSource.userInput;
+      }
+      if (autresDettes != null) {
+        updatedSources['dettes.autresDettes'] = ProfileDataSource.userInput;
+      }
+    }
+
+    if (salaireBrutMensuel != null) {
+      updatedSources['salaireBrutMensuel'] = ProfileDataSource.userInput;
+    }
+
+    _profile = p.copyWith(
+      salaireBrutMensuel: salaireBrutMensuel,
+      prevoyance: updatedPrev,
+      patrimoine: updatedPat,
+      depenses: updatedDep,
+      dettes: updatedDet,
+      dataSources: updatedSources,
+      updatedAt: DateTime.now(),
+    );
+
+    // Immediate UI update BEFORE async persistence (Bug 1 fix)
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+
+    // Persist to wizard answers (non-blocking, with error handling)
+    try {
+      final answers = await ReportPersistenceService.loadAnswers();
+      if (salaireBrutMensuel != null) {
+        final breakdown = NetIncomeBreakdown.compute(
+          grossSalary: salaireBrutMensuel * 12,
+          canton: _profile?.canton ?? 'ZH',
+          age: _profile?.age ?? 45,
+        );
+        answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
+      }
+      if (avoirLppTotal != null) answers['_coach_avoir_lpp'] = avoirLppTotal;
+      if (totalEpargne3a != null) answers['_coach_total_3a'] = totalEpargne3a;
+      if (epargneLiquide != null) answers['q_cash_total'] = epargneLiquide;
+      if (investissements != null) {
+        answers['_coach_investissements'] = investissements;
+      }
+      // Persist depenses
+      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
+      if (assuranceMaladie != null) {
+        answers['_coach_depenses_assurance'] = assuranceMaladie;
+      }
+      if (electricite != null) {
+        answers['_coach_depenses_electricite'] = electricite;
+      }
+      if (transport != null) answers['_coach_depenses_transport'] = transport;
+      if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
+      if (fraisMedicaux != null) {
+        answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
+      }
+      if (autresDepensesFixes != null) {
+        answers['_coach_depenses_autres'] = autresDepensesFixes;
+      }
+      // Persist dettes
+      if (hypotheque != null) {
+        answers['_coach_dettes_hypotheque'] = hypotheque;
+      }
+      if (creditConsommation != null) {
+        answers['_coach_dettes_credit'] = creditConsommation;
+      }
+      if (leasing != null) answers['_coach_dettes_leasing'] = leasing;
+      if (autresDettes != null) {
+        answers['_coach_dettes_autres'] = autresDettes;
+      }
+      answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+      await ReportPersistenceService.saveAnswers(answers);
+    } catch (e) {
+      debugPrint('[CoachProfileProvider] persistence error: $e');
+    }
+  }
+
   /// Returns a map of pre-filled values from the existing profile for
   /// the Smart Onboarding flow. Keys match the onboarding field names.
   ///

@@ -440,7 +440,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      expect(find.textContaining('vs meilleur'), findsWidgets);
+      expect(find.textContaining('vs premier'), findsWidgets);
     });
   });
 }

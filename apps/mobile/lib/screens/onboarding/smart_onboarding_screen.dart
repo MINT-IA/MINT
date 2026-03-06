@@ -315,8 +315,8 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
-                onEnrich: () => _goToPage(3),
-                onDashboard: () => _goToPage(5),
+                onEnrich: () => _saveThenEnrich(context),
+                onDashboard: () => _saveThenGo(context),
               ),
 
               // ── Page 3: JIT explanation (SI...ALORS) ─────────────────────

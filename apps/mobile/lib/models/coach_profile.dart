@@ -22,9 +22,11 @@ enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
 /// Source d'une donnee financiere dans le profil.
 /// Permet de distinguer les valeurs saisies, estimees ou certifiees.
 enum ProfileDataSource {
-  estimated, // Defaut calcule par MINT
-  userInput, // Saisi manuellement
-  certificate, // Extrait d'un certificat scanne
+  estimated, // Defaut calcule par MINT (confiance 0.25)
+  userInput, // Saisi manuellement (confiance 0.60)
+  crossValidated, // Saisie + verification croisee (confiance 0.70)
+  certificate, // Extrait d'un certificat scanne (confiance 0.95)
+  openBanking, // Donnees bancaires live bLink/SFTI (confiance 1.00)
 }
 
 /// Type d'objectif principal (Goal A)
@@ -509,6 +511,20 @@ class DetteProfile {
     );
   }
 
+  DetteProfile copyWith({
+    double? creditConsommation,
+    double? leasing,
+    double? hypotheque,
+    double? autresDettes,
+  }) {
+    return DetteProfile(
+      creditConsommation: creditConsommation ?? this.creditConsommation,
+      leasing: leasing ?? this.leasing,
+      hypotheque: hypotheque ?? this.hypotheque,
+      autresDettes: autresDettes ?? this.autresDettes,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'creditConsommation': creditConsommation,
         'leasing': leasing,
@@ -555,6 +571,26 @@ class DepensesProfile {
       telecom: (json['telecom'] as num?)?.toDouble(),
       fraisMedicaux: (json['fraisMedicaux'] as num?)?.toDouble(),
       autresDepensesFixes: (json['autresDepensesFixes'] as num?)?.toDouble(),
+    );
+  }
+
+  DepensesProfile copyWith({
+    double? loyer,
+    double? assuranceMaladie,
+    double? electricite,
+    double? transport,
+    double? telecom,
+    double? fraisMedicaux,
+    double? autresDepensesFixes,
+  }) {
+    return DepensesProfile(
+      loyer: loyer ?? this.loyer,
+      assuranceMaladie: assuranceMaladie ?? this.assuranceMaladie,
+      electricite: electricite ?? this.electricite,
+      transport: transport ?? this.transport,
+      telecom: telecom ?? this.telecom,
+      fraisMedicaux: fraisMedicaux ?? this.fraisMedicaux,
+      autresDepensesFixes: autresDepensesFixes ?? this.autresDepensesFixes,
     );
   }
 
