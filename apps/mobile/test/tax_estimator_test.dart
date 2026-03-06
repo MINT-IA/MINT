@@ -198,9 +198,10 @@ void main() {
       expect(ifd, inInclusiveRange(400, 500));
     });
 
-    test('IFD single 150k = ~8180 CHF', () {
+    test('IFD single 150k = ~6475 CHF', () {
       final ifd = TaxEstimatorService.estimateFederalTax(150000, 'single');
-      expect(ifd, inInclusiveRange(7500, 9000));
+      // Updated after aligning IFD brackets to backend FEDERAL_BRACKETS (LIFD art. 36)
+      expect(ifd, inInclusiveRange(6000, 7000));
     });
 
     test('IFD married 80k = ~1071 CHF', () {
@@ -367,14 +368,14 @@ void main() {
 
   group('IFD (impôt fédéral direct) — LIFD art. 36', () {
     test('IFD single 80k CHF', () {
-      // Manual calculation from brackets:
+      // Manual calculation from aligned brackets (LIFD art. 36):
       // 0-14500: 0, 14500-31600: 131.67, 31600-41400: 86.24,
-      // 41400-55200: 364.32, 55200-72500: 513.81,
-      // 72500-78100: 332.64, 78100-80000: 125.40
-      // Total: ~1554
+      // 41400-55200: 358.80, 55200-72500: 501.70,
+      // 72500-78100: 285.60, 78100-80000: 121.60
+      // Total: ~1486
       final ifd =
           TaxEstimatorService.estimateFederalTax(80000, 'single');
-      expect(ifd, closeTo(1554, 50));
+      expect(ifd, closeTo(1486, 50));
     });
 
     test('IFD married 120k CHF', () {

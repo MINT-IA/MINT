@@ -332,7 +332,7 @@ void main() {
 
       expect(find.textContaining('Difference sur'), findsOneWidget);
       expect(find.textContaining('CHF'), findsWidgets);
-      expect(find.textContaining('meilleur et le pire'), findsOneWidget);
+      expect(find.textContaining('plus et le moins performant'), findsOneWidget);
     });
 
     testWidgets('displays parameters section', (tester) async {
