@@ -74,6 +74,8 @@ def setup_test_database():
         SnapshotModel,
         ConsentModel,
     )
+    from app.models.banking_consent import BankingConsentModel
+    from app.models.external_data_source import ExternalDataSourceModel
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
@@ -102,8 +104,12 @@ def clean_database():
         SnapshotModel,
         ConsentModel,
     )
+    from app.models.banking_consent import BankingConsentModel
+    from app.models.external_data_source import ExternalDataSourceModel
     db = TestingSessionLocal()
     try:
+        db.query(ExternalDataSourceModel).delete()
+        db.query(BankingConsentModel).delete()
         db.query(SnapshotModel).delete()
         db.query(ConsentModel).delete()
         db.query(BillingWebhookEventModel).delete()

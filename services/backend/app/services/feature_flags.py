@@ -33,6 +33,11 @@ class FeatureFlags:
     # P7: degraded safe-mode fallback (off by default)
     safe_mode_degraded: bool = False
 
+    # P7: external API connectors (off by default until FINMA consultation)
+    enable_blink_production: bool = False
+    enable_caisse_pension_api: bool = False
+    enable_avs_institutional: bool = False
+
     @classmethod
     def get_flags(cls) -> Dict[str, bool]:
         """Resolve current flag values from env vars."""
@@ -51,5 +56,14 @@ class FeatureFlags:
             ),
             "safe_mode_degraded": _env_bool(
                 "FF_SAFE_MODE_DEGRADED", cls.safe_mode_degraded
+            ),
+            "enable_blink_production": _env_bool(
+                "FF_ENABLE_BLINK_PRODUCTION", cls.enable_blink_production
+            ),
+            "enable_caisse_pension_api": _env_bool(
+                "FF_ENABLE_CAISSE_PENSION_API", cls.enable_caisse_pension_api
+            ),
+            "enable_avs_institutional": _env_bool(
+                "FF_ENABLE_AVS_INSTITUTIONAL", cls.enable_avs_institutional
             ),
         }
