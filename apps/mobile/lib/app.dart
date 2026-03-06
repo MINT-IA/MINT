@@ -211,7 +211,11 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/advisor/wizard',
-      redirect: (context, state) => '/onboarding/smart',
+      redirect: (context, state) {
+        final section = state.uri.queryParameters['section'];
+        if (section == null || section.isEmpty) return '/onboarding/smart';
+        return '/onboarding/smart?section=$section';
+      },
     ),
     GoRoute(
       path: '/profile',

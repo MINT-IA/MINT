@@ -561,8 +561,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         await coachProvider.updateFromLppExtraction(_fields);
       case DocumentType.avsExtract:
         await coachProvider.updateFromAvsExtraction(_fields);
+      case DocumentType.taxDeclaration:
+        await coachProvider.updateFromTaxExtraction(_fields);
       default:
-        // Other document types: not yet wired
         break;
     }
 

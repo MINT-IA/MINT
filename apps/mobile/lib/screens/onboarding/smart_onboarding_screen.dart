@@ -316,7 +316,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
                 onEnrich: () => _goToPage(3),
-                onDashboard: () => _goToPage(3),
+                onDashboard: () => _goToPage(5),
               ),
 
               // ── Page 3: JIT explanation (SI...ALORS) ─────────────────────

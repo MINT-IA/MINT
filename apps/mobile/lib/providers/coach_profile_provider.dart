@@ -751,6 +751,96 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met a jour le profil depuis l'extraction d'une declaration fiscale.
+  ///
+  /// Mappe les 6 champs fiscaux extraits vers les wizard answers
+  /// et tag les dataSources comme certificate-confirmed.
+  /// Le taux marginal effectif est le champ le plus critique (drive
+  /// tous les arbitrages: 3a, rachat LPP, rente vs capital).
+  ///
+  /// Reference: LIFD art. 33-33a (deductions), LIFD art. 38 (capital)
+  Future<void> updateFromTaxExtraction(List<ExtractedField> fields) async {
+    if (_profile == null) return;
+
+    final p = _profile!;
+
+    // Extract values from confirmed fields
+    double? revenuImposable;
+    double? fortuneImposable;
+    double? deductions;
+    double? impotCantonal;
+    double? impotFederal;
+    double? tauxMarginal;
+
+    for (final field in fields) {
+      if (field.profileField == null) continue;
+      final value = field.value;
+      if (value is! double) continue;
+
+      switch (field.profileField) {
+        case 'actualTaxableIncome':
+          revenuImposable = value;
+        case 'actualTaxableWealth':
+          fortuneImposable = value;
+        case 'actualDeductions':
+          deductions = value;
+        case 'actualCantonalTax':
+          impotCantonal = value;
+        case 'actualFederalTax':
+          impotFederal = value;
+        case 'actualMarginalRate':
+          tauxMarginal = value;
+      }
+    }
+
+    // Tag data sources as certificate-confirmed
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+    if (revenuImposable != null) {
+      updatedSources['fiscal.revenuImposable'] = ProfileDataSource.certificate;
+    }
+    if (fortuneImposable != null) {
+      updatedSources['fiscal.fortuneImposable'] = ProfileDataSource.certificate;
+    }
+    if (tauxMarginal != null) {
+      updatedSources['fiscal.tauxMarginal'] = ProfileDataSource.certificate;
+    }
+    if (impotCantonal != null || impotFederal != null) {
+      updatedSources['fiscal.impots'] = ProfileDataSource.certificate;
+    }
+
+    _profile = p.copyWith(
+      dataSources: updatedSources,
+      updatedAt: DateTime.now(),
+    );
+
+    // Persist to wizard answers for availability across restarts
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (revenuImposable != null) {
+      answers['_coach_tax_revenu_imposable'] = revenuImposable;
+    }
+    if (fortuneImposable != null) {
+      answers['_coach_tax_fortune_imposable'] = fortuneImposable;
+    }
+    if (deductions != null) {
+      answers['_coach_tax_deductions'] = deductions;
+    }
+    if (impotCantonal != null) {
+      answers['_coach_tax_impot_cantonal'] = impotCantonal;
+    }
+    if (impotFederal != null) {
+      answers['_coach_tax_impot_federal'] = impotFederal;
+    }
+    if (tauxMarginal != null) {
+      answers['_coach_tax_taux_marginal'] = tauxMarginal;
+    }
+    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    answers['_coach_tax_source'] = 'document_scan';
+    await ReportPersistenceService.saveAnswers(answers);
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
   /// Returns a map of pre-filled values from the existing profile for
   /// the Smart Onboarding flow. Keys match the onboarding field names.
   ///

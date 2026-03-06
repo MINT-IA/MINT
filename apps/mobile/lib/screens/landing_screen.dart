@@ -183,10 +183,21 @@ class _LandingScreenState extends State<LandingScreen> {
                             delayInMs: 850,
                             child: Center(
                               child: OutlinedButton.icon(
-                                onPressed: () {
+                                onPressed: () async {
                                   _analytics.trackCTAClick('cta_explore',
                                       screenName: '/');
-                                  context.go('/home');
+                                  final isCompleted =
+                                      await ReportPersistenceService
+                                          .isCompleted();
+                                  final isMiniCompleted =
+                                      await ReportPersistenceService
+                                          .isMiniOnboardingCompleted();
+                                  if (!context.mounted) return;
+                                  if (isCompleted || isMiniCompleted) {
+                                    context.go('/home');
+                                  } else {
+                                    context.go('/onboarding/smart');
+                                  }
                                 },
                                 icon: const Icon(Icons.explore_outlined,
                                     size: 18),
@@ -637,8 +648,7 @@ class _LandingScreenState extends State<LandingScreen> {
         _trustDot(),
         _buildTrustChip(Icons.lock_outline_rounded, '100% prive'),
         _trustDot(),
-        _buildTrustChip(
-            Icons.check_circle_outline_rounded, 'Sans engagement'),
+        _buildTrustChip(Icons.check_circle_outline_rounded, 'Sans engagement'),
       ],
     );
   }
@@ -701,8 +711,7 @@ class _LandingScreenState extends State<LandingScreen> {
         Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20),
@@ -720,13 +729,12 @@ class _LandingScreenState extends State<LandingScreen> {
             const SizedBox(width: 12),
             TextButton(
               onPressed: () {
-                _analytics.trackCTAClick('cta_login_clicked',
-                    screenName: '/');
+                _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
                 context.go('/auth/login');
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 backgroundColor: Colors.white.withValues(alpha: 0.7),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -820,8 +828,8 @@ class _LandingScreenState extends State<LandingScreen> {
           ),
         ],
       ),
-      child: const Icon(Icons.token_rounded,
-          color: MintColors.primary, size: 28),
+      child:
+          const Icon(Icons.token_rounded, color: MintColors.primary, size: 28),
     );
   }
 }

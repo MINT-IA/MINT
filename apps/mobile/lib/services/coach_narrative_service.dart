@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/coach_context_builder.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -164,6 +168,83 @@ class CoachNarrativeService {
   /// Termes bannis — delegue a ComplianceGuard (source unique).
   static List<String> get _bannedTerms => ComplianceGuard.bannedTerms;
 
+  /// Build a [CoachContext] from a [CoachProfile] for use by
+  /// [FallbackTemplates] and hallucination grounding.
+  static CoachContext _buildCoachContext(CoachProfile profile) {
+    FinancialFitnessScore? score;
+    try {
+      score = FinancialFitnessService.calculate(profile: profile);
+    } catch (_) {}
+
+    // FRI delta: not available from check-in history (no score field).
+    // The delta is computed dynamically in the dashboard from scoreHistory.
+    const double friDelta = 0;
+
+    // Months of liquidity
+    final depenses = profile.totalDepensesMensuelles;
+    final liquide = profile.patrimoine.epargneLiquide;
+    final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
+
+    // Tax saving potential (3a margin × estimated marginal rate)
+    final plafond3a =
+        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+    final verse3a = profile.total3aMensuel * 12;
+    final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
+    final taxSaving = marge3a * 0.30; // ~30% marginal estimate
+
+    // Confidence score
+    double confidence = 0;
+    try {
+      final cs = ConfidenceScorer.score(profile);
+      confidence = cs.score;
+    } catch (_) {}
+
+    // Fiscal season
+    final now = DateTime.now();
+    String fiscalSeason = '';
+    if (now.month >= 10 && now.month <= 12) {
+      fiscalSeason = '3a_deadline';
+    } else if (now.month >= 2 && now.month <= 3) {
+      fiscalSeason = 'tax_declaration';
+    }
+
+    // Days since last check-in (proxy for last visit)
+    int daysSinceLastVisit = 30; // default: assume a month
+    if (profile.checkIns.isNotEmpty) {
+      final lastCheckIn = profile.checkIns.last;
+      final lastDate = DateTime(lastCheckIn.month.year, lastCheckIn.month.month);
+      daysSinceLastVisit = now.difference(lastDate).inDays;
+    }
+
+    // Streak
+    final streak = StreakService.compute(profile);
+
+    // Data sources → string map for CoachContextBuilder
+    final dataSources = <String, String>{};
+    for (final entry in profile.dataSources.entries) {
+      dataSources[entry.key] = entry.value.name;
+    }
+
+    return CoachContextBuilder.build(
+      firstName: profile.firstName ?? 'utilisateur',
+      age: profile.age,
+      canton: profile.canton,
+      friTotal: score?.global.toDouble() ?? 0,
+      friDelta: friDelta,
+      replacementRatio: 0, // computed downstream if needed
+      monthsLiquidity: monthsLiquidity,
+      taxSavingPotential: taxSaving,
+      confidenceScore: confidence,
+      epargne3a: profile.prevoyance.totalEpargne3a,
+      avoirLpp: (profile.prevoyance.avoirLppTotal ?? 0).toDouble(),
+      salaireBrut: profile.revenuBrutAnnuel,
+      daysSinceLastVisit: daysSinceLastVisit,
+      fiscalSeason: fiscalSeason,
+      checkInStreak: streak.currentStreak,
+      dataSources: dataSources,
+    );
+  }
+
   /// Applique un mode de rendu a un texte narratif.
   /// - detailed: texte complet
   /// - concise: premiere phrase utile (ou coupe a ~120 chars)
@@ -302,39 +383,24 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName =
-        (profile.firstName != null && profile.firstName!.isNotEmpty)
-            ? profile.firstName!
-            : 'toi';
+    // Build CoachContext for personalized FallbackTemplates
+    final ctx = _buildCoachContext(profile);
 
-    // Score calculation
-    FinancialFitnessScore? score;
-    try {
-      score = FinancialFitnessService.calculate(profile: profile);
-    } catch (_) {
-      // Graceful fallback if score calculation fails
-    }
+    // Greeting — context-aware (fiscal season, FRI delta, days since visit)
+    final greeting = FallbackTemplates.greeting(ctx);
 
-    // Greeting — reproduit le texte exact du SliverAppBar
-    final greeting = 'Bonjour $firstName';
-
-    // Score summary — reproduit le format "{score}/100 — {level.label}"
-    final String scoreSummary;
-    if (score != null) {
-      scoreSummary = '${score.global}/100 — ${score.level.label}';
-    } else {
-      scoreSummary = 'Score en cours de calcul...';
-    }
+    // Score summary — includes trend direction
+    final scoreSummary = FallbackTemplates.scoreSummary(ctx);
 
     // Trend message — reproduit la logique exacte de _buildScoreTrendText()
     final trendMessage = _computeStaticTrendMessage(scoreHistory);
 
-    // Top tip narrative — premier tip si disponible
+    // Top tip narrative — personalized via FallbackTemplates if no coaching tips
     final String? topTipNarrative;
     if (tips.isNotEmpty) {
       topTipNarrative = tips.first.message;
     } else {
-      topTipNarrative = null;
+      topTipNarrative = FallbackTemplates.tipNarrative(ctx);
     }
 
     // Scenario narrations — fallback statique (T7 sans BYOK)
@@ -387,18 +453,14 @@ class CoachNarrativeService {
     }
 
     // ── chiffreChocNarration + retirementCountdown (static fallback) ──
-    String? chiffreChocNarration;
+    // Chiffre choc — confidence-aware via FallbackTemplates
+    final chiffreChocNarration = FallbackTemplates.chiffreChocReframe(ctx);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
       final retAge = profile.effectiveRetirementAge;
       retirementCountdown = 'Plus que ${yearsLeft * 12} mois avant ta retraite '
           'a $retAge ans.';
-
-      if (yearsLeft <= 10) {
-        chiffreChocNarration = 'A ${profile.age} ans, tu as encore $yearsLeft '
-            'ans pour optimiser ta prevoyance.';
-      }
     }
 
     return CoachNarrative(
@@ -681,6 +743,17 @@ class CoachNarrativeService {
     buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
     buffer.writeln();
 
+    // Grounding values for hallucination detection (CoachContext)
+    final ctx = _buildCoachContext(profile);
+    if (ctx.knownValues.isNotEmpty) {
+      buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
+      for (final entry in ctx.knownValues.entries) {
+        buffer.writeln('- ${entry.key}: ${entry.value.toStringAsFixed(0)}');
+      }
+      buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
+      buffer.writeln();
+    }
+
     buffer.writeln('TIPS ACTIFS (par priorite) :');
     buffer.writeln(tipsFormatted);
     buffer.writeln();
@@ -703,6 +776,8 @@ class CoachNarrativeService {
     buffer.writeln(
         '9. Ton educatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
     buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
+    buffer.writeln(
+        '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
 
     return buffer.toString();
   }

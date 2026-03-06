@@ -6,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
@@ -178,11 +180,28 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
 
     try {
+      // Read BYOK config from provider (opt-in cloud LLM)
+      LlmConfig? byokConfig;
+      if (mounted) {
+        final byok = context.read<ByokProvider>();
+        if (byok.isConfigured && byok.apiKey != null && byok.provider != null) {
+          final provider = switch (byok.provider) {
+            'claude' => LlmProvider.anthropic,
+            'mistral' => LlmProvider.mistral,
+            _ => LlmProvider.openai,
+          };
+          byokConfig = LlmConfig(
+            apiKey: byok.apiKey!,
+            provider: provider,
+          );
+        }
+      }
+
       final narrative = await CoachNarrativeService.generate(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
-        byokConfig: null,
+        byokConfig: byokConfig,
       );
 
       // Only update if this is still the latest generation
