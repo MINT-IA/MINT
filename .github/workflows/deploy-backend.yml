@@ -6,6 +6,7 @@
 #   - PR opened/sync/reopen  -> handled by CI workflow only
 #
 # Required secrets:
+#   PROJECT_STAGING_TOKEN
 #   RAILWAY_TOKEN
 #   RAILWAY_STAGING_SERVICE_ID
 #   RAILWAY_SERVICE_ID  (prod)
@@ -86,12 +87,12 @@ jobs:
     steps:
       - name: Validate Railway staging secrets
         env:
-          HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
+          HAS_STAGING_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN != '' }}
           HAS_STAGING_SERVICE: ${{ secrets.RAILWAY_STAGING_SERVICE_ID != '' }}
           HAS_STAGING_ENV: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID != '' }}
         run: |
-          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_STAGING_SERVICE" != "true" ] || [ "$HAS_STAGING_ENV" != "true" ]; then
-            echo "::error::Missing Railway staging secrets (RAILWAY_TOKEN, RAILWAY_STAGING_SERVICE_ID, RAILWAY_STAGING_ENVIRONMENT_ID)."
+          if [ "$HAS_STAGING_TOKEN" != "true" ] || [ "$HAS_STAGING_SERVICE" != "true" ] || [ "$HAS_STAGING_ENV" != "true" ]; then
+            echo "::error::Missing Railway staging secrets (PROJECT_STAGING_TOKEN, RAILWAY_STAGING_SERVICE_ID, RAILWAY_STAGING_ENVIRONMENT_ID)."
             exit 1
           fi
 
@@ -104,7 +105,7 @@ jobs:
 
       - name: Deploy to Railway staging
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           RAILWAY_STAGING_ENVIRONMENT_ID: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID }}
         run: |
