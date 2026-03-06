@@ -876,8 +876,6 @@ class CoachProfile {
     Map<String, ProfileDataSource> provided,
     PrevoyanceProfile prevoyance,
   ) {
-    if (provided.isNotEmpty) return provided;
-
     final inferred = <String, ProfileDataSource>{};
 
     // LPP source inference: split fields / insured salary indicate
@@ -921,7 +919,8 @@ class CoachProfile {
           ProfileDataSource.certificate;
     }
 
-    return inferred;
+    // Merge: provided entries (e.g. fiscal from extraction) win over inferred
+    return {...inferred, ...provided};
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1756,6 +1755,27 @@ class CoachProfile {
     // ── Family change persiste par annual refresh ─────────
     final familyChange = answers['_coach_family_change'] as String?;
 
+    // ── Fiscal dataSources (restored from persisted extraction) ──
+    final restoredDataSources = <String, ProfileDataSource>{};
+    if (answers['_coach_tax_source'] == 'document_scan') {
+      if (answers['_coach_tax_revenu_imposable'] != null) {
+        restoredDataSources['fiscal.revenuImposable'] =
+            ProfileDataSource.certificate;
+      }
+      if (answers['_coach_tax_fortune_imposable'] != null) {
+        restoredDataSources['fiscal.fortuneImposable'] =
+            ProfileDataSource.certificate;
+      }
+      if (answers['_coach_tax_taux_marginal'] != null) {
+        restoredDataSources['fiscal.tauxMarginal'] =
+            ProfileDataSource.certificate;
+      }
+      if (answers['_coach_tax_impot_cantonal'] != null ||
+          answers['_coach_tax_impot_federal'] != null) {
+        restoredDataSources['fiscal.impots'] = ProfileDataSource.certificate;
+      }
+    }
+
     return CoachProfile(
       firstName: firstName,
       birthYear: birthYear,
@@ -1786,6 +1806,7 @@ class CoachProfile {
           savedUpdatedAt != null ? DateTime.tryParse(savedUpdatedAt) : null,
       createdAt:
           savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
+      dataSources: restoredDataSources,
     );
   }
 

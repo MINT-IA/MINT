@@ -8,7 +8,9 @@ import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -217,7 +219,10 @@ class CoachNarrativeService {
     }
 
     // Streak
-    final streak = StreakService.compute(profile);
+    int checkInStreak = 0;
+    try {
+      checkInStreak = StreakService.compute(profile).currentStreak;
+    } catch (_) {}
 
     // Data sources → string map for CoachContextBuilder
     final dataSources = <String, String>{};
@@ -225,13 +230,34 @@ class CoachNarrativeService {
       dataSources[entry.key] = entry.value.name;
     }
 
+    // Replacement ratio — quick approximation using financial_core
+    // (AVS + LPP rente) / current gross monthly. Same approach as landing page.
+    double replacementRatio = 0;
+    try {
+      final salary = profile.revenuBrutAnnuel;
+      if (salary > 0 && profile.age < 65) {
+        final avsMonthly = AvsCalculator.renteFromRAMD(salary);
+        final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
+        final lppAnnual = LppCalculator.projectToRetirement(
+          currentBalance: lppBalance,
+          currentAge: profile.age,
+          retirementAge: 65,
+          grossAnnualSalary: salary,
+          caisseReturn: 0.01,
+          conversionRate: profile.prevoyance.tauxConversion ?? 0.068,
+        );
+        final totalMonthly = avsMonthly + lppAnnual / 12;
+        replacementRatio = totalMonthly / (salary / 12);
+      }
+    } catch (_) {}
+
     return CoachContextBuilder.build(
       firstName: profile.firstName ?? 'utilisateur',
       age: profile.age,
       canton: profile.canton,
       friTotal: score?.global.toDouble() ?? 0,
       friDelta: friDelta,
-      replacementRatio: 0, // computed downstream if needed
+      replacementRatio: replacementRatio,
       monthsLiquidity: monthsLiquidity,
       taxSavingPotential: taxSaving,
       confidenceScore: confidence,
@@ -240,7 +266,7 @@ class CoachNarrativeService {
       salaireBrut: profile.revenuBrutAnnuel,
       daysSinceLastVisit: daysSinceLastVisit,
       fiscalSeason: fiscalSeason,
-      checkInStreak: streak.currentStreak,
+      checkInStreak: checkInStreak,
       dataSources: dataSources,
     );
   }

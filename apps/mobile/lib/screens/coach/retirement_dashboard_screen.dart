@@ -188,12 +188,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           final provider = switch (byok.provider) {
             'claude' => LlmProvider.anthropic,
             'mistral' => LlmProvider.mistral,
-            _ => LlmProvider.openai,
+            'openai' => LlmProvider.openai,
+            _ => null, // Unknown provider — skip BYOK
           };
-          byokConfig = LlmConfig(
-            apiKey: byok.apiKey!,
-            provider: provider,
-          );
+          if (provider != null) {
+            byokConfig = LlmConfig(
+              apiKey: byok.apiKey!,
+              provider: provider,
+            );
+          }
         }
       }
 
