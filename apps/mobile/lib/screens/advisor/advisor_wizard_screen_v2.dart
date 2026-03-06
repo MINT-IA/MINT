@@ -925,7 +925,7 @@ class _AdvisorWizardScreenV2State extends State<AdvisorWizardScreenV2> {
               title: 'TON 2E PILIER',
               text: 'En tant que salarie, ton employeur cotise autant que toi a ta LPP. '
                   'C\'est de l\'argent "gratuit" — CHF 3\'000-10\'000/an selon ton age. '
-                  'Taux de conversion garanti : 6.8% sur la part obligatoire (LPP art. 14).',
+                  'Taux de conversion minimum legal : 6.8% sur la part obligatoire (LPP art. 14).',
               color: MintColors.info,
             );
           } else {

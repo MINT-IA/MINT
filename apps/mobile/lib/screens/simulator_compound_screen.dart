@@ -287,7 +287,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         const SizedBox(height: 24),
         _buildLessonItem(Icons.timer_outlined, 'Le temps est roi', 'Attendre 5 ans avant de commencer peut te faire perdre la moitié de ton capital final.'),
         _buildLessonItem(Icons.auto_graph_outlined, 'L\'effet de levier', 'Une fois lancé, ton capital génère ses propres intérêts, qui en génèrent d\'autres à leur tour.'),
-        _buildLessonItem(Icons.psychology_outlined, 'Discipline', 'La régularité des versements mensuels bat souvent la recherche du meilleur moment pour investir.'),
+        _buildLessonItem(Icons.psychology_outlined, 'Discipline', 'La regularite des versements mensuels est souvent plus efficace que la recherche du moment ideal pour investir.'),
       ],
     );
   }

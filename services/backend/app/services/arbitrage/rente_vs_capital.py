@@ -70,8 +70,8 @@ _SOURCES = [
 def _estimate_income_tax_on_rente(rente_annuelle: float, canton: str, is_married: bool) -> float:
     """Estimate annual income tax on rente income.
 
-    Uses cantonal base rate as proxy, scaled up for income tax
-    (income tax is typically ~3x capital withdrawal rate).
+    Uses federal progressive brackets (LIFD art. 36) + cantonal effective rates
+    from CantonalComparator for a realistic estimation instead of multiplier hack.
 
     Args:
         rente_annuelle: Annual rente income (CHF).
@@ -81,12 +81,34 @@ def _estimate_income_tax_on_rente(rente_annuelle: float, canton: str, is_married
     Returns:
         Estimated annual income tax (CHF).
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    # Income tax is roughly 2.5-3x the capital withdrawal rate
-    income_rate = base_rate * 3.0
+    from app.services.fiscal.cantonal_comparator import (
+        EFFECTIVE_RATES_100K_SINGLE,
+        FEDERAL_BRACKETS,
+    )
+
+    # Revenu imposable: ~85% of rente (standard deductions)
+    revenu_imposable = rente_annuelle * 0.85
+
+    # Federal tax via progressive brackets (LIFD art. 36)
+    impot_federal = 0.0
+    prev_bound = 0.0
+    for upper, rate in FEDERAL_BRACKETS:
+        if revenu_imposable <= prev_bound:
+            break
+        taxable = min(revenu_imposable, upper) - prev_bound
+        impot_federal += taxable * rate
+        prev_bound = upper
+
+    # Cantonal+communal tax via effective rate scaled by income
+    cantonal_rate = EFFECTIVE_RATES_100K_SINGLE.get(canton.upper(), 0.13)
+    # Scale rate for income level (rates calibrated at 100k)
+    income_factor = max(0.6, min(1.5, rente_annuelle / 100_000))
+    impot_cantonal = revenu_imposable * cantonal_rate * income_factor
+
+    total = impot_federal + impot_cantonal
     if is_married:
-        income_rate *= 0.80  # Splitting benefit
-    return round(rente_annuelle * income_rate, 2)
+        total *= 0.80  # Splitting benefit
+    return round(total, 2)
 
 
 def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Provider pour le profil Coach MINT.
@@ -324,11 +325,30 @@ class CoachProfileProvider extends ChangeNotifier {
     final netMonthly = (grossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
 
+    // Compute smart estimates via MinimalProfileService (financial_core)
+    // so the aperçu financier shows realistic values instead of zeros.
+    final minimal = MinimalProfileService.compute(
+      age: age,
+      grossSalary: grossSalary,
+      canton: canton,
+    );
+
+    // AVS contribution years: age - 20 for Swiss native (cotisations dès 21 ans)
+    final avsContributionYears = (age - 20).clamp(0, 44);
+
     final answers = <String, dynamic>{
       'q_birth_year': birthYear,
       'q_canton': canton,
       'q_net_income_period_chf': netMonthly,
       'q_employment_status': 'employed',
+      // Smart defaults: employed + salary > seuil → has pension fund (LPP art. 7)
+      'q_has_pension_fund': grossSalary >= 22680,
+      // AVS years estimated from age (Swiss native default, LAVS art. 29)
+      'q_avs_contribution_years': avsContributionYears,
+      // AVS rente estimated via financial_core AvsCalculator
+      '_coach_avs_rente_estimee': minimal.avsMonthlyRente,
+      // Patrimoine: estimated savings = (age-25) × salary × 5%
+      'q_cash_total': minimal.currentSavings,
     };
 
     _lastAnswers = answers;

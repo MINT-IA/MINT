@@ -43,7 +43,7 @@ EFFECTIVE_RATES_100K_SINGLE = {
     "SH": 0.1167,
     "AG": 0.1189,
     "GR": 0.1203,
-    "FL": 0.1234,   # Liechtenstein (bonus — pas un canton, inclus a titre comparatif)
+    # FL (Liechtenstein) removed — not a Swiss canton
     "BL": 0.1256,
     "SG": 0.1278,
     "ZH": 0.1290,

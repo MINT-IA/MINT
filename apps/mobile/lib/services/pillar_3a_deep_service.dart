@@ -70,42 +70,9 @@ class StaggeredWithdrawalResult {
 }
 
 class StaggeredWithdrawalSimulator {
-  /// Taux d'imposition retrait capital par canton (26 cantons).
-  /// Taux effectifs moyens (federal + cantonal + communal) pour un retrait
-  /// d'environ 200'000 CHF. Source : AFC, estimation pedagogique.
-  /// IDENTIQUES au backend.
-  static const Map<String, double> _tauxRetraitCapital = {
-    'ZH': 0.065,
-    'BE': 0.070,
-    'VD': 0.080,
-    'GE': 0.075,
-    'LU': 0.050,
-    'AG': 0.060,
-    'SG': 0.065,
-    'BS': 0.075,
-    'TI': 0.070,
-    'VS': 0.060,
-    'FR': 0.075,
-    'NE': 0.080,
-    'JU': 0.080,
-    'SO': 0.065,
-    'BL': 0.065,
-    'GR': 0.060,
-    'TG': 0.055,
-    'SZ': 0.040,
-    'ZG': 0.035,
-    'NW': 0.040,
-    'OW': 0.045,
-    'UR': 0.050,
-    'SH': 0.060,
-    'AR': 0.055,
-    'AI': 0.045,
-    'GL': 0.055,
-  };
-
   /// Liste des cantons ordonnee alphabetiquement
   static List<String> get cantons {
-    final list = _tauxRetraitCapital.keys.toList();
+    final list = tauxImpotRetraitCapital.keys.toList();
     list.sort();
     return list;
   }
@@ -132,7 +99,7 @@ class StaggeredWithdrawalSimulator {
     final clampedDebut = ageRetraitDebut.clamp(59, 65);
     final clampedFin = ageRetraitFin.clamp(clampedDebut, 65);
 
-    final tauxBase = _tauxRetraitCapital[canton.toUpperCase()] ?? 0.065;
+    final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
 
     // --- Retrait en bloc ---
     final impotBloc = _calculerImpotRetrait(clampedAvoir, tauxBase);

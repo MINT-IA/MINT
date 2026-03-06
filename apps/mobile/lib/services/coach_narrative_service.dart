@@ -826,19 +826,25 @@ class CoachNarrativeService {
             ? 'IMPORTANT'
             : 'NORMAL';
 
-    // Quick replacement rate estimate (AVS + LPP rente / gross salary)
+    // Replacement rate via centralized calculators (LAVS art. 34, LPP art. 16)
     double replacementRate = 0;
-    if (profile.revenuBrutAnnuel > 0) {
-      // AVS: ~roughly estimated monthly
-      final avsEstimate = profile.revenuBrutAnnuel > 88200
-          ? 2520.0
-          : (profile.revenuBrutAnnuel / 88200 * 2520).clamp(1260.0, 2520.0);
-      // LPP: rough estimate from existing balance + remaining bonifications
-      final lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
-      final lppMonthlyEstimate = lppBalance * 0.068 / 12;
-      final totalRetirement = avsEstimate + lppMonthlyEstimate;
-      replacementRate = totalRetirement / (profile.revenuBrutAnnuel / 12);
-    }
+    try {
+      final salary = profile.revenuBrutAnnuel;
+      if (salary > 0 && profile.age < 65) {
+        final avsMonthly = AvsCalculator.renteFromRAMD(salary);
+        final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
+        final lppAnnual = LppCalculator.projectToRetirement(
+          currentBalance: lppBalance,
+          currentAge: profile.age,
+          retirementAge: 65,
+          grossAnnualSalary: salary,
+          caisseReturn: 0.01,
+          conversionRate: profile.prevoyance.tauxConversion ?? 0.068,
+        );
+        final totalMonthly = avsMonthly + lppAnnual / 12;
+        replacementRate = totalMonthly / (salary / 12);
+      }
+    } catch (_) {}
 
     buffer.writeln('CONTEXTE RETRAITE :');
     buffer.writeln('- Age de retraite cible : $retirementAge ans');

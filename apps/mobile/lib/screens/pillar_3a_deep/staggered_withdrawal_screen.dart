@@ -150,7 +150,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           if (result.nbComptesOptimal != _nbComptes) ...[
             const SizedBox(height: 8),
             Text(
-              'Nombre optimal : ${result.nbComptesOptimal} comptes',
+              'Nombre adapte : ${result.nbComptesOptimal} comptes',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,

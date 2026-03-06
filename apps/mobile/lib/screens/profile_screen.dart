@@ -196,6 +196,18 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildAiSection(context),
                   const SizedBox(height: 32),
+                  const Text('Famille',
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  _buildFactFindSection(
+                    title: 'Notre menage',
+                    status: 'Couple+',
+                    isComplete: false,
+                    icon: Icons.people_outline,
+                    onTap: () => context.push('/household'),
+                  ),
+                  const SizedBox(height: 32),
                   Text(S.of(context)?.profileDocuments ?? 'Mes documents',
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),

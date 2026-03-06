@@ -144,9 +144,9 @@ void main() {
         byokConfig: null,
       );
 
-      // Le narratif statique doit correspondre au comportement
-      // exact du dashboard actuel
-      expect(narrative.greeting, equals('Bonjour Julien'));
+      // Le narratif statique utilise FallbackTemplates context-aware
+      // (greeting varie selon saison fiscale, FRI delta, etc.)
+      expect(narrative.greeting, contains('Julien'));
       // urgentAlert is now season-aware: non-null in Q4 (3a) and Feb-Mar (fiscal)
       final now = DateTime.now();
       if (now.month >= 10 && now.month <= 12) {
@@ -270,7 +270,7 @@ void main() {
 
       // Le cache expire ne doit PAS etre utilise
       expect(narrative.greeting, isNot(equals('Cache expire')));
-      expect(narrative.greeting, equals('Bonjour Julien'));
+      expect(narrative.greeting, contains('Julien'));
     });
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -311,7 +311,7 @@ void main() {
 
       // Le cache doit avoir ete invalide (nouveau check-in)
       // Le narratif doit etre regenere (nouveau generatedAt)
-      expect(second.greeting, equals('Bonjour Julien'));
+      expect(second.greeting, contains('Julien'));
       expect(second.isLlmGenerated, isFalse);
     });
 
@@ -362,7 +362,7 @@ void main() {
       expect(narrative.greeting, contains('Alice'));
     });
 
-    test('greeting utilise "toi" si firstName est null', () async {
+    test('greeting utilise "utilisateur" si firstName est null', () async {
       final profile = _buildTestProfile(firstName: null);
       final tips = _generateTips(profile);
 
@@ -373,7 +373,8 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.greeting, contains('toi'));
+      // CoachContext maps null firstName to 'utilisateur'
+      expect(narrative.greeting, contains('utilisateur'));
     });
   });
 
@@ -396,14 +397,9 @@ void main() {
       // Le score summary doit contenir "/100"
       expect(narrative.scoreSummary, contains('/100'));
 
-      // Doit contenir un label de niveau
-      expect(
-        narrative.scoreSummary.contains('Priorite') ||
-            narrative.scoreSummary.contains('Attention') ||
-            narrative.scoreSummary.contains('Bien') ||
-            narrative.scoreSummary.contains('Excellent'),
-        isTrue,
-      );
+      // FallbackTemplates.scoreSummary format:
+      // "Solidité financière : X/100. {trend}."
+      expect(narrative.scoreSummary, contains('Solidit'));
     });
   });
 
@@ -618,7 +614,7 @@ void main() {
       }
     });
 
-    test('topTipNarrative est null si pas de tips', () async {
+    test('topTipNarrative utilise FallbackTemplates si pas de tips', () async {
       final profile = _buildTestProfile();
 
       final narrative = await CoachNarrativeService.generate(
@@ -628,7 +624,9 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.topTipNarrative, isNull);
+      // When no coaching tips, FallbackTemplates.tipNarrative(ctx) is used
+      expect(narrative.topTipNarrative, isNotNull);
+      expect(narrative.topTipNarrative, isNotEmpty);
     });
   });
 

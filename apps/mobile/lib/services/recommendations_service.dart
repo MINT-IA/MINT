@@ -217,7 +217,7 @@ class RecommendationsService {
         'Versements réguliers CHF ${monthlySavings.toStringAsFixed(0)}/mois',
       ],
       impact: Impact(amountCHF: interestGained, period: Period.oneoff),
-      risks: ['Volatilité du marché', 'Rendement non garanti'],
+      risks: ['Volatilité du marché', 'Rendement variable selon les marchés'],
       alternatives: ['Compte épargne', 'Pilier 3a', 'ETF'],
       evidenceLinks: [],
       nextActions: [

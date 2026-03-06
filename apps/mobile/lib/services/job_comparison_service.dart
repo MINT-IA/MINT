@@ -298,10 +298,10 @@ class JobComparisonService {
 
     if (positiveCount >= 5) {
       verdict = ComparisonVerdict.nouveauMeilleur;
-      verdictDetail = 'Le nouveau poste est globalement meilleur';
+      verdictDetail = 'Le nouveau poste presente des avantages sur plusieurs criteres';
     } else if (negativeCount >= 5) {
       verdict = ComparisonVerdict.actuelMeilleur;
-      verdictDetail = 'Le poste actuel offre une meilleure protection';
+      verdictDetail = 'Le poste actuel offre une protection plus solide';
     } else {
       verdict = ComparisonVerdict.comparable;
       verdictDetail = 'Les deux postes sont comparables';

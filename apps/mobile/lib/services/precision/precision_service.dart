@@ -9,6 +9,7 @@
 /// - ADR-20260223-unified-financial-engine.md
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Contextual help for a financial field — tells the user exactly
@@ -237,7 +238,7 @@ class PrecisionService {
       final annualSalary = salaireBrut * 12;
       // Rough lower bound: 7% of coordinated salary per year (minimum)
       final salaireCoord =
-          (annualSalary - 26460).clamp(3780.0, double.infinity);
+          (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, double.infinity);
       final expectedMin = salaireCoord * 0.07 * yearsWorked * 0.5;
       // Upper bound: generous employer ~25% of full salary
       final expectedMax = annualSalary * 0.25 * yearsWorked;
@@ -407,7 +408,7 @@ class PrecisionService {
     // --- LPP total estimation ---
     final yearsContrib = _lppYears(archetype, age);
     final salaireCoord =
-        (annualSalary - 26460).clamp(3780.0, annualSalary * 0.8);
+        (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, annualSalary * 0.8);
     double lppEstimate = 0;
     for (int a = (age - yearsContrib).round(); a < age; a++) {
       lppEstimate += salaireCoord * _bonificationRate(a);
@@ -435,7 +436,7 @@ class PrecisionService {
     // --- LPP obligatoire estimation ---
     if (archetype != 'independent_no_lpp') {
       // Obligatory part: use only statutory minimum salary coord
-      final coordMin = (annualSalary - 26460).clamp(3780.0, 62475.0);
+      final coordMin = (annualSalary - lppDeductionCoordination).clamp(lppSalaireCoordMin, lppSalaireCoordMax);
       double obligEstimate = 0;
       for (int a = (age - yearsContrib).round(); a < age; a++) {
         obligEstimate += coordMin * _bonificationRate(a);

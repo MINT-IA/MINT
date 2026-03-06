@@ -127,6 +127,10 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+// Household / Couple+ (P6)
+import 'package:mint_mobile/providers/household_provider.dart';
+import 'package:mint_mobile/screens/household/household_screen.dart';
+import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -285,6 +289,20 @@ final _router = GoRouter(
       path: '/bank-import',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BankImportScreen(),
+    ),
+    // Household / Couple+ (P6)
+    GoRoute(
+      path: '/household',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const HouseholdScreen(),
+    ),
+    GoRoute(
+      path: '/household/accept',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final code = state.uri.queryParameters['code'];
+        return AcceptInvitationScreen(initialCode: code);
+      },
     ),
     GoRoute(
       path: '/budget',
@@ -745,6 +763,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         }),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = CoachProfileProvider();
           provider.loadFromWizard();

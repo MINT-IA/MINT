@@ -129,7 +129,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'entre le meilleur et le pire provider',
+            'entre le provider le plus et le moins performant',
             style: TextStyle(
               fontSize: 12,
               color: Colors.green.shade600,
