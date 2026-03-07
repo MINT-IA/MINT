@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -20,18 +21,18 @@ class UnemploymentCounterWidget extends StatelessWidget {
   final double monthlyBenefit;
   final int daysConsumed;
 
+  /// Durée max indemnités AC par tranche d'âge — cas standard (≥ 22 mois cotisation).
+  /// Source : LACI art. 27 al. 2 lit. a-d.
   static int _maxDays(int age) {
-    if (age < 25) return 200;
-    if (age < 55) return 260;
-    if (age < 60) return 400;
-    return 520;
+    if (age < 25) return acJoursMinCotisation;       // 200 j — cotisation typiquement courte
+    if (age < acAgeSeuillSenior) return acJoursStandard;  // 400 j — LACI art. 27 al. 2 lit. c
+    return acJoursSenior;                            // 520 j — LACI art. 27 al. 2 lit. d
   }
 
   static String _ageLabel(int age) {
     if (age < 25) return '< 25 ans';
-    if (age < 55) return '25–54 ans';
-    if (age < 60) return '55–59 ans';
-    return '≥ 60 ans';
+    if (age < acAgeSeuillSenior) return '25–54 ans';
+    return '≥ 55 ans';
   }
 
   static String _fmt(double v) {
@@ -271,10 +272,9 @@ class UnemploymentCounterWidget extends StatelessWidget {
 
   Widget _buildAgeTable(int currentAge) {
     final rows = [
-      (age: 24, label: '< 25 ans', days: 200),
-      (age: 40, label: '25–54 ans', days: 260),
-      (age: 57, label: '55–59 ans', days: 400),
-      (age: 62, label: '≥ 60 ans', days: 520),
+      (age: 24, label: '< 25 ans', days: acJoursMinCotisation),
+      (age: 40, label: '25–54 ans', days: acJoursStandard),
+      (age: 57, label: '≥ 55 ans',  days: acJoursSenior),
     ];
 
     return Container(

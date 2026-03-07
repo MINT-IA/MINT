@@ -179,6 +179,27 @@ const double acIndemniteTaux = 0.70;
 /// Taux d'indemnite chomage avec charges de famille: 80%.
 const double acIndemniteTauxChargeFamille = 0.80;
 
+/// Duree maximale des indemnites de chomage (LACI art. 27 al. 2).
+///
+/// La duree depend de la periode de cotisation ET de l'age.
+/// Les valeurs ci-dessous correspondent au cas standard (>= 22 mois de cotisation).
+/// Pour des periodes courtes (12-17 mois → 200j, 18-21 mois → 260j).
+
+/// < 22 mois de cotisation (typiquement < 25 ans en debut de carriere).
+const int acJoursMinCotisation = 200;
+
+/// 18-21 mois de cotisation (cas intermediaire).
+const int acJoursIntermediaireCotisation = 260;
+
+/// >= 22 mois de cotisation, age < 55 ans (LACI art. 27 al. 2 lit. c).
+const int acJoursStandard = 400;
+
+/// >= 22 mois de cotisation, age >= 55 ans (LACI art. 27 al. 2 lit. d).
+const int acJoursSenior = 520;
+
+/// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. d).
+const int acAgeSeuillSenior = 55;
+
 // ══════════════════════════════════════════════════════════════════════════════
 // Pilier 3a — Prevoyance individuelle liee
 // Base legale: OPP3 art. 7

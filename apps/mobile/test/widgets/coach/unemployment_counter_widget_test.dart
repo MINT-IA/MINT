@@ -20,9 +20,10 @@ void main() {
     expect(find.textContaining('capital temps'), findsOneWidget);
   });
 
-  testWidgets('shows 260 days for age 35', (tester) async {
+  // LACI art. 27 al. 2 lit. c : âge 25-54 + >= 22 mois cotisation = 400 jours
+  testWidgets('shows 400 days for age 35', (tester) async {
     await tester.pumpWidget(buildWidget(age: 35));
-    expect(find.textContaining('260'), findsWidgets);
+    expect(find.textContaining('400'), findsWidgets);
   });
 
   testWidgets('shows 200 days for age under 25', (tester) async {
@@ -30,15 +31,16 @@ void main() {
     expect(find.textContaining('200'), findsWidgets);
   });
 
-  testWidgets('shows 400 days for age 57', (tester) async {
+  // LACI art. 27 al. 2 lit. d : âge >= 55 + >= 22 mois cotisation = 520 jours
+  testWidgets('shows 520 days for age 57', (tester) async {
     await tester.pumpWidget(buildWidget(age: 57));
-    expect(find.textContaining('400'), findsWidgets);
+    expect(find.textContaining('520'), findsWidgets);
   });
 
   testWidgets('shows days consumed and remaining', (tester) async {
     await tester.pumpWidget(buildWidget(age: 35, daysConsumed: 50));
     expect(find.textContaining('50'), findsWidgets);
-    expect(find.textContaining('210'), findsWidgets); // 260-50
+    expect(find.textContaining('350'), findsWidgets); // 400-50
   });
 
   testWidgets('shows age table', (tester) async {
