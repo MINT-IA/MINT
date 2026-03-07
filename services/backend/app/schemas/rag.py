@@ -95,6 +95,98 @@ class RAGQueryResponse(BaseModel):
     tokens_used: int = Field(0, description="Estimated token usage")
 
 
+# --- RAG Vision ---
+
+
+VISION_PROVIDERS = {"claude", "openai"}
+
+
+class DocumentExtractionType(str, Enum):
+    """Target document type for structured extraction."""
+    lpp_certificate = "lpp_certificate"
+    tax_declaration = "tax_declaration"
+    avs_extract = "avs_extract"
+    generic = "generic"
+
+
+class RAGVisionRequest(BaseModel):
+    """Request body for the vision-augmented RAG endpoint.
+
+    Accepts a base64-encoded document image + BYOK API key.
+    Extracts structured financial data via Claude/GPT-4o vision.
+    Privacy: image processed in-flight, never stored by MINT.
+    """
+    image_base64: str = Field(
+        ...,
+        min_length=100,
+        description="Base64-encoded document image (JPEG/PNG/WEBP, max ~20 MB)",
+    )
+    media_type: str = Field(
+        "image/jpeg",
+        description="MIME type: image/jpeg, image/png, image/webp",
+    )
+    document_type: DocumentExtractionType = Field(
+        DocumentExtractionType.generic,
+        description="Target document type for structured extraction",
+    )
+    api_key: str = Field(
+        ...,
+        min_length=1,
+        description="User's LLM API key (BYOK — not stored by MINT)",
+    )
+    provider: LLMProvider = Field(
+        ...,
+        description="LLM provider (only 'claude' and 'openai' support vision)",
+    )
+    model: Optional[str] = Field(
+        None,
+        description="Optional model override (uses provider default if not set)",
+    )
+    profile_context: Optional[ProfileContext] = Field(
+        None,
+        description="Optional profile data for personalized extraction",
+    )
+    language: RAGLanguage = Field(
+        RAGLanguage.fr,
+        description="Response language",
+    )
+
+
+class ExtractedDocumentField(BaseModel):
+    """A single field extracted from a document image."""
+    field_name: str = Field(..., description="Canonical field name (e.g. 'lpp_total')")
+    label: str = Field(..., description="Human-readable label (FR)")
+    value: Optional[float] = Field(None, description="Numeric value if applicable")
+    text_value: Optional[str] = Field(None, description="Raw text value if non-numeric")
+    confidence: float = Field(0.85, ge=0.0, le=1.0, description="Extraction confidence")
+    source_text: str = Field("", description="Original text snippet from document")
+
+
+class RAGVisionResponse(BaseModel):
+    """Response from the vision-augmented RAG endpoint."""
+    extracted_fields: list[ExtractedDocumentField] = Field(
+        default_factory=list,
+        description="Structured fields extracted from the document",
+    )
+    document_type_detected: str = Field(
+        "",
+        description="Detected document type (may differ from requested)",
+    )
+    raw_analysis: str = Field(
+        "",
+        description="Full text analysis of the document",
+    )
+    confidence_delta: int = Field(
+        0,
+        description="Estimated confidence score improvement from this extraction",
+    )
+    disclaimers: list[str] = Field(
+        default_factory=list,
+        description="Compliance disclaimers",
+    )
+    tokens_used: int = Field(0, description="Estimated token usage")
+
+
 # --- RAG Ingest ---
 
 

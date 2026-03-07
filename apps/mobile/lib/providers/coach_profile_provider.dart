@@ -1074,6 +1074,168 @@ class CoachProfileProvider extends ChangeNotifier {
     }
   }
 
+  /// Met a jour le profil depuis les donnees bancaires Open Banking (bLink).
+  ///
+  /// Mappe les soldes de comptes et depenses categorisees vers CoachProfile.
+  /// Ne met a jour que les champs pour lesquels les donnees bancaires sont
+  /// plus fiables que la source actuelle (ne downgrade jamais certificate).
+  ///
+  /// Tags all updated fields as [ProfileDataSource.openBanking] (conf. 1.00).
+  /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 3
+  Future<void> updateFromOpenBanking({
+    required List<Map<String, dynamic>> accounts,
+    required Map<String, double> categoryTotals,
+  }) async {
+    if (_profile == null) return;
+    final p = _profile!;
+
+    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
+
+    // ── 1. Extract balances by account type ──────────────────
+    double epargneLiquide = 0;
+    double investissements = 0;
+    double epargne3a = 0;
+
+    for (final acct in accounts) {
+      final balance = (acct['balance'] as num?)?.toDouble() ?? 0;
+      final type = acct['accountType'] as String? ?? '';
+      switch (type) {
+        case 'checking':
+        case 'savings':
+          epargneLiquide += balance;
+        case '3a':
+          epargne3a += balance;
+        case 'securities':
+          investissements += balance;
+      }
+    }
+
+    // ── 2. Extract monthly expenses from categories ──────────
+    final loyer = _safeExpense(categoryTotals['logement'], p.salaireBrutMensuel, 0.50);
+    final assurance = _safeExpense(categoryTotals['assurances'], p.salaireBrutMensuel, 0.12);
+    final electricite = _safeExpense(categoryTotals['energie'], p.salaireBrutMensuel, 0.05);
+    final transport = _safeExpense(categoryTotals['transport'], p.salaireBrutMensuel, 0.10);
+    final telecom = _safeExpense(categoryTotals['telecom'], p.salaireBrutMensuel, 0.05);
+    final fraisMedicaux = _safeExpense(categoryTotals['sante'], p.salaireBrutMensuel, 0.10);
+    final hypotheque = _safeExpense(categoryTotals['hypotheque'], p.salaireBrutMensuel, 0.50);
+
+    // ── 3. Build updated sub-profiles ────────────────────────
+    final updatedPat = p.patrimoine.copyWith(
+      epargneLiquide: epargneLiquide > 0 ? epargneLiquide : null,
+      investissements: investissements > 0 ? investissements : null,
+    );
+
+    PrevoyanceProfile? updatedPrev;
+    if (epargne3a > 0) {
+      updatedPrev = PrevoyanceProfile(
+        anneesContribuees: p.prevoyance.anneesContribuees,
+        lacunesAVS: p.prevoyance.lacunesAVS,
+        renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
+        nomCaisse: p.prevoyance.nomCaisse,
+        avoirLppTotal: p.prevoyance.avoirLppTotal,
+        avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
+        avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
+        rachatMaximum: p.prevoyance.rachatMaximum,
+        rachatEffectue: p.prevoyance.rachatEffectue,
+        tauxConversion: p.prevoyance.tauxConversion,
+        tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
+        rendementCaisse: p.prevoyance.rendementCaisse,
+        salaireAssure: p.prevoyance.salaireAssure,
+        ramd: p.prevoyance.ramd,
+        nombre3a: p.prevoyance.nombre3a,
+        totalEpargne3a: epargne3a,
+        comptes3a: p.prevoyance.comptes3a,
+        canContribute3a: p.prevoyance.canContribute3a,
+        librePassage: p.prevoyance.librePassage,
+      );
+    }
+
+    final updatedDep = p.depenses.copyWith(
+      loyer: loyer,
+      assuranceMaladie: assurance,
+      electricite: electricite,
+      transport: transport,
+      telecom: telecom,
+      fraisMedicaux: fraisMedicaux,
+    );
+
+    final updatedDet = hypotheque != null
+        ? p.dettes.copyWith(hypotheque: hypotheque)
+        : null;
+
+    // ── 4. Tag all updated fields as openBanking ─────────────
+    if (epargneLiquide > 0) {
+      updatedSources['patrimoine.epargneLiquide'] = ProfileDataSource.openBanking;
+    }
+    if (investissements > 0) {
+      updatedSources['patrimoine.investissements'] = ProfileDataSource.openBanking;
+    }
+    if (epargne3a > 0) {
+      updatedSources['prevoyance.totalEpargne3a'] = ProfileDataSource.openBanking;
+    }
+    if (loyer != null) updatedSources['depenses.loyer'] = ProfileDataSource.openBanking;
+    if (assurance != null) {
+      updatedSources['depenses.assuranceMaladie'] = ProfileDataSource.openBanking;
+    }
+    if (electricite != null) {
+      updatedSources['depenses.electricite'] = ProfileDataSource.openBanking;
+    }
+    if (transport != null) updatedSources['depenses.transport'] = ProfileDataSource.openBanking;
+    if (telecom != null) updatedSources['depenses.telecom'] = ProfileDataSource.openBanking;
+    if (fraisMedicaux != null) {
+      updatedSources['depenses.fraisMedicaux'] = ProfileDataSource.openBanking;
+    }
+    if (hypotheque != null) updatedSources['dettes.hypotheque'] = ProfileDataSource.openBanking;
+
+    // ── 5. Apply update ──────────────────────────────────────
+    _profile = p.copyWith(
+      prevoyance: updatedPrev,
+      patrimoine: updatedPat,
+      depenses: updatedDep,
+      dettes: updatedDet,
+      dataSources: updatedSources,
+      updatedAt: DateTime.now(),
+    );
+
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+
+    // Persist asynchronously
+    try {
+      final answers = await ReportPersistenceService.loadAnswers();
+      if (epargneLiquide > 0) answers['q_cash_total'] = epargneLiquide;
+      if (investissements > 0) answers['_coach_investissements'] = investissements;
+      if (epargne3a > 0) answers['_coach_total_3a'] = epargne3a;
+      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
+      if (assurance != null) answers['_coach_depenses_assurance'] = assurance;
+      if (electricite != null) answers['_coach_depenses_electricite'] = electricite;
+      if (transport != null) answers['_coach_depenses_transport'] = transport;
+      if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
+      if (fraisMedicaux != null) {
+        answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
+      }
+      if (hypotheque != null) answers['_coach_dettes_hypotheque'] = hypotheque;
+      answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+      answers['_coach_blink_source'] = 'open_banking';
+      await ReportPersistenceService.saveAnswers(answers);
+    } catch (e) {
+      debugPrint('[CoachProfileProvider] bLink persistence error: $e');
+    }
+  }
+
+  /// Plausibility check: reject expense estimates that exceed a reasonable
+  /// ratio of gross monthly salary (e.g., rent > 50% of salary = suspect).
+  static double? _safeExpense(
+    double? categoryTotal,
+    double grossMonthlySalary,
+    double maxRatio,
+  ) {
+    if (categoryTotal == null || categoryTotal <= 0) return null;
+    if (grossMonthlySalary <= 0) return categoryTotal;
+    final ceiling = grossMonthlySalary * maxRatio * 1.5; // 50% margin
+    return categoryTotal <= ceiling ? categoryTotal : null;
+  }
+
   /// Returns a map of pre-filled values from the existing profile for
   /// the Smart Onboarding flow. Keys match the onboarding field names.
   ///
