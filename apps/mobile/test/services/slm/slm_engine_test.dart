@@ -51,7 +51,7 @@ void main() {
     });
 
     test('4. constants are sensible', () {
-      expect(SlmEngine.maxContextTokens, equals(8192));
+      expect(SlmEngine.maxContextTokens, equals(2048)); // reduced from 8192 for 4 GB RAM devices (e6d399d)
       expect(SlmEngine.defaultMaxTokens, equals(256));
       expect(SlmEngine.defaultTemperature, equals(0.3));
       expect(SlmEngine.defaultTemperature, greaterThan(0.0));
