@@ -14,6 +14,7 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 
 // Models
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
@@ -48,6 +49,9 @@ void main() {
         ),
         ChangeNotifierProvider<LocaleProvider>(
           create: (_) => LocaleProvider(),
+        ),
+        ChangeNotifierProvider<SlmProvider>(
+          create: (_) => SlmProvider(),
         ),
       ],
       child: const MaterialApp(home: ProfileScreen()),

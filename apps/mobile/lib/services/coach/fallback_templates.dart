@@ -139,6 +139,54 @@ class FallbackTemplates {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Enrichment Guide — max 150 words (ComponentType.enrichmentGuide)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates a conversational enrichment prompt for a data block.
+  /// Used in DataBlockEnrichmentScreen "coach mode".
+  static String enrichmentGuide(CoachContext ctx, String blockType) {
+    final name = ctx.firstName;
+    return switch (blockType) {
+      'lpp' =>
+        '$name, connais-tu ton avoir LPP actuel? '
+        'Ton certificat de prevoyance (2e pilier) indique le montant exact. '
+        'Avec ton salaire et ton age, l\'estimation pourrait varier '
+        'significativement du reel. Un scan du certificat affinerait '
+        'tes projections de +18 points de confiance.',
+      'avs' =>
+        '$name, as-tu deja demande ton extrait de compte AVS? '
+        'Il confirme tes annees de cotisation effectives. '
+        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrie, des lacunes sont probables. ' : ''}'
+        'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
+      '3a' =>
+        '$name, combien de comptes 3a as-tu et chez quel provider? '
+        'Connaitre les soldes exacts permet de calculer ton avantage fiscal '
+        'et de projeter ta prevoyance complete.',
+      'patrimoine' =>
+        '$name, as-tu de l\'epargne en dehors de la prevoyance? '
+        'Comptes courants, investissements, immobilier — ces donnees '
+        'completent ton Financial Resilience Index.',
+      'fiscalite' =>
+        '$name, dans quelle commune habites-tu? '
+        'Le coefficient communal varie de 60% a 130% et impacte '
+        'directement ton taux d\'imposition reel. '
+        'Une declaration fiscale ou un avis de taxation donnerait un calcul precis.',
+      'objectifRetraite' =>
+        '$name, a quel age souhaiterais-tu arreter de travailler? '
+        'Entre 58 et 70 ans, chaque annee change la donne : '
+        'rente reduite avant 65 ans, majoree apres.',
+      'compositionMenage' =>
+        '$name, es-tu en couple? '
+        'Si oui, les projections changent significativement : '
+        'AVS plafonnee pour les maries, rente de survivant LPP, '
+        'et possibilites d\'optimisation fiscale a deux.',
+      _ =>
+        '$name, continue a enrichir ton profil. '
+        'Chaque donnee ajoutee ameliore la precision de tes projections.',
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // Helpers
   // ═══════════════════════════════════════════════════════════════
 

@@ -18,7 +18,7 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/widgets/language_selector_widget.dart';
 import 'package:mint_mobile/l10n/locale_helper.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -956,15 +956,18 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => context.push('/profile/byok'),
         ),
         const SizedBox(height: 12),
-        _buildFactFindSection(
-          title: 'IA on-device (SLM)',
-          status: SlmEngine.instance.isAvailable
-              ? 'Mod\u00e8le pr\u00eat'
-              : 'Mod\u00e8le non install\u00e9',
-          isComplete: SlmEngine.instance.isAvailable,
-          icon: Icons.smartphone,
-          onTap: () => context.push('/profile/slm'),
-        ),
+        Builder(builder: (context) {
+          final slm = context.watch<SlmProvider>();
+          return _buildFactFindSection(
+            title: 'IA on-device (SLM)',
+            status: slm.isEngineAvailable
+                ? 'Mod\u00e8le pr\u00eat'
+                : 'Mod\u00e8le non install\u00e9',
+            isComplete: slm.isEngineAvailable,
+            icon: Icons.smartphone,
+            onTap: () => context.push('/profile/slm'),
+          );
+        }),
       ],
     );
   }

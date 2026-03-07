@@ -14,6 +14,7 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ void main() {
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),

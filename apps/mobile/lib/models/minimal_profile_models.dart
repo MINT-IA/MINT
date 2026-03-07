@@ -71,15 +71,24 @@ class MinimalProfileResult {
   /// Existing LPP balance.
   final double existingLpp;
 
+  /// Employment status: 'salarie', 'independant', 'sans_emploi', 'retraite'.
+  final String employmentStatus;
+
+  /// Nationality group: 'CH', 'EU', 'OTHER'.
+  final String nationalityGroup;
+
+  /// 3a annual ceiling used for tax saving calculation (7'258 or 36'288).
+  final double plafond3a;
+
   /// List of fields that were estimated (not provided by the user).
   final List<String> estimatedFields;
 
   /// Number of data points actually provided by the user.
   int get providedFieldsCount {
-    // Base 3 fields (age, salary, canton) are always provided.
+    // Base 5 fields (age, salary, employment, nationality, canton) always provided.
     // Additional fields reduce estimatedFields count.
-    const totalOptionalFields = 7; // household, savings, property, 3a, lpp, lppCaisseType, debtService
-    return 3 + (totalOptionalFields - estimatedFields.length);
+    const totalOptionalFields = 5; // household, savings, property, 3a, lpp
+    return 5 + (totalOptionalFields - estimatedFields.length);
   }
 
   const MinimalProfileResult({
@@ -103,6 +112,9 @@ class MinimalProfileResult {
     required this.isPropertyOwner,
     required this.existing3a,
     required this.existingLpp,
+    required this.employmentStatus,
+    required this.nationalityGroup,
+    required this.plafond3a,
     required this.estimatedFields,
   });
 }

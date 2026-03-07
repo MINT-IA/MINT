@@ -108,7 +108,7 @@ import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/providers/onboarding_provider.dart';
+
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
@@ -129,6 +129,7 @@ import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 // Household / Couple+ (P6)
 import 'package:mint_mobile/providers/household_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 
@@ -743,6 +744,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         state == AppLifecycleState.detached) {
       // Release SLM model (~2 GB RAM) when app goes to background.
       // The model will be re-initialized on next use.
+      // Use singleton directly here (no BuildContext in lifecycle callback).
       if (SlmEngine.instance.isAvailable) {
         SlmEngine.instance.dispose();
       }
@@ -775,13 +777,13 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {
-          final provider = OnboardingProvider();
-          provider.init();
+          final provider = UserActivityProvider();
+          provider.loadAll();
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {
-          final provider = UserActivityProvider();
-          provider.loadAll();
+          final provider = SlmProvider();
+          provider.init();
           return provider;
         }),
       ],

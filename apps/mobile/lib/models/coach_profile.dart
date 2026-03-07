@@ -35,6 +35,36 @@ enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 /// Devise des investissements
 enum InvestmentCurrency { chf, usd, eur }
 
+/// Archetype financier de l'utilisateur.
+///
+/// Determine les calculs LPP/AVS/3a et les alertes pertinentes.
+/// Voir ADR-20260223-archetype-driven-retirement.md.
+enum FinancialArchetype {
+  /// Suisse natif, arrive avant 22 ans, bonifications LPP depuis 25 ans.
+  swissNative,
+
+  /// Expat EU/AELE, arrive apres 20 ans, totalisation periodes EU.
+  expatEu,
+
+  /// Expat hors EU, arrive apres 20 ans, pas de convention bilaterale.
+  expatNonEu,
+
+  /// US citizen/green card, FATCA, PFIC, double taxation.
+  expatUs,
+
+  /// Independant avec LPP (caisse facultative, solde reel).
+  independentWithLpp,
+
+  /// Independant sans LPP, 3a max = 36'288 CHF.
+  independentNoLpp,
+
+  /// Frontalier permis G, LPP suisse, impot source.
+  crossBorder,
+
+  /// Suisse de retour apres sejour a l'etranger, libre passage + lacunes.
+  returningSwiss,
+}
+
 // ════════════════════════════════════════════════════════════════
 //  SOUS-MODELES
 // ════════════════════════════════════════════════════════════════
@@ -1077,6 +1107,48 @@ class CoachProfile {
       .where((c) =>
           c.category == 'epargne_libre' || c.category == 'investissement')
       .fold(0.0, (sum, c) => sum + c.amount);
+
+  /// Detecte l'archetype financier de l'utilisateur.
+  ///
+  /// Basee sur nationalite, arrivalAge, employmentStatus, residencePermit.
+  /// Voir ADR-20260223-archetype-driven-retirement.md.
+  FinancialArchetype get archetype {
+    // Cross-border: permis G
+    if (residencePermit == 'G') return FinancialArchetype.crossBorder;
+
+    // US citizen / FATCA
+    if (nationality == 'US') return FinancialArchetype.expatUs;
+
+    // Independent (check LPP status)
+    if (employmentStatus == 'independant') {
+      final hasLpp = prevoyance.avoirLppTotal != null &&
+          prevoyance.avoirLppTotal! > 0;
+      return hasLpp
+          ? FinancialArchetype.independentWithLpp
+          : FinancialArchetype.independentNoLpp;
+    }
+
+    // Swiss native: nationality CH and arrived before 22 (or no arrival age)
+    final isSwiss = nationality == null || nationality == 'CH';
+    final arrivedEarly = arrivalAge == null || arrivalAge! < 22;
+
+    if (isSwiss && arrivedEarly) return FinancialArchetype.swissNative;
+
+    // Swiss returning after time abroad
+    if (isSwiss && !arrivedEarly) return FinancialArchetype.returningSwiss;
+
+    // EU/AELE expat
+    const euCountries = {
+      'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+      'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU',
+      'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+    };
+    if (nationality != null && euCountries.contains(nationality)) {
+      return FinancialArchetype.expatEu;
+    }
+
+    return FinancialArchetype.expatNonEu;
+  }
 
   /// Est-ce un profil couple ?
   bool get isCouple =>

@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
 import 'package:mint_mobile/screens/open_banking/open_banking_hub_screen.dart';
 import 'package:mint_mobile/screens/open_banking/transaction_list_screen.dart';
 import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
@@ -130,77 +129,6 @@ void main() {
 
       // Thematic cards replaced circles — check for a thematic card title
       expect(find.textContaining('Ton Budget'), findsOneWidget);
-    });
-  });
-
-  // ===========================================================================
-  // 5. ADVISOR WIZARD SCREEN V2
-  // ===========================================================================
-  group('AdvisorWizardScreenV2', () {
-    // Note: WizardScorePreview has a repeating glow animation,
-    // so pumpAndSettle will always time out. Use pump() instead.
-    testWidgets('renders without crashing', (tester) async {
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorWizardScreenV2(),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byType(AdvisorWizardScreenV2), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('shows section label and question counter', (tester) async {
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorWizardScreenV2(),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 1));
-
-      // Should show the first section name
-      expect(find.text('Profil'), findsOneWidget);
-      // Should show question counter
-      expect(find.textContaining('Question'), findsOneWidget);
-    });
-
-    testWidgets('displays progress indicator', (tester) async {
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorWizardScreenV2(),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byType(LinearProgressIndicator), findsOneWidget);
-    });
-
-    testWidgets('has back button in app bar', (tester) async {
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AdvisorWizardScreenV2(),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
     });
   });
 

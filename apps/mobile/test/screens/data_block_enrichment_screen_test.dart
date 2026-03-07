@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 
 Widget _wrap(Widget child) {
-  return ChangeNotifierProvider(
-    create: (_) => CoachProfileProvider(),
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+      ChangeNotifierProvider(create: (_) => SlmProvider()),
+    ],
     child: MaterialApp(home: child),
   );
 }

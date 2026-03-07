@@ -21,6 +21,20 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   int age = 35;
   String? canton;
 
+  /// Employment status: 'salarie', 'independant', 'sans_emploi', 'retraite'.
+  /// Impacts 3a ceiling (7'258 vs 36'288), LPP estimation, AVS.
+  String? employmentStatus;
+
+  /// Nationality group: 'CH', 'EU', 'OTHER'.
+  /// Triggers archetype detection (expat_eu, expat_us, etc.).
+  String? nationalityGroup;
+
+  /// Specific country code if nationalityGroup == 'OTHER' (e.g. 'US', 'BR').
+  String? nationalityCountry;
+
+  /// Year of arrival in Switzerland (if not Swiss native).
+  int? arrivalYear;
+
   /// User's stress intention (tap selector, not a data question).
   /// Used to filter coaching tips by relevance.
   String? stressType;
@@ -44,8 +58,8 @@ class SmartOnboardingViewModel extends ChangeNotifier {
 
   // ─── Guards ──────────────────────────────────────────────────────────────
 
-  /// True when the 3 required fields are filled and computation is possible.
-  bool get canCompute => canton != null;
+  /// True when the 4 required fields are filled and computation is possible.
+  bool get canCompute => canton != null && employmentStatus != null;
 
   /// True when a result has been computed at least once.
   bool get hasResult => profile != null && chiffreChoc != null;
@@ -69,6 +83,38 @@ class SmartOnboardingViewModel extends ChangeNotifier {
     canton = value;
     notifyListeners();
   }
+
+  void setEmploymentStatus(String? value) {
+    employmentStatus = value;
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
+  }
+
+  void setNationalityGroup(String? value) {
+    nationalityGroup = value;
+    if (value == 'CH') {
+      nationalityCountry = null;
+      arrivalYear = null;
+    }
+    notifyListeners();
+  }
+
+  void setNationalityCountry(String? value) {
+    nationalityCountry = value;
+    notifyListeners();
+  }
+
+  void setArrivalYear(int? value) {
+    arrivalYear = value;
+    notifyListeners();
+  }
+
+  /// Whether the nationality question shows the arrival year sub-question.
+  bool get showArrivalYear =>
+      nationalityGroup != null && nationalityGroup != 'CH';
 
   void setStressType(String? value) {
     stressType = value;
@@ -136,6 +182,8 @@ class SmartOnboardingViewModel extends ChangeNotifier {
         age: age,
         grossSalary: grossSalary,
         canton: canton!,
+        employmentStatus: employmentStatus,
+        nationalityGroup: nationalityGroup,
         householdType: householdType,
         currentSavings: currentSavings,
         isPropertyOwner: isPropertyOwner,

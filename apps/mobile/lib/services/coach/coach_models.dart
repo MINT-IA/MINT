@@ -10,8 +10,9 @@ enum ComponentType {
   scoreSummary,  // max 80 words
   tip,           // max 120 words
   chiffreChoc,   // max 100 words
-  scenario,      // max 150 words
-  general,       // max 200 words
+  scenario,          // max 150 words
+  enrichmentGuide,   // max 150 words — data block conversational guide
+  general,           // max 200 words
 }
 
 /// Word limits per component type.
@@ -21,6 +22,7 @@ const Map<ComponentType, int> componentWordLimits = {
   ComponentType.tip: 120,
   ComponentType.chiffreChoc: 100,
   ComponentType.scenario: 150,
+  ComponentType.enrichmentGuide: 150,
   ComponentType.general: 200,
 };
 

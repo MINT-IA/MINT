@@ -508,6 +508,9 @@ class ApiService {
       isPropertyOwner: isPropertyOwner ?? false,
       existing3a: existing3a ?? 0,
       existingLpp: existingLpp ?? 0,
+      employmentStatus: _readString(response, const ['employmentStatus', 'employment_status'], fallback: 'salarie'),
+      nationalityGroup: _readString(response, const ['nationalityGroup', 'nationality_group'], fallback: 'CH'),
+      plafond3a: _readDouble(response, const ['plafond3a', 'plafond_3a']),
       estimatedFields: _readStringList(
         response,
         const ['estimatedFields', 'estimated_fields'],

@@ -14,8 +14,6 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
-import 'package:mint_mobile/screens/advisor/onboarding_30_day_plan_screen.dart';
-import 'package:mint_mobile/screens/advisor/advisor_wizard_screen_v2.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
 
 // Providers
@@ -28,6 +26,7 @@ import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -73,6 +72,7 @@ void main() {
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -157,7 +157,7 @@ void main() {
           ),
           GoRoute(
             path: '/advisor/wizard',
-            builder: (context, state) => const AdvisorWizardScreenV2(),
+            redirect: (context, state) => '/onboarding/smart',
           ),
           GoRoute(
             path: '/onboarding/smart',
@@ -196,6 +196,7 @@ void main() {
                 create: (_) => LocaleProvider()),
             ChangeNotifierProvider<UserActivityProvider>(
                 create: (_) => UserActivityProvider()),
+            ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
           ],
           child: MaterialApp.router(
             locale: const Locale('fr'),
@@ -223,9 +224,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
       final foundSmart = find.byType(SmartOnboardingScreen).evaluate().isNotEmpty;
-      final foundAdvisor =
-          find.byType(AdvisorWizardScreenV2).evaluate().isNotEmpty;
-      expect(foundSmart || foundAdvisor, isTrue);
+      expect(foundSmart, isTrue);
       expect(find.textContaining('Cette page n'), findsNothing);
     });
   });
@@ -437,100 +436,6 @@ void main() {
 
       expect(find.textContaining('localement'), findsWidgets);
       expect(find.byIcon(Icons.lock_outline), findsWidgets);
-    });
-  });
-
-  // ===========================================================================
-  // 8. ONBOARDING 30 DAYS PLAN SCREEN
-  // ===========================================================================
-
-  group('Onboarding30DayPlanScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(
-        const Onboarding30DayPlanScreen(),
-      ));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      expect(find.byType(Onboarding30DayPlanScreen), findsOneWidget);
-      expect(find.textContaining('PLAN 30 JOURS'), findsOneWidget);
-    });
-
-    testWidgets('shows timeline action cards', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(
-        const Onboarding30DayPlanScreen(stressChoice: 'budget'),
-      ));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      expect(find.textContaining('Jour 1-7'), findsWidgets);
-      expect(find.textContaining('Jour 8-15'), findsOneWidget);
-      expect(find.textContaining('Jour 16-30'), findsOneWidget);
-    });
-
-    testWidgets('tap "Completer mon diagnostic" navigates to wizard',
-        (tester) async {
-      final router = GoRouter(
-        initialLocation: '/advisor/plan-30-days',
-        routes: [
-          GoRoute(
-            path: '/advisor/plan-30-days',
-            builder: (context, state) => const Onboarding30DayPlanScreen(),
-          ),
-          GoRoute(
-            path: '/advisor/wizard',
-            builder: (context, state) => const AdvisorWizardScreenV2(),
-          ),
-        ],
-      );
-
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<ProfileProvider>(create: (_) {
-              final p = ProfileProvider();
-              p.setProfile(Profile(
-                id: 'test-user',
-                householdType: HouseholdType.single,
-                goal: Goal.emergency,
-                createdAt: DateTime(2025, 1, 1),
-                birthYear: 1990,
-                canton: 'VD',
-                incomeNetMonthly: 6000,
-              ));
-              return p;
-            }),
-            ChangeNotifierProvider<CoachProfileProvider>(
-                create: (_) => CoachProfileProvider()),
-            ChangeNotifierProvider<UserActivityProvider>(
-                create: (_) => UserActivityProvider()),
-          ],
-          child: MaterialApp.router(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            routerConfig: router,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      final scrollable = find.byType(Scrollable).first;
-      await tester.drag(scrollable, const Offset(0, -400));
-      await tester.pumpAndSettle(const Duration(milliseconds: 400));
-
-      final completeDiagnosticButton = find.byType(OutlinedButton).first;
-      expect(completeDiagnosticButton, findsOneWidget);
-      await tester.tap(completeDiagnosticButton);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pump(const Duration(milliseconds: 300));
-
-      expect(find.byType(AdvisorWizardScreenV2), findsOneWidget);
-      expect(find.textContaining('Question'), findsWidgets);
     });
   });
 

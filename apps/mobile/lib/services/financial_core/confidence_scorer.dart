@@ -284,6 +284,25 @@ class ConfidenceScorer {
       ));
     }
 
+    // --- Fiscalite (enrichment prompts, no weight impact) ---
+    if (profile.commune == null || profile.commune!.isEmpty) {
+      prompts.add(const EnrichmentPrompt(
+        label: 'Ajoute ta commune',
+        impact: 4,
+        category: 'fiscalite',
+        action: 'Le coefficient communal impacte ton taux d\'imposition de 60% a 130%',
+      ));
+    }
+    final ds = profile.dataSources;
+    if (ds['tauxMarginal'] != ProfileDataSource.certificate) {
+      prompts.add(const EnrichmentPrompt(
+        label: 'Scanne ta declaration fiscale',
+        impact: 8,
+        category: 'fiscalite',
+        action: 'Taux marginal reel + revenu imposable + fortune (LIFD art. 38)',
+      ));
+    }
+
     // --- Foreign pension (2 pts, only for expats) ---
     final isExpat = profile.arrivalAge != null && profile.arrivalAge! > 21;
     if (isExpat) {
@@ -509,6 +528,40 @@ class ConfidenceScorer {
       score: hasPatrimoine ? _wPatrimoine.toDouble() : 1.0,
       maxScore: _wPatrimoine.toDouble(),
       status: hasPatrimoine ? 'complete' : 'partial',
+    );
+
+    // --- Fiscalite (virtual bloc — synthesized from commune/tax data) ---
+    // Max 15 pts (distributed from existing weights, not additive):
+    //   Commune connue: +4 (improves tax estimate precision)
+    //   Revenu imposable connu: +4 (from tax declaration)
+    //   Fortune imposable: +3
+    //   Taux marginal reel: +4 (from avis de taxation)
+    double fiscalScore = 0;
+    const fiscalMax = 15.0;
+    if (profile.commune != null && profile.commune!.isNotEmpty) {
+      fiscalScore += 4;
+    }
+    // dataSources tracks whether values were user-provided vs estimated
+    final ds = profile.dataSources;
+    if (ds['revenuImposable'] == ProfileDataSource.certificate ||
+        ds['revenuImposable'] == ProfileDataSource.userInput) {
+      fiscalScore += 4;
+    }
+    if (ds['fortuneImposable'] == ProfileDataSource.certificate ||
+        ds['fortuneImposable'] == ProfileDataSource.userInput) {
+      fiscalScore += 3;
+    }
+    if (ds['tauxMarginal'] == ProfileDataSource.certificate) {
+      fiscalScore += 4;
+    }
+    blocs['fiscalite'] = BlockScore(
+      score: fiscalScore,
+      maxScore: fiscalMax,
+      status: fiscalScore >= 11
+          ? 'complete'
+          : fiscalScore > 0
+              ? 'partial'
+              : 'missing',
     );
 
     // --- Foreign pension ---

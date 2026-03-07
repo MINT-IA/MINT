@@ -81,6 +81,17 @@ class CoachNarrativeService {
   static String generateChiffreChocReframe(CoachContext ctx) =>
       _generateChiffreChocReframe(ctx);
 
+  /// Generate an enrichment guide for a specific data block.
+  ///
+  /// Returns a conversational prompt guiding the user to provide
+  /// missing data for the given [blockType]. Uses the same
+  /// fallback → compliance pipeline as other components.
+  static String generateEnrichmentGuide(
+    CoachContext ctx, {
+    required String blockType,
+  }) =>
+      _generateEnrichmentGuide(ctx, blockType);
+
   // ═══════════════════════════════════════════════════════════════
   // Internal — generate + validate + fallback
   // ═══════════════════════════════════════════════════════════════
@@ -128,6 +139,18 @@ class CoachNarrativeService {
     );
     return result.useFallback
         ? FallbackTemplates.chiffreChocReframe(ctx)
+        : result.sanitizedText;
+  }
+
+  static String _generateEnrichmentGuide(CoachContext ctx, String blockType) {
+    final text = FallbackTemplates.enrichmentGuide(ctx, blockType);
+    final result = ComplianceGuard.validate(
+      text,
+      context: ctx,
+      componentType: ComponentType.enrichmentGuide,
+    );
+    return result.useFallback
+        ? FallbackTemplates.enrichmentGuide(ctx, blockType)
         : result.sanitizedText;
   }
 }

@@ -7,9 +7,9 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
-/// Step 1 of the Smart Onboarding flow — 3 required questions.
+/// Step 1 of the Smart Onboarding flow — 5 required questions.
 ///
-/// Collects: grossSalary, age, canton.
+/// Collects: grossSalary, age, employmentStatus, nationality, canton.
 /// Calls [viewModel.compute()] then [onNext] when the user taps "Voir mon résultat".
 ///
 /// Design rules:
@@ -109,6 +109,7 @@ class _StepQuestionsState extends State<StepQuestions> {
       data: {
         'salary_bracket': salaryBracket,
         'age_bracket': ageBracket,
+        'employment_status': vm.employmentStatus,
         'canton': vm.canton,
       },
       screenName: 'smart_onboarding_step1',
@@ -168,7 +169,7 @@ class _StepQuestionsState extends State<StepQuestions> {
                 children: [
                   const SizedBox(height: 4),
                   Text(
-                    '3 infos suffisent pour un premier aper\u00e7u personnalis\u00e9.',
+                    'Quelques infos suffisent pour un premier aper\u00e7u personnalis\u00e9.',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
@@ -254,7 +255,43 @@ class _StepQuestionsState extends State<StepQuestions> {
                   ),
                   const SizedBox(height: 32),
 
-                  // ── 3. CANTON ─────────────────────────────────────────────
+                  // ── 3. SITUATION PROFESSIONNELLE ──────────────────────────
+                  const _SectionTitle(label: 'Ta situation professionnelle'),
+                  const SizedBox(height: 12),
+                  _EmploymentStatusChips(
+                    value: widget.viewModel.employmentStatus,
+                    onChanged: (v) {
+                      widget.viewModel.setEmploymentStatus(v);
+                      widget.onInputChanged();
+                    },
+                  ),
+                  const SizedBox(height: 32),
+
+                  // ── 4. NATIONALITE ─────────────────────────────────────────
+                  const _SectionTitle(label: 'Ta nationalite'),
+                  const SizedBox(height: 12),
+                  _NationalityChips(
+                    value: widget.viewModel.nationalityGroup,
+                    onChanged: (v) {
+                      widget.viewModel.setNationalityGroup(v);
+                      widget.onInputChanged();
+                    },
+                  ),
+                  if (widget.viewModel.showArrivalYear) ...[
+                    const SizedBox(height: 16),
+                    const _SectionTitle(label: 'Depuis quand es-tu en Suisse ?'),
+                    const SizedBox(height: 12),
+                    _ArrivalYearPicker(
+                      value: widget.viewModel.arrivalYear,
+                      onChanged: (v) {
+                        widget.viewModel.setArrivalYear(v);
+                        widget.onInputChanged();
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 32),
+
+                  // ── 5. CANTON ─────────────────────────────────────────────
                   const _SectionTitle(label: 'Ton canton'),
                   const SizedBox(height: 12),
                   _CantonPicker(
@@ -529,6 +566,237 @@ class _AgePicker extends StatelessWidget {
             }).toList(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  EMPLOYMENT STATUS CHIPS — 4 options impacting 3a/LPP/AVS
+// ════════════════════════════════════════════════════════════════════════════
+
+class _EmploymentStatusChips extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _EmploymentStatusChips({
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _options = [
+    ('salarie', 'Salarie\u00b7e'),
+    ('independant', 'Independant\u00b7e'),
+    ('sans_emploi', 'Sans emploi'),
+    ('retraite', 'Retraite\u00b7e'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: _options.map((option) {
+        final (key, label) = option;
+        final isSelected = key == value;
+        return InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => onChanged(isSelected ? null : key),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? MintColors.primary.withAlpha(24)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected ? MintColors.primary : MintColors.lightBorder,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? MintColors.primary
+                    : MintColors.textSecondary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  NATIONALITY CHIPS — CH / EU/AELE / Autre
+// ════════════════════════════════════════════════════════════════════════════
+
+class _NationalityChips extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _NationalityChips({
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _options = [
+    ('CH', 'Suisse'),
+    ('EU', 'EU/AELE'),
+    ('OTHER', 'Autre'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: _options.map((option) {
+        final (key, label) = option;
+        final isSelected = key == value;
+        return InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => onChanged(isSelected ? null : key),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? MintColors.primary.withAlpha(24)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected ? MintColors.primary : MintColors.lightBorder,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? MintColors.primary
+                    : MintColors.textSecondary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ARRIVAL YEAR PICKER — year dropdown for non-Swiss residents
+// ════════════════════════════════════════════════════════════════════════════
+
+class _ArrivalYearPicker extends StatelessWidget {
+  final int? value;
+  final ValueChanged<int?> onChanged;
+
+  const _ArrivalYearPicker({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final currentYear = DateTime.now().year;
+    final years = List.generate(50, (i) => currentYear - i);
+    final displayValue = value != null ? '$value' : 'Annee d\'arrivee';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () async {
+          final selected = await showModalBottomSheet<int>(
+            context: context,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (ctx) {
+              return FractionallySizedBox(
+                heightFactor: 0.4,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Annee d\'arrivee en Suisse',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: years.length,
+                        itemBuilder: (_, i) {
+                          final year = years[i];
+                          final isSelected = year == value;
+                          return ListTile(
+                            onTap: () => Navigator.of(ctx).pop(year),
+                            title: Text(
+                              '$year',
+                              style: GoogleFonts.inter(
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: MintColors.textPrimary,
+                              ),
+                            ),
+                            trailing: isSelected
+                                ? const Icon(Icons.check_circle,
+                                    color: MintColors.primary, size: 20)
+                                : null,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+          if (selected != null) onChanged(selected);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today,
+                  size: 18, color: MintColors.textMuted),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  displayValue,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: value == null
+                        ? MintColors.textMuted
+                        : MintColors.textPrimary,
+                    fontWeight:
+                        value == null ? FontWeight.w400 : FontWeight.w600,
+                  ),
+                ),
+              ),
+              const Icon(Icons.keyboard_arrow_down,
+                  color: MintColors.textSecondary),
+            ],
+          ),
+        ),
       ),
     );
   }
