@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P15-A  Les 3 surprises de la vente immobilière
@@ -23,16 +24,6 @@ class SaleSurprisesWidget extends StatelessWidget {
   final double eplWithdrawn;
   final int holdingYears;
   final String canton;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   double get _capitalGain => (salePrice - purchasePrice).clamp(0, double.infinity);
 
@@ -114,8 +105,8 @@ class SaleSurprisesWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tu vends CHF ${_fmt(salePrice)}. Tu penses toucher CHF ${_fmt(_netReal + _gainTax)}. '
-            'Tu reçois CHF ${_fmt(_netReal)}.',
+            'Tu vends ${formatChfWithPrefix(salePrice)}. Tu penses toucher ${formatChfWithPrefix(_netReal + _gainTax)}. '
+            'Tu reçois ${formatChfWithPrefix(_netReal)}.',
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
           ),
         ],
@@ -130,7 +121,7 @@ class SaleSurprisesWidget extends StatelessWidget {
         emoji: '📊',
         title: 'Impôt sur le gain en capital',
         detail:
-            'Plus-value de CHF ${_fmt(_capitalGain)} × ${(_gainTaxRate * 100).toStringAsFixed(0)}% ($holdingYears ans de détention à $canton).',
+            'Plus-value de ${formatChfWithPrefix(_capitalGain)} × ${(_gainTaxRate * 100).toStringAsFixed(0)}% ($holdingYears ans de détention à $canton).',
         amount: _gainTax,
         color: MintColors.scoreAttention,
         ref: 'LIFD art. 12',
@@ -140,7 +131,7 @@ class SaleSurprisesWidget extends StatelessWidget {
         emoji: '🏦',
         title: 'Remboursement EPL obligatoire',
         detail:
-            'Tu as retiré CHF ${_fmt(eplWithdrawn)} de ton LPP via l\'EPL. '
+            'Tu as retiré ${formatChfWithPrefix(eplWithdrawn)} de ton LPP via l\'EPL. '
             'La vente oblige le remboursement intégral.',
         amount: eplWithdrawn,
         color: MintColors.scoreCritique,
@@ -152,7 +143,7 @@ class SaleSurprisesWidget extends StatelessWidget {
         title: 'Remploi — 2 ans pour racheter',
         detail:
             'Si tu ne rachètes pas dans les 2 ans, l\'impôt sur le gain n\'est pas différé. '
-            'Tu dois CHF ${_fmt(_gainTax)}.',
+            'Tu dois ${formatChfWithPrefix(_gainTax)}.',
         amount: _gainTax,
         color: MintColors.scoreCritique,
         ref: 'LIFD art. 12 al. 3',
@@ -204,7 +195,7 @@ class SaleSurprisesWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '− CHF ${_fmt(act.amount)}',
+                    '− ${formatChfWithPrefix(act.amount)}',
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -273,7 +264,7 @@ class SaleSurprisesWidget extends StatelessWidget {
             ),
           ),
           Text(
-            'CHF ${_fmt(amount)}',
+            formatChfWithPrefix(amount),
             style: GoogleFonts.montserrat(
               fontSize: isTotal ? 18 : 13,
               fontWeight: FontWeight.w800,

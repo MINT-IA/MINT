@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P13-C  Le Trou AVS — rente réduite par années à l'étranger
@@ -32,16 +33,6 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
   void initState() {
     super.initState();
     _yearsAbroad = widget.initialYearsAbroad;
-  }
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
   }
 
   int get _yearsRemainingInCH =>
@@ -232,7 +223,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'CHF ${_fmt(rente)}/mois',
+            '${formatChfWithPrefix(rente)}/mois',
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -256,7 +247,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '⚠️ CHF ${_fmt(_perYearAbroad)}/mois de rente perdu par année à l\'étranger',
+            '⚠️ ${formatChfWithPrefix(_perYearAbroad)}/mois de rente perdu par année à l\'étranger',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -265,7 +256,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Sur 20 ans de retraite, c\'est CHF ${_fmt(_lifetimeLoss)} de moins — définitivement.',
+            'Sur 20 ans de retraite, c\'est ${formatChfWithPrefix(_lifetimeLoss)} de moins — définitivement.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -290,7 +281,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : LAVS art. 29bis-29quater (années cotisation). '
-      'Durée complète : $avsDureeCotisationComplete ans. Rente max : CHF ${_fmt(avsRenteMaxMensuelle)}/mois.',
+      'Durée complète : $avsDureeCotisationComplete ans. Rente max : ${formatChfWithPrefix(avsRenteMaxMensuelle)}/mois.',
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,

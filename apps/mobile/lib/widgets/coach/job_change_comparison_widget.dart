@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P11-A  Le Prix du changement — avant/après nouveau job
@@ -39,17 +40,6 @@ class JobChangeComparisonWidget extends StatelessWidget {
   final String currentJobLabel;
   final String newJobLabel;
   final List<JobAxis> axes;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +213,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              '${_fmt(a.currentValue)} ${a.unit.replaceAll('CHF/', '')}',
+              '${formatChf(a.currentValue)} ${a.unit.replaceAll('CHF/', '')}',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
@@ -234,7 +224,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              '${_fmt(a.newValue)} ${a.unit.replaceAll('CHF/', '')}',
+              '${formatChf(a.newValue)} ${a.unit.replaceAll('CHF/', '')}',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -246,7 +236,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              '$sign${_fmt(delta)} ${a.unit.replaceAll('CHF/', '')}',
+              '$sign${formatChf(delta)} ${a.unit.replaceAll('CHF/', '')}',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -284,7 +274,7 @@ class JobChangeComparisonWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Impact réel : $sign CHF ${_fmt(netMonthly.abs())}/mois',
+                  'Impact réel : $sign ${formatChfWithPrefix(netMonthly.abs())}/mois',
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,

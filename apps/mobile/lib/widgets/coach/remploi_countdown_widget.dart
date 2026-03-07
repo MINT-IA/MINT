@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P15-C  Le Chrono du remploi — 2 ans pour racheter
@@ -24,16 +25,6 @@ class RemploiCountdownWidget extends StatefulWidget {
 
 class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
   static const _remploidDeadlineYears = 2;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   DateTime get _deadline {
     return DateTime(
@@ -157,7 +148,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Impôt dû : CHF ${_fmt(widget.deferredTax)}',
+              'Impôt dû : ${formatChfWithPrefix(widget.deferredTax)}',
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -176,7 +167,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
         Expanded(child: _buildTimerCard('$_monthsRemaining', 'mois environ', MintColors.primary)),
         const SizedBox(width: 12),
         Expanded(child: _buildTimerCard(
-          'CHF ${_fmt(widget.deferredTax)}',
+          formatChfWithPrefix(widget.deferredTax),
           'impôt à éviter',
           MintColors.scoreAttention,
         )),
@@ -272,9 +263,9 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
             child: Text(
               isExpired
                   ? 'Le délai de remploi est dépassé. L\'impôt sur le gain de '
-                    'CHF ${_fmt(widget.deferredTax)} est dû. Contacte l\'administration fiscale cantonale.'
+                    '${formatChfWithPrefix(widget.deferredTax)} est dû. Contacte l\'administration fiscale cantonale.'
                   : 'Si tu achètes une nouvelle résidence principale avant le ${_formatDate(_deadline)}, '
-                    'l\'impôt de CHF ${_fmt(widget.deferredTax)} est différé. '
+                    'l\'impôt de ${formatChfWithPrefix(widget.deferredTax)} est différé. '
                     'LIFD art. 12 al. 3.',
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
             ),

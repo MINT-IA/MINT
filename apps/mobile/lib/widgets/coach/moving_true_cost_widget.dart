@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P12-B  Le Vrai coût du déménagement cantonal
@@ -37,16 +38,6 @@ class MovingTrueCostWidget extends StatelessWidget {
   final String toCanton;
   final List<MovingCostItem> items;
   final double movingFees;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   double get _totalBefore => items.fold<double>(0, (s, i) => s + i.monthlyBefore);
   double get _totalAfter => items.fold<double>(0, (s, i) => s + i.monthlyAfter);
@@ -195,7 +186,7 @@ class MovingTrueCostWidget extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'CHF ${_fmt(item.monthlyBefore)}',
+                    formatChfWithPrefix(item.monthlyBefore),
                     style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
@@ -203,7 +194,7 @@ class MovingTrueCostWidget extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'CHF ${_fmt(item.monthlyAfter)}',
+                    formatChfWithPrefix(item.monthlyAfter),
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -244,7 +235,7 @@ class MovingTrueCostWidget extends StatelessWidget {
             ),
           ),
           Text(
-            '$sign CHF ${_fmt(_netMonthly.abs())}',
+            '$sign ${formatChfWithPrefix(_netMonthly.abs())}',
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -272,7 +263,7 @@ class MovingTrueCostWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Frais de déménagement (CHF ${_fmt(movingFees)}) remboursés en '
+              'Frais de déménagement (${formatChfWithPrefix(movingFees)}) remboursés en '
               '${_breakEvenMonths.round()} mois.',
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
             ),

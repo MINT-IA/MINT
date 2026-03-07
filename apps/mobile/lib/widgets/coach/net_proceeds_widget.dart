@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P15-B  Le Calculateur de net réel — vente immobilière
 //  Charte : L1 (CHF/mois) + L2 (Avant/Après)
-//  Source : LIFD art. 12, LPP art. 30c, CO art. 958
+//  Source : LIFD art. 12, LPP art. 30c
 // ────────────────────────────────────────────────────────────
 
 class NetProceedsWidget extends StatefulWidget {
@@ -32,16 +33,6 @@ class NetProceedsWidget extends StatefulWidget {
 
 class _NetProceedsWidgetState extends State<NetProceedsWidget> {
   bool _showDetails = false;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   double get _notaryFees => widget.salePrice * widget.notaryFeeRate;
   double get _agencyFees => widget.salePrice * widget.agencyFeeRate;
@@ -176,11 +167,11 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Prix de vente : CHF ${_fmt(widget.salePrice)}',
+              'Prix de vente : ${formatChfWithPrefix(widget.salePrice)}',
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
             ),
             Text(
-              'Net : CHF ${_fmt(_netProceeds)}',
+              'Net : ${formatChfWithPrefix(_netProceeds)}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -232,7 +223,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
             ),
             Text(
-              'Déductions : CHF ${_fmt(_totalDeductions)}',
+              'Déductions : ${formatChfWithPrefix(_totalDeductions)}',
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.scoreCritique,
@@ -262,7 +253,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Surprise : − CHF ${_fmt(_surprise)}',
+                  'Surprise : − ${formatChfWithPrefix(_surprise)}',
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -270,7 +261,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                   ),
                 ),
                 Text(
-                  'Tu croyais toucher CHF ${_fmt(_perceivedNet)} — tu touches CHF ${_fmt(_netProceeds)}.',
+                  'Tu croyais toucher ${formatChfWithPrefix(_perceivedNet)} — tu touches ${formatChfWithPrefix(_netProceeds)}.',
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary, height: 1.4),
                 ),
               ],
@@ -337,7 +328,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                       ),
                     ),
                     Text(
-                      '− CHF ${_fmt(d.amount)}',
+                      '− ${formatChfWithPrefix(d.amount)}',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,

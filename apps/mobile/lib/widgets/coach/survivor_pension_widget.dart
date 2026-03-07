@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P14-B  Les Rentes de survivant — mariage vs concubinage
@@ -20,16 +21,6 @@ class SurvivorPensionWidget extends StatelessWidget {
   final double partnerAvsRente;
   final double partnerLppMonthly;
   final bool isConcubin;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   double get _avsMarried => partnerAvsRente * avsSurvivorFactor; // 80%
   double get _lppMarried => partnerLppMonthly * 0.60; // 60% — LPP art. 19 al. 2
@@ -164,7 +155,7 @@ class SurvivorPensionWidget extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'CHF ${_fmt(total)}/mois',
+            '${formatChfWithPrefix(total)}/mois',
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -199,7 +190,7 @@ class SurvivorPensionWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le mariage vaut CHF ${_fmt(_marriageBonus)}/mois de rente survivant',
+                  'Le mariage vaut ${formatChfWithPrefix(_marriageBonus)}/mois de rente survivant',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -281,7 +272,7 @@ class SurvivorPensionWidget extends StatelessWidget {
             ),
           ),
           Text(
-            amount > 0 ? 'CHF ${_fmt(amount)}' : '0 CHF',
+            amount > 0 ? formatChfWithPrefix(amount) : '0 CHF',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,

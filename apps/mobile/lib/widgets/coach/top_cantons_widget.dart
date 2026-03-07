@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P12-C  Top 5 cantons pour ton profil
@@ -51,16 +52,6 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
   void initState() {
     super.initState();
     _hasChildren = widget.hasChildren;
-  }
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
   }
 
   @override
@@ -128,7 +119,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
           const SizedBox(height: 8),
           if (top != null)
             Text(
-              'Ton n°1 : ${top.canton}. Tu économises CHF ${_fmt(top.annualTaxSaving)}/an vs ${widget.currentCanton}.',
+              'Ton n°1 : ${top.canton}. Tu économises ${formatChfWithPrefix(top.annualTaxSaving)}/an vs ${widget.currentCanton}.',
               style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary, height: 1.4),
             ),
         ],
@@ -216,7 +207,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '− CHF ${_fmt(r.annualTaxSaving)}/an',
+                      '− ${formatChfWithPrefix(r.annualTaxSaving)}/an',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -224,7 +215,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                       ),
                     ),
                     Text(
-                      'LAMal ${_fmt(r.monthlyLamal)}/m · loyer ~${_fmt(r.monthlyRent)}/m',
+                      'LAMal ${formatChf(r.monthlyLamal)}/m · loyer ~${formatChf(r.monthlyRent)}/m',
                       style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
                     ),
                   ],
