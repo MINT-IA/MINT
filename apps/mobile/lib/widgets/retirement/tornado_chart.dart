@@ -542,7 +542,8 @@ class _TornadoPainter extends CustomPainter {
     } else {
       // High scenario is still negative: label to the left of bar tip
       final labelX = highBarEnd - highTp.width - 4;
-      highTp.paint(canvas, Offset(labelX, barCenterY - highTp.height / 2));
+      final clampedX = max(0.0, labelX);
+      highTp.paint(canvas, Offset(clampedX, barCenterY - highTp.height / 2));
     }
   }
 
@@ -579,14 +580,17 @@ class _TornadoPainter extends CustomPainter {
     return amount >= 0 ? "CHF\u00A0$formatted" : "-CHF\u00A0$formatted";
   }
 
-  /// Format a delta with sign prefix: "+CHF 800" or "-CHF 400".
+  /// Format a delta with sign prefix, compact for large values.
+  /// "+272k", "+1.2M" for large amounts, "+CHF 800" for small.
   static String _formatDelta(double delta) {
-    final abs = delta.abs().round();
-    final formatted = abs.toString().replaceAllMapped(
+    final abs = delta.abs();
+    final sign = delta >= 0 ? '+' : '-';
+    if (abs >= 1000000) return '$sign${(abs / 1000000).toStringAsFixed(1)}M';
+    if (abs >= 10000) return '$sign${(abs / 1000).round()}k';
+    final formatted = abs.round().toString().replaceAllMapped(
       RegExp(r'(\d)(?=(\d{3})+$)'),
       (m) => "${m[1]}'",
     );
-    final sign = delta >= 0 ? '+' : '-';
     return '${sign}CHF\u00A0$formatted';
   }
 

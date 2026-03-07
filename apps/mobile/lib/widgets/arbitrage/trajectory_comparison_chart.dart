@@ -315,7 +315,7 @@ class _TrajectoryPainter extends CustomPainter {
     // Draw selection vertical line
     if (selectedYearIndex != null && selectedYearIndex! < maxLen) {
       _drawSelectionLine(canvas, selectedYearIndex!, chartLeft, chartWidth,
-          chartTop, chartBottom, maxLen);
+          chartTop, chartBottom, maxLen, yMin, yMax);
     }
   }
 
@@ -443,20 +443,20 @@ class _TrajectoryPainter extends CustomPainter {
   }
 
   void _drawSelectionLine(Canvas canvas, int yearIndex, double chartLeft,
-      double chartWidth, double chartTop, double chartBottom, int maxLen) {
+      double chartWidth, double chartTop, double chartBottom, int maxLen,
+      double yMin, double yMax) {
     final x = chartLeft + chartWidth * yearIndex / (maxLen - 1);
     final paint = Paint()
       ..color = MintColors.primary.withAlpha(80)
       ..strokeWidth = 1;
     canvas.drawLine(Offset(x, chartTop), Offset(x, chartBottom), paint);
 
+    if (yMax == yMin) return;
+    final chartHeight = chartBottom - chartTop;
+
     // Draw dots on each trajectory
     for (int i = 0; i < options.length; i++) {
       if (yearIndex < options[i].trajectory.length) {
-        final yMin = _computeGlobalMin();
-        final yMax = _computeGlobalMax();
-        if (yMax == yMin) continue;
-        final chartHeight = chartBottom - chartTop;
         final val = options[i].trajectory[yearIndex].netPatrimony;
         final yFraction = (val - yMin) / (yMax - yMin);
         final y = chartTop + chartHeight * (1 - yFraction);
@@ -473,35 +473,6 @@ class _TrajectoryPainter extends CustomPainter {
         );
       }
     }
-  }
-
-  double _computeGlobalMin() {
-    double min = double.infinity;
-    for (final o in options) {
-      for (final s in o.trajectory) {
-        if (s.netPatrimony < min) min = s.netPatrimony;
-      }
-    }
-    final range = _computeGlobalMax() - min;
-    return min - range * 0.05;
-  }
-
-  double _computeGlobalMax() {
-    double max = double.negativeInfinity;
-    for (final o in options) {
-      for (final s in o.trajectory) {
-        if (s.netPatrimony > max) max = s.netPatrimony;
-      }
-    }
-    const min = double.infinity;
-    double actualMin = min;
-    for (final o in options) {
-      for (final s in o.trajectory) {
-        if (s.netPatrimony < actualMin) actualMin = s.netPatrimony;
-      }
-    }
-    final range = max - actualMin;
-    return max + range * 0.05;
   }
 
   String _formatAxisValue(double value) {

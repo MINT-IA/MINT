@@ -272,7 +272,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: 'Valeurs pre-remplies depuis ton profil '
+                            '(repartition estimee 70 % oblig. / 30 % surob.)',
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
