@@ -143,6 +143,10 @@ const double aiRenteEntiere = 2520.0;
 /// Demi-rente AI mensuelle. Degre invalidite 50-69%.
 const double aiRenteDemi = 1260.0;
 
+/// Delai moyen de decision AI depuis depot de la demande (LAI art. 28 + LPGA art. 19).
+/// Valeur empirique: 12-18 mois selon le canton; 14 mois en mediane.
+const int aiDecisionDelayMonths = 14;
+
 // ══════════════════════════════════════════════════════════════════════════════
 // APG — Allocations pour perte de gain
 // ══════════════════════════════════════════════════════════════════════════════
@@ -278,3 +282,15 @@ const List<String> sortedCantonCodes = [
   'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
   'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
 ];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LAMal — Assurance-maladie obligatoire
+// Base legale: LAMal art. 64
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Quote-part maximale annuelle LAMal pour adultes (LAMal art. 64 al. 2).
+/// Adultes >= 26 ans: 700 CHF/an.
+const double lamalQuotePartMax = 700.0;
+
+/// Quote-part maximale annuelle LAMal pour jeunes adultes 19-25 ans.
+const double lamalQuotePartMaxJeunesAdultes = 350.0;

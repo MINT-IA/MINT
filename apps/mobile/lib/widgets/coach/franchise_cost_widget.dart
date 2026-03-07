@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -36,7 +37,8 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
   late int _consultationsPerYear;
 
   static const double _consultationCost = 150.0;
-  static const double _quotePartMax = 700.0;
+  // Wire to social_insurance.dart (LAMal art. 64 al. 2)
+  static const double _quotePartMax = lamalQuotePartMax;
   static const double _longIllnessDuration = 2.0; // years
 
   @override

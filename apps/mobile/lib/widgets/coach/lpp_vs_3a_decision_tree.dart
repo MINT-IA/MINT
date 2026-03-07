@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -61,9 +62,13 @@ class LppVs3aDecisionTree extends StatefulWidget {
 class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
   int _selectedIndex = -1; // -1 = none, 0 = lpp, 1 = 3a
 
+  /// Seuil pratique: au-dessus de ce revenu, la LPP volontaire devient
+  /// compétitive vs Grand 3a seul (salaire coordonné suffisant).
+  static const double _lppSeuilVolontaire = 60000.0;
+
   @override
   Widget build(BuildContext context) {
-    final isAboveThreshold = widget.expectedIncome >= 60000;
+    final isAboveThreshold = widget.expectedIncome >= _lppSeuilVolontaire;
 
     return Semantics(
       label: 'Arbre de d\u00e9cision LPP vs 3a. '
@@ -176,7 +181,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
                 Text(
                   isAboveThreshold
                       ? 'Au-dessus du seuil\u00a0: deux options s\u2019offrent \u00e0 toi'
-                      : 'Sous CHF\u00a060\u2019000\u00a0: le Grand 3a est ton pilier principal',
+                      : 'Sous ${formatChfWithPrefix(_lppSeuilVolontaire)}\u00a0: le Grand 3a est ton pilier principal',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -312,7 +317,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Plafond 36\u2019288 CHF/an. Cumule avec l\u2019AVS standard. '
+            'Plafond ${formatChfWithPrefix(pilier3aPlafondSansLpp)}/an. Cumule avec l\u2019AVS standard. '
             'Projection\u00a0: 500k\u2013800k \u00e0 65 ans selon rendement.',
             style: GoogleFonts.inter(
               fontSize: 12,

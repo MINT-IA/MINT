@@ -217,7 +217,7 @@ class BudgetSandwichChart extends StatelessWidget {
                       return Container(
                         width: constraints.maxWidth * fraction,
                         color: color.withValues(
-                            alpha: 0.3 + 0.7 * (item.amount / total)),
+                            alpha: (0.3 + 0.7 * fraction).clamp(0.0, 1.0)),
                       );
                     }).toList(),
                   );

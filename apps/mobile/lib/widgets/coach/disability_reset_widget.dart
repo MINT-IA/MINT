@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -37,20 +38,13 @@ class DisabilityResetWidget extends StatelessWidget {
     return '$n';
   }
 
-  static double _lppRate(int age) {
-    if (age < 35) return 7.0;
-    if (age < 45) return 10.0;
-    if (age < 55) return 15.0;
-    return 18.0;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final currentRate = _lppRate(currentAge);
-    final bonificationBefore = currentSalary * currentRate / 100;
-    final bonificationAfter = reducedSalary * currentRate / 100;
+    final currentRate = getLppBonificationRate(currentAge);
+    final bonificationBefore = currentSalary * currentRate;
+    final bonificationAfter = reducedSalary * currentRate;
     final capitalDelta = capitalBefore - capitalAfter;
-    const conversionRate = 0.068;
+    final conversionRate = lppTauxConversionMin / 100;
     final renteMonthlyDelta = capitalDelta * conversionRate / 12;
 
     return Semantics(
@@ -70,7 +64,7 @@ class DisabilityResetWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildContext(currentRate, bonificationBefore, bonificationAfter),
+                  _buildContext(currentRate * 100, bonificationBefore, bonificationAfter),
                   const SizedBox(height: 20),
                   _buildCapitalComparison(capitalDelta),
                   const SizedBox(height: 16),

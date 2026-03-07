@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -25,7 +26,8 @@ class DisabilityCountdownWidget extends StatefulWidget {
 class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
   late double _savings;
 
-  static const int _aiDelayMonths = 14; // délai moyen décision AI
+  // Wire to social_insurance.dart single source of truth (LAI art. 28 + LPGA art. 19)
+  static const int _aiDelayMonths = aiDecisionDelayMonths;
 
   @override
   void initState() {
