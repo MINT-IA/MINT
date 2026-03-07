@@ -75,8 +75,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
             const Divider(height: 1),
             _buildTotalsRow(totalNormal, totalSurvival),
             _buildMarginRow(marginNormal, marginSurvival),
-            // N'afficher le panel réserves que si le budget survie est déficitaire
-            if (reserveMonths != null && marginSurvival < 0) _buildReservePanel(marginSurvival),
+            if (reserveMonths != null) _buildReservePanel(marginSurvival),
             _buildDisclaimer(),
           ],
         ),
