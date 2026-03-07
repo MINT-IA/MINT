@@ -6604,6 +6604,17 @@
         "title": "DocumentDetailResponse",
         "type": "object"
       },
+      "DocumentExtractionType": {
+        "description": "Target document type for structured extraction.",
+        "enum": [
+          "lpp_certificate",
+          "tax_declaration",
+          "avs_extract",
+          "generic"
+        ],
+        "title": "DocumentExtractionType",
+        "type": "string"
+      },
       "DocumentListResponse": {
         "description": "Response for listing uploaded documents.",
         "properties": {
@@ -7565,6 +7576,65 @@
           "count"
         ],
         "title": "EvolutionResponse",
+        "type": "object"
+      },
+      "ExtractedDocumentField": {
+        "description": "A single field extracted from a document image.",
+        "properties": {
+          "confidence": {
+            "default": 0.85,
+            "description": "Extraction confidence",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "field_name": {
+            "description": "Canonical field name (e.g. 'lpp_total')",
+            "title": "Field Name",
+            "type": "string"
+          },
+          "label": {
+            "description": "Human-readable label (FR)",
+            "title": "Label",
+            "type": "string"
+          },
+          "source_text": {
+            "default": "",
+            "description": "Original text snippet from document",
+            "title": "Source Text",
+            "type": "string"
+          },
+          "text_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Raw text value if non-numeric",
+            "title": "Text Value"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numeric value if applicable",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "field_name",
+          "label"
+        ],
+        "title": "ExtractedDocumentField",
         "type": "object"
       },
       "ExtractedFieldResponse": {
@@ -14449,6 +14519,120 @@
           "vector_store_ready"
         ],
         "title": "RAGStatusResponse",
+        "type": "object"
+      },
+      "RAGVisionRequest": {
+        "description": "Request body for the vision-augmented RAG endpoint.\n\nAccepts a base64-encoded document image + BYOK API key.\nExtracts structured financial data via Claude/GPT-4o vision.\nPrivacy: image processed in-flight, never stored by MINT.",
+        "properties": {
+          "api_key": {
+            "description": "User's LLM API key (BYOK — not stored by MINT)",
+            "minLength": 1,
+            "title": "Api Key",
+            "type": "string"
+          },
+          "document_type": {
+            "$ref": "#/components/schemas/DocumentExtractionType",
+            "default": "generic",
+            "description": "Target document type for structured extraction"
+          },
+          "image_base64": {
+            "description": "Base64-encoded document image (JPEG/PNG/WEBP, max ~20 MB)",
+            "minLength": 100,
+            "title": "Image Base64",
+            "type": "string"
+          },
+          "language": {
+            "$ref": "#/components/schemas/RAGLanguage",
+            "default": "fr",
+            "description": "Response language"
+          },
+          "media_type": {
+            "default": "image/jpeg",
+            "description": "MIME type: image/jpeg, image/png, image/webp",
+            "title": "Media Type",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional model override (uses provider default if not set)",
+            "title": "Model"
+          },
+          "profile_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileContext"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional profile data for personalized extraction"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/LLMProvider",
+            "description": "LLM provider (only 'claude' and 'openai' support vision)"
+          }
+        },
+        "required": [
+          "image_base64",
+          "api_key",
+          "provider"
+        ],
+        "title": "RAGVisionRequest",
+        "type": "object"
+      },
+      "RAGVisionResponse": {
+        "description": "Response from the vision-augmented RAG endpoint.",
+        "properties": {
+          "confidence_delta": {
+            "default": 0,
+            "description": "Estimated confidence score improvement from this extraction",
+            "title": "Confidence Delta",
+            "type": "integer"
+          },
+          "disclaimers": {
+            "description": "Compliance disclaimers",
+            "items": {
+              "type": "string"
+            },
+            "title": "Disclaimers",
+            "type": "array"
+          },
+          "document_type_detected": {
+            "default": "",
+            "description": "Detected document type (may differ from requested)",
+            "title": "Document Type Detected",
+            "type": "string"
+          },
+          "extracted_fields": {
+            "description": "Structured fields extracted from the document",
+            "items": {
+              "$ref": "#/components/schemas/ExtractedDocumentField"
+            },
+            "title": "Extracted Fields",
+            "type": "array"
+          },
+          "raw_analysis": {
+            "default": "",
+            "description": "Full text analysis of the document",
+            "title": "Raw Analysis",
+            "type": "string"
+          },
+          "tokens_used": {
+            "default": 0,
+            "description": "Estimated token usage",
+            "title": "Tokens Used",
+            "type": "integer"
+          }
+        },
+        "title": "RAGVisionResponse",
         "type": "object"
       },
       "RachatAnnuelEntryResponse": {
@@ -26327,6 +26511,53 @@
           }
         },
         "summary": "Rag Status",
+        "tags": [
+          "rag"
+        ]
+      }
+    },
+    "/api/v1/rag/vision": {
+      "post": {
+        "description": "Vision-augmented document extraction endpoint.\n\nAccepts a base64-encoded document image + BYOK API key.\nExtracts structured financial data via Claude/GPT-4o vision.\n\nOnly Claude and OpenAI support vision — Mistral will be rejected.\nThe image is processed in-flight and never stored by MINT.",
+        "operationId": "rag_vision_api_v1_rag_vision_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RAGVisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RAGVisionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Rag Vision",
         "tags": [
           "rag"
         ]
