@@ -1,0 +1,296 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/colors.dart';
+
+// ────────────────────────────────────────────────────────────
+//  P12-B  Le Vrai coût du déménagement cantonal
+//  Charte : L1 (CHF/mois) + L2 (Avant/Après)
+//  Source : LIFD art. 1, loi fiscale cantonale
+// ────────────────────────────────────────────────────────────
+
+class MovingCostItem {
+  const MovingCostItem({
+    required this.label,
+    required this.emoji,
+    required this.monthlyBefore,
+    required this.monthlyAfter,
+    this.note,
+  });
+
+  final String label;
+  final String emoji;
+  final double monthlyBefore;
+  final double monthlyAfter;
+  final String? note;
+}
+
+class MovingTrueCostWidget extends StatelessWidget {
+  const MovingTrueCostWidget({
+    super.key,
+    required this.fromCanton,
+    required this.toCanton,
+    required this.items,
+    this.movingFees = 3000,
+  });
+
+  final String fromCanton;
+  final String toCanton;
+  final List<MovingCostItem> items;
+  final double movingFees;
+
+  static String _fmt(double v) {
+    final n = v.round().abs();
+    if (n >= 1000) {
+      final t = n ~/ 1000;
+      final r = n % 1000;
+      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
+    }
+    return '$n';
+  }
+
+  double get _totalBefore => items.fold<double>(0, (s, i) => s + i.monthlyBefore);
+  double get _totalAfter => items.fold<double>(0, (s, i) => s + i.monthlyAfter);
+  double get _netMonthly => _totalBefore - _totalAfter;
+  double get _breakEvenMonths => _netMonthly > 0 ? movingFees / _netMonthly : double.infinity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Vrai coût déménagement cantonal fiscal comparaison mensuelle',
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildItemList(),
+                  const SizedBox(height: 16),
+                  _buildNetResult(),
+                  const SizedBox(height: 12),
+                  _buildBreakEven(),
+                  const SizedBox(height: 16),
+                  _buildDisclaimer(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('🗺️', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Déménager : le bilan réel',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '$fromCanton → $toCanton',
+            style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(flex: 3, child: SizedBox()),
+            Expanded(
+              flex: 2,
+              child: Text(
+                fromCanton,
+                style: GoogleFonts.inter(
+                  fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                toCanton,
+                style: GoogleFonts.inter(
+                  fontSize: 11, fontWeight: FontWeight.w700, color: MintColors.primary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...items.map((item) {
+          final delta = item.monthlyAfter - item.monthlyBefore;
+          final isGain = delta < 0;
+          final color = delta == 0
+              ? MintColors.textSecondary
+              : isGain
+                  ? MintColors.scoreExcellent
+                  : MintColors.scoreCritique;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      Text(item.emoji, style: const TextStyle(fontSize: 16)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.label,
+                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary),
+                            ),
+                            if (item.note != null)
+                              Text(
+                                item.note!,
+                                style: GoogleFonts.inter(fontSize: 9, color: MintColors.textSecondary),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'CHF ${_fmt(item.monthlyBefore)}',
+                    style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'CHF ${_fmt(item.monthlyAfter)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildNetResult() {
+    final isGain = _netMonthly > 0;
+    final color = isGain ? MintColors.scoreExcellent : MintColors.scoreCritique;
+    final sign = _netMonthly > 0 ? '−' : '+';
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            isGain ? '✅ Gain net/mois' : '⚠️ Surcoût net/mois',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+          Text(
+            '$sign CHF ${_fmt(_netMonthly.abs())}',
+            style: GoogleFonts.montserrat(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakEven() {
+    if (_netMonthly <= 0 || _breakEvenMonths.isInfinite) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          const Text('📅', style: TextStyle(fontSize: 16)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Frais de déménagement (CHF ${_fmt(movingFees)}) remboursés en '
+              '${_breakEvenMonths.round()} mois.',
+              style: GoogleFonts.inter(fontSize: 12, color: MintColors.textPrimary, height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisclaimer() {
+    return Text(
+      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
+      'Source : LIFD art. 1, législations cantonales. Chiffres indicatifs — varie selon profil.',
+      style: GoogleFonts.inter(
+        fontSize: 10,
+        color: MintColors.textSecondary,
+        fontStyle: FontStyle.italic,
+      ),
+    );
+  }
+}
