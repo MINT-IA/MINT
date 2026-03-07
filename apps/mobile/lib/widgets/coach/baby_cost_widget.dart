@@ -48,10 +48,13 @@ class BabyCostWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalMonthly = items.fold<double>(0, (s, i) => s + i.monthlyCost);
     final totalLifetime = totalMonthly * 12 * yearsOfDependency;
-    final creche = items.firstWhere(
-      (i) => i.label.toLowerCase().contains('crèche') || i.label.toLowerCase().contains('garde'),
-      orElse: () => items.first,
-    );
+    // Guard: items.first crasherait si la liste est vide.
+    final BabyCostItem? creche = items.isEmpty
+        ? null
+        : items.firstWhere(
+            (i) => i.label.toLowerCase().contains('crèche') || i.label.toLowerCase().contains('garde'),
+            orElse: () => items.first,
+          );
 
     return Semantics(
       label: 'Coût bonheur enfant budget mensuel',
@@ -74,8 +77,10 @@ class BabyCostWidget extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildTotalBar(totalMonthly),
                   const SizedBox(height: 16),
-                  _buildCreche(creche),
-                  const SizedBox(height: 16),
+                  if (creche != null) ...[
+                    _buildCreche(creche),
+                    const SizedBox(height: 16),
+                  ],
                   _buildDisclaimer(),
                 ],
               ),

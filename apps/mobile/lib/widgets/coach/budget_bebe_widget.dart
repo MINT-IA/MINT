@@ -93,9 +93,9 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFE3F2FD),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(
         children: [
@@ -212,7 +212,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
             label: '👶 Enfant${_children > 1 ? 's' : ''}',
             before: 0,
             after: _childrenCost,
-            color: const Color(0xFF7B1FA2),
+            color: MintColors.info,
             note: 'CHF ${_fmt(widget.costPerChild)}/enfant/mois',
             isNew: true,
           ),

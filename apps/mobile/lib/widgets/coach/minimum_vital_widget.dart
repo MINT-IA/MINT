@@ -387,7 +387,7 @@ class MinimumVitalWidget extends StatelessWidget {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique. '
+      'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
       'Source : LP art. 92 (biens insaisissables), LP art. 93 (minimum vital). '
       'Les montants varient selon le canton et la situation familiale.',
       style: GoogleFonts.inter(

@@ -258,7 +258,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique. '
+      'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
       'Source : CC art. 537-640 (succession), LAVS art. 23-24 (rentes survivants).',
       style: GoogleFonts.inter(
         fontSize: 10,

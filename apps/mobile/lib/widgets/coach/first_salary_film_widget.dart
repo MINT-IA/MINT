@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -35,9 +36,9 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   }
 
   // Act 1 — Douche froide: brut → net
-  double get _avsEmployee => widget.grossMonthly * 0.053;       // LAVS art. 3
+  double get _avsEmployee => widget.grossMonthly * avsCotisationSalarie;  // LAVS art. 3
   double get _lppEmployee => widget.grossMonthly * 0.035;       // LPP (avg age 25)
-  double get _ac => widget.grossMonthly * 0.011;                // LACI art. 3
+  double get _ac => widget.grossMonthly * acCotisationSalarie;  // LACI art. 3
   double get _aanp => widget.grossMonthly * 0.013;              // LAA
   double get _totalDeductions => _avsEmployee + _lppEmployee + _ac + _aanp;
   double get _netMonthly => widget.grossMonthly - _totalDeductions;
@@ -49,7 +50,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   double get _totalEmployerCost => widget.grossMonthly + _avsEmployer + _lppEmployer + _ijmEmployer;
 
   // Act 3 — Cadeau fiscal 3a
-  static const double _monthly3a = 605.0;         // 7'258/12 arrondi
+  static const double _monthly3a = pilier3aPlafondAvecLpp / 12;  // OPP3 art. 7
   static const double _return3a = 0.04;            // 4% annuel
   double _project3a(int years) {
     double acc = 0;
@@ -102,9 +103,9 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: MintColors.scoreExcellent.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,7 +458,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         )),
         const SizedBox(height: 4),
         Text(
-          '💡 LAMal art. 103 — Franchise annuelle choisie, renouvelable chaque année.',
+          '💡 LAMal art. 64 — Franchise annuelle choisie, renouvelable chaque année.',
           style: GoogleFonts.inter(fontSize: 11, color: MintColors.info, height: 1.4),
         ),
       ],

@@ -170,7 +170,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
           ),
           const SizedBox(height: 6),
           Text(
-            'La clause bénéficiaire dérogent à la succession ordinaire (OPP3 art. 2). '
+            'La clause bénéficiaire déroge à la succession ordinaire (OPP3 art. 2). '
             'Sans clause déposée auprès de ta fondation, la loi s\'applique par défaut.',
             style: GoogleFonts.inter(
               fontSize: 12,

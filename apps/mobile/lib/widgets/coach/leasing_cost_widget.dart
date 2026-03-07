@@ -101,9 +101,9 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFFF3E0),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: MintColors.scoreAttention.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +179,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
+                color: MintColors.scoreAttention.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -187,7 +187,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFFE65100),
+                  color: MintColors.scoreAttention,
                 ),
               ),
             ),
@@ -198,7 +198,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           min: 200,
           max: 1500,
           divisions: 26,
-          activeColor: const Color(0xFFE65100),
+          activeColor: MintColors.scoreAttention,
           onChanged: (v) => setState(() => _monthly = (v / 50).round() * 50.0),
         ),
       ],

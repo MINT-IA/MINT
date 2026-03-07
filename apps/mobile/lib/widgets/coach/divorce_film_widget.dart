@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -39,12 +40,13 @@ class DivorceFilmWidget extends StatelessWidget {
 
   double get _equalShare => (myLpp + partnerLpp) / 2;
   double get _lppTransfer => (myLpp - _equalShare).clamp(0, double.infinity);
-  // LPP rente loss using 6.8% conversion rate (LPP art. 14)
-  double get _lppMonthlyRenteLoss => _lppTransfer * 0.068 / 12;
+  // LPP rente loss using taux de conversion minimum (LPP art. 14)
+  double get _lppMonthlyRenteLoss => _lppTransfer * (lppTauxConversionMin / 100) / 12;
 
   double get _annualTaxDelta => annualTaxSingle - annualTaxMarried;
   double get _monthlyTaxDelta => _annualTaxDelta / 12;
 
+  // Montants indicatifs OFS / jurisprudence cantonale — remplacer par le jugement réel
   double get _monthlyChildPension => childrenCount * 1500.0;
   double get _monthlyAlimony => hasAlimony ? 500.0 : 0.0;
   double get _totalMonthlyPension => _monthlyChildPension + _monthlyAlimony;
@@ -108,9 +110,9 @@ class DivorceFilmWidget extends StatelessWidget {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFCE4EC),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: MintColors.scoreCritique.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

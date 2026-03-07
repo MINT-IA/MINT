@@ -35,11 +35,13 @@ class TopCantonWidget extends StatefulWidget {
     required this.currentCanton,
     required this.rankings,
     this.hasChildren = false,
+    this.onChildrenChanged,
   });
 
   final String currentCanton;
   final List<CantonRanking> rankings;
   final bool hasChildren;
+  final ValueChanged<bool>? onChildrenChanged;
 
   @override
   State<TopCantonWidget> createState() => _TopCantonWidgetState();
@@ -93,9 +95,9 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
     final top = widget.rankings.isNotEmpty ? widget.rankings.first : null;
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: MintColors.scoreExcellent.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +140,10 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
         Switch(
           value: _hasChildren,
           activeColor: MintColors.primary,
-          onChanged: (v) => setState(() => _hasChildren = v),
+          onChanged: (v) {
+            setState(() => _hasChildren = v);
+            widget.onChildrenChanged?.call(v);
+          },
         ),
       ],
     );
@@ -149,17 +154,17 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
       children: widget.rankings.asMap().entries.map((e) {
         final r = e.value;
         final isTop = e.key == 0;
-        final color = isTop ? const Color(0xFFFFC107) : MintColors.textSecondary;
+        final color = isTop ? MintColors.scoreExcellent : MintColors.textSecondary;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isTop ? const Color(0xFFFFF9C4) : MintColors.appleSurface,
+              color: isTop ? MintColors.scoreExcellent.withValues(alpha: 0.1) : MintColors.appleSurface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isTop ? const Color(0xFFFFC107) : MintColors.lightBorder,
+                color: isTop ? MintColors.scoreExcellent : MintColors.lightBorder,
                 width: isTop ? 2 : 1,
               ),
             ),

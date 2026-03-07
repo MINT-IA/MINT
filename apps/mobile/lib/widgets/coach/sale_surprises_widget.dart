@@ -40,7 +40,9 @@ class SaleSurprisesWidget extends StatelessWidget {
   double get _gainTax => _capitalGain * _gainTaxRate;
   double get _eplReturn => eplWithdrawn; // must reimburse 3a/LPP withdrawn
   double get _notaryFees => salePrice * 0.015;
-  double get _mortgage => salePrice * 0.60; // typical
+  // Hypothèse illustrative : solde hypothécaire = 60 % du prix de vente.
+  // En réalité varie selon l'ancienneté du crédit. Remplacer par le solde réel.
+  double get _mortgage => salePrice * 0.60;
   double get _netReal =>
       salePrice - _mortgage - _gainTax - _eplReturn - _notaryFees;
 

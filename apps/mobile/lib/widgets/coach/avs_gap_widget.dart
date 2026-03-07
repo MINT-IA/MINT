@@ -16,11 +16,15 @@ class AvsGapWidget extends StatefulWidget {
     required this.currentContributionYears,
     required this.currentAge,
     this.initialYearsAbroad = 5,
+    // Post-AVS 21 : hommes et femmes ont le même âge de référence (65 ans).
+    // Paramétrisé pour permettre les cas concubins/frontaliers ou évolutions futures.
+    this.referenceAge = avsAgeReferenceHomme,
   });
 
   final int currentContributionYears;
   final int currentAge;
   final int initialYearsAbroad;
+  final int referenceAge;
 
   @override
   State<AvsGapWidget> createState() => _AvsGapWidgetState();
@@ -36,7 +40,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
   }
 
   int get _yearsRemainingInCH =>
-      (avsAgeReferenceHomme - widget.currentAge).clamp(0, avsDureeCotisationComplete);
+      (widget.referenceAge - widget.currentAge).clamp(0, avsDureeCotisationComplete);
 
   int get _totalYearsWithAbroad =>
       (widget.currentContributionYears + _yearsRemainingInCH - _yearsAbroad)

@@ -95,9 +95,9 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF3E5F5),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +150,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3E5F5),
+                color: MintColors.info.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -158,7 +158,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF7B1FA2),
+                  color: MintColors.info,
                 ),
               ),
             ),
@@ -169,7 +169,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
           min: 1,
           max: 4,
           divisions: 3,
-          activeColor: const Color(0xFF7B1FA2),
+          activeColor: MintColors.info,
           onChanged: (v) => setState(() => _children = v.round()),
         ),
       ],
@@ -194,9 +194,9 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3E5F5).withValues(alpha: 0.5),
+              color: MintColors.info.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFCE93D8)),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [

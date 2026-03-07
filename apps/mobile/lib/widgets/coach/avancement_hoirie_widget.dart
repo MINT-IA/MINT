@@ -32,7 +32,11 @@ class AvancementHoirieWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final n = children.length;
-    final masseTotale = totalPatrimoine + donationAmount; // masse de calcul avec rapport
+    // CC art. 626 : la donation est "rapportée" à la masse au décès.
+    // totalPatrimoine est le patrimoine AVANT donation (ce que l'on possède aujourd'hui).
+    // Masse de calcul = (totalPatrimoine - donationAmount) + donationAmount rapporté = totalPatrimoine.
+    // Pas d'addition de donationAmount : ce serait un double-compte.
+    final masseTotale = totalPatrimoine;
     final sharePerChild = masseTotale / n;
     final recipientAuDeces = sharePerChild - donationAmount;
 
@@ -159,7 +163,7 @@ class AvancementHoirieWidget extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            '= ${formatChfWithPrefix(totalPatrimoine + donationAmount)} partagé en ${children.length}',
+            '= ${formatChfWithPrefix(totalPatrimoine)} partagé en ${children.length}',
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 10),

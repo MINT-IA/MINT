@@ -331,7 +331,8 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
   Widget _buildDisclaimer() {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : CC art. 457-462, OPP3 art. 2.',
+      'Source : CC art. 457-462, OPP3 art. 2. '
+      'Taux successoral concubin·e illustratif (ex. VD) — varie de 0 % à 40 % selon canton et lien de parenté.',
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
