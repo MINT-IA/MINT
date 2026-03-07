@@ -75,7 +75,8 @@ class CrashTestBudgetWidget extends StatelessWidget {
             const Divider(height: 1),
             _buildTotalsRow(totalNormal, totalSurvival),
             _buildMarginRow(marginNormal, marginSurvival),
-            if (reserveMonths != null) _buildReservePanel(marginSurvival),
+            // N'afficher le panel réserves que si le budget survie est déficitaire
+            if (reserveMonths != null && marginSurvival < 0) _buildReservePanel(marginSurvival),
             _buildDisclaimer(),
           ],
         ),
@@ -311,12 +312,12 @@ class CrashTestBudgetWidget extends StatelessWidget {
           SizedBox(
             width: 80,
             child: Text(
-              '+${_fmt(normal)}',
+              normal >= 0 ? '+${_fmt(normal)}' : '-${_fmt(normal.abs())}',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: MintColors.scoreExcellent,
+                color: normal >= 0 ? MintColors.scoreExcellent : MintColors.scoreCritique,
               ),
             ),
           ),

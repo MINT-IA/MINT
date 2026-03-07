@@ -47,16 +47,21 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     _consultationsPerYear = widget.initialConsultationsPerYear;
   }
 
-  // Annual out-of-pocket for a given franchise (normal year)
+  // Annual out-of-pocket for a given franchise (normal year).
+  // LAMal art. 64 : tu paies d'abord ta franchise en totalité, puis 10 % des
+  // frais AU-DELÀ de la franchise, plafonné à _quotePartMax (700 CHF).
   double _annualCostNormal(FranchiseOption opt) {
-    final used = (_consultationsPerYear * _consultationCost).clamp(0, opt.franchiseAmount);
-    final quotePart = (used * 0.10).clamp(0, _quotePartMax);
-    return used + quotePart - opt.monthlyPremiumSavings * 12;
+    final totalRaw = _consultationsPerYear * _consultationCost;
+    final belowFranchise = totalRaw.clamp(0.0, opt.franchiseAmount);
+    final aboveFranchise = (totalRaw - opt.franchiseAmount).clamp(0.0, double.infinity);
+    final quotePart = (aboveFranchise * 0.10).clamp(0.0, _quotePartMax);
+    return belowFranchise + quotePart - opt.monthlyPremiumSavings * 12;
   }
 
-  // Annual out-of-pocket for a long illness (2-year scenario)
+  // Annual max out-of-pocket for a long illness (chronic illness worst-case).
+  // Each year : tu atteins la franchise complète + le plafond de quote-part.
   double _annualCostLongIllness(FranchiseOption opt) {
-    return (opt.franchiseAmount + _quotePartMax) * _longIllnessDuration / _longIllnessDuration;
+    return opt.franchiseAmount + _quotePartMax;
   }
 
   static String _fmt(double v) {

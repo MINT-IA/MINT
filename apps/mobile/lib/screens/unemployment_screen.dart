@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
@@ -714,11 +715,13 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
   }
 
   Widget _buildDurationTable() {
+    // Source : LACI art. 27 al. 2 — durées maximales d'indemnités
+    // Miroir de social_insurance.dart (acJoursMinCotisation, acJoursStandard, acJoursSenior)
     final brackets = [
-      ('< 25 ans, >= 12 mois cotis.', '200 indemnités', _age < 25 && _moisCotisation >= 12),
-      ('>= 25 ans, >= 18 mois cotis.', '260 indemnités', _age >= 25 && _moisCotisation >= 18 && _age < 55),
-      ('>= 55 ans, >= 22 mois cotis.', '400 indemnités', _age >= 55 && _age < 60 && _moisCotisation >= 22),
-      ('>= 60 ans, >= 22 mois cotis.', '520 indemnités', _age >= 60 && _moisCotisation >= 22),
+      ('12–17 mois cotis.', '200 indemnités', _moisCotisation >= 12 && _moisCotisation < 18),
+      ('18–21 mois cotis.', '260 indemnités', _moisCotisation >= 18 && _moisCotisation < 22),
+      ('>= 22 mois, < $acAgeSeuillSenior ans', '400 indemnités', _moisCotisation >= 22 && _age < acAgeSeuillSenior),
+      ('>= 22 mois, >= $acAgeSeuillSenior ans', '520 indemnités', _moisCotisation >= 22 && _age >= acAgeSeuillSenior),
     ];
 
     return Column(
@@ -1001,21 +1004,21 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
     (
       emoji: '🌊',
       label: 'Vague 1 · L\'urgence administrative',
-      color: Color(0xFF1565C0),
+      color: MintColors.info,
       text: 'Inscription ORP dans les 5 premiers jours. Sinon : perte d\'indemnités. '
           'Chaque jour de retard = indemnité perdue.',
     ),
     (
       emoji: '🌊',
       label: 'Vague 2 · La chute de revenus',
-      color: Color(0xFFE65100),
+      color: MintColors.scoreAttention,
       text: 'Chute immédiate de CHF/mois. L\'AC ne couvre ni les jours fériés '
           'ni le délai de carence (5–20 jours). Revise ton budget dès J+1.',
     ),
     (
       emoji: '🌊',
       label: 'Vague 3 · Les décisions cachées',
-      color: Color(0xFFC62828),
+      color: MintColors.scoreCritique,
       text: 'Dans les 30 jours : transférer ton LPP (sinon institution supplétive). '
           'Avant le mois suivant : suspendre le 3a, revoir LAMal. '
           '"La vague la plus dangereuse, c\'est celle que tu n\'as pas vue venir."',
@@ -1025,9 +1028,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
   Widget _buildTroisVagues() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFE3F2FD),
+        color: MintColors.info.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF90CAF9)),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1107,24 +1110,24 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.scoreAttention.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.scoreAttention.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.scoreAttention, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations éducatives — ne constitue pas un conseil — '
+              'Estimations éducatives — ne constitue pas un conseil au sens de la LSFin — '
               'LACI/LPP/OPP3. Les montants présentés sont approximatifs '
               'et dépendent de ta situation personnelle. Consulte '
               'un\u00B7e spécialiste ou l\'ORP de ton canton.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.scoreAttention,
                 height: 1.5,
               ),
             ),

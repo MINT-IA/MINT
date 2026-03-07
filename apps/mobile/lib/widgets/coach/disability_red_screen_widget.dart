@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -35,9 +36,13 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     return '$n';
   }
 
+  // Valeur illustrative : APG 80% + rente AI sur salaire médian CH (SFSO 2024 ~6'500/mois).
+  // Varie selon salaire. Affiché avec ≈ pour indiquer l'ordre de grandeur.
   static const double _salarieMonthly = 4320;
-  static const double _aiRenteMax = 2520;
-  static const int _aiDelayMonths = 14;
+  // Wired to social_insurance.dart (LAVS art. 34)
+  static const double _aiRenteMax = aiRenteEntiere;
+  // Wired to social_insurance.dart (LAI art. 28 + LPGA art. 19)
+  static const int _aiDelayMonths = aiDecisionDelayMonths;
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +220,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
           ),
           const SizedBox(height: 10),
           Text(
-            isVoid ? '= 0 CHF/mois' : '= CHF ${_fmt(totalMonthly)}/mois',
+            isVoid ? '= 0 CHF/mois' : '\u2248 CHF ${_fmt(totalMonthly)}/mois',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w800,

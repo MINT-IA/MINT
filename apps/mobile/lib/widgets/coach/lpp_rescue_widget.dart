@@ -38,7 +38,9 @@ class LppRescueWidget extends StatelessWidget {
   final List<LppTransferOption> options;
   final int daysElapsed;
 
-  static const int _deadlineDays = 30;
+  // Délai pédagogique d'action recommandé (urgence). Le délai légal LFLP art. 4
+  // est de 6 mois avant transfert automatique à l'institution supplétive.
+  static const int _actionDays = 30;
 
   static String _fmt(double v) {
     final n = v.round().abs();
@@ -52,7 +54,7 @@ class LppRescueWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final daysLeft = (_deadlineDays - daysElapsed).clamp(0, _deadlineDays);
+    final daysLeft = (_actionDays - daysElapsed).clamp(0, _actionDays);
     final urgencyColor = daysLeft > 14
         ? MintColors.scoreExcellent
         : daysLeft > 7
@@ -181,7 +183,14 @@ class LppRescueWidget extends StatelessWidget {
     final best = options.isNotEmpty
         ? options.reduce((a, b) => a.fiveYearGain > b.fiveYearGain ? a : b)
         : null;
-    final isWorst = best != null && option.fiveYearGain == options.reduce((a, b) => a.fiveYearGain < b.fiveYearGain ? a : b).fiveYearGain && !option.recommended;
+    // isWorst: seule la première option avec le gain minimum est marquée "pire".
+    // Garde : options.length > 1 pour éviter de marquer l'unique option comme pire.
+    final worstOption = options.length > 1
+        ? options.reduce((a, b) => a.fiveYearGain <= b.fiveYearGain ? a : b)
+        : null;
+    final isWorst = worstOption != null &&
+        identical(option, worstOption) &&
+        !option.recommended;
 
     Color borderColor = MintColors.lightBorder;
     Color? bgColor;
@@ -273,6 +282,10 @@ class LppRescueWidget extends StatelessWidget {
   }
 
   Widget _buildChiffreChoc() {
+    // Estimation pédagogique : surcoût institutionnel ~1.5 % du solde sur 5 ans
+    // (taux technique bas + frais de gestion suppl.). Source : CHS PP rapports.
+    final estimatedLoss = (lppBalance * 0.015).clamp(500.0, 15000.0);
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -301,7 +314,7 @@ class LppRescueWidget extends StatelessWidget {
                 Text(
                   'Le taux technique est bas et les frais élevés. '
                   'Un avoir de CHF ${_fmt(lppBalance)} peut perdre jusqu\'à '
-                  'CHF 9\'000 sur 5 ans par rapport à un compte libre passage optimisé.',
+                  'CHF ${_fmt(estimatedLoss)} sur 5 ans vs un compte libre passage optimisé.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -319,7 +332,8 @@ class LppRescueWidget extends StatelessWidget {
   Widget _buildDisclaimer() {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LFLP art. 3-4, OPP2 art. 10. Avoirs oubliés : sfbvg.ch.',
+      'Source : LFLP art. 3-4, OPP2 art. 10. Délai légal de transfert : 6 mois (LFLP art. 4). '
+      'Avoirs oubliés : sfbvg.ch.',
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
