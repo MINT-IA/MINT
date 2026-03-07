@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P8-A  Le Testament invisible — sans vs avec testament
@@ -33,16 +34,6 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     _status = widget.initialStatus;
   }
 
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
-
   // Returns (partnerShare%, inheritanceTaxRate%, withTestamentNote)
   ({double partnerPct, double taxRate, String withNote, String withoutNote}) _calc(FamilyStatus s) {
     return switch (s) {
@@ -58,11 +49,12 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
         withNote: 'Clause bénéficiaire 3a + testament indispensables.',
         withoutNote: 'Ton partenaire hérite 0%. L\'État ou tes parents touchent tout.',
       ),
+      // CC reform 2022 : partenaire enregistré·e = droits équivalents au conjoint
       FamilyStatus.couple => (
-        partnerPct: 25,
-        taxRate: 12,
-        withNote: 'Testament peut porter la part jusqu\'à 50%.',
-        withoutNote: 'Part légale limitée à 25%. Impôt jusqu\'à 12%.',
+        partnerPct: 50,
+        taxRate: 0,
+        withNote: 'Droits héréditaires équivalents au conjoint depuis 2022 (CC art. 462).',
+        withoutNote: 'Partenaire enregistré·e hérite selon CC art. 462 — même droits que conjoint. Impôt = 0%.',
       ),
       _ => (
         partnerPct: 0,
@@ -214,7 +206,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Patrimoine : CHF ${_fmt(widget.patrimoine)}',
+          'Patrimoine : ${formatChfWithPrefix(widget.patrimoine)}',
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -281,7 +273,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
             style: GoogleFonts.inter(fontSize: 10, color: MintColors.textSecondary),
           ),
           Text(
-            isOptimized ? 'CHF ${_fmt(partnerGets)}' : (partnerGets > 0 ? 'CHF ${_fmt(partnerGets)}' : '0 CHF'),
+            isOptimized ? formatChfWithPrefix(partnerGets) : (partnerGets > 0 ? formatChfWithPrefix(partnerGets) : '0 CHF'),
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -324,7 +316,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
           const SizedBox(height: 6),
           Text(
             'Sans testament ni clause 3a, ton partenaire ne reçoit rien. '
-            'Un testament coûte ~500 CHF. Le silence peut coûter CHF ${_fmt(taxAmount)} d\'impôts.',
+            'Un testament coûte ~500 CHF. Le silence peut coûter ${formatChfWithPrefix(taxAmount)} d\'impôts.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textPrimary,

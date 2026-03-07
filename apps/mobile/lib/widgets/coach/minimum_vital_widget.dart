@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P10-C  LP art. 93 — Insaisissable : ton bouclier légal
@@ -39,16 +40,6 @@ class MinimumVitalWidget extends StatelessWidget {
   final double totalDebts;
   final bool hasChildren;
   final int childrenCount;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   double get _totalProtected =>
       items.fold<double>(0, (s, i) => s + i.amount);
@@ -147,7 +138,7 @@ class MinimumVitalWidget extends StatelessWidget {
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
                 Text(
-                  'CHF ${_fmt(_totalProtected)}/mois',
+                  '${formatChfWithPrefix(_totalProtected)}/mois',
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -169,7 +160,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
               ),
               Text(
-                'CHF ${_fmt(_seizable)}',
+                formatChfWithPrefix(_seizable),
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -231,7 +222,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                'CHF ${_fmt(item.amount)}',
+                formatChfWithPrefix(item.amount),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -298,7 +289,7 @@ class MinimumVitalWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Salaire brut : CHF ${_fmt(grossMonthly)}/mois',
+              'Salaire brut : ${formatChfWithPrefix(grossMonthly)}/mois',
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
             ),
             Text(
@@ -338,11 +329,11 @@ class MinimumVitalWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '🟢 Protégé : CHF ${_fmt(_totalProtected)}',
+              '🟢 Protégé : ${formatChfWithPrefix(_totalProtected)}',
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreExcellent),
             ),
             Text(
-              '🟠 Saisissable : CHF ${_fmt(_seizable)}',
+              '🟠 Saisissable : ${formatChfWithPrefix(_seizable)}',
               style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreAttention),
             ),
           ],

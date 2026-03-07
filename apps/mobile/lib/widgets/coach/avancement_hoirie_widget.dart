@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P8-E  L'Avancement d'hoirie — Film 2 actes donation
@@ -27,16 +28,6 @@ class AvancementHoirieWidget extends StatelessWidget {
   final double donationAmount;
   final List<HoirieChild> children;
   final int donationRecipientIndex;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +118,7 @@ class AvancementHoirieWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Patrimoine total : CHF ${_fmt(totalPatrimoine)}',
+            'Patrimoine total : ${formatChfWithPrefix(totalPatrimoine)}',
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textPrimary),
           ),
           const SizedBox(height: 8),
@@ -136,7 +127,7 @@ class AvancementHoirieWidget extends StatelessWidget {
               Text('${recipient.emoji} ${recipient.name}', style: const TextStyle(fontSize: 16)),
               const SizedBox(width: 8),
               Text(
-                'reçoit donation : CHF ${_fmt(donationAmount)}',
+                'reçoit donation : ${formatChfWithPrefix(donationAmount)}',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -147,7 +138,7 @@ class AvancementHoirieWidget extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Patrimoine restant : CHF ${_fmt(totalPatrimoine - donationAmount)}',
+            'Patrimoine restant : ${formatChfWithPrefix(totalPatrimoine - donationAmount)}',
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
         ],
@@ -163,12 +154,12 @@ class AvancementHoirieWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Masse de calcul : CHF ${_fmt(totalPatrimoine - donationAmount)} + CHF ${_fmt(donationAmount)} (rapporté)',
+            'Masse de calcul : ${formatChfWithPrefix(totalPatrimoine - donationAmount)} + ${formatChfWithPrefix(donationAmount)} (rapporté)',
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 2),
           Text(
-            '= CHF ${_fmt(totalPatrimoine + donationAmount)} partagé en ${children.length}',
+            '= ${formatChfWithPrefix(totalPatrimoine + donationAmount)} partagé en ${children.length}',
             style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 10),
@@ -189,14 +180,14 @@ class AvancementHoirieWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        '(déjà reçu CHF ${_fmt(donationAmount)})',
+                        '(déjà reçu ${formatChfWithPrefix(donationAmount)})',
                         style: GoogleFonts.inter(fontSize: 10, color: MintColors.scoreAttention, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                   const Spacer(),
                   Text(
-                    'CHF ${_fmt(share)}',
+                    formatChfWithPrefix(share),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,

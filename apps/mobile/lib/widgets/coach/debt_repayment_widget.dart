@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'dart:math' as math;
 
 // ────────────────────────────────────────────────────────────
@@ -43,16 +44,6 @@ class DebtRepaymentWidget extends StatefulWidget {
 
 class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
   RepaymentStrategy _strategy = RepaymentStrategy.avalanche;
-
-  static String _fmt(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   double get _totalDebt =>
       widget.debts.fold<double>(0, (s, d) => s + d.balance);
@@ -196,7 +187,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'CHF ${_fmt(_totalDebt)} de dettes · quelle stratégie ?',
+                  '${formatChfWithPrefix(_totalDebt)} de dettes · quelle stratégie ?',
                   style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                 ),
               ],
@@ -320,7 +311,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'CHF ${_fmt(e.value.balance)}',
+                    formatChfWithPrefix(e.value.balance),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -385,7 +376,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 style: GoogleFonts.inter(fontSize: 11, color: MintColors.textSecondary),
               ),
               Text(
-                'CHF ${_fmt(result.totalInterest)}',
+                formatChfWithPrefix(result.totalInterest),
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -420,7 +411,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
               children: [
                 Text(
                   saved > 0
-                      ? 'L\'avalanche économise CHF ${_fmt(saved)}'
+                      ? 'L\'avalanche économise ${formatChfWithPrefix(saved)}'
                       : 'Les deux stratégies ont le même coût',
                   style: GoogleFonts.inter(
                     fontSize: 13,
@@ -451,8 +442,8 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
   Widget _buildDisclaimer() {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : CO art. 82, bonnes pratiques de désendettement. '
-      'Simulation basée sur des remboursements mensuels constants.',
+      'Simulation de remboursement basée sur des versements mensuels constants. '
+      'Source : LP (Loi fédérale sur la poursuite pour dettes et la faillite).',
       style: GoogleFonts.inter(
         fontSize: 10,
         color: MintColors.textSecondary,
