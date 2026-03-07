@@ -55,6 +55,7 @@ void main() {
     });
 
     testWidgets('handles tap without crash', (tester) async {
+      // ignore: unused_local_variable
       var tapped = false;
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(

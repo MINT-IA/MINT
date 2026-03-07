@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/services/first_job_service.dart' show SalaryDeductionItem;
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SALARY BREAKDOWN WIDGET — Sprint S19
@@ -20,12 +21,17 @@ class SalaryBreakdownWidget extends StatelessWidget {
   final double cotisationsEmployeur;
   final List<SalaryDeductionItem> deductions;
 
+  /// Optional: total cost to employer (brut + employer contributions).
+  /// When provided, shows the iceberg chiffre-choc panel (P5-E / S42).
+  final double? totalEmployerCost;
+
   const SalaryBreakdownWidget({
     super.key,
     required this.brut,
     required this.netEstime,
     required this.cotisationsEmployeur,
     required this.deductions,
+    this.totalEmployerCost,
   });
 
   /// Parse hex color string to Color.
@@ -81,7 +87,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    FirstJobService.formatChf(brut),
+                    formatChfWithPrefix(brut),
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -102,7 +108,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    FirstJobService.formatChf(netEstime),
+                    formatChfWithPrefix(netEstime),
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -135,6 +141,111 @@ class SalaryBreakdownWidget extends StatelessWidget {
 
           // Employer hidden contributions
           _buildEmployerSection(),
+
+          // ── Iceberg chiffre-choc (P5-E) ──
+          if (totalEmployerCost != null) ...[
+            const SizedBox(height: 16),
+            _buildIcebergSection(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── Iceberg section (P5-E / S42) ─────────────────────────
+  //  Waterline metaphor: net visible / deductions below /
+  //  employer costs at the bottom.
+  Widget _buildIcebergSection() {
+    final total = totalEmployerCost!;
+    final employeeDeductions = brut - netEstime;
+    final negotiationNet = brut > 0 ? (200 * netEstime / brut) : 0.0;
+    final negotiationTotal = 200 + (200 * cotisationsEmployeur / brut);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            MintColors.info.withValues(alpha: 0.04),
+            MintColors.info.withValues(alpha: 0.12),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('\ud83e\uddca', style: TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
+              Text(
+                'L\u2019iceberg de ton salaire',
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.info,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildIcebergRow('\ud83d\udca7', 'Net (visible)', netEstime,
+              MintColors.success),
+          _buildIcebergRow('\ud83d\udca7', 'Tes cotisations', employeeDeductions,
+              MintColors.warning),
+          _buildIcebergRow('\ud83d\udca7', 'Part employeur', cotisationsEmployeur,
+              MintColors.info),
+          const Divider(height: 12),
+          _buildIcebergRow('\ud83d\udcbc', 'Co\u00fbt total employeur', total,
+              MintColors.textPrimary,
+              isBold: true),
+          const SizedBox(height: 8),
+          Text(
+            'Quand tu n\u00e9gocies +200 CHF brut\u00a0: '
+            'tu re\u00e7ois ~${negotiationNet.toStringAsFixed(0)} CHF net. '
+            'Ton employeur paie ~${negotiationTotal.toStringAsFixed(0)} CHF de plus.',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textSecondary,
+              fontStyle: FontStyle.italic,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIcebergRow(String emoji, String label, double amount, Color color,
+      {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+          Text(
+            formatChfWithPrefix(amount),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -220,7 +331,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
             ),
           ),
           Text(
-            FirstJobService.formatChf(item.montant),
+            formatChfWithPrefix(item.montant),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -275,7 +386,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ton employeur verse ~${FirstJobService.formatChf(cotisationsEmployeur)}/mois '
+                  'Ton employeur verse ~${formatChfWithPrefix(cotisationsEmployeur)}/mois '
                   'en plus de ton salaire brut (AVS part employeur, LPP part '
                   'employeur, LAA, etc.).',
                   style: GoogleFonts.inter(

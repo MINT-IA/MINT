@@ -106,7 +106,7 @@ class CoachBriefingCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      narr!.retirementCountdown!,
+                      narr.retirementCountdown!,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

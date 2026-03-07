@@ -1,0 +1,373 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/theme/colors.dart';
+
+// ────────────────────────────────────────────────────────────
+//  P4-C  L'Écran rouge de l'indépendant — filet vs vide
+//  Charte : L6 (Chiffre-choc) + L4 (Raconte ne montre pas)
+//  Source : LAMal art. 67-77, CO art. 324a, LAVS, LPP art. 23
+// ────────────────────────────────────────────────────────────
+
+class DisabilityRedScreenWidget extends StatefulWidget {
+  const DisabilityRedScreenWidget({
+    super.key,
+    required this.monthlyExpenses,
+    this.hasPerteDegain = false,
+  });
+
+  final double monthlyExpenses;
+  final bool hasPerteDegain;
+
+  @override
+  State<DisabilityRedScreenWidget> createState() => _DisabilityRedScreenWidgetState();
+}
+
+class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
+  int? _answer; // 0=oui, 1=non, 2=ne sais pas
+
+  static String _fmt(double v) {
+    final n = v.round().abs();
+    if (n >= 1000) {
+      final t = n ~/ 1000;
+      final r = n % 1000;
+      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
+    }
+    return '$n';
+  }
+
+  static const double _salarieMonthly = 4320;
+  static const double _aiRenteMax = 2520;
+  static const int _aiDelayMonths = 14;
+
+  @override
+  Widget build(BuildContext context) {
+    final emergencyNeeded = widget.monthlyExpenses * _aiDelayMonths;
+
+    return Semantics(
+      label: 'Écran rouge indépendant invalidité filet inexistant',
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildComparisonTable(),
+                  const SizedBox(height: 20),
+                  _buildChiffreChoc(emergencyNeeded),
+                  const SizedBox(height: 20),
+                  _buildQuestion(),
+                  if (_answer != null) _buildAnswerFeedback(),
+                  const SizedBox(height: 16),
+                  _buildDisclaimer(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            MintColors.scoreCritique,
+            MintColors.scoreCritique.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('🚨', style: TextStyle(fontSize: 24)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Indépendant·e : ton filet n\'existe pas',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Si tu ne peux plus travailler demain :',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.85),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildComparisonTable() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildColumn(
+            title: 'Salarié·e',
+            emoji: '👔',
+            color: MintColors.scoreExcellent,
+            items: const [
+              'APG 80%',
+              'LPP invalidité',
+              'AI rente',
+            ],
+            totalMonthly: _salarieMonthly,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildColumn(
+            title: 'Toi',
+            emoji: '🧑‍💼',
+            color: MintColors.scoreCritique,
+            items: const [
+              'RIEN',
+              'pendant',
+              '~14 mois',
+            ],
+            totalMonthly: 0,
+            isVoid: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildColumn({
+    required String title,
+    required String emoji,
+    required Color color,
+    required List<String> items,
+    required double totalMonthly,
+    bool isVoid = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 16)),
+              const SizedBox(width: 6),
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isVoid ? MintColors.scoreCritique.withValues(alpha: 0.08) : Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: items.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Text(
+                    item,
+                    style: GoogleFonts.inter(
+                      fontSize: isVoid ? 16 : 12,
+                      fontWeight: isVoid ? FontWeight.w800 : FontWeight.w400,
+                      color: isVoid ? MintColors.scoreCritique : MintColors.textPrimary,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            isVoid ? '= 0 CHF/mois' : '= CHF ${_fmt(totalMonthly)}/mois',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChiffreChoc(double emergencyNeeded) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.scoreCritique.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.scoreCritique.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '💰 Chiffre-choc : $_aiDelayMonths mois à 0 CHF.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: MintColors.scoreCritique,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tu dois avoir CHF ${_fmt(emergencyNeeded)} d\'épargne de sécurité '
+            'pour tenir jusqu\'à la décision AI.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textPrimary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Après décision AI : CHF ${_fmt(_aiRenteMax)}/mois (AI seule)',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuestion() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('💡', style: TextStyle(fontSize: 18)),
+          const SizedBox(height: 8),
+          Text(
+            'As-tu une assurance perte de gain ?',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildAnswerButton(0, 'Oui'),
+              const SizedBox(width: 8),
+              _buildAnswerButton(1, 'Non'),
+              const SizedBox(width: 8),
+              _buildAnswerButton(2, 'Je ne sais pas'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnswerButton(int value, String label) {
+    final isSelected = _answer == value;
+    return GestureDetector(
+      onTap: () => setState(() => _answer = value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? MintColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? MintColors.primary : MintColors.lightBorder,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : MintColors.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnswerFeedback() {
+    final (msg, color) = switch (_answer) {
+      0 => ('Bien ! Vérifie que le délai de carence est inférieur à 30 jours.', MintColors.scoreExcellent),
+      1 => ('Action prioritaire : compare 3 assurances perte de gain. Dès CHF 45/mois.', MintColors.scoreCritique),
+      _ => ('Retrouve ton contrat ou contacte ta caisse de compensation.', MintColors.scoreAttention),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+        ),
+        child: Text(
+          msg,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisclaimer() {
+    return Text(
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
+      'Source : LAMal art. 67-77, CO art. 324a.',
+      style: GoogleFonts.inter(
+        fontSize: 10,
+        color: MintColors.textSecondary,
+        fontStyle: FontStyle.italic,
+      ),
+    );
+  }
+}

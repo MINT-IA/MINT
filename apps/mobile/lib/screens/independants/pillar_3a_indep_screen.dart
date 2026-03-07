@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -462,6 +464,11 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     final petit = pilier3aPlafondAvecLpp;
     final grand = pilier3aPlafondSansLpp;
     final plafondIndep = r.plafond;
+    final multiplier = (plafondIndep / petit).round();
+
+    // 20-year projection at 4% compound interest
+    final proj20Indep = plafondIndep * ((math.pow(1.04, 20) - 1) / 0.04);
+    final proj20Salarie = petit * ((math.pow(1.04, 20) - 1) / 0.04);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -473,26 +480,44 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Header with ×5 badge (P6-E / S42) ──
           Row(
             children: [
-              const Icon(Icons.bar_chart, size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                'PLAFONDS COMPARÉS',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
+              Expanded(
+                child: Text(
+                  'PLAFONDS COMPAR\u00c9S',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textMuted,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
+              if (!_affilieLpp)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: MintColors.success,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '\u00d7$multiplier ton super-pouvoir',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 20),
 
           // Salarie bar
           _buildPlafondBar(
-            label: 'Salarié\u00B7e',
+            label: 'Salari\u00e9\u00B7e',
             value: petit,
             maxValue: grand,
             color: MintColors.info,
@@ -501,7 +526,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Independant bar
           _buildPlafondBar(
-            label: 'Indépendant\u00B7e (toi)',
+            label: 'Ind\u00e9pendant\u00B7e (toi)',
             value: plafondIndep,
             maxValue: grand,
             color: MintColors.success,
@@ -511,13 +536,86 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
 
           // Max bar
           _buildPlafondBar(
-            label: 'Grand 3a (max légal)',
+            label: 'Grand 3a (max l\u00e9gal)',
             value: grand,
             maxValue: grand,
             color: MintColors.textMuted.withValues(alpha: 0.3),
           ),
+
+          // ── 20-year projection (P6-E chiffre-choc) ──
+          if (!_affilieLpp) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: MintColors.success.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'En 20 ans \u00e0 4%',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildProjectionColumn(
+                          'Salari\u00e9\u00b7e', proj20Salarie, MintColors.info),
+                      Text(
+                        'vs',
+                        style: GoogleFonts.inter(
+                            fontSize: 14, color: MintColors.textMuted),
+                      ),
+                      _buildProjectionColumn(
+                          'Toi', proj20Indep, MintColors.success),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Diff\u00e9rence\u00a0: +${IndependantsService.formatChf(proj20Indep - proj20Salarie)}',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: MintColors.success,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildProjectionColumn(String label, double amount, Color color) {
+    final millions = amount >= 1000000;
+    final display = millions
+        ? '${(amount / 1000000).toStringAsFixed(2)}M'
+        : '${(amount / 1000).toStringAsFixed(0)}k';
+    return Column(
+      children: [
+        Text(
+          'CHF\u00a0$display',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 11, color: MintColors.textMuted),
+        ),
+      ],
     );
   }
 

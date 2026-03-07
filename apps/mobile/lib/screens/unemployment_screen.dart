@@ -85,6 +85,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                     const SizedBox(height: 24),
                     _buildDurationCard(),
                     const SizedBox(height: 24),
+                    _buildTroisVagues(),
+                    const SizedBox(height: 24),
                   ],
                   UnemploymentTimelineWidget(items: _result!.timeline),
                   const SizedBox(height: 24),
@@ -989,6 +991,112 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── P7-A : Les 3 vagues — Ton tsunami financier ────────────
+
+  static const _vagues = [
+    (
+      emoji: '🌊',
+      label: 'Vague 1 · L\'urgence administrative',
+      color: Color(0xFF1565C0),
+      text: 'Inscription ORP dans les 5 premiers jours. Sinon : perte d\'indemnités. '
+          'Chaque jour de retard = indemnité perdue.',
+    ),
+    (
+      emoji: '🌊',
+      label: 'Vague 2 · La chute de revenus',
+      color: Color(0xFFE65100),
+      text: 'Chute immédiate de CHF/mois. L\'AC ne couvre ni les jours fériés '
+          'ni le délai de carence (5–20 jours). Revise ton budget dès J+1.',
+    ),
+    (
+      emoji: '🌊',
+      label: 'Vague 3 · Les décisions cachées',
+      color: Color(0xFFC62828),
+      text: 'Dans les 30 jours : transférer ton LPP (sinon institution supplétive). '
+          'Avant le mois suivant : suspendre le 3a, revoir LAMal. '
+          '"La vague la plus dangereuse, c\'est celle que tu n\'as pas vue venir."',
+    ),
+  ];
+
+  Widget _buildTroisVagues() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFE3F2FD),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF90CAF9)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                const Text('🌊', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Ton tsunami financier en 3 vagues',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          ..._vagues.map(
+            (v) => Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 4,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: v.color,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          v.label,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: v.color,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          v.text,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: MintColors.textSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

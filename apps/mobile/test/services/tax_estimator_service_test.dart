@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
-import 'package:mint_mobile/models/tax_scale.dart';
 
 void main() {
   // ---------------------------------------------------------------------------

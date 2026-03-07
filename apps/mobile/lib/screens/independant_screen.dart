@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/segments_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -81,6 +82,10 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 const SizedBox(height: 24),
 
                 if (_result != null) ...[
+                  // Jour J — protection before/after (P6-A / S42)
+                  _buildJourJSection(),
+                  const SizedBox(height: 20),
+
                   // Critical alerts
                   if (_result!.alerts.isNotEmpty) ...[
                     _buildAlerts(),
@@ -218,6 +223,180 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 color: MintColors.textSecondary,
                 height: 1.5,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Jour J section (P6-A / S42) ───────────────────────────
+  //  Dramatic before/after: every protection ON vs OFF.
+  //  Computed from result or estimated from revenuNet.
+
+  static const _protections = [
+    ('AVS', '\ud83e\uddf1', 'Double ta cotisation'),
+    ('LPP', '\ud83c\udfe6', 'Dispara\u00eet \u2014 choix volontaire'),
+    ('LAA', '\ud83c\udfe5', 'Dispara\u00eet \u2014 accident hors travail'),
+    ('IJM', '\ud83e\ude7a', 'Dispara\u00eet \u2014 maladie 0 CHF'),
+    ('APG', '\ud83d\udc76', 'Dispara\u00eet \u2014 cong\u00e9 parental'),
+  ];
+
+  Widget _buildJourJSection() {
+    // Estimate protection monthly loss when switching to self-employment.
+    // AVS: employee share doubles (indep. pays both sides — LAVS art. 8).
+    final avsMonth = _revenuNet * avsCotisationSalarie / 12;
+    // LPP: voluntary caisse bonification (age-dependent — LPP art. 16).
+    // Falls back to result's avsMensuel when a full calculation is available.
+    final lppMonth = _result?.protectionCost.avsMensuel ??
+        _revenuNet * getLppBonificationRate(_age) / 12;
+    // LAA non-professionnelle: indicative market premium (~150 CHF/mois).
+    // IJM maladie: indicative market premium (~100 CHF/mois).
+    // These are educational estimates — real premiums depend on caisse & coverage.
+    const double kLaaIndepMensuel = 150.0;
+    const double kIjmIndepMensuel = 100.0;
+    final totalLoss = (avsMonth + lppMonth + kLaaIndepMensuel + kIjmIndepMensuel)
+        .roundToDouble();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            MintColors.error.withValues(alpha: 0.04),
+            MintColors.warning.withValues(alpha: 0.04),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.error.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Text('\ud83d\udd04', style: const TextStyle(fontSize: 20)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Le Jour J \u2014 La grande bascule',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Ce qui change en 1 jour quand tu deviens ind\u00e9pendant\u00b7e',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Column headers
+          Row(
+            children: [
+              const Expanded(flex: 2, child: SizedBox()),
+              Expanded(
+                child: Text(
+                  'Salari\u00e9\u00b7e',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.success,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Ind\u00e9pendant\u00b7e',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.error,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Protection rows
+          ..._protections.map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
+
+          const SizedBox(height: 10),
+
+          // Chiffre-choc
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: MintColors.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              'Tu perds ~${IndependantService.formatChf(totalLoss)}/mois '
+              'de protection invisible.\n'
+              'Tu n\u2019as pas quitt\u00e9 un emploi. Tu as quitt\u00e9 un syst\u00e8me de protection.',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: MintColors.error,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProtectionRow(String label, String emoji, String detail) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 6),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Icon(Icons.check_circle, color: MintColors.success, size: 18),
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                const Icon(Icons.cancel, color: MintColors.error, size: 18),
+                Text(
+                  detail,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 9,
+                    color: MintColors.textMuted,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

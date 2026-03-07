@@ -245,7 +245,7 @@ class CoachNarrativeService {
           retirementAge: 65,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
-          conversionRate: profile.prevoyance.tauxConversion ?? 0.068,
+          conversionRate: profile.prevoyance.tauxConversion,
         );
         final totalMonthly = avsMonthly + lppAnnual / 12;
         replacementRatio = totalMonthly / (salary / 12);
@@ -852,7 +852,7 @@ class CoachNarrativeService {
           retirementAge: 65,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
-          conversionRate: profile.prevoyance.tauxConversion ?? 0.068,
+          conversionRate: profile.prevoyance.tauxConversion,
         );
         final totalMonthly = avsMonthly + lppAnnual / 12;
         replacementRate = totalMonthly / (salary / 12);

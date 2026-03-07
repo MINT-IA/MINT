@@ -377,7 +377,6 @@ void main() {
 
       // Drag slider towards max
       final slider = find.byType(Slider);
-      final sliderCenter = tester.getCenter(slider);
       await tester.drag(slider, Offset(100, 0));
       await tester.pumpAndSettle();
 

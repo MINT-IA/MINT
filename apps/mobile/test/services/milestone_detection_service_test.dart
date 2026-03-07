@@ -33,7 +33,6 @@ CoachProfile _buildProfile({
   double totalEpargne3a = 0,
   double loyer = 0,
   double assuranceMaladie = 0,
-  double total3aMensuel = 0,
   List<MonthlyCheckIn> checkIns = const [],
   List<PlannedMonthlyContribution> contributions = const [],
 }) {

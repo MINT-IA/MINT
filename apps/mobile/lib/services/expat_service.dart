@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SERVICE — Sprint S23 / Expatriation + Frontaliers

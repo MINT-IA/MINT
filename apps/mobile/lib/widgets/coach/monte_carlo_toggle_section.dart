@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/retirement/monte_carlo_chart.dart';
 
 /// Toggle section for switching between deterministic 3-scenarios view
