@@ -229,9 +229,3 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
   }
 }
 
-/// Compact CHF formatter (e.g. "680k").
-String formatChfCompact(double value) {
-  if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
-  if (value >= 1000) return '${(value / 1000).toStringAsFixed(0)}k';
-  return formatChfWithPrefix(value);
-}

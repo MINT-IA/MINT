@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/services/first_job_service.dart' show SalaryDeductionItem;
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SALARY BREAKDOWN WIDGET — Sprint S19
@@ -86,7 +87,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    FirstJobService.formatChf(brut),
+                    formatChfWithPrefix(brut),
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -107,7 +108,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    FirstJobService.formatChf(netEstime),
+                    formatChfWithPrefix(netEstime),
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -238,7 +239,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
             ),
           ),
           Text(
-            FirstJobService.formatChf(amount),
+            formatChfWithPrefix(amount),
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
@@ -330,7 +331,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
             ),
           ),
           Text(
-            FirstJobService.formatChf(item.montant),
+            formatChfWithPrefix(item.montant),
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -385,7 +386,7 @@ class SalaryBreakdownWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ton employeur verse ~${FirstJobService.formatChf(cotisationsEmployeur)}/mois '
+                  'Ton employeur verse ~${formatChfWithPrefix(cotisationsEmployeur)}/mois '
                   'en plus de ton salaire brut (AVS part employeur, LPP part '
                   'employeur, LAA, etc.).',
                   style: GoogleFonts.inter(

@@ -22,3 +22,11 @@ String formatChf(double value) {
 
 /// Format with "CHF " prefix.
 String formatChfWithPrefix(double value) => 'CHF\u00a0${formatChf(value)}';
+
+/// Compact CHF formatter — omits "CHF" prefix for space-constrained contexts.
+/// Examples: 680'000 → "680k" | 1'200'000 → "1.2M" | 800 → "CHF 800"
+String formatChfCompact(double value) {
+  if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+  if (value >= 1000) return '${(value / 1000).toStringAsFixed(0)}k';
+  return formatChfWithPrefix(value);
+}

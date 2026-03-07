@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/segments_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -242,10 +243,20 @@ class _IndependantScreenState extends State<IndependantScreen> {
   ];
 
   Widget _buildJourJSection() {
-    // Estimate protection monthly loss (AVS doubles + LPP + LAA + IJM + APG).
-    final avsMonth = _revenuNet * 0.053 / 12; // employee share
-    final lppMonth = _result?.protectionCost.avsMensuel ?? _revenuNet * 0.08 / 12;
-    final totalLoss = (avsMonth + lppMonth + 150 + 100).roundToDouble();
+    // Estimate protection monthly loss when switching to self-employment.
+    // AVS: employee share doubles (indep. pays both sides — LAVS art. 8).
+    final avsMonth = _revenuNet * avsCotisationSalarie / 12;
+    // LPP: voluntary caisse bonification (age-dependent — LPP art. 16).
+    // Falls back to result's avsMensuel when a full calculation is available.
+    final lppMonth = _result?.protectionCost.avsMensuel ??
+        _revenuNet * getLppBonificationRate(_age) / 12;
+    // LAA non-professionnelle: indicative market premium (~150 CHF/mois).
+    // IJM maladie: indicative market premium (~100 CHF/mois).
+    // These are educational estimates — real premiums depend on caisse & coverage.
+    const double kLaaIndepMensuel = 150.0;
+    const double kIjmIndepMensuel = 100.0;
+    final totalLoss = (avsMonth + lppMonth + kLaaIndepMensuel + kIjmIndepMensuel)
+        .roundToDouble();
 
     return Container(
       padding: const EdgeInsets.all(20),
