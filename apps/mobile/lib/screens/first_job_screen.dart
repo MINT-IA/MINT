@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -28,6 +31,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   String _canton = 'ZH';
   double _tauxActivite = 100;
   FirstJobResult? _result;
+  bool _seededFromProfile = false;
 
   // Checklist tracking
   final Set<int> _checkedItems = {};
@@ -42,6 +46,22 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   @override
   void initState() {
     super.initState();
+    _calculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_seededFromProfile) return;
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+    _seededFromProfile = true;
+    final age = DateTime.now().year - profile.birthYear;
+    setState(() {
+      _salaire = profile.salaireBrutMensuel.clamp(2000, 15000);
+      _age = age.clamp(18, 30);
+      if (profile.canton.isNotEmpty) _canton = profile.canton;
+    });
     _calculate();
   }
 
@@ -94,6 +114,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildChecklist(),
                   const SizedBox(height: 24),
                   _buildEducation(),
+                  const SizedBox(height: 24),
+                  _buildMintAnalysisSection(),
                   const SizedBox(height: 24),
                 ],
                 _buildDisclaimer(),
@@ -949,6 +971,127 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── Analyse MINT ───────────────────────────────────────────
+
+  Widget _buildMintAnalysisSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(),
+        const SizedBox(height: 12),
+        _buildScenarioChips(),
+        const SizedBox(height: 16),
+        FirstSalaryFilmWidget(grossMonthly: _salaire),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader() {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'Analyse MINT — Le film de ton salaire',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: MintColors.textPrimary,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: _seededFromProfile
+                ? MintColors.scoreExcellent.withValues(alpha: 0.1)
+                : MintColors.scoreAttention.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: _seededFromProfile
+                  ? MintColors.scoreExcellent.withValues(alpha: 0.4)
+                  : MintColors.scoreAttention.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Text(
+            _seededFromProfile ? '📍 Ton profil' : '💡 Illustratif',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: _seededFromProfile
+                  ? MintColors.scoreExcellent
+                  : MintColors.scoreAttention,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScenarioChips() {
+    const median = 6500.0;
+    final profileVal = _seededFromProfile
+        ? context.read<CoachProfileProvider>().profile?.salaireBrutMensuel ?? 5000.0
+        : 5000.0;
+    final boosted = (profileVal * 1.20).clamp(2000.0, 15000.0);
+
+    final scenarios = [
+      (
+        label: _seededFromProfile ? '📍 Mon salaire' : '📍 Défaut',
+        value: profileVal.clamp(2000.0, 15000.0),
+        active: (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
+      ),
+      (
+        label: '🇨🇭 Médian CH',
+        value: median,
+        active: (_salaire - median).abs() < 50,
+      ),
+      (
+        label: '✨ +20%',
+        value: boosted,
+        active: (_salaire - boosted).abs() < 50,
+      ),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: scenarios.map((s) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _salaire = s.value);
+                _calculate();
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: s.active
+                      ? MintColors.primary
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: s.active ? MintColors.primary : MintColors.lightBorder,
+                    width: s.active ? 2 : 1,
+                  ),
+                ),
+                child: Text(
+                  '${s.label}  CHF ${FirstJobService.formatChf(s.value)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: s.active ? Colors.white : MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
