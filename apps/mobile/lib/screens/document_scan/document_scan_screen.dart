@@ -381,7 +381,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'image n'est jamais stockée ni envoyée. "
+              "L'image est analysée localement (OCR sur l'appareil). "
+              "Si tu utilises l'analyse Vision IA, l'image est envoyée "
+              "à ton fournisseur IA via ta propre clé API. "
               'Seules les valeurs confirmées sont conservées dans ton profil.',
               style: GoogleFonts.inter(
                 fontSize: 12,
@@ -871,6 +873,18 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    'L\'image sera envoyée à ton fournisseur IA via ta clé API.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: MintColors.textMuted,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
