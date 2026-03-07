@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
-import 'package:mint_mobile/services/fiscal_service.dart';
 
 /// Minimal profile computation service (Sprint S31 — Onboarding Redesign).
 ///

@@ -162,7 +162,7 @@ class ConsentManager {
 
   static Future<dynamic> _getPrefs() async {
     // Lazy import to avoid hard dependency at top level
-    final module = await Future.value(null); // SharedPreferences placeholder
+    await Future.value(null); // SharedPreferences placeholder
     // In production, use: SharedPreferences.getInstance()
     // For now, use in-memory fallback
     return _InMemoryPrefs.instance;

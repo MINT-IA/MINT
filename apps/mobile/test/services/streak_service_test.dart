@@ -37,14 +37,6 @@ List<DateTime> _consecutiveMonthsEndingNow(int count) {
   );
 }
 
-/// Helper: build consecutive months ending at the previous month.
-List<DateTime> _consecutiveMonthsEndingLastMonth(int count) {
-  final now = DateTime.now();
-  return List.generate(
-    count,
-    (i) => DateTime(now.year, now.month - 1 - (count - 1 - i)),
-  );
-}
 
 void main() {
   // =========================================================================
