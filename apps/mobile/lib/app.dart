@@ -405,7 +405,7 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ToolsLibraryScreen(),
     ),
-    // /coaching route removed — CoachingScreen superseded by coach/dashboard + coach/agir
+    // /coaching route removed (legacy)
     // Segments sociologiques
     GoRoute(
       path: '/segments/gender-gap',

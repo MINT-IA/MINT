@@ -11,7 +11,7 @@ import 'package:mint_mobile/models/profile.dart';
 /// - L'état actuel (dettes, épargne, LPP)
 /// - Les opportunités fiscales (3a, LPP, etc.)
 ///
-/// Utilisé dans CoachDashboardScreen pour afficher les actions recommandées
+/// Utilisé dans CoachAgirScreen pour afficher les actions recommandées
 class RecommendationsService {
   RecommendationsService._();
 

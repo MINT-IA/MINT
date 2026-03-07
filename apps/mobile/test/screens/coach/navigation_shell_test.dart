@@ -20,7 +20,7 @@ import 'package:mint_mobile/models/profile.dart';
 // ────────────────────────────────────────────────────────────
 //  NAVIGATION SHELL TESTS — Phase 5 / Quality hardening
 //
-//  MainNavigationShell embeds CoachDashboardScreen as tab 0,
+//  MainNavigationShell embeds RetirementDashboardScreen as tab 0,
 //  which has _pulseController..repeat(reverse: true) (infinite
 //  animation). We MUST use pump(Duration) not pumpAndSettle().
 // ────────────────────────────────────────────────────────────
