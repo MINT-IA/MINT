@@ -85,13 +85,6 @@ class _ConfidenceBarState extends State<ConfidenceBar>
     return MintColors.scoreCritique;
   }
 
-  /// Label du niveau de confiance.
-  String get _levelLabel {
-    if (widget.score >= 70) return 'Fiable';
-    if (widget.score >= 40) return 'Partielle';
-    return 'Faible';
-  }
-
   /// P1-I: Zone description for thermometer.
   String get _zoneDescription {
     if (widget.score >= 90) return 'Photo parfaite';
