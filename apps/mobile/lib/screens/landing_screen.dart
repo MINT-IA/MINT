@@ -38,11 +38,6 @@ class _LandingScreenState extends State<LandingScreen> {
   // Uses AvsCalculator + LppCalculator — same formulas as the dashboard.
   // Simplified inputs (no canton, no lacunes) but NEVER duplicates logic.
   // ---------------------------------------------------------------------------
-  /// Estimate LPP capital accumulated from age 25 to [currentAge].
-  ///
-  /// Uses current salary as proxy for career-long earnings (standard
-  /// simplification — same as most Swiss online calculators).
-  /// Bonification rates from LPP art. 16, caisse return 1% (LPP art. 15 min).
   double _estimatedLppBalance(int currentAge, double grossAnnualSalary) {
     if (grossAnnualSalary < lppSeuilEntree) return 0.0;
     final salaireBase = (grossAnnualSalary - lppDeductionCoordination)
@@ -57,13 +52,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
   Map<String, double> _estimateRetirement() {
     final age = _age.round();
-
-    // AVS (1er pilier) — LAVS art. 34, echelle 44
     final avsMonthly = AvsCalculator.renteFromRAMD(_salary);
-
-    // LPP (2e pilier) — estimate past accumulation + project to 65
-    // Past: bonifications from 25 to current age (career proxy)
-    // Future: projectToRetirement handles currentAge to 65
     final pastBalance = _estimatedLppBalance(age, _salary);
     final lppAnnualRente = LppCalculator.projectToRetirement(
       currentBalance: pastBalance,
@@ -74,7 +63,6 @@ class _LandingScreenState extends State<LandingScreen> {
       conversionRate: 0.068,
     );
     final lppMonthly = lppAnnualRente / 12;
-
     final totalMonthly = avsMonthly + lppMonthly;
     final currentMonthly = _salary / 12;
     final ratio = currentMonthly > 0 ? totalMonthly / currentMonthly : 0.0;
@@ -131,7 +119,7 @@ class _LandingScreenState extends State<LandingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header with MINT branding
+                          // Header
                           MintAnimateFadeUp(
                             child: _buildHeader(context),
                           ),
@@ -146,21 +134,21 @@ class _LandingScreenState extends State<LandingScreen> {
 
                           const SizedBox(height: 24),
 
-                          // Interactive Simulator + Avant/Apres
+                          // Interactive Simulator
                           MintAnimateFadeUp(
                             delayInMs: 400,
                             child: _buildSimulatorCard(est),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
 
-                          // Value proposition — MINT branding
+                          // Pourquoi MINT — 3 features
                           MintAnimateFadeUp(
                             delayInMs: 550,
-                            child: _buildValueMessage(),
+                            child: _buildPourquoiMint(),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
 
                           // Trust bar
                           MintAnimateFadeUp(
@@ -168,58 +156,18 @@ class _LandingScreenState extends State<LandingScreen> {
                             child: _buildTrustBar(),
                           ),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 28),
 
-                          // Primary CTA
+                          // Single primary CTA
                           MintAnimateFadeUp(
                             delayInMs: 750,
                             child: _buildPrimaryCTA(context),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 32),
 
-                          // Secondary CTA — explore path
-                          MintAnimateFadeUp(
-                            delayInMs: 850,
-                            child: Center(
-                              child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  _analytics.trackCTAClick('cta_explore',
-                                      screenName: '/');
-                                  final isCompleted =
-                                      await ReportPersistenceService
-                                          .isCompleted();
-                                  final isMiniCompleted =
-                                      await ReportPersistenceService
-                                          .isMiniOnboardingCompleted();
-                                  if (!context.mounted) return;
-                                  if (isCompleted || isMiniCompleted) {
-                                    context.go('/home');
-                                  } else {
-                                    context.go('/onboarding/smart');
-                                  }
-                                },
-                                icon: const Icon(Icons.explore_outlined,
-                                    size: 18),
-                                label: const Text('Decouvrir MINT'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: MintColors.textPrimary,
-                                  side: const BorderSide(
-                                      color: MintColors.border),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Trust footer
-                          _buildTrustFooter(),
+                          // Legal disclaimer — bottom only, small
+                          _buildLegalFooter(),
 
                           const SizedBox(height: 16),
                         ],
@@ -235,6 +183,99 @@ class _LandingScreenState extends State<LandingScreen> {
           const AnalyticsConsentBanner(),
         ],
       ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Header
+  // ---------------------------------------------------------------------------
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Logo + MINT + tagline
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _buildLogoPill(),
+                const SizedBox(width: 10),
+                Text(
+                  'MINT',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: MintColors.textPrimary,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Ton coach financier suisse',
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textMuted,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+        // Auth buttons — no "Beta Privée" badge
+        Row(
+          children: [
+            TextButton(
+              onPressed: () {
+                _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
+                context.go('/auth/login');
+              },
+              style: TextButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                backgroundColor: Colors.white.withValues(alpha: 0.7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                S.of(context)?.authLogin ?? 'Se connecter',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            TextButton(
+              onPressed: () {
+                _analytics.trackCTAClick('cta_register_clicked',
+                    screenName: '/');
+                context.go('/auth/register');
+              },
+              style: TextButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                backgroundColor: MintColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text(
+                "S'inscrire",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -286,17 +327,27 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
           ),
         ),
+        const SizedBox(height: 12),
+        Text(
+          'La plupart des Suisses découvrent leur écart de retraite trop tard.',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+            height: 1.4,
+          ),
+        ),
       ],
     );
   }
 
   // ---------------------------------------------------------------------------
-  // Simulator Card — sliders + avant/apres comparison
+  // Simulator Card — sliders + avant/apres + conclusion hook
   // ---------------------------------------------------------------------------
   Widget _buildSimulatorCard(Map<String, double> est) {
     final totalMonthly = est['total']!;
     final currentMonthly = est['current']!;
     final ratio = est['ratio']!;
+    final gapMonthly = (currentMonthly - totalMonthly).round();
     final dropPercent = currentMonthly > 0
         ? ((currentMonthly - totalMonthly) / currentMonthly * 100).round()
         : 0;
@@ -373,7 +424,7 @@ class _LandingScreenState extends State<LandingScreen> {
           // --- Gap bar ---
           _buildGapBar(ratio),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           // --- Drop percentage (chiffre choc) ---
           TweenAnimationBuilder<double>(
@@ -392,9 +443,9 @@ class _LandingScreenState extends State<LandingScreen> {
             },
           ),
 
-          // --- Salary cap message ---
+          // --- LPP cap notice ---
           if (isCapped) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               'Au-dela de ${formatChf(lppSalaireMax)} CHF/an, '
               'la rente obligatoire est plafonnee.',
@@ -407,16 +458,57 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
           ],
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
 
-          Text(
-            '*Estimation indicative (1er + 2e pilier), basee '
-            'sur ton salaire actuel \u2014 ne constitue pas un conseil financier',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
+          // --- Dynamic conclusion hook ---
+          _buildSimulatorHook(gapMonthly, dropPercent),
+        ],
+      ),
+    );
+  }
+
+  // Dynamic hook that bridges the chiffre choc → action
+  Widget _buildSimulatorHook(int gapChf, int dropPercent) {
+    final String message;
+    final Color color;
+
+    if (dropPercent >= 40) {
+      message =
+          'Un ecart de ${formatChfWithPrefix(gapChf.toDouble())}/mois, '
+          "c'est significatif. MINT t'aide a comprendre où agir.";
+      color = MintColors.warning;
+    } else if (dropPercent >= 20) {
+      message =
+          'Ton gap est gérable. MINT te montre les leviers concrets '
+          '(rachat LPP, 3a, retraite anticipée).';
+      color = MintColors.primary;
+    } else {
+      message =
+          "Tu es en bonne posture. MINT te montre comment maintenir le cap "
+          'et optimiser tes piliers.';
+      color = MintColors.success;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.arrow_forward_rounded, color: color, size: 16),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textPrimary,
+                height: 1.4,
+              ),
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -468,8 +560,8 @@ class _LandingScreenState extends State<LandingScreen> {
         ),
 
         // Arrow
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
           child: Icon(
             Icons.arrow_forward_rounded,
             color: MintColors.textMuted,
@@ -482,7 +574,7 @@ class _LandingScreenState extends State<LandingScreen> {
           child: Column(
             children: [
               Text(
-                'A 65 ans*',
+                'A la retraite*',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textMuted,
@@ -561,33 +653,93 @@ class _LandingScreenState extends State<LandingScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // Value message with MINT branding (FINMA-safe: "comprendre", not "reduire")
+  // Pourquoi MINT — 3 features (replaces vague "MINT t'aide à comprendre")
   // ---------------------------------------------------------------------------
-  Widget _buildValueMessage() {
-    return Center(
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: 'MINT',
-              style: GoogleFonts.montserrat(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: MintColors.primary,
-              ),
-            ),
-            TextSpan(
-              text: " t'aide a comprendre ce gap.",
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                color: MintColors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+  Widget _buildPourquoiMint() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pourquoi MINT ?',
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+            letterSpacing: 0.3,
+          ),
         ),
-      ),
+        const SizedBox(height: 12),
+        _buildFeatureRow(
+          icon: Icons.account_balance_outlined,
+          color: const Color(0xFF4F46E5),
+          title: 'Tous tes piliers, un seul tableau de bord',
+          subtitle: 'AVS, LPP et 3a calculés selon ta situation réelle — '
+              'pas des moyennes suisses.',
+        ),
+        const SizedBox(height: 10),
+        _buildFeatureRow(
+          icon: Icons.tips_and_updates_outlined,
+          color: MintColors.primary,
+          title: 'Coach adapté à ton stade de vie',
+          subtitle: '25 ans ou 60 ans, frontalier ou indépendant — '
+              'les conseils changent selon qui tu es.',
+        ),
+        const SizedBox(height: 10),
+        _buildFeatureRow(
+          icon: Icons.smartphone_outlined,
+          color: const Color(0xFF0EA5E9),
+          title: '100% privé, données sur ton appareil',
+          subtitle: 'Aucun partage, aucune pub. '
+              'Ton profil reste local sauf si tu crées un compte.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureRow({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -686,82 +838,12 @@ class _LandingScreenState extends State<LandingScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // Header with MINT branding
-  // ---------------------------------------------------------------------------
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Logo + MINT text
-        Row(
-          children: [
-            _buildLogoPill(),
-            const SizedBox(width: 10),
-            Text(
-              'MINT',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: MintColors.textPrimary,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Text(
-                S.of(context)?.landingBetaBadge ?? 'Beta Privee',
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: MintColors.textSecondary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            TextButton(
-              onPressed: () {
-                _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
-                context.go('/auth/login');
-              },
-              style: TextButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                backgroundColor: Colors.white.withValues(alpha: 0.7),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: Text(
-                S.of(context)?.authLogin ?? 'Se connecter',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // CTA — leads to onboarding
+  // CTA — single, no competing button
   // ---------------------------------------------------------------------------
   Widget _buildPrimaryCTA(BuildContext context) {
     return MintPremiumButton(
       title: 'Ton plan en 30 secondes',
-      subtitle: '3 questions \u2022 Sans engagement',
+      subtitle: '3 questions \u2022 Gratuit \u2022 Sans engagement',
       onTap: () async {
         _analytics.trackCTAClick('cta_plan_clicked', screenName: '/');
         final isCompleted = await ReportPersistenceService.isCompleted();
@@ -779,26 +861,30 @@ class _LandingScreenState extends State<LandingScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // Footer & decorations
+  // Legal footer — very small, bottom only
   // ---------------------------------------------------------------------------
-  Widget _buildTrustFooter() {
+  Widget _buildLegalFooter() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
-          'Outil educatif \u2014 ne constitue pas un conseil financier. '
-          'Tes donnees restent sur ton appareil.',
+          '*Estimation indicative (1er + 2e pilier), basee sur le salaire '
+          'actuel comme proxy de carriere. Ne constitue pas un conseil '
+          'financier au sens de la LSFin. Tes donnees restent sur ton appareil.',
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
-            fontSize: 11,
+            fontSize: 10,
             color: MintColors.textMuted,
-            height: 1.4,
+            height: 1.5,
           ),
         ),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Decorations
+  // ---------------------------------------------------------------------------
   Widget _buildBlurBlob(Color color, double size) {
     return Container(
       width: size,

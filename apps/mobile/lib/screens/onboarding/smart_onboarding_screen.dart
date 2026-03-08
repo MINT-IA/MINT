@@ -249,12 +249,14 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       canton: _viewModel.canton ?? 'ZH',
       revenuAnnuel: _viewModel.grossSalary,
       has3a: _viewModel.existing3a != null && _viewModel.existing3a! > 0,
+      has3aAnswered: _viewModel.existing3a != null,
       montant3a: _viewModel.existing3a ?? 0,
       hasLpp: true,
       avoirLpp: _viewModel.existingLpp ?? 0,
       lacuneLpp: 0,
       chargesFixesMensuelles: profile.estimatedMonthlyExpenses,
       epargneDispo: _viewModel.currentSavings ?? 0,
+      hasSavingsAnswered: _viewModel.currentSavings != null,
     );
 
     final allTips = CoachingService.generateTips(profile: coachingProfile);

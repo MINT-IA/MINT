@@ -1,7 +1,14 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
+import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
+import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Step OCR — Enrichissement du profil par scan de documents.
@@ -48,33 +55,34 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
       title: 'Ta lettre de retraite LPP',
       subtitle: 'Avoir, taux de conversion, lacune de rachat',
       icon: Icons.account_balance_outlined,
-      confidenceBoost: '+27 pts de precision',
+      confidenceBoost: '+27 pts de précision',
     ),
     (
       type: DocumentType.avsExtract,
       title: 'Ton extrait AVS',
-      subtitle: 'Annees de cotisation, lacunes, RAMD',
+      subtitle: 'Années de cotisation, lacunes, RAMD',
       icon: Icons.security_outlined,
-      confidenceBoost: '+22 pts de precision',
+      confidenceBoost: '+22 pts de précision',
     ),
     (
       type: DocumentType.taxDeclaration,
-      title: 'Ta declaration fiscale',
+      title: 'Ta déclaration fiscale',
       subtitle: 'Revenu imposable, fortune, taux marginal',
       icon: Icons.receipt_long_outlined,
-      confidenceBoost: '+17 pts de precision',
+      confidenceBoost: '+17 pts de précision',
     ),
     (
       type: DocumentType.threeAAttestation,
       title: 'Ton compte 3a',
-      subtitle: 'Solde, versements cumules, rendement',
+      subtitle: 'Solde, versements cumulés, rendement',
       icon: Icons.savings_outlined,
-      confidenceBoost: '+7 pts de precision',
+      confidenceBoost: '+7 pts de précision',
     ),
   ];
 
   DocumentType? _scanning;
   final Set<DocumentType> _scanned = {};
+  final _imagePicker = ImagePicker();
 
   Future<void> _scanDocument(DocumentType type) async {
     // LPD : demander confirmation avant de lancer le scan
@@ -82,46 +90,127 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
     if (!confirmed || !mounted) return;
 
     setState(() => _scanning = type);
+    try {
+      final result = await _pickAndParse(type);
+      if (!mounted) return;
+      if (result != null) {
+        widget.viewModel.applyOcrResult(result);
+        setState(() {
+          _scanning = null;
+          _scanned.add(type);
+        });
+        final count = result.fields.where((f) => f.confidence >= 0.5).length;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(count > 0
+                ? '$count champ${count > 1 ? 's' : ''} extrait${count > 1 ? 's' : ''} avec succès'
+                : 'Document traité — aucun champ reconnu automatiquement'),
+            duration: const Duration(seconds: 3),
+          ));
+        }
+      } else {
+        // User cancelled picker
+        setState(() => _scanning = null);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _scanning = null);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erreur lors du traitement : $e'),
+          duration: const Duration(seconds: 4),
+        ));
+      }
+    }
+  }
 
-    // TODO(S45): Appeler le scanner ML Kit on-device ici.
-    // Pour l'instant, on simule un scan vide (pas de donnees a injecter).
-    // Le vrai pipeline : image_picker → google_mlkit_text_recognition → parser.
-    //
-    // Exemple d'integration future :
-    //   final picker = ImagePicker();
-    //   final image = await picker.pickImage(source: ImageSource.gallery);
-    //   if (image == null) { setState(() => _scanning = null); return; }
-    //   final inputImage = InputImage.fromFilePath(image.path);
-    //   final recognizer = TextRecognizer();
-    //   final recognised = await recognizer.processImage(inputImage);
-    //   final result = LppCertificateParser.parse(recognised.text);
-    //   widget.viewModel.applyOcrResult(result);
+  /// Pick a file and parse it through the appropriate parser.
+  /// Returns null if the user cancelled.
+  Future<ExtractionResult?> _pickAndParse(DocumentType type) async {
+    if (kIsWeb) {
+      return _pickAndParseWeb(type);
+    } else {
+      return _pickAndParseMobile(type);
+    }
+  }
 
-    // Simulation d'un resultat vide (aucun champ extrait)
-    final fakeResult = ExtractionResult(
+  Future<ExtractionResult?> _pickAndParseWeb(DocumentType type) async {
+    // On web: file picker (txt or image). OCR on images not possible without
+    // a server — txt files go directly to the parser.
+    final picked = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      withData: true,
+      allowedExtensions: const ['txt', 'jpg', 'jpeg', 'png', 'pdf'],
+    );
+    if (picked == null || picked.files.isEmpty) return null;
+
+    final file = picked.files.first;
+    final ext = (file.extension ?? '').toLowerCase();
+
+    if (ext == 'txt' && file.bytes != null) {
+      final text = String.fromCharCodes(file.bytes!);
+      return _parseText(text, type);
+    }
+
+    // Image on web — OCR not possible without ML Kit (mobile only).
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+          'Scan d\'image non disponible sur web. '
+          'Utilise l\'app mobile ou importe un fichier .txt.',
+        ),
+        duration: Duration(seconds: 5),
+      ));
+    }
+    // Mark as "attempted" so user gets visual feedback
+    return ExtractionResult(
       documentType: type,
       fields: const [],
       overallConfidence: 0,
       confidenceDelta: 0,
-      warnings: const ['Scan simule — integration ML Kit prevue S45'],
-      disclaimer:
-          'Outil educatif. Ne constitue pas un conseil financier (LSFin). '
-          'Donnees traitees sur ton appareil, supprimees apres extraction (LPD art. 6).',
+      warnings: const ['OCR image non disponible sur web — utilise l\'app mobile'],
+      disclaimer: 'Outil educatif (LSFin). Traitement local (LPD art. 6).',
       sources: const [],
     );
-    widget.viewModel.applyOcrResult(fakeResult);
+  }
 
-    if (mounted) {
-      setState(() {
-        _scanning = null;
-        // Only mark as successfully scanned if at least one field was extracted
-        // with usable confidence. An empty result (overallConfidence == 0 and
-        // no fields) is a simulated/failed scan — showing a green checkmark
-        // would be misleading (H7 fix).
-        final hasUsableData = fakeResult.fields.any((f) => f.confidence >= 0.5) ||
-            fakeResult.overallConfidence > 0;
-        if (hasUsableData) _scanned.add(type);
-      });
+  Future<ExtractionResult?> _pickAndParseMobile(DocumentType type) async {
+    final image = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 90,
+    );
+    if (image == null) return null;
+
+    final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
+    try {
+      final input = InputImage.fromFilePath(image.path);
+      final recognised = await recognizer.processImage(input);
+      return _parseText(recognised.text, type);
+    } finally {
+      recognizer.close();
+    }
+  }
+
+  ExtractionResult _parseText(String text, DocumentType type) {
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return LppCertificateParser.parseLppCertificate(text);
+      case DocumentType.avsExtract:
+        return AvsExtractParser.parseAvsExtract(text);
+      case DocumentType.taxDeclaration:
+        return TaxDeclarationParser.parseTaxDeclaration(text);
+      case DocumentType.threeAAttestation:
+      case DocumentType.mortgageAttestation:
+        // No dedicated parser yet — return minimal result
+        return ExtractionResult(
+          documentType: type,
+          fields: const [],
+          overallConfidence: 0,
+          confidenceDelta: 0,
+          warnings: const ['Parser non encore disponible pour ce type de document'],
+          disclaimer: 'Outil educatif (LSFin). Traitement local (LPD art. 6).',
+          sources: const [],
+        );
     }
   }
 
@@ -170,7 +259,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Traitement prive sur ton appareil',
+                        'Traitement privé sur ton appareil',
                         style: GoogleFonts.montserrat(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -182,9 +271,9 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Ce document est analyse directement sur ton telephone.\n'
-                  'Aucune donnee n\'est envoyee sur Internet.\n'
-                  'Les informations extraites sont supprimees apres traitement.',
+                  'Ce document est analysé directement sur ton téléphone.\n'
+                  'Aucune donnée n\'est envoyée sur Internet.\n'
+                  'Les informations extraites sont supprimées après traitement.',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textSecondary,
@@ -193,7 +282,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Base legale : LPD art. 6 — minimisation des donnees.',
+                  'Base légale : LPD art. 6 — minimisation des données.',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textMuted,
@@ -360,7 +449,7 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
                       ),
                       child: Text(
                         scannedCount > 0
-                            ? 'Continuer ($scannedCount document${scannedCount > 1 ? 's' : ''} scanne${scannedCount > 1 ? 's' : ''})'
+                            ? 'Continuer ($scannedCount document${scannedCount > 1 ? 's' : ''} scanné${scannedCount > 1 ? 's' : ''})'
                             : 'Continuer sans document',
                         style: GoogleFonts.inter(
                           fontSize: 16,
@@ -373,8 +462,8 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
 
                   // Disclaimer FINMA/LPD
                   Text(
-                    'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-                    'Documents traites sur ton appareil, aucune donnee envoyee (LPD art. 6).',
+                    'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+                    'Documents traités sur ton appareil, aucune donnée envoyée (LPD art. 6).',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: MintColors.textMuted,
@@ -420,8 +509,8 @@ class _LpdBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Tes documents sont traites sur ton appareil. '
-              'Rien n\'est envoye sur Internet.',
+              'Tes documents sont traités sur ton appareil. '
+              'Rien n\'est envoyé sur Internet.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.primary,
@@ -548,7 +637,7 @@ class _DocumentCard extends StatelessWidget {
                 ),
               ),
               child: Text(
-                isScanned ? 'Scanne' : confidenceBoost,
+                isScanned ? 'Scanné' : confidenceBoost,
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

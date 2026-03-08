@@ -1492,12 +1492,17 @@ class CoachProfile {
     } else {
       monthlyNetIncome = netIncome;
     }
-    // Net → Brut estimation: Swiss social charges ≈ 13%
+    // Prefer direct gross salary when stored by updateFromSmartFlow
+    // (avoids net→gross roundtrip rounding: 120'000 → net → 113'793 brut).
+    // Fallback: net → brut via Swiss social charges ≈ 13%.
     // (AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1% ≈ 12.5%, arrondi 13%)
     // Source: OFAS barème cotisations 2025. Ceci est une estimation;
     // le taux réel dépend du plan LPP et du canton.
     const double socialChargesRate = 0.13;
-    final salaireBrutMensuel = monthlyNetIncome / (1 - socialChargesRate);
+    final grossSalaryDirect = _parseDouble(answers['q_gross_salary_annual']);
+    final salaireBrutMensuel = grossSalaryDirect != null
+        ? grossSalaryDirect / 12
+        : monthlyNetIncome / (1 - socialChargesRate);
 
     // Employment status mapping
     final employmentRaw = answers['q_employment_status'] as String?;

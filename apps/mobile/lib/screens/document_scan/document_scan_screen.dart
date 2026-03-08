@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/services/document_service.dart';
@@ -274,9 +273,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           height: 56,
           child: FilledButton.icon(
             onPressed: _isProcessing ? null : _onCameraPressed,
-            icon: const Icon(Icons.camera_alt_outlined, size: 22),
+            icon: Icon(
+              kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
+              size: 22,
+            ),
             label: Text(
-              _isProcessing ? 'Extraction en cours...' : 'Prendre une photo',
+              _isProcessing
+                  ? 'Extraction en cours...'
+                  : kIsWeb
+                      ? 'Importer un fichier'
+                      : 'Prendre une photo',
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -418,14 +424,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onGalleryPressed() async {
     try {
-      final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
       final allowedExtensions = <String>[
         'jpg',
         'jpeg',
         'png',
         'heic',
         'txt',
-        if (isLoggedIn) 'pdf',
+        'pdf',
       ];
       final picked = await FilePicker.platform.pickFiles(
         allowMultiple: false,
@@ -640,12 +645,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     PlatformFile file, {
     required String ext,
   }) async {
-    final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
-    if (!isLoggedIn) {
-      await _showPdfAuthRequiredSheet();
-      return;
-    }
-
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
       await _showPdfImportFallback(
