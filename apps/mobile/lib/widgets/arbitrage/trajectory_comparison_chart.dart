@@ -124,8 +124,23 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
     setState(() => _selectedYearIndex = index);
   }
 
+  /// Life stage hint based on age — makes abstract numbers visceral.
+  static String? _lifeStageHint(int age) {
+    if (age == 65) return 'Debut de la retraite';
+    if (age >= 66 && age <= 69) return 'Retraite active';
+    if (age >= 70 && age <= 74) return 'Voyages, petits-enfants';
+    if (age >= 75 && age <= 79) return 'Rythme plus tranquille';
+    if (age >= 80 && age <= 84) return 'Sante plus fragile';
+    if (age >= 85 && age <= 87) return 'Esperance de vie moyenne';
+    if (age >= 88) return 'Horizon long';
+    return null;
+  }
+
   Widget _buildSelectedPopup() {
     final idx = _selectedYearIndex!;
+    final age = widget.options.first.trajectory[idx].year;
+    final lifeHint = _lifeStageHint(age);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -137,13 +152,35 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${widget.selectedAxisLabel} ${widget.options.first.trajectory[idx].year}',
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
+          Row(
+            children: [
+              Text(
+                'A $age ans',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              if (lifeHint != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: MintColors.info.withAlpha(20),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    lifeHint,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.info,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 6),
           for (int i = 0; i < widget.options.length; i++)
@@ -306,6 +343,27 @@ class _TrajectoryPainter extends CustomPainter {
           chartTop, chartHeight, maxLen, yMin, yMax);
     }
 
+    // Draw zero-line (CHF 0 marker for capital exhaustion visibility)
+    if (yMin < 0 && yMax > 0) {
+      final zeroFraction = (0 - yMin) / (yMax - yMin);
+      final zeroY = chartTop + chartHeight * (1 - zeroFraction);
+      final zeroPaint = Paint()
+        ..color = const Color(0xFFEF4444).withAlpha(60)
+        ..strokeWidth = 1.0;
+      // Dashed zero-line
+      const dashLen = 6.0;
+      const gapLen = 4.0;
+      double dx = chartLeft;
+      while (dx < chartRight) {
+        canvas.drawLine(
+          Offset(dx, zeroY),
+          Offset(math.min(dx + dashLen, chartRight), zeroY),
+          zeroPaint,
+        );
+        dx += dashLen + gapLen;
+      }
+    }
+
     // Draw breakeven vertical line
     if (breakevenYear != null && breakevenYear! < maxLen) {
       _drawBreakevenLine(canvas, breakevenYear!, chartLeft, chartWidth,
@@ -315,7 +373,7 @@ class _TrajectoryPainter extends CustomPainter {
     // Draw selection vertical line
     if (selectedYearIndex != null && selectedYearIndex! < maxLen) {
       _drawSelectionLine(canvas, selectedYearIndex!, chartLeft, chartWidth,
-          chartTop, chartBottom, maxLen, yMin, yMax);
+          chartTop, chartBottom, maxLen);
     }
   }
 
@@ -443,20 +501,20 @@ class _TrajectoryPainter extends CustomPainter {
   }
 
   void _drawSelectionLine(Canvas canvas, int yearIndex, double chartLeft,
-      double chartWidth, double chartTop, double chartBottom, int maxLen,
-      double yMin, double yMax) {
+      double chartWidth, double chartTop, double chartBottom, int maxLen) {
     final x = chartLeft + chartWidth * yearIndex / (maxLen - 1);
     final paint = Paint()
       ..color = MintColors.primary.withAlpha(80)
       ..strokeWidth = 1;
     canvas.drawLine(Offset(x, chartTop), Offset(x, chartBottom), paint);
 
-    if (yMax == yMin) return;
-    final chartHeight = chartBottom - chartTop;
-
     // Draw dots on each trajectory
     for (int i = 0; i < options.length; i++) {
       if (yearIndex < options[i].trajectory.length) {
+        final yMin = _computeGlobalMin();
+        final yMax = _computeGlobalMax();
+        if (yMax == yMin) continue;
+        final chartHeight = chartBottom - chartTop;
         final val = options[i].trajectory[yearIndex].netPatrimony;
         final yFraction = (val - yMin) / (yMax - yMin);
         final y = chartTop + chartHeight * (1 - yFraction);
@@ -473,6 +531,35 @@ class _TrajectoryPainter extends CustomPainter {
         );
       }
     }
+  }
+
+  double _computeGlobalMin() {
+    double min = double.infinity;
+    for (final o in options) {
+      for (final s in o.trajectory) {
+        if (s.netPatrimony < min) min = s.netPatrimony;
+      }
+    }
+    final range = _computeGlobalMax() - min;
+    return min - range * 0.05;
+  }
+
+  double _computeGlobalMax() {
+    double max = double.negativeInfinity;
+    for (final o in options) {
+      for (final s in o.trajectory) {
+        if (s.netPatrimony > max) max = s.netPatrimony;
+      }
+    }
+    const min = double.infinity;
+    double actualMin = min;
+    for (final o in options) {
+      for (final s in o.trajectory) {
+        if (s.netPatrimony < actualMin) actualMin = s.netPatrimony;
+      }
+    }
+    final range = max - actualMin;
+    return max + range * 0.05;
   }
 
   String _formatAxisValue(double value) {

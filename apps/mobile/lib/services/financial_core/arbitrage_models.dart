@@ -97,6 +97,35 @@ class ArbitrageResult {
   /// Sensitivity analysis: key → delta value.
   final Map<String, double> sensitivity;
 
+  // ── Hero + educational card data (rente vs capital only) ──
+
+  /// Net monthly rente after income tax (year 1 nominal).
+  final double renteNetMensuelle;
+
+  /// Monthly capital withdrawal (year 1, SWR-based).
+  final double capitalRetraitMensuel;
+
+  /// Age at which capital is exhausted (null if never on horizon).
+  final int? capitalEpuiseAge;
+
+  /// Cumulative income taxes paid on rente over the full horizon.
+  final double impotCumulRente;
+
+  /// One-time capital withdrawal tax (LIFD art. 38).
+  final double impotRetraitCapital;
+
+  /// Real purchasing power of rente at year 20 (annual, deflated).
+  final double renteReelleAn20;
+
+  /// 60% survivor rente for spouse (LPP art. 19), annual. 0 if unmarried.
+  final double renteSurvivant;
+
+  /// Projected capital at retirement (if projection was used).
+  final double capitalProjecte;
+
+  /// True if capital was projected from current age (vs direct certificate).
+  final bool isProjected;
+
   const ArbitrageResult({
     required this.options,
     required this.breakevenYear,
@@ -107,6 +136,15 @@ class ArbitrageResult {
     required this.sources,
     required this.confidenceScore,
     required this.sensitivity,
+    this.renteNetMensuelle = 0,
+    this.capitalRetraitMensuel = 0,
+    this.capitalEpuiseAge,
+    this.impotCumulRente = 0,
+    this.impotRetraitCapital = 0,
+    this.renteReelleAn20 = 0,
+    this.renteSurvivant = 0,
+    this.capitalProjecte = 0,
+    this.isProjected = false,
   });
 }
 
@@ -234,12 +272,12 @@ String _formatChf(double value) {
 
 const Map<String, _TornadoMeta> _tornadoMetadata = {
   'rendement_capital': _TornadoMeta(
-    label: 'Rendement du capital',
+    label: 'Ce que ton capital rapporte',
     category: 'libre',
     assumptionFormatter: _formatPercent,
   ),
   'taux_retrait': _TornadoMeta(
-    label: 'Taux de retrait (SWR)',
+    label: 'Retrait annuel du capital',
     category: 'strategy',
     assumptionFormatter: _formatPercent,
   ),
@@ -254,22 +292,22 @@ const Map<String, _TornadoMeta> _tornadoMetadata = {
     assumptionFormatter: _formatPercent,
   ),
   'rendement_marche': _TornadoMeta(
-    label: 'Rendement marche',
+    label: 'Rendement de tes placements',
     category: 'libre',
     assumptionFormatter: _formatPercent,
   ),
   'taux_marginal': _TornadoMeta(
-    label: 'Taux marginal',
+    label: 'Ton taux d\'imposition',
     category: 'strategy',
     assumptionFormatter: _formatPercent,
   ),
   'rendement_3a': _TornadoMeta(
-    label: 'Rendement 3a',
+    label: 'Rendement de ton 3e pilier',
     category: '3a',
     assumptionFormatter: _formatPercent,
   ),
   'rendement_lpp': _TornadoMeta(
-    label: 'Rendement LPP',
+    label: 'Rendement de ta caisse LPP',
     category: 'lpp',
     assumptionFormatter: _formatPercent,
   ),
