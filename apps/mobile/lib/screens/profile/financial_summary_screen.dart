@@ -686,6 +686,11 @@ class FinancialSummaryScreen extends StatelessWidget {
             key: 'avoirLppTotal',
           ),
           _EditField(
+            label: 'Nombre de comptes 3a',
+            initialValue: prev.nombre3a > 0 ? prev.nombre3a.toDouble() : null,
+            key: 'nombre3a',
+          ),
+          _EditField(
             label: 'Total épargne 3a (CHF)',
             initialValue: prev.totalEpargne3a > 0 ? prev.totalEpargne3a : null,
             key: 'totalEpargne3a',
@@ -1145,6 +1150,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     context.read<CoachProfileProvider>().updateInline(
           salaireBrutMensuel: parseVal('salaireBrutMensuel'),
           avoirLppTotal: parseVal('avoirLppTotal'),
+          nombre3a: parseVal('nombre3a')?.toInt(),
           totalEpargne3a: parseVal('totalEpargne3a'),
           rachatLppMensuel: parseVal('rachatLppMensuel'),
           epargneLiquide: parseVal('epargneLiquide'),

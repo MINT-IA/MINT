@@ -943,6 +943,7 @@ class CoachProfileProvider extends ChangeNotifier {
   Future<void> updateInline({
     double? salaireBrutMensuel,
     double? avoirLppTotal,
+    int? nombre3a,
     double? totalEpargne3a,
     /// Rachat LPP mensuel planifié (CHF/mois). Crée ou met à jour la
     /// PlannedMonthlyContribution 'lpp_buyback_user'. Mis à 0 supprime
@@ -969,7 +970,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
 
     PrevoyanceProfile? updatedPrev;
-    if (avoirLppTotal != null || totalEpargne3a != null) {
+    if (avoirLppTotal != null || totalEpargne3a != null || nombre3a != null) {
       updatedPrev = PrevoyanceProfile(
         anneesContribuees: p.prevoyance.anneesContribuees,
         lacunesAVS: p.prevoyance.lacunesAVS,
@@ -985,7 +986,7 @@ class CoachProfileProvider extends ChangeNotifier {
         rendementCaisse: p.prevoyance.rendementCaisse,
         salaireAssure: p.prevoyance.salaireAssure,
         ramd: p.prevoyance.ramd,
-        nombre3a: p.prevoyance.nombre3a,
+        nombre3a: nombre3a ?? p.prevoyance.nombre3a,
         totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
         comptes3a: p.prevoyance.comptes3a,
         canContribute3a: p.prevoyance.canContribute3a,

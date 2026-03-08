@@ -198,7 +198,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachChatScreen(),
+      builder: (context, state) {
+        final prompt = state.uri.queryParameters['prompt'];
+        return CoachChatScreen(initialPrompt: prompt);
+      },
     ),
     GoRoute(
       path: '/coach/refresh',

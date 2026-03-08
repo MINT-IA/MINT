@@ -41,7 +41,11 @@ import 'package:mint_mobile/services/slm/slm_engine.dart';
 // ────────────────────────────────────────────────────────────
 
 class CoachChatScreen extends StatefulWidget {
-  const CoachChatScreen({super.key});
+  /// Optional initial prompt to send automatically when the screen opens.
+  /// Used for contextual routing (e.g., "Parle au coach" from data blocks).
+  final String? initialPrompt;
+
+  const CoachChatScreen({super.key, this.initialPrompt});
 
   @override
   State<CoachChatScreen> createState() => _CoachChatScreenState();
@@ -88,6 +92,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _hasProfile = true;
         _addInitialGreeting();
         if (mounted) setState(() {});
+        // Auto-send initial prompt if provided (contextual routing)
+        final prompt = widget.initialPrompt;
+        if (prompt != null && prompt.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _sendMessage(prompt);
+          });
+        }
       }
     }
   }
