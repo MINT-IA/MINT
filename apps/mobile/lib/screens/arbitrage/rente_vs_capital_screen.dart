@@ -925,12 +925,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     // Dynamic accroche that adapts to the user's numbers
     String accroche;
-    if (taxDelta > 50000 && epuiseAge != null) {
+    if (taxDelta > 10000 && epuiseAge != null) {
       accroche = 'Cette decision peut te couter '
           '${formatChf(taxDelta)} d\'impots en trop — '
           'ou te laisser sans rien a $epuiseAge ans. '
           'Tu ne peux la prendre qu\'une seule fois.';
-    } else if (taxDelta > 50000) {
+    } else if (taxDelta > 10000) {
       accroche = 'Cette decision peut changer '
           '${formatChf(taxDelta)} d\'impots sur ta retraite. '
           'Tu ne peux la prendre qu\'une seule fois.';

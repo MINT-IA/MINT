@@ -370,14 +370,38 @@ class ArbitrageEngine {
     // Rente survivant (60%, LPP art. 19)
     final renteSurvivant = isMarried ? effectiveRente * 0.6 : 0.0;
 
-    // Chiffre choc
-    final renteCashflow = renteTrajectory.last.netPatrimony;
-    final capitalCashflow = capitalTrajectory.last.netPatrimony;
-    final delta = (capitalCashflow - renteCashflow).abs();
-    final betterOption = capitalCashflow > renteCashflow ? 'capital' : 'rente';
-    final chiffreChoc =
-        'Dans ce scenario simule, l\'option $betterOption genere '
-        '~${_formatChf(delta)} de patrimoine net supplementaire sur $horizon ans.';
+    // Chiffre choc — compare total economic value in real terms:
+    // Rente: cumulative net income (no residual capital)
+    final renteTotalValue = renteTrajectory.last.netPatrimony;
+    // Capital: cumulative real withdrawals + remaining portfolio
+    double capitalCumulativeWithdrawals = 0;
+    for (final snap in capitalTrajectory) {
+      capitalCumulativeWithdrawals += snap.annualCashflow;
+    }
+    final capitalResidual = capitalTrajectory.last.netPatrimony;
+    final capitalTotalValue = capitalCumulativeWithdrawals + capitalResidual;
+
+    final delta = (capitalTotalValue - renteTotalValue).abs();
+    final betterOption =
+        capitalTotalValue > renteTotalValue ? 'capital' : 'rente';
+
+    // Income gap: what you actually receive to live on
+    final incomeGap = (renteTotalValue - capitalCumulativeWithdrawals).abs();
+    final moreIncome =
+        renteTotalValue > capitalCumulativeWithdrawals ? 'rente' : 'capital';
+
+    String chiffreChoc;
+    if (capitalResidual > 10000 && moreIncome == 'rente') {
+      // Typical case: rente gives more income, but capital preserves wealth
+      chiffreChoc =
+          'La rente te verse ~${_formatChf(incomeGap)} de revenu net '
+          'de plus sur $horizon ans. Mais avec le capital, tu conserves '
+          '~${_formatChf(capitalResidual)} de patrimoine transmissible.';
+    } else {
+      chiffreChoc =
+          'Sur $horizon ans, l\'option $betterOption genere '
+          '~${_formatChf(delta)} de valeur economique nette supplementaire.';
+    }
 
     final displaySummary = breakevenYear != null
         ? 'Les trajectoires se croisent vers l\'age de '
@@ -385,7 +409,7 @@ class ArbitrageEngine {
             'Avant ce point, la rente procure un revenu regulier. '
             'Apres, le capital retire peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
-            'L\'ecart final est de ${_formatChf(delta)}.';
+            'L\'ecart de valeur totale est de ${_formatChf(delta)}.';
 
     return ArbitrageResult(
       options: options,
@@ -1686,7 +1710,6 @@ class ArbitrageEngine {
     final capitalNetAtStart = capitalNet;
 
     final snapshots = <YearlySnapshot>[];
-    double cumulativeCashflow = 0;
     double initialWithdrawal = 0;
 
     for (int y = 0; y <= horizon; y++) {
@@ -1711,8 +1734,6 @@ class ArbitrageEngine {
       // Cap withdrawal to remaining capital (can't withdraw more than exists)
       final actualWithdrawal = math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= actualWithdrawal;
-
-      cumulativeCashflow += actualWithdrawal;
 
       // Express in real terms (deflate to today's purchasing power)
       final realPatrimony = capitalNet / math.pow(1 + inflation, y);
