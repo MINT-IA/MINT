@@ -68,7 +68,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Principe ─────────────────────────────────
-                EduSectionTitle(text:'Le principe de l\'échelonnement'),
+                EduSectionTitle(text: 'Le principe de l\'échelonnement'),
                 const SizedBox(height: 12),
                 _InfoCard(
                   icon: Icons.calendar_today_outlined,
@@ -93,7 +93,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Tableau illustratif ───────────────────────
-                EduSectionTitle(text:'Illustration : CHF 150\'000 en 3a'),
+                EduSectionTitle(text: 'Illustration : CHF 150\'000 en 3a'),
                 const SizedBox(height: 12),
                 _WithdrawalTable(),
                 const SizedBox(height: 8),
@@ -108,7 +108,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Plan d'action ────────────────────────────
-                EduSectionTitle(text:'Comment planifier ton décaissement'),
+                EduSectionTitle(text: 'Comment planifier ton décaissement'),
                 const SizedBox(height: 12),
                 _StepCard(
                   number: '1',
@@ -406,7 +406,7 @@ class _StepCard extends StatelessWidget {
           Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: MintColors.primary,
               shape: BoxShape.circle,
             ),
@@ -451,5 +451,3 @@ class _StepCard extends StatelessWidget {
     );
   }
 }
-
-// All shared widgets moved to widgets/coach/edu_shared_widgets.dart

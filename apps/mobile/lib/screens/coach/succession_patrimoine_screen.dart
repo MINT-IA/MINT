@@ -70,7 +70,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Concepts clés ────────────────────────────
-                EduSectionTitle(text:'Les notions clés'),
+                EduSectionTitle(text: 'Les notions clés'),
                 const SizedBox(height: 12),
 
                 _ConceptCard(
@@ -124,7 +124,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Checklist pratique ────────────────────────
-                EduSectionTitle(text:'Checklist protection patrimoine'),
+                EduSectionTitle(text: 'Checklist protection patrimoine'),
                 const SizedBox(height: 12),
                 _ChecklistCard(
                   items: [
@@ -351,5 +351,3 @@ class _ChecklistCard extends StatelessWidget {
     );
   }
 }
-
-// All shared widgets moved to widgets/coach/edu_shared_widgets.dart
