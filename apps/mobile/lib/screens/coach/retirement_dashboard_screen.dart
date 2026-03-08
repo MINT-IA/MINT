@@ -734,21 +734,20 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── P3: Coach Briefing Card (State C) ──
-                CoachBriefingCard(
-                  narrative: _narrative,
-                  confidenceScore: _confidenceScore,
-                  onEnrich: () => context.push('/onboarding/smart'),
-                ),
+                // ── Welcome + Quick Start CTA ──
+                _buildQuickStartPrompt(),
                 const SizedBox(height: 16),
 
                 HeroRetirementCard(
                   mode: HeroCardMode.educational,
-                  onCompleteProfil: () => context.push('/onboarding/smart'),
+                  onCompleteProfil: () => context.push('/onboarding/quick'),
                 ),
                 const SizedBox(height: 16),
-                _buildEducationalSection(),
+
+                // ── Enrichment prompt cards ──
+                _buildEnrichmentPrompts(),
                 const SizedBox(height: 16),
+
                 // ── AgeBand signal primaire (State C — 65+ voit décaissement/succession) ───
                 if (_ageBand != null) ...[
                   _buildAgeBandSection(),
@@ -763,6 +762,180 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickStartPrompt() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            MintColors.primary.withValues(alpha: 0.06),
+            MintColors.coachAccent.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.rocket_launch_outlined,
+                    color: MintColors.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Decouvre ta projection en 30 secondes',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '4 infos suffisent pour estimer ton revenu a la retraite. '
+            'Tu pourras affiner avec des documents et des details.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => context.push('/onboarding/quick'),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Commencer',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnrichmentPrompts() {
+    final prompts = <_EnrichmentPrompt>[
+      _EnrichmentPrompt(
+        icon: Icons.document_scanner_outlined,
+        title: 'Scanne ton certificat LPP',
+        impact: '+20 pts de precision',
+        color: MintColors.primary,
+        route: '/document-scan',
+      ),
+      _EnrichmentPrompt(
+        icon: Icons.chat_bubble_outline,
+        title: 'Parle au Coach',
+        impact: 'Reponds a tes questions',
+        color: MintColors.coachAccent,
+        route: '/coach/chat',
+      ),
+      _EnrichmentPrompt(
+        icon: Icons.calculate_outlined,
+        title: 'Simule un scenario',
+        impact: '3a, LPP, hypotheque...',
+        color: Colors.orange,
+        route: '/tools',
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Prochaines etapes',
+          style: GoogleFonts.montserrat(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ...prompts.map((p) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: InkWell(
+                onTap: () => context.push(p.route),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                        color: MintColors.border.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: p.color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(p.icon, color: p.color, size: 18),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              p.title,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: MintColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              p.impact,
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: MintColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios,
+                          size: 14,
+                          color: p.color.withValues(alpha: 0.5)),
+                    ],
+                  ),
+                ),
+              ),
+            )),
+      ],
     );
   }
 
@@ -1299,4 +1472,20 @@ class _AgeBandCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EnrichmentPrompt {
+  const _EnrichmentPrompt({
+    required this.icon,
+    required this.title,
+    required this.impact,
+    required this.color,
+    required this.route,
+  });
+
+  final IconData icon;
+  final String title;
+  final String impact;
+  final Color color;
+  final String route;
 }

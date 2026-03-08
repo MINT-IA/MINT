@@ -853,7 +853,7 @@ class _LandingScreenState extends State<LandingScreen> {
           if (isCompleted || isMiniCompleted) {
             context.go('/home');
           } else {
-            context.go('/onboarding/smart');
+            context.go('/onboarding/quick');
           }
         }
       },

@@ -116,6 +116,8 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
+// Quick Start (Sprint S45 — Dashboard-First)
+import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
@@ -660,6 +662,12 @@ final _router = GoRouter(
     // === Route Compatibility Layer (migration P0) ===
     // Old routes redirect to new smart onboarding flow.
     // Keep /advisor/plan-30-days as-is (still active).
+    // S45: Quick Start — 1-screen onboarding (dashboard-first flow)
+    GoRoute(
+      path: '/onboarding/quick',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const QuickStartScreen(),
+    ),
     GoRoute(
       path: '/onboarding/smart',
       parentNavigatorKey: _rootNavigatorKey,
