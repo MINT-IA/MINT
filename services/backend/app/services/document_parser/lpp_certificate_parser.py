@@ -423,7 +423,7 @@ def parse_lpp_certificate(text: str) -> ExtractionResult:
                                 source_text=source_text,
                                 needs_review=conf < 0.7,
                             )
-                elif field_type == "rate":
+                elif field_type in ("rate", "percentage"):
                     extraction = _extract_rate_near(text, start)
                     if extraction:
                         value, source_text = extraction

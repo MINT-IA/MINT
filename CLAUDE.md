@@ -284,14 +284,33 @@ Every projection MUST include:
 
 ### Golden Test Couple: Julien + Lauren
 
+> **Source of truth**: `test/golden/` (xlsx + PDF certificats + JPEG)
+
 | | Julien | Lauren |
 |--|--------|--------|
-| Age | 50 | 45 |
-| Salaire | 100k CHF/an (ZH) | 60k CHF/an |
+| Né le | 12.01.1977 | 23.06.1982 |
+| Âge (03.2026) | **49** | **43** |
+| Salaire brut | **122'207 CHF/an** | **67'000 CHF/an** |
+| Salaire mensuel brut | 9'378 (sal 9'078 + alloc 200 + forfait 100) | 4'800 |
+| Canton | **VS** (Sion) | **VS** (Crans-Montana) |
+| Employeur | FMV SA (énergie) | Six Senses (hôtellerie CCNT) |
 | Nationalité | CH | US (FATCA) |
 | Archetype | swiss_native | expat_us |
+| État civil | Marié | Mariée |
+| Caisse LPP | **CPE** (rémunération **5%** en 2026, std 2%) | **HOTELA** |
+| Avoir LPP actuel | **70'377 CHF** | **19'620 CHF** |
+| Rachat max LPP | **539'414 CHF** | **52'949 CHF** |
+| LPP projeté à 65 | 677'847 (rente ~33'892/an) | ~153'000 |
+| Pilier 3a capital | 32'000 | 14'000 |
+| Investissements marché | 77'000 (+ 1'500/mois) | **380'000** (+ 200/mois) |
+| Assurance maladie | 450/mois | 400/mois |
+| Dettes | **Aucune** (pas d'hypothèque, pas de crédit) | **Aucune** |
+| Loyer (couple) | 925/mois | 925/mois |
+| Impôts | 708/mois | 304/mois |
+| AVS couple | 2'500 CHF/mois |
+| **Taux de remplacement** | **65.5%** (~8'505 vs 12'978 net/mois) |
 
-Golden data file: `test/golden/julien_lauren.xlsx`
+Golden data files: `test/golden/julien_lauren.xlsx`, `test/golden/Julien/` (6 PDF), `test/golden/Lauren/` (1 JPEG)
 
 ---
 

@@ -89,11 +89,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         horizon: _horizon,
       );
 
+  bool _prefilled = false;
+
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('lpp_deep');
-    _prefillFromProfile();
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -105,10 +106,18 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     _heroController.forward();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_prefilled) {
+      _prefilled = true;
+      _prefillFromProfile();
+    }
+  }
+
   /// Pre-fill simulator inputs from the user's CoachProfile when available.
   void _prefillFromProfile() {
-    final provider =
-        context.read<CoachProfileProvider>();
+    final provider = context.read<CoachProfileProvider>();
     final profile = provider.profile;
     if (profile == null) return;
 
