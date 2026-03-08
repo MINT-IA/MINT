@@ -10,6 +10,9 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/minimal_profile_service.dart';
+import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 
 /// Écran "Mon aperçu financier" — vue consolidée de toutes les données
 /// du CoachProfile, organisées par section.
@@ -85,6 +88,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildChiffreChocBanner(profile),
                     _buildSourceLegend(),
                     const SizedBox(height: 16),
                     if (profile.isCouple) _buildCoupleToggle(context, profile),
@@ -171,6 +175,104 @@ class FinancialSummaryScreen extends StatelessWidget {
       ),
     );
   }
+
+  // ── CHIFFRE CHOC BANNER ──────────────────────────────────────────────────
+  //  Recompute from profile data and show as a compact motivational card.
+  //  Keeps the emotional hook from onboarding alive on the bilan screen.
+
+  Widget _buildChiffreChocBanner(CoachProfile p) {
+    if (p.revenuBrutAnnuel <= 0 || p.age <= 0) return const SizedBox.shrink();
+
+    final canton = p.canton.isNotEmpty ? p.canton : 'ZH';
+    ChiffreChoc choc;
+    try {
+      final minimal = MinimalProfileService.compute(
+        age: p.age,
+        grossSalary: p.revenuBrutAnnuel,
+        canton: canton,
+      );
+      choc = ChiffreChocSelector.select(minimal);
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+
+    final color = _chocColor(choc.colorKey);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: color.withAlpha(14),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withAlpha(50)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withAlpha(24),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(_chocIcon(choc.iconName), color: color, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  choc.title,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  choc.value,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  choc.subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: MintColors.textSecondary,
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _chocColor(String key) => switch (key) {
+        'error' => MintColors.error,
+        'warning' => MintColors.warning,
+        'success' => MintColors.success,
+        'info' => MintColors.info,
+        _ => MintColors.primary,
+      };
+
+  IconData _chocIcon(String name) => switch (name) {
+        'warning_amber' => Icons.warning_amber_rounded,
+        'trending_down' => Icons.trending_down_rounded,
+        'savings' => Icons.savings_rounded,
+        'account_balance' => Icons.account_balance_rounded,
+        _ => Icons.insights_rounded,
+      };
 
   Widget _buildSourceLegend() {
     return Container(

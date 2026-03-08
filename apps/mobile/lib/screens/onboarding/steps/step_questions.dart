@@ -327,6 +327,16 @@ class _StepQuestionsState extends State<StepQuestions> {
                       widget.onInputChanged();
                     },
                   ),
+                  if (widget.viewModel.nationalityGroup == 'OTHER') ...[
+                    const SizedBox(height: 16),
+                    _CountryPicker(
+                      value: widget.viewModel.nationalityCountry,
+                      onChanged: (v) {
+                        widget.viewModel.setNationalityCountry(v);
+                        widget.onInputChanged();
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 32),
 
                   // ── 5. CANTON ─────────────────────────────────────────────
@@ -724,6 +734,80 @@ class _NationalityChips extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  COUNTRY PICKER — shown when nationalityGroup == 'OTHER'
+// ════════════════════════════════════════════════════════════════════════════
+
+class _CountryPicker extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _CountryPicker({required this.value, required this.onChanged});
+
+  // Common non-EU/non-CH nationalities in Switzerland
+  static const _countries = [
+    ('US', 'États-Unis'),
+    ('GB', 'Royaume-Uni'),
+    ('CA', 'Canada'),
+    ('IN', 'Inde'),
+    ('CN', 'Chine'),
+    ('BR', 'Brésil'),
+    ('AU', 'Australie'),
+    ('JP', 'Japon'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ton pays d\'origine',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: MintColors.textMuted,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _countries.map((entry) {
+            final (code, label) = entry;
+            final selected = value == code;
+            return InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => onChanged(selected ? null : code),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? MintColors.primary.withAlpha(24)
+                      : MintColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: selected ? MintColors.primary : MintColors.lightBorder,
+                    width: selected ? 2 : 1,
+                  ),
+                ),
+                child: Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected ? MintColors.primary : MintColors.textSecondary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
