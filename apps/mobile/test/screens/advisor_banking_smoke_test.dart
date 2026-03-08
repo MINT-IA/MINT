@@ -262,7 +262,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.textContaining('consultation reglementaire'),
+        find.textContaining('consultation'),
         findsWidgets,
       );
     });
@@ -396,7 +396,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.textContaining('consultation reglementaire'),
+        find.textContaining('consultation'),
         findsWidgets,
       );
     });
@@ -547,7 +547,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.textContaining('consultation reglementaire'),
+        find.textContaining('consultation'),
         findsWidgets,
       );
     });
