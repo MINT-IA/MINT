@@ -105,7 +105,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 _ConceptCard(
                   icon: Icons.card_giftcard_outlined,
                   title: 'Donation du vivant',
-                  subtitle: 'CC art. 239 ss',
+                  subtitle: 'CO art. 239 ss',
                   body:
                       'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral (variable par canton). Attention : les donations sont rapportables à la succession si tu as des héritiers réservataires. Les 5 années précédant le décès sont particulièrement scrutées.',
                   color: const Color(0xFF37474F),
@@ -388,7 +388,7 @@ class _SpecialistCta extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Un·e notaire peut rédiger ou réviser ton testament et te conseiller sur l\'organisation successorale adaptée à ta situation.',
+                  'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t\'orienter sur l\'organisation successorale adaptée à ta situation.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,

@@ -650,6 +650,11 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 const SizedBox(height: 16),
                 _buildEducationalSection(),
                 const SizedBox(height: 16),
+                // ── AgeBand signal primaire (State C — 65+ voit décaissement/succession) ───
+                if (_ageBand != null) ...[
+                  _buildAgeBandSection(),
+                  const SizedBox(height: 16),
+                ],
                 const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildDisclaimer(),
@@ -1035,7 +1040,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ────────────────────────────────────────────────────────────
 
   Widget _buildAgeBandSection() {
-    final band = _ageBand ?? AgeBand.preRetirement;
+    if (_ageBand == null) return const SizedBox.shrink();
+    final band = _ageBand!;
     switch (band) {
       case AgeBand.youngProfessional:
         return _AgeBandCard(

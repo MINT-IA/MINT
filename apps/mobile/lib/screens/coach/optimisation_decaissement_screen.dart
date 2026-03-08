@@ -80,14 +80,14 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                   icon: Icons.account_tree_outlined,
                   title: 'Jusqu\'à 10 comptes 3a simultanés',
                   body:
-                      'Depuis 2026, tu peux détenir jusqu\'à 10 comptes 3a (OPP3 art. 3). En les ouvrant progressivement, tu peux échelonner les retraits sur 3 à 10 ans selon ton plan.',
+                      'Depuis 2026, tu peux détenir plusieurs comptes 3a simultanément (révision OPP3 2026). En les ouvrant progressivement, tu peux échelonner les retraits sur 3 à 10 ans selon ton plan.',
                 ),
                 const SizedBox(height: 10),
                 _InfoCard(
                   icon: Icons.map_outlined,
                   title: 'La fiscalité varie par canton',
                   body:
-                      'Certains cantons offrent des abattements supplémentaires. Le choix du canton de résidence au moment du retrait influence directement l\'imposition.',
+                      'Plusieurs cantons offrent des abattements supplémentaires. Le choix du canton de résidence au moment du retrait influence directement l\'imposition.',
                 ),
                 const SizedBox(height: 24),
 
@@ -489,7 +489,7 @@ class _SpecialistCta extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Un·e conseiller·e en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
+                  'Un·e spécialiste en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -532,7 +532,8 @@ class _LegalSources extends StatelessWidget {
           Text(
             '• LIFD art. 38 — Imposition séparée des prestations en capital\n'
             '• OPP3 art. 3 — Conditions de retrait anticipé du pilier 3a\n'
-            '• OPP3 art. 7 — Plafonds de déduction',
+            '• OPP3 art. 7 — Plafonds de déduction\n'
+            '• OPP3 (révision 2026) — Possibilité de détenir plusieurs comptes 3a',
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
