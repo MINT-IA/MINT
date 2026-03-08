@@ -182,7 +182,15 @@ class DashboardCuratorService {
       case 'retirement_countdown':
         return '/coach/dashboard';
       case 'emergency_fund':
+      case 'budget_missing':
+      case 'budget_drift':
         return '/budget';
+      case 'debt_ratio':
+        return '/debt/ratio';
+      case 'independant_alert':
+        return '/independants';
+      case 'part_time_gap':
+        return '/profile/bilan';
       default:
         return null;
     }

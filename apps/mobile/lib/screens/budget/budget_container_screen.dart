@@ -50,7 +50,7 @@ class BudgetContainerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Complete ton diagnostic pour debloquer ton plan mensuel '
+                'Complète ton diagnostic pour débloquer ton plan mensuel '
                 'avec tes vrais revenus et charges.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(

@@ -226,10 +226,10 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le nouveau droit successoral (2023) a elargi la quotite '
-              'disponible. Tu as desormais plus de liberte pour '
-              'avantager certains heritiers. Cet outil te montre la '
-              'repartition legale et l\'impact d\'un testament.',
+              'Le nouveau droit successoral (2023) a élargi la quotité '
+              'disponible. Tu as désormais plus de liberté pour '
+              'avantager certains héritiers. Cet outil te montre la '
+              'répartition légale et l\'impact d\'un testament.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -386,7 +386,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Capital deces LPP',
+            label: 'Capital décès LPP',
             value: _capitalDecesLpp,
             min: 0,
             max: 500000,
@@ -482,7 +482,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Qui recoit la quotite disponible ?',
+          'Qui reçoit la quotité disponible ?',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -831,8 +831,8 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Ce montant peut etre librement attribue par testament '
-            'a la personne de ton choix.',
+            'Ce montant peut être librement attribué par testament '
+            'à la personne de ton choix.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -914,7 +914,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total impot successoral',
+                  'Total impôt successoral',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1135,34 +1135,34 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que la quotite disponible ?',
-          'La quotite disponible est la part de ta succession que tu '
+          'Qu\'est-ce que la quotité disponible ?',
+          'La quotité disponible est la part de ta succession que tu '
               'peux librement attribuer par testament. Depuis le 1er janvier '
-              '2023, la reserve des descendants a ete reduite de 3/4 a 1/2 de '
-              'leur part legale. Les parents n\'ont plus de reserve. Cela te '
-              'donne plus de liberte pour favoriser ton/ta conjoint·e, ton/ta '
+              '2023, la réserve des descendants a été réduite de 3/4 à 1/2 de '
+              'leur part légale. Les parents n\'ont plus de réserve. Cela te '
+              'donne plus de liberté pour favoriser ton/ta conjoint·e, ton/ta '
               'concubin·e ou toute autre personne.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
           'Le 3a et la succession : attention !',
           'Le 3e pilier (pilier 3a) n\'entre PAS dans la masse successorale '
-              'ordinaire. Il est verse directement aux beneficiaires selon un '
-              'ordre fixe par l\'OPP3 (art. 2) : conjoint/partenaire enregistre, '
-              'puis descendants, parents, fratrie. Le concubin peut etre designe '
-              'comme beneficiaire, mais uniquement par une clause explicite '
-              'deposee aupres de la fondation. Sans cette demarche, le/la '
-              'concubin(e) ne recoit rien du 3a.',
+              'ordinaire. Il est versé directement aux bénéficiaires selon un '
+              'ordre fixé par l\'OPP3 (art. 2) : conjoint/partenaire enregistré, '
+              'puis descendants, parents, fratrie. Le concubin peut être désigné '
+              'comme bénéficiaire, mais uniquement par une clause explicite '
+              'déposée auprès de la fondation. Sans cette démarche, le/la '
+              'concubin(e) ne reçoit rien du 3a.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
           'Les concubins et la succession',
-          'En droit suisse, les concubins n\'ont AUCUN droit successoral legal. '
-              'Sans testament, un concubin ne recoit rien. De plus, l\'impot '
-              'successoral pour les concubins est generalement bien plus eleve '
+          'En droit suisse, les concubins n\'ont AUCUN droit successoral légal. '
+              'Sans testament, un concubin ne reçoit rien. De plus, l\'impôt '
+              'successoral pour les concubins est généralement bien plus élevé '
               'que pour les conjoints (souvent 20-25% au lieu de 0%). Pour '
-              'proteger ton/ta concubin·e, il est essentiel de rediger un '
-              'testament, de verifier les clauses beneficiaires 3a/LPP et '
+              'protéger ton/ta concubin·e, il est essentiel de rédiger un '
+              'testament, de vérifier les clauses bénéficiaires 3a/LPP et '
               'd\'envisager des assurances-vie.',
         ),
       ],

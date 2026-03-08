@@ -159,9 +159,23 @@ class ConfidenceScorer {
     // --- Composition menage (15 pts) — LPP art. 19 ---
     final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
         profile.etatCivil == CoachCivilStatus.concubinage;
-    if (!isCoupled) {
-      // Single/divorced/widowed: full points (not applicable)
+    // Explicitly declared single/divorced/widowed: full points.
+    // Default celibataire (never explicitly set): partial points only,
+    // since ~50% of Swiss residents are in couples (BFS, 2024).
+    final isExplicitlySingle = !isCoupled &&
+        (profile.etatCivil == CoachCivilStatus.divorce ||
+         profile.etatCivil == CoachCivilStatus.veuf);
+    if (isExplicitlySingle) {
       total += _wMenage;
+    } else if (!isCoupled) {
+      // Default celibataire — not confirmed, give partial credit
+      total += 5;
+      prompts.add(const EnrichmentPrompt(
+        label: 'Indique ta situation familiale',
+        impact: 10,
+        category: 'menage',
+        action: 'Celibataire, en couple, marie·e ? Impact sur AVS et impots.',
+      ));
     } else if (profile.conjoint == null) {
       // Coupled but no partner data at all
       prompts.add(const EnrichmentPrompt(

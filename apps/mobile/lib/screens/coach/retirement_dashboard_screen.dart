@@ -379,7 +379,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       return _buildStateC();
     }
 
-    if (_confidenceScore >= 70 && _score != null) {
+    if (_confidenceScore >= 80 && _score != null) {
       return _buildStateA();
     }
     // Any user with a projection sees State B (range + uncertainty bands),

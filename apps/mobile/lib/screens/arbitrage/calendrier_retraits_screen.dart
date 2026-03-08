@@ -225,7 +225,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
+                              'Résultat indicatif — précise tes données pour un résultat plus fiable.',
                               style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
                             ),
                           ),
@@ -236,7 +236,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil',
+                        source: 'Valeurs pré-remplies depuis ton profil',
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
@@ -255,7 +255,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                   ArbitrageTornadoSection(
                     result: _result!,
                     subtitle:
-                        'Impact des hypotheses sur l\'ecart fiscal entre retrait unique et retraits etales.',
+                        'Impact des hypothèses sur l\'écart fiscal entre retrait unique et retraits étalés.',
                   ),
                   const SizedBox(height: 24),
 
@@ -291,7 +291,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tes avoirs de prevoyance',
+            'Tes avoirs de prévoyance',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -301,7 +301,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           const SizedBox(height: 4),
           Text(
             'Ajoute chaque compte (3a, LPP, libre passage) avec le montant '
-            'et l\'age au plus tot pour le retrait.',
+            'et l\'âge au plus tôt pour le retrait.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -627,8 +627,8 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         children: [
           Text(
             taxSaved > 0
-                ? 'Tu economiserais'
-                : 'Ecart d\'impot',
+                ? 'Tu économiserais'
+                : 'Écart d\'impôt',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.white.withAlpha(200),
@@ -647,8 +647,8 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           const SizedBox(height: 4),
           Text(
             taxSaved > 0
-                ? 'd\'impot en etalant tes retraits'
-                : 'entre les deux strategies',
+                ? 'd\'impôt en étalant tes retraits'
+                : 'entre les deux stratégies',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.white.withAlpha(200),
@@ -702,7 +702,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: _buildOptionCard(
-            title: 'Etale',
+            title: 'Étalé',
             icon: Icons.timeline_rounded,
             iconColor: MintColors.success,
             netValue: etale.terminalValue,
@@ -766,7 +766,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Impot',
+            'Impôt',
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -805,7 +805,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Calendrier de retraits etale',
+            'Calendrier de retraits étalé',
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -814,7 +814,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Chaque avoir est retire a l\'age indique pour limiter la progressivite.',
+            'Chaque avoir est retiré à l\'âge indiqué pour limiter la progressivité.',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -948,7 +948,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses utilisees',
+        'Hypothèses utilisées',
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w600,

@@ -79,8 +79,13 @@ _DrawdownResult _simulateCapitalDrawdown({
   final values = <double>[capital];
 
   for (int mois = 1; mois <= nbMois; mois++) {
+    if (breakEvenMois != null) {
+      // Capital exhausted — stay at 0
+      values.add(0.0);
+      continue;
+    }
     capital = capital * (1 + rendementMensuel) - retraitMensuel;
-    if (capital <= 0 && breakEvenMois == null) {
+    if (capital <= 0) {
       breakEvenMois = mois;
       capital = 0.0;
     }

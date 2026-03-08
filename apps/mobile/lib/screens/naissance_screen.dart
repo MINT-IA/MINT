@@ -999,7 +999,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              'Moins de cotisations LPP = moins de capital a la retraite',
+              'Moins de cotisations LPP = moins de capital à la retraite',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -1441,68 +1441,68 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   static final List<Map<String, String>> _naissanceChecklistItems = [
     {
-      'title': 'Inscrire bebe a l\'assurance maladie (3 mois)',
+      'title': 'Inscrire bébé à l\'assurance maladie (3 mois)',
       'description':
-          'Tu as 3 mois apres la naissance pour inscrire ton enfant aupres d\'une caisse '
-          'maladie. Si tu le fais dans ce delai, la couverture est retroactive des la naissance. '
-          'Passe ce delai, l\'enfant risque une interruption de couverture. '
-          'Compare les primes enfants entre caisses — les ecarts peuvent etre significatifs.',
+          'Tu as 3 mois après la naissance pour inscrire ton enfant auprès d\'une caisse '
+          'maladie. Si tu le fais dans ce délai, la couverture est rétroactive dès la naissance. '
+          'Passé ce délai, l\'enfant risque une interruption de couverture. '
+          'Compare les primes enfants entre caisses — les écarts peuvent être significatifs.',
     },
     {
       'title': 'Demander les allocations familiales',
       'description':
-          'Fais la demande aupres de ton employeur (ou de ta caisse d\'allocations si tu es '
-          'independant-e). Les allocations sont versees des le mois de naissance. '
-          'Le montant depend du canton (CHF 200 a CHF 305/mois par enfant).',
+          'Fais la demande auprès de ton employeur (ou de ta caisse d\'allocations si tu es '
+          'indépendant·e). Les allocations sont versées dès le mois de naissance. '
+          'Le montant dépend du canton (CHF 200 à CHF 305/mois par enfant).',
     },
     {
-      'title': 'Annoncer la naissance a l\'etat civil',
+      'title': 'Annoncer la naissance à l\'état civil',
       'description':
-          'L\'hopital transmet generalement l\'annonce a l\'office de l\'etat civil. '
-          'Verifie que l\'acte de naissance est bien etabli. '
-          'Tu en auras besoin pour toutes les demarches administratives.',
+          'L\'hôpital transmet généralement l\'annonce à l\'office de l\'état civil. '
+          'Vérifie que l\'acte de naissance est bien établi. '
+          'Tu en auras besoin pour toutes les démarches administratives.',
     },
     {
-      'title': 'Organiser le conge parental (APG)',
+      'title': 'Organiser le congé parental (APG)',
       'description':
-          'Conge maternite : 14 semaines a 80% du salaire (max CHF 220/jour). '
-          'Conge paternite : 2 semaines (10 jours), a prendre dans les 6 mois. '
-          'L\'inscription APG se fait via ton employeur ou directement aupres de la caisse de compensation.',
+          'Congé maternité : 14 semaines à 80% du salaire (max CHF 220/jour). '
+          'Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. '
+          'L\'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.',
     },
     {
-      'title': 'Mettre a jour la declaration fiscale',
+      'title': 'Mettre à jour la déclaration fiscale',
       'description':
-          'Un enfant supplementaire te donne droit a une deduction fiscale de CHF 6\'700/an '
-          '(LIFD art. 35). Si tu as des frais de garde, tu peux deduire jusqu\'a CHF 25\'500/an. '
-          'Pense a adapter tes acomptes d\'impots pour l\'annee en cours.',
+          'Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6\'700/an '
+          '(LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu\'à CHF 25\'500/an. '
+          'Pense à adapter tes acomptes d\'impôts pour l\'année en cours.',
     },
     {
       'title': 'Adapter le budget familial',
       'description':
-          'Un enfant coute en moyenne CHF 1\'200 a CHF 1\'500/mois en Suisse '
-          '(alimentation, vetements, activites, assurance, couches, etc.). '
-          'Reevalue ton budget avec le module Budget de MINT.',
+          'Un enfant coûte en moyenne CHF 1\'200 à CHF 1\'500/mois en Suisse '
+          '(alimentation, vêtements, activités, assurance, couches, etc.). '
+          'Réévalue ton budget avec le module Budget de MINT.',
     },
     {
-      'title': 'Verifier la prevoyance (LPP et 3a)',
+      'title': 'Vérifier la prévoyance (LPP et 3a)',
       'description':
-          'Si tu reduis ton taux d\'activite, tes cotisations LPP baissent. '
-          'Chaque annee a temps partiel represente moins de capital a la retraite. '
+          'Si tu réduis ton taux d\'activité, tes cotisations LPP baissent. '
+          'Chaque année à temps partiel représente moins de capital à la retraite. '
           'Envisage de compenser en versant le maximum au 3e pilier (CHF 7\'258/an).',
     },
     {
-      'title': 'Rediger ou mettre a jour le testament',
+      'title': 'Rédiger ou mettre à jour le testament',
       'description':
-          'L\'arrivee d\'un enfant modifie l\'ordre successoral. '
-          'Les enfants sont des heritiers reservataires (CC art. 471). '
-          'Si tu as un testament, verifie qu\'il respecte les reserves legales.',
+          'L\'arrivée d\'un enfant modifie l\'ordre successoral. '
+          'Les enfants sont des héritiers réservataires (CC art. 471). '
+          'Si tu as un testament, vérifie qu\'il respecte les réserves légales.',
     },
     {
-      'title': 'Souscrire une assurance risque deces/invalidite',
+      'title': 'Souscrire une assurance risque décès/invalidité',
       'description':
-          'Avec un enfant a charge, la protection financiere en cas de deces ou d\'invalidite '
-          'devient encore plus importante. Verifie ta couverture actuelle (LPP, assurance-vie) '
-          'et complete si necessaire.',
+          'Avec un enfant à charge, la protection financière en cas de décès ou d\'invalidité '
+          'devient encore plus importante. Vérifie ta couverture actuelle (LPP, assurance-vie) '
+          'et complète si nécessaire.',
     },
   ];
 
@@ -1746,10 +1746,10 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations simplifiees a but educatif — ne constitue pas '
-              'un conseil en prevoyance ou conseil fiscal. Les montants dependent '
+              'Estimations simplifiées à but éducatif — ne constitue pas '
+              'un conseil en prévoyance ou conseil fiscal. Les montants dépendent '
               'de nombreux facteurs (canton, commune, situation familiale, etc.). '
-              'Consulte un-e specialiste pour un calcul personnalise.',
+              'Consulte un·e spécialiste pour un calcul personnalisé.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

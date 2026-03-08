@@ -165,7 +165,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           fontWeight: FontWeight.w400,
         ),
         tabs: const [
-          Tab(text: 'Impots'),
+          Tab(text: 'Impôts'),
           Tab(text: '90 jours'),
           Tab(text: 'Charges'),
         ],
@@ -194,10 +194,10 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           if (_taxResult!['isTessin'] == true) const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'En Suisse, les frontaliers sont imposes a la source (bareme C). '
-          'Le taux varie selon le canton, l\'etat civil et le nombre d\'enfants. '
-          'A Geneve, si plus de 90% de tes revenus mondiaux proviennent de Suisse, '
-          'tu peux demander le statut de quasi-resident pour beneficier des deductions.',
+          'En Suisse, les frontaliers sont imposés à la source (barème C). '
+          'Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. '
+          'À Genève, si plus de 90% de tes revenus mondiaux proviennent de Suisse, '
+          'tu peux demander le statut de quasi-résident pour bénéficier des déductions.',
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -429,7 +429,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               const Icon(Icons.receipt_long, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'IMPOT A LA SOURCE — $cantonNom'.toUpperCase(),
+                'IMPÔT À LA SOURCE — $cantonNom'.toUpperCase(),
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -570,9 +570,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 const SizedBox(height: 4),
                 Text(
                   'Si plus de 90% de tes revenus mondiaux proviennent de Suisse, '
-                  'tu peux demander la taxation ordinaire avec deductions '
-                  '(3a, frais effectifs, etc.). Cela peut reduire '
-                  'significativement ton impot.',
+                  'tu peux demander la taxation ordinaire avec déductions '
+                  '(3a, frais effectifs, etc.). Cela peut réduire '
+                  'significativement ton impôt.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,

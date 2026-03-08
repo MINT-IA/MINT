@@ -50,7 +50,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'RETRAIT 3A ECHELONNE',
+                'RETRAIT 3A ÉCHELONNÉ',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -117,7 +117,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       child: Column(
         children: [
           Text(
-            'Economie estimee',
+            'Économie estimée',
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -139,7 +139,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'en echelonnant sur $_nbComptes comptes',
+            'en échelonnant sur $_nbComptes comptes',
             style: TextStyle(
               fontSize: 12,
               color: result.economie > 0
@@ -150,7 +150,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           if (result.nbComptesOptimal != _nbComptes) ...[
             const SizedBox(height: 8),
             Text(
-              'Nombre adapte : ${result.nbComptesOptimal} comptes',
+              'Nombre adapté : ${result.nbComptesOptimal} comptes',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -175,7 +175,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pourquoi echelonner les retraits 3a ?',
+            'Pourquoi échelonner les retraits 3a ?',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -183,13 +183,13 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'L\'impot sur le retrait en capital de prevoyance est progressif. '
-            'En repartissant tes avoirs 3a sur plusieurs comptes et en les '
-            'retirant sur differentes annees fiscales, tu reduis le taux '
-            'moyen d\'imposition. La loi autorise jusqu\'a 5 comptes 3a par '
-            'personne (OPP3). Depuis la reforme AHV21 (2024), les retraits '
-            'anticipés sont possibles dès l\'age de 60 ans (5 ans avant '
-            'l\'age de retraite à 65 ans pour tous).',
+            'L\'impôt sur le retrait en capital de prévoyance est progressif. '
+            'En répartissant tes avoirs 3a sur plusieurs comptes et en les '
+            'retirant sur différentes années fiscales, tu réduis le taux '
+            'moyen d\'imposition. La loi autorise jusqu\'à 5 comptes 3a par '
+            'personne (OPP3). Depuis la réforme AHV21 (2024), les retraits '
+            'anticipés sont possibles dès l\'âge de 60 ans (5 ans avant '
+            'l\'âge de retraite à 65 ans pour tous).',
             style: TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -213,7 +213,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            'PARAMÈTRES',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,

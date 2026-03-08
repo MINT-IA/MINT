@@ -324,9 +324,11 @@ class _TrajectoryPainter extends CustomPainter {
 
     if (maxLen <= 1 || globalMax == globalMin) return;
 
-    // Add 10% padding to Y range
+    // Clamp minimum to 0 (capital can't be negative in reality)
+    if (globalMin > 0) globalMin = 0;
+    globalMin = math.max(globalMin, 0.0);
     final yRange = globalMax - globalMin;
-    final yMin = globalMin - yRange * 0.05;
+    final yMin = globalMin;
     final yMax = globalMax + yRange * 0.05;
 
     // Draw grid lines and Y-axis labels
@@ -341,27 +343,6 @@ class _TrajectoryPainter extends CustomPainter {
       final color = i < colors.length ? colors[i] : Colors.grey;
       _drawLine(canvas, options[i].trajectory, color, chartLeft, chartWidth,
           chartTop, chartHeight, maxLen, yMin, yMax);
-    }
-
-    // Draw zero-line (CHF 0 marker for capital exhaustion visibility)
-    if (yMin < 0 && yMax > 0) {
-      final zeroFraction = (0 - yMin) / (yMax - yMin);
-      final zeroY = chartTop + chartHeight * (1 - zeroFraction);
-      final zeroPaint = Paint()
-        ..color = const Color(0xFFEF4444).withAlpha(60)
-        ..strokeWidth = 1.0;
-      // Dashed zero-line
-      const dashLen = 6.0;
-      const gapLen = 4.0;
-      double dx = chartLeft;
-      while (dx < chartRight) {
-        canvas.drawLine(
-          Offset(dx, zeroY),
-          Offset(math.min(dx + dashLen, chartRight), zeroY),
-          zeroPaint,
-        );
-        dx += dashLen + gapLen;
-      }
     }
 
     // Draw breakeven vertical line
@@ -534,14 +515,8 @@ class _TrajectoryPainter extends CustomPainter {
   }
 
   double _computeGlobalMin() {
-    double min = double.infinity;
-    for (final o in options) {
-      for (final s in o.trajectory) {
-        if (s.netPatrimony < min) min = s.netPatrimony;
-      }
-    }
-    final range = _computeGlobalMax() - min;
-    return min - range * 0.05;
+    // Y-axis always starts at 0
+    return 0.0;
   }
 
   double _computeGlobalMax() {
@@ -551,14 +526,7 @@ class _TrajectoryPainter extends CustomPainter {
         if (s.netPatrimony > max) max = s.netPatrimony;
       }
     }
-    const min = double.infinity;
-    double actualMin = min;
-    for (final o in options) {
-      for (final s in o.trajectory) {
-        if (s.netPatrimony < actualMin) actualMin = s.netPatrimony;
-      }
-    }
-    final range = max - actualMin;
+    final range = max - 0.0; // min is always 0
     return max + range * 0.05;
   }
 
