@@ -241,7 +241,8 @@ void main() {
     testWidgets('displays screen title in French', (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Mariage vs Concubinage'), findsOneWidget);
+      // Title appears in AppBar and inside ConcubinageDecisionMatrix widget
+      expect(find.text('Mariage vs Concubinage'), findsWidgets);
     });
 
     testWidgets('both tabs are present', (tester) async {
@@ -254,7 +255,9 @@ void main() {
     testWidgets('Tab 1 (Comparateur) shows decision matrix', (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      expect(find.text('MATRICE DE DECISION'), findsOneWidget);
+      // ConcubinageDecisionMatrix widget subtitle
+      expect(
+          find.text('Comparaison des droits et obligations'), findsOneWidget);
       expect(find.text('Mariage'), findsWidgets);
       expect(find.text('Concubinage'), findsWidgets);
     });

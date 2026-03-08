@@ -6,6 +6,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
+import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
@@ -173,6 +175,11 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: 20),
         if (_fiscalResult != null) ...[
           _buildHeroComparisonCard(),
+          const SizedBox(height: 20),
+          MarriagePenaltyGauge(
+            taxSingles: (_fiscalResult!['totalCelibataires'] as double),
+            taxMarried: (_fiscalResult!['totalMarie'] as double),
+          ),
           const SizedBox(height: 20),
           _buildDeductionsBreakdown(),
           const SizedBox(height: 20),
@@ -536,6 +543,17 @@ class _MariageScreenState extends State<MariageScreen>
   //  TAB 2: REGIME — Matrimonial regime comparison
   // ════════════════════════════════════════════════════════════
 
+  RegimeMatrimonial _regimeFromIndex(int index) {
+    switch (index) {
+      case 1:
+        return RegimeMatrimonial.separationBiens;
+      case 2:
+        return RegimeMatrimonial.communauteBiens;
+      default:
+        return RegimeMatrimonial.participationAcquets;
+    }
+  }
+
   Widget _buildTab2Regime() {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
@@ -627,8 +645,13 @@ class _MariageScreenState extends State<MariageScreen>
         ),
         const SizedBox(height: 20),
 
-        // Pie chart visualization
-        _buildRegimeSplitVisualization(),
+        // Pie chart visualization — animated donut per regime
+        RegimeMatrimonialPie(
+          assetsPersonne1: _patrimoine1,
+          assetsPersonne2: _patrimoine2,
+          regime: _regimeFromIndex(_selectedRegime),
+          onRegimeChanged: (r) => setState(() => _selectedRegime = r.index),
+        ),
         const SizedBox(height: 20),
 
         // Chiffre choc

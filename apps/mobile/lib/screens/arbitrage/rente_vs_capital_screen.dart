@@ -203,25 +203,53 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         slivers: [
           // ── SliverAppBar ──
           SliverAppBar(
-            expandedHeight: 100,
+            expandedHeight: 160,
             pinned: true,
             backgroundColor: MintColors.primary,
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Rente ou capital LPP ?',
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
+              titlePadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              title: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Rente ou capital LPP ?',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'La décision peut valoir 100\'000 CHF',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ),
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.accent],
+                    colors: [Color(0xFF1A6B45), Color(0xFF2E8B5A)],
+                  ),
+                ),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 60, 24, 0),
+                    child: Text(
+                      '6.8%',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 64,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white.withOpacity(0.08),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -233,6 +261,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Hero insight card (L6 + L7) ──
+                _buildHeroInsightCard(),
+                const SizedBox(height: 20),
+
                 // ── Inputs ──
                 _buildInputSection(),
                 const SizedBox(height: 24),
@@ -244,6 +276,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 if (_result != null) ...[
+                  // ── Chiffre choc (L6 — ouvre le résultat) ──
+                  _buildChiffreChocCard(),
+                  const SizedBox(height: 20),
+
                   // ── Indicatif banner (P8 Phase 4) ──
                   if (_result!.confidenceScore < 70)
                     Container(
@@ -313,10 +349,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   const SizedBox(height: 20),
 
                   ArbitrageTornadoSection(result: _result!),
-                  const SizedBox(height: 20),
-
-                  // ── Chiffre choc ──
-                  _buildChiffreChocCard(),
                   const SizedBox(height: 20),
 
                   // ── Hypothesis sliders ──
@@ -556,6 +588,105 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
   //  CHIFFRE CHOC CARD
   // ═══════════════════════════════════════════════════════════════
+
+  // ─── Hero insight card — L6 ouvre, L7 métaphore ─────────────
+  // Affiche l'insight clé AVANT que l'utilisateur entre ses données.
+  // Source : ONBOARDING_ARBITRAGE_ENGINE.md Module C.
+  Widget _buildHeroInsightCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFF0FDF4), Color(0xFFECFDF5)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF86EFAC)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: MintColors.primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '💡  L\'INSIGHT CLÉ',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            '6.8% de taux de conversion = ~4.5% de rendement garanti',
+            style: GoogleFonts.montserrat(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF14532D),
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Sur la part obligatoire LPP, la rente est presque toujours rationnelle : '
+            'aucun placement sans risque ne sert actuellement ce niveau. '
+            'Sur le surobligatoire (souvent 4.5-5.5%), le capital est souvent supérieur.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: const Color(0xFF166534),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Text('🎯', style: TextStyle(fontSize: 18)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Stratégie mixte : rente sur obligatoire + capital sur surobligatoire. '
+                    'MINT la modélise — c\'est souvent la meilleure option.',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF14532D),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'LPP art. 14/37 · LIFD art. 22 (rente) / art. 38 (capital)',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: const Color(0xFF16A34A),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildChiffreChocCard() {
     if (_result == null) return const SizedBox.shrink();

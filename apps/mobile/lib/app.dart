@@ -26,7 +26,9 @@ import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
-import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/succession_simulator_screen.dart';
@@ -352,7 +354,23 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/disability-gap',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SimulatorDisabilityGapScreen(),
+      redirect: (context, state) => '/disability/gap',
+    ),
+    // ── Disability screens (P4) ─────────────────────────────
+    GoRoute(
+      path: '/disability/gap',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DisabilityGapScreen(),
+    ),
+    GoRoute(
+      path: '/disability/insurance',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DisabilityInsuranceScreen(),
+    ),
+    GoRoute(
+      path: '/disability/self-employed',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DisabilitySelfEmployedScreen(),
     ),
     GoRoute(
       path: '/simulator/job-comparison',

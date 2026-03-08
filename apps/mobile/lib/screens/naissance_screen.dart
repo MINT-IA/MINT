@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
+import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NAISSANCE SCREEN — Sprint S22 / Famille & Concubinage
@@ -1057,6 +1058,40 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
             ],
           ),
+        ),
+        const SizedBox(height: 20),
+
+        // Waterfall — fiscal impact breakdown (child tax deductions)
+        FiscalImpactWaterfall(
+          steps: [
+            WaterfallStep(
+              label: 'Revenu brut annuel',
+              amount: _revenuImpact,
+              isTotal: true,
+            ),
+            WaterfallStep(
+              label: 'Economies fiscales',
+              amount: economieFiscale,
+            ),
+            WaterfallStep(
+              label: 'Allocations familiales',
+              amount: allocAnnuel,
+            ),
+            WaterfallStep(
+              label: 'Couts de base (est.)',
+              amount: -coutEstime,
+            ),
+            WaterfallStep(
+              label: 'Frais de garde annuels',
+              amount: -fraisGardeAnnuel,
+            ),
+            WaterfallStep(
+              label: 'Apres enfant(s)',
+              amount: _revenuImpact + netImpact,
+              isTotal: true,
+            ),
+          ],
+          totalSavings: economieFiscale + allocAnnuel,
         ),
         const SizedBox(height: 20),
 
