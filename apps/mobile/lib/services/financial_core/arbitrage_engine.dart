@@ -880,11 +880,49 @@ class ArbitrageEngine {
   }) {
     final startYear = DateTime.now().year;
 
-    // ── Option A: Rent + Invest ──
+    // ── Approach: compare net patrimony including cashflow delta ──
+    // Both options have annual costs (rent vs charges proprio).
+    // The DELTA in cashflow is reinvested by the cheaper option.
+    // This gives a fair apples-to-apples comparison.
+
     final loyerAnnuel = loyerMensuelActuel * 12;
+    final fondsPropres = capitalDisponible.clamp(0.0, prixBien);
+    double hypotheque = prixBien - fondsPropres;
+    double valeurBien = prixBien;
+
+    // First pass: compute annual proprio costs to get the cashflow delta
+    final annualProprioCharges = <double>[];
+    double tempHyp = hypotheque;
+    double tempVal = prixBien;
+    for (int y = 0; y <= horizonAnnees; y++) {
+      if (y == 0) {
+        annualProprioCharges.add(0);
+        continue;
+      }
+      tempVal *= (1 + appreciationImmo);
+      final interets = tempHyp * tauxHypotheque;
+      final amortissement = prixBien * 0.01;
+      final entretien = prixBien * tauxEntretien;
+      final valeurLocative = tempVal * 0.035;
+      final netTaxableIncome = valeurLocative - interets;
+      final taxImpact = netTaxableIncome > 0
+          ? RetirementTaxCalculator.estimateMonthlyIncomeTax(
+                revenuAnnuelImposable: netTaxableIncome,
+                canton: canton,
+                etatCivil: isMarried ? 'marie' : 'celibataire',
+              ) *
+              12
+          : 0.0;
+      annualProprioCharges.add(interets + amortissement + entretien + taxImpact);
+      tempHyp = math.max(0, tempHyp - amortissement);
+    }
+
+    // ── Option A: Rent + Invest ──
+    // Capital = capitalDisponible invested at market return.
+    // Each year, if renting is cheaper than owning, the savings are reinvested.
+    // If renting is more expensive, the extra cost is withdrawn from capital.
     double investCapital = capitalDisponible;
     final rentSnapshots = <YearlySnapshot>[];
-    double rentCumulCashflow = 0;
 
     for (int y = 0; y <= horizonAnnees; y++) {
       if (y == 0) {
@@ -898,28 +936,28 @@ class ArbitrageEngine {
       }
       // Capital grows at market return
       investCapital *= (1 + rendementMarche);
-      // Pay rent out of pocket (not from invested capital)
-      rentCumulCashflow -= loyerAnnuel;
+      // Cashflow delta: proprio charges - loyer (positive = renting is cheaper)
+      final cashflowDelta = annualProprioCharges[y] - loyerAnnuel;
+      // If renting is cheaper, surplus is invested. If more expensive, withdrawn.
+      investCapital += cashflowDelta;
 
       rentSnapshots.add(YearlySnapshot(
         year: startYear + y,
-        netPatrimony: investCapital + rentCumulCashflow,
+        netPatrimony: investCapital,
         annualCashflow: -loyerAnnuel,
         cumulativeTaxDelta: 0,
       ));
     }
 
     // ── Option B: Buy ──
-    final fondsPropresPct = capitalDisponible / prixBien;
-    final fondsPropres = capitalDisponible.clamp(0.0, prixBien);
-    double hypotheque = prixBien - fondsPropres;
-    double valeurBien = prixBien;
+    // Net patrimony = property value - remaining mortgage.
+    // All charges are paid from income (like rent is for option A).
+    hypotheque = prixBien - fondsPropres;
+    valeurBien = prixBien;
     final buySnapshots = <YearlySnapshot>[];
-    double buyCumulCost = 0;
 
     for (int y = 0; y <= horizonAnnees; y++) {
       if (y == 0) {
-        // Net patrimony = property value - mortgage
         buySnapshots.add(YearlySnapshot(
           year: startYear,
           netPatrimony: valeurBien - hypotheque,
@@ -928,38 +966,15 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Property appreciates
       valeurBien *= (1 + appreciationImmo);
-
-      // Annual costs
-      final interets = hypotheque * tauxHypotheque;
-      final amortissement = prixBien * 0.01; // 1% of initial price/year
-      final entretien = prixBien * tauxEntretien;
-
-      // Valeur locative = ~3.5% of property value (Swiss average)
-      final valeurLocative = valeurBien * 0.035;
-      // Tax impact: valeur locative as income minus interest deduction
-      final netTaxableIncome = valeurLocative - interets;
-      final taxImpact = netTaxableIncome > 0
-          ? RetirementTaxCalculator.estimateMonthlyIncomeTax(
-                revenuAnnuelImposable: netTaxableIncome,
-                canton: canton,
-                etatCivil: isMarried ? 'marie' : 'celibataire',
-              ) *
-              12
-          : 0.0;
-
-      final totalAnnualCost = interets + amortissement + entretien + taxImpact;
-      buyCumulCost += totalAnnualCost;
-
-      // Reduce mortgage by amortization
+      final amortissement = prixBien * 0.01;
       hypotheque = math.max(0, hypotheque - amortissement);
 
       buySnapshots.add(YearlySnapshot(
         year: startYear + y,
-        netPatrimony: valeurBien - hypotheque - buyCumulCost,
-        annualCashflow: -totalAnnualCost,
-        cumulativeTaxDelta: taxImpact * y,
+        netPatrimony: valeurBien - hypotheque,
+        annualCashflow: -annualProprioCharges[y],
+        cumulativeTaxDelta: 0,
       ));
     }
 
@@ -1074,7 +1089,7 @@ class ArbitrageEngine {
         'Entretien : ${(tauxEntretien * 100).toStringAsFixed(1)} % du prix par an',
         'Horizon : $horizonAnnees ans',
         'Canton : $canton',
-        'Fonds propres : ${(fondsPropresPct * 100).toStringAsFixed(0)} %',
+        'Fonds propres : ${(capitalDisponible / prixBien * 100).toStringAsFixed(0)} %',
         if (isMarried) 'Splitting marie',
         ...alertes,
       ],

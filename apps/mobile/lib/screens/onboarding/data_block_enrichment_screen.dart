@@ -413,7 +413,7 @@ class _DataBlockEnrichmentScreenState
       'revenu': '/profile/bilan',
       'lpp': '/document-scan',
       'avs': '/document-scan/avs-guide',
-      '3a': '/3a-deep/comparator',
+      '3a': '/profile/bilan',
       'patrimoine': '/profile/bilan',
       'fiscalite': '/document-scan?type=taxDeclaration',
       'objectifRetraite': '/profile/bilan',
