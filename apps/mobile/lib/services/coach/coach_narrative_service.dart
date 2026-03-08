@@ -1,4 +1,4 @@
-/// Coach Narrative Service — Sprint S35.
+/// Coach Narrative Service — Sprint S35 / updated S44.
 ///
 /// Generates 4 independent narrative components, each validated through
 /// [ComplianceGuard] before reaching the UI:
@@ -7,14 +7,21 @@
 ///   3. Tip Narrative — actionable educational insight
 ///   4. Chiffre Choc Reframe — contextualizes shock figures
 ///
-/// Uses [FallbackTemplates] as the generation engine (no LLM dependency).
-/// If ComplianceGuard flags a violation, falls back to the template output.
+/// Synchronous API: uses [FallbackTemplates] as the generation engine
+/// (no LLM dependency). If ComplianceGuard flags a violation, falls back
+/// to the template output.
+///
+/// Async LLM-enhanced API (S44): delegates to [CoachOrchestrator] which
+/// runs the full SLM → BYOK → FallbackTemplates chain.
 ///
 /// All output text is in French (informal "tu"), free of banned terms,
 /// and compliant with LSFin educational framing.
 library;
 
+import 'package:mint_mobile/services/coach_llm_service.dart';
+
 import 'coach_models.dart';
+import 'coach_orchestrator.dart';
 import 'compliance_guard.dart';
 import 'fallback_templates.dart';
 
@@ -91,6 +98,48 @@ class CoachNarrativeService {
     required String blockType,
   }) =>
       _generateEnrichmentGuide(ctx, blockType);
+
+  // ═══════════════════════════════════════════════════════════════
+  // LLM-enhanced API (S44) — delegates to CoachOrchestrator
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generate all 4 components with SLM → BYOK → template chain.
+  ///
+  /// Each component is independently generated through [CoachOrchestrator].
+  /// [byokConfig] is optional; if null, only SLM and templates are tried.
+  static Future<CoachNarrativeResult> generateAllEnhanced(
+    CoachContext ctx, {
+    LlmConfig? byokConfig,
+  }) async {
+    final results = await Future.wait([
+      CoachOrchestrator.generateNarrativeComponent(
+        componentType: ComponentType.greeting,
+        ctx: ctx,
+        byokConfig: byokConfig,
+      ),
+      CoachOrchestrator.generateNarrativeComponent(
+        componentType: ComponentType.scoreSummary,
+        ctx: ctx,
+        byokConfig: byokConfig,
+      ),
+      CoachOrchestrator.generateNarrativeComponent(
+        componentType: ComponentType.tip,
+        ctx: ctx,
+        byokConfig: byokConfig,
+      ),
+      CoachOrchestrator.generateNarrativeComponent(
+        componentType: ComponentType.chiffreChoc,
+        ctx: ctx,
+        byokConfig: byokConfig,
+      ),
+    ]);
+    return CoachNarrativeResult(
+      greeting: results[0].text,
+      scoreSummary: results[1].text,
+      tipNarrative: results[2].text,
+      chiffreChocReframe: results[3].text,
+    );
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // Internal — generate + validate + fallback

@@ -3,6 +3,10 @@ ChromaDB vector store wrapper for MINT knowledge base.
 
 Uses ChromaDB's built-in default embedding function (all-MiniLM-L6-v2 via ONNX)
 so no separate sentence-transformers/torch installation is needed.
+
+# ⚠️ RAILWAY PRODUCTION: ChromaDB persists in ./data/chromadb/
+# Without a Railway persistent volume, corpus is LOST on every deploy.
+# Configure volume in Railway dashboard: /data → persistent volume
 """
 
 from __future__ import annotations
@@ -129,6 +133,7 @@ class MintVectorStore:
         query_text: str,
         n_results: int = 5,
         language: Optional[str] = None,
+        where_filter: Optional[dict] = None,
     ) -> list[dict]:
         """
         Query the vector store for relevant documents.
@@ -137,19 +142,25 @@ class MintVectorStore:
             query_text: The query string.
             n_results: Number of results to return.
             language: Optional language filter ("fr", "de", "en", "it").
+                      Ignored when where_filter is provided (caller composes it).
+            where_filter: Optional raw ChromaDB where clause. When provided,
+                          the ``language`` argument is ignored.
 
         Returns:
             List of result dicts with keys: id, text, metadata, distance.
         """
-        where_filter = None
-        if language:
-            where_filter = {"language": language}
+        # Build the effective filter:
+        # - If the caller passes an explicit where_filter, use it as-is.
+        # - Otherwise fall back to a simple language equality filter.
+        effective_filter = where_filter
+        if effective_filter is None and language:
+            effective_filter = {"language": language}
 
         try:
             results = self._collection.query(
                 query_texts=[query_text],
                 n_results=min(n_results, self._collection.count() or 1),
-                where=where_filter if where_filter and self._collection.count() > 0 else None,
+                where=effective_filter if effective_filter and self._collection.count() > 0 else None,
             )
         except Exception as e:
             logger.error("Vector store query failed: %s", e)
