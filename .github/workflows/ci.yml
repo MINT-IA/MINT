@@ -40,6 +40,13 @@ jobs:
       - name: Install dependencies (app + dev/test deps)
         run: pip install ".[dev]" pytest-cov diff-cover
 
+      - name: Security audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit --skip-editable --desc on 2>&1 || true
+          # Run again with exit code (fail on HIGH+ severity)
+          pip-audit --skip-editable --desc on --severity high
+
       - name: Run tests
         env:
           TESTING: "1"

@@ -143,8 +143,11 @@ def _auto_ingest_rag():
         from app.services.rag.ingester import MarkdownIngester
 
         # Determine paths
+        # CHROMADB_PATH env var allows Railway persistent volume mount override.
+        # Set CHROMADB_PATH=/data/chromadb in Railway dashboard after linking volume.
         backend_dir = os.path.dirname(os.path.dirname(__file__))
-        persist_dir = os.path.join(backend_dir, "data", "chromadb")
+        _default_persist = os.path.join(backend_dir, "data", "chromadb")
+        persist_dir = os.getenv("CHROMADB_PATH", _default_persist)
         # Education inserts are at: ../../education/inserts/ relative to backend dir
         inserts_dir = os.path.normpath(
             os.path.join(backend_dir, "..", "..", "education", "inserts")
