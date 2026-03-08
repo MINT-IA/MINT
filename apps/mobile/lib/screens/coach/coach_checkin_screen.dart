@@ -95,7 +95,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           goalA: GoalA(
             type: GoalAType.retraite,
             targetDate: DateTime(2055, 12, 31),
-            label: 'Retraite',
+            label: S.of(context)!.dashboardGoalRetirement,
           ),
         );
       }
@@ -1228,7 +1228,7 @@ Reponds uniquement avec le texte final.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton score financier',
+                  S.of(context)!.checkinScoreTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1247,8 +1247,8 @@ Reponds uniquement avec le texte final.
                 const SizedBox(height: 2),
                 Text(
                   isPositive
-                      ? '+$delta pts — tes actions portent leurs fruits !'
-                      : '$delta pts — continue, chaque mois compte',
+                      ? S.of(context)!.checkinScorePositive(delta.toString())
+                      : S.of(context)!.checkinScoreNegative(delta.toString()),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,

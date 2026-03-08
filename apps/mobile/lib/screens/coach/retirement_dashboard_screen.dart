@@ -37,6 +37,7 @@ import 'package:mint_mobile/widgets/coach/horizon_line_widget.dart';
 import 'package:mint_mobile/widgets/coach/financial_weather_widget.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 import 'package:mint_mobile/widgets/coach/progressive_dashboard_widget.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT DASHBOARD SCREEN — P5 / Dashboard Assembly
@@ -351,8 +352,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     // CoupleActionPlan). This is consistent with the forecaster
     // model where 3a withdrawal is modelled as user's income.
     return HeroCoupleCard(
-      userName: profile.firstName ?? 'Toi',
-      conjointName: conj.firstName ?? 'Conjoint\u00b7e',
+      userName: profile.firstName ?? S.of(context)!.dashboardDefaultUserName,
+      conjointName: conj.firstName ?? S.of(context)!.dashboardDefaultConjointName,
       userMonthlyIncome: avsUserMonthly +
           (decoBase['lpp_user'] ?? 0) / 12 +
           (decoBase['3a'] ?? 0) / 12 +
@@ -463,7 +464,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 // ── Trajectory Chart (3-scenario fan chart) ──
                 MintTrajectoryChart(
                   result: proj,
-                  goalALabel: 'Retraite',
+                  goalALabel: S.of(context)!.dashboardGoalRetirement,
                 ),
                 const SizedBox(height: 16),
 
@@ -591,21 +592,21 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       probabilityPercent: 35,
                       monthlyIncomeMin: monthlyOptimiste * 0.9,
                       monthlyIncomeMax: monthlyOptimiste,
-                      description: 'Marchés favorables, épargne maximisée.',
+                      description: S.of(context)!.dashboardWeatherSunny,
                     ),
                     WeatherScenario(
                       weather: FinancialWeather.partlyCloudy,
                       probabilityPercent: 45,
                       monthlyIncomeMin: monthlyPrudent,
                       monthlyIncomeMax: monthlyOptimiste * 0.9,
-                      description: 'Trajectoire actuelle, quelques ajustements.',
+                      description: S.of(context)!.dashboardWeatherPartlyCloudy,
                     ),
                     WeatherScenario(
                       weather: FinancialWeather.rainy,
                       probabilityPercent: 20,
                       monthlyIncomeMin: monthlyPrudent * 0.8,
                       monthlyIncomeMax: monthlyPrudent,
-                      description: 'Chocs de marché ou lacunes AVS/LPP.',
+                      description: S.of(context)!.dashboardWeatherRainy,
                     ),
                   ],
                 ),
@@ -630,15 +631,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   heroMonthlyRente: proj.base.revenuAnnuelRetraite / 12,
                   metrics: [
                     DashboardMetric(
-                      label: 'Revenu mensuel',
+                      label: S.of(context)!.dashboardMetricMonthlyIncome,
                       emoji: '💰',
                       value: (proj.base.revenuAnnuelRetraite / 12).toStringAsFixed(0),
-                      unit: 'CHF/mois',
+                      unit: S.of(context)!.dashboardMetricChfMonth,
                       minLevel: 1,
                       color: MintColors.primary,
                     ),
                     DashboardMetric(
-                      label: 'Taux de remplacement',
+                      label: S.of(context)!.dashboardMetricReplacementRate,
                       emoji: '📊',
                       value: (proj.tauxRemplacementBase * 100).toStringAsFixed(0),
                       unit: '%',
@@ -646,26 +647,26 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       color: MintColors.scoreExcellent,
                     ),
                     DashboardMetric(
-                      label: 'Durée retraite estimée',
+                      label: S.of(context)!.dashboardMetricRetirementDuration,
                       emoji: '⏳',
                       value: (85 - profile.effectiveRetirementAge).clamp(0, 40).toStringAsFixed(0),
-                      unit: 'ans',
+                      unit: S.of(context)!.dashboardMetricYears,
                       minLevel: 2,
                       color: MintColors.info,
-                      note: 'Espérance de vie estimée : 85 ans',
+                      note: S.of(context)!.dashboardMetricLifeExpectancy,
                     ),
                     DashboardMetric(
-                      label: 'Écart mensuel',
+                      label: S.of(context)!.dashboardMetricMonthlyGap,
                       emoji: '⚡',
                       value: ((proj.base.revenuAnnuelRetraite / 12) - (profile.salaireBrutMensuel * 0.70)).abs().toStringAsFixed(0),
-                      unit: 'CHF/mois',
+                      unit: S.of(context)!.dashboardMetricChfMonth,
                       minLevel: 3,
                       color: MintColors.scoreAttention,
-                      note: 'Vs cible 70% du salaire brut',
+                      note: S.of(context)!.dashboardMetricVsTarget,
                     ),
                   ],
-                  nextActionLabel: 'Améliorer ta précision',
-                  nextActionDetail: 'Scanne ton certificat LPP pour affiner tes projections.',
+                  nextActionLabel: S.of(context)!.dashboardNextActionLabel,
+                  nextActionDetail: S.of(context)!.dashboardNextActionDetail,
                 ),
                 const SizedBox(height: 16),
 
@@ -797,7 +798,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Decouvre ta projection en 30 secondes',
+                  S.of(context)!.dashboardQuickStartTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -809,8 +810,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            '4 infos suffisent pour estimer ton revenu a la retraite. '
-            'Tu pourras affiner avec des documents et des details.',
+            S.of(context)!.dashboardQuickStartBody,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -830,7 +830,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
               ),
               child: Text(
-                'Commencer',
+                S.of(context)!.dashboardQuickStartCta,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -847,22 +847,22 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final prompts = <_EnrichmentPrompt>[
       _EnrichmentPrompt(
         icon: Icons.document_scanner_outlined,
-        title: 'Scanne ton certificat LPP',
-        impact: '+20 pts de precision',
+        title: S.of(context)!.dashboardEnrichScanTitle,
+        impact: S.of(context)!.dashboardEnrichScanImpact,
         color: MintColors.primary,
         route: '/document-scan',
       ),
       _EnrichmentPrompt(
         icon: Icons.chat_bubble_outline,
-        title: 'Parle au Coach',
-        impact: 'Reponds a tes questions',
+        title: S.of(context)!.dashboardEnrichCoachTitle,
+        impact: S.of(context)!.dashboardEnrichCoachImpact,
         color: MintColors.coachAccent,
         route: '/coach/chat',
       ),
       _EnrichmentPrompt(
         icon: Icons.calculate_outlined,
-        title: 'Simule un scenario',
-        impact: '3a, LPP, hypotheque...',
+        title: S.of(context)!.dashboardEnrichSimTitle,
+        impact: S.of(context)!.dashboardEnrichSimImpact,
         color: Colors.orange,
         route: '/tools',
       ),
@@ -872,7 +872,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Prochaines etapes',
+          S.of(context)!.dashboardNextSteps,
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -946,8 +946,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   SliverAppBar _buildAppBar(String? firstName) {
     // AppBar shows a short stable title — narrative greeting lives in CoachBriefingCard only.
     final title = firstName != null && firstName.isNotEmpty
-        ? 'Retraite \u00b7 $firstName'
-        : 'Mon tableau de bord';
+        ? S.of(context)!.dashboardAppBarWithName(firstName)
+        : S.of(context)!.dashboardAppBarDefault;
 
     return SliverAppBar(
       expandedHeight: 80,
@@ -972,7 +972,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           icon: const Icon(Icons.edit_note_outlined,
               color: MintColors.textSecondary),
           onPressed: () => context.push('/profile/bilan'),
-          tooltip: 'Mes donn\u00e9es',
+          tooltip: S.of(context)!.dashboardMyData,
         ),
         const SizedBox(width: 4),
       ],
@@ -995,7 +995,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Le syst\u00e8me de retraite suisse',
+            S.of(context)!.dashboardEduTitle,
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -1006,25 +1006,22 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           _buildEducationalPoint(
             icon: Icons.shield_outlined,
             color: MintColors.retirementAvs,
-            title: '1er pilier \u2014 AVS',
-            text:
-                'Base obligatoire pour tous. Financ\u00e9 par tes cotisations (LAVS art. 21).',
+            title: S.of(context)!.dashboardEduAvs,
+            text: S.of(context)!.dashboardEduAvsDesc,
           ),
           const SizedBox(height: 8),
           _buildEducationalPoint(
             icon: Icons.account_balance_outlined,
             color: MintColors.retirementLpp,
-            title: '2\u00e8me pilier \u2014 LPP',
-            text:
-                'Pr\u00e9voyance professionnelle via ta caisse de pension (LPP art. 14).',
+            title: S.of(context)!.dashboardEduLpp,
+            text: S.of(context)!.dashboardEduLppDesc,
           ),
           const SizedBox(height: 8),
           _buildEducationalPoint(
             icon: Icons.savings_outlined,
             color: MintColors.retirement3a,
-            title: '3\u00e8me pilier \u2014 3a',
-            text:
-                '\u00c9pargne volontaire avec d\u00e9duction fiscale (OPP3 art. 7).',
+            title: S.of(context)!.dashboardEdu3a,
+            text: S.of(context)!.dashboardEdu3aDesc,
           ),
         ],
       ),
@@ -1084,8 +1081,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
-      'Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.',
+      S.of(context)!.dashboardDisclaimer,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,
@@ -1123,7 +1119,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             Icon(Icons.dashboard_outlined, size: 18, color: MintColors.primary),
             const SizedBox(width: 8),
             Text(
-              'Cockpit d\u00e9taill\u00e9',
+              S.of(context)!.dashboardCockpitLink,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -1157,7 +1153,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             Icon(Icons.edit_note_outlined, size: 18, color: MintColors.textSecondary),
             const SizedBox(width: 8),
             Text(
-              'Mes donn\u00e9es',
+              S.of(context)!.dashboardMyData,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -1281,7 +1277,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       if (card.impactChf != null && card.impactChf! > 0) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Impact estim\u00e9\u00a0: CHF\u00a0${formatChf(card.impactChf!)}',
+                          S.of(context)!.dashboardImpactEstimate(formatChf(card.impactChf!)),
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1317,40 +1313,36 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       case AgeBand.youngProfessional:
         return _AgeBandCard(
           icon: Icons.savings_outlined,
-          title: 'Ton levier principal : le 3a',
-          subtitle:
-              'Chaque franc versé maintenant travaille 40 ans. Ouvrir ton 3a coûte 15 minutes.',
-          cta: 'Simuler mon 3a',
+          title: S.of(context)!.dashboardAgeBandYoungTitle,
+          subtitle: S.of(context)!.dashboardAgeBandYoungSubtitle,
+          cta: S.of(context)!.dashboardAgeBandYoungCta,
           route: '/simulator/3a',
           color: const Color(0xFF2E7D5E),
         );
       case AgeBand.stabilization:
         return _AgeBandCard(
           icon: Icons.home_outlined,
-          title: '3a + protection famille',
-          subtitle:
-              'Logement, couverture décès/invalidité : c\'est maintenant que l\'architecture se construit.',
-          cta: 'Voir les simulateurs',
+          title: S.of(context)!.dashboardAgeBandStabTitle,
+          subtitle: S.of(context)!.dashboardAgeBandStabSubtitle,
+          cta: S.of(context)!.dashboardAgeBandStabCta,
           route: '/simulator/3a',
           color: const Color(0xFF1565C0),
         );
       case AgeBand.peakEarnings:
         return _AgeBandCard(
           icon: Icons.trending_up,
-          title: 'Rachat LPP + optimisation fiscale',
-          subtitle:
-              'Tes revenus sont au pic — c\'est la fenêtre pour réduire l\'écart de retraite.',
-          cta: 'Simuler un rachat',
+          title: S.of(context)!.dashboardAgeBandPeakTitle,
+          subtitle: S.of(context)!.dashboardAgeBandPeakSubtitle,
+          cta: S.of(context)!.dashboardAgeBandPeakCta,
           route: '/lpp-deep/rachat',
           color: const Color(0xFF6A1B9A),
         );
       case AgeBand.preRetirement:
         return _AgeBandCard(
           icon: Icons.timeline,
-          title: 'Ton gap retraite en CHF/mois',
-          subtitle:
-              'Rente vs capital, retraite anticipée, rachat échelonné : les décisions se rapprochent.',
-          cta: 'Rente vs Capital',
+          title: S.of(context)!.dashboardAgeBandPreRetTitle,
+          subtitle: S.of(context)!.dashboardAgeBandPreRetSubtitle,
+          cta: S.of(context)!.dashboardAgeBandPreRetCta,
           route: '/arbitrage/rente-vs-capital',
           color: const Color(0xFFE65100),
         );
@@ -1359,20 +1351,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           children: [
             _AgeBandCard(
               icon: Icons.account_balance_wallet_outlined,
-              title: 'Ordre de retrait 3a',
-              subtitle:
-                  'Échelonner tes retraits 3a sur 3–5 ans réduit l\'impôt de manière significative selon le canton.',
-              cta: 'Planifier mes retraits',
+              title: S.of(context)!.dashboardAgeBandRetWithdrawTitle,
+              subtitle: S.of(context)!.dashboardAgeBandRetWithdrawSubtitle,
+              cta: S.of(context)!.dashboardAgeBandRetWithdrawCta,
               route: '/coach/decaissement',
               color: const Color(0xFF00695C),
             ),
             const SizedBox(height: 12),
             _AgeBandCard(
               icon: Icons.family_restroom,
-              title: 'Succession & transmission',
-              subtitle:
-                  'Testament, donation du vivant, bénéficiaires LPP : protéger ceux que tu aimes.',
-              cta: 'Explorer',
+              title: S.of(context)!.dashboardAgeBandRetSuccessionTitle,
+              subtitle: S.of(context)!.dashboardAgeBandRetSuccessionSubtitle,
+              cta: S.of(context)!.dashboardAgeBandRetSuccessionCta,
               route: '/coach/succession',
               color: const Color(0xFF37474F),
             ),

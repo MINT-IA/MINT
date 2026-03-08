@@ -494,7 +494,7 @@ class _BudgetScreenState extends State<BudgetScreen>
 
   Widget _buildEmergencyFundCard(BudgetPlan plan) {
     final months = plan.emergencyFundMonths;
-    final target = BudgetPlan.emergencyFundTarget;
+    const target = BudgetPlan.emergencyFundTarget;
     final isComplete = months >= target;
 
     final progressColor = isComplete
