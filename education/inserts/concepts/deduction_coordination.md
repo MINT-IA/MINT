@@ -32,7 +32,7 @@ Le **salaire coordonné** = salaire brut annuel − déduction de coordination. 
 Exemples :
 | Salaire brut | Salaire coordonné | Part assurée |
 |-------------|------------------|--------------|
-| CHF 30'000  | CHF 3'540         | 12%          |
+| CHF 30'000  | CHF 3'780 (minimum légal) | 13%   |
 | CHF 50'000  | CHF 23'540        | 47%          |
 | CHF 88'200  | CHF 61'740        | 70%          |
 | CHF 120'000 | CHF 61'740 (plafond) | 51%       |

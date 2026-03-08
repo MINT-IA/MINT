@@ -321,7 +321,14 @@ class CoachOrchestrator {
             apiKey: config.apiKey,
             provider: providerStr,
             model: config.model,
-            profileContext: const {},
+            profileContext: {
+              'firstName': ctx.firstName,
+              'age': ctx.age.toString(),
+              'canton': ctx.canton,
+              'archetype': ctx.archetype,
+              'friTotal': ctx.friTotal.toStringAsFixed(0),
+              'replacementRatio': ctx.replacementRatio.toStringAsFixed(0),
+            },
           )
           .timeout(_byokTimeout);
     } on TimeoutException {
@@ -385,7 +392,14 @@ class CoachOrchestrator {
             apiKey: config.apiKey,
             provider: providerStr,
             model: config.model,
-            profileContext: const {},
+            profileContext: {
+              'firstName': ctx.firstName,
+              'age': ctx.age.toString(),
+              'canton': ctx.canton,
+              'archetype': ctx.archetype,
+              'friTotal': ctx.friTotal.toStringAsFixed(0),
+              'replacementRatio': ctx.replacementRatio.toStringAsFixed(0),
+            },
           )
           .timeout(_byokTimeout);
     } on TimeoutException {

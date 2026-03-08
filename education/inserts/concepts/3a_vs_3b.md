@@ -42,7 +42,7 @@ Limite de l'analogie : le coffre 3a peut aussi accueillir des placements en acti
 - Rendements soumis à l'impôt ordinaire (LIFD art. 20 pour les intérêts, impôt sur la fortune pour le capital).
 - Inclut : comptes d'épargne ordinaires, placements boursiers, assurances-vie libre, immobilier, etc.
 
-Stratégie combinée : maximiser le 3a chaque année (priorité absolue — meilleur rapport fiscal), puis orienter le surplus vers le 3b en fonds indiciels (ex : ETF) sur un compte de courtage.
+Stratégie combinée : maximiser le 3a chaque année (avantage fiscal immédiat), puis orienter le surplus vers le 3b en fonds indiciels (ex : ETF) sur un compte de courtage.
 
 ## Sources
 - OPP3 art. 3 (conditions de retrait du 3a)

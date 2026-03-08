@@ -40,7 +40,7 @@ Exemples de plafonds effectifs :
 **Avantage fiscal** : chaque franc versé en 3a est déductible du revenu imposable (LIFD art. 33 al. 1 let. e). À un taux marginal de 35-42% (canton ZH, revenus > CHF 100'000), l'économie est de CHF 0.35 à CHF 0.42 par franc versé.
 
 **Stratégie recommandée pour l'indépendant sans LPP** :
-1. Maximiser le 3a chaque année (priorité fiscale absolue).
+1. Maximiser le 3a chaque année (levier fiscal structurel pour l'indépendant sans LPP).
 2. Diversifier sur plusieurs comptes 3a pour échelonner les retraits futurs.
 3. Envisager l'affiliation volontaire à une caisse LPP (association professionnelle ou FER) pour accéder au 2e pilier et ses avantages supplémentaires.
 4. Si revenu variable : verser en 3a en fin d'année fiscale quand le revenu réel est connu.
@@ -54,7 +54,7 @@ Attention : si tu es indépendant **avec** un LPP (affiliation volontaire), le p
 - LPP art. 44 (affiliation volontaire des indépendants)
 
 ## Action
-"Calcule ton revenu net d'activité indépendante de cette année et verse 20% en 3a avant le 31 décembre — c'est ton levier fiscal le plus puissant si tu n'as pas de LPP."
+"Calcule ton revenu net d'activité indépendante de cette année et verse 20% en 3a avant le 31 décembre — c'est un levier fiscal structurel si tu n'as pas de LPP."
 
 ## Disclaimer
 "Information à caractère éducatif, ne constitue pas un conseil fiscal ou en prévoyance au sens de la LSFin. Le plafond exact dépend de ton revenu net déclaré et de ta situation fiscale individuelle. Consulte un·e spécialiste pour ta situation personnelle."

@@ -111,33 +111,34 @@ class CoachNarrativeService {
     CoachContext ctx, {
     LlmConfig? byokConfig,
   }) async {
-    final results = await Future.wait([
-      CoachOrchestrator.generateNarrativeComponent(
-        componentType: ComponentType.greeting,
-        ctx: ctx,
-        byokConfig: byokConfig,
-      ),
-      CoachOrchestrator.generateNarrativeComponent(
-        componentType: ComponentType.scoreSummary,
-        ctx: ctx,
-        byokConfig: byokConfig,
-      ),
-      CoachOrchestrator.generateNarrativeComponent(
-        componentType: ComponentType.tip,
-        ctx: ctx,
-        byokConfig: byokConfig,
-      ),
-      CoachOrchestrator.generateNarrativeComponent(
-        componentType: ComponentType.chiffreChoc,
-        ctx: ctx,
-        byokConfig: byokConfig,
-      ),
-    ]);
+    // Sequential calls: SlmEngine has an _isGenerating guard that blocks
+    // concurrent SLM requests. Parallel Future.wait() would cause 3 of 4
+    // components to fall back to templates even when SLM is available.
+    final greeting = await CoachOrchestrator.generateNarrativeComponent(
+      componentType: ComponentType.greeting,
+      ctx: ctx,
+      byokConfig: byokConfig,
+    );
+    final scoreSummary = await CoachOrchestrator.generateNarrativeComponent(
+      componentType: ComponentType.scoreSummary,
+      ctx: ctx,
+      byokConfig: byokConfig,
+    );
+    final tip = await CoachOrchestrator.generateNarrativeComponent(
+      componentType: ComponentType.tip,
+      ctx: ctx,
+      byokConfig: byokConfig,
+    );
+    final chiffreChoc = await CoachOrchestrator.generateNarrativeComponent(
+      componentType: ComponentType.chiffreChoc,
+      ctx: ctx,
+      byokConfig: byokConfig,
+    );
     return CoachNarrativeResult(
-      greeting: results[0].text,
-      scoreSummary: results[1].text,
-      tipNarrative: results[2].text,
-      chiffreChocReframe: results[3].text,
+      greeting: greeting.text,
+      scoreSummary: scoreSummary.text,
+      tipNarrative: tip.text,
+      chiffreChocReframe: chiffreChoc.text,
     );
   }
 

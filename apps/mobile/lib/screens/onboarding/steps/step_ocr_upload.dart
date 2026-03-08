@@ -114,7 +114,13 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
     if (mounted) {
       setState(() {
         _scanning = null;
-        _scanned.add(type);
+        // Only mark as successfully scanned if at least one field was extracted
+        // with usable confidence. An empty result (overallConfidence == 0 and
+        // no fields) is a simulated/failed scan — showing a green checkmark
+        // would be misleading (H7 fix).
+        final hasUsableData = fakeResult.fields.any((f) => f.confidence >= 0.5) ||
+            fakeResult.overallConfidence > 0;
+        if (hasUsableData) _scanned.add(type);
       });
     }
   }

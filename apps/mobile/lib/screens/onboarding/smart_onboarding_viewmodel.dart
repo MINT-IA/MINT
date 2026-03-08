@@ -181,7 +181,14 @@ class SmartOnboardingViewModel extends ChangeNotifier {
           break;
       }
     }
-    notifyListeners();
+    // Recompute after OCR to refresh confidence score and projections.
+    // setExisting* already call compute() individually, but if no field
+    // matched (e.g. empty scan), we still need to notify.
+    if (hasResult) {
+      compute();
+    } else {
+      notifyListeners();
+    }
   }
 
   void setStressType(String? value) {
