@@ -642,6 +642,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? tauxConvSuroblig;
     double? lacuneRachat;
     double? salaireAssure;
+    double? rendementCaisseVal;
 
     for (final field in fields) {
       if (field.profileField == null) continue;
@@ -663,6 +664,8 @@ class CoachProfileProvider extends ChangeNotifier {
           lacuneRachat = value;
         case 'lppInsuredSalary':
           salaireAssure = value;
+        case 'rendementCaisse':
+          rendementCaisseVal = value / 100; // Stored as 2.0 → 0.02
       }
     }
 
@@ -681,7 +684,7 @@ class CoachProfileProvider extends ChangeNotifier {
       tauxConversion: tauxConvOblig ?? p.prevoyance.tauxConversion,
       tauxConversionSuroblig:
           tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
-      rendementCaisse: p.prevoyance.rendementCaisse,
+      rendementCaisse: rendementCaisseVal ?? p.prevoyance.rendementCaisse,
       salaireAssure: salaireAssure ?? p.prevoyance.salaireAssure,
       ramd: p.prevoyance.ramd,
       nombre3a: p.prevoyance.nombre3a,
@@ -713,6 +716,9 @@ class CoachProfileProvider extends ChangeNotifier {
           ProfileDataSource.certificate;
     if (salaireAssure != null)
       updatedSources['prevoyance.salaireAssure'] =
+          ProfileDataSource.certificate;
+    if (rendementCaisseVal != null)
+      updatedSources['prevoyance.rendementCaisse'] =
           ProfileDataSource.certificate;
 
     _profile = p.copyWith(
