@@ -13,3 +13,6 @@ Règle: si un écart se répète, on modifie un .md (vision / règle / contrat),
 Voir `AGENTS.md` pour le workflow.
 **Important** : Configurez votre IA avec le system prompt standard : `AGENT_SYSTEM_PROMPT.md`.
 
+## CI/CD
+Documentation complete: `docs/CICD_ARCHITECTURE.md`.
+
