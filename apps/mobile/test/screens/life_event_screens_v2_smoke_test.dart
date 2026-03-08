@@ -172,15 +172,11 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
-      // Disclaimer is at the bottom of a long ListView inside a
-      // NestedScrollView. We need to scroll within the inner scrollable
-      // to make it visible.
-      final listFinder = find.byType(Scrollable).last;
-      await tester.scrollUntilVisible(
-        find.textContaining('ne constitue pas'),
-        200,
-        scrollable: listFinder,
-      );
+      // Drag Tab 1 ListView to the bottom to force-build the lazy disclaimer.
+      // scrollUntilVisible requires a unique finder; drag is safer here because
+      // the screen has multiple 'ne constitue pas' instances.
+      final listFinder = find.byType(ListView).first;
+      await tester.drag(listFinder, const Offset(0, -5000));
       await tester.pumpAndSettle();
       expect(find.textContaining('ne constitue pas'), findsWidgets);
     });

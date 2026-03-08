@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
@@ -94,6 +95,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                   _buildChecklist(),
                   const SizedBox(height: 24),
                   _buildEducation(),
+                  const SizedBox(height: 24),
+                  _buildMintCrashTestSection(),
                   const SizedBox(height: 24),
                 ],
                 _buildDisclaimer(),
@@ -1101,6 +1104,53 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // ── MINT Coach Widget: Crash Test Budget ───────────────────
+
+  Widget _buildMintCrashTestSection() {
+    final survivalIncome = _gainAssure * 0.70; // taux LACI standard
+    return CrashTestBudgetWidget(
+      monthlyIncome: _gainAssure,
+      survivalIncome: survivalIncome,
+      lines: const [
+        BudgetLine(
+          label: 'Loyer',
+          emoji: '🏠',
+          normalAmount: 1800,
+          survivalAmount: 1800,
+          status: BudgetLineStatus.locked,
+        ),
+        BudgetLine(
+          label: 'LAMal',
+          emoji: '🏥',
+          normalAmount: 450,
+          survivalAmount: 450,
+          status: BudgetLineStatus.locked,
+        ),
+        BudgetLine(
+          label: 'Transport',
+          emoji: '🚌',
+          normalAmount: 200,
+          survivalAmount: 100,
+          status: BudgetLineStatus.cut,
+        ),
+        BudgetLine(
+          label: 'Loisirs',
+          emoji: '🎭',
+          normalAmount: 400,
+          survivalAmount: 50,
+          status: BudgetLineStatus.cut,
+        ),
+        BudgetLine(
+          label: 'Épargne 3a',
+          emoji: '🏦',
+          normalAmount: 605,
+          survivalAmount: 0,
+          status: BudgetLineStatus.paused,
+        ),
+      ],
     );
   }
 

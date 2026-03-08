@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -137,6 +138,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             ),
             const SizedBox(height: 48),
             _buildDisclaimer(),
+            const SizedBox(height: 24),
+            _buildCountdown3a(),
             const SizedBox(height: 40),
           ],
         ),
@@ -383,6 +386,20 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           textAlign: TextAlign.center,
         ),
       ),
+    );
+  }
+
+  Widget _buildCountdown3a() {
+    final now = DateTime.now();
+    final endOfYear = DateTime(now.year, 12, 31);
+    final daysRemaining = endOfYear.difference(now).inDays;
+    final taxSavings = _plafond3a * _marginalTaxRate;
+    return Countdown3aWidget(
+      annualCeiling: _plafond3a,
+      amountContributed: 0,
+      taxSavingsIfFull: taxSavings,
+      daysRemaining: daysRemaining,
+      year: now.year,
     );
   }
 }

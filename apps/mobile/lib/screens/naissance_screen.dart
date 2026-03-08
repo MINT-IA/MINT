@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NAISSANCE SCREEN — Sprint S22 / Famille & Concubinage
@@ -1064,6 +1065,12 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           '(alimentation, vetements, activites, assurance). '
           'Mais les allocations et deductions fiscales reduisent '
           'significativement l\'impact net.',
+        ),
+        const SizedBox(height: 20),
+
+        BudgetBebeWidget(
+          monthlyIncome: _revenuImpact / 12,
+          costPerChild: 1200,
         ),
         const SizedBox(height: 20),
 

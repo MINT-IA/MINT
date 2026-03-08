@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
+import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -199,6 +200,54 @@ class _ExpatScreenState extends State<ExpatScreen>
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
+        const SizedBox(height: 24),
+        TopCantonWidget(
+          currentCanton: _departCanton,
+          rankings: const [
+            CantonRanking(
+              rank: 1,
+              canton: 'Schwyz',
+              shortCode: 'SZ',
+              annualTaxSaving: 8500,
+              monthlyLamal: 310,
+              monthlyRent: 1800,
+              highlight: 'Fiscalité la plus avantageuse de Suisse',
+            ),
+            CantonRanking(
+              rank: 2,
+              canton: 'Zoug',
+              shortCode: 'ZG',
+              annualTaxSaving: 7200,
+              monthlyLamal: 295,
+              monthlyRent: 2200,
+              highlight: 'Hub international, accès Zurich',
+            ),
+            CantonRanking(
+              rank: 3,
+              canton: 'Nidwald',
+              shortCode: 'NW',
+              annualTaxSaving: 5800,
+              monthlyLamal: 288,
+              monthlyRent: 1600,
+            ),
+            CantonRanking(
+              rank: 4,
+              canton: 'Uri',
+              shortCode: 'UR',
+              annualTaxSaving: 5100,
+              monthlyLamal: 280,
+              monthlyRent: 1400,
+            ),
+            CantonRanking(
+              rank: 5,
+              canton: 'Appenzell Rh.-Int.',
+              shortCode: 'AI',
+              annualTaxSaving: 4600,
+              monthlyLamal: 285,
+              monthlyRent: 1500,
+            ),
+          ],
+        ),
       ],
     );
   }

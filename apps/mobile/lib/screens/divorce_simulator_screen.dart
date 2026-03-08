@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -147,6 +148,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             _buildEducationalFooter(),
             const SizedBox(height: 24),
             _buildDisclaimer(),
+            const SizedBox(height: 24),
+            _buildMintDivorceSection(),
+            const SizedBox(height: 24),
             const SizedBox(height: 40),
           ],
         ),
@@ -1052,6 +1056,24 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // --- MINT Coach Widget: Divorce Film ---
+  Widget _buildMintDivorceSection() {
+    final taxMarried = _result?.taxImpact.estimatedTaxMarried ??
+        (_incomeConjoint1 + _incomeConjoint2) * 0.18;
+    final taxSingle = _result != null
+        ? _result!.taxImpact.estimatedTaxConjoint1 +
+            _result!.taxImpact.estimatedTaxConjoint2
+        : _incomeConjoint1 * 0.20 + _incomeConjoint2 * 0.20;
+    return DivorceFilmWidget(
+      myLpp: _lppConjoint1,
+      partnerLpp: _lppConjoint2,
+      annualTaxMarried: taxMarried,
+      annualTaxSingle: taxSingle,
+      childrenCount: _numberOfChildren,
+      hasAlimony: _numberOfChildren > 0,
     );
   }
 

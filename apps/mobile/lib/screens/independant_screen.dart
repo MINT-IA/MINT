@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/segments_service.dart';
+import 'package:mint_mobile/widgets/coach/ninety_day_plan_widget.dart';
+import 'package:mint_mobile/widgets/coach/true_hourly_rate_widget.dart';
+import 'package:mint_mobile/widgets/coach/lpp_vs_3a_decision_tree.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -116,6 +119,9 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 // Disclaimer
                 _buildDisclaimer(),
                 const SizedBox(height: 16),
+
+                _buildMintIndependantSection(),
+                const SizedBox(height: 20),
 
                 // Sources
                 _buildSourcesFooter(),
@@ -1035,6 +1041,134 @@ class _IndependantScreenState extends State<IndependantScreen> {
             ),
           );
         }),
+      ],
+    );
+  }
+
+  // ── MINT Indépendant section (S42) ────────────────────────
+
+  Widget _buildMintIndependantSection() {
+    final desiredNet = _revenuNet;
+    final taxes = desiredNet * 0.22;
+    final socialCharges = desiredNet * 0.10;
+    final businessExp = desiredNet * 0.15;
+    final unpaidDays = desiredNet * 0.05;
+    final requiredRevenue = desiredNet + taxes + socialCharges + businessExp + unpaidDays;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section title
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            'Analyse MINT — Ton kit indépendant',
+            style: GoogleFonts.montserrat(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: MintColors.textPrimary,
+            ),
+          ),
+        ),
+
+        // LPP vs 3a decision tree
+        LppVs3aDecisionTree(
+          expectedIncome: _revenuNet,
+          lppOption: DecisionOption(
+            title: 'Caisse LPP facultative',
+            emoji: '🏛️',
+            subtitle: 'Protection rente invalidité + retraite',
+            pros: const [
+              'Couverture invalidité incluse',
+              'Cotisations déductibles',
+              'Rente garantie à la retraite',
+            ],
+            cons: const [
+              'Cotisations obligatoires élevées',
+              'Moins flexible',
+            ],
+            annualTaxSavings: _revenuNet * 0.08,
+          ),
+          grand3aOption: DecisionOption(
+            title: 'Grand 3a (sans LPP)',
+            emoji: '🏦',
+            subtitle: '20% du revenu net, max CHF 36\'288/an',
+            pros: const [
+              'Flexibilité totale',
+              'Déduction fiscale maximale',
+              'Capital disponible à 60 ans',
+            ],
+            cons: const [
+              'Pas de couverture invalidité',
+              'Pas de rente garantie',
+            ],
+            annualTaxSavings: (_revenuNet * 0.20).clamp(0, 36288) * 0.25,
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // True hourly rate
+        TrueHourlyRateWidget(
+          desiredNetAnnual: desiredNet,
+          layers: [
+            RateLayer(label: 'Impôts (estimation)', amount: taxes, emoji: '🏛️'),
+            RateLayer(label: 'Charges sociales AVS/AI', amount: socialCharges, emoji: '🛡️'),
+            RateLayer(label: 'Frais professionnels', amount: businessExp, emoji: '💼'),
+            RateLayer(label: 'Jours non facturables', amount: unpaidDays, emoji: '📅'),
+          ],
+          requiredRevenue: requiredRevenue,
+        ),
+        const SizedBox(height: 20),
+
+        // 90-day plan
+        NinetyDayPlanWidget(
+          phases: [
+            PlanPhase(
+              title: 'Administratif urgent',
+              emoji: '📋',
+              deadline: 'J+30',
+              urgencyColor: MintColors.scoreCritique,
+              actions: const [
+                PlanAction(
+                  label: 'Inscription caisse AVS indépendants',
+                  consequence: 'Amendes rétroactives si délai dépassé',
+                  legalRef: 'LAVS art. 12',
+                ),
+                PlanAction(
+                  label: 'Assurance accidents LAA (si pas LPP)',
+                  consequence: 'Pas de couverture accident professionnel',
+                  legalRef: 'LAA art. 4',
+                ),
+              ],
+            ),
+            PlanPhase(
+              title: 'Prévoyance',
+              emoji: '🏦',
+              deadline: 'J+60',
+              urgencyColor: MintColors.scoreAttention,
+              actions: const [
+                PlanAction(
+                  label: 'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)',
+                  legalRef: 'OPP3',
+                ),
+                PlanAction(
+                  label: 'Évaluer IJM (indemnité journalière maladie)',
+                  consequence: 'Perte de revenus dès J+3 en cas de maladie',
+                ),
+              ],
+            ),
+            PlanPhase(
+              title: 'Optimisation fiscale',
+              emoji: '💡',
+              deadline: 'J+90',
+              urgencyColor: MintColors.primary,
+              actions: const [
+                PlanAction(label: 'Frais professionnels déductibles — tenir registre'),
+                PlanAction(label: 'Acomptes impôts cantonaux — éviter les intérêts'),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }

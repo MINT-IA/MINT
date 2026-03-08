@@ -1,3 +1,4 @@
+import 'dart:math' show pow;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,9 @@ import 'package:mint_mobile/services/first_job_service.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
+import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
+import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -986,7 +990,66 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         _buildScenarioChips(),
         const SizedBox(height: 16),
         FirstSalaryFilmWidget(grossMonthly: _salaire),
+        const SizedBox(height: 20),
+        _buildBudget503020(),
+        const SizedBox(height: 20),
+        _buildCareerTimeLapse(),
       ],
+    );
+  }
+
+  Widget _buildBudget503020() {
+    final net = _result?.netEstime ?? _salaire * 0.85;
+    return Budget503020Widget(
+      netSalary: net,
+      categories: [
+        BudgetCategory(
+          label: 'Besoins',
+          emoji: '🏠',
+          percent: 50,
+          amount: net * 0.50,
+          examples: const ['Loyer', 'LAMal', 'Transport', 'Alimentation'],
+        ),
+        BudgetCategory(
+          label: 'Envies',
+          emoji: '✨',
+          percent: 30,
+          amount: net * 0.30,
+          examples: const ['Loisirs', 'Restaurants', 'Voyages', 'Shopping'],
+        ),
+        BudgetCategory(
+          label: 'Épargne & 3a',
+          emoji: '🏦',
+          percent: 20,
+          amount: net * 0.20,
+          examples: const ['Pilier 3a', 'Épargne', 'Fonds d\'urgence'],
+        ),
+      ],
+      chiffreChoc: 'Si tu épargnes ${((net * 0.20) * 12).round() ~/ 1000}\'000 CHF/an '
+          'dès maintenant, tu auras ~${(((net * 0.20) * 12 * 40 * 1.04).round() ~/ 1000)}\'000 CHF à 65 ans.',
+    );
+  }
+
+  Widget _buildCareerTimeLapse() {
+    final monthly3a = pilier3aPlafondAvecLpp / 12;
+    // FV annuity: annual contribution × ((1+r)^n - 1) / r — proper compound interest.
+    double approxCapital(int startAge) {
+      final years = (65 - startAge).clamp(0, 45);
+      if (years == 0) return 0;
+      const r = 0.04;
+      return monthly3a * 12 * ((pow(1 + r, years) - 1) / r);
+    }
+
+    final candidateAges = [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
+    final scenarioAges = candidateAges.isEmpty ? [_age] : candidateAges;
+    final scenarios = scenarioAges
+        .map((a) => TimeLapseScenario(startAge: a, capitalAt65: approxCapital(a)))
+        .toList();
+
+    return CareerTimeLapseWidget(
+      scenarios: scenarios,
+      monthly3aContribution: monthly3a,
+      initialAge: _age,
     );
   }
 
