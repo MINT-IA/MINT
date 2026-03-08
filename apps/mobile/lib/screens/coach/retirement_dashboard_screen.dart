@@ -33,6 +33,10 @@ import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
 import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
+import 'package:mint_mobile/widgets/coach/horizon_line_widget.dart';
+import 'package:mint_mobile/widgets/coach/financial_weather_widget.dart';
+import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:mint_mobile/widgets/coach/progressive_dashboard_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT DASHBOARD SCREEN — P5 / Dashboard Assembly
@@ -456,6 +460,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // ── Trajectory Chart (3-scenario fan chart) ──
+                MintTrajectoryChart(
+                  result: proj,
+                  goalALabel: 'Retraite',
+                ),
+                const SizedBox(height: 16),
+
                 // ── P5: Couple hero card OR single hero ──
                 if (isCouple) ...[
                   _buildCoupleHeroCard(profile, decoBase, proj),
@@ -565,6 +576,39 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     rangeMax: monthlyOptimiste,
                   ),
                 ],
+                const SizedBox(height: 16),
+
+                // ── P1-D : Météo financière ───────────────────────
+                FinancialWeatherWidget(
+                  currentOutlook: monthlyPrudent >= 3000
+                      ? FinancialWeather.sunny
+                      : monthlyPrudent >= 2000
+                          ? FinancialWeather.partlyCloudy
+                          : FinancialWeather.rainy,
+                  scenarios: [
+                    WeatherScenario(
+                      weather: FinancialWeather.sunny,
+                      probabilityPercent: 35,
+                      monthlyIncomeMin: monthlyOptimiste * 0.9,
+                      monthlyIncomeMax: monthlyOptimiste,
+                      description: 'Marchés favorables, épargne maximisée.',
+                    ),
+                    WeatherScenario(
+                      weather: FinancialWeather.partlyCloudy,
+                      probabilityPercent: 45,
+                      monthlyIncomeMin: monthlyPrudent,
+                      monthlyIncomeMax: monthlyOptimiste * 0.9,
+                      description: 'Trajectoire actuelle, quelques ajustements.',
+                    ),
+                    WeatherScenario(
+                      weather: FinancialWeather.rainy,
+                      probabilityPercent: 20,
+                      monthlyIncomeMin: monthlyPrudent * 0.8,
+                      monthlyIncomeMax: monthlyPrudent,
+                      description: 'Chocs de marché ou lacunes AVS/LPP.',
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
 
                 // ── Confidence Blocks Bar (per-category progress) ──
@@ -577,6 +621,51 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 DocumentScanCta(
                   currentConfidence: _confidenceScore,
                   estimatedConfidenceAfterScan: estimatedAfterScan,
+                ),
+                const SizedBox(height: 16),
+
+                // ── Progressive Dashboard (3 niveaux selon confiance) ──
+                ProgressiveDashboardWidget(
+                  confidenceScore: _confidenceScore.round(),
+                  heroMonthlyRente: proj.base.revenuAnnuelRetraite / 12,
+                  metrics: [
+                    DashboardMetric(
+                      label: 'Revenu mensuel',
+                      emoji: '💰',
+                      value: (proj.base.revenuAnnuelRetraite / 12).toStringAsFixed(0),
+                      unit: 'CHF/mois',
+                      minLevel: 1,
+                      color: MintColors.primary,
+                    ),
+                    DashboardMetric(
+                      label: 'Taux de remplacement',
+                      emoji: '📊',
+                      value: (proj.tauxRemplacementBase * 100).toStringAsFixed(0),
+                      unit: '%',
+                      minLevel: 1,
+                      color: MintColors.scoreExcellent,
+                    ),
+                    DashboardMetric(
+                      label: 'Durée retraite estimée',
+                      emoji: '⏳',
+                      value: (85 - profile.effectiveRetirementAge).clamp(0, 40).toStringAsFixed(0),
+                      unit: 'ans',
+                      minLevel: 2,
+                      color: MintColors.info,
+                      note: 'Espérance de vie estimée : 85 ans',
+                    ),
+                    DashboardMetric(
+                      label: 'Écart mensuel',
+                      emoji: '⚡',
+                      value: ((proj.base.revenuAnnuelRetraite / 12) - (profile.salaireBrutMensuel * 0.70)).abs().toStringAsFixed(0),
+                      unit: 'CHF/mois',
+                      minLevel: 3,
+                      color: MintColors.scoreAttention,
+                      note: 'Vs cible 70% du salaire brut',
+                    ),
+                  ],
+                  nextActionLabel: 'Améliorer ta précision',
+                  nextActionDetail: 'Scanne ton certificat LPP pour affiner tes projections.',
                 ),
                 const SizedBox(height: 16),
 
@@ -609,6 +698,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 _buildProfileLink(),
                 const SizedBox(height: 16),
 
+                // ── P7-F : Ligne d'horizon — si tu perdais ton emploi ──
+                if (_profile != null) ...[
+                  HorizonLineWidget(
+                    monthlyBenefit: (_profile!.salaireBrutMensuel * 0.80)
+                        .clamp(0, 12350 / 21.7 * 21.7),
+                    totalDays: _profile!.age >= 55 ? 520 : 400,
+                    daysConsumed: 0,
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildDisclaimer(),

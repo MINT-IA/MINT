@@ -7,6 +7,8 @@ import 'package:mint_mobile/services/segments_service.dart';
 import 'package:mint_mobile/widgets/coach/ninety_day_plan_widget.dart';
 import 'package:mint_mobile/widgets/coach/true_hourly_rate_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_vs_3a_decision_tree.dart';
+import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
+import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -1117,6 +1119,71 @@ class _IndependantScreenState extends State<IndependantScreen> {
             RateLayer(label: 'Jours non facturables', amount: unpaidDays, emoji: '📅'),
           ],
           requiredRevenue: requiredRevenue,
+        ),
+        const SizedBox(height: 20),
+
+        // ── Super-pouvoir fiscal indépendant (déductions) ──
+        FiscalSuperpowerWidget(
+          taxRate: 0.25,
+          superpowers: [
+            FiscalSuperpower(
+              label: 'Pilier 3a grand versement',
+              emoji: '🏦',
+              annualDeduction: 20000,
+              taxSaving: 20000 * 0.25,
+              legalRef: 'OPP3 art. 1',
+              note: 'Max 20% du revenu net, plafonné à CHF 36\'288/an sans LPP',
+            ),
+            FiscalSuperpower(
+              label: 'Frais professionnels effectifs',
+              emoji: '💼',
+              annualDeduction: desiredNet * 0.15,
+              taxSaving: desiredNet * 0.15 * 0.25,
+              legalRef: 'LIFD art. 27 al. 2',
+              note: 'Loyer bureau, matériel, formation — déductibles au réel',
+            ),
+            FiscalSuperpower(
+              label: 'Primes assurance maladie (LPP vol.)',
+              emoji: '🛡️',
+              annualDeduction: 3600,
+              taxSaving: 3600 * 0.25,
+              legalRef: 'LIFD art. 33 al. 1 lit. g',
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // Double prix de la liberté — comparaison charges salarié vs indépendant
+        DoublePriceFreedomWidget(
+          grossIncome: _revenuNet,
+          charges: [
+            ChargeLine(
+              label: 'AVS / AI / APG',
+              employeeAmount: _revenuNet * 0.0530,
+              selfEmployedAmount: _revenuNet * 0.1010,
+              note: 'LAVS art. 8 — indép. paie les 2 parts',
+            ),
+            ChargeLine(
+              label: 'LPP (2e pilier)',
+              employeeAmount: _revenuNet * 0.070,
+              selfEmployedAmount: 0,
+              note: 'Facultatif pour indépendant (LPP art. 4)',
+            ),
+            ChargeLine(
+              label: 'Chômage (AC)',
+              employeeAmount: _revenuNet * 0.011,
+              selfEmployedAmount: 0,
+              note: 'Pas d\'AC pour indépendant (LACI art. 2)',
+            ),
+            ChargeLine(
+              label: 'Cotisations pro (IJM/LAA)',
+              employeeAmount: _revenuNet * 0.020,
+              selfEmployedAmount: _revenuNet * 0.040,
+              note: 'À charge entière de l\'indépendant',
+            ),
+          ],
+          totalEmployee: _revenuNet * (0.0530 + 0.070 + 0.011 + 0.020),
+          totalSelfEmployed: _revenuNet * (0.1010 + 0 + 0 + 0.040),
         ),
         const SizedBox(height: 20),
 

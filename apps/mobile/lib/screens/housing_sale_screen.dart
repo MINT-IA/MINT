@@ -4,6 +4,9 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/housing_sale_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
+import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
+import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -153,6 +156,37 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             ],
             _buildEducationalFooter(),
             const SizedBox(height: 24),
+            // ── P15-A : Les 3 surprises de la vente ──────────
+            SaleSurprisesWidget(
+              salePrice: _prixVente,
+              purchasePrice: _prixAchat,
+              eplWithdrawn: _eplLppUtilise + _epl3aUtilise,
+              holdingYears: 2025 - _anneeAchat,
+              canton: _canton,
+            ),
+            const SizedBox(height: 24),
+            // ── P15-B : Net réel calculateur ─────────────────────
+            if (_result != null) ...[
+              NetProceedsWidget(
+                salePrice: _prixVente,
+                mortgageBalance: _hypothequeRestante,
+                capitalGainTax: _result!.impotEffectif,
+                eplReimbursement:
+                    _result!.remboursementEplLpp + _result!.remboursementEpl3a,
+              ),
+              const SizedBox(height: 24),
+            ],
+
+            // ── P15-C : Chrono du remploi ─────────────────────
+            if (_residencePrincipale) ...[
+              RemploiCountdownWidget(
+                saleDate: DateTime(2025, 1, 1),
+                deferredTax: (_prixVente - _prixAchat - _investissementsValorisants)
+                        .clamp(0, double.infinity) *
+                    0.20,
+              ),
+              const SizedBox(height: 24),
+            ],
             _buildDisclaimer(),
             const SizedBox(height: 40),
           ],

@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
+import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL COMPARATOR SCREEN — Sprint S20 / 26 cantons
@@ -1140,6 +1141,39 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
         // Education
         _buildMoveEducation(),
+        const SizedBox(height: 24),
+
+        // ── P12-B : Le vrai coût du déménagement cantonal ───
+        MovingTrueCostWidget(
+          fromCanton: _cantonDepart,
+          toCanton: _cantonArrivee,
+          movingFees: 3000,
+          items: [
+            MovingCostItem(
+              label: 'Impôts sur le revenu',
+              emoji: '🏛️',
+              monthlyBefore:
+                  (_moveResult?['chargeDepart'] as double? ?? _revenuBrut * 0.20) / 12,
+              monthlyAfter:
+                  (_moveResult?['chargeArrivee'] as double? ?? _revenuBrut * 0.15) / 12,
+              note: 'Estimatif selon taux cantonal',
+            ),
+            MovingCostItem(
+              label: 'Loyer estimé',
+              emoji: '🏠',
+              monthlyBefore: _revenuBrut / 12 * 0.25,
+              monthlyAfter: _revenuBrut / 12 * 0.30,
+              note: 'Varie selon commune et surface',
+            ),
+            MovingCostItem(
+              label: 'Frais de déménagement',
+              emoji: '🚛',
+              monthlyBefore: 0,
+              monthlyAfter: 3000 / 24,
+              note: 'Amorti sur 24 mois',
+            ),
+          ],
+        ),
         const SizedBox(height: 24),
 
         _buildDisclaimer(),

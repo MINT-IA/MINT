@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
+import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -148,6 +149,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             _buildEducationalFooter(),
             const SizedBox(height: 24),
             _buildMintDivorceSection(),
+            const SizedBox(height: 24),
+            // ── P8-B : Prix du silence — concubin vs marié·e ──
+            PrixDuSilenceWidget(
+              patrimoine: _fortuneCommune > 0 ? _fortuneCommune : 200000,
+              marriedTaxRate: 0,
+              concubinTaxRate: 24,
+            ),
             const SizedBox(height: 24),
             _buildDisclaimer(),
             const SizedBox(height: 40),

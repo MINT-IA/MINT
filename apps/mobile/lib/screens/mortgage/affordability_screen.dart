@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 
 /// Ecran de capacite d'achat immobilier.
 ///
@@ -94,6 +95,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
+                const SizedBox(height: 24),
+
+                // ── P3-E : Parcours achat immobilier ────────────
+                const MortgageJourneyWidget(),
                 const SizedBox(height: 12),
 
                 // Source legale

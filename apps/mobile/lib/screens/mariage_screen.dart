@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MARIAGE SCREEN — Sprint S22 / Famille & Concubinage
@@ -657,6 +658,40 @@ class _MariageScreenState extends State<MariageScreen>
 
         // Chiffre choc
         _buildChiffreChocRegime(),
+        const SizedBox(height: 20),
+
+        // ── Couple Narrative Timeline ─────────────────────────
+        CoupleNarrativeTimeline(
+          partner1Name: 'Personne 1',
+          partner2Name: 'Personne 2',
+          coachTip: 'Chaque phase de vie demande d\'adapter votre contrat de mariage et votre prévoyance.',
+          acts: [
+            CoupleAct(
+              number: 1,
+              title: 'Vous travaillez tous les deux',
+              period: '0-10 ans de vie commune',
+              monthlyIncome: (_revenu1 + _revenu2) / 12,
+              insight: 'Phase de construction : 3a, LPP, épargne commune. Profitez des deux revenus.',
+            ),
+            CoupleAct(
+              number: 2,
+              title: 'Phase d\'épargne intensive',
+              period: '10-25 ans',
+              monthlyIncome: (_revenu1 + _revenu2) / 12 * 1.15,
+              deltaPercent: 15,
+              insight: 'Rachat LPP, 3a maximal, préparation retraite. Votre capital double.',
+            ),
+            CoupleAct(
+              number: 3,
+              title: 'Retraite couple',
+              period: '25+ ans',
+              monthlyIncome: (_revenu1 + _revenu2) / 12 * 0.65,
+              deltaPercent: -35,
+              isDip: true,
+              insight: 'Attention : plafond AVS couple (150% rente max). Planifier rente vs capital.',
+            ),
+          ],
+        ),
         const SizedBox(height: 20),
 
         _buildDisclaimer(),

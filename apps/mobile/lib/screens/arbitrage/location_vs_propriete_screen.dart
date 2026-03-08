@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/coach/rent_vs_buy_scoreboard_widget.dart';
 
 /// Location vs Propriete arbitrage screen — compare renting + investing
 /// surplus vs buying property with mortgage.
@@ -219,6 +220,33 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
                   // ── Hypotheses list ──
                   _buildHypothesesSection(),
+                  const SizedBox(height: 20),
+
+                  // ── P3-A : Grand Match Louer vs Acheter ─────────
+                  RentVsBuyScoreboardWidget(
+                    propertyPrice: double.tryParse(
+                            _prixBienCtrl.text.replaceAll("'", '')) ??
+                        800000,
+                    equity: double.tryParse(
+                            _capitalCtrl.text.replaceAll("'", '')) ??
+                        200000,
+                    monthlyRent: double.tryParse(
+                            _loyerCtrl.text.replaceAll("'", '')) ??
+                        2000,
+                    mortgageMonthly: ((double.tryParse(
+                                    _prixBienCtrl.text.replaceAll("'", '')) ??
+                                800000) -
+                            (double.tryParse(
+                                    _capitalCtrl.text.replaceAll("'", '')) ??
+                                200000)) *
+                        0.05 /
+                        12,
+                    years: (_hypotheses['horizon'] ?? 20).round(),
+                    appreciationRate: (_hypotheses['appreciation_immo'] ?? 1.5) /
+                        100,
+                    investmentReturnRate:
+                        (_hypotheses['rendement_marche'] ?? 4.0) / 100,
+                  ),
                   const SizedBox(height: 20),
 
                   // ── Disclaimer ──

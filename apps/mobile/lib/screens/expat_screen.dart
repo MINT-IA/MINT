@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
+import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -672,6 +675,65 @@ class _ExpatScreenState extends State<ExpatScreen>
           'C\'est un avantage majeur pour les expatries.',
         ),
         const SizedBox(height: 20),
+        // ── P13-A : 5 choses que tu perds en partant ───────────
+        ExpatRightsLossWidget(
+          destination: 'l\'étranger',
+          isEuDestination: false,
+          rights: const [
+            ExpatRight(
+              label: 'AVS — cotisation obligatoire',
+              emoji: '🛡️',
+              before: 'Cotisation automatique via employeur',
+              after: 'Lacunes AVS → rente réduite',
+              legalRef: 'LAVS art. 1a',
+              impact:
+                  'Chaque année manquante réduit ta rente AVS de ~2.3%. '
+                  '10 ans = −23% à vie.',
+              isIrreversible: true,
+            ),
+            ExpatRight(
+              label: 'LPP — 2e pilier',
+              emoji: '🏦',
+              before: 'Épargne retraite obligatoire',
+              after: 'Capital bloqué ou retiré sans rendement',
+              legalRef: 'LPP art. 5',
+              impact:
+                  'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt '
+                  'sur le capital retiré. La reconstitution est impossible à l\'étranger.',
+            ),
+            ExpatRight(
+              label: 'Pilier 3a',
+              emoji: '🏛️',
+              before: 'Déductions fiscales annuelles',
+              after: 'Compte bloqué — aucun nouveau versement possible',
+              legalRef: 'OPP3 art. 1',
+              impact:
+                  'Tu perds le droit de verser dans le 3a dès que tu n\'as '
+                  'plus de revenu soumis à l\'AVS suisse.',
+            ),
+            ExpatRight(
+              label: 'LAMal — assurance maladie',
+              emoji: '🏥',
+              before: 'Couverture universelle en Suisse',
+              after: 'Tu dois t\'assurer dans le pays de résidence',
+              legalRef: 'LAMal art. 3',
+              impact:
+                  'La couverture internationale est souvent partielle et '
+                  'coûteuse. Vérifie les conventions bilatérales.',
+            ),
+            ExpatRight(
+              label: 'Chômage AC',
+              emoji: '💼',
+              before: 'Indemnités AC jusqu\'à 520 jours',
+              after: 'Aucun droit AC suisse si tu travailles à l\'étranger',
+              legalRef: 'LACI art. 8',
+              impact:
+                  'Si tu perds ton emploi à l\'étranger, seul le régime '
+                  'local s\'applique — souvent moins généreux.',
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
         _buildDisclaimer(),
       ],
     );
@@ -1192,10 +1254,16 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildAvsRecommendation(),
           const SizedBox(height: 20),
         ],
-        AvsGapWidget(
-          currentContributionYears: _yearsInCh,
-          currentAge: 40,
-        ),
+        Builder(builder: (context) {
+          final provider = context.read<CoachProfileProvider>();
+          final profileAge = (provider.hasProfile && provider.profile!.age > 0)
+              ? provider.profile!.age
+              : 40;
+          return AvsGapWidget(
+            currentContributionYears: _yearsInCh,
+            currentAge: profileAge,
+          );
+        }),
         const SizedBox(height: 20),
         _buildEducationalInsert(
           'Pour toucher une rente AVS complete (max CHF 2\'520/mois), '

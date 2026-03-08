@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/budget/envelope_slider.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -123,6 +124,22 @@ class _BudgetScreenState extends State<BudgetScreen>
                   ),
                   const SizedBox(height: 24),
                 ],
+                _staggeredEntry(
+                  index: 3,
+                  child: BudgetSandwichChart(
+                    incomes: const [
+                      BudgetLineItem(label: 'Salaire net', amount: 5000),
+                    ],
+                    expenses: const [
+                      BudgetLineItem(label: 'Loyer', amount: 1800),
+                      BudgetLineItem(label: 'Alimentation', amount: 600),
+                      BudgetLineItem(label: 'Transport', amount: 300),
+                      BudgetLineItem(label: 'Assurances', amount: 400),
+                      BudgetLineItem(label: 'Divers', amount: 500),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
                 if (plan.emergencyFundMonths > 0 ||
                     widget.inputs.emergencyFundMonths > 0)
                   _staggeredEntry(

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -226,6 +227,51 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               const SizedBox(height: 24),
             ],
             _buildEducationalFooter(),
+            const SizedBox(height: 24),
+            // ── P11-A : Le prix du changement ────────────────────
+            JobChangeComparisonWidget(
+              currentJobLabel: 'Emploi actuel',
+              newJobLabel: 'Emploi envisagé',
+              axes: [
+                JobAxis(
+                  label: 'Salaire brut',
+                  emoji: '💰',
+                  currentValue: _currentSalaireBrut / 12,
+                  newValue: _newSalaireBrut / 12,
+                  unit: 'CHF/mois',
+                ),
+                JobAxis(
+                  label: 'LPP cotisation',
+                  emoji: '🏦',
+                  currentValue: _currentSalaireBrut * 0.18 / 12,
+                  newValue: _newSalaireBrut * 0.18 / 12,
+                  unit: 'CHF/mois',
+                ),
+                JobAxis(
+                  label: 'Distance',
+                  emoji: '🚆',
+                  currentValue: 15,
+                  newValue: 30,
+                  unit: 'km',
+                  higherIsBetter: false,
+                ),
+                JobAxis(
+                  label: 'Vacances',
+                  emoji: '🏖️',
+                  currentValue: 20,
+                  newValue: 25,
+                  unit: 'jours',
+                ),
+                JobAxis(
+                  label: 'Horaire hebdo',
+                  emoji: '⏰',
+                  currentValue: 42,
+                  newValue: 40,
+                  unit: 'h',
+                  higherIsBetter: false,
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
             _buildDisclaimer(),
             const SizedBox(height: 40),

@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show RachatEchelonne
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -203,6 +204,19 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
                 // Comparison cards
                 _buildComparisonSection(result),
+                const SizedBox(height: 24),
+
+                // Simulateur de départ anticipé à la retraite
+                EarlyRetirementSlider(
+                  monthlyIncomeAt65: 4000,
+                  scenarios: const [
+                    RetirementAgeScenario(age: 60, monthlyIncome: 3400, deltaPercent: -15, lifetimeDelta: -18000),
+                    RetirementAgeScenario(age: 62, monthlyIncome: 3600, deltaPercent: -10, lifetimeDelta: -12000),
+                    RetirementAgeScenario(age: 63, monthlyIncome: 3760, deltaPercent: -6, lifetimeDelta: -7200),
+                    RetirementAgeScenario(age: 64, monthlyIncome: 3880, deltaPercent: -3, lifetimeDelta: -3600),
+                    RetirementAgeScenario(age: 65, monthlyIncome: 4000, deltaPercent: 0),
+                  ],
+                ),
                 const SizedBox(height: 24),
 
                 // Waterfall chart

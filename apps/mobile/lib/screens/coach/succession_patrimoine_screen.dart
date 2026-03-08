@@ -12,6 +12,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
+import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
+import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -69,6 +72,25 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
+                // ── P8-A : Testament invisible ───────────────
+                TestamentInvisibleWidget(
+                  patrimoine: 500000,
+                  initialStatus: FamilyStatus.concubin,
+                ),
+                const SizedBox(height: 20),
+
+                // ── P8-E : Avancement d'hoirie ────────────────
+                AvancementHoirieWidget(
+                  totalPatrimoine: 500000,
+                  donationAmount: 50000,
+                  donationRecipientIndex: 0,
+                  children: const [
+                    HoirieChild(name: 'Enfant 1', emoji: '👦'),
+                    HoirieChild(name: 'Enfant 2', emoji: '👧'),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
                 // ── Concepts clés ────────────────────────────
                 EduSectionTitle(text: 'Les notions clés'),
                 const SizedBox(height: 12),
@@ -120,6 +142,52 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   body:
                       'Le capital LPP non converti en rente et le solde 3a ne font PAS partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés. Si tu ne désignes personne, l\'ordre légal s\'applique : conjoint·e marié·e ou partenaire enregistré·e, puis descendants, puis parents. Un·e concubin·e doit être explicitement désigné·e.',
                   color: const Color(0xFFE65100),
+                ),
+                const SizedBox(height: 24),
+
+                // ── P14-A : Guide de première urgence ────────────
+                EduSectionTitle(text: 'En cas de décès d\'un proche'),
+                const SizedBox(height: 12),
+                DeathUrgencyGuideWidget(
+                  phases: [
+                    UrgencyPhase(
+                      timeframe: 'J+1 à J+7',
+                      emoji: '🆘',
+                      title: 'Urgence immédiate',
+                      color: const Color(0xFFE65100),
+                      actions: [
+                        'Déclarer le décès à l\'état civil dans les 2 jours',
+                        'Informer l\'employeur et les assurances (LAMal, LPP)',
+                        'Bloquer les comptes bancaires conjoints si nécessaire',
+                        'Contacter le notaire si la personne avait un testament',
+                      ],
+                    ),
+                    UrgencyPhase(
+                      timeframe: 'J+8 à J+30',
+                      emoji: '📋',
+                      title: 'Démarches administratives',
+                      color: const Color(0xFFF57C00),
+                      actions: [
+                        'Demander les rentes de survivants AVS (LAVS art. 23)',
+                        'Contacter la caisse LPP pour le capital décès',
+                        'Résilier les abonnements et contrats au nom du défunt',
+                        'Faire l\'inventaire des avoirs et dettes',
+                        'Demander les certificats d\'héritiers au notaire',
+                      ],
+                    ),
+                    UrgencyPhase(
+                      timeframe: 'J+31 à J+365',
+                      emoji: '⚖️',
+                      title: 'Succession légale',
+                      color: const Color(0xFF2E7D32),
+                      actions: [
+                        'Ouvrir la procédure de succession avec le notaire',
+                        'Partager les biens selon le testament ou la loi (CC art. 537)',
+                        'Déposer la déclaration fiscale pour l\'année du décès',
+                        'Mettre à jour les bénéficiaires de vos propres contrats',
+                      ],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
 

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
@@ -1106,6 +1107,46 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         BudgetBebeWidget(
           monthlyIncome: _revenuImpact / 12,
           costPerChild: 1200,
+        ),
+        const SizedBox(height: 20),
+
+        // ── P9-A : Coût du bonheur — décomposition mensuelle ──
+        BabyCostWidget(
+          yearsOfDependency: 25,
+          items: const [
+            BabyCostItem(
+              label: 'Crèche / garde',
+              emoji: '🏫',
+              monthlyCost: 1800,
+              note: 'Tarif moyen subventionné — varie fortement selon canton',
+            ),
+            BabyCostItem(
+              label: 'Alimentation',
+              emoji: '🍼',
+              monthlyCost: 250,
+            ),
+            BabyCostItem(
+              label: 'Vêtements & équipement',
+              emoji: '👕',
+              monthlyCost: 150,
+            ),
+            BabyCostItem(
+              label: 'LAMal enfant',
+              emoji: '🏥',
+              monthlyCost: 120,
+              note: 'Prime moyenne enfant — sans franchise jusqu\'à 18 ans',
+            ),
+            BabyCostItem(
+              label: 'Activités & loisirs',
+              emoji: '⚽',
+              monthlyCost: 100,
+            ),
+            BabyCostItem(
+              label: 'Divers (jouets, hygiène…)',
+              emoji: '🎁',
+              monthlyCost: 80,
+            ),
+          ],
         ),
         const SizedBox(height: 20),
 

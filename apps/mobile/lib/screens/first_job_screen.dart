@@ -10,6 +10,8 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
+import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
+import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -111,6 +113,45 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     deductions: _result!.deductionItems,
                   ),
                   const SizedBox(height: 24),
+                  // ── P5-C : Radiographie fiche de paie ──────────
+                  PayslipXRayWidget(
+                    grossSalary: _salaire,
+                    netSalary: _salaire * 0.76,
+                    employerHiddenCost: _salaire * 1.13,
+                    deductions: [
+                      PayslipLine(
+                        label: 'AVS/AI/APG',
+                        emoji: '🛡️',
+                        amount: _salaire * 0.053,
+                        percentage: 5.3,
+                        explanation:
+                            'Cotisation salarié·e : 5.3% du brut. '
+                            'Ton employeur paie aussi 5.3% en plus.',
+                        legalRef: 'LAVS art. 5',
+                      ),
+                      PayslipLine(
+                        label: 'LPP (2e pilier)',
+                        emoji: '🏦',
+                        amount: _salaire * 0.08,
+                        percentage: 8.0,
+                        explanation:
+                            'Épargne vieillesse obligatoire dès 25 ans. '
+                            'Le taux exact dépend de ta caisse et ton âge.',
+                        legalRef: 'LPP art. 16',
+                      ),
+                      PayslipLine(
+                        label: 'Impôt à la source (estimation)',
+                        emoji: '🏛️',
+                        amount: _salaire * 0.09,
+                        percentage: 9.0,
+                        explanation:
+                            'Retenu directement sur le salaire si tu es imposé·e '
+                            'à la source. Le taux varie selon canton, statut et revenu.',
+                        legalRef: 'LIFD art. 83',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
                   _build3aRecommendation(),
                   const SizedBox(height: 24),
                   _build3aWarning(),
@@ -118,6 +159,49 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildLamalComparison(),
                   const SizedBox(height: 24),
                   _buildChecklist(),
+                  const SizedBox(height: 24),
+                  // ── P11-C : Checklist changement de job ────────
+                  JobChangeChecklistWidget(
+                    items: const [
+                      ChecklistItem(
+                        deadline: 'Avant de quitter',
+                        emoji: '📄',
+                        action:
+                            'Demande ton certificat LPP à ton employeur actuel.',
+                        legalRef: 'LPP art. 3 — libre passage',
+                        consequence:
+                            'Sans certificat, tu ne peux pas vérifier que le '
+                            'montant transféré est correct.',
+                      ),
+                      ChecklistItem(
+                        deadline: '30 jours',
+                        emoji: '🏦',
+                        action:
+                            'Vérifie que ton avoir LPP a été transféré à la '
+                            'caisse de ton nouvel employeur.',
+                        legalRef: 'OLP art. 3 — délai de transfert',
+                        consequence:
+                            'Sans transfert, ton capital va à la Fondation '
+                            'supplétive à un taux de 0.05%.',
+                      ),
+                      ChecklistItem(
+                        deadline: '1 mois',
+                        emoji: '🛡️',
+                        action:
+                            'Informe ton assurance-maladie LAMal du changement '
+                            'd\'employeur si tu bénéficiais d\'une couverture collective.',
+                        legalRef: 'LAMal art. 3',
+                      ),
+                      ChecklistItem(
+                        deadline: 'Dès le premier salaire',
+                        emoji: '🏦',
+                        action:
+                            'Continue tes versements au pilier 3a — '
+                            'l\'interruption te coûte des déductions fiscales.',
+                        legalRef: 'OPP3 art. 1',
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),

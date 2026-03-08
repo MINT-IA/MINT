@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/widgets/coach/chiffre_choc_section.dart';
 
 /// Écran "Mon aperçu financier" — vue consolidée de toutes les données
 /// du CoachProfile, organisées par section.
@@ -89,6 +90,21 @@ class FinancialSummaryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildChiffreChocBanner(profile),
+                    ChiffreChocSection(
+                      profile: profile,
+                      narratives: const {
+                        'fiscalite':
+                            'Chaque année sans maximiser ton 3a, c\'est de l\'argent que tu offres à l\'État. '
+                            'Il n\'est pas trop tard pour rattraper.',
+                        'prevoyance':
+                            'Racheter ta lacune LPP, c\'est investir dans ta retraite tout en réduisant tes impôts. '
+                            'Double bénéfice, zéro risque de marché.',
+                        'avs':
+                            'Chaque année manquante dans ton AVS réduit ta rente à vie. '
+                            'Vérifier et combler ces lacunes est l\'une des meilleures décisions que tu puisses prendre.',
+                      },
+                    ),
+                    const SizedBox(height: 8),
                     _buildSourceLegend(),
                     const SizedBox(height: 16),
                     if (profile.isCouple) _buildCoupleToggle(context, profile),

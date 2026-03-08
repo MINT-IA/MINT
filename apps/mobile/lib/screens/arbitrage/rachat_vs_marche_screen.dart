@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
@@ -27,7 +27,8 @@ class RachatVsMarcheScreen extends StatefulWidget {
   State<RachatVsMarcheScreen> createState() => _RachatVsMarcheScreenState();
 }
 
-class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
+class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
+    with ProfileAutoFillMixin {
   // ── Input controllers ──
   final _montantCtrl = TextEditingController(text: '30000');
   double _tauxMarginal = 30.0; // percentage
@@ -42,7 +43,6 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
   };
 
   ArbitrageResult? _result;
-  bool _profileLoaded = false;
 
   @override
   void initState() {
@@ -53,20 +53,13 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_profileLoaded) return;
-    final provider = context.read<CoachProfileProvider>();
-    if (provider.hasProfile) {
-      final p = provider.profile!;
+    autoFillFromProfile(context, (p) {
       final revenu = p.revenuBrutAnnuel;
-      // Approximate marginal tax rate from gross income (simplified bracket).
-      double taux = 30.0;
-      if (revenu > 0) {
-        if (revenu < 60000) taux = 20.0;
-        else if (revenu < 100000) taux = 27.0;
-        else if (revenu < 150000) taux = 33.0;
-        else taux = 38.0;
-      }
       final canton = p.canton.isNotEmpty ? p.canton : 'VD';
+      // Use financial_core TaxCalculator — canton-aware marginal rate.
+      final taux = revenu > 0
+          ? (RetirementTaxCalculator.estimateMarginalRate(revenu, canton) * 100)
+          : 30.0;
       final annees = p.anneesAvantRetraite.clamp(1, 40);
       final isMarried = p.etatCivil == CoachCivilStatus.marie;
       setState(() {
@@ -75,9 +68,8 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
         _anneesAvantRetraite = annees;
         _isMarried = isMarried;
       });
-      _profileLoaded = true;
       _recalculate();
-    }
+    });
   }
 
   @override
