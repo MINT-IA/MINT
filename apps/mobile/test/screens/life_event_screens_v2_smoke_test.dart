@@ -9,6 +9,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
@@ -23,8 +25,11 @@ void main() {
 
   group('MariageScreen', () {
     Widget buildMariageScreen() {
-      return const MaterialApp(
-        home: MariageScreen(),
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
+          home: MariageScreen(),
+        ),
       );
     }
 

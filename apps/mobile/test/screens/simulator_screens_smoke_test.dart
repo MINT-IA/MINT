@@ -48,8 +48,13 @@ void main() {
       if (profile != null) {
         provider.setProfile(profile);
       }
-      return ChangeNotifierProvider<ProfileProvider>.value(
-        value: provider,
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ProfileProvider>.value(value: provider),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+        ],
         child: const MaterialApp(
           home: Simulator3aScreen(),
         ),
