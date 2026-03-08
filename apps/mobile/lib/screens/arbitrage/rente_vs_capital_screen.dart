@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
@@ -19,8 +20,11 @@ import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rente vs Capital arbitrage screen — the "a-ha" moment.
 ///
-/// Redesigned for clarity: hero monthly amounts, life-expectancy slider,
-/// educational before/after cards, impact cards, vulgarized labels.
+/// 4-bloc layout for neophytes:
+///   A. Accroche (chiffre-choc + hero CHF/mois + micro-légendes)
+///   B. Explorer (slider espérance de vie + trajectory chart fused)
+///   C. Comprendre (3 educational before/after cards)
+///   D. Affiner (hypotheses + impact cards + tornado in ExpansionTile)
 ///
 /// NEVER ranks options. Side-by-side comparison only.
 /// All text in French, informal "tu". No banned terms.
@@ -89,37 +93,58 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   void _autoFillFromProfile() {
-    final profile = context.read<CoachProfileProvider>().profile;
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
     if (profile == null) return;
 
-    // If profile has oblig/surob split → certificate mode
-    final obligVal = profile.prevoyance.avoirLppObligatoire;
-    if (obligVal != null && obligVal > 0) {
-      _inputMode = _InputMode.certificate;
-      _capitalObligCtrl.text = obligVal.round().toString();
-      _capitalSurobCtrl.text =
-          (profile.prevoyance.avoirLppSurobligatoire ?? 0).round().toString();
-      final rente =
-          (obligVal * (lppTauxConversionMin / 100)).round();
-      _renteCtrl.text = rente.toString();
-    } else {
-      // Estimate mode
-      _inputMode = _InputMode.estimate;
-      if (profile.age > 0) {
-        _ageCtrl.text = profile.age.toString();
+    final sources = profile.dataSources;
+    bool changed = false;
+    bool hasEstimates = false;
+
+    void apply(TextEditingController ctrl, String? value, String field) {
+      if (value != null && value.isNotEmpty) {
+        ctrl.text = value;
+        changed = true;
+        final src = sources[field];
+        if (src != null && src != ProfileDataSource.certificate) {
+          hasEstimates = true;
+        }
       }
-      if (profile.revenuBrutAnnuel > 0) {
-        _salaryCtrl.text = profile.revenuBrutAnnuel.round().toString();
-      }
-      final lppTotal = profile.prevoyance.avoirLppTotal ?? 350000;
-      _lppTotalCtrl.text = lppTotal.round().toString();
-      _ageRetraiteSlider.value = profile.effectiveRetirementAge.toDouble();
-      _hasEstimatedValues = true;
     }
-    if (profile.canton.isNotEmpty) _canton = profile.canton;
-    _isMarried = profile.etatCivil == CoachCivilStatus.marie;
-    _dataSources = profile.dataSources;
-    _recalculate();
+
+    // Age from birth year
+    final currentYear = DateTime.now().year;
+    final age = currentYear - profile.birthYear;
+    apply(_ageCtrl, age.toString(), 'age');
+
+    // Gross annual salary
+    final salaryAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
+    if (salaryAnnuel > 0) {
+      apply(_salaryCtrl, salaryAnnuel.round().toString(), 'salaire_brut');
+    }
+
+    // LPP balance
+    final lpp = profile.prevoyance.avoirLppTotal;
+    if (lpp != null && lpp > 0) {
+      apply(_lppTotalCtrl, lpp.round().toString(), 'prevoyance.avoirLppTotal');
+    }
+
+    // Canton
+    final canton = profile.canton;
+    if (cantonFullNames.containsKey(canton)) {
+      _canton = canton;
+      changed = true;
+    }
+
+    // Married
+    final married = profile.etatCivil == CoachCivilStatus.marie;
+    _isMarried = married;
+
+    if (changed) {
+      _dataSources = Map.from(sources);
+      _hasEstimatedValues = hasEstimates;
+      _recalculate();
+    }
   }
 
   @override
@@ -137,31 +162,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   /// Compute estimate-mode inputs from the LPP total entered by the user.
-  ///
-  /// Uses a 60/40 mandatory/surobligatoire split (typical for a 50-year-old
-  /// Swiss salarié·e) and a 6.5% blended conversion rate (slightly below the
-  /// 6.8% legal minimum to reflect real-world caisse rates).
-  ({
-    double capitalOblig,
-    double capitalSurob,
-    double renteAnnuelle,
-    double tcOblig,
-    double tcSurob,
-  }) _estimateInputs() {
-    final lppTotal =
-        double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
-    final capitalOblig = lppTotal * 0.60;
-    final capitalSurob = lppTotal * 0.40;
-    final renteAnnuelle = lppTotal * 0.065;
-    return (
-      capitalOblig: capitalOblig,
-      capitalSurob: capitalSurob,
-      renteAnnuelle: renteAnnuelle,
-      tcOblig: lppTauxConversionMin / 100,
-      tcSurob: 0.05,
-    );
-  }
-
   void _recalculate() {
     _recalculateAsync();
   }
@@ -176,13 +176,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     double? salary;
 
     if (_inputMode == _InputMode.estimate) {
-      // Estimate mode: derive inputs from LPP total via _estimateInputs()
-      final est = _estimateInputs();
-      capitalOblig = est.capitalOblig;
-      capitalSurob = est.capitalSurob;
-      renteAnnuelle = est.renteAnnuelle;
-      tcOblig = est.tcOblig;
-      tcSurob = est.tcSurob;
+      // Estimate mode: use LPP total with 70/30 split as starting point
+      final lppTotal =
+          double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
+      capitalOblig = lppTotal * 0.7;
+      capitalSurob = lppTotal * 0.3;
+      tcOblig = lppTauxConversionMin / 100;
+      tcSurob = 0.05;
+      renteAnnuelle = capitalOblig * tcOblig;
       currentAge = int.tryParse(_ageCtrl.text);
       salary = double.tryParse(_salaryCtrl.text.replaceAll("'", ''));
     } else {
@@ -200,10 +201,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     }
 
     final capitalTotal = capitalOblig + capitalSurob;
+    final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
 
     setState(() => _isLoading = true);
     try {
-      final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
       final result = await ApiService.compareRenteVsCapital(
         capitalLppTotal: capitalTotal,
         capitalObligatoire: capitalOblig,
@@ -223,7 +224,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       setState(() => _result = result);
       return;
     } catch (_) {
-      final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
       final fallback = ArbitrageEngine.compareRenteVsCapital(
         capitalLppTotal: capitalTotal,
         capitalObligatoire: capitalOblig,
@@ -279,6 +279,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     }).toList();
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  //  BUILD — 4 BLOCS
+  // ═══════════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     final chartOptions = _result == null
@@ -288,7 +292,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // ── 1. SliverAppBar ──
+          // ── SliverAppBar ──
           SliverAppBar(
             expandedHeight: 100,
             pinned: true,
@@ -320,11 +324,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── 2. Hero intro ──
+                // ── Hero intro (why this matters) ──
                 _buildHeroIntro(),
                 const SizedBox(height: 20),
 
-                // ── 3. Inputs (2 modes) ──
+                // ── Inputs (2 modes) ──
                 _buildInputSection(),
                 const SizedBox(height: 24),
 
@@ -348,109 +352,37 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       ),
                     ),
 
-                  // ── 4. Hero CHF/mois (Monzo moment) ──
+                  // ══════════════════════════════════════════════
+                  //  BLOC A — ACCROCHE
+                  //  Chiffre-choc + Hero CHF/mois + micro-légendes
+                  // ══════════════════════════════════════════════
+                  _buildChiffreChocAccroche(),
+                  const SizedBox(height: 16),
                   _buildHeroMonthly(),
-                  const SizedBox(height: 20),
-
-                  // ── 5. Life expectancy slider ──
-                  _buildLifeExpectancySlider(),
                   const SizedBox(height: 24),
 
-                  // ── 6. Trajectory chart ──
-                  Text(
-                    'Combien il te reste a chaque age',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'En francs d\'aujourd\'hui (pouvoir d\'achat reel). '
-                    'Touche le graphique pour voir les details.',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TrajectoryComparisonChart(
-                    options: chartOptions,
-                    breakevenYear: _result!.breakevenYear,
-                    selectedAxisLabel: 'Age',
-                  ),
+                  // ══════════════════════════════════════════════
+                  //  BLOC B — EXPLORER
+                  //  Slider espérance + chart trajectoire (fused)
+                  // ══════════════════════════════════════════════
+                  _buildExplorerBloc(chartOptions),
                   const SizedBox(height: 24),
 
-                  // ── 7. Three educational before/after cards ──
+                  // ══════════════════════════════════════════════
+                  //  BLOC C — COMPRENDRE
+                  //  3 cartes éducatives (fiscalité, inflation, transmission)
+                  // ══════════════════════════════════════════════
                   _buildEducationalCards(),
                   const SizedBox(height: 24),
 
-                  // ── 8. Hypothesis sliders (vulgarized labels) ──
-                  HypothesisEditorWidget(
-                    hypotheses: const [
-                      HypothesisConfig(
-                        key: 'rendement',
-                        label: 'Ce que ton capital rapporte par an',
-                        min: 0,
-                        max: 8,
-                        divisions: 16,
-                        defaultValue: 3,
-                      ),
-                      HypothesisConfig(
-                        key: 'swr',
-                        label: 'Combien tu retires chaque annee',
-                        min: 2,
-                        max: 6,
-                        divisions: 8,
-                        defaultValue: 4,
-                      ),
-                      HypothesisConfig(
-                        key: 'inflation',
-                        label: 'Inflation',
-                        min: 0,
-                        max: 4,
-                        divisions: 8,
-                        defaultValue: 2,
-                      ),
-                    ],
-                    values: _hypotheses,
-                    onChanged: (updated) {
-                      _hypotheses = updated;
-                      _recalculate();
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ── 9. Impact cards (simplified sensitivity) ──
-                  _buildImpactCards(),
-                  const SizedBox(height: 16),
-
-                  // ── 10. Tornado in ExpansionTile ──
-                  ExpansionTile(
-                    tilePadding: EdgeInsets.zero,
-                    childrenPadding: const EdgeInsets.only(bottom: 8),
-                    title: Text(
-                      'Voir le diagramme de sensibilite',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
-                    children: [ArbitrageTornadoSection(result: _result!)],
-                  ),
+                  // ══════════════════════════════════════════════
+                  //  BLOC D — AFFINER
+                  //  Hypothèses + impact cards + tornado (ExpansionTile)
+                  // ══════════════════════════════════════════════
+                  _buildAffinerBloc(),
                   const SizedBox(height: 20),
 
-                  // ── 11. Chiffre choc ──
-                  _buildChiffreChocCard(),
-                  const SizedBox(height: 20),
-
-                  // ── 12. Hypotheses detaillees ──
-                  _buildHypothesesSection(),
-                  const SizedBox(height: 20),
-
-                  // ── 13. Disclaimer ──
+                  // ── Disclaimer ──
                   _buildDisclaimerCard(),
                   const SizedBox(height: 32),
                 ],
@@ -463,7 +395,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  2. HERO INTRO
+  //  HERO INTRO — pourquoi tu devrais t'en soucier
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHeroIntro() {
@@ -477,38 +409,33 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.lightbulb_outline, size: 20, color: MintColors.info),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'A la retraite, tu choisis une fois pour toutes : '
-                  'un revenu a vie (rente) ou ton capital en main (liberte).',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: MintColors.textPrimary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            'A la retraite, tu choisis une fois pour toutes : '
+            'un revenu a vie ou ton capital en main.',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.textPrimary,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _introPuce(
             'Rente',
-            'Un montant fixe chaque mois, verse a vie — '
-                'meme si tu vis jusqu\'a 100 ans.',
+            'Ta caisse de pension te verse un montant fixe chaque mois, '
+                'tant que tu vis — meme si tu atteins 100 ans. '
+                'En echange, tu ne recuperes jamais ton capital.',
           ),
           _introPuce(
             'Capital',
-            'Tu recuperes tout ton avoir LPP. Liberte totale, '
-                'mais le risque de manquer est reel.',
+            'Tu recuperes tout ton avoir LPP d\'un coup. Tu le places, '
+                'tu retires ce dont tu as besoin chaque mois. '
+                'Liberte totale, mais le risque de manquer est reel.',
           ),
           _introPuce(
             'Mixte',
-            'La partie obligatoire en rente (6.8 %) + '
-                'le surobligatoire en capital. Un compromis.',
+            'La partie obligatoire en rente (taux 6.8 %) + '
+                'le surobligatoire en capital. Un compromis entre '
+                'securite et flexibilite.',
           ),
         ],
       ),
@@ -526,8 +453,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(width: 28),
-              Text('•  ', style: TextStyle(color: MintColors.info)),
+              Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
               Text(
                 term,
                 style: GoogleFonts.inter(
@@ -589,7 +515,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  3. INPUTS — 2 modes via SegmentedButton
+  //  INPUTS — 2 modes via SegmentedButton
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
@@ -667,8 +593,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Capital estime a ${_ageRetraite} ans : '
-                      '~${_formatChf(_result!.capitalProjecte)}',
+                      'Capital estime a $_ageRetraite ans : '
+                      '~${formatChf(_result!.capitalProjecte)}',
                       style: GoogleFonts.inter(
                         fontSize: 13, fontWeight: FontWeight.w600,
                         color: MintColors.textPrimary,
@@ -676,7 +602,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Rente estimee : ~${_formatChf(_result!.renteNetMensuelle * 12)}/an',
+                      'Rente estimee : ~${formatChf(_result!.renteNetMensuelle * 12)}/an',
                       style: GoogleFonts.inter(
                         fontSize: 12, color: MintColors.textSecondary,
                       ),
@@ -906,9 +832,63 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  4. HERO CHF/MOIS (the Monzo moment)
+  //  BLOC A — ACCROCHE
   // ═══════════════════════════════════════════════════════════════
 
+  /// Chiffre-choc en haut — pourquoi cette decision compte.
+  Widget _buildChiffreChocAccroche() {
+    final r = _result!;
+    // Build a punchy one-liner from the engine's chiffreChoc
+    final taxDelta = (r.impotCumulRente - r.impotRetraitCapital).abs();
+    final epuiseAge = r.capitalEpuiseAge;
+
+    // Dynamic accroche that adapts to the user's numbers
+    String accroche;
+    if (taxDelta > 50000 && epuiseAge != null) {
+      accroche = 'Cette decision peut te couter '
+          '${formatChf(taxDelta)} d\'impots en trop — '
+          'ou te laisser sans rien a $epuiseAge ans. '
+          'Tu ne peux la prendre qu\'une seule fois.';
+    } else if (taxDelta > 50000) {
+      accroche = 'Cette decision peut changer '
+          '${formatChf(taxDelta)} d\'impots sur ta retraite. '
+          'Tu ne peux la prendre qu\'une seule fois.';
+    } else if (epuiseAge != null) {
+      accroche = 'Avec le capital, tu pourrais manquer d\'argent '
+          'des $epuiseAge ans. Avec la rente, tu recois '
+          'un montant fixe a vie. Tu ne peux choisir qu\'une fois.';
+    } else {
+      accroche = r.chiffreChoc;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: MintColors.info.withAlpha(12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.info.withAlpha(30)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              accroche,
+              style: GoogleFonts.inter(
+                fontSize: 14, fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary, height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Hero CHF/mois — side-by-side with micro-légendes.
   Widget _buildHeroMonthly() {
     final r = _result!;
     final renteMois = r.renteNetMensuelle;
@@ -917,12 +897,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final capitalDuration = r.capitalEpuiseAge != null
         ? '~${r.capitalEpuiseAge! - _ageRetraite} ans'
         : '30+ ans';
+    final swr = (_hypotheses['swr'] ?? 4.0);
+    final rendement = (_hypotheses['rendement'] ?? 3.0);
 
     final higherIsCapital = capitalMois > renteMois;
     final synthese = higherIsCapital
-        ? 'Le capital te donne ${_formatChf(delta)}/mois de plus, '
+        ? 'Le capital te donne ${formatChf(delta)}/mois de plus, '
             'mais pourrait s\'epuiser.'
-        : 'La rente te donne ${_formatChf(delta)}/mois de plus, '
+        : 'La rente te donne ${formatChf(delta)}/mois de plus, '
             'et ne s\'arrete jamais.';
 
     return Container(
@@ -941,8 +923,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       child: Column(
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Rente column
+              // ── Rente column ──
               Expanded(
                 child: Column(
                   children: [
@@ -953,7 +936,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     )),
                     const SizedBox(height: 6),
                     Text(
-                      _formatChf(renteMois),
+                      formatChf(renteMois),
                       style: GoogleFonts.montserrat(
                         fontSize: 26, fontWeight: FontWeight.w800,
                         color: MintColors.textPrimary,
@@ -974,15 +957,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         color: MintColors.retirementAvs,
                       )),
                     ),
+                    const SizedBox(height: 8),
+                    // ── Micro-légende ──
+                    Text(
+                      'Ta caisse te verse ce montant chaque mois, tant que tu vis.',
+                      style: GoogleFonts.inter(
+                        fontSize: 10, color: MintColors.textMuted, height: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
               // Divider
-              Container(
-                width: 1, height: 80,
-                color: MintColors.lightBorder,
-              ),
-              // Capital column
+              Container(width: 1, height: 100, color: MintColors.lightBorder),
+              // ── Capital column ──
               Expanded(
                 child: Column(
                   children: [
@@ -993,7 +982,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     )),
                     const SizedBox(height: 6),
                     Text(
-                      _formatChf(capitalMois),
+                      formatChf(capitalMois),
                       style: GoogleFonts.montserrat(
                         fontSize: 26, fontWeight: FontWeight.w800,
                         color: MintColors.textPrimary,
@@ -1013,6 +1002,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         fontSize: 11, fontWeight: FontWeight.w600,
                         color: MintColors.retirementLpp,
                       )),
+                    ),
+                    const SizedBox(height: 8),
+                    // ── Micro-légende ──
+                    Text(
+                      'Tu retires ${swr.toStringAsFixed(0)} % par an '
+                      'd\'un capital place a ${rendement.toStringAsFixed(0)} %.',
+                      style: GoogleFonts.inter(
+                        fontSize: 10, color: MintColors.textMuted, height: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -1042,20 +1041,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  5. LIFE EXPECTANCY SLIDER ("Et si je vis jusqu'a...")
+  //  BLOC B — EXPLORER (slider + chart fused)
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildLifeExpectancySlider() {
+  Widget _buildExplorerBloc(List<TrajectoireOption> chartOptions) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: MintColors.lightBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Slider: "Et si je vis jusqu'a..." ──
           Text(
             'Et si je vis jusqu\'a...',
             style: GoogleFonts.montserrat(
@@ -1077,19 +1077,46 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             child: Slider(
               value: _lifeExpectancy,
-              min: 70, max: 95, divisions: 25,
+              min: 70, max: 100, divisions: 30,
               label: '${_lifeExpectancy.round()} ans',
-              onChanged: (v) => setState(() => _lifeExpectancy = v),
+              onChanged: (v) {
+                setState(() => _lifeExpectancy = v);
+                _recalculate();
+              },
             ),
           ),
-          // Delta display
           _buildDeltaAtAge(_lifeExpectancy.round()),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
-            'Esperance de vie suisse : hommes 84 ans · femmes 87 ans',
+            'Esperance de vie suisse : hommes 84 ans \u00b7 femmes 87 ans',
             style: GoogleFonts.inter(
               fontSize: 11, color: MintColors.textMuted,
             ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Chart: "Combien il te reste a chaque age" ──
+          Text(
+            'Combien il te reste a chaque age',
+            style: GoogleFonts.montserrat(
+              fontSize: 15, fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'En francs d\'aujourd\'hui (pouvoir d\'achat reel). '
+            'Touche le graphique pour voir les details.',
+            style: GoogleFonts.inter(
+              fontSize: 12, color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TrajectoryComparisonChart(
+            options: chartOptions,
+            breakevenYear: _result!.breakevenYear,
+            selectedAxisLabel: 'Age',
           ),
         ],
       ),
@@ -1110,6 +1137,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     if (yearIndex >= renteOption.trajectory.length ||
         yearIndex >= capitalOption.trajectory.length) {
+      // Should not happen now that horizon is dynamic, but safety fallback
       return Text(
         'A $age ans : au-dela de l\'horizon de simulation.',
         style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
@@ -1146,7 +1174,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ),
                 ),
                 TextSpan(
-                  text: '$winner = +${_formatChf(delta.abs())} ',
+                  text: '$winner = +${formatChf(delta.abs())} ',
                   style: GoogleFonts.inter(
                     fontSize: 13, fontWeight: FontWeight.w700,
                     color: winnerColor,
@@ -1167,7 +1195,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  7. THREE EDUCATIONAL BEFORE/AFTER CARDS
+  //  BLOC C — COMPRENDRE (3 educational before/after cards)
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildEducationalCards() {
@@ -1178,7 +1206,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ce que ca veut dire pour toi',
+          'Ce que ca change concretement',
           style: GoogleFonts.montserrat(
             fontSize: 16, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -1193,17 +1221,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           title: 'Fiscalite',
           leftTitle: 'Rente',
           leftSubtitle: 'Imposee chaque annee',
-          leftValue: '~${_formatChf(r.impotCumulRente)}',
+          leftValue: '~${formatChf(r.impotCumulRente)}',
           leftDetail: 'sur 30 ans',
           rightTitle: 'Capital',
           rightSubtitle: 'Taxe une seule fois',
-          rightValue: '~${_formatChf(r.impotRetraitCapital)}',
-          rightDetail: 'au retrait',
+          rightValue: '~${formatChf(r.impotRetraitCapital)}',
+          rightDetail: 'au retrait (LIFD art. 38)',
           bottomText: r.impotCumulRente > r.impotRetraitCapital
               ? 'Sur 30 ans, le capital te fait economiser '
-                '~${_formatChf(r.impotCumulRente - r.impotRetraitCapital)} d\'impots.'
+                '~${formatChf(r.impotCumulRente - r.impotRetraitCapital)} d\'impots.'
               : 'Sur 30 ans, la rente genere '
-                '~${_formatChf(r.impotRetraitCapital - r.impotCumulRente)} d\'impots en moins.',
+                '~${formatChf(r.impotRetraitCapital - r.impotCumulRente)} d\'impots en moins.',
         ),
         const SizedBox(height: 12),
 
@@ -1214,11 +1242,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           title: 'Inflation',
           leftTitle: 'Aujourd\'hui',
           leftSubtitle: '',
-          leftValue: '${_formatChf(r.renteNetMensuelle)}',
+          leftValue: '${formatChf(r.renteNetMensuelle)}',
           leftDetail: '/mois',
           rightTitle: 'Dans 20 ans',
           rightSubtitle: 'pouvoir d\'achat',
-          rightValue: '${_formatChf(r.renteReelleAn20 / 12)}',
+          rightValue: '${formatChf(r.renteReelleAn20 / 12)}',
           rightDetail: '/mois',
           bottomText: 'Ta rente LPP n\'est pas indexee. '
               'Elle achete ${((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()} % '
@@ -1234,7 +1262,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           leftTitle: 'Rente',
           leftSubtitle: _isMarried ? 'Ton conjoint recoit' : 'A ton deces',
           leftValue: _isMarried
-              ? '60 % = ${_formatChf(r.renteSurvivant / 12)}/mois'
+              ? '60 % = ${formatChf(r.renteSurvivant / 12)}/mois'
               : 'Rien',
           leftDetail: _isMarried ? 'LPP art. 19' : 'pour tes heritiers',
           rightTitle: 'Capital',
@@ -1242,7 +1270,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           rightValue: '100 %',
           rightDetail: 'du solde restant',
           bottomText: _isMarried
-              ? 'Avec la rente, seul·e ton conjoint·e recoit 60 %. '
+              ? 'Avec la rente, seul\u00b7e ton conjoint\u00b7e recoit 60 %. '
                 'Rien pour les enfants.'
               : 'Avec la rente, rien ne revient a tes proches.',
         ),
@@ -1367,7 +1395,83 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  9. IMPACT CARDS (simplified sensitivity)
+  //  BLOC D — AFFINER (hypothèses + impact cards + tornado)
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildAffinerBloc() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Affiner ta simulation',
+          style: GoogleFonts.montserrat(
+            fontSize: 16, fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Pour ceux qui veulent creuser.',
+          style: GoogleFonts.inter(
+            fontSize: 12, color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // ── Hypothesis sliders (vulgarized labels) ──
+        HypothesisEditorWidget(
+          hypotheses: const [
+            HypothesisConfig(
+              key: 'rendement',
+              label: 'Ce que ton capital rapporte par an',
+              min: 0, max: 8, divisions: 16, defaultValue: 3,
+            ),
+            HypothesisConfig(
+              key: 'swr',
+              label: 'Combien tu retires chaque annee',
+              min: 2, max: 6, divisions: 8, defaultValue: 4,
+            ),
+            HypothesisConfig(
+              key: 'inflation',
+              label: 'Inflation',
+              min: 0, max: 4, divisions: 8, defaultValue: 2,
+            ),
+          ],
+          values: _hypotheses,
+          onChanged: (updated) {
+            _hypotheses = updated;
+            _recalculate();
+          },
+        ),
+        const SizedBox(height: 20),
+
+        // ── Impact cards (simplified sensitivity) ──
+        _buildImpactCards(),
+        const SizedBox(height: 12),
+
+        // ── Tornado in ExpansionTile ──
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: const EdgeInsets.only(bottom: 8),
+          title: Text(
+            'Voir le diagramme de sensibilite',
+            style: GoogleFonts.inter(
+              fontSize: 13, fontWeight: FontWeight.w500,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          children: [ArbitrageTornadoSection(result: _result!)],
+        ),
+        const SizedBox(height: 16),
+
+        // ── Hypotheses detaillees ──
+        _buildHypothesesSection(),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  IMPACT CARDS (simplified sensitivity)
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildImpactCards() {
@@ -1384,7 +1488,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         Text(
           'Qu\'est-ce qui change le plus le resultat ?',
           style: GoogleFonts.montserrat(
-            fontSize: 16, fontWeight: FontWeight.w700,
+            fontSize: 15, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
           ),
         ),
@@ -1513,61 +1617,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  11. CHIFFRE CHOC CARD
-  // ═══════════════════════════════════════════════════════════════
-
-  Widget _buildChiffreChocCard() {
-    if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.info.withAlpha(15),
-            blurRadius: 30, offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 44, height: 44,
-            decoration: BoxDecoration(
-              color: MintColors.info.withAlpha(25),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.insights_rounded, color: MintColors.info, size: 24,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _result!.chiffreChoc,
-            style: GoogleFonts.inter(
-              fontSize: 14, fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary, height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _result!.displaySummary,
-            style: GoogleFonts.inter(
-              fontSize: 12, color: MintColors.textSecondary, height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  //  12. HYPOTHESES EXPANDABLE
+  //  HYPOTHESES EXPANDABLE
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHypothesesSection() {
@@ -1604,7 +1654,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  13. DISCLAIMER CARD
+  //  DISCLAIMER CARD
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildDisclaimerCard() {
@@ -1655,17 +1705,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     color: MintColors.textSecondary,
   );
 
-  static String _formatChf(double value) {
-    final intVal = value.round().abs();
-    final str = intVal.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write("'");
-      buffer.write(str[i]);
-    }
-    return '${value < 0 ? '-' : ''}${buffer.toString()}';
-  }
-
   static String _formatDelta(double delta) {
     final abs = delta.abs();
     String formatted;
@@ -1674,7 +1713,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     } else if (abs >= 10000) {
       formatted = '${(abs / 1000).round()}k';
     } else {
-      formatted = _formatChf(abs);
+      formatted = formatChf(abs);
     }
     return '${delta >= 0 ? '+' : '-'}$formatted';
   }

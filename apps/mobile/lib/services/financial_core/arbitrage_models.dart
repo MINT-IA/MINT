@@ -5,6 +5,8 @@
 /// Used by ArbitrageEngine and displayed by arbitrage screens.
 library;
 
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
+
 /// A single year snapshot in a trajectory projection.
 class YearlySnapshot {
   final int year;
@@ -259,16 +261,7 @@ String? _metricSuffix(String raw) {
 
 String _formatPercent(double value) => '${(value * 100).toStringAsFixed(1)}%';
 String _formatAge(double value) => '${value.round()} ans';
-String _formatChf(double value) {
-  final intVal = value.round().abs();
-  final str = intVal.toString();
-  final buffer = StringBuffer();
-  for (int i = 0; i < str.length; i++) {
-    if (i > 0 && (str.length - i) % 3 == 0) buffer.write("'");
-    buffer.write(str[i]);
-  }
-  return 'CHF ${value < 0 ? '-' : ''}${buffer.toString()}';
-}
+String _formatChf(double value) => chf.formatChfWithPrefix(value);
 
 const Map<String, _TornadoMeta> _tornadoMetadata = {
   'rendement_capital': _TornadoMeta(
