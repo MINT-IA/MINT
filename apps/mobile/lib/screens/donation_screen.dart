@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
@@ -123,7 +124,7 @@ class _DonationScreenState extends State<DonationScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Donation — Simulateur'),
+        title: Text(S.of(context)!.donationAppBarTitle),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -193,7 +194,7 @@ class _DonationScreenState extends State<DonationScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Simuler une donation',
+                  S.of(context)!.donationHeaderTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -202,7 +203,7 @@ class _DonationScreenState extends State<DonationScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Fiscalité, réserve héréditaire, impact',
+                  S.of(context)!.donationHeaderSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -235,11 +236,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les donations en Suisse sont soumises à un impôt cantonal '
-              'qui varie selon le lien de parenté et le canton. Depuis '
-              '2023, la réserve héréditaire a été réduite, te donnant plus '
-              'de liberté. Cet outil t\'aide à estimer l\'impôt et à '
-              'vérifier la compatibilité avec les droits des héritiers.',
+              S.of(context)!.donationIntroText,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -255,14 +252,14 @@ class _DonationScreenState extends State<DonationScreen> {
   // ── Section: Donation ──
   Widget _buildDonationSection() {
     return SimulatorCard(
-      title: 'DONATION',
-      subtitle: 'Montant, bénéficiaire, type',
+      title: S.of(context)!.donationSectionTitle,
+      subtitle: S.of(context)!.donationSectionSubtitle,
       icon: Icons.card_giftcard,
       accentColor: Colors.indigo.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Montant de la donation',
+            label: S.of(context)!.donationMontantLabel,
             value: _montant,
             min: 10000,
             max: 2000000,
@@ -279,7 +276,7 @@ class _DonationScreenState extends State<DonationScreen> {
           if (_typeDonation == 'immobilier') ...[
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Valeur immobilière',
+              label: S.of(context)!.donationValeurImmobiliere,
               value: _valeurImmobiliere,
               min: 100000,
               max: 3000000,
@@ -290,7 +287,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ],
           const SizedBox(height: 16),
           _buildSwitch(
-            label: 'Avancement d\'hoirie',
+            label: S.of(context)!.donationAvancementHoirie,
             value: _avancementHoirie,
             onChanged: (v) => setState(() => _avancementHoirie = v),
           ),
@@ -302,14 +299,14 @@ class _DonationScreenState extends State<DonationScreen> {
   // ── Section: Succession Context ──
   Widget _buildSuccessionContextSection() {
     return SimulatorCard(
-      title: 'CONTEXTE SUCCESSORAL',
-      subtitle: 'Famille, fortune, régime matrimonial',
+      title: S.of(context)!.donationContexteSuccessoral,
+      subtitle: S.of(context)!.donationContexteSubtitle,
       icon: Icons.family_restroom,
       accentColor: Colors.indigo.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Âge du donateur',
+            label: S.of(context)!.donationAgeLabel,
             value: _donateurAge.toDouble(),
             min: 18,
             max: 95,
@@ -319,7 +316,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Nombre d\'enfants',
+            label: S.of(context)!.donationNbEnfants,
             value: _nbEnfants.toDouble(),
             min: 0,
             max: 6,
@@ -329,7 +326,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Fortune totale du donateur',
+            label: S.of(context)!.donationFortuneTotale,
             value: _fortuneTotaleDonateur,
             min: 0,
             max: 5000000,
@@ -351,7 +348,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Lien de parenté',
+          S.of(context)!.donationLienParente,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -404,7 +401,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Type de donation',
+          S.of(context)!.donationTypeDonation,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -459,7 +456,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Régime matrimonial',
+          S.of(context)!.donationRegimeMatrimonial,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -514,7 +511,7 @@ class _DonationScreenState extends State<DonationScreen> {
         onPressed: _simulate,
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
-          'Calculer',
+          S.of(context)!.donationCalculer,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -550,7 +547,7 @@ class _DonationScreenState extends State<DonationScreen> {
       child: Column(
         children: [
           Text(
-            'IMPÔT SUR LA DONATION',
+            S.of(context)!.donationImpotTitle,
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -560,7 +557,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            hasTax ? _chfFmt(r.impotDonation) : 'Exonérée',
+            hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
             style: GoogleFonts.outfit(
               fontSize: 36,
               fontWeight: FontWeight.w700,
@@ -570,8 +567,10 @@ class _DonationScreenState extends State<DonationScreen> {
           if (hasTax) ...[
             const SizedBox(height: 4),
             Text(
-              'Taux : ${(r.tauxImposition * 100).toStringAsFixed(0)}% '
-              '(canton $_canton)',
+              S.of(context)!.donationTauxCanton(
+                (r.tauxImposition * 100).toStringAsFixed(0),
+                _canton,
+              ),
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: MintColors.textSecondary,
@@ -580,12 +579,12 @@ class _DonationScreenState extends State<DonationScreen> {
           ],
           const SizedBox(height: 16),
           _buildResultRow(
-            'Montant de la donation',
+            S.of(context)!.donationMontantRow,
             _chfFmt(r.montantDonation),
           ),
           const SizedBox(height: 4),
           _buildResultRow(
-            'Lien de parenté',
+            S.of(context)!.donationLienRow,
             DonationService.lienParenteLabels[_lienParente] ?? _lienParente,
           ),
         ],
@@ -612,7 +611,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
-                'RÉSERVE HÉRÉDITAIRE (2023)',
+                S.of(context)!.donationReserveTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -633,7 +632,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'montant protégé par la loi (intouchable)',
+            S.of(context)!.donationReserveProtege,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -644,9 +643,7 @@ class _DonationScreenState extends State<DonationScreen> {
           _buildReserveBar(r),
           const SizedBox(height: 12),
           Text(
-            'Depuis 2023, les parents n\'ont plus de réserve. '
-            'La réserve des descendants est de 50% de leur part légale '
-            '(CC art. 471).',
+            S.of(context)!.donationReserveNote,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -751,7 +748,7 @@ class _DonationScreenState extends State<DonationScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'QUOTITÉ DISPONIBLE',
+                S.of(context)!.donationQuotiteTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -774,7 +771,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'montant que tu peux librement donner',
+            S.of(context)!.donationQuotiteDesc,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -795,8 +792,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Dépassement de ${_chfFmt(r.montantDepassement)} — '
-                      'risque d\'action en réduction',
+                      S.of(context)!.donationDepassement(_chfFmt(r.montantDepassement)),
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -831,7 +827,7 @@ class _DonationScreenState extends State<DonationScreen> {
               Icon(Icons.history_edu, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
-                'IMPACT SUR LA SUCCESSION',
+                S.of(context)!.donationImpactTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -865,10 +861,8 @@ class _DonationScreenState extends State<DonationScreen> {
                 Expanded(
                   child: Text(
                     _avancementHoirie
-                        ? 'Avancement d\'hoirie : la donation sera rapportée '
-                            'à la masse successorale.'
-                        : 'Donation hors part : elle est imputée sur la '
-                            'quotité disponible uniquement.',
+                        ? S.of(context)!.donationAvancementNote
+                        : S.of(context)!.donationHorsPartNote,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.info,
@@ -890,7 +884,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
+          S.of(context)!.lifeEventPointsAttention,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -938,8 +932,8 @@ class _DonationScreenState extends State<DonationScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Actions à entreprendre',
-      subtitle: 'Checklist de préparation',
+      title: S.of(context)!.lifeEventActionsTitle,
+      subtitle: S.of(context)!.lifeEventChecklistSubtitle,
       icon: Icons.checklist,
       accentColor: Colors.indigo.shade600,
       child: Column(
@@ -1012,7 +1006,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPRENDRE',
+          S.of(context)!.lifeEventComprendre,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -1022,33 +1016,18 @@ class _DonationScreenState extends State<DonationScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que la quotité disponible ?',
-          'La quotité disponible est la part de ta fortune que tu peux '
-              'librement donner ou léguer sans empiéter sur les réserves '
-              'héréditaires. Depuis le 1er janvier 2023, la réserve des '
-              'descendants a été réduite de 3/4 à 1/2 de leur part légale, '
-              'et les parents n\'ont plus de réserve. Cela te donne plus '
-              'de liberté pour effectuer des donations.',
+          S.of(context)!.donationEduQuotiteTitle,
+          S.of(context)!.donationEduQuotiteBody,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Avancement d\'hoirie vs donation hors part',
-          'Une donation en avancement d\'hoirie est une avance sur '
-              'la part successorale du bénéficiaire. Elle sera rapportée '
-              'à la masse successorale lors du décès. Une donation hors '
-              'part (ou préciput) est imputée uniquement sur la quotité '
-              'disponible et n\'est pas rapportée. Le choix entre les deux '
-              'a un impact majeur sur l\'équilibre entre les héritiers.',
+          S.of(context)!.donationEduAvancementTitle,
+          S.of(context)!.donationEduAvancementBody,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Donations et concubins',
-          'Les concubins n\'ont aucun droit successoral légal en Suisse. '
-              'Une donation est le moyen le plus direct de les avantager. '
-              'Cependant, l\'impôt cantonal sur les donations entre concubins '
-              'est généralement élevé (18-25% selon les cantons). Schwyz fait '
-              'exception : aucun impôt sur les donations quel que soit le lien. '
-              'Envisager un testament en complément pour une protection complète.',
+          S.of(context)!.donationEduConcubinTitle,
+          S.of(context)!.donationEduConcubinBody,
         ),
       ],
     );
@@ -1130,7 +1109,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Canton',
+          S.of(context)!.donationCanton,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,

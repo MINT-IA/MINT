@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -54,13 +55,13 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Check-up Santé Financière'),
+        title: Text(S.of(context)!.debtCheckTitle),
         actions: [
           if (_showResults)
             IconButton(
               icon: const Icon(Icons.picture_as_pdf_outlined),
               onPressed: _exportPdf,
-              tooltip: 'Exporter mon bilan',
+              tooltip: S.of(context)!.debtCheckExportTooltip,
             ),
           const SizedBox(width: 8),
         ],
@@ -79,17 +80,17 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         _buildMentorIntro(),
         const SizedBox(height: 32),
         _buildQuestionSection(
-          'Gestion quotidienne',
+          S.of(context)!.debtCheckSectionDaily,
           [
             _buildQuestionCard(
-              'Es-tu régulièrement à découvert ?',
-              'Ton compte passe en négatif avant la fin du mois.',
+              S.of(context)!.debtCheckOverdraftQuestion,
+              S.of(context)!.debtCheckOverdraftSub,
               _hasRegularOverdrafts,
               (v) => setState(() => _hasRegularOverdrafts = v),
             ),
             _buildQuestionCard(
-              'As-tu plusieurs crédits en cours ?',
-              'Leasing, prêt, petits crédits, cartes de crédit...',
+              S.of(context)!.debtCheckMultipleCreditsQuestion,
+              S.of(context)!.debtCheckMultipleCreditsSub,
               _hasMultipleCredits,
               (v) => setState(() => _hasMultipleCredits = v),
             ),
@@ -97,17 +98,17 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         ),
         const SizedBox(height: 24),
         _buildQuestionSection(
-          'Obligations',
+          S.of(context)!.debtCheckSectionObligations,
           [
             _buildQuestionCard(
-              'As-tu des retards de paiement ?',
-              'Factures, impôts ou loyers payés en retard.',
+              S.of(context)!.debtCheckLatePaymentsQuestion,
+              S.of(context)!.debtCheckLatePaymentsSub,
               _hasLatePayments,
               (v) => setState(() => _hasLatePayments = v),
             ),
             _buildQuestionCard(
-              'As-tu reçu des poursuites ?',
-              'Commandements de payer ou saisies.',
+              S.of(context)!.debtCheckCollectionQuestion,
+              S.of(context)!.debtCheckCollectionSub,
               _hasDebtCollection,
               (v) => setState(() => _hasDebtCollection = v),
             ),
@@ -115,17 +116,17 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         ),
         const SizedBox(height: 24),
         _buildQuestionSection(
-          'Comportements',
+          S.of(context)!.debtCheckSectionBehaviors,
           [
             _buildQuestionCard(
-              'Des achats impulsifs fréquents ?',
-              'Des dépenses non planifiées que tu regrettes.',
+              S.of(context)!.debtCheckImpulsiveQuestion,
+              S.of(context)!.debtCheckImpulsiveSub,
               _hasImpulsiveBuying,
               (v) => setState(() => _hasImpulsiveBuying = v),
             ),
             _buildQuestionCard(
-              'Joues-tu de l\'argent régulièrement ?',
-              'Casinos, paris sportifs ou loteries fréquentes.',
+              S.of(context)!.debtCheckGamblingQuestion,
+              S.of(context)!.debtCheckGamblingSub,
               _hasGamblingHabit,
               (v) => setState(() => _hasGamblingHabit = v),
             ),
@@ -136,7 +137,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           width: double.infinity,
           child: FilledButton(
             onPressed: _canSubmit ? _calculateScore : null,
-            child: const Text('Analyser ma situation'),
+            child: Text(S.of(context)!.debtCheckAnalyzeButton),
           ),
         ),
         const SizedBox(height: 32),
@@ -161,20 +162,20 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         color: MintColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
-              SizedBox(width: 12),
-              Text('Le mot du Mentor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const SizedBox(width: 12),
+              Text(S.of(context)!.debtCheckMentorTitle, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
-            'Ce check-up de 60 secondes nous permet de détecter les signaux d\'alerte avant qu\'ils ne deviennent critiques.',
-            style: TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
+            S.of(context)!.debtCheckMentorBody,
+            style: const TextStyle(fontSize: 14, color: MintColors.textSecondary, height: 1.5),
           ),
         ],
       ),
@@ -213,9 +214,9 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildChoiceButton('OUI', true, value == true, () => onChanged(true)),
+              _buildChoiceButton(S.of(context)!.debtCheckYes, true, value == true, () => onChanged(true)),
               const SizedBox(width: 12),
-              _buildChoiceButton('NON', false, value == false, () => onChanged(false)),
+              _buildChoiceButton(S.of(context)!.debtCheckNo, false, value == false, () => onChanged(false)),
             ],
           ),
         ],
@@ -255,10 +256,10 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
     final hasGamblingRisk = _result!['hasGamblingRisk'] as bool;
 
     final (Color color, String label, IconData icon) = switch (riskLevel) {
-      'low' => (MintColors.success, 'Risque Maîtrisé', Icons.check_circle_outline),
-      'medium' => (MintColors.warning, 'Points d\'Attention', Icons.warning_amber_rounded),
-      'high' => (MintColors.error, 'Alerte Critique', Icons.error_outline),
-      _ => (Colors.grey, 'Indéterminé', Icons.help_outline),
+      'low' => (MintColors.success, S.of(context)!.debtCheckRiskLow, Icons.check_circle_outline),
+      'medium' => (MintColors.warning, S.of(context)!.debtCheckRiskMedium, Icons.warning_amber_rounded),
+      'high' => (MintColors.error, S.of(context)!.debtCheckRiskHigh, Icons.error_outline),
+      _ => (Colors.grey, S.of(context)!.debtCheckRiskUnknown, Icons.help_outline),
     };
 
     return Column(
@@ -277,14 +278,14 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
               const SizedBox(height: 16),
               Text(label, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: color)),
               const SizedBox(height: 8),
-              Text('$riskScore facteur(s) détecté(s)', style: const TextStyle(color: MintColors.textSecondary)),
+              Text(S.of(context)!.debtCheckFactorsDetected(riskScore), style: const TextStyle(color: MintColors.textSecondary)),
             ],
           ),
         ),
         const SizedBox(height: 32),
-        const Text(
-          'RECOMMANDATIONS DU MENTOR',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textMuted, letterSpacing: 1.2),
+        Text(
+          S.of(context)!.debtCheckRecommendationsTitle,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MintColors.textMuted, letterSpacing: 1.2),
         ),
         const SizedBox(height: 16),
         ...recommendations.map((r) => _buildGuidanceItem(Icons.lightbulb_outline, r)),
@@ -298,7 +299,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           child: FilledButton.icon(
             onPressed: () => context.pop(),
             icon: const Icon(Icons.check_circle_outline),
-            label: const Text('Valider mon check-up'),
+            label: Text(S.of(context)!.debtCheckValidateButton),
           ),
         ),
         const SizedBox(height: 12),
@@ -306,14 +307,14 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
           width: double.infinity,
           child: OutlinedButton(
             onPressed: () => setState(() => _showResults = false),
-            child: const Text('Refaire le check-up'),
+            child: Text(S.of(context)!.debtCheckRedoButton),
           ),
         ),
         const SizedBox(height: 32),
-        const Center(
+        Center(
           child: Text(
-            'L\'honnêteté envers soi-même est le premier pas vers la sérénité.',
-            style: TextStyle(fontStyle: FontStyle.italic, color: MintColors.textMuted, fontSize: 13),
+            S.of(context)!.debtCheckHonestyQuote,
+            style: const TextStyle(fontStyle: FontStyle.italic, color: MintColors.textMuted, fontSize: 13),
             textAlign: TextAlign.center,
           ),
         ),
@@ -347,22 +348,22 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.support_agent_outlined, color: Colors.purple),
-              SizedBox(width: 12),
-              Text('Soutien Jeux & Paris', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.purple)),
+              const Icon(Icons.support_agent_outlined, color: Colors.purple),
+              const SizedBox(width: 12),
+              Text(S.of(context)!.debtCheckGamblingSupportTitle, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.purple)),
             ],
           ),
           const SizedBox(height: 12),
-          const Text('Un soutien professionnel et anonyme est disponible gratuitement.', style: TextStyle(fontSize: 13)),
+          Text(S.of(context)!.debtCheckGamblingSupportBody, style: const TextStyle(fontSize: 13)),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () => _launchUrl('https://www.sos-jeu.ch/'),
               style: OutlinedButton.styleFrom(foregroundColor: Colors.purple, side: const BorderSide(color: Colors.purple)),
-              child: const Text('SOS Jeu - Aide en ligne'),
+              child: Text(S.of(context)!.debtCheckGamblingSupportCta),
             ),
           ),
         ],
@@ -371,10 +372,10 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
   }
 
   Widget _buildPrivacyNote() {
-    return const Center(
+    return Center(
       child: Text(
-        'Mint respecte ta vie privée. Aucune donnée n\'est stockée ou transmise.',
-        style: TextStyle(color: MintColors.textMuted, fontSize: 11),
+        S.of(context)!.debtCheckPrivacyNote,
+        style: const TextStyle(color: MintColors.textMuted, fontSize: 11),
       ),
     );
   }

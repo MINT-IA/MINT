@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/domain/disability_gap_calculator.dart';
@@ -84,7 +85,7 @@ class _SimulatorDisabilityGapScreenState
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Mon filet de sécurité'),
+        title: Text(S.of(context)!.disabilityGapTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -140,7 +141,7 @@ class _SimulatorDisabilityGapScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mon filet de sécurité',
+                  S.of(context)!.disabilityGapTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -149,7 +150,7 @@ class _SimulatorDisabilityGapScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Que se passe-t-il si je ne peux plus travailler ?',
+                  S.of(context)!.disabilityGapSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -166,13 +167,13 @@ class _SimulatorDisabilityGapScreenState
   // --- Inputs Section ---
   Widget _buildInputsSection() {
     return SimulatorCard(
-      title: 'Tes paramètres',
-      subtitle: 'Ajuste selon ta situation',
+      title: S.of(context)!.disabilityGapParamsTitle,
+      subtitle: S.of(context)!.disabilityGapParamsSubtitle,
       icon: Icons.tune,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Revenu mensuel net',
+            label: S.of(context)!.disabilityGapIncomeLabel,
             value: _revenuMensuel,
             min: 2000,
             max: 20000,
@@ -194,7 +195,7 @@ class _SimulatorDisabilityGapScreenState
           if (_statut == EmploymentStatusType.employee) ...[
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Années d\'ancienneté',
+              label: S.of(context)!.disabilityGapSeniorityLabel,
               value: _anneesAnciennete.toDouble(),
               min: 0,
               max: 30,
@@ -210,7 +211,7 @@ class _SimulatorDisabilityGapScreenState
           ],
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Degré d\'invalidité',
+            label: S.of(context)!.disabilityGapDegreeLabel,
             value: _degreInvalidite.toDouble(),
             min: 40,
             max: 100,
@@ -286,7 +287,7 @@ class _SimulatorDisabilityGapScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Canton',
+          S.of(context)!.disabilityGapCantonLabel,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -329,7 +330,7 @@ class _SimulatorDisabilityGapScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Statut professionnel',
+          S.of(context)!.disabilityGapStatusLabel,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -337,14 +338,14 @@ class _SimulatorDisabilityGapScreenState
         ),
         const SizedBox(height: 8),
         SegmentedButton<EmploymentStatusType>(
-          segments: const [
+          segments: [
             ButtonSegment(
               value: EmploymentStatusType.employee,
-              label: Text('Salarié'),
+              label: Text(S.of(context)!.disabilityGapEmployee),
             ),
             ButtonSegment(
               value: EmploymentStatusType.selfEmployed,
-              label: Text('Indép.'),
+              label: Text(S.of(context)!.disabilityGapSelfEmployed),
             ),
           ],
           selected: {_statut},
@@ -369,7 +370,7 @@ class _SimulatorDisabilityGapScreenState
       children: [
         Flexible(
           child: Text(
-            'IJM collective via mon employeur',
+            S.of(context)!.disabilityGapIjmLabel,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textPrimary,
@@ -392,13 +393,13 @@ class _SimulatorDisabilityGapScreenState
   Widget _buildStackedBarChart() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Evolution de ta couverture',
-      subtitle: 'Les 3 phases de protection',
+      title: S.of(context)!.disabilityGapChartTitle,
+      subtitle: S.of(context)!.disabilityGapChartSubtitle,
       icon: Icons.show_chart,
       child: Column(
         children: [
           _buildBar(
-            label: 'Revenu actuel',
+            label: S.of(context)!.disabilityGapCurrentIncome,
             value: r.revenuActuel,
             maxValue: r.revenuActuel,
             color: _phaseColors['revenu']!,
@@ -519,10 +520,10 @@ class _SimulatorDisabilityGapScreenState
         .reduce((a, b) => a > b ? a : b);
     final riskColor = _riskColors[r.riskLevel]!;
     final riskLabel = {
-      'critical': 'Risque critique',
-      'high': 'Risque élevé',
-      'medium': 'Risque modéré',
-      'low': 'Risque faible',
+      'critical': S.of(context)!.disabilityGapRiskCritical,
+      'high': S.of(context)!.disabilityGapRiskHigh,
+      'medium': S.of(context)!.disabilityGapRiskMedium,
+      'low': S.of(context)!.disabilityGapRiskLow,
     }[r.riskLevel]!;
 
     return Container(
@@ -557,7 +558,7 @@ class _SimulatorDisabilityGapScreenState
           ),
           const SizedBox(height: 16),
           Text(
-            'GAP MENSUEL MAXIMAL',
+            S.of(context)!.disabilityGapMaxGap,
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -610,7 +611,7 @@ class _SimulatorDisabilityGapScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'DÉTAIL DES PHASES',
+          S.of(context)!.disabilityGapPhaseDetail,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -620,26 +621,26 @@ class _SimulatorDisabilityGapScreenState
         ),
         const SizedBox(height: 12),
         _buildPhaseCard(
-          title: 'Phase 1: Employeur',
-          duration: '${r.phase1DurationWeeks.toInt()} semaines',
-          coverage: r.phase1MonthlyBenefit > 0 ? '100% du salaire' : 'Aucune',
+          title: S.of(context)!.disabilityGapPhase1Title,
+          duration: S.of(context)!.disabilityGapPhase1Duration('${r.phase1DurationWeeks.toInt()}'),
+          coverage: r.phase1MonthlyBenefit > 0 ? S.of(context)!.disabilityGapPhase1Full : S.of(context)!.disabilityGapNone,
           legalSource: 'CO art. 324a',
           color: _phaseColors['phase1']!,
         ),
         const SizedBox(height: 12),
         _buildPhaseCard(
-          title: 'Phase 2: IJM',
-          duration: 'Jusqu\'à 24 mois',
+          title: S.of(context)!.disabilityGapPhase2Title,
+          duration: S.of(context)!.disabilityGapPhase2Duration,
           coverage: r.phase2MonthlyBenefit > 0
-              ? '80% du salaire (${_chf.format(r.phase2MonthlyBenefit)} CHF/mois)'
-              : 'Aucune couverture',
-          legalSource: _hasIjm ? 'Assurance collective' : 'Non souscrite',
+              ? S.of(context)!.disabilityGapPhase2Coverage(_chf.format(r.phase2MonthlyBenefit))
+              : S.of(context)!.disabilityGapNoCoverage,
+          legalSource: _hasIjm ? S.of(context)!.disabilityGapCollectiveInsurance : S.of(context)!.disabilityGapNotSubscribed,
           color: _phaseColors['phase2']!,
         ),
         const SizedBox(height: 12),
         _buildPhaseCard(
-          title: 'Phase 3: AI + LPP',
-          duration: 'Après 24 mois',
+          title: S.of(context)!.disabilityGapPhase3Title,
+          duration: S.of(context)!.disabilityGapPhase3Duration,
           coverage:
               'AI: ${_chf.format(r.aiRenteMensuelle)} CHF/mois\nLPP: ${_chf.format(r.lppDisabilityBenefit)} CHF/mois\nTotal: ${_chf.format(r.phase3MonthlyBenefit)} CHF/mois',
           legalSource: 'LAI art. 28 + LPP art. 23',
@@ -688,11 +689,11 @@ class _SimulatorDisabilityGapScreenState
             ],
           ),
           const SizedBox(height: 10),
-          _buildPhaseInfoRow('Durée:', duration),
+          _buildPhaseInfoRow(S.of(context)!.disabilityGapDurationLabel, duration),
           const SizedBox(height: 6),
-          _buildPhaseInfoRow('Couverture:', coverage),
+          _buildPhaseInfoRow(S.of(context)!.disabilityGapCoverageLabel, coverage),
           const SizedBox(height: 6),
-          _buildPhaseInfoRow('Source légale:', legalSource),
+          _buildPhaseInfoRow(S.of(context)!.disabilityGapLegalLabel, legalSource),
         ],
       ),
     );
@@ -730,7 +731,7 @@ class _SimulatorDisabilityGapScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SI TU ES...',
+          S.of(context)!.disabilityGapIfYouAre,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -742,22 +743,22 @@ class _SimulatorDisabilityGapScreenState
         if (_statut == EmploymentStatusType.selfEmployed && !_hasIjm) ...[
           _buildActionCard(
             icon: Icons.shield_outlined,
-            title: 'Souscris une IJM individuelle',
-            subtitle: 'Priorité absolue pour les indépendants',
+            title: S.of(context)!.disabilityGapActionSelfIjm,
+            subtitle: S.of(context)!.disabilityGapActionSelfIjmSub,
             color: MintColors.error,
           ),
         ] else if (_statut == EmploymentStatusType.employee && !_hasIjm) ...[
           _buildActionCard(
             icon: Icons.health_and_safety,
-            title: 'Vérifie avec ton RH ta couverture maladie',
-            subtitle: 'Demande si une IJM collective existe',
+            title: S.of(context)!.disabilityGapActionCheckHr,
+            subtitle: S.of(context)!.disabilityGapActionCheckHrSub,
             color: const Color(0xFFEA580C),
           ),
         ] else if (_statut == EmploymentStatusType.employee && _hasIjm) ...[
           _buildActionCard(
             icon: Icons.description_outlined,
-            title: 'Demande les conditions exactes de ton IJM',
-            subtitle: 'Délai d\'attente, durée, taux de couverture',
+            title: S.of(context)!.disabilityGapActionConditions,
+            subtitle: S.of(context)!.disabilityGapActionConditionsSub,
             color: MintColors.primary,
           ),
         ],
@@ -823,7 +824,7 @@ class _SimulatorDisabilityGapScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPRENDRE',
+          S.of(context)!.disabilityGapEduTitle,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -833,20 +834,13 @@ class _SimulatorDisabilityGapScreenState
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'IJM vs AI : quelle différence ?',
-          'L\'IJM (indemnité journalière maladie) est une assurance qui couvre 80% '
-              'de ton salaire pendant max. 720 jours en cas de maladie. L\'employeur '
-              'n\'est pas obligé de la souscrire, mais beaucoup le font via une assurance '
-              'collective. Sans IJM, après la période légale de maintien du salaire, tu ne '
-              'recevez plus rien jusqu\'à l\'éventuelle rente AI.',
+          S.of(context)!.disabilityGapEduIjmTitle,
+          S.of(context)!.disabilityGapEduIjmBody,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'L\'obligation de ton employeur (CO art. 324a)',
-          'Selon l\'art. 324a CO, l\'employeur doit verser le salaire pendant une durée '
-              'limitée en cas de maladie. Cette durée dépend des années de service et de '
-              'l\'échelle cantonale applicable (bernoise, zurichoise ou bâloise). Après cette '
-              'période, seule l\'IJM (si existante) prend le relais.',
+          S.of(context)!.disabilityGapEduCoTitle,
+          S.of(context)!.disabilityGapEduCoBody,
         ),
       ],
     );
@@ -903,10 +897,7 @@ class _SimulatorDisabilityGapScreenState
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Ces résultats sont des estimations indicatives basées sur les barèmes '
-              'légaux. Ta couverture réelle dépend de ton contrat de travail, de '
-              'ta caisse de pension et de tes assurances individuelles. Consulte '
-              'ton employeur et un·e spécialiste qualifié·e.',
+              S.of(context)!.disabilityGapDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

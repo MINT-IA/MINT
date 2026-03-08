@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/housing_sale_service.dart';
@@ -108,7 +109,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Vente immobilière'),
+        title: Text(S.of(context)!.housingSaleAppBarTitle),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -220,7 +221,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Simuler ta vente immobilière',
+                  S.of(context)!.housingSaleHeaderTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -229,7 +230,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Impôt sur les gains, EPL, produit net',
+                  S.of(context)!.housingSaleHeaderSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -262,11 +263,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Vendre un bien immobilier en Suisse implique un impôt sur '
-              'les gains immobiliers (LHID art. 12), le remboursement '
-              'éventuel des fonds de prévoyance utilisés (EPL) et des '
-              'frais de transaction. Cet outil t\'aide à estimer le '
-              'produit net de ta vente.',
+              S.of(context)!.housingSaleIntroText,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -282,14 +279,14 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Section: Bien immobilier ──
   Widget _buildBienSection() {
     return SimulatorCard(
-      title: 'BIEN IMMOBILIER',
-      subtitle: 'Prix d\'achat, vente, investissements',
+      title: S.of(context)!.housingSaleBienTitle,
+      subtitle: S.of(context)!.housingSaleBienSubtitle,
       icon: Icons.home_work_outlined,
       accentColor: Colors.amber.shade700,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Prix d\'achat',
+            label: S.of(context)!.housingSalePrixAchat,
             value: _prixAchat,
             min: 100000,
             max: 3000000,
@@ -299,7 +296,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Prix de vente',
+            label: S.of(context)!.housingSalePrixVente,
             value: _prixVente,
             min: 100000,
             max: 3000000,
@@ -309,7 +306,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Année d\'achat',
+            label: S.of(context)!.housingSaleAnneeAchat,
             value: _anneeAchat.toDouble(),
             min: 1980,
             max: 2025,
@@ -319,7 +316,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Investissements valorisants',
+            label: S.of(context)!.housingSaleInvestissements,
             value: _investissementsValorisants,
             min: 0,
             max: 500000,
@@ -330,7 +327,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Frais d\'acquisition (notaire, etc.)',
+            label: S.of(context)!.housingSaleFraisAcquisition,
             value: _fraisAcquisition,
             min: 0,
             max: 100000,
@@ -342,7 +339,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           _buildCantonDropdown(),
           const SizedBox(height: 16),
           _buildSwitch(
-            label: 'Résidence principale',
+            label: S.of(context)!.housingSaleResidencePrincipale,
             value: _residencePrincipale,
             onChanged: (v) => setState(() => _residencePrincipale = v),
           ),
@@ -354,14 +351,14 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Section: Financement ──
   Widget _buildFinancementSection() {
     return SimulatorCard(
-      title: 'FINANCEMENT',
-      subtitle: 'Hypothèque restante',
+      title: S.of(context)!.housingSaleFinancementTitle,
+      subtitle: S.of(context)!.housingSaleFinancementSubtitle,
       icon: Icons.account_balance_outlined,
       accentColor: Colors.amber.shade700,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Hypothèque restante',
+            label: S.of(context)!.housingSaleHypotheque,
             value: _hypothequeRestante,
             min: 0,
             max: 2000000,
@@ -377,14 +374,14 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Section: EPL ──
   Widget _buildEplSection() {
     return SimulatorCard(
-      title: 'EPL — PRÉVOYANCE UTILISÉE',
-      subtitle: 'LPP et 3a utilisés pour l\'achat',
+      title: S.of(context)!.housingSaleEplTitle,
+      subtitle: S.of(context)!.housingSaleEplSubtitle,
       icon: Icons.savings_outlined,
       accentColor: Colors.amber.shade700,
       child: Column(
         children: [
           _buildSlider(
-            label: 'EPL LPP utilisé',
+            label: S.of(context)!.housingSaleEplLpp,
             value: _eplLppUtilise,
             min: 0,
             max: 500000,
@@ -394,7 +391,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'EPL 3a utilisé',
+            label: S.of(context)!.housingSaleEpl3a,
             value: _epl3aUtilise,
             min: 0,
             max: 200000,
@@ -410,21 +407,21 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Section: Remploi ──
   Widget _buildRemploiSection() {
     return SimulatorCard(
-      title: 'REMPLOI',
-      subtitle: 'Projet de rachat d\'un nouveau bien',
+      title: S.of(context)!.housingSaleRemploiTitle,
+      subtitle: S.of(context)!.housingSaleRemploiSubtitle,
       icon: Icons.swap_horiz,
       accentColor: Colors.amber.shade700,
       child: Column(
         children: [
           _buildSwitch(
-            label: 'Projet de remploi (rachat)',
+            label: S.of(context)!.housingSaleProjetRemploi,
             value: _projetRemploi,
             onChanged: (v) => setState(() => _projetRemploi = v),
           ),
           if (_projetRemploi) ...[
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Prix du nouveau bien',
+              label: S.of(context)!.housingSalePrixNouveauBien,
               value: _prixRemploi,
               min: 100000,
               max: 3000000,
@@ -446,7 +443,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         onPressed: _simulate,
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
-          'Calculer',
+          S.of(context)!.housingSaleCalculer,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -491,7 +488,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'PLUS-VALUE IMMOBILIÈRE',
+                S.of(context)!.housingSalePlusValueTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -502,12 +499,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildResultRow('Plus-value brute', _chfFmt(r.plusValueBrute)),
+          _buildResultRow(S.of(context)!.housingSalePlusValueBrute, _chfFmt(r.plusValueBrute)),
           const SizedBox(height: 8),
           _buildResultRow(
-              'Plus-value imposable', _chfFmt(r.plusValueImposable)),
+              S.of(context)!.housingSalePlusValueImposable, _chfFmt(r.plusValueImposable)),
           _buildResultRow(
-              'Durée de détention', '${r.dureeDetention} ans'),
+              S.of(context)!.housingSaleDureeDetention, S.of(context)!.housingSaleYearsCount(r.dureeDetention)),
         ],
       ),
     );
@@ -534,7 +531,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                   color: Colors.amber.shade700, size: 18),
               const SizedBox(width: 8),
               Text(
-                'IMPÔT SUR LES GAINS ($_canton)',
+                S.of(context)!.housingSaleImpotGainsCanton(_canton),
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -546,22 +543,22 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Taux d\'imposition',
+            S.of(context)!.housingSaleTauxImposition,
             '${(r.tauxImpositionPlusValue * 100).toStringAsFixed(0)}%',
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Impôt sur les gains',
+            S.of(context)!.housingSaleImpotGains,
             _chfFmt(r.impotPlusValue),
           ),
           if (r.remploiReport > 0) ...[
             const SizedBox(height: 8),
             _buildResultRow(
-              'Report (remploi)',
+              S.of(context)!.housingSaleReportRemploi,
               '- ${_chfFmt(r.remploiReport)}',
             ),
             _buildResultRow(
-              'Impôt effectif',
+              S.of(context)!.housingSaleImpotEffectif,
               _chfFmt(r.impotEffectif),
             ),
           ],
@@ -588,7 +585,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               Icon(Icons.replay, color: MintColors.success, size: 18),
               const SizedBox(width: 8),
               Text(
-                'REPORT D\'IMPOSITION (REMPLOI)',
+                S.of(context)!.housingSaleReportTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -609,7 +606,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'de plus-value reportée (non imposée maintenant)',
+            S.of(context)!.housingSaleReportDesc,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -617,8 +614,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Le report sera intégré lors de la revente du nouveau '
-            'bien (LHID art. 12 al. 3).',
+            S.of(context)!.housingSaleReportNote,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -649,7 +645,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
-                'REMBOURSEMENT EPL',
+                S.of(context)!.housingSaleEplRepaymentTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -662,21 +658,19 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 16),
           if (r.remboursementEplLpp > 0)
             _buildResultRow(
-              'Remboursement LPP',
+              S.of(context)!.housingSaleRemboursementLpp,
               _chfFmt(r.remboursementEplLpp),
             ),
           if (r.remboursementEpl3a > 0) ...[
             const SizedBox(height: 8),
             _buildResultRow(
-              'Remboursement 3a',
+              S.of(context)!.housingSaleRemboursement3a,
               _chfFmt(r.remboursementEpl3a),
             ),
           ],
           const SizedBox(height: 12),
           Text(
-            'Obligation légale : les fonds de prévoyance utilisés pour '
-            'l\'achat doivent être remboursés lors de la vente de la '
-            'résidence principale (LPP art. 30d).',
+            S.of(context)!.housingSaleEplNote,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -706,7 +700,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       child: Column(
         children: [
           Text(
-            'PRODUIT NET DE LA VENTE',
+            S.of(context)!.housingSaleProduitNetTitle,
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -725,23 +719,23 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           // Breakdown
-          _buildResultRow('Prix de vente', _chfFmt(_prixVente)),
+          _buildResultRow(S.of(context)!.housingSalePrixVente, _chfFmt(_prixVente)),
           const SizedBox(height: 4),
           _buildResultRow(
-              'Hypothèque', '- ${_chfFmt(r.soldeHypotheque)}'),
+              S.of(context)!.housingSaleHypotheque, '- ${_chfFmt(r.soldeHypotheque)}'),
           const SizedBox(height: 4),
           _buildResultRow(
-              'Impôt plus-value', '- ${_chfFmt(r.impotEffectif)}'),
+              S.of(context)!.housingSaleImpotPlusValue, '- ${_chfFmt(r.impotEffectif)}'),
           if (r.remboursementEplLpp > 0) ...[
             const SizedBox(height: 4),
             _buildResultRow(
-                'Remboursement EPL LPP',
+                S.of(context)!.housingSaleRemboursementEplLpp,
                 '- ${_chfFmt(r.remboursementEplLpp)}'),
           ],
           if (r.remboursementEpl3a > 0) ...[
             const SizedBox(height: 4),
             _buildResultRow(
-                'Remboursement EPL 3a',
+                S.of(context)!.housingSaleRemboursementEpl3a,
                 '- ${_chfFmt(r.remboursementEpl3a)}'),
           ],
         ],
@@ -756,7 +750,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
+          S.of(context)!.lifeEventPointsAttention,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -804,8 +798,8 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Actions à entreprendre',
-      subtitle: 'Checklist de préparation',
+      title: S.of(context)!.lifeEventActionsTitle,
+      subtitle: S.of(context)!.lifeEventChecklistSubtitle,
       icon: Icons.checklist,
       accentColor: Colors.amber.shade700,
       child: Column(
@@ -878,7 +872,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPRENDRE',
+          S.of(context)!.lifeEventComprendre,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -888,31 +882,18 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Comment fonctionne l\'impôt sur les gains immobiliers ?',
-          'En Suisse, tout gain réalisé lors de la vente d\'un bien immobilier '
-              'est soumis à un impôt cantonal spécifique (LHID art. 12). Le taux '
-              'diminue avec la durée de détention du bien. Après 20-25 ans selon '
-              'les cantons, le gain peut être totalement ou partiellement exonéré. '
-              'Les investissements valorisants (rénovations) et les frais '
-              'd\'acquisition sont déductibles de la plus-value.',
+          S.of(context)!.housingSaleEduImpotTitle,
+          S.of(context)!.housingSaleEduImpotBody,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Qu\'est-ce que le remploi ?',
-          'Le remploi permet de reporter l\'imposition de la plus-value si tu '
-              'rachètes un nouveau logement principal dans un délai raisonnable '
-              '(généralement 2 ans). Si le nouveau bien coûte autant ou plus que '
-              'l\'ancien, le report est total. Sinon, il est proportionnel. '
-              'L\'impôt sera dû lors de la revente du nouveau bien.',
+          S.of(context)!.housingSaleEduRemploiTitle,
+          S.of(context)!.housingSaleEduRemploiBody,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'EPL : que se passe-t-il à la vente ?',
-          'Si tu as utilisé des fonds de prévoyance (EPL) pour l\'achat de '
-              'ta résidence principale, tu dois les rembourser lors de la vente '
-              '(LPP art. 30d). Ce remboursement est obligatoire et s\'effectue '
-              'auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. '
-              'Le montant est inscrit au registre foncier et ne peut pas être évité.',
+          S.of(context)!.housingSaleEduEplTitle,
+          S.of(context)!.housingSaleEduEplBody,
         ),
       ],
     );
@@ -994,7 +975,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Canton',
+          S.of(context)!.housingSaleCanton,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,

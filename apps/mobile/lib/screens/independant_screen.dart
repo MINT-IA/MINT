@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -182,7 +183,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'PARCOURS INDÉPENDANT',
+        S.of(context)!.independantAppBarTitle,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -216,7 +217,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Indépendant',
+                S.of(context)!.independantTitle,
                 style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -225,7 +226,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Analyse de couverture et protection',
+                S.of(context)!.independantSubtitle,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -255,10 +256,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'En tant qu\'indépendant, tu n\'as pas de LPP '
-              'obligatoire, pas d\'IJM, et pas de LAA. Ta '
-              'protection sociale dépend entièrement de tes '
-              'démarches personnelles. Identifie tes lacunes.',
+              S.of(context)!.independantIntroDesc,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -323,7 +321,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Le Jour J \u2014 La grande bascule',
+                  S.of(context)!.independantJourJTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -335,7 +333,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Ce qui change en 1 jour quand tu deviens ind\u00e9pendant\u00b7e',
+            S.of(context)!.independantJourJSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -349,7 +347,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               const Expanded(flex: 2, child: SizedBox()),
               Expanded(
                 child: Text(
-                  'Salari\u00e9\u00b7e',
+                  S.of(context)!.independantJourJEmployee,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 11,
@@ -360,7 +358,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               ),
               Expanded(
                 child: Text(
-                  'Ind\u00e9pendant\u00b7e',
+                  S.of(context)!.independantJourJSelfEmployed,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 11,
@@ -387,9 +385,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'Tu perds ~${IndependantService.formatChf(totalLoss)}/mois '
-              'de protection invisible.\n'
-              'Tu n\u2019as pas quitt\u00e9 un emploi. Tu as quitt\u00e9 un syst\u00e8me de protection.',
+              S.of(context)!.independantJourJChiffreChoc(IndependantService.formatChf(totalLoss)),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -467,7 +463,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Revenu net annuel',
+            S.of(context)!.independantRevenueTitle,
             style: GoogleFonts.outfit(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -487,7 +483,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 ),
               ),
               Text(
-                'Age : $_age ans',
+                S.of(context)!.independantAgeLabel(_age),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.textSecondary,
@@ -541,7 +537,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ma couverture actuelle',
+            S.of(context)!.independantCoverageTitle,
             style: GoogleFonts.outfit(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -549,19 +545,19 @@ class _IndependantScreenState extends State<IndependantScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildToggleRow('LPP (affiliation volontaire)', _hasLpp, (v) {
+          _buildToggleRow(S.of(context)!.independantToggleLpp, _hasLpp, (v) {
             _hasLpp = v;
             _compute();
           }),
-          _buildToggleRow('IJM (indemnité journalière maladie)', _hasIjm, (v) {
+          _buildToggleRow(S.of(context)!.independantToggleIjm, _hasIjm, (v) {
             _hasIjm = v;
             _compute();
           }),
-          _buildToggleRow('LAA (assurance accident)', _hasLaa, (v) {
+          _buildToggleRow(S.of(context)!.independantToggleLaa, _hasLaa, (v) {
             _hasLaa = v;
             _compute();
           }),
-          _buildToggleRow('3e pilier (3a)', _has3a, (v) {
+          _buildToggleRow(S.of(context)!.independantToggle3a, _has3a, (v) {
             _has3a = v;
             _compute();
           }),
@@ -657,7 +653,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             const Icon(Icons.shield_outlined, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'ANALYSE DE COUVERTURE',
+              S.of(context)!.independantCoverageAnalysis,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -799,7 +795,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Coût de ma protection complète',
+            S.of(context)!.independantProtectionCostTitle,
             style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -808,20 +804,20 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Estimation mensuelle',
+            S.of(context)!.independantProtectionCostSubtitle,
             style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
           ),
           const SizedBox(height: 20),
 
-          _buildCostRow('AVS / AI / APG', cost.avsMensuel, Colors.teal.shade700),
+          _buildCostRow(S.of(context)!.independantCostAvs, cost.avsMensuel, Colors.teal.shade700),
           const SizedBox(height: 10),
           if (!_hasIjm)
-            _buildCostRow('IJM (estimation)', cost.ijmMensuel, MintColors.error),
+            _buildCostRow(S.of(context)!.independantCostIjm, cost.ijmMensuel, MintColors.error),
           if (!_hasIjm) const SizedBox(height: 10),
           if (!_hasLaa)
-            _buildCostRow('LAA (estimation)', cost.laaMensuel, MintColors.warning),
+            _buildCostRow(S.of(context)!.independantCostLaa, cost.laaMensuel, MintColors.warning),
           if (!_hasLaa) const SizedBox(height: 10),
-          _buildCostRow('3e pilier (max)', cost.pillar3aMensuel, const Color(0xFF4F46E5)),
+          _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel, const Color(0xFF4F46E5)),
           const SizedBox(height: 16),
 
           Divider(color: MintColors.border.withOpacity(0.5)),
@@ -831,7 +827,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total mensuel',
+                S.of(context)!.independantTotalMonthly,
                 style: GoogleFonts.outfit(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -852,7 +848,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '${IndependantService.formatChf(cost.totalAnnuel)} / an',
+              '${IndependantService.formatChf(cost.totalAnnuel)} ${S.of(context)!.independantPerYear}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -894,7 +890,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
         ),
         Text(
-          '/mois',
+          S.of(context)!.independantPerMonth,
           style: GoogleFonts.inter(
             fontSize: 12,
             color: MintColors.textMuted,
@@ -922,7 +918,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               Icon(Icons.people_outline, color: Colors.teal.shade700, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Cotisation AVS indépendant',
+                S.of(context)!.independantAvsTitle,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -933,10 +929,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ta cotisation AVS estimée : '
-            '${IndependantService.formatChf(result.cotisationAvsAnnuelle)}/an '
-            '(taux dégressif pour les revenus inférieurs à CHF\u00A058\'800, '
-            'puis ~10.6% au-dessus).',
+            S.of(context)!.independantAvsBody(IndependantService.formatChf(result.cotisationAvsAnnuelle)),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: Colors.teal.shade800,
@@ -945,7 +938,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Source : LAVS art. 8 / Tables des cotisations AVS',
+            S.of(context)!.independantAvsSource,
             style: GoogleFonts.inter(fontSize: 11, color: Colors.teal.shade600),
           ),
         ],
@@ -971,7 +964,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               const Icon(Icons.savings_outlined, color: Color(0xFF4F46E5), size: 20),
               const SizedBox(width: 8),
               Text(
-                '3e pilier — plafond indépendant',
+                S.of(context)!.independant3aTitle,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -983,11 +976,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(height: 8),
           Text(
             _hasLpp
-                ? 'Avec LPP volontaire : plafond 3a standard de '
-                  'CHF\u00A07\'258/an.'
-                : 'Sans LPP : plafond 3a "grand" de 20% du revenu net, '
-                  'max ${IndependantService.formatChf(result.plafond3a)}/an '
-                  '(plafond legal CHF\u00A036\'288).',
+                ? S.of(context)!.independant3aWithLpp
+                : S.of(context)!.independant3aWithoutLpp(IndependantService.formatChf(result.plafond3a)),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: const Color(0xFF4338CA),
@@ -996,7 +986,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Source : OPP3 art. 7',
+            S.of(context)!.independant3aSource,
             style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6366F1)),
           ),
         ],
@@ -1018,7 +1008,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'RECOMMANDATIONS',
+              S.of(context)!.independantRecommendationsHeader,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -1097,7 +1087,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: Text(
-            'Analyse MINT — Ton kit indépendant',
+            S.of(context)!.independantAnalysisHeader,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -1290,11 +1280,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les montants présentés sont des estimations indicatives. '
-              'Les cotisations réelles dépendent de ta situation '
-              'personnelle et des offres d\'assurance disponibles. '
-              'Consulte un fiduciaire ou un assureur avant toute '
-              'décision.',
+              S.of(context)!.independantDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,
@@ -1314,7 +1300,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sources',
+          S.of(context)!.independantSourcesTitle,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -1323,11 +1309,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'LPP art. 4 (pas d\'obligation pour indépendants) / '
-          'LPP art. 44 (affiliation volontaire) / '
-          'OPP3 art. 7 (3a grand : 20% du revenu net, max 36\'288) / '
-          'LAVS art. 8 (cotisations indépendants) / '
-          'LAA art. 4 / LAMal',
+          S.of(context)!.independantSourcesBody,
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,

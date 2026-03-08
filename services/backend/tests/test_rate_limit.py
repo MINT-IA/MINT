@@ -5,16 +5,65 @@ Vérifie:
 1. Les endpoints coûteux (/retirement/*, /arbitrage/*, /scenarios, /fri/*) sont
    protégés par un rate limit de 10/minute (réponse 429 après dépassement).
 2. Le refresh token expire dans < 8 jours (et non plus 30 jours).
+3. _get_real_client_ip extracts correct IP from X-Forwarded-For.
 """
 
 import os
 import pytest
 from datetime import datetime, timezone, timedelta
 from fastapi.testclient import TestClient
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 # Force rate limiting ON for these tests (conftest sets TESTING=1 which disables it)
 # We override the limiter's enabled flag directly in each test that needs it.
+
+
+# ---------------------------------------------------------------------------
+# Task 0: _get_real_client_ip — X-Forwarded-For parsing
+# ---------------------------------------------------------------------------
+
+class TestGetRealClientIp:
+    """Unit tests for _get_real_client_ip (rate_limit.py lines 18-38)."""
+
+    def test_returns_rightmost_ip_from_forwarded_for(self):
+        """Rightmost IP is from the trusted proxy (Railway), not spoofable."""
+        from app.core.rate_limit import _get_real_client_ip
+
+        request = MagicMock()
+        request.headers = {"X-Forwarded-For": "10.0.0.1, 192.168.1.1, 203.0.113.50"}
+        request.client.host = "127.0.0.1"
+
+        assert _get_real_client_ip(request) == "203.0.113.50"
+
+    def test_returns_single_forwarded_ip(self):
+        """Single IP in X-Forwarded-For is returned."""
+        from app.core.rate_limit import _get_real_client_ip
+
+        request = MagicMock()
+        request.headers = {"X-Forwarded-For": "198.51.100.1"}
+        request.client.host = "127.0.0.1"
+
+        assert _get_real_client_ip(request) == "198.51.100.1"
+
+    def test_falls_back_to_client_host(self):
+        """When no X-Forwarded-For, falls back to request.client.host."""
+        from app.core.rate_limit import _get_real_client_ip
+
+        request = MagicMock()
+        request.headers = {}
+        request.client.host = "10.0.0.5"
+
+        assert _get_real_client_ip(request) == "10.0.0.5"
+
+    def test_falls_back_to_localhost_when_no_client(self):
+        """When no client info at all, returns 127.0.0.1."""
+        from app.core.rate_limit import _get_real_client_ip
+
+        request = MagicMock()
+        request.headers = {}
+        request.client = None
+
+        assert _get_real_client_ip(request) == "127.0.0.1"
 
 
 # ---------------------------------------------------------------------------

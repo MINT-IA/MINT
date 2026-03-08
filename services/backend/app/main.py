@@ -143,11 +143,8 @@ def _auto_ingest_rag():
         from app.services.rag.ingester import MarkdownIngester
 
         # Determine paths
-        # CHROMADB_PATH env var allows Railway persistent volume mount override.
-        # Set CHROMADB_PATH=/data/chromadb in Railway dashboard after linking volume.
         backend_dir = os.path.dirname(os.path.dirname(__file__))
-        _default_persist = os.path.join(backend_dir, "data", "chromadb")
-        persist_dir = os.getenv("CHROMADB_PATH", _default_persist)
+        persist_dir = os.path.join(backend_dir, "data", "chromadb")
         # Education inserts are at: ../../education/inserts/ relative to backend dir
         inserts_dir = os.path.normpath(
             os.path.join(backend_dir, "..", "..", "education", "inserts")
@@ -163,33 +160,13 @@ def _auto_ingest_rag():
         # Initialize vector store
         vector_store = MintVectorStore(persist_directory=persist_dir)
 
-        # Ingest if the store is empty OR if the schema lacks bi-niveau level metadata.
-        # Schema v2 = all documents have a 'level' field (0 or 1) in metadata.
-        # Corpora ingested before S44 (schema v1) lack this field → must re-ingest.
+        # Only ingest if the store is empty
         if vector_store.count() > 0:
-            try:
-                # Sample one document and check for level metadata
-                sample = vector_store._collection.get(
-                    where={"level": {"$in": [0, 1]}}, limit=1
-                )
-                if sample and sample.get("ids"):
-                    logger.info(
-                        "Vector store has %d documents with schema v2 (bi-niveau), "
-                        "skipping auto-ingest",
-                        vector_store.count(),
-                    )
-                    return
-                logger.info(
-                    "Vector store has %d documents but lacks schema v2 level metadata "
-                    "— re-ingesting with bi-niveau schema",
-                    vector_store.count(),
-                )
-            except Exception as schema_err:
-                logger.warning(
-                    "Cannot verify corpus schema version (%s) — re-ingesting to "
-                    "ensure bi-niveau metadata is present",
-                    schema_err,
-                )
+            logger.info(
+                "Vector store already has %d documents, skipping auto-ingest",
+                vector_store.count(),
+            )
+            return
 
         # Ingest education inserts (language auto-detected from filenames)
         ingester = MarkdownIngester(vector_store=vector_store)

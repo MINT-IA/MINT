@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
@@ -106,7 +107,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Succession — Planification'),
+        title: Text(S.of(context)!.successionAppBarTitle),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -184,7 +185,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Planifier ma succession',
+                  S.of(context)!.successionHeaderTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -193,7 +194,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Nouveau droit successoral 2023',
+                  S.of(context)!.successionHeaderSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -226,10 +227,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le nouveau droit successoral (2023) a élargi la quotité '
-              'disponible. Tu as désormais plus de liberté pour '
-              'avantager certains héritiers. Cet outil te montre la '
-              'répartition légale et l\'impact d\'un testament.',
+              S.of(context)!.successionIntroText,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -245,8 +243,8 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // --- Section 1: Situation Personnelle ---
   Widget _buildSituationPersonnelleSection() {
     return SimulatorCard(
-      title: 'SITUATION PERSONNELLE',
-      subtitle: 'Statut civil, heritiers',
+      title: S.of(context)!.successionSituationTitle,
+      subtitle: S.of(context)!.successionSituationSubtitle2,
       icon: Icons.person_outline,
       accentColor: Colors.teal.shade600,
       child: Column(
@@ -254,7 +252,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           _buildCivilStatusChips(),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Nombre d\'enfants',
+            label: S.of(context)!.successionChildrenLabel,
             value: _numberOfChildren.toDouble(),
             min: 0,
             max: 6,
@@ -265,20 +263,20 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSwitch(
-            label: 'Parents vivants',
+            label: S.of(context)!.successionParentsAlive,
             value: _parentsVivants,
             onChanged: (v) => setState(() => _parentsVivants = v),
           ),
           const SizedBox(height: 8),
           _buildSwitch(
-            label: 'Fratrie (freres/soeurs)',
+            label: S.of(context)!.successionSiblings,
             value: _hasFratrie,
             onChanged: (v) => setState(() => _hasFratrie = v),
           ),
           if (_civilStatus == CivilStatus.concubinage) ...[
             const SizedBox(height: 8),
             _buildSwitch(
-              label: 'Concubin(e)',
+              label: S.of(context)!.successionConcubin,
               value: _hasConcubin,
               onChanged: (v) => setState(() => _hasConcubin = v),
             ),
@@ -291,18 +289,18 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // --- Civil Status Chips ---
   Widget _buildCivilStatusChips() {
     final options = <MapEntry<CivilStatus, String>>[
-      const MapEntry(CivilStatus.marie, 'Marie(e)'),
-      const MapEntry(CivilStatus.celibataire, 'Celibataire'),
-      const MapEntry(CivilStatus.divorce, 'Divorce(e)'),
-      const MapEntry(CivilStatus.veuf, 'Veuf/Veuve'),
-      const MapEntry(CivilStatus.concubinage, 'Concubinage'),
+      MapEntry(CivilStatus.marie, S.of(context)!.successionCivilMarie),
+      MapEntry(CivilStatus.celibataire, S.of(context)!.successionCivilCelibataire),
+      MapEntry(CivilStatus.divorce, S.of(context)!.successionCivilDivorce),
+      MapEntry(CivilStatus.veuf, S.of(context)!.successionCivilVeuf),
+      MapEntry(CivilStatus.concubinage, S.of(context)!.successionCivilConcubinage),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Statut civil',
+          S.of(context)!.successionCivilStatusLabel,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -359,14 +357,14 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // --- Section 2: Fortune ---
   Widget _buildFortuneSection() {
     return SimulatorCard(
-      title: 'FORTUNE',
-      subtitle: 'Patrimoine total, 3a, LPP',
+      title: S.of(context)!.successionFortuneTitle,
+      subtitle: S.of(context)!.successionFortuneSubtitle2,
       icon: Icons.account_balance_wallet_outlined,
       accentColor: Colors.teal.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Fortune totale',
+            label: S.of(context)!.successionFortuneLabel,
             value: _fortuneTotale,
             min: 0,
             max: 5000000,
@@ -376,7 +374,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Avoirs 3a',
+            label: S.of(context)!.successionAvoirs3aLabel,
             value: _avoirs3a,
             min: 0,
             max: 500000,
@@ -386,7 +384,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Capital décès LPP',
+            label: S.of(context)!.successionDeathCapitalLabel,
             value: _capitalDecesLpp,
             min: 0,
             max: 500000,
@@ -407,7 +405,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Canton',
+          S.of(context)!.successionCanton,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -449,14 +447,14 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // --- Section 3: Testament ---
   Widget _buildTestamentSection() {
     return SimulatorCard(
-      title: 'TESTAMENT',
-      subtitle: 'Volontes testamentaires',
+      title: S.of(context)!.successionTestamentTitle,
+      subtitle: S.of(context)!.successionTestamentSubtitle2,
       icon: Icons.description_outlined,
       accentColor: Colors.teal.shade600,
       child: Column(
         children: [
           _buildSwitch(
-            label: 'J\'ai un testament',
+            label: S.of(context)!.successionTestamentSwitch,
             value: _hasTestament,
             onChanged: (v) => setState(() => _hasTestament = v),
           ),
@@ -472,17 +470,17 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   // --- Beneficiary Chips ---
   Widget _buildBeneficiaryChips() {
     final options = <MapEntry<String, String>>[
-      const MapEntry('conjoint', 'Conjoint(e)'),
-      const MapEntry('enfants', 'Enfants'),
-      const MapEntry('concubin', 'Concubin(e)'),
-      const MapEntry('tiers', 'Tiers / Oeuvre'),
+      MapEntry('conjoint', S.of(context)!.successionBeneficiaireConjoint),
+      MapEntry('enfants', S.of(context)!.successionBeneficiaireEnfants),
+      MapEntry('concubin', S.of(context)!.successionBeneficiaireConcubin),
+      MapEntry('tiers', S.of(context)!.successionBeneficiaireTiers),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Qui reçoit la quotité disponible ?',
+          S.of(context)!.successionBeneficiaryQuestion,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -538,7 +536,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         onPressed: _simulate,
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
-          'Simuler',
+          S.of(context)!.successionSimulateButton,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -577,7 +575,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                   color: Colors.teal.shade600, size: 18),
               const SizedBox(width: 8),
               Text(
-                'REPARTITION LEGALE',
+                S.of(context)!.successionLegalDistribution,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -616,7 +614,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                   color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
-                'REPARTITION AVEC TESTAMENT',
+                S.of(context)!.successionTestamentDistribution,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -737,7 +735,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
-                'RESERVES HEREDITAIRES (2023)',
+                S.of(context)!.successionReservesTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -749,7 +747,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Montants proteges par la loi (intouchables)',
+            S.of(context)!.successionReservesSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -802,7 +800,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               Icon(Icons.edit_note, color: MintColors.success, size: 18),
               const SizedBox(width: 8),
               Text(
-                'QUOTITE DISPONIBLE',
+                S.of(context)!.successionQuotiteTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -823,7 +821,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'soit ${(r.quotiteDisponiblePct * 100).toStringAsFixed(0)}% de la succession',
+            S.of(context)!.successionQuotitePct((r.quotiteDisponiblePct * 100).toStringAsFixed(0)),
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textSecondary,
@@ -831,8 +829,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Ce montant peut être librement attribué par testament '
-            'à la personne de ton choix.',
+            S.of(context)!.successionQuotiteDesc,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -868,7 +865,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               Icon(Icons.receipt_long, color: Colors.purple.shade600, size: 18),
               const SizedBox(width: 8),
               Text(
-                'FISCALITE SUCCESSORALE ($_canton)',
+                S.of(context)!.successionFiscaliteCanton(_canton),
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -896,7 +893,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
                     Text(
                       entry.value > 0
                           ? _chfFmt(entry.value)
-                          : 'Exonere',
+                          : S.of(context)!.successionExonereLabel,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -914,7 +911,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total impôt successoral',
+                  S.of(context)!.successionTotalTax,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -955,7 +952,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
               Icon(Icons.info_outline, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
-                'BENEFICIAIRES 3a (OPP3 ART. 2)',
+                S.of(context)!.successionBeneficiaries3aTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -967,8 +964,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Le 3e pilier ne suit PAS ton testament. '
-            'L\'ordre de beneficiaires est fixe par la loi :',
+            S.of(context)!.successionBeneficiaries3aDesc,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -1003,7 +999,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
+          S.of(context)!.lifeEventPointsAttention,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -1051,8 +1047,8 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Protection de mes proches',
-      subtitle: 'Actions a entreprendre',
+      title: S.of(context)!.successionChecklistTitle,
+      subtitle: S.of(context)!.lifeEventChecklistSubtitle,
       icon: Icons.checklist,
       accentColor: Colors.teal.shade600,
       child: Column(
@@ -1125,7 +1121,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPRENDRE',
+          S.of(context)!.lifeEventComprendre,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -1135,35 +1131,18 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que la quotité disponible ?',
-          'La quotité disponible est la part de ta succession que tu '
-              'peux librement attribuer par testament. Depuis le 1er janvier '
-              '2023, la réserve des descendants a été réduite de 3/4 à 1/2 de '
-              'leur part légale. Les parents n\'ont plus de réserve. Cela te '
-              'donne plus de liberté pour favoriser ton/ta conjoint·e, ton/ta '
-              'concubin·e ou toute autre personne.',
+          S.of(context)!.successionEduQuotite,
+          S.of(context)!.successionEduQuotiteBody2,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Le 3a et la succession : attention !',
-          'Le 3e pilier (pilier 3a) n\'entre PAS dans la masse successorale '
-              'ordinaire. Il est versé directement aux bénéficiaires selon un '
-              'ordre fixé par l\'OPP3 (art. 2) : conjoint/partenaire enregistré, '
-              'puis descendants, parents, fratrie. Le concubin peut être désigné '
-              'comme bénéficiaire, mais uniquement par une clause explicite '
-              'déposée auprès de la fondation. Sans cette démarche, le/la '
-              'concubin(e) ne reçoit rien du 3a.',
+          S.of(context)!.successionEdu3a,
+          S.of(context)!.successionEdu3aBody2,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Les concubins et la succession',
-          'En droit suisse, les concubins n\'ont AUCUN droit successoral légal. '
-              'Sans testament, un concubin ne reçoit rien. De plus, l\'impôt '
-              'successoral pour les concubins est généralement bien plus élevé '
-              'que pour les conjoints (souvent 20-25% au lieu de 0%). Pour '
-              'protéger ton/ta concubin·e, il est essentiel de rédiger un '
-              'testament, de vérifier les clauses bénéficiaires 3a/LPP et '
-              'd\'envisager des assurances-vie.',
+          S.of(context)!.successionEduConcubin,
+          S.of(context)!.successionEduConcubinBody2,
         ),
       ],
     );
@@ -1222,11 +1201,7 @@ class _SuccessionSimulatorScreenState extends State<SuccessionSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations a titre indicatif '
-              'et ne constituent pas un conseil juridique ou notarial '
-              'personnalise. Le droit successoral comporte de nombreuses '
-              'subtilites. Consultez un notaire ou un avocat specialise '
-              'avant toute decision.',
+              S.of(context)!.successionDisclaimerText,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,
