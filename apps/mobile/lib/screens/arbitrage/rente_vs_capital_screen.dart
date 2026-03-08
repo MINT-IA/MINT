@@ -77,6 +77,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
 
+  // ── New fields ──
+  double? _avsRenteMensuelle;
+  final _rachatAnnuelCtrl = TextEditingController(text: '0');
+  final _rachatMaxCtrl = TextEditingController(text: '0');
+  bool _hasEpl = false;
+  final _eplAmountCtrl = TextEditingController(text: '0');
+
   @override
   void initState() {
     super.initState();
@@ -140,6 +147,47 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final married = profile.etatCivil == CoachCivilStatus.marie;
     _isMarried = married;
 
+    // LPP oblig/surob split — use direct values if available, else 70/30 will be used
+    final lppOblig = profile.prevoyance.avoirLppObligatoire;
+    final lppSurob = profile.prevoyance.avoirLppSurobligatoire;
+    if (lppOblig != null && lppOblig > 0) {
+      apply(_capitalObligCtrl, lppOblig.round().toString(), 'prevoyance.avoirLppObligatoire');
+    }
+    if (lppSurob != null && lppSurob > 0) {
+      apply(_capitalSurobCtrl, lppSurob.round().toString(), 'prevoyance.avoirLppSurobligatoire');
+    }
+
+    // Conversion rates from certificate
+    final tcProfile = profile.prevoyance.tauxConversion;
+    if (tcProfile > 0) {
+      apply(_tcObligCtrl, (tcProfile * 100).toStringAsFixed(1), 'prevoyance.tauxConversion');
+    }
+    final tcSurobProfile = profile.prevoyance.tauxConversionSuroblig;
+    if (tcSurobProfile != null && tcSurobProfile > 0) {
+      apply(_tcSurobCtrl, (tcSurobProfile * 100).toStringAsFixed(1), 'prevoyance.tauxConversionSuroblig');
+    }
+
+    // AVS estimated monthly rente — used for display only (not engine input)
+    final avsRente = profile.prevoyance.renteAVSEstimeeMensuelle;
+    if (avsRente != null && avsRente > 0) {
+      _avsRenteMensuelle = avsRente;
+      changed = true;
+    }
+
+    // Retirement age from profile if available
+    final retirementAge = profile.targetRetirementAge;
+    if (retirementAge != null && retirementAge >= 58 && retirementAge <= 70) {
+      _ageRetraiteSlider.value = retirementAge.toDouble();
+      changed = true;
+    }
+
+    // Rachat potential from profile
+    final lacune = profile.prevoyance.lacuneRachatRestante;
+    if (lacune > 0) {
+      _rachatMaxCtrl.text = lacune.round().toString();
+      changed = true;
+    }
+
     if (changed) {
       _dataSources = Map.from(sources);
       _hasEstimatedValues = hasEstimates;
@@ -158,6 +206,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     _tcObligCtrl.dispose();
     _tcSurobCtrl.dispose();
     _ageRetraiteSlider.dispose();
+    _rachatAnnuelCtrl.dispose();
+    _rachatMaxCtrl.dispose();
+    _eplAmountCtrl.dispose();
     super.dispose();
   }
 
@@ -198,6 +249,30 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       tcSurob = (double.tryParse(_tcSurobCtrl.text) ?? 5.0) / 100;
       currentAge = null;
       salary = null;
+    }
+
+    // Rachat LPP: add future value of annual buybacks to current LPP
+    // FV annuity = annualBuyback × ((1+r)^n - 1) / r  (LPP growth rate 1.25%)
+    final rachatAnnuel = double.tryParse(_rachatAnnuelCtrl.text.replaceAll("'", '')) ?? 0;
+    if (rachatAnnuel > 0 && currentAge != null) {
+      final yearsToRetirement = math.max(0, _ageRetraite - currentAge);
+      const lppReturn = 0.0125;
+      final fvRachat = yearsToRetirement > 0
+          ? rachatAnnuel * (math.pow(1 + lppReturn, yearsToRetirement) - 1) / lppReturn
+          : rachatAnnuel;
+      capitalOblig += fvRachat * 0.7;
+      capitalSurob += fvRachat * 0.3;
+    }
+
+    // EPL: withdrawal for real estate reduces capital
+    final eplAmount = _hasEpl
+        ? (double.tryParse(_eplAmountCtrl.text.replaceAll("'", '')) ?? 0)
+        : 0.0;
+    if (eplAmount > 0) {
+      // EPL reduces proportionally from oblig/surob
+      final ratio = capitalOblig / math.max(1, capitalOblig + capitalSurob);
+      capitalOblig = math.max(0, capitalOblig - eplAmount * ratio);
+      capitalSurob = math.max(0, capitalSurob - eplAmount * (1 - ratio));
     }
 
     final capitalTotal = capitalOblig + capitalSurob;
@@ -362,17 +437,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   const SizedBox(height: 24),
 
                   // ══════════════════════════════════════════════
-                  //  BLOC B — EXPLORER
-                  //  Slider espérance + chart trajectoire (fused)
-                  // ══════════════════════════════════════════════
-                  _buildExplorerBloc(chartOptions),
-                  const SizedBox(height: 24),
-
-                  // ══════════════════════════════════════════════
                   //  BLOC C — COMPRENDRE
                   //  3 cartes éducatives (fiscalité, inflation, transmission)
                   // ══════════════════════════════════════════════
                   _buildEducationalCards(),
+                  const SizedBox(height: 24),
+
+                  // ══════════════════════════════════════════════
+                  //  BLOC B — EXPLORER
+                  //  Slider espérance + chart trajectoire (fused)
+                  // ══════════════════════════════════════════════
+                  _buildExplorerBloc(chartOptions),
                   const SizedBox(height: 24),
 
                   // ══════════════════════════════════════════════
@@ -580,6 +655,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               label: 'Ton avoir LPP actuel (CHF)',
               fieldName: 'lpp_total',
             ),
+            const SizedBox(height: 12),
+            // Rachat LPP
+            _buildRachatSection(),
+            const SizedBox(height: 12),
+            // EPL
+            _buildEplSection(),
             // Auto-computed readout
             if (_result != null && _result!.isProjected) ...[
               const SizedBox(height: 12),
@@ -1035,6 +1116,43 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               textAlign: TextAlign.center,
             ),
           ),
+          // AVS complement if available
+          if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: MintColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: MintColors.lightBorder),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                        children: [
+                          const TextSpan(text: 'AVS estimee : '),
+                          TextSpan(
+                            text: '~${formatChf(_avsRenteMensuelle!)}/mois',
+                            style: GoogleFonts.inter(
+                              fontSize: 12, fontWeight: FontWeight.w700,
+                              color: MintColors.textPrimary,
+                            ),
+                          ),
+                          const TextSpan(text: ' supplementaires dans les deux cas (LAVS art. 29)'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1096,9 +1214,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
           const SizedBox(height: 20),
 
-          // ── Chart: "Combien il te reste a chaque age" ──
+          // ── Chart: capital restant vs revenus cumules de la rente ──
           Text(
-            'Combien il te reste a chaque age',
+            'Capital restant vs revenus cumules de la rente',
             style: GoogleFonts.montserrat(
               fontSize: 15, fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -1106,8 +1224,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'En francs d\'aujourd\'hui (pouvoir d\'achat reel). '
-            'Touche le graphique pour voir les details.',
+            'Capital (vert) : ce qu\'il reste apres tes retraits. Rente (bleu) : total recu depuis le depart. '
+            'Le croisement = l\'age auquel la rente a plus rapporte.',
             style: GoogleFonts.inter(
               fontSize: 12, color: MintColors.textSecondary,
             ),
@@ -1479,7 +1597,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final variables = _result!.tornadoVariables;
     if (variables.isEmpty) return const SizedBox.shrink();
 
-    final top = variables.take(4).toList();
+    // Filter out variables with negligible or zero swing — showing "+0" is
+    // worse than not showing the row at all (misleads the user).
+    final top = variables.where((v) => v.swing > 50).take(4).toList();
+    if (top.isEmpty) return const SizedBox.shrink();
     final maxSwing = top.first.swing;
 
     return Column(
@@ -1704,6 +1825,108 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     fontSize: 13, fontWeight: FontWeight.w500,
     color: MintColors.textSecondary,
   );
+
+  Widget _buildRachatSection() {
+    final maxRachat = double.tryParse(_rachatMaxCtrl.text.replaceAll("'", '')) ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Rachat LPP annuel prevu (CHF)',
+                style: _labelStyle,
+              ),
+            ),
+            if (maxRachat > 0)
+              Text(
+                'max ${formatChf(maxRachat)}',
+                style: GoogleFonts.inter(
+                  fontSize: 11, color: MintColors.textMuted,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _rachatAnnuelCtrl,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+          decoration: InputDecoration(
+            hintText: '0 (optionnel)',
+            hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
+            prefixText: 'CHF ',
+            filled: true,
+            fillColor: MintColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            suffixIcon: Tooltip(
+              message: 'Si tu fais des rachats LPP chaque annee, leur valeur futur est ajoutee au capital a la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
+              child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+            ),
+          ),
+          onChanged: (_) => _recalculate(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEplSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Retrait EPL pour achat immobilier',
+                style: _labelStyle,
+              ),
+            ),
+            Switch(
+              value: _hasEpl,
+              activeColor: MintColors.primary,
+              onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
+            ),
+          ],
+        ),
+        if (_hasEpl) ...[
+          const SizedBox(height: 6),
+          TextField(
+            controller: _eplAmountCtrl,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+            decoration: InputDecoration(
+              hintText: "Montant retire (min 20'000)",
+              hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
+              prefixText: 'CHF ',
+              filled: true,
+              fillColor: MintColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: Tooltip(
+                message: "Le retrait EPL reduit ton avoir LPP et donc ton capital ou ta rente a la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+                child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              ),
+            ),
+            onChanged: (_) => _recalculate(),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'LPP art. 30c — OPP2 art. 5 (min CHF 20\'000)',
+            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+          ),
+        ],
+      ],
+    );
+  }
 
   static String _formatDelta(double delta) {
     final abs = delta.abs();

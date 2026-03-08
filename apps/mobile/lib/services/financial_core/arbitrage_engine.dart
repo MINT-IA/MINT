@@ -1665,6 +1665,7 @@ class ArbitrageEngine {
   ///   - Each following year: adjust that amount for inflation
   /// SWR withdrawals are NOT taxable income (consumption of patrimony).
   /// All values expressed in real terms (francs d'aujourd'hui).
+  /// netPatrimony = remaining invested capital in real terms (francs today)
   static List<YearlySnapshot> _buildCapitalTrajectory({
     required double capitalBrut,
     required String canton,
@@ -1714,8 +1715,7 @@ class ArbitrageEngine {
       cumulativeCashflow += actualWithdrawal;
 
       // Express in real terms (deflate to today's purchasing power)
-      final realPatrimony =
-          (capitalNet + cumulativeCashflow) / math.pow(1 + inflation, y);
+      final realPatrimony = capitalNet / math.pow(1 + inflation, y);
       final realCashflow = actualWithdrawal / math.pow(1 + inflation, y);
 
       snapshots.add(YearlySnapshot(
