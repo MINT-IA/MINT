@@ -302,21 +302,6 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       );
     }
 
-    if (coachProvider.isPartialProfile) {
-      return Scaffold(
-        backgroundColor: MintColors.background,
-        body: CustomScrollView(
-          slivers: [
-            _buildAppBar(context),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _buildPartialProfile(context, s, coachProvider),
-            ),
-          ],
-        ),
-      );
-    }
-
     // Check if current month's check-in is done
     final hasCurrentCheckIn = profile.checkIns.any(
       (ci) => ci.month.year == now.year && ci.month.month == now.month,
@@ -861,105 +846,6 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPartialProfile(
-    BuildContext context,
-    S? s,
-    CoachProfileProvider provider,
-  ) {
-    final quality = (provider.onboardingQualityScore * 100).round();
-    final section = provider.recommendedWizardSection;
-    final sectionLabel = switch (section) {
-      'identity' => s?.coachWizardSectionIdentity ?? 'Identite & foyer',
-      'income' => s?.coachWizardSectionIncome ?? 'Revenu & foyer',
-      'pension' => s?.coachWizardSectionPension ?? 'Prevoyance',
-      'property' => s?.coachWizardSectionProperty ?? 'Immobilier & dettes',
-      _ => s?.advisorMiniFullDiagnostic ?? 'Diagnostic',
-    };
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: MintColors.warning.withValues(alpha: 0.10),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.track_changes,
-                color: MintColors.warning,
-                size: 44,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              s?.coachAgirPartialTitle('$quality') ??
-                  'Plan en construction ($quality%)',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
-                fontSize: 21,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              s?.coachAgirPartialBody(sectionLabel) ??
-                  'Pour activer tes actions prioritaires, complete maintenant la section $sectionLabel.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-                height: 1.45,
-              ),
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: () => context.push(
-                  '/advisor/wizard',
-                  extra: {'section': section},
-                ),
-                icon: const Icon(Icons.auto_awesome, size: 20),
-                label: Text(
-                  s?.coachAgirPartialAction(sectionLabel) ??
-                      'Completer $sectionLabel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => context.push('/coach/chat'),
-                child: Text(
-                  s?.askMintTitle ?? 'Demander a MINT',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
               ),
             ),

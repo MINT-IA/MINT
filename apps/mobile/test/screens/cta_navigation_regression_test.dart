@@ -300,21 +300,22 @@ void main() {
 
       final mini = buildMiniCoachProvider();
       // Mini provider answers 3 of 16 quality keys (q_birth_year,
-      // q_canton, q_net_income_period_chf). Result: (3/16).clamp(0.10, 0.55).
+      // q_canton, q_net_income_period_chf). Result: (3/16).clamp(0.05, 1.0).
       expect(mini.profileCompleteness, 3 / 16);
 
       final full = buildFullCoachProvider();
-      expect(full.profileCompleteness, 0.60);
+      // Full provider — continuous scale, no artificial floor.
+      expect(full.profileCompleteness, greaterThanOrEqualTo(0.5));
     });
 
     test('onboardingQualityScore and wizard section recommendation are dynamic',
         () {
       final mini = buildMiniCoachProvider();
-      expect(mini.onboardingQualityScore, greaterThanOrEqualTo(0.15));
+      expect(mini.onboardingQualityScore, greaterThanOrEqualTo(0.05));
       expect(mini.recommendedWizardSection, isNotEmpty);
 
       final full = buildFullCoachProvider();
-      expect(full.onboardingQualityScore, greaterThanOrEqualTo(0.60));
+      expect(full.onboardingQualityScore, greaterThanOrEqualTo(0.5));
       expect(
         ['identity', 'income', 'pension', 'property']
             .contains(full.recommendedWizardSection),

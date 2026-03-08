@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -301,7 +302,7 @@ class ProfileScreen extends StatelessWidget {
     final s = S.of(context);
     final coachProfile = context.watch<CoachProfileProvider>();
     final hasFullWizard = coachProfile.hasFullProfile;
-    final hasMini = coachProfile.isPartialProfile;
+    final hasMini = coachProfile.hasProfile && !hasFullWizard;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -385,7 +386,7 @@ class ProfileScreen extends StatelessWidget {
     final scorePart = score != null ? ' • Score estime: $score/100' : '';
     final profileState = coachProvider.hasFullProfile
         ? (s?.profileStateFull ?? 'Profil complet')
-        : coachProvider.isPartialProfile
+        : coachProvider.hasProfile
             ? (s?.profileStatePartial ?? 'Profil partiel')
             : (s?.profileStateMissing ?? 'Profil non renseigne');
 
@@ -1201,6 +1202,12 @@ class ProfileScreen extends StatelessWidget {
             await context.read<BudgetProvider>().clear();
             await AnalyticsService().clearLocalQueue();
 
+            // Force re-read from SharedPreferences (now empty) to confirm
+            // _profile = null in memory. Without this, _isLoaded = false
+            // can cause stale data to reappear on re-render.
+            if (!context.mounted) return;
+            await context.read<CoachProfileProvider>().loadFromWizard();
+
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -1210,7 +1217,14 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             );
-            context.go('/');
+            if (!context.mounted) return;
+            if (kIsWeb) {
+              // On web, navigate to onboarding so the user sees a clean slate.
+              // loadFromWizard() above already confirmed _profile = null.
+              context.go('/onboarding/smart');
+            } else {
+              context.go('/');
+            }
           },
           style: TextButton.styleFrom(foregroundColor: Colors.red),
           child: Text(

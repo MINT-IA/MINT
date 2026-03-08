@@ -43,14 +43,11 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Niveau de completude du profil (0.0 a 1.0).
   /// Dynamique: ratio des signaux qualite renseignes sur le total.
-  /// Plancher: partial=0.10, full=0.60.
   double get profileCompleteness {
     if (_profile == null) return 0.0;
     final total = onboardingTotalSignals;
-    if (total == 0) return _isPartialProfile ? 0.10 : 0.60;
-    final raw = onboardingAnsweredSignals / total;
-    if (_isPartialProfile) return raw.clamp(0.10, 0.55);
-    return raw.clamp(0.60, 1.0);
+    if (total == 0) return 0.10;
+    return (onboardingAnsweredSignals / total).clamp(0.05, 1.0);
   }
 
   /// Nombre de donnees renseignees (pour le badge precision).
@@ -136,17 +133,13 @@ class CoachProfileProvider extends ChangeNotifier {
     return _qualityKeys.length;
   }
 
-  /// Dynamic onboarding quality score, independent from legacy precision badge.
-  /// Preserves floor by profile mode:
-  /// - mini profile: 15%..55%
-  /// - full profile: 60%..95%
+  /// Dynamic onboarding quality score — continuous 0..1 scale.
+  /// Based purely on answered signals / total signals.
   double get onboardingQualityScore {
     if (_profile == null) return 0.0;
     final total = onboardingTotalSignals;
-    if (total == 0) return _isPartialProfile ? 0.15 : 0.60;
-    final raw = onboardingAnsweredSignals / total;
-    if (_isPartialProfile) return raw.clamp(0.15, 0.55);
-    return raw.clamp(0.60, 0.95);
+    if (total == 0) return 0.10;
+    return (onboardingAnsweredSignals / total).clamp(0.05, 0.95);
   }
 
   String get recommendedWizardSection {
@@ -393,6 +386,8 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_birth_year': birthYear,
       'q_canton': canton,
       'q_net_income_period_chf': netMonthly,
+      // Store gross annual directly to avoid net→gross roundtrip imprecision.
+      'q_gross_salary_annual': grossSalary,
       // Use actual employment status — independant may not have LPP
       'q_employment_status': effectiveEmployment,
       // LPP access: salary > seuil AND salarié (LPP art. 7 — indépendants: opt.)
