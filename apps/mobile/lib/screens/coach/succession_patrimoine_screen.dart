@@ -98,7 +98,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   title: 'Testament',
                   subtitle: 'CC art. 498–504',
                   body:
-                      'Deux formes valides :\n• Olographe : entièrement manuscrit, daté et signé — pas de témoin requis.\n• Notarié : devant notaire avec 2 témoins — conseillé pour les situations complexes.\nPas de testament = succession légale par défaut.',
+                      'Deux formes valides :\n• Olographe : entièrement manuscrit, daté et signé — pas de témoin requis.\n• Notarié : devant notaire avec 2 témoins — recommandé pour les situations complexes.\nPas de testament = succession légale par défaut.',
                   color: const Color(0xFF00695C),
                 ),
                 const SizedBox(height: 10),

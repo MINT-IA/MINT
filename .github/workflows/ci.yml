@@ -43,9 +43,7 @@ jobs:
       - name: Security audit (pip-audit)
         run: |
           pip install pip-audit
-          pip-audit --skip-editable --desc on 2>&1 || true
-          # Run again with exit code (fail on HIGH+ severity)
-          pip-audit --skip-editable --desc on --severity high
+          pip-audit --skip-editable --desc on
 
       - name: Run tests
         env:
