@@ -95,8 +95,8 @@ class OrchestratorOutput {
 class CoachOrchestrator {
   CoachOrchestrator._();
 
-  /// SLM inference timeout.
-  static const Duration _slmTimeout = Duration(seconds: 10);
+  /// SLM inference timeout (generous for first-init which loads ~2.3 GB).
+  static const Duration _slmTimeout = Duration(seconds: 30);
 
   /// BYOK cloud LLM timeout.
   static const Duration _byokTimeout = Duration(seconds: 30);
@@ -479,15 +479,45 @@ class CoachOrchestrator {
     );
   }
 
-  /// Safe chat fallback (no LLM, no templates — plain safety message).
+  /// Safe chat fallback — honest message when no LLM is available.
   static CoachResponse _chatFallback() {
     return CoachResponse(
-      message: 'Je suis là pour t\'aider à comprendre ta situation financière. '
-          'N\'hésite pas à reformuler ta question, ou explore les simulateurs '
-          'pour des estimations chiffrées.\n\n'
+      message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'
+          'En attendant, tu peux :\n'
+          '• Explorer tes simulateurs (3a, LPP, retraite)\n'
+          '• Consulter les fiches éducatives\n'
+          '• Enrichir ton profil pour des projections plus précises\n\n'
           '_${ComplianceGuard.standardDisclaimer}_',
       disclaimer: ComplianceGuard.standardDisclaimer,
       wasFiltered: false,
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  PUBLIC API — streaming chat (SLM only)
+  // ══════════════════════════════════════════════════════════════
+
+  /// Stream a chat response token-by-token from the SLM.
+  ///
+  /// Returns null if SLM is not eligible or not available.
+  /// Caller should fall back to [generateChat] for BYOK / fallback.
+  static Stream<String>? streamChat({
+    required String userMessage,
+    required List<ChatMessage> history,
+    required CoachContext ctx,
+  }) {
+    if (!_slmEligible()) return null;
+
+    final engine = SlmEngine.instance;
+    if (!engine.isAvailable) return null;
+
+    final systemPrompt = PromptRegistry.baseSystemPrompt;
+    final conversationCtx = _buildConversationContext(history, userMessage);
+    final truncated = _truncateToContextWindow(conversationCtx);
+
+    return engine.generateStream(
+      systemPrompt: systemPrompt,
+      userPrompt: truncated,
     );
   }
 

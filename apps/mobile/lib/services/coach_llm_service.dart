@@ -83,6 +83,21 @@ class LlmConfig {
   }
 }
 
+/// Which AI tier produced a coach message.
+enum ChatTier {
+  /// On-device SLM (Gemma 3n) — privacy-first, zero network.
+  slm,
+
+  /// Cloud BYOK LLM (OpenAI / Anthropic / Mistral).
+  byok,
+
+  /// Static fallback — no AI.
+  fallback,
+
+  /// Not applicable (user messages, system messages).
+  none,
+}
+
 /// Message dans l'historique de conversation
 class ChatMessage {
   final String role; // 'user', 'assistant', 'system'
@@ -91,6 +106,7 @@ class ChatMessage {
   final List<String>? suggestedActions;
   final List<RagSource> sources;
   final List<String> disclaimers;
+  final ChatTier tier;
 
   const ChatMessage({
     required this.role,
@@ -99,6 +115,7 @@ class ChatMessage {
     this.suggestedActions,
     this.sources = const [],
     this.disclaimers = const [],
+    this.tier = ChatTier.none,
   });
 
   bool get isUser => role == 'user';
