@@ -271,6 +271,12 @@ class ComplianceGuard {
     return found;
   }
 
+  /// Public accessor for banned-term sanitization.
+  ///
+  /// Used as a minimal safety net when the full [validate] pipeline crashes
+  /// (e.g. on SLM output where ComplianceGuard encounters an edge case).
+  static String sanitizeBannedTerms(String text) => _sanitizeBannedTerms(text);
+
   /// Sanitize text by replacing banned terms with softer alternatives.
   /// Processes multi-word phrases first (longer match priority), then
   /// single-word terms, to avoid partial replacements mangling phrases.

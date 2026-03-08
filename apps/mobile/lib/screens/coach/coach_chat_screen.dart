@@ -57,8 +57,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
   bool _isStreaming = false;
-  String _streamBuffer = '';
+  final StringBuffer _streamBuffer = StringBuffer();
   bool _isByokConfigured = false;
+
+  /// SLM stream timeout — prevents infinite hang if model deadlocks.
+  static const Duration _streamTimeout = Duration(seconds: 45);
 
   bool _profileInitialized = false;
 
@@ -204,7 +207,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     setState(() {
       _isLoading = false;
       _isStreaming = true;
-      _streamBuffer = '';
+      _streamBuffer.clear();
       // Add placeholder message that will be updated.
       _messages.add(ChatMessage(
         role: 'assistant',
@@ -215,15 +218,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     });
     _scrollToBottom();
 
+    // Wrap the stream with a timeout to prevent infinite hang.
+    bool timedOut = false;
     try {
-      await for (final token in stream) {
+      final timedStream = stream.timeout(
+        _streamTimeout,
+        onTimeout: (sink) {
+          timedOut = true;
+          sink.close();
+        },
+      );
+      await for (final token in timedStream) {
         if (!mounted) return;
-        _streamBuffer += token;
+        _streamBuffer.write(token);
+        final current = _streamBuffer.toString();
         setState(() {
-          // Replace last message with updated content.
           _messages[_messages.length - 1] = ChatMessage(
             role: 'assistant',
-            content: _streamBuffer,
+            content: current,
             timestamp: DateTime.now(),
             tier: ChatTier.slm,
           );
@@ -236,10 +248,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     if (!mounted) return;
 
-    // Validate through ComplianceGuard.
-    final rawText = _streamBuffer.trim();
+    final rawText = _streamBuffer.toString().trim();
+
+    // SLM produced nothing or timed out with no content — fall back.
     if (rawText.isEmpty) {
-      // SLM produced nothing — fall back to standard path.
       setState(() {
         _messages.removeLast();
         _isStreaming = false;
@@ -249,6 +261,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       return;
     }
 
+    // If timed out but has partial content, keep what we have.
+    if (timedOut) {
+      debugPrint('[CoachChat] SLM stream timed out with partial content');
+    }
+
+    // Validate through ComplianceGuard.
     ComplianceResult compliance;
     try {
       compliance = ComplianceGuard.validate(
@@ -257,10 +275,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         componentType: ComponentType.general,
       );
     } catch (_) {
-      // Compliance crash — keep raw text (SLM is local, low risk).
+      // ComplianceGuard crashed — still sanitize banned terms manually
+      // since SLM can generate them despite system prompt.
       compliance = ComplianceResult(
         isCompliant: true,
-        sanitizedText: rawText,
+        sanitizedText: ComplianceGuard.sanitizeBannedTerms(rawText),
       );
     }
 
@@ -834,25 +853,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   Widget _buildCursor() {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value < 0.5 ? 1.0 : 0.0,
-          child: Container(
-            width: 2,
-            height: 14,
-            color: MintColors.coachAccent,
-          ),
-        );
-      },
-      onEnd: () {
-        if (mounted && _isStreaming) {
-          setState(() {}); // Retrigger animation
-        }
-      },
-    );
+    return const _BlinkingCursor();
   }
 
   Widget _buildTierBadge(ChatTier tier) {
@@ -1156,6 +1157,55 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Isolated blinking cursor — manages its own animation lifecycle.
+///
+/// Avoids triggering parent [setState] for blink cycles, preventing
+/// full [ListView] rebuilds during streaming.
+class _BlinkingCursor extends StatefulWidget {
+  const _BlinkingCursor();
+
+  @override
+  State<_BlinkingCursor> createState() => _BlinkingCursorState();
+}
+
+class _BlinkingCursorState extends State<_BlinkingCursor>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _controller.value < 0.5 ? 1.0 : 0.0,
+          child: child,
+        );
+      },
+      child: Container(
+        width: 2,
+        height: 14,
+        color: MintColors.coachAccent,
       ),
     );
   }
