@@ -17,6 +17,8 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════
@@ -28,6 +30,14 @@ void main() {
       return ChangeNotifierProvider<CoachProfileProvider>(
         create: (_) => CoachProfileProvider(),
         child: const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: MariageScreen(),
         ),
       );
@@ -133,6 +143,14 @@ void main() {
   group('NaissanceScreen', () {
     Widget buildNaissanceScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: NaissanceScreen(),
       );
     }
@@ -228,6 +246,14 @@ void main() {
   group('ConcubinageScreen', () {
     Widget buildConcubinageScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: ConcubinageScreen(),
       );
     }
@@ -322,6 +348,14 @@ void main() {
   group('DonationScreen', () {
     Widget buildDonationScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: DonationScreen(),
       );
     }
@@ -452,6 +486,14 @@ void main() {
   group('HousingSaleScreen', () {
     Widget buildHousingSaleScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: HousingSaleScreen(),
       );
     }

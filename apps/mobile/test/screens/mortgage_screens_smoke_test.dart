@@ -7,6 +7,8 @@ import 'package:mint_mobile/screens/mortgage/saron_vs_fixed_screen.dart';
 import 'package:mint_mobile/screens/mortgage/imputed_rental_screen.dart';
 import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // =============================================================================
 // SMOKE TESTS — Mortgage Module Screens (5 screens)
@@ -35,6 +37,14 @@ void main() {
   group('AffordabilityScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: AffordabilityScreen(),
       );
     }
@@ -172,6 +182,14 @@ void main() {
   group('SaronVsFixedScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: SaronVsFixedScreen(),
       );
     }
@@ -288,6 +306,14 @@ void main() {
   group('ImputedRentalScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: ImputedRentalScreen(),
       );
     }
@@ -390,6 +416,14 @@ void main() {
   group('AmortizationScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: AmortizationScreen(),
       );
     }
@@ -505,6 +539,14 @@ void main() {
   group('EplCombinedScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: EplCombinedScreen(),
       );
     }

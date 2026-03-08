@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/libre_passage_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/epl_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // =============================================================================
 // SMOKE TESTS — LPP Deep Module Screens (3 screens)
@@ -34,6 +36,14 @@ void main() {
   group('RachatEchelonneScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: RachatEchelonneScreen(),
       );
     }
@@ -88,6 +98,14 @@ void main() {
   group('LibrePassageScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: LibrePassageScreen(),
       );
     }
@@ -206,6 +224,14 @@ void main() {
   group('EplScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: EplScreen(),
       );
     }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final scenarios = [
@@ -18,6 +20,14 @@ void main() {
 
   Widget buildTestWidget({int initialAge = 65}) {
     return MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
       home: Scaffold(
         body: SingleChildScrollView(
           child: EarlyRetirementSlider(
@@ -69,6 +79,14 @@ void main() {
 
     testWidgets('handles empty scenarios', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: EarlyRetirementSlider(
             scenarios: const [],

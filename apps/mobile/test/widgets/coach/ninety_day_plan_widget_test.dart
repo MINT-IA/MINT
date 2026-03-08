@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/ninety_day_plan_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final phases = [
@@ -37,6 +39,14 @@ void main() {
   ];
 
   Widget buildWidget() => MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: NinetyDayPlanWidget(phases: phases),
         ),
@@ -83,6 +93,14 @@ void main() {
 
   testWidgets('returns shrink for empty phases', (tester) async {
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
       home: Scaffold(body: NinetyDayPlanWidget(phases: const [])),
     ));
     expect(find.textContaining('Plan 90 jours'), findsNothing);

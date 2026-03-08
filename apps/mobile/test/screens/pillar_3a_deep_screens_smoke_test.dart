@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/staggered_withdrawal_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/real_return_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // =============================================================================
 // SMOKE TESTS — Pillar 3a Deep Module Screens (3 screens)
@@ -34,6 +36,14 @@ void main() {
   group('StaggeredWithdrawalScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: StaggeredWithdrawalScreen(),
       );
     }
@@ -168,6 +178,14 @@ void main() {
   group('RealReturnScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: RealReturnScreen(),
       );
     }
@@ -308,6 +326,14 @@ void main() {
   group('ProviderComparatorScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: ProviderComparatorScreen(),
       );
     }

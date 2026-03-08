@@ -6,9 +6,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 Widget _wrap(Widget child) =>
-    MaterialApp(home: Scaffold(body: SingleChildScrollView(child: child)));
+    MaterialApp(
+ locale: const Locale('fr'),
+ localizationsDelegates: const [
+   S.delegate,
+   GlobalMaterialLocalizations.delegate,
+   GlobalWidgetsLocalizations.delegate,
+   GlobalCupertinoLocalizations.delegate,
+ ],
+ supportedLocales: S.supportedLocales,home: Scaffold(body: SingleChildScrollView(child: child)));
 
 void main() {
   // ─── EduSectionTitle ───────────────────────────────────────

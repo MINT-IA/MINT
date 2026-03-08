@@ -18,6 +18,8 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 
 // Models
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   setUp(() {
@@ -54,7 +56,15 @@ void main() {
           create: (_) => SlmProvider(),
         ),
       ],
-      child: const MaterialApp(home: ProfileScreen()),
+      child: const MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,home: ProfileScreen()),
     );
   }
 

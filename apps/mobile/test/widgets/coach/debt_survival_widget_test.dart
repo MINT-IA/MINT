@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // totalDebt=25000, monthlyMargin=150, daysSinceLastLate=7, monthlyIncome=4500
   // debtRatio = 25000 / (4500*12) = 25000/54000 ≈ 46% > 30% → ACTIVÉ
 
   Widget buildWidget({double margin = 150, int lateDays = 7}) => MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: DebtSurvivalWidget(

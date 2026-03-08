@@ -12,6 +12,8 @@ import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 // Dependencies
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Helper to wrap a widget with ProfileProvider.
 Widget buildWithProfileProvider(Widget child, {bool hasDebt = false}) {
@@ -27,6 +29,14 @@ Widget buildWithProfileProvider(Widget child, {bool hasDebt = false}) {
     createdAt: DateTime(2025, 1, 1),
   ));
   return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
     home: ChangeNotifierProvider<ProfileProvider>.value(
       value: provider,
       child: child,
@@ -143,6 +153,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -159,6 +177,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -177,6 +203,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -192,6 +226,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -208,6 +250,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -224,6 +274,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -241,6 +299,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -256,6 +322,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: OpenBankingHubScreen(),
         ),
       );
@@ -279,6 +353,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -295,6 +377,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -313,6 +403,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -328,6 +426,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -343,6 +449,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -359,6 +473,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -374,6 +496,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -390,6 +520,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: TransactionListScreen(),
         ),
       );
@@ -413,6 +551,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -429,6 +575,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -447,6 +601,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -462,6 +624,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -477,6 +647,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -495,6 +673,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -511,6 +697,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -526,6 +720,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -541,6 +743,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
@@ -559,6 +769,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsentScreen(),
         ),
       );
