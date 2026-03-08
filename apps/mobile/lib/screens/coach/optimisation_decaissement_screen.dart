@@ -133,11 +133,21 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── CTA spécialiste ───────────────────────────
-                _SpecialistCta(),
+                EduSpecialistCta(
+                  icon: Icons.person_outline,
+                  color: const Color(0xFF00695C),
+                  title: 'Consulter un·e spécialiste',
+                  body: 'Un·e spécialiste en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
+                ),
                 const SizedBox(height: 24),
 
                 // ── Sources légales ───────────────────────────
-                _LegalSources(),
+                EduLegalSources(
+                  sources: '• LIFD art. 38 — Imposition séparée des prestations en capital\n'
+                      '• OPP3 art. 3 — Conditions de retrait anticipé du pilier 3a\n'
+                      '• OPP3 art. 7 — Plafonds de déduction\n'
+                      '• OPP3 (révision 2026) — Possibilité de détenir plusieurs comptes 3a',
+                ),
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
@@ -442,92 +452,4 @@ class _StepCard extends StatelessWidget {
   }
 }
 
-class _SpecialistCta extends StatelessWidget {
-  const _SpecialistCta();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF00695C).withAlpha(10),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF00695C).withAlpha(50)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.person_outline,
-              color: Color(0xFF00695C), size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Consulter un·e spécialiste',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Un·e spécialiste en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LegalSources extends StatelessWidget {
-  const _LegalSources();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Sources légales',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '• LIFD art. 38 — Imposition séparée des prestations en capital\n'
-            '• OPP3 art. 3 — Conditions de retrait anticipé du pilier 3a\n'
-            '• OPP3 art. 7 — Plafonds de déduction\n'
-            '• OPP3 (révision 2026) — Possibilité de détenir plusieurs comptes 3a',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// EduDisclaimer and EduSectionTitle moved to widgets/coach/edu_shared_widgets.dart
+// All shared widgets moved to widgets/coach/edu_shared_widgets.dart

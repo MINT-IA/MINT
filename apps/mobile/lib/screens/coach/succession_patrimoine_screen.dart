@@ -138,11 +138,22 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── CTA spécialiste ───────────────────────────
-                _SpecialistCta(),
+                EduSpecialistCta(
+                  icon: Icons.gavel_outlined,
+                  color: const Color(0xFF37474F),
+                  title: 'Consulter un·e notaire ou spécialiste',
+                  body: 'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t\'orienter sur l\'organisation successorale adaptée à ta situation.',
+                ),
                 const SizedBox(height: 24),
 
                 // ── Sources légales ───────────────────────────
-                _LegalSources(),
+                EduLegalSources(
+                  sources: '• CC art. 457–640 — Droit des successions\n'
+                      '• CC art. 470–471 — Réserves héréditaires\n'
+                      '• CC art. 498–504 — Formes du testament\n'
+                      '• LPP art. 20 — Bénéficiaires du capital LPP\n'
+                      '• OPP3 art. 2 — Bénéficiaires du pilier 3a',
+                ),
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
@@ -341,93 +352,4 @@ class _ChecklistCard extends StatelessWidget {
   }
 }
 
-class _SpecialistCta extends StatelessWidget {
-  const _SpecialistCta();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF37474F).withAlpha(10),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF37474F).withAlpha(50)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.gavel_outlined,
-              color: Color(0xFF37474F), size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Consulter un·e notaire ou spécialiste',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t\'orienter sur l\'organisation successorale adaptée à ta situation.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LegalSources extends StatelessWidget {
-  const _LegalSources();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Sources légales',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '• CC art. 457–640 — Droit des successions\n'
-            '• CC art. 470–471 — Réserves héréditaires\n'
-            '• CC art. 498–504 — Formes du testament\n'
-            '• LPP art. 20 — Bénéficiaires du capital LPP\n'
-            '• OPP3 art. 2 — Bénéficiaires du pilier 3a',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// EduDisclaimer and EduSectionTitle moved to widgets/coach/edu_shared_widgets.dart
+// All shared widgets moved to widgets/coach/edu_shared_widgets.dart
