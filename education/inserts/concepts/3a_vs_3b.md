@@ -1,21 +1,15 @@
-# Insert: 3a_vs_3b (Pilier 3a vs 3b)
-
-## Metadata
-```yaml
-questionId: "3a_vs_3b"
-phase: "Niveau 1"
-status: "READY"
-pilier: 3
-concept: "3a_vs_3b"
-```
+---
+id: 3a_vs_3b
+title: Pilier 3a vs pilier 3b — le coffre verrouillé et la tirelire libre
+trigger: utilisateur sans 3a, question sur différence 3a/3b, épargne libre au-delà du plafond 3a
+tags: [3a, 3b, epargne, fiscalite, opp3, lifd, retraite]
+---
 
 ## Trigger
-- L'utilisateur demande la différence entre 3a et 3b.
-- Le coach détecte que l'utilisateur n'a pas encore de 3a.
-- L'utilisateur envisage une épargne libre au-delà du plafond 3a.
+L'utilisateur demande la différence entre 3a et 3b, le coach détecte que l'utilisateur n'a pas encore de 3a, ou l'utilisateur envisage une épargne libre au-delà du plafond 3a.
 
 ## Chiffre Choc
-"CHF 7'258 versés en 3a économisent entre CHF 1'500 et CHF 3'500 d'impôts la même année — selon ton canton et ton revenu. C'est un rendement fiscal immédiat de 20 à 48% avant tout intérêt."
+CHF 7'258 versés en 3a économisent entre CHF 1'500 et CHF 3'500 d'impôts la même année — selon ton canton et ton revenu. C'est un rendement fiscal immédiat de 20 à 48% avant tout intérêt.
 
 ## Niveau 0
 Imagine deux coffres-forts pour tes économies de retraite. Le **coffre 3a** a une seule clé officielle : tu ne peux l'ouvrir qu'à la retraite, pour acheter un logement, en cas d'invalidité grave, ou si tu quittes définitivement la Suisse. Mais en échange, l'État te rembourse une partie de ce que tu mets dedans (déduction fiscale). C'est un marché : tu cèdes de la flexibilité, tu gagnes des économies d'impôts aujourd'hui.
@@ -37,21 +31,18 @@ Limite de l'analogie : le coffre 3a peut aussi accueillir des placements en acti
 
 **Pilier 3b (libre)** :
 - Aucun plafond légal fédéral.
-- Déductible uniquement dans certains cantons (ex : Genève, Fribourg) et seulement pour les assurances-vie 3b.
+- Déductible uniquement dans certains cantons (ex : Genève, Fribourg) pour les assurances-vie 3b.
 - Retraits sans restriction légale.
 - Rendements soumis à l'impôt ordinaire (LIFD art. 20 pour les intérêts, impôt sur la fortune pour le capital).
 - Inclut : comptes d'épargne ordinaires, placements boursiers, assurances-vie libre, immobilier, etc.
 
-Stratégie combinée : maximiser le 3a chaque année (avantage fiscal immédiat), puis orienter le surplus vers le 3b en fonds indiciels (ex : ETF) sur un compte de courtage.
+Stratégie combinée : maximiser le 3a chaque année (avantage fiscal immédiat), puis orienter le surplus vers le 3b en fonds indiciels (ex : ETF) via un compte de courtage.
 
 ## Sources
 - OPP3 art. 3 (conditions de retrait du 3a)
-- OPP3 art. 7 (plafonds de déduction 3a)
-- LIFD art. 33 al. 1 let. e (déduction 3a)
+- OPP3 art. 7 (plafonds de déduction 3a — CHF 7'258 salarié LPP, CHF 36'288 indépendant sans LPP)
+- LIFD art. 33 al. 1 let. e (déduction 3a du revenu imposable)
 - LIFD art. 38 (imposition séparée du capital 3a à la sortie)
 
-## Action
-"Si tu n'as pas encore de compte 3a, ouvre-en un avant la fin de l'année fiscale pour bénéficier de la déduction — même un versement partiel réduit tes impôts immédiatement."
-
 ## Disclaimer
-"Information à caractère éducatif, ne constitue pas un conseil fiscal ou en prévoyance au sens de la LSFin. Les économies fiscales indiquées sont des estimations — l'économie réelle dépend de ton revenu imposable, de ton canton et de ta situation familiale. Consulte un·e spécialiste pour ta situation personnelle."
+Information à caractère éducatif — ne constitue pas un conseil fiscal ou en prévoyance au sens de la LSFin. Les économies fiscales indiquées sont des estimations — l'économie réelle dépend de ton revenu imposable, de ton canton et de ta situation familiale. Consulte un·e spécialiste pour ta situation personnelle.

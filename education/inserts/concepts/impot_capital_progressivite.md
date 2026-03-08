@@ -1,33 +1,27 @@
-# Insert: impot_capital_progressivite (Imposition progressive du retrait en capital)
-
-## Metadata
-```yaml
-questionId: "impot_capital_progressivite"
-phase: "Niveau 1"
-status: "READY"
-pilier: 2
-concept: "impot_capital_progressivite"
-```
+---
+id: impot_capital_progressivite
+title: Imposition progressive du retrait en capital — étaler pour économiser
+trigger: retrait capital LPP ou 3a, avoir total > CHF 100'000, plusieurs comptes 3a
+tags: [lpp, 3a, capital, fiscalite, lifd, progressivite, echelonnement]
+---
 
 ## Trigger
-- L'utilisateur envisage un retrait en capital du 2e et/ou 3e pilier.
-- L'utilisateur a plusieurs comptes 3a.
-- Le coach détecte un avoir LPP ou 3a total dépassant CHF 100'000.
+L'utilisateur envisage un retrait en capital du 2e et/ou 3e pilier, possède plusieurs comptes 3a, ou le coach détecte un avoir LPP ou 3a total dépassant CHF 100'000.
 
 ## Chiffre Choc
-"Dans certains cantons, retirer CHF 200'000 en deux fois sur deux années fiscales peut économiser CHF 10'000 à 20'000 d'impôts par rapport à un retrait unique — la progressivité punit les gros retraits concentrés."
+Dans certains cantons, retirer CHF 200'000 en deux fois sur deux années fiscales distinctes peut économiser CHF 10'000 à 20'000 d'impôts par rapport à un retrait unique — la progressivité punit les gros retraits concentrés.
 
 ## Niveau 0
-Imagine que l'État applique un tarif dégressif sur ton retrait de retraite : plus tu retires en une seule fois, plus le pourcentage d'impôt augmente. C'est comme un restaurant où les premiers plats coûtent CHF 20 pièce, mais si tu commandes 10 plats en même temps, le prix par plat monte à CHF 35.
+Imagine que l'État applique un tarif par tranche sur ton retrait de retraite : plus tu retires en une seule fois, plus le pourcentage d'impôt augmente. C'est comme un restaurant où les premiers plats coûtent CHF 20 pièce, mais si tu commandes 10 plats en même temps, le prix par plat monte à CHF 35.
 
 La stratégie naturelle : étaler ta commande sur plusieurs tables — c'est-à-dire plusieurs années fiscales — pour rester dans les tranches basses du tarif.
 
-Limite de l'analogie : tu ne peux pas "partager une table" avec ton partenaire pour leur faire payer moins — l'imposition est individuelle et dépend de l'ensemble des capitaux retirés dans l'année par la même personne (LPP + 3a + libre passage cumulés). Et dans certains cantons, les retraits du conjoint sont pris en compte dans le calcul.
+Limite de l'analogie : tu ne peux pas partager une table avec ton partenaire pour leur faire payer moins — l'imposition est individuelle et dépend de l'ensemble des capitaux retirés dans l'année par la même personne (LPP + 3a + libre passage cumulés). Et dans certains cantons, les retraits du conjoint sont pris en compte dans le calcul.
 
 ## Niveau 1
 Le retrait en capital du 2e pilier (LPP art. 37), du 3e pilier lié (OPP3 art. 3) et des avoirs de libre passage est imposé **séparément** du revenu ordinaire, à un taux réduit (LIFD art. 38). Au niveau fédéral, le taux est 1/5 du barème ordinaire.
 
-Le taux effectif est cependant **progressif** : plus le montant total retiré dans une même année fiscale est élevé, plus le taux appliqué est haut. Les brackets MINT (à titre indicatif — varient par canton) :
+Le taux effectif est cependant **progressif** : plus le montant total retiré dans une même année fiscale est élevé, plus le taux appliqué est haut. Brackets indicatifs (varient par canton) :
 
 | Montant retiré | Multiplicateur indicatif |
 |----------------|-------------------------|
@@ -47,12 +41,9 @@ Attention : dans certains cantons (ex : Genève, Vaud), les retraits des deux co
 La décision de retrait en capital est souvent **irrévocable** — il faut l'annoncer à la caisse de pension plusieurs années à l'avance (généralement 3 ans minimum).
 
 ## Sources
-- LIFD art. 38 (imposition séparée des prestations en capital)
+- LIFD art. 38 (imposition séparée des prestations en capital — taux réduit progressif)
 - LPP art. 37 (forme de la prestation : rente ou capital)
-- OPP3 art. 3 (retrait du 3e pilier lié)
-
-## Action
-"Recense tous tes avoirs à retirer (LPP, 3a, libre passage) et planifie l'ordre et le calendrier de retrait avec un·e spécialiste fiscal·e — l'économie potentielle justifie souvent cette consultation."
+- OPP3 art. 3 (conditions de retrait du 3e pilier lié)
 
 ## Disclaimer
-"Information à caractère éducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les taux et règles d'imposition varient fortement selon le canton et ta situation individuelle. Les chiffres indiqués sont des estimations — consulte un·e spécialiste pour ta situation personnelle."
+Information à caractère éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Les taux et règles d'imposition varient fortement selon le canton et ta situation individuelle. Les chiffres indiqués sont des estimations. Consulte un·e spécialiste fiscal·e pour ta situation personnelle.

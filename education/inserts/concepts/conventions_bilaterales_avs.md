@@ -1,21 +1,15 @@
-# Insert: conventions_bilaterales_avs (Conventions bilatérales AVS)
-
-## Metadata
-```yaml
-questionId: "conventions_bilaterales_avs"
-phase: "Niveau 1"
-status: "READY"
-pilier: 1
-concept: "conventions_bilaterales_avs"
-```
+---
+id: conventions_bilaterales_avs
+title: Conventions bilatérales AVS — totaliser pour ouvrir le droit
+trigger: profil expat EU, travail dans plusieurs pays européens, années de cotisation hors Suisse
+tags: [avs, expat, frontalier, bilatéral, totalisation, alcp, proratisation]
+---
 
 ## Trigger
-- Le profil utilisateur détecte un archetype expat_eu ou cross_border.
-- L'utilisateur a travaillé dans plusieurs pays européens.
-- L'utilisateur signale des années de cotisation hors Suisse.
+Le profil utilisateur détecte un archetype expat_eu ou cross_border, l'utilisateur a travaillé dans plusieurs pays européens, ou l'utilisateur signale des années de cotisation hors Suisse.
 
 ## Chiffre Choc
-"Un frontalier qui a travaillé 20 ans en France et 24 ans en Suisse a droit à une rente AVS complète (44 ans totalisés via les accords bilatéraux) — sans la totalisation, il n'aurait droit à rien en Suisse avec seulement 24 ans."
+Un frontalier qui a travaillé 20 ans en France et 24 ans en Suisse a droit à une rente AVS suisse calculée sur 24/44 ans — sans la totalisation, il n'aurait pas de droit du tout en Suisse avec seulement 24 ans cotisés (sous le seuil d'une carrière complète).
 
 ## Niveau 0
 Imagine que ta retraite AVS est un album de timbres. Il te faut 44 timbres suisses pour avoir un album complet et toucher la rente maximale. Si tu n'as que 24 timbres suisses, l'album est incomplet.
@@ -42,16 +36,13 @@ La Suisse a conclu des conventions de sécurité sociale avec de nombreux pays. 
 - Travaille en Suisse, réside en France/Allemagne/Italie/Autriche.
 - Cotise à l'AVS suisse → droits AVS suisses normaux.
 - Imposition à la source selon les conventions fiscales bilatérales.
-- Pour les ressortissants US : règles FATCA s'appliquent indépendamment (voir fiche expat_us).
+- Pour les ressortissants US : règles FATCA s'appliquent indépendamment.
 
 ## Sources
-- LAVS art. 153a (coordination internationale)
+- LAVS art. 153a (coordination internationale — totalisation des périodes)
 - Accord CH-UE ALCP, Annexe II (sécurité sociale)
-- Règlement CE n°883/2004 (coordination des systèmes de sécurité sociale)
-- LAVS art. 29 (conditions d'octroi de la rente)
-
-## Action
-"Si tu as travaillé dans des pays UE/AELE, demande un extrait de compte AVS suisse sur ahv-iv.ch ET renseigne-toi auprès de la caisse de retraite de chaque pays concerné — tu peux avoir droit à plusieurs rentes simultanées."
+- Règlement CE n°883/2004 (coordination des systèmes de sécurité sociale UE)
+- LAVS art. 29 (conditions d'octroi et calcul de la rente de vieillesse)
 
 ## Disclaimer
-"Information à caractère éducatif, ne constitue pas un conseil en prévoyance au sens de la LSFin. Les conventions bilatérales ont des règles spécifiques selon le pays et ta situation individuelle (nationalité, durée de résidence, type de permis). Consulte un·e spécialiste en prévoyance internationale pour ta situation personnelle."
+Information à caractère éducatif — ne constitue pas un conseil en prévoyance au sens de la LSFin. Les conventions bilatérales ont des règles spécifiques selon le pays et ta situation individuelle (nationalité, durée de résidence, type de permis). Consulte un·e spécialiste en prévoyance internationale pour ta situation personnelle.

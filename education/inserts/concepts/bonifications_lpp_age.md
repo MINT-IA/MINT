@@ -1,31 +1,25 @@
-# Insert: bonifications_lpp_age (Bonifications de vieillesse LPP par âge)
-
-## Metadata
-```yaml
-questionId: "bonifications_lpp_age"
-phase: "Niveau 1"
-status: "READY"
-pilier: 2
-concept: "bonifications_lpp_age"
-```
+---
+id: bonifications_lpp_age
+title: Bonifications de vieillesse LPP par âge — l'escalier qui s'accélère
+trigger: consultation avoir LPP par tranche d'âge, changement d'emploi après 45 ans
+tags: [lpp, bonifications, age, salaire_coordonne, retraite]
+---
 
 ## Trigger
-- L'utilisateur consulte la composition de son avoir LPP.
-- L'utilisateur s'interroge sur l'impact d'un changement d'emploi à 40 ou 50 ans.
-- Le coach détecte une tranche d'âge 45-54 ans ou 55-65 ans.
+L'utilisateur consulte la composition de son avoir LPP, s'interroge sur l'impact d'un changement d'emploi à 40 ou 50 ans, ou le coach détecte un profil dans la tranche 45-54 ou 55-65 ans.
 
 ## Chiffre Choc
-"À 55 ans, ton employeur verse 18% de ton salaire coordonné chaque année dans ton 2e pilier — c'est la marche la plus haute de l'escalier, et elle dure 10 ans."
+À 55 ans, chaque CHF 100'000 de salaire coordonné génère CHF 18'000/an d'épargne LPP — c'est la marche la plus haute de l'escalier, soit 2.6× plus qu'à 30 ans (7%).
 
 ## Niveau 0
-Imagine que ton 2e pilier s'accumule comme un escalier dont tu montes une marche chaque année. Mais les marches ne sont pas toutes de la même hauteur : elles deviennent de plus en plus hautes à mesure que tu vieillis. Jusqu'à 34 ans, les marches sont petites. Dès 55 ans, chaque marche est presque trois fois plus haute qu'au début.
+Imagine que ton 2e pilier s'accumule comme un escalier dont tu montes une marche chaque année. Mais les marches ne sont pas toutes de la même hauteur : elles deviennent de plus en plus hautes à mesure que tu vieillis. Jusqu'à 34 ans, les marches sont petites (7%). Dès 55 ans, chaque marche est presque trois fois plus haute qu'au début (18%).
 
-Pourquoi ? Parce que la loi reconnaît que tu as moins d'années devant toi pour accumuler et que le temps de capitalisation est plus court.
+Pourquoi ? Parce que la loi reconnaît que tu as moins d'années devant toi pour accumuler, et que le temps de capitalisation est plus court.
 
 Limite de l'analogie : les grandes marches ne rattrapent pas les petites du début. Si tu as commencé à cotiser tardivement (arrivée en Suisse après 25 ans, carrière hors LPP), l'escalier part d'un palier plus bas — les marches hautes ne compensent pas entièrement les lacunes initiales.
 
 ## Niveau 1
-La loi fixe des taux de bonification de vieillesse exprimés en pourcentage du **salaire coordonné** (salaire brut moins la déduction de coordination de CHF 26'460). Ces taux sont les suivants (LPP art. 16) :
+La loi fixe des taux de bonification de vieillesse en pourcentage du **salaire coordonné** (salaire brut − déduction de coordination CHF 26'460). Ces taux sont (LPP art. 16) :
 
 | Tranche d'âge | Taux de bonification |
 |---------------|---------------------|
@@ -42,15 +36,12 @@ Exemple pour un salaire coordonné de CHF 50'000 :
 - À 50 ans : CHF 7'500/an (15%)
 - À 60 ans : CHF 9'000/an (18%)
 
-Ces montants s'accumulent avec les intérêts crédités par la caisse (taux minimum fixé chaque année par le Conseil fédéral — 1.25% en 2025).
+Ces montants s'accumulent avec les intérêts crédités par la caisse (taux minimum fixé par le Conseil fédéral — 1.25% en 2025).
 
 ## Sources
-- LPP art. 16 (bonifications de vieillesse)
-- LPP art. 66 (répartition des cotisations employeur/employé)
-- LPP art. 8 (déduction de coordination)
-
-## Action
-"Demande ton certificat de prévoyance annuel à ta caisse de pension pour voir les bonifications créditées chaque année et vérifier que les taux correspondent à ta tranche d'âge."
+- LPP art. 16 (bonifications de vieillesse par tranche d'âge)
+- LPP art. 66 (répartition des cotisations employeur/employé — minimum 50% employeur)
+- LPP art. 8 (déduction de coordination — CHF 26'460 en 2025)
 
 ## Disclaimer
-"Information à caractère éducatif, ne constitue pas un conseil en prévoyance au sens de la LSFin. Les taux de bonification mentionnés correspondent au minimum légal LPP — ta caisse peut appliquer des taux plus favorables. Consulte un·e spécialiste pour ta situation personnelle."
+Information à caractère éducatif — ne constitue pas un conseil en prévoyance au sens de la LSFin. Les taux de bonification mentionnés correspondent au minimum légal LPP — ta caisse peut appliquer des taux plus favorables. Consulte un·e spécialiste pour ta situation personnelle.
