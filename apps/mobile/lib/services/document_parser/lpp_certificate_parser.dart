@@ -225,7 +225,7 @@ class LppCertificateParser {
     // ── Rente de vieillesse projetee ──
     _FieldPattern(
       fieldName: "projected_rente",
-      label: "Rente de vieillesse projetee",
+      label: "Rente de vieillesse projetée",
       profileField: "projectedRenteLpp",
       patterns: [
         RegExp(
@@ -242,7 +242,7 @@ class LppCertificateParser {
     // ── Capital projete a 65 ──
     _FieldPattern(
       fieldName: "projected_capital_65",
-      label: "Capital projete a 65 ans",
+      label: "Capital projeté à 65 ans",
       profileField: "projectedCapital65",
       patterns: [
         RegExp(
@@ -394,8 +394,8 @@ class LppCertificateParser {
         warnings.add(
           "Attention : la somme obligatoire ($oblig) + surobligatoire ($suroblig) = "
           "${sum.toStringAsFixed(0)} ne correspond pas exactement au total "
-          "(${total.toStringAsFixed(0)}). Ecart: ${diff.toStringAsFixed(0)} CHF. "
-          "Verifie les montants sur ton certificat.",
+          "(${total.toStringAsFixed(0)}). Écart: ${diff.toStringAsFixed(0)} CHF. "
+          "Vérifie les montants sur ton certificat.",
         );
       }
     } else if (total != null && oblig != null && suroblig == null) {
@@ -404,16 +404,16 @@ class LppCertificateParser {
       if (inferred >= 0) {
         fields.add(ExtractedField(
           fieldName: "lpp_surobligatoire",
-          label: "Part surobligatoire (deduit)",
+          label: "Part surobligatoire (déduit)",
           value: inferred,
           confidence: 0.70, // Lower confidence — inferred
-          sourceText: "Calcule: total - obligatoire",
+          sourceText: "Calculé: total - obligatoire",
           needsReview: true,
           profileField: "lppSurobligatoire",
         ));
         warnings.add(
-          "La part surobligatoire a ete deduite (total - obligatoire = "
-          "${inferred.toStringAsFixed(0)} CHF). Verifie sur ton certificat.",
+          "La part surobligatoire a été déduite (total - obligatoire = "
+          "${inferred.toStringAsFixed(0)} CHF). Vérifie sur ton certificat.",
         );
       }
     }
@@ -423,8 +423,8 @@ class LppCertificateParser {
     if (convOblig != null && (convOblig < 5.0 || convOblig > 8.0)) {
       warnings.add(
         "Le taux de conversion obligatoire (${convOblig.toStringAsFixed(2)}%) "
-        "semble inhabituel. Le minimum legal est 6.80% (LPP art. 14 al. 2). "
-        "Verifie sur ton certificat.",
+        "semble inhabituel. Le minimum légal est 6.80% (LPP art. 14 al. 2). "
+        "Vérifie sur ton certificat.",
       );
     }
 
@@ -441,8 +441,8 @@ class LppCertificateParser {
       confidenceDelta: _estimateConfidenceDeltaFromFields(fields),
       warnings: warnings,
       disclaimer:
-          "Outil educatif \u2014 ne constitue pas un conseil en prevoyance. "
-          "Verifie toujours les valeurs avec ton certificat original. "
+          "Outil éducatif \u2014 ne constitue pas un conseil en prévoyance. "
+          "Vérifie toujours les valeurs avec ton certificat original. "
           "MINT ne stocke jamais l'image du document (LSFin).",
       sources: [
         "LPP art. 14 al. 2 (taux de conversion minimum)",

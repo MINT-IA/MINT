@@ -162,7 +162,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
   Widget build(BuildContext context) {
     return Semantics(
       label:
-          'Carte thermique des taux d\'imposition a la source par canton suisse',
+          'Carte thermique des taux d\'imposition à la source par canton suisse',
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -221,7 +221,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Taux d\'imposition a la source',
+                'Taux d\'imposition à la source',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -229,7 +229,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                 ),
               ),
               Text(
-                '26 cantons  ·  Celibataire, CHF 80\'000',
+                '26 cantons  ·  Célibataire, CHF 80\'000',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -426,7 +426,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                   ),
                 ),
                 Text(
-                  'Taux indicatif d\'imposition a la source',
+                  'Taux indicatif d\'imposition à la source',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textSecondary,

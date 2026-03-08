@@ -267,7 +267,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           // OPP3 art. 3 : retrait anticipé dès 5 ans avant l'âge de retraite.
           // Depuis AHV21 (2024), l'âge de retraite est 65 pour tous → min = 60.
           _buildSliderRow(
-            label: 'Age debut retraits',
+            label: 'Âge début retraits',
             value: _ageRetraitDebut.toDouble(),
             min: 60,
             max: 65,
@@ -284,7 +284,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           // Age retrait fin
           _buildSliderRow(
-            label: 'Age dernier retrait',
+            label: 'Âge dernier retrait',
             value: _ageRetraitFin.toDouble(),
             min: _ageRetraitDebut.toDouble(),
             max: 65,
@@ -387,7 +387,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'RESULTAT',
+          'RÉSULTAT',
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -410,7 +410,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildComparisonCard(
-                title: 'ECHELONNE',
+                title: 'ÉCHELONNÉ',
                 subtitle: '$_nbComptes retraits',
                 amount: result.impotEchelonne,
                 color: MintColors.success,
@@ -434,8 +434,8 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'En echelonnant, tu paies CHF ${formatChf(result.economie)} '
-                    'de moins en impots.',
+                    'En échelonnant, tu paies CHF ${formatChf(result.economie)} '
+                    'de moins en impôts.',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -499,7 +499,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Impot estime',
+            'Impôt estimé',
             style: TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -547,7 +547,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                     textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Impot',
+                child: Text('Impôt',
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.right),
               ),

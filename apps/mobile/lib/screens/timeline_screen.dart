@@ -53,35 +53,35 @@ const _categories = <_EventCategory>[
     events: [
       _LifeEvent(
         title: 'Mariage',
-        subtitle: 'Impact LPP, AVS, impots et regime matrimonial',
+        subtitle: 'Impact LPP, AVS, impôts et régime matrimonial',
         icon: Icons.favorite_outline,
         route: '/mariage',
         accentColor: MintColors.error,
       ),
       _LifeEvent(
         title: 'Concubinage',
-        subtitle: 'Prevoyance, succession et fiscalite du couple non marie',
+        subtitle: 'Prévoyance, succession et fiscalité du couple non marié',
         icon: Icons.people_outline,
         route: '/concubinage',
         accentColor: MintColors.warning,
       ),
       _LifeEvent(
         title: 'Naissance',
-        subtitle: 'Allocations, deductions fiscales et assurances',
+        subtitle: 'Allocations, déductions fiscales et assurances',
         icon: Icons.child_care,
         route: '/naissance',
         accentColor: MintColors.info,
       ),
       _LifeEvent(
         title: 'Divorce',
-        subtitle: 'Partage LPP, pension et reorganisation financiere',
+        subtitle: 'Partage LPP, pension et réorganisation financière',
         icon: Icons.heart_broken_outlined,
         route: '/life-event/divorce',
         accentColor: MintColors.warning,
       ),
       _LifeEvent(
         title: 'Succession',
-        subtitle: 'Reserves hereditaires, partage et impots (CC art. 457ss)',
+        subtitle: 'Réserves héréditaires, partage et impôts (CC art. 457ss)',
         icon: Icons.account_balance_outlined,
         route: '/life-event/succession',
         accentColor: MintColors.primary,
@@ -95,35 +95,35 @@ const _categories = <_EventCategory>[
     events: [
       _LifeEvent(
         title: 'Premier emploi',
-        subtitle: 'Premiers pas : AVS, LPP, 3a et budget',
+        subtitle: 'Premiers pas\u00a0: AVS, LPP, 3a et budget',
         icon: Icons.school_outlined,
         route: '/first-job',
         accentColor: MintColors.info,
       ),
       _LifeEvent(
         title: 'Changement d\'emploi',
-        subtitle: 'Comparaison LPP, libre passage et negociation',
+        subtitle: 'Comparaison LPP, libre passage et négociation',
         icon: Icons.swap_horiz,
         route: '/simulator/job-comparison',
         accentColor: MintColors.primary,
       ),
       _LifeEvent(
-        title: 'Independant',
-        subtitle: 'AVS, LPP volontaire, 3a elargi et dividende vs salaire',
+        title: 'Indépendant',
+        subtitle: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
         icon: Icons.storefront_outlined,
         route: '/segments/independant',
         accentColor: MintColors.success,
       ),
       _LifeEvent(
         title: 'Perte d\'emploi',
-        subtitle: 'Chomage, delai de carence et protection prevoyance',
+        subtitle: 'Chômage, délai de carence et protection prévoyance',
         icon: Icons.trending_down,
         route: '/unemployment',
         accentColor: MintColors.warning,
       ),
       _LifeEvent(
         title: 'Retraite',
-        subtitle: 'Rente vs capital, echelonnement 3a, lacune AVS',
+        subtitle: 'Rente vs capital, échelonnement 3a, lacune AVS',
         icon: Icons.elderly,
         route: '/retirement',
         accentColor: MintColors.primary,
@@ -137,28 +137,28 @@ const _categories = <_EventCategory>[
     events: [
       _LifeEvent(
         title: 'Achat immobilier',
-        subtitle: 'Capacite d\'emprunt, EPL et impot sur la valeur locative',
+        subtitle: 'Capacité d\'emprunt, EPL et impôt sur la valeur locative',
         icon: Icons.home_outlined,
         route: '/mortgage/affordability',
         accentColor: MintColors.success,
       ),
       _LifeEvent(
-        title: 'Vente immobiliere',
-        subtitle: 'Plus-value, impot cantonal et remploi',
+        title: 'Vente immobilière',
+        subtitle: 'Plus-value, impôt cantonal et remploi',
         icon: Icons.real_estate_agent,
         route: '/life-event/housing-sale',
         accentColor: MintColors.warning,
       ),
       _LifeEvent(
-        title: 'Heritage',
-        subtitle: 'Estimation, impot cantonal et partage successoral',
+        title: 'Héritage',
+        subtitle: 'Estimation, impôt cantonal et partage successoral',
         icon: Icons.volunteer_activism,
         route: '/life-event/succession',
         accentColor: MintColors.info,
       ),
       _LifeEvent(
         title: 'Donation',
-        subtitle: 'Impot cantonal, reserves et quotite disponible',
+        subtitle: 'Impôt cantonal, réserves et quotité disponible',
         icon: Icons.card_giftcard,
         route: '/life-event/donation',
         accentColor: MintColors.primary,
@@ -166,13 +166,13 @@ const _categories = <_EventCategory>[
     ],
   ),
   _EventCategory(
-    label: 'SANTE',
+    label: 'SANTÉ',
     icon: Icons.health_and_safety_outlined,
     color: MintColors.error,
     events: [
       _LifeEvent(
-        title: 'Invalidite',
-        subtitle: 'Lacune de couverture AI + LPP et prevention',
+        title: 'Invalidité',
+        subtitle: 'Lacune de couverture AI + LPP et prévention',
         icon: Icons.accessible,
         route: '/simulator/disability-gap',
         accentColor: MintColors.error,
@@ -180,13 +180,13 @@ const _categories = <_EventCategory>[
     ],
   ),
   _EventCategory(
-    label: 'MOBILITE',
+    label: 'MOBILITÉ',
     icon: Icons.flight_takeoff,
     color: MintColors.warning,
     events: [
       _LifeEvent(
-        title: 'Demenagement cantonal',
-        subtitle: 'Impact fiscal du changement de canton (26 baremes)',
+        title: 'Déménagement cantonal',
+        subtitle: 'Impact fiscal du changement de canton (26 barèmes)',
         icon: Icons.map_outlined,
         route: '/fiscal',
         accentColor: MintColors.warning,
@@ -246,20 +246,20 @@ const _quickActions = <_QuickAction>[
   ),
   _QuickAction(
     title: 'Budget',
-    subtitle: 'Gerer le cashflow mensuel',
+    subtitle: 'Gérer le cashflow mensuel',
     icon: Icons.pie_chart_outline,
     route: '/budget',
     color: MintColors.success,
   ),
   _QuickAction(
     title: 'Pilier 3a',
-    subtitle: 'Optimiser la deduction fiscale',
+    subtitle: 'Optimiser la déduction fiscale',
     icon: Icons.savings_outlined,
     route: '/simulator/3a',
     color: MintColors.info,
   ),
   _QuickAction(
-    title: 'Fiscalite',
+    title: 'Fiscalité',
     subtitle: 'Comparer 26 cantons',
     icon: Icons.receipt_long,
     route: '/fiscal',
@@ -290,10 +290,10 @@ class TimelineScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 24),
-                _buildSectionTitle('EVENEMENTS DE VIE', Icons.timeline),
+                _buildSectionTitle('ÉVÉNEMENTS DE VIE', Icons.timeline),
                 const SizedBox(height: 4),
                 Text(
-                  'Selectionne un evenement pour simuler son impact financier.',
+                  'Sélectionne un événement pour simuler son impact financier.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -342,7 +342,7 @@ class TimelineScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ta vie financiere,\netape par etape.',
+            'Ta vie financière,\nétape par étape.',
             style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -351,7 +351,7 @@ class TimelineScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Outils essentiels et evenements de vie — tout est la.',
+            'Outils essentiels et événements de vie — tout est là.',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textSecondary,

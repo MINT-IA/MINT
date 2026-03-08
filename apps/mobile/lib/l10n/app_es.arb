@@ -1843,5 +1843,68 @@
   "adminObsExportFailed": "No se puede exportar",
   "adminObsWindowLabel": "Ventana",
   "commonRetry": "Reintentar",
-  "commonDays": "dias"
+  "commonDays": "dias",
+  "landingTagline": "Tu coach financiero suizo",
+  "landingRegister": "Registrarse",
+  "landingHeroRetirementNow1": "Tu jubilación,",
+  "landingHeroRetirementNow2": "es ahora.",
+  "landingHeroCountdown1": "En {years} años,",
+  "@landingHeroCountdown1": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "landingHeroCountdown1Single": "En 1 año,",
+  "landingHeroCountdown2": "comienza tu jubilación.",
+  "landingHeroSubtitle": "La mayoría de los suizos descubren su brecha de jubilación demasiado tarde.",
+  "landingSliderAge": "Tu edad",
+  "landingSliderAgeSuffix": "{age} años",
+  "@landingSliderAgeSuffix": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "landingSliderSalary": "Tu salario bruto",
+  "landingSliderSalarySuffix": "{amount} CHF/año",
+  "@landingSliderSalarySuffix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingToday": "Hoy",
+  "landingChfPerMonth": "CHF/mes",
+  "landingAtRetirement": "En la jubilación*",
+  "landingDropPurchasingPower": "-{percent}% de poder adquisitivo",
+  "@landingDropPurchasingPower": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "landingLppCapNotice": "Por encima de {amount} CHF/año, la pensión obligatoria está limitada.",
+  "@landingLppCapNotice": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookHigh": "Una brecha de {amount}/mes es significativa. MINT te ayuda a entender dónde actuar.",
+  "@landingHookHigh": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookMedium": "Tu brecha es manejable. MINT te muestra las palancas concretas (rescate LPP, 3a, jubilación anticipada).",
+  "landingHookLow": "Estás en buena posición. MINT te muestra cómo mantener el rumbo y optimizar tus pilares.",
+  "landingWhyMint": "¿Por qué MINT?",
+  "landingFeaturePillarsTitle": "Todos tus pilares, un solo panel",
+  "landingFeaturePillarsSubtitle": "AVS, LPP y 3a calculados según tu situación real — no promedios suizos.",
+  "landingFeatureCoachTitle": "Coach adaptado a tu etapa de vida",
+  "landingFeatureCoachSubtitle": "25 o 60 años, fronterizo o independiente — los consejos cambian según quién eres.",
+  "landingFeaturePrivacyTitle": "100% privado, datos en tu dispositivo",
+  "landingFeaturePrivacySubtitle": "Sin compartir, sin publicidad. Tu perfil queda local salvo que crees una cuenta.",
+  "landingTrustSwiss": "Hecho en Suiza",
+  "landingTrustPrivate": "100% privado",
+  "landingTrustNoCommitment": "Sin compromiso",
+  "landingCtaTitle": "Tu plan en 30 segundos",
+  "landingCtaSubtitle": "3 preguntas • Gratis • Sin compromiso",
+  "landingLegalFooter": "*Estimación indicativa (1.° + 2.° pilar), basada en el salario actual como aproximación de carrera. No constituye asesoramiento financiero según la LSFin. Tus datos permanecen en tu dispositivo."
 }

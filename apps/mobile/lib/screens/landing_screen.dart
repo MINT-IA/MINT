@@ -214,7 +214,7 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Ton coach financier suisse',
+              S.of(context)!.landingTagline,
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
@@ -241,7 +241,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ),
               child: Text(
-                S.of(context)?.authLogin ?? 'Se connecter',
+                S.of(context)!.authLogin,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -264,9 +264,9 @@ class _LandingScreenState extends State<LandingScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              child: const Text(
-                "S'inscrire",
-                style: TextStyle(
+              child: Text(
+                S.of(context)!.landingRegister,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -285,17 +285,18 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget _buildHero() {
     final yearsLeft = 65 - _age.round();
 
+    final l10n = S.of(context)!;
     final String line1;
     final String line2;
     if (yearsLeft <= 0) {
-      line1 = 'Ta retraite,';
-      line2 = "c'est maintenant.";
+      line1 = l10n.landingHeroRetirementNow1;
+      line2 = l10n.landingHeroRetirementNow2;
     } else if (yearsLeft == 1) {
-      line1 = 'Dans 1 an,';
-      line2 = 'ta retraite commence.';
+      line1 = l10n.landingHeroCountdown1Single;
+      line2 = l10n.landingHeroCountdown2;
     } else {
-      line1 = 'Dans $yearsLeft ans,';
-      line2 = 'ta retraite commence.';
+      line1 = l10n.landingHeroCountdown1(yearsLeft.toString());
+      line2 = l10n.landingHeroCountdown2;
     }
 
     return Column(
@@ -329,7 +330,7 @@ class _LandingScreenState extends State<LandingScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          'La plupart des Suisses découvrent leur écart de retraite trop tard.',
+          l10n.landingHeroSubtitle,
           style: GoogleFonts.inter(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -372,8 +373,8 @@ class _LandingScreenState extends State<LandingScreen> {
         children: [
           // --- Age slider ---
           _buildSliderRow(
-            label: 'Ton age',
-            formattedValue: '${_age.round()} ans',
+            label: S.of(context)!.landingSliderAge,
+            formattedValue: S.of(context)!.landingSliderAgeSuffix(_age.round().toString()),
             slider: Slider(
               value: _age,
               min: 25,
@@ -387,8 +388,8 @@ class _LandingScreenState extends State<LandingScreen> {
 
           // --- Salary slider ---
           _buildSliderRow(
-            label: 'Ton salaire brut',
-            formattedValue: "${formatChf(_salary)} CHF/an",
+            label: S.of(context)!.landingSliderSalary,
+            formattedValue: S.of(context)!.landingSliderSalarySuffix(formatChf(_salary)),
             slider: Slider(
               value: _salary,
               min: 30000,
@@ -433,7 +434,7 @@ class _LandingScreenState extends State<LandingScreen> {
             curve: Curves.easeOutCubic,
             builder: (context, value, _) {
               return Text(
-                '-${value.round()}% de pouvoir d\'achat',
+                S.of(context)!.landingDropPurchasingPower(value.round().toString()),
                 style: GoogleFonts.outfit(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -447,8 +448,7 @@ class _LandingScreenState extends State<LandingScreen> {
           if (isCapped) ...[
             const SizedBox(height: 8),
             Text(
-              'Au-dela de ${formatChf(lppSalaireMax)} CHF/an, '
-              'la rente obligatoire est plafonnee.',
+              S.of(context)!.landingLppCapNotice(formatChf(lppSalaireMax)),
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -472,20 +472,15 @@ class _LandingScreenState extends State<LandingScreen> {
     final String message;
     final Color color;
 
+    final l10n = S.of(context)!;
     if (dropPercent >= 40) {
-      message =
-          'Un ecart de ${formatChfWithPrefix(gapChf.toDouble())}/mois, '
-          "c'est significatif. MINT t'aide a comprendre où agir.";
+      message = l10n.landingHookHigh(formatChfWithPrefix(gapChf.toDouble()));
       color = MintColors.warning;
     } else if (dropPercent >= 20) {
-      message =
-          'Ton gap est gérable. MINT te montre les leviers concrets '
-          '(rachat LPP, 3a, retraite anticipée).';
+      message = l10n.landingHookMedium;
       color = MintColors.primary;
     } else {
-      message =
-          "Tu es en bonne posture. MINT te montre comment maintenir le cap "
-          'et optimiser tes piliers.';
+      message = l10n.landingHookLow;
       color = MintColors.success;
     }
 
@@ -526,7 +521,7 @@ class _LandingScreenState extends State<LandingScreen> {
           child: Column(
             children: [
               Text(
-                "Aujourd'hui",
+                S.of(context)!.landingToday,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textMuted,
@@ -549,7 +544,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ),
               Text(
-                'CHF/mois',
+                S.of(context)!.landingChfPerMonth,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -574,7 +569,7 @@ class _LandingScreenState extends State<LandingScreen> {
           child: Column(
             children: [
               Text(
-                'A la retraite*',
+                S.of(context)!.landingAtRetirement,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textMuted,
@@ -597,7 +592,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ),
               Text(
-                'CHF/mois',
+                S.of(context)!.landingChfPerMonth,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -660,7 +655,7 @@ class _LandingScreenState extends State<LandingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Pourquoi MINT ?',
+          S.of(context)!.landingWhyMint,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -672,25 +667,22 @@ class _LandingScreenState extends State<LandingScreen> {
         _buildFeatureRow(
           icon: Icons.account_balance_outlined,
           color: const Color(0xFF4F46E5),
-          title: 'Tous tes piliers, un seul tableau de bord',
-          subtitle: 'AVS, LPP et 3a calculés selon ta situation réelle — '
-              'pas des moyennes suisses.',
+          title: S.of(context)!.landingFeaturePillarsTitle,
+          subtitle: S.of(context)!.landingFeaturePillarsSubtitle,
         ),
         const SizedBox(height: 10),
         _buildFeatureRow(
           icon: Icons.tips_and_updates_outlined,
           color: MintColors.primary,
-          title: 'Coach adapté à ton stade de vie',
-          subtitle: '25 ans ou 60 ans, frontalier ou indépendant — '
-              'les conseils changent selon qui tu es.',
+          title: S.of(context)!.landingFeatureCoachTitle,
+          subtitle: S.of(context)!.landingFeatureCoachSubtitle,
         ),
         const SizedBox(height: 10),
         _buildFeatureRow(
           icon: Icons.smartphone_outlined,
           color: const Color(0xFF0EA5E9),
-          title: '100% privé, données sur ton appareil',
-          subtitle: 'Aucun partage, aucune pub. '
-              'Ton profil reste local sauf si tu crées un compte.',
+          title: S.of(context)!.landingFeaturePrivacyTitle,
+          subtitle: S.of(context)!.landingFeaturePrivacySubtitle,
         ),
       ],
     );
@@ -796,11 +788,11 @@ class _LandingScreenState extends State<LandingScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildTrustChip(Icons.shield_outlined, 'Concu en Suisse'),
+        _buildTrustChip(Icons.shield_outlined, S.of(context)!.landingTrustSwiss),
         _trustDot(),
-        _buildTrustChip(Icons.lock_outline_rounded, '100% prive'),
+        _buildTrustChip(Icons.lock_outline_rounded, S.of(context)!.landingTrustPrivate),
         _trustDot(),
-        _buildTrustChip(Icons.check_circle_outline_rounded, 'Sans engagement'),
+        _buildTrustChip(Icons.check_circle_outline_rounded, S.of(context)!.landingTrustNoCommitment),
       ],
     );
   }
@@ -842,8 +834,8 @@ class _LandingScreenState extends State<LandingScreen> {
   // ---------------------------------------------------------------------------
   Widget _buildPrimaryCTA(BuildContext context) {
     return MintPremiumButton(
-      title: 'Ton plan en 30 secondes',
-      subtitle: '3 questions \u2022 Gratuit \u2022 Sans engagement',
+      title: S.of(context)!.landingCtaTitle,
+      subtitle: S.of(context)!.landingCtaSubtitle,
       onTap: () async {
         _analytics.trackCTAClick('cta_plan_clicked', screenName: '/');
         final isCompleted = await ReportPersistenceService.isCompleted();
@@ -868,9 +860,7 @@ class _LandingScreenState extends State<LandingScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
-          '*Estimation indicative (1er + 2e pilier), basee sur le salaire '
-          'actuel comme proxy de carriere. Ne constitue pas un conseil '
-          'financier au sens de la LSFin. Tes donnees restent sur ton appareil.',
+          S.of(context)!.landingLegalFooter,
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
             fontSize: 10,

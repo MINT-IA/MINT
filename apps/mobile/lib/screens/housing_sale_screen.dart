@@ -108,7 +108,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Vente immobiliere'),
+        title: const Text('Vente immobilière'),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -220,7 +220,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Simuler ta vente immobiliere',
+                  'Simuler ta vente immobilière',
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -229,7 +229,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Impot sur les gains, EPL, produit net',
+                  'Impôt sur les gains, EPL, produit net',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -262,10 +262,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Vendre un bien immobilier en Suisse implique un impot sur '
+              'Vendre un bien immobilier en Suisse implique un impôt sur '
               'les gains immobiliers (LHID art. 12), le remboursement '
-              'eventuel des fonds de prevoyance utilises (EPL) et des '
-              'frais de transaction. Cet outil t\'aide a estimer le '
+              'éventuel des fonds de prévoyance utilisés (EPL) et des '
+              'frais de transaction. Cet outil t\'aide à estimer le '
               'produit net de ta vente.',
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -309,7 +309,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Annee d\'achat',
+            label: 'Année d\'achat',
             value: _anneeAchat.toDouble(),
             min: 1980,
             max: 2025,
@@ -342,7 +342,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           _buildCantonDropdown(),
           const SizedBox(height: 16),
           _buildSwitch(
-            label: 'Residence principale',
+            label: 'Résidence principale',
             value: _residencePrincipale,
             onChanged: (v) => setState(() => _residencePrincipale = v),
           ),
@@ -355,13 +355,13 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   Widget _buildFinancementSection() {
     return SimulatorCard(
       title: 'FINANCEMENT',
-      subtitle: 'Hypotheque restante',
+      subtitle: 'Hypothèque restante',
       icon: Icons.account_balance_outlined,
       accentColor: Colors.amber.shade700,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Hypotheque restante',
+            label: 'Hypothèque restante',
             value: _hypothequeRestante,
             min: 0,
             max: 2000000,
@@ -377,14 +377,14 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Section: EPL ──
   Widget _buildEplSection() {
     return SimulatorCard(
-      title: 'EPL — PREVOYANCE UTILISEE',
-      subtitle: 'LPP et 3a utilises pour l\'achat',
+      title: 'EPL — PRÉVOYANCE UTILISÉE',
+      subtitle: 'LPP et 3a utilisés pour l\'achat',
       icon: Icons.savings_outlined,
       accentColor: Colors.amber.shade700,
       child: Column(
         children: [
           _buildSlider(
-            label: 'EPL LPP utilise',
+            label: 'EPL LPP utilisé',
             value: _eplLppUtilise,
             min: 0,
             max: 500000,
@@ -394,7 +394,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'EPL 3a utilise',
+            label: 'EPL 3a utilisé',
             value: _epl3aUtilise,
             min: 0,
             max: 200000,
@@ -491,7 +491,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'PLUS-VALUE IMMOBILIERE',
+                'PLUS-VALUE IMMOBILIÈRE',
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -507,7 +507,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           _buildResultRow(
               'Plus-value imposable', _chfFmt(r.plusValueImposable)),
           _buildResultRow(
-              'Duree de detention', '${r.dureeDetention} ans'),
+              'Durée de détention', '${r.dureeDetention} ans'),
         ],
       ),
     );
@@ -534,7 +534,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                   color: Colors.amber.shade700, size: 18),
               const SizedBox(width: 8),
               Text(
-                'IMPOT SUR LES GAINS ($_canton)',
+                'IMPÔT SUR LES GAINS ($_canton)',
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -551,7 +551,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Impot sur les gains',
+            'Impôt sur les gains',
             _chfFmt(r.impotPlusValue),
           ),
           if (r.remploiReport > 0) ...[
@@ -561,7 +561,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               '- ${_chfFmt(r.remploiReport)}',
             ),
             _buildResultRow(
-              'Impot effectif',
+              'Impôt effectif',
               _chfFmt(r.impotEffectif),
             ),
           ],
@@ -609,7 +609,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'de plus-value reportee (non imposee maintenant)',
+            'de plus-value reportée (non imposée maintenant)',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -617,7 +617,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Le report sera integre lors de la revente du nouveau '
+            'Le report sera intégré lors de la revente du nouveau '
             'bien (LHID art. 12 al. 3).',
             style: GoogleFonts.inter(
               fontSize: 12,
@@ -674,9 +674,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ],
           const SizedBox(height: 12),
           Text(
-            'Obligation legale : les fonds de prevoyance utilises pour '
-            'l\'achat doivent etre rembourses lors de la vente de la '
-            'residence principale (LPP art. 30d).',
+            'Obligation légale : les fonds de prévoyance utilisés pour '
+            'l\'achat doivent être remboursés lors de la vente de la '
+            'résidence principale (LPP art. 30d).',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -728,10 +728,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           _buildResultRow('Prix de vente', _chfFmt(_prixVente)),
           const SizedBox(height: 4),
           _buildResultRow(
-              'Hypotheque', '- ${_chfFmt(r.soldeHypotheque)}'),
+              'Hypothèque', '- ${_chfFmt(r.soldeHypotheque)}'),
           const SizedBox(height: 4),
           _buildResultRow(
-              'Impot plus-value', '- ${_chfFmt(r.impotEffectif)}'),
+              'Impôt plus-value', '- ${_chfFmt(r.impotEffectif)}'),
           if (r.remboursementEplLpp > 0) ...[
             const SizedBox(height: 4),
             _buildResultRow(
@@ -804,8 +804,8 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Actions a entreprendre',
-      subtitle: 'Checklist de preparation',
+      title: 'Actions à entreprendre',
+      subtitle: 'Checklist de préparation',
       icon: Icons.checklist,
       accentColor: Colors.amber.shade700,
       child: Column(
@@ -888,31 +888,31 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Comment fonctionne l\'impot sur les gains immobiliers ?',
-          'En Suisse, tout gain realise lors de la vente d\'un bien immobilier '
-              'est soumis a un impot cantonal specifique (LHID art. 12). Le taux '
-              'diminue avec la duree de detention du bien. Apres 20-25 ans selon '
-              'les cantons, le gain peut etre totalement ou partiellement exonere. '
-              'Les investissements valorisants (renovations) et les frais '
-              'd\'acquisition sont deductibles de la plus-value.',
+          'Comment fonctionne l\'impôt sur les gains immobiliers ?',
+          'En Suisse, tout gain réalisé lors de la vente d\'un bien immobilier '
+              'est soumis à un impôt cantonal spécifique (LHID art. 12). Le taux '
+              'diminue avec la durée de détention du bien. Après 20-25 ans selon '
+              'les cantons, le gain peut être totalement ou partiellement exonéré. '
+              'Les investissements valorisants (rénovations) et les frais '
+              'd\'acquisition sont déductibles de la plus-value.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
           'Qu\'est-ce que le remploi ?',
           'Le remploi permet de reporter l\'imposition de la plus-value si tu '
-              'rachetes un nouveau logement principal dans un delai raisonnable '
-              '(generalement 2 ans). Si le nouveau bien coute autant ou plus que '
+              'rachètes un nouveau logement principal dans un délai raisonnable '
+              '(généralement 2 ans). Si le nouveau bien coûte autant ou plus que '
               'l\'ancien, le report est total. Sinon, il est proportionnel. '
-              'L\'impot sera du lors de la revente du nouveau bien.',
+              'L\'impôt sera dû lors de la revente du nouveau bien.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'EPL : que se passe-t-il a la vente ?',
-          'Si tu as utilise des fonds de prevoyance (EPL) pour l\'achat de '
-              'ta residence principale, tu dois les rembourser lors de la vente '
+          'EPL : que se passe-t-il à la vente ?',
+          'Si tu as utilisé des fonds de prévoyance (EPL) pour l\'achat de '
+              'ta résidence principale, tu dois les rembourser lors de la vente '
               '(LPP art. 30d). Ce remboursement est obligatoire et s\'effectue '
-              'aupres de ta caisse de pension (LPP) et/ou de ta fondation 3a. '
-              'Le montant est inscrit au registre foncier et ne peut pas etre evite.',
+              'auprès de ta caisse de pension (LPP) et/ou de ta fondation 3a. '
+              'Le montant est inscrit au registre foncier et ne peut pas être évité.',
         ),
       ],
     );
@@ -972,9 +972,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           Expanded(
             child: Text(
               _result?.disclaimer ??
-                  'Cet outil educatif fournit des estimations indicatives et '
+                  'Cet outil éducatif fournit des estimations indicatives et '
                       'ne constitue pas un conseil fiscal, juridique ou immobilier '
-                      'personnalise au sens de la LSFin. Consulte un·e specialiste '
+                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
                       'pour ta situation personnelle.',
               style: GoogleFonts.inter(
                 fontSize: 11,

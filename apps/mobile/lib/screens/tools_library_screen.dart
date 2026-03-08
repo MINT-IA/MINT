@@ -55,7 +55,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
   static final List<_ToolCategory> _categories = [
     _ToolCategory(
       icon: Icons.elderly,
-      title: 'Prevoyance',
+      title: 'Prévoyance',
       color: const Color(0xFF4F46E5),
       tools: [
         _ToolItem(
@@ -68,7 +68,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.savings,
           title: 'Simulateur 3a',
-          subtitle: 'Calcule ton economie fiscale annuelle',
+          subtitle: 'Calcule ton économie fiscale annuelle',
           route: '/simulator/3a',
           color: const Color(0xFF059669),
         ),
@@ -81,15 +81,15 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         ),
         _ToolItem(
           icon: Icons.percent,
-          title: 'Rendement reel 3a',
-          subtitle: 'Rendement net apres frais et inflation',
+          title: 'Rendement réel 3a',
+          subtitle: 'Rendement net après frais et inflation',
           route: '/3a-deep/real-return',
           color: const Color(0xFF7C3AED),
         ),
         _ToolItem(
           icon: Icons.stacked_line_chart,
-          title: 'Retrait echelonne 3a',
-          subtitle: 'Optimise le retrait sur plusieurs annees',
+          title: 'Retrait échelonné 3a',
+          subtitle: 'Optimise le retrait sur plusieurs années',
           route: '/3a-deep/staggered-withdrawal',
           color: const Color(0xFFDB2777),
         ),
@@ -102,28 +102,28 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         ),
         _ToolItem(
           icon: Icons.trending_up,
-          title: 'Rachat echelonne LPP',
-          subtitle: 'Optimise tes rachats LPP sur plusieurs annees',
+          title: 'Rachat échelonné LPP',
+          subtitle: 'Optimise tes rachats LPP sur plusieurs années',
           route: '/lpp-deep/rachat',
           color: const Color(0xFF059669),
         ),
         _ToolItem(
           icon: Icons.swap_horiz,
           title: 'Libre passage',
-          subtitle: 'Checklist changement d\'emploi ou depart',
+          subtitle: 'Checklist changement d\'emploi ou départ',
           route: '/lpp-deep/libre-passage',
           color: const Color(0xFF2563EB),
         ),
         _ToolItem(
           icon: Icons.shield_outlined,
-          title: 'Filet de securite',
-          subtitle: 'Simule ton gap invalidite/deces',
+          title: 'Filet de sécurité',
+          subtitle: 'Simule ton gap invalidité/décès',
           route: '/simulator/disability-gap',
           color: const Color(0xFFEA580C),
         ),
         _ToolItem(
           icon: Icons.balance,
-          title: 'Gender gap prevoyance',
+          title: 'Gender gap prévoyance',
           subtitle: 'Impact du temps partiel sur ta retraite',
           route: '/segments/gender-gap',
           color: const Color(0xFF9333EA),
@@ -137,15 +137,15 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
       tools: [
         _ToolItem(
           icon: Icons.favorite_outline,
-          title: 'Mariage & fiscalite',
-          subtitle: 'Penalite/bonus du mariage + regimes + survivant',
+          title: 'Mariage & fiscalité',
+          subtitle: 'Pénalité/bonus du mariage + régimes + survivant',
           route: '/mariage',
           color: const Color(0xFFDB2777),
         ),
         _ToolItem(
           icon: Icons.child_care,
           title: 'Naissance & famille',
-          subtitle: 'Conge parental, allocations, impact fiscal',
+          subtitle: 'Congé parental, allocations, impact fiscal',
           route: '/naissance',
           color: const Color(0xFFEA580C),
         ),
@@ -166,7 +166,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.volunteer_activism,
           title: 'Simulateur succession',
-          subtitle: 'Calcule les parts legales et impots',
+          subtitle: 'Calcule les parts légales et impôts',
           route: '/life-event/succession',
           color: const Color(0xFF0D9488),
         ),
@@ -186,8 +186,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         ),
         _ToolItem(
           icon: Icons.work_off,
-          title: 'Simulateur chomage',
-          subtitle: 'Calcule tes indemnites et duree',
+          title: 'Simulateur chômage',
+          subtitle: 'Calcule tes indemnités et durée',
           route: '/unemployment',
           color: const Color(0xFFDC2626),
         ),
@@ -200,14 +200,14 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         ),
         _ToolItem(
           icon: Icons.business_center,
-          title: 'Independant',
+          title: 'Indépendant',
           subtitle: 'Couverture sociale et protection',
           route: '/segments/independant',
           color: const Color(0xFFD97706),
         ),
         _ToolItem(
           icon: Icons.receipt_long,
-          title: 'Cotisations AVS indep.',
+          title: 'Cotisations AVS indép.',
           subtitle: 'Calcule tes cotisations AVS/AI/APG',
           route: '/independants/avs',
           color: const Color(0xFF059669),
@@ -215,42 +215,42 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.medical_services_outlined,
           title: 'Assurance IJM',
-          subtitle: 'Indemnite journaliere maladie',
+          subtitle: 'Indemnité journalière maladie',
           route: '/independants/ijm',
           color: const Color(0xFF0891B2),
         ),
         _ToolItem(
           icon: Icons.savings,
-          title: '3a independant',
-          subtitle: 'Plafond majore pour independants',
+          title: '3a indépendant',
+          subtitle: 'Plafond majoré pour indépendants',
           route: '/independants/3a',
           color: const Color(0xFF059669),
         ),
         _ToolItem(
           icon: Icons.compare,
           title: 'Dividende vs Salaire',
-          subtitle: 'Optimise ta remuneration en SA/Sarl',
+          subtitle: 'Optimise ta rémunération en SA/Sàrl',
           route: '/independants/dividende-salaire',
           color: const Color(0xFF7C3AED),
         ),
         _ToolItem(
           icon: Icons.account_balance,
           title: 'LPP volontaire',
-          subtitle: 'Prevoyance facultative pour independants',
+          subtitle: 'Prévoyance facultative pour indépendants',
           route: '/independants/lpp-volontaire',
           color: const Color(0xFF4F46E5),
         ),
         _ToolItem(
           icon: Icons.language,
           title: 'Frontalier',
-          subtitle: 'Impot source, 90 jours, charges sociales',
+          subtitle: 'Impôt source, 90 jours, charges sociales',
           route: '/segments/frontalier',
           color: const Color(0xFF2563EB),
         ),
         _ToolItem(
           icon: Icons.flight_takeoff,
           title: 'Expatriation',
-          subtitle: 'Forfait fiscal, depart, lacunes AVS',
+          subtitle: 'Forfait fiscal, départ, lacunes AVS',
           route: '/expatriation',
           color: const Color(0xFF7C3AED),
         ),
@@ -263,7 +263,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
       tools: [
         _ToolItem(
           icon: Icons.house,
-          title: 'Capacite d\'achat',
+          title: 'Capacité d\'achat',
           subtitle: 'Calcule le prix max que tu peux acheter',
           route: '/mortgage/affordability',
           color: const Color(0xFF0D9488),
@@ -271,28 +271,28 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.schedule,
           title: 'Plan d\'amortissement',
-          subtitle: 'Echeancier de remboursement hypothecaire',
+          subtitle: 'Échéancier de remboursement hypothécaire',
           route: '/mortgage/amortization',
           color: const Color(0xFF2563EB),
         ),
         _ToolItem(
           icon: Icons.compare_arrows,
           title: 'SARON vs Fixe',
-          subtitle: 'Compare les types d\'hypotheque',
+          subtitle: 'Compare les types d\'hypothèque',
           route: '/mortgage/saron-vs-fixed',
           color: const Color(0xFF7C3AED),
         ),
         _ToolItem(
           icon: Icons.home_work,
           title: 'Valeur locative',
-          subtitle: 'Estime la valeur locative imputee',
+          subtitle: 'Estime la valeur locative imputée',
           route: '/mortgage/imputed-rental',
           color: const Color(0xFFD97706),
         ),
         _ToolItem(
           icon: Icons.real_estate_agent,
-          title: 'EPL combine',
-          subtitle: 'Retrait anticipe LPP + 3a pour logement',
+          title: 'EPL combiné',
+          subtitle: 'Retrait anticipé LPP + 3a pour logement',
           route: '/mortgage/epl-combined',
           color: const Color(0xFF059669),
         ),
@@ -307,7 +307,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
     ),
     _ToolCategory(
       icon: Icons.receipt_long,
-      title: 'Fiscalite',
+      title: 'Fiscalité',
       color: const Color(0xFF059669),
       tools: [
         _ToolItem(
@@ -319,8 +319,8 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         ),
         _ToolItem(
           icon: Icons.trending_up,
-          title: 'Interets composes',
-          subtitle: 'Visualise la croissance de ton epargne',
+          title: 'Intérêts composés',
+          subtitle: 'Visualise la croissance de ton épargne',
           route: '/simulator/compound',
           color: const Color(0xFF4F46E5),
         ),
@@ -328,20 +328,20 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
     ),
     _ToolCategory(
       icon: Icons.health_and_safety,
-      title: 'Sante',
+      title: 'Santé',
       color: const Color(0xFF0891B2),
       tools: [
         _ToolItem(
           icon: Icons.health_and_safety,
           title: 'Franchise LAMal',
-          subtitle: 'Trouve la franchise ideale pour toi',
+          subtitle: 'Trouve la franchise idéale pour toi',
           route: '/assurances/lamal',
           color: const Color(0xFF0891B2),
         ),
         _ToolItem(
           icon: Icons.verified_user,
           title: 'Check-up couverture',
-          subtitle: 'Evalue ta protection assurantielle',
+          subtitle: 'Évalue ta protection assurantielle',
           route: '/assurances/coverage',
           color: const Color(0xFF4F46E5),
         ),
@@ -355,14 +355,14 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.account_balance_wallet,
           title: 'Budget',
-          subtitle: 'Planifie et suis tes depenses mensuelles',
+          subtitle: 'Planifie et suis tes dépenses mensuelles',
           route: '/budget',
           color: const Color(0xFFD97706),
         ),
         _ToolItem(
           icon: Icons.warning_amber,
           title: 'Check dette',
-          subtitle: 'Evalue ton risque de surendettement',
+          subtitle: 'Évalue ton risque de surendettement',
           route: '/check/debt',
           color: const Color(0xFFDC2626),
         ),
@@ -376,7 +376,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.payments,
           title: 'Plan de remboursement',
-          subtitle: 'Strategie adaptee pour rembourser',
+          subtitle: 'Stratégie adaptée pour rembourser',
           route: '/debt/repayment',
           color: const Color(0xFF059669),
         ),
@@ -389,15 +389,15 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         ),
         _ToolItem(
           icon: Icons.credit_card,
-          title: 'Credit conso',
-          subtitle: 'Simule le cout reel d\'un credit',
+          title: 'Crédit conso',
+          subtitle: 'Simule le coût réel d\'un crédit',
           route: '/simulator/credit',
           color: const Color(0xFFD97706),
         ),
         _ToolItem(
           icon: Icons.directions_car,
           title: 'Calculateur leasing',
-          subtitle: 'Cout reel et alternatives au leasing',
+          subtitle: 'Coût réel et alternatives au leasing',
           route: '/simulator/leasing',
           color: const Color(0xFFEA580C),
         ),
@@ -418,7 +418,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
         _ToolItem(
           icon: Icons.upload_file,
           title: 'Import bancaire',
-          subtitle: 'Importe tes releves CSV/PDF',
+          subtitle: 'Importe tes relevés CSV/PDF',
           route: '/bank-import',
           color: const Color(0xFF2563EB),
         ),
@@ -581,7 +581,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${_effectiveCategories.length} categories',
+                      '${_effectiveCategories.length} catégories',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -691,7 +691,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           const Icon(Icons.search_off, size: 48, color: MintColors.textMuted),
           const SizedBox(height: 16),
           Text(
-            'Aucun outil trouve',
+            'Aucun outil trouvé',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -700,7 +700,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Essaie avec d\'autres mots-cles',
+            'Essaie avec d\'autres mots-clés',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textMuted,

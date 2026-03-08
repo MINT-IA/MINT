@@ -84,7 +84,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
             const Divider(color: MintColors.lightBorder, height: 1),
             const SizedBox(height: 12),
             Text(
-              'Sensibilite du capital au rendement',
+              'Sensibilité du capital au rendement',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -106,8 +106,8 @@ class BreakevenIndicatorWidget extends StatelessWidget {
             if (sensitivity!.containsKey('rendement_marche_plus_1') &&
                 sensitivity!.containsKey('rendement_marche_moins_1'))
               Text(
-                'Marche +1 % : ${_formatChf(sensitivity!['rendement_marche_plus_1']!)} | '
-                'Marche -1 % : ${_formatChf(sensitivity!['rendement_marche_moins_1']!)}',
+                'Marché +1 % : ${_formatChf(sensitivity!['rendement_marche_plus_1']!)} | '
+                'Marché -1 % : ${_formatChf(sensitivity!['rendement_marche_moins_1']!)}',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -129,10 +129,10 @@ class BreakevenIndicatorWidget extends StatelessWidget {
       return 'Les trajectoires ne se croisent pas sur cet horizon de $horizon ans.';
     }
     if (ageRetraite > 0 && showCalendarYear) {
-      return 'Les trajectoires se croisent a l\'age de $crossoverAge ans ($crossoverCalendarYear).';
+      return 'Les trajectoires se croisent à l\'âge de $crossoverAge ans ($crossoverCalendarYear).';
     }
     if (ageRetraite > 0) {
-      return 'Les trajectoires se croisent a l\'age de $crossoverAge ans.';
+      return 'Les trajectoires se croisent à l\'âge de $crossoverAge ans.';
     }
     return 'Les trajectoires se croisent vers $crossoverCalendarYear.';
   }

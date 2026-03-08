@@ -126,12 +126,12 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
 
   /// Life stage hint based on age — makes abstract numbers visceral.
   static String? _lifeStageHint(int age) {
-    if (age == 65) return 'Debut de la retraite';
+    if (age == 65) return 'Début de la retraite';
     if (age >= 66 && age <= 69) return 'Retraite active';
     if (age >= 70 && age <= 74) return 'Voyages, petits-enfants';
     if (age >= 75 && age <= 79) return 'Rythme plus tranquille';
-    if (age >= 80 && age <= 84) return 'Sante plus fragile';
-    if (age >= 85 && age <= 87) return 'Esperance de vie moyenne';
+    if (age >= 80 && age <= 84) return 'Santé plus fragile';
+    if (age >= 85 && age <= 87) return 'Espérance de vie moyenne';
     if (age >= 88) return 'Horizon long';
     return null;
   }

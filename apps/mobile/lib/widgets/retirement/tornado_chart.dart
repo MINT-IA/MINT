@@ -51,11 +51,11 @@ class TornadoChart extends StatelessWidget {
     required this.baseCase,
     required this.variables,
     this.maxVariables = 10,
-    this.title = 'Analyse de sensibilite',
-    this.subtitle = 'Quels parametres impactent le plus ton revenu de retraite ?',
+    this.title = 'Analyse de sensibilité',
+    this.subtitle = 'Quels paramètres impactent le plus ton revenu de retraite ?',
     this.baseCaseSuffix = '/mois',
     this.disclaimerText =
-        'Simulation pedagogique — chaque variable est testee independamment (LIFD, LPP, LAVS).',
+        'Simulation pédagogique — chaque variable est testée indépendamment (LIFD, LPP, LAVS).',
   });
 
   @override
@@ -162,7 +162,7 @@ class TornadoChart extends StatelessWidget {
   static String _categoryLabel(String category) {
     switch (category) {
       case 'strategy':
-        return 'Strategie';
+        return 'Stratégie';
       case 'lpp':
         return 'LPP';
       case 'avs':
@@ -172,7 +172,7 @@ class TornadoChart extends StatelessWidget {
       case 'libre':
         return 'Patrimoine libre';
       case 'depenses':
-        return 'Depenses';
+        return 'Dépenses';
       default:
         return category;
     }

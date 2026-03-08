@@ -197,10 +197,10 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           // Highlight gain VIAC — gated when debt active
           SafeModeGate(
             hasDebt: hasDebt,
-            lockedTitle: 'Priorite au desendettement',
+            lockedTitle: 'Priorité au désendettement',
             lockedMessage:
-                'Les recommandations de placement 3a sont desactivees en mode protection. '
-                'Rembourser tes dettes offre un rendement plus eleve que tout placement.',
+                'Les recommandations de placement 3a sont désactivées en mode protection. '
+                'Rembourser tes dettes offre un rendement plus élevé que tout placement.',
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -237,7 +237,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'de plus a la retraite !',
+                              'de plus à la retraite !',
                               style: TextStyle(
                                   fontSize: 12, color: MintColors.success),
                             ),

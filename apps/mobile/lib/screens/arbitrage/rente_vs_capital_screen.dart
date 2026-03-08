@@ -375,7 +375,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Rente ou capital : ta decision',
+                'Rente ou capital : ta décision',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -485,8 +485,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'A la retraite, tu choisis une fois pour toutes : '
-            'un revenu a vie ou ton capital en main.',
+            'À la retraite, tu choisis une fois pour toutes : '
+            'un revenu à vie ou ton capital en main.',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textPrimary,
@@ -497,20 +497,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           _introPuce(
             'Rente',
             'Ta caisse de pension te verse un montant fixe chaque mois, '
-                'tant que tu vis — meme si tu atteins 100 ans. '
-                'En echange, tu ne recuperes jamais ton capital.',
+                'tant que tu vis — même si tu atteins 100 ans. '
+                'En échange, tu ne récupères jamais ton capital.',
           ),
           _introPuce(
             'Capital',
-            'Tu recuperes tout ton avoir LPP d\'un coup. Tu le places, '
+            'Tu récupères tout ton avoir LPP d\'un coup. Tu le places, '
                 'tu retires ce dont tu as besoin chaque mois. '
-                'Liberte totale, mais le risque de manquer est reel.',
+                'Liberté totale, mais le risque de manquer est réel.',
           ),
           _introPuce(
             'Mixte',
             'La partie obligatoire en rente (taux 6.8 %) + '
                 'le surobligatoire en capital. Un compromis entre '
-                'securite et flexibilite.',
+                'sécurité et flexibilité.',
           ),
         ],
       ),
@@ -637,7 +637,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           if (_inputMode == _InputMode.estimate) ...[
             _buildLabeledField(
               controller: _ageCtrl,
-              label: 'Ton age',
+              label: 'Ton âge',
               fieldName: 'age',
             ),
             const SizedBox(height: 12),
@@ -674,7 +674,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Capital estime a $_ageRetraite ans : '
+                      'Capital estimé à $_ageRetraite ans : '
                       '~${formatChf(_result!.capitalProjecte)}',
                       style: GoogleFonts.inter(
                         fontSize: 13, fontWeight: FontWeight.w600,
@@ -683,7 +683,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Rente estimee : ~${formatChf(_result!.renteNetMensuelle * 12)}/an',
+                      'Rente estimée : ~${formatChf(_result!.renteNetMensuelle * 12)}/an',
                       style: GoogleFonts.inter(
                         fontSize: 12, color: MintColors.textSecondary,
                       ),
@@ -692,7 +692,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     Row(
                       children: [
                         SmartDefaultIndicator(
-                          source: 'Projection basee sur ton age, salaire et LPP actuel',
+                          source: 'Projection basée sur ton âge, salaire et LPP actuel',
                           confidence: _result!.confidenceScore / 100,
                         ),
                       ],
@@ -717,7 +717,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _renteCtrl,
-              label: 'Rente annuelle proposee (certificat LPP)',
+              label: 'Rente annuelle proposée (certificat LPP)',
               fieldName: 'rente_projetee',
             ),
             const SizedBox(height: 12),
@@ -758,7 +758,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Precision maximale — resultats bases sur tes vrais chiffres.',
+                          'Précision maximale — résultats basés sur tes vrais chiffres.',
                           style: GoogleFonts.inter(
                             fontSize: 12, color: MintColors.success,
                             fontWeight: FontWeight.w500,
@@ -833,7 +833,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Row(
           children: [
-            Text('Retraite prevue a', style: _labelStyle),
+            Text('Retraite prévue à', style: _labelStyle),
             const Spacer(),
             ValueListenableBuilder<double>(
               valueListenable: _ageRetraiteSlider,
@@ -926,18 +926,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // Dynamic accroche that adapts to the user's numbers
     String accroche;
     if (taxDelta > 10000 && epuiseAge != null) {
-      accroche = 'Cette decision peut te couter '
-          '${formatChf(taxDelta)} d\'impots en trop — '
-          'ou te laisser sans rien a $epuiseAge ans. '
+      accroche = 'Cette décision peut te coûter '
+          '${formatChf(taxDelta)} d\'impôts en trop — '
+          'ou te laisser sans rien à $epuiseAge ans. '
           'Tu ne peux la prendre qu\'une seule fois.';
     } else if (taxDelta > 10000) {
-      accroche = 'Cette decision peut changer '
-          '${formatChf(taxDelta)} d\'impots sur ta retraite. '
+      accroche = 'Cette décision peut changer '
+          '${formatChf(taxDelta)} d\'impôts sur ta retraite. '
           'Tu ne peux la prendre qu\'une seule fois.';
     } else if (epuiseAge != null) {
       accroche = 'Avec le capital, tu pourrais manquer d\'argent '
-          'des $epuiseAge ans. Avec la rente, tu recois '
-          'un montant fixe a vie. Tu ne peux choisir qu\'une fois.';
+          'dès $epuiseAge ans. Avec la rente, tu reçois '
+          'un montant fixe à vie. Tu ne peux choisir qu\'une fois.';
     } else {
       accroche = r.chiffreChoc;
     }
@@ -984,9 +984,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final higherIsCapital = capitalMois > renteMois;
     final synthese = higherIsCapital
         ? 'Le capital te donne ${formatChf(delta)}/mois de plus, '
-            'mais pourrait s\'epuiser.'
+            'mais pourrait s\'épuiser.'
         : 'La rente te donne ${formatChf(delta)}/mois de plus, '
-            'et ne s\'arrete jamais.';
+            'et ne s\'arrête jamais.';
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1033,7 +1033,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         color: MintColors.retirementAvs.withAlpha(15),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text('a vie', style: GoogleFonts.inter(
+                      child: Text('à vie', style: GoogleFonts.inter(
                         fontSize: 11, fontWeight: FontWeight.w600,
                         color: MintColors.retirementAvs,
                       )),
@@ -1088,7 +1088,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     // ── Micro-légende ──
                     Text(
                       'Tu retires ${swr.toStringAsFixed(0)} % par an '
-                      'd\'un capital place a ${rendement.toStringAsFixed(0)} %.',
+                      'd\'un capital placé à ${rendement.toStringAsFixed(0)} %.',
                       style: GoogleFonts.inter(
                         fontSize: 10, color: MintColors.textMuted, height: 1.3,
                       ),
@@ -1136,7 +1136,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       text: TextSpan(
                         style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
                         children: [
-                          const TextSpan(text: 'AVS estimee : '),
+                          const TextSpan(text: 'AVS estimée : '),
                           TextSpan(
                             text: '~${formatChf(_avsRenteMensuelle!)}/mois',
                             style: GoogleFonts.inter(
@@ -1175,7 +1175,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         children: [
           // ── Slider: "Et si je vis jusqu'a..." ──
           Text(
-            'Et si je vis jusqu\'a...',
+            'Et si je vis jusqu\'à...',
             style: GoogleFonts.montserrat(
               fontSize: 15, fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -1216,7 +1216,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
           // ── Chart: capital restant vs revenus cumules de la rente ──
           Text(
-            'Capital restant vs revenus cumules de la rente',
+            'Capital restant vs revenus cumulés de la rente',
             style: GoogleFonts.montserrat(
               fontSize: 15, fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
@@ -1224,8 +1224,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Capital (vert) : ce qu\'il reste apres tes retraits. Rente (bleu) : total recu depuis le depart. '
-            'Le croisement = l\'age auquel la rente a plus rapporte.',
+            'Capital (vert) : ce qu\'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. '
+            'Le croisement = l\'âge auquel la rente a plus rapporté.',
             style: GoogleFonts.inter(
               fontSize: 12, color: MintColors.textSecondary,
             ),
@@ -1257,7 +1257,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         yearIndex >= capitalOption.trajectory.length) {
       // Should not happen now that horizon is dynamic, but safety fallback
       return Text(
-        'A $age ans : au-dela de l\'horizon de simulation.',
+        'À $age ans : au-delà de l\'horizon de simulation.',
         style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
       );
     }
@@ -1285,7 +1285,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             child: Text.rich(
               TextSpan(children: [
                 TextSpan(
-                  text: 'A $age ans : ',
+                  text: 'À $age ans : ',
                   style: GoogleFonts.inter(
                     fontSize: 13, color: MintColors.textPrimary,
                     fontWeight: FontWeight.w500,
@@ -1324,7 +1324,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ce que ca change concretement',
+          'Ce que ça change concrètement',
           style: GoogleFonts.montserrat(
             fontSize: 16, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -1336,20 +1336,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         _educationalCard(
           icon: Icons.receipt_long,
           iconColor: const Color(0xFF6366F1),
-          title: 'Fiscalite',
+          title: 'Fiscalité',
           leftTitle: 'Rente',
-          leftSubtitle: 'Imposee chaque annee',
+          leftSubtitle: 'Imposée chaque année',
           leftValue: '~${formatChf(r.impotCumulRente)}',
           leftDetail: 'sur 30 ans',
           rightTitle: 'Capital',
-          rightSubtitle: 'Taxe une seule fois',
+          rightSubtitle: 'Taxé une seule fois',
           rightValue: '~${formatChf(r.impotRetraitCapital)}',
           rightDetail: 'au retrait (LIFD art. 38)',
           bottomText: r.impotCumulRente > r.impotRetraitCapital
-              ? 'Sur 30 ans, le capital te fait economiser '
-                '~${formatChf(r.impotCumulRente - r.impotRetraitCapital)} d\'impots.'
-              : 'Sur 30 ans, la rente genere '
-                '~${formatChf(r.impotRetraitCapital - r.impotCumulRente)} d\'impots en moins.',
+              ? 'Sur 30 ans, le capital te fait économiser '
+                '~${formatChf(r.impotCumulRente - r.impotRetraitCapital)} d\'impôts.'
+              : 'Sur 30 ans, la rente génère '
+                '~${formatChf(r.impotRetraitCapital - r.impotCumulRente)} d\'impôts en moins.',
         ),
         const SizedBox(height: 12),
 
@@ -1366,8 +1366,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           rightSubtitle: 'pouvoir d\'achat',
           rightValue: '${formatChf(r.renteReelleAn20 / 12)}',
           rightDetail: '/mois',
-          bottomText: 'Ta rente LPP n\'est pas indexee. '
-              'Elle achete ${((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()} % '
+          bottomText: 'Ta rente LPP n\'est pas indexée. '
+              'Elle achète ${((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()} % '
               'de moins dans 20 ans.',
         ),
         const SizedBox(height: 12),
@@ -1378,19 +1378,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           iconColor: MintColors.primary,
           title: 'Transmission',
           leftTitle: 'Rente',
-          leftSubtitle: _isMarried ? 'Ton conjoint recoit' : 'A ton deces',
+          leftSubtitle: _isMarried ? 'Ton conjoint reçoit' : 'À ton décès',
           leftValue: _isMarried
               ? '60 % = ${formatChf(r.renteSurvivant / 12)}/mois'
               : 'Rien',
-          leftDetail: _isMarried ? 'LPP art. 19' : 'pour tes heritiers',
+          leftDetail: _isMarried ? 'LPP art. 19' : 'pour tes héritiers',
           rightTitle: 'Capital',
-          rightSubtitle: 'Tes heritiers recoivent',
+          rightSubtitle: 'Tes héritiers reçoivent',
           rightValue: '100 %',
           rightDetail: 'du solde restant',
           bottomText: _isMarried
-              ? 'Avec la rente, seul\u00b7e ton conjoint\u00b7e recoit 60 %. '
+              ? 'Avec la rente, seul\u00b7e ton conjoint\u00b7e reçoit 60 %. '
                 'Rien pour les enfants.'
-              : 'Avec la rente, rien ne revient a tes proches.',
+              : 'Avec la rente, rien ne revient à tes proches.',
         ),
       ],
     );
@@ -1546,7 +1546,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             HypothesisConfig(
               key: 'swr',
-              label: 'Combien tu retires chaque annee',
+              label: 'Combien tu retires chaque année',
               min: 2, max: 6, divisions: 8, defaultValue: 4,
             ),
             HypothesisConfig(
@@ -1572,7 +1572,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           tilePadding: EdgeInsets.zero,
           childrenPadding: const EdgeInsets.only(bottom: 8),
           title: Text(
-            'Voir le diagramme de sensibilite',
+            'Voir le diagramme de sensibilité',
             style: GoogleFonts.inter(
               fontSize: 13, fontWeight: FontWeight.w500,
               color: MintColors.textSecondary,
@@ -1582,7 +1582,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: 16),
 
-        // ── Hypotheses detaillees ──
+        // ── Hypothèses détaillées ──
         _buildHypothesesSection(),
       ],
     );
@@ -1607,7 +1607,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Qu\'est-ce qui change le plus le resultat ?',
+          'Qu\'est-ce qui change le plus le résultat ?',
           style: GoogleFonts.montserrat(
             fontSize: 15, fontWeight: FontWeight.w700,
             color: MintColors.textPrimary,
@@ -1615,7 +1615,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Les parametres les plus influents sur l\'ecart entre tes options.',
+          'Les paramètres les plus influents sur l\'écart entre tes options.',
           style: GoogleFonts.inter(
             fontSize: 12, color: MintColors.textSecondary,
           ),
@@ -1728,7 +1728,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
+              'Résultat indicatif — précise tes données pour un résultat plus fiable.',
               style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
             ),
           ),
@@ -1747,7 +1747,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses de cette simulation',
+        'Hypothèses de cette simulation',
         style: GoogleFonts.montserrat(
           fontSize: 14, fontWeight: FontWeight.w600,
           color: MintColors.textPrimary,
@@ -1835,7 +1835,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           children: [
             Expanded(
               child: Text(
-                'Rachat LPP annuel prevu (CHF)',
+                'Rachat LPP annuel prévu (CHF)',
                 style: _labelStyle,
               ),
             ),
@@ -1865,7 +1865,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               borderSide: BorderSide.none,
             ),
             suffixIcon: Tooltip(
-              message: 'Si tu fais des rachats LPP chaque annee, leur valeur futur est ajoutee au capital a la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
+              message: 'Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
               child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
             ),
           ),
@@ -1902,7 +1902,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
             decoration: InputDecoration(
-              hintText: "Montant retire (min 20'000)",
+              hintText: "Montant retiré (min 20'000)",
               hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
               prefixText: 'CHF ',
               filled: true,
@@ -1912,7 +1912,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 borderSide: BorderSide.none,
               ),
               suffixIcon: Tooltip(
-                message: "Le retrait EPL reduit ton avoir LPP et donc ton capital ou ta rente a la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+                message: "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
                 child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
               ),
             ),

@@ -199,7 +199,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Anticipez les consequences financieres',
+                  'Anticipez les conséquences financières',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -232,10 +232,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Un divorce a des consequences financieres souvent '
-              'sous-estimees : partage du patrimoine, de la prevoyance '
+              'Un divorce a des conséquences financières souvent '
+              'sous-estimées : partage du patrimoine, de la prévoyance '
               '(LPP/3a), impact fiscal et pension alimentaire. '
-              'Cet outil vous aide a y voir plus clair.',
+              'Cet outil vous aide à y voir plus clair.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -252,13 +252,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildSituationFamilialeSection() {
     return SimulatorCard(
       title: 'SITUATION FAMILIALE',
-      subtitle: 'Duree du mariage, enfants, regime',
+      subtitle: 'Durée du mariage, enfants, régime',
       icon: Icons.people_outline,
       accentColor: Colors.purple.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Duree du mariage',
+            label: 'Durée du mariage',
             value: _marriageDuration.toDouble(),
             min: 1,
             max: 40,
@@ -288,18 +288,18 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildRegimeChips() {
     final options = <MapEntry<MatrimonialRegime, String>>[
       const MapEntry(
-          MatrimonialRegime.participationAuxAcquets, 'Participation aux acquets (defaut)'),
+          MatrimonialRegime.participationAuxAcquets, 'Participation aux acquêts (défaut)'),
       const MapEntry(
-          MatrimonialRegime.communauteDeBiens, 'Communaute de biens'),
+          MatrimonialRegime.communauteDeBiens, 'Communauté de biens'),
       const MapEntry(
-          MatrimonialRegime.separationDeBiens, 'Separation de biens'),
+          MatrimonialRegime.separationDeBiens, 'Séparation de biens'),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Regime matrimonial',
+          'Régime matrimonial',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -382,8 +382,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Section 3: Prévoyance ---
   Widget _buildPrevoyanceSection() {
     return SimulatorCard(
-      title: 'PREVOYANCE',
-      subtitle: 'LPP et 3a accumules pendant le mariage',
+      title: 'PRÉVOYANCE',
+      subtitle: 'LPP et 3a accumulés pendant le mariage',
       icon: Icons.account_balance_outlined,
       accentColor: Colors.purple.shade600,
       child: Column(
@@ -597,15 +597,15 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildResultRow('Impot estime (marie)',
+          _buildResultRow('Impôt estimé (marié)',
               _chfFmt(r.taxImpact.estimatedTaxMarried)),
           const SizedBox(height: 8),
-          _buildResultRow('Impot Conjoint 1 (individuel)',
+          _buildResultRow('Impôt Conjoint 1 (individuel)',
               _chfFmt(r.taxImpact.estimatedTaxConjoint1)),
-          _buildResultRow('Impot Conjoint 2 (individuel)',
+          _buildResultRow('Impôt Conjoint 2 (individuel)',
               _chfFmt(r.taxImpact.estimatedTaxConjoint2)),
           _buildResultRow(
-              'Total apres divorce', _chfFmt(r.taxImpact.totalTaxAfter)),
+              'Total après divorce', _chfFmt(r.taxImpact.totalTaxAfter)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(12),
@@ -625,7 +625,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Difference : ${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}/an',
+                    'Différence : ${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}/an',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -793,8 +793,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Estimation basee sur l\'ecart de revenus et le nombre '
-            'd\'enfants. Le montant reel depend de nombreux facteurs '
+            'Estimation basée sur l\'écart de revenus et le nombre '
+            'd\'enfants. Le montant réel dépend de nombreux facteurs '
             '(garde, besoins, train de vie).',
             style: GoogleFonts.inter(
               fontSize: 12,
@@ -862,8 +862,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Actions a entreprendre',
-      subtitle: 'Checklist de preparation',
+      title: 'Actions à entreprendre',
+      subtitle: 'Checklist de préparation',
       icon: Icons.checklist,
       accentColor: Colors.purple.shade600,
       child: Column(
@@ -946,21 +946,21 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que la participation aux acquets ?',
-          'La participation aux acquets est le regime matrimonial par defaut en '
+          'Qu\'est-ce que la participation aux acquêts ?',
+          'La participation aux acquêts est le régime matrimonial par défaut en '
               'Suisse (CC art. 181 ss). Chaque conjoint conserve ses biens propres '
-              '(ceux acquis avant le mariage ou par succession/donation). Les acquets '
-              '(biens acquis pendant le mariage) sont partages a parts egales en cas '
-              'de divorce. C\'est le regime le plus courant en Suisse.',
+              '(ceux acquis avant le mariage ou par succession/donation). Les acquêts '
+              '(biens acquis pendant le mariage) sont partagés à parts égales en cas '
+              'de divorce. C\'est le régime le plus courant en Suisse.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
           'Comment fonctionne le partage LPP ?',
-          'Depuis le 1er janvier 2017 (CC art. 122), les avoirs de prevoyance '
-              'professionnelle (2e pilier) accumules pendant le mariage sont partages '
-              'a parts egales en cas de divorce. Le partage se fait directement entre '
+          'Depuis le 1er janvier 2017 (CC art. 122), les avoirs de prévoyance '
+              'professionnelle (2e pilier) accumulés pendant le mariage sont partagés '
+              'à parts égales en cas de divorce. Le partage se fait directement entre '
               'les deux caisses de pension, sans passage par le compte personnel des '
-              'conjoints. C\'est un droit imperieux auquel les conjoints ne peuvent '
+              'conjoints. C\'est un droit impérieux auquel les conjoints ne peuvent '
               'renoncer que dans des conditions strictes.',
         ),
       ],
@@ -1020,11 +1020,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations a titre indicatif '
+              'Les résultats présentés sont des estimations à titre indicatif '
               'et ne constituent pas un conseil juridique ou financier '
-              'personnalise. Chaque situation est unique. Consultez un(e) '
-              'avocat(e) specialise(e) en droit de la famille et un·e spécialiste '
-              'en finances avant toute decision.',
+              'personnalisé. Chaque situation est unique. Consultez un(e) '
+              'avocat(e) spécialisé(e) en droit de la famille et un·e spécialiste '
+              'en finances avant toute décision.',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

@@ -121,7 +121,7 @@ class _MariageScreenState extends State<MariageScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          'Mariage & fiscalite',
+          'Mariage & fiscalité',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -156,8 +156,8 @@ class _MariageScreenState extends State<MariageScreen>
           fontWeight: FontWeight.w400,
         ),
         tabs: const [
-          Tab(text: 'Impots'),
-          Tab(text: 'Regime'),
+          Tab(text: 'Impôts'),
+          Tab(text: 'Régime'),
           Tab(text: 'Protection'),
           Tab(text: 'Checklist'),
         ],
@@ -187,9 +187,9 @@ class _MariageScreenState extends State<MariageScreen>
           const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'Savais-tu que la penalite du mariage touche ~700\'000 couples en Suisse ? '
-          'Le Tribunal federal a juge cette situation anticonstitutionnelle en 1984, '
-          'mais elle n\'a toujours pas ete corrigee.',
+          'Savais-tu que la pénalité du mariage touche ~700\'000 couples en Suisse ? '
+          'Le Tribunal fédéral a jugé cette situation anticonstitutionnelle en 1984, '
+          'mais elle n\'a toujours pas été corrigée.',
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -365,7 +365,7 @@ class _MariageScreenState extends State<MariageScreen>
                           size: 24, color: MintColors.textSecondary),
                       const SizedBox(height: 8),
                       Text(
-                        '2 celibataires',
+                        '2 célibataires',
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -402,7 +402,7 @@ class _MariageScreenState extends State<MariageScreen>
                           size: 24, color: MintColors.textSecondary),
                       const SizedBox(height: 8),
                       Text(
-                        'Maries',
+                        'Mariés',
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -456,7 +456,7 @@ class _MariageScreenState extends State<MariageScreen>
                   duration: const Duration(milliseconds: 300),
                   child: Text(
                     isPenalite
-                        ? 'Penalite +${FamilyService.formatChf(difference.abs())}/an'
+                        ? 'Pénalité +${FamilyService.formatChf(difference.abs())}/an'
                         : 'Bonus -${FamilyService.formatChf(difference.abs())}/an',
                     key: ValueKey(difference),
                     style: GoogleFonts.montserrat(
@@ -493,7 +493,7 @@ class _MariageScreenState extends State<MariageScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DEDUCTIONS MARIAGE',
+                'DÉDUCTIONS MARIAGE',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -505,18 +505,18 @@ class _MariageScreenState extends State<MariageScreen>
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Deduction couple marie',
+            'Déduction couple marié',
             FamilyService.formatChf(result['deductionMarie'] as double),
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Deduction assurance (mariee)',
+            'Déduction assurance (mariée)',
             FamilyService.formatChf(result['deductionAssurance'] as double),
           ),
           const SizedBox(height: 8),
           if ((result['deductionDoubleRevenu'] as double) > 0) ...[
             _buildResultRow(
-              'Deduction double revenu',
+              'Déduction double revenu',
               FamilyService.formatChf(
                   result['deductionDoubleRevenu'] as double),
             ),
@@ -524,7 +524,7 @@ class _MariageScreenState extends State<MariageScreen>
           ],
           if ((result['deductionEnfants'] as double) > 0) ...[
             _buildResultRow(
-              'Deduction enfants',
+              'Déduction enfants',
               FamilyService.formatChf(result['deductionEnfants'] as double),
             ),
             const SizedBox(height: 8),
@@ -532,7 +532,7 @@ class _MariageScreenState extends State<MariageScreen>
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Total deductions',
+            'Total déductions',
             FamilyService.formatChf(result['totalDeductions'] as double),
             bold: true,
           ),
@@ -566,7 +566,7 @@ class _MariageScreenState extends State<MariageScreen>
             const Icon(Icons.gavel, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'REGIME MATRIMONIAL',
+              'RÉGIME MATRIMONIAL',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -580,8 +580,8 @@ class _MariageScreenState extends State<MariageScreen>
         _buildRegimeCard(
           index: 0,
           icon: Icons.handshake_outlined,
-          title: 'Participation aux acquets',
-          subtitle: 'Regime par defaut (CC art. 181)',
+          title: 'Participation aux acquêts',
+          subtitle: 'Régime par défaut (CC art. 181)',
           description:
               'Chacun garde ses biens propres. Les acquets (gains durant le mariage) sont partages 50/50 en cas de dissolution.',
         ),
@@ -589,19 +589,19 @@ class _MariageScreenState extends State<MariageScreen>
         _buildRegimeCard(
           index: 1,
           icon: Icons.lock_outline,
-          title: 'Separation de biens',
+          title: 'Séparation de biens',
           subtitle: 'CC art. 247',
           description:
-              'Chacun conserve l\'integralite de ses biens et de ses revenus. Aucun partage automatique.',
+              'Chacun conserve l\'intégralité de ses biens et de ses revenus. Aucun partage automatique.',
         ),
         const SizedBox(height: 10),
         _buildRegimeCard(
           index: 2,
           icon: Icons.group_outlined,
-          title: 'Communaute de biens',
+          title: 'Communauté de biens',
           subtitle: 'CC art. 221',
           description:
-              'Tout est mis en commun : biens propres et acquets. Partage egalitaire total en cas de dissolution.',
+              'Tout est mis en commun : biens propres et acquêts. Partage égalitaire total en cas de dissolution.',
         ),
         const SizedBox(height: 24),
 
@@ -804,8 +804,8 @@ class _MariageScreenState extends State<MariageScreen>
       case 0: // Participation aux acquets — 50/50 of gains
         part1 = total / 2;
         part2 = total / 2;
-        label1 = 'Personne 1 recoit';
-        label2 = 'Personne 2 recoit';
+        label1 = 'Personne 1 reçoit';
+        label2 = 'Personne 2 reçoit';
         break;
       case 1: // Separation — each keeps own
         part1 = _patrimoine1;
@@ -816,8 +816,8 @@ class _MariageScreenState extends State<MariageScreen>
       case 2: // Communaute — everything shared
         part1 = total / 2;
         part2 = total / 2;
-        label1 = 'Personne 1 recoit';
-        label2 = 'Personne 2 recoit';
+        label1 = 'Personne 1 reçoit';
+        label2 = 'Personne 2 reçoit';
         break;
       default:
         part1 = total / 2;
@@ -844,7 +844,7 @@ class _MariageScreenState extends State<MariageScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'REPARTITION EN CAS DE DISSOLUTION',
+                'RÉPARTITION EN CAS DE DISSOLUTION',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -985,8 +985,8 @@ class _MariageScreenState extends State<MariageScreen>
           const SizedBox(height: 6),
           Text(
             _selectedRegime == 0
-                ? 'En regime par defaut, cette part de tes acquets reviendrait a ton conjoint en cas de dissolution'
-                : 'En communaute de biens, ce montant serait partage avec ton conjoint',
+                ? 'En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution'
+                : 'En communauté de biens, ce montant serait partagé avec ton conjoint',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: Colors.white70,
@@ -1028,8 +1028,8 @@ class _MariageScreenState extends State<MariageScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Que se passe-t-il si l\'un de vous deux decede ? '
-                  'Compare la protection legale entre maries et concubins.',
+                  'Que se passe-t-il si l\'un de vous deux décède ? '
+                  'Compare la protection légale entre mariés et concubins.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1052,7 +1052,7 @@ class _MariageScreenState extends State<MariageScreen>
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
           child: _buildSlider(
-            label: 'Rente LPP mensuelle du defunt',
+            label: 'Rente LPP mensuelle du défunt',
             value: _renteLpp,
             min: 0,
             max: 8000,
@@ -1070,9 +1070,9 @@ class _MariageScreenState extends State<MariageScreen>
         _buildSurvivorCard(
           icon: Icons.account_balance_outlined,
           label: 'Rente AVS de survivant',
-          subtitle: '80% de la rente maximale du defunt',
+          subtitle: '80% de la rente maximale du défunt',
           value: avsSurvivor,
-          footnote: 'LAVS art. 35 — uniquement pour les maries',
+          footnote: 'LAVS art. 35 — uniquement pour les mariés',
         ),
         const SizedBox(height: 12),
 
@@ -1080,9 +1080,9 @@ class _MariageScreenState extends State<MariageScreen>
         _buildSurvivorCard(
           icon: Icons.savings_outlined,
           label: 'Rente LPP de survivant',
-          subtitle: '60% de la rente assuree du defunt',
+          subtitle: '60% de la rente assurée du défunt',
           value: lppSurvivor,
-          footnote: 'LPP art. 19 — maries (concubins : clause necessaire)',
+          footnote: 'LPP art. 19 — mariés (concubins : clause nécessaire)',
         ),
         const SizedBox(height: 12),
 
@@ -1105,7 +1105,7 @@ class _MariageScreenState extends State<MariageScreen>
               ),
               const SizedBox(height: 6),
               Text(
-                'Revenu mensuel du survivant marie',
+                'Revenu mensuel du survivant marié',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: Colors.white70,
@@ -1237,7 +1237,7 @@ class _MariageScreenState extends State<MariageScreen>
               const Icon(Icons.compare, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'MARIE VS CONCUBIN',
+                'MARIÉ VS CONCUBIN',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1250,7 +1250,7 @@ class _MariageScreenState extends State<MariageScreen>
           const SizedBox(height: 16),
           _buildComparisonRow('Rente AVS survivant', true, false),
           _buildComparisonRow('Rente LPP survivant', true, false),
-          _buildComparisonRow('Heritage exonere', true, false),
+          _buildComparisonRow('Héritage exonéré', true, false),
           _buildComparisonRow('Pension alimentaire', true, false),
           const SizedBox(height: 8),
           Container(
@@ -1267,9 +1267,9 @@ class _MariageScreenState extends State<MariageScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'En concubinage, le partenaire survivant n\'a droit a rien '
-                    'par defaut — ni rente AVS, ni heritage exonere. '
-                    'Il faut tout prevoir par contrat.',
+                    'En concubinage, le partenaire survivant n\'a droit à rien '
+                    'par défaut — ni rente AVS, ni héritage exonéré. '
+                    'Il faut tout prévoir par contrat.',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textPrimary,
@@ -1325,8 +1325,8 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildProtectionChecklist() {
     final items = [
-      'Rediger un testament (clause d\'usufruit)',
-      'Clause beneficiaire LPP (demander a ta caisse de pension)',
+      'Rédiger un testament (clause d\'usufruit)',
+      'Clause bénéficiaire LPP (demander à ta caisse de pension)',
       'Assurance-vie croisee (protection du partenaire)',
       'Mandat pour cause d\'inaptitude',
       'Directives anticipees du patient',
@@ -1418,9 +1418,9 @@ class _MariageScreenState extends State<MariageScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Le mariage a des consequences financieres et juridiques. '
-                  'Voici les demarches essentielles a anticiper pour '
-                  'bien te preparer.',
+                  'Le mariage a des conséquences financières et juridiques. '
+                  'Voici les démarches essentielles à anticiper pour '
+                  'bien te préparer.',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1447,7 +1447,7 @@ class _MariageScreenState extends State<MariageScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '$nbChecked/${items.length} demarches effectuees',
+                    '$nbChecked/${items.length} démarches effectuées',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1627,51 +1627,51 @@ class _MariageScreenState extends State<MariageScreen>
     {
       'title': 'Simuler l\'impact fiscal du mariage',
       'description':
-          'Avant de te marier, compare la charge fiscale a deux (maries vs celibataires). '
-          'Si tes revenus sont similaires et eleves, la penalite de mariage peut representer '
+          'Avant de te marier, compare la charge fiscale à deux (mariés vs célibataires). '
+          'Si tes revenus sont similaires et élevés, la pénalité de mariage peut représenter '
           'plusieurs milliers de francs par an.',
     },
     {
-      'title': 'Choisir le regime matrimonial',
+      'title': 'Choisir le régime matrimonial',
       'description':
-          'Par defaut, c\'est la participation aux acquets (CC art. 181). '
-          'Si tu veux un autre regime (separation de biens, communaute de biens), '
+          'Par défaut, c\'est la participation aux acquêts (CC art. 181). '
+          'Si tu veux un autre régime (séparation de biens, communauté de biens), '
           'il faut signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.',
     },
     {
-      'title': 'Mettre a jour les clauses beneficiaires LPP et 3a',
+      'title': 'Mettre à jour les clauses bénéficiaires LPP et 3a',
       'description':
-          'Le mariage change l\'ordre des beneficiaires. Ton conjoint devient '
-          'automatiquement beneficiaire de la rente de survivant LPP (LPP art. 19). '
-          'Verifie aussi les beneficiaires de ton 3e pilier.',
+          'Le mariage change l\'ordre des bénéficiaires. Ton conjoint devient '
+          'automatiquement bénéficiaire de la rente de survivant LPP (LPP art. 19). '
+          'Vérifie aussi les bénéficiaires de ton 3e pilier.',
     },
     {
       'title': 'Informer ton employeur et ta caisse maladie',
       'description':
-          'Ton employeur doit mettre a jour tes donnees (etat civil, deductions). '
-          'Ta caisse maladie doit etre informee — les primes ne changent pas, '
-          'mais les subsides eventuels sont recalcules sur le revenu du menage.',
+          'Ton employeur doit mettre à jour tes données (état civil, déductions). '
+          'Ta caisse maladie doit être informée — les primes ne changent pas, '
+          'mais les subsides éventuels sont recalculés sur le revenu du ménage.',
     },
     {
-      'title': 'Preparer la premiere declaration commune',
+      'title': 'Préparer la première déclaration commune',
       'description':
-          'Des l\'annee du mariage, tu fais une seule declaration fiscale commune. '
+          'Dès l\'année du mariage, tu fais une seule déclaration fiscale commune. '
           'Rassemble les justificatifs des deux (certificats de salaire, 3a, LPP, etc.). '
-          'Le passage a la declaration commune peut changer ta tranche d\'imposition.',
+          'Le passage à la déclaration commune peut changer ta tranche d\'imposition.',
     },
     {
-      'title': 'Verifier les rentes AVS de couple',
+      'title': 'Vérifier les rentes AVS de couple',
       'description':
-          'La rente AVS maximale pour un couple est plafonnee a 150% de la rente '
+          'La rente AVS maximale pour un couple est plafonnée à 150% de la rente '
           'individuelle maximale (LAVS art. 35). Si tu as droit '
-          'a la rente max avec ton conjoint, le plafond peut reduire ton total.',
+          'à la rente max avec ton conjoint, le plafond peut réduire ton total.',
     },
     {
       'title': 'Adapter le testament',
       'description':
-          'Le mariage modifie l\'ordre de succession. Le conjoint devient heritier legal '
+          'Le mariage modifie l\'ordre de succession. Le conjoint devient héritier légal '
           'avec des droits importants (CC art. 462). Si tu avais un testament en faveur '
-          'd\'un tiers, il est peut-etre a revoir.',
+          'd\'un tiers, il est peut-être à revoir.',
     },
   ];
 
@@ -1870,10 +1870,10 @@ class _MariageScreenState extends State<MariageScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations simplifiees a but educatif — ne constitue pas '
-              'un conseil fiscal ou juridique. Les montants dependent de nombreux '
-              'facteurs (deductions, commune, fortune, etc.). '
-              'Consulte un-e specialiste fiscal-e pour un calcul personnalise.',
+              'Estimations simplifiées à but éducatif — ne constitue pas '
+              'un conseil fiscal ou juridique. Les montants dépendent de nombreux '
+              'facteurs (déductions, commune, fortune, etc.). '
+              'Consulte un·e spécialiste fiscal·e pour un calcul personnalisé.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

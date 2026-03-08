@@ -560,7 +560,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Quasi-resident (Geneve)',
+                  'Quasi-résident (Genève)',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

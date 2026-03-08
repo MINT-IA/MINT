@@ -124,11 +124,11 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
                 ),
                 const SizedBox(height: 6),
                 _buildBulletPoint(
-                  "Un placement a 3% avec 1.5% d'inflation et 0.5% de frais rapporte seulement 1% en reel",
+                  "Un placement à 3% avec 1.5% d'inflation et 0.5% de frais rapporte seulement 1% en réel",
                 ),
                 const SizedBox(height: 6),
                 _buildBulletPoint(
-                  "Sur 30 ans, cette difference peut representer des dizaines de milliers de francs",
+                  "Sur 30 ans, cette différence peut représenter des dizaines de milliers de francs",
                 ),
               ],
             ),

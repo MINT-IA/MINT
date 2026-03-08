@@ -1843,5 +1843,68 @@
   "adminObsExportFailed": "Esportazione non riuscita",
   "adminObsWindowLabel": "Finestra",
   "commonRetry": "Riprova",
-  "commonDays": "giorni"
+  "commonDays": "giorni",
+  "landingTagline": "Il tuo coach finanziario svizzero",
+  "landingRegister": "Registrati",
+  "landingHeroRetirementNow1": "Il tuo pensionamento,",
+  "landingHeroRetirementNow2": "è adesso.",
+  "landingHeroCountdown1": "Tra {years} anni,",
+  "@landingHeroCountdown1": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "landingHeroCountdown1Single": "Tra 1 anno,",
+  "landingHeroCountdown2": "inizia il tuo pensionamento.",
+  "landingHeroSubtitle": "La maggior parte degli svizzeri scopre il proprio divario pensionistico troppo tardi.",
+  "landingSliderAge": "La tua età",
+  "landingSliderAgeSuffix": "{age} anni",
+  "@landingSliderAgeSuffix": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "landingSliderSalary": "Il tuo salario lordo",
+  "landingSliderSalarySuffix": "{amount} CHF/anno",
+  "@landingSliderSalarySuffix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingToday": "Oggi",
+  "landingChfPerMonth": "CHF/mese",
+  "landingAtRetirement": "Al pensionamento*",
+  "landingDropPurchasingPower": "-{percent}% di potere d'acquisto",
+  "@landingDropPurchasingPower": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "landingLppCapNotice": "Oltre {amount} CHF/anno, la rendita obbligatoria è limitata.",
+  "@landingLppCapNotice": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookHigh": "Un divario di {amount}/mese è significativo. MINT ti aiuta a capire dove agire.",
+  "@landingHookHigh": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookMedium": "Il tuo divario è gestibile. MINT ti mostra le leve concrete (riscatto LPP, 3a, pensionamento anticipato).",
+  "landingHookLow": "Sei in buona posizione. MINT ti mostra come mantenere la rotta e ottimizzare i tuoi pilastri.",
+  "landingWhyMint": "Perché MINT?",
+  "landingFeaturePillarsTitle": "Tutti i tuoi pilastri, un'unica dashboard",
+  "landingFeaturePillarsSubtitle": "AVS, LPP e 3a calcolati per la tua situazione reale — non medie svizzere.",
+  "landingFeatureCoachTitle": "Coach adattato alla tua fase di vita",
+  "landingFeatureCoachSubtitle": "25 o 60 anni, frontaliere o indipendente — i consigli cambiano in base a chi sei.",
+  "landingFeaturePrivacyTitle": "100% privato, dati sul tuo dispositivo",
+  "landingFeaturePrivacySubtitle": "Nessuna condivisione, nessuna pubblicità. Il tuo profilo resta locale a meno che tu non crei un account.",
+  "landingTrustSwiss": "Made in Switzerland",
+  "landingTrustPrivate": "100% privato",
+  "landingTrustNoCommitment": "Senza impegno",
+  "landingCtaTitle": "Il tuo piano in 30 secondi",
+  "landingCtaSubtitle": "3 domande • Gratuito • Senza impegno",
+  "landingLegalFooter": "*Stima indicativa (1° + 2° pilastro), basata sullo stipendio attuale come proxy di carriera. Non costituisce consulenza finanziaria ai sensi della LSFin. I tuoi dati restano sul tuo dispositivo."
 }

@@ -48,7 +48,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
       hypotheses: const [
         'Charges fixes = loyer + assurances + abonnements + crédits',
         'Objectif recommandé : 3 mois (minimum) à 6 mois (confort)',
-        'Placement suggere : compte epargne accessible, non investi',
+        'Placement suggéré : compte épargne accessible, non investi',
       ],
       onLearnMore: widget.onLearnMore,
       content: Column(

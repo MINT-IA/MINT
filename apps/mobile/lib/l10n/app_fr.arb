@@ -1843,5 +1843,68 @@
     "placeholders": {
       "section": { "type": "String" }
     }
-  }
+  },
+  "landingTagline": "Ton coach financier suisse",
+  "landingRegister": "S'inscrire",
+  "landingHeroRetirementNow1": "Ta retraite,",
+  "landingHeroRetirementNow2": "c'est maintenant.",
+  "landingHeroCountdown1": "Dans {years} ans,",
+  "@landingHeroCountdown1": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "landingHeroCountdown1Single": "Dans 1 an,",
+  "landingHeroCountdown2": "ta retraite commence.",
+  "landingHeroSubtitle": "La plupart des Suisses découvrent leur écart de retraite trop tard.",
+  "landingSliderAge": "Ton âge",
+  "landingSliderAgeSuffix": "{age} ans",
+  "@landingSliderAgeSuffix": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "landingSliderSalary": "Ton salaire brut",
+  "landingSliderSalarySuffix": "{amount} CHF/an",
+  "@landingSliderSalarySuffix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingToday": "Aujourd'hui",
+  "landingChfPerMonth": "CHF/mois",
+  "landingAtRetirement": "À la retraite*",
+  "landingDropPurchasingPower": "-{percent}% de pouvoir d'achat",
+  "@landingDropPurchasingPower": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "landingLppCapNotice": "Au-delà de {amount} CHF/an, la rente obligatoire est plafonnée.",
+  "@landingLppCapNotice": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookHigh": "Un écart de {amount}/mois, c'est significatif. MINT t'aide à comprendre où agir.",
+  "@landingHookHigh": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookMedium": "Ton gap est gérable. MINT te montre les leviers concrets (rachat LPP, 3a, retraite anticipée).",
+  "landingHookLow": "Tu es en bonne posture. MINT te montre comment maintenir le cap et optimiser tes piliers.",
+  "landingWhyMint": "Pourquoi MINT ?",
+  "landingFeaturePillarsTitle": "Tous tes piliers, un seul tableau de bord",
+  "landingFeaturePillarsSubtitle": "AVS, LPP et 3a calculés selon ta situation réelle — pas des moyennes suisses.",
+  "landingFeatureCoachTitle": "Coach adapté à ton stade de vie",
+  "landingFeatureCoachSubtitle": "25 ans ou 60 ans, frontalier ou indépendant — les conseils changent selon qui tu es.",
+  "landingFeaturePrivacyTitle": "100% privé, données sur ton appareil",
+  "landingFeaturePrivacySubtitle": "Aucun partage, aucune pub. Ton profil reste local sauf si tu crées un compte.",
+  "landingTrustSwiss": "Conçu en Suisse",
+  "landingTrustPrivate": "100% privé",
+  "landingTrustNoCommitment": "Sans engagement",
+  "landingCtaTitle": "Ton plan en 30 secondes",
+  "landingCtaSubtitle": "3 questions • Gratuit • Sans engagement",
+  "landingLegalFooter": "*Estimation indicative (1er + 2e pilier), basée sur le salaire actuel comme proxy de carrière. Ne constitue pas un conseil financier au sens de la LSFin. Tes données restent sur ton appareil."
 }

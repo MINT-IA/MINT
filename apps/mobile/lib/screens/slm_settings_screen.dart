@@ -74,8 +74,8 @@ class SlmSettingsScreen extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le modele fonctionne 100% sur ton appareil. '
-              'Aucune donnee ne quitte ton telephone.',
+              'Le modèle fonctionne 100% sur ton appareil. '
+              'Aucune donnée ne quitte ton téléphone.',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: MintColors.primary,
@@ -194,7 +194,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Demarrage du telechargement...',
+                    'Démarrage du téléchargement...',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.primary,
@@ -246,7 +246,7 @@ class SlmSettingsScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: slm.cancelDownload,
                   icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Annuler le telechargement'),
+                  label: const Text('Annuler le téléchargement'),
                 ),
               ),
             ],
@@ -269,8 +269,8 @@ class SlmSettingsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         slm.lastError ??
-                            'Le telechargement a echoue. '
-                                'Verifie ta connexion WiFi et '
+                            'Le téléchargement a échoué. '
+                                'Vérifie ta connexion WiFi et '
                                 'l\'espace disponible sur ton appareil.',
                         style: GoogleFonts.inter(
                             fontSize: 13, color: Colors.red[700]),
@@ -290,8 +290,8 @@ class SlmSettingsScreen extends StatelessWidget {
                       slm.canAttemptDownload ? Icons.refresh : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Reessayer le telechargement'
-                        : 'Telechargement indisponible sur ce build',
+                        ? 'Réessayer le téléchargement'
+                        : 'Téléchargement indisponible sur ce build',
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -313,8 +313,8 @@ class SlmSettingsScreen extends StatelessWidget {
                       slm.canAttemptDownload ? Icons.download : Icons.lock),
                   label: Text(
                     slm.canAttemptDownload
-                        ? 'Telecharger (${SlmDownloadService.modelSizeFormatted})'
-                        : 'Telechargement indisponible sur ce build',
+                        ? 'Télécharger (${SlmDownloadService.modelSizeFormatted})'
+                        : 'Téléchargement indisponible sur ce build',
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -332,7 +332,7 @@ class SlmSettingsScreen extends StatelessWidget {
                       slm.isProcessing ? null : () => _deleteModel(context, slm),
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   label: const Text(
-                    'Supprimer le modele',
+                    'Supprimer le modèle',
                     style: TextStyle(color: Colors.red),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -354,7 +354,7 @@ class SlmSettingsScreen extends StatelessWidget {
         SnackBar(
           content: Text(
             slm.prerequisiteWarning ??
-                'Ce build ne permet pas le telechargement du modele.',
+                'Ce build ne permet pas le téléchargement du modèle.',
             style: GoogleFonts.inter(),
           ),
           backgroundColor: Colors.red,
@@ -368,15 +368,15 @@ class SlmSettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Telecharger le modele ?',
+          'Télécharger le modèle ?',
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Le modele fait ${SlmDownloadService.modelSizeFormatted}. '
-          'Assure-toi d\'etre connecte en WiFi pour eviter '
-          'une consommation importante de donnees mobiles.\n\n'
+          'Le modèle fait ${SlmDownloadService.modelSizeFormatted}. '
+          'Assure-toi d\'être connecté en WiFi pour éviter '
+          'une consommation importante de données mobiles.\n\n'
           '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi. '
-          'Compatible : iPhone 13+ / Pixel 7+.',
+          'Compatible\u00a0: iPhone 13+ / Pixel 7+.',
           style: GoogleFonts.inter(),
         ),
         actions: [
@@ -386,7 +386,7 @@ class SlmSettingsScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Telecharger'),
+            child: const Text('Télécharger'),
           ),
         ],
       ),
@@ -400,18 +400,18 @@ class SlmSettingsScreen extends StatelessWidget {
         context.mounted &&
         slm.downloadState == DownloadState.failed) {
       final reason =
-          slm.lastError ?? 'Verifie ta connexion WiFi et l\'espace disponible.';
+          slm.lastError ?? 'Vérifie ta connexion WiFi et l\'espace disponible.';
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(
-            'Echec du telechargement. $reason',
+            'Échec du téléchargement. $reason',
             style: GoogleFonts.inter(),
           ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 6),
           action: slm.canAttemptDownload
               ? SnackBarAction(
-                  label: 'Reessayer',
+                  label: 'Réessayer',
                   textColor: Colors.white,
                   onPressed: () => _startDownload(context, slm),
                 )
@@ -426,12 +426,12 @@ class SlmSettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Supprimer le modele ?',
+          'Supprimer le modèle ?',
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Cela liberera ${SlmDownloadService.modelSizeFormatted} '
-          'd\'espace. Tu pourras le re-telecharger a tout moment.',
+          'Cela libérera ${SlmDownloadService.modelSizeFormatted} '
+          'd\'espace. Tu pourras le re-télécharger à tout moment.',
           style: GoogleFonts.inter(),
         ),
         actions: [
@@ -479,25 +479,25 @@ class SlmSettingsScreen extends StatelessWidget {
 
     switch (engineStatus) {
       case SlmStatus.running:
-        statusText = 'Pret — le coach utilise l\'IA on-device';
+        statusText = 'Prêt — le coach utilise l\'IA on-device';
         statusColor = Colors.green;
         statusIcon = Icons.check_circle;
       case SlmStatus.ready:
-        statusText = 'Modele telecharge — initialisation requise';
+        statusText = 'Modèle téléchargé — initialisation requise';
         statusColor = Colors.orange;
         statusIcon = Icons.pending;
       case SlmStatus.error:
-        statusText = 'Erreur — appareil non compatible ou memoire insuffisante';
+        statusText = 'Erreur — appareil non compatible ou mémoire insuffisante';
         statusColor = Colors.red;
         statusIcon = Icons.error;
       case SlmStatus.downloading:
-        statusText = 'Telechargement en cours...';
+        statusText = 'Téléchargement en cours...';
         statusColor = MintColors.primary;
         statusIcon = Icons.downloading;
       case SlmStatus.notDownloaded:
         statusText = isReady
-            ? 'Modele pret — lance l\'initialisation'
-            : 'Modele non telecharge';
+            ? 'Modèle prêt — lance l\'initialisation'
+            : 'Modèle non téléchargé';
         statusColor = Colors.grey;
         statusIcon = Icons.cloud_off;
     }
@@ -543,8 +543,8 @@ class SlmSettingsScreen extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                    'Erreur d\'initialisation du modele. '
-                                    'Verifie que ton appareil est compatible.'),
+                                    'Erreur d\'initialisation du modèle. '
+                                    'Vérifie que ton appareil est compatible.'),
                               ),
                             );
                           }
@@ -587,7 +587,7 @@ class SlmSettingsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Comment ca marche ?',
+              'Comment ça marche ?',
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -596,38 +596,38 @@ class SlmSettingsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _buildInfoRow(
               Icons.download,
-              'Telecharge le modele une fois (~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi)',
+              'Télécharge le modèle une fois (~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi)',
             ),
             _buildInfoRow(
               Icons.phone_android,
-              'L\'IA tourne directement sur ton telephone',
+              'L\'IA tourne directement sur ton téléphone',
             ),
             _buildInfoRow(
               Icons.wifi_off,
-              'Fonctionne meme sans connexion internet',
+              'Fonctionne même sans connexion internet',
             ),
             _buildInfoRow(
               Icons.shield,
-              'Tes donnees ne quittent jamais ton appareil',
+              'Tes données ne quittent jamais ton appareil',
             ),
             _buildInfoRow(
               Icons.speed,
-              'Reponses en 2-4 secondes sur un appareil recent',
+              'Réponses en 2-4 secondes sur un appareil récent',
             ),
             const Divider(height: 24),
             _buildInfoRow(
               Icons.link,
-              'Source modele : ${SlmDownloadService.modelId}',
+              'Source modèle : ${SlmDownloadService.modelId}',
             ),
             _buildInfoRow(
               slm.hasAuthToken ? Icons.key : Icons.key_off,
               slm.hasAuthToken
-                  ? 'Authentification HuggingFace : configuree'
-                  : 'Authentification HuggingFace : non configuree (download impossible si URL Gemma gated)',
+                  ? 'Authentification HuggingFace : configurée'
+                  : 'Authentification HuggingFace : non configurée (download impossible si URL Gemma gated)',
             ),
             Text(
-              'Compatibilite : iPhone 13+ / Pixel 7+ / equivalent recent.\n'
-              'Le modele necessite ~3 Go d\'espace disque et ~2 Go de RAM.',
+              'Compatibilité : iPhone 13+ / Pixel 7+ / équivalent récent.\n'
+              'Le modèle nécessite ~3 Go d\'espace disque et ~2 Go de RAM.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.grey[600],

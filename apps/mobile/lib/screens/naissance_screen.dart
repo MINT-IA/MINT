@@ -464,7 +464,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           if (perte > 0) ...[
             const SizedBox(height: 8),
             Text(
-              'Perte totale estimee sur le conge : ${FamilyService.formatChf(perte)}',
+              'Perte totale estimée sur le congé : ${FamilyService.formatChf(perte)}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -952,7 +952,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             ),
             const SizedBox(height: 6),
             _buildResultRow(
-              'Economie fiscale estimee',
+              'Économie fiscale estimée',
               FamilyService.formatChf(economieFiscale),
             ),
           ],
@@ -985,16 +985,16 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         // 3. Career gap warning
         _buildImpactSection(
           icon: Icons.warning_amber_outlined,
-          title: 'Impact carriere (LPP)',
+          title: 'Impact carrière (LPP)',
           color: MintColors.warning,
           children: [
             _buildResultRow(
-              'Interruption estimee',
+              'Interruption estimée',
               '$interruptionMois mois',
             ),
             const SizedBox(height: 6),
             _buildResultRow(
-              'Perte LPP estimee',
+              'Perte LPP estimée',
               '-${FamilyService.formatChf(lppPerteEstimee)}',
             ),
             const SizedBox(height: 4),

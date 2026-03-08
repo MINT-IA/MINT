@@ -1843,5 +1843,68 @@
   "adminObsExportFailed": "Export failed",
   "adminObsWindowLabel": "Window",
   "commonRetry": "Retry",
-  "commonDays": "days"
+  "commonDays": "days",
+  "landingTagline": "Your Swiss financial coach",
+  "landingRegister": "Sign up",
+  "landingHeroRetirementNow1": "Your retirement,",
+  "landingHeroRetirementNow2": "it's now.",
+  "landingHeroCountdown1": "In {years} years,",
+  "@landingHeroCountdown1": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "landingHeroCountdown1Single": "In 1 year,",
+  "landingHeroCountdown2": "your retirement begins.",
+  "landingHeroSubtitle": "Most Swiss residents discover their retirement gap too late.",
+  "landingSliderAge": "Your age",
+  "landingSliderAgeSuffix": "{age} years",
+  "@landingSliderAgeSuffix": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "landingSliderSalary": "Your gross salary",
+  "landingSliderSalarySuffix": "{amount} CHF/year",
+  "@landingSliderSalarySuffix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingToday": "Today",
+  "landingChfPerMonth": "CHF/month",
+  "landingAtRetirement": "At retirement*",
+  "landingDropPurchasingPower": "-{percent}% purchasing power",
+  "@landingDropPurchasingPower": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "landingLppCapNotice": "Above {amount} CHF/year, the mandatory pension is capped.",
+  "@landingLppCapNotice": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookHigh": "A gap of {amount}/month is significant. MINT helps you understand where to act.",
+  "@landingHookHigh": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookMedium": "Your gap is manageable. MINT shows you concrete levers (LPP buyback, 3a, early retirement).",
+  "landingHookLow": "You're in good shape. MINT shows you how to stay on track and optimise your pillars.",
+  "landingWhyMint": "Why MINT?",
+  "landingFeaturePillarsTitle": "All your pillars, one dashboard",
+  "landingFeaturePillarsSubtitle": "AVS, LPP and 3a calculated for your real situation — not Swiss averages.",
+  "landingFeatureCoachTitle": "Coach adapted to your life stage",
+  "landingFeatureCoachSubtitle": "25 or 60, cross-border or self-employed — advice changes based on who you are.",
+  "landingFeaturePrivacyTitle": "100% private, data on your device",
+  "landingFeaturePrivacySubtitle": "No sharing, no ads. Your profile stays local unless you create an account.",
+  "landingTrustSwiss": "Made in Switzerland",
+  "landingTrustPrivate": "100% private",
+  "landingTrustNoCommitment": "No commitment",
+  "landingCtaTitle": "Your plan in 30 seconds",
+  "landingCtaSubtitle": "3 questions • Free • No commitment",
+  "landingLegalFooter": "*Indicative estimate (1st + 2nd pillar), based on current salary as career proxy. Does not constitute financial advice under FinSA. Your data stays on your device."
 }

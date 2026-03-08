@@ -1843,5 +1843,68 @@
   "adminObsExportFailed": "Export fehlgeschlagen",
   "adminObsWindowLabel": "Fenster",
   "commonRetry": "Erneut versuchen",
-  "commonDays": "Tage"
+  "commonDays": "Tage",
+  "landingTagline": "Dein Schweizer Finanzcoach",
+  "landingRegister": "Registrieren",
+  "landingHeroRetirementNow1": "Deine Pensionierung,",
+  "landingHeroRetirementNow2": "ist jetzt.",
+  "landingHeroCountdown1": "In {years} Jahren,",
+  "@landingHeroCountdown1": {
+    "placeholders": {
+      "years": { "type": "String" }
+    }
+  },
+  "landingHeroCountdown1Single": "In 1 Jahr,",
+  "landingHeroCountdown2": "beginnt deine Pensionierung.",
+  "landingHeroSubtitle": "Die meisten Schweizer entdecken ihre Rentenlücke zu spät.",
+  "landingSliderAge": "Dein Alter",
+  "landingSliderAgeSuffix": "{age} Jahre",
+  "@landingSliderAgeSuffix": {
+    "placeholders": {
+      "age": { "type": "String" }
+    }
+  },
+  "landingSliderSalary": "Dein Bruttolohn",
+  "landingSliderSalarySuffix": "{amount} CHF/Jahr",
+  "@landingSliderSalarySuffix": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingToday": "Heute",
+  "landingChfPerMonth": "CHF/Monat",
+  "landingAtRetirement": "Bei Pensionierung*",
+  "landingDropPurchasingPower": "-{percent}% Kaufkraft",
+  "@landingDropPurchasingPower": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "landingLppCapNotice": "Ab {amount} CHF/Jahr ist die obligatorische Rente gedeckelt.",
+  "@landingLppCapNotice": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookHigh": "Eine Lücke von {amount}/Monat ist erheblich. MINT hilft dir zu verstehen, wo du handeln kannst.",
+  "@landingHookHigh": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "landingHookMedium": "Deine Lücke ist beherrschbar. MINT zeigt dir konkrete Hebel (BVG-Einkauf, 3a, Frühpensionierung).",
+  "landingHookLow": "Du bist gut aufgestellt. MINT zeigt dir, wie du auf Kurs bleibst und deine Säulen optimierst.",
+  "landingWhyMint": "Warum MINT?",
+  "landingFeaturePillarsTitle": "Alle Säulen, ein Dashboard",
+  "landingFeaturePillarsSubtitle": "AHV, BVG und 3a berechnet für deine reale Situation — nicht Schweizer Durchschnitte.",
+  "landingFeatureCoachTitle": "Coach angepasst an deine Lebensphase",
+  "landingFeatureCoachSubtitle": "25 oder 60, Grenzgänger oder Selbstständiger — die Ratschläge ändern sich je nach Profil.",
+  "landingFeaturePrivacyTitle": "100% privat, Daten auf deinem Gerät",
+  "landingFeaturePrivacySubtitle": "Kein Teilen, keine Werbung. Dein Profil bleibt lokal, es sei denn, du erstellst ein Konto.",
+  "landingTrustSwiss": "Made in Switzerland",
+  "landingTrustPrivate": "100% privat",
+  "landingTrustNoCommitment": "Ohne Verpflichtung",
+  "landingCtaTitle": "Dein Plan in 30 Sekunden",
+  "landingCtaSubtitle": "3 Fragen • Kostenlos • Ohne Verpflichtung",
+  "landingLegalFooter": "*Indikative Schätzung (1. + 2. Säule), basierend auf dem aktuellen Gehalt als Karriereproxy. Stellt keine Finanzberatung im Sinne des FIDLEG dar. Deine Daten bleiben auf deinem Gerät."
 }

@@ -63,9 +63,9 @@ class _DonationScreenState extends State<DonationScreen> {
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
   static const _typesDonationLabels = {
-    'especes': 'Especes / Liquidites',
+    'especes': 'Espèces / Liquidités',
     'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilieres',
+    'titres': 'Titres / Valeurs mobilières',
   };
 
   static const _liensParente = [
@@ -78,9 +78,9 @@ class _DonationScreenState extends State<DonationScreen> {
   ];
 
   static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquets',
-    'communaute_biens': 'Communaute de biens',
-    'separation_biens': 'Separation de biens',
+    'participation_acquets': 'Participation aux acquêts',
+    'communaute_biens': 'Communauté de biens',
+    'separation_biens': 'Séparation de biens',
   };
 
   @override
@@ -202,7 +202,7 @@ class _DonationScreenState extends State<DonationScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Fiscalite, reserve hereditaire, impact',
+                  'Fiscalité, réserve héréditaire, impact',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -235,11 +235,11 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les donations en Suisse sont soumises a un impot cantonal '
-              'qui varie selon le lien de parente et le canton. Depuis '
-              '2023, la reserve hereditaire a ete reduite, te donnant plus '
-              'de liberte. Cet outil t\'aide a estimer l\'impot et a '
-              'verifier la compatibilite avec les droits des heritiers.',
+              'Les donations en Suisse sont soumises à un impôt cantonal '
+              'qui varie selon le lien de parenté et le canton. Depuis '
+              '2023, la réserve héréditaire a été réduite, te donnant plus '
+              'de liberté. Cet outil t\'aide à estimer l\'impôt et à '
+              'vérifier la compatibilité avec les droits des héritiers.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -256,7 +256,7 @@ class _DonationScreenState extends State<DonationScreen> {
   Widget _buildDonationSection() {
     return SimulatorCard(
       title: 'DONATION',
-      subtitle: 'Montant, beneficiaire, type',
+      subtitle: 'Montant, bénéficiaire, type',
       icon: Icons.card_giftcard,
       accentColor: Colors.indigo.shade600,
       child: Column(
@@ -279,7 +279,7 @@ class _DonationScreenState extends State<DonationScreen> {
           if (_typeDonation == 'immobilier') ...[
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Valeur immobiliere',
+              label: 'Valeur immobilière',
               value: _valeurImmobiliere,
               min: 100000,
               max: 3000000,
@@ -303,13 +303,13 @@ class _DonationScreenState extends State<DonationScreen> {
   Widget _buildSuccessionContextSection() {
     return SimulatorCard(
       title: 'CONTEXTE SUCCESSORAL',
-      subtitle: 'Famille, fortune, regime matrimonial',
+      subtitle: 'Famille, fortune, régime matrimonial',
       icon: Icons.family_restroom,
       accentColor: Colors.indigo.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Age du donateur',
+            label: 'Âge du donateur',
             value: _donateurAge.toDouble(),
             min: 18,
             max: 95,
@@ -351,7 +351,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Lien de parente',
+          'Lien de parenté',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -459,7 +459,7 @@ class _DonationScreenState extends State<DonationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Regime matrimonial',
+          'Régime matrimonial',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -550,7 +550,7 @@ class _DonationScreenState extends State<DonationScreen> {
       child: Column(
         children: [
           Text(
-            'IMPOT SUR LA DONATION',
+            'IMPÔT SUR LA DONATION',
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -560,7 +560,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            hasTax ? _chfFmt(r.impotDonation) : 'Exoneree',
+            hasTax ? _chfFmt(r.impotDonation) : 'Exonérée',
             style: GoogleFonts.outfit(
               fontSize: 36,
               fontWeight: FontWeight.w700,
@@ -585,7 +585,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 4),
           _buildResultRow(
-            'Lien de parente',
+            'Lien de parenté',
             DonationService.lienParenteLabels[_lienParente] ?? _lienParente,
           ),
         ],
@@ -612,7 +612,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
-                'RESERVE HEREDITAIRE (2023)',
+                'RÉSERVE HÉRÉDITAIRE (2023)',
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -633,7 +633,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'montant protege par la loi (intouchable)',
+            'montant protégé par la loi (intouchable)',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -644,8 +644,8 @@ class _DonationScreenState extends State<DonationScreen> {
           _buildReserveBar(r),
           const SizedBox(height: 12),
           Text(
-            'Depuis 2023, les parents n\'ont plus de reserve. '
-            'La reserve des descendants est de 50% de leur part legale '
+            'Depuis 2023, les parents n\'ont plus de réserve. '
+            'La réserve des descendants est de 50% de leur part légale '
             '(CC art. 471).',
             style: GoogleFonts.inter(
               fontSize: 12,
@@ -685,7 +685,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Reserve ${(reservePct * 100).toStringAsFixed(0)}%',
+                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -751,7 +751,7 @@ class _DonationScreenState extends State<DonationScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'QUOTITE DISPONIBLE',
+                'QUOTITÉ DISPONIBLE',
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -795,8 +795,8 @@ class _DonationScreenState extends State<DonationScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Depassement de ${_chfFmt(r.montantDepassement)} — '
-                      'risque d\'action en reduction',
+                      'Dépassement de ${_chfFmt(r.montantDepassement)} — '
+                      'risque d\'action en réduction',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -865,10 +865,10 @@ class _DonationScreenState extends State<DonationScreen> {
                 Expanded(
                   child: Text(
                     _avancementHoirie
-                        ? 'Avancement d\'hoirie : la donation sera rapportee '
-                            'a la masse successorale.'
-                        : 'Donation hors part : elle est imputee sur la '
-                            'quotite disponible uniquement.',
+                        ? 'Avancement d\'hoirie : la donation sera rapportée '
+                            'à la masse successorale.'
+                        : 'Donation hors part : elle est imputée sur la '
+                            'quotité disponible uniquement.',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: MintColors.info,
@@ -938,8 +938,8 @@ class _DonationScreenState extends State<DonationScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Actions a entreprendre',
-      subtitle: 'Checklist de preparation',
+      title: 'Actions à entreprendre',
+      subtitle: 'Checklist de préparation',
       icon: Icons.checklist,
       accentColor: Colors.indigo.shade600,
       child: Column(
@@ -1022,33 +1022,33 @@ class _DonationScreenState extends State<DonationScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que la quotite disponible ?',
-          'La quotite disponible est la part de ta fortune que tu peux '
-              'librement donner ou leguer sans empieter sur les reserves '
-              'hereditaires. Depuis le 1er janvier 2023, la reserve des '
-              'descendants a ete reduite de 3/4 a 1/2 de leur part legale, '
-              'et les parents n\'ont plus de reserve. Cela te donne plus '
-              'de liberte pour effectuer des donations.',
+          'Qu\'est-ce que la quotité disponible ?',
+          'La quotité disponible est la part de ta fortune que tu peux '
+              'librement donner ou léguer sans empiéter sur les réserves '
+              'héréditaires. Depuis le 1er janvier 2023, la réserve des '
+              'descendants a été réduite de 3/4 à 1/2 de leur part légale, '
+              'et les parents n\'ont plus de réserve. Cela te donne plus '
+              'de liberté pour effectuer des donations.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
           'Avancement d\'hoirie vs donation hors part',
           'Une donation en avancement d\'hoirie est une avance sur '
-              'la part successorale du beneficiaire. Elle sera rapportee '
-              'a la masse successorale lors du deces. Une donation hors '
-              'part (ou preciput) est imputee uniquement sur la quotite '
-              'disponible et n\'est pas rapportee. Le choix entre les deux '
-              'a un impact majeur sur l\'equilibre entre les heritiers.',
+              'la part successorale du bénéficiaire. Elle sera rapportée '
+              'à la masse successorale lors du décès. Une donation hors '
+              'part (ou préciput) est imputée uniquement sur la quotité '
+              'disponible et n\'est pas rapportée. Le choix entre les deux '
+              'a un impact majeur sur l\'équilibre entre les héritiers.',
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
           'Donations et concubins',
-          'Les concubins n\'ont aucun droit successoral legal en Suisse. '
+          'Les concubins n\'ont aucun droit successoral légal en Suisse. '
               'Une donation est le moyen le plus direct de les avantager. '
-              'Cependant, l\'impot cantonal sur les donations entre concubins '
-              'est generalement eleve (18-25% selon les cantons). Schwyz fait '
-              'exception : aucun impot sur les donations quel que soit le lien. '
-              'Envisager un testament en complement pour une protection complete.',
+              'Cependant, l\'impôt cantonal sur les donations entre concubins '
+              'est généralement élevé (18-25% selon les cantons). Schwyz fait '
+              'exception : aucun impôt sur les donations quel que soit le lien. '
+              'Envisager un testament en complément pour une protection complète.',
         ),
       ],
     );
@@ -1108,9 +1108,9 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               _result?.disclaimer ??
-                  'Cet outil educatif fournit des estimations indicatives et '
+                  'Cet outil éducatif fournit des estimations indicatives et '
                       'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalise au sens de la LSFin. Consulte un·e specialiste '
+                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
                       '(notaire) pour ta situation.',
               style: GoogleFonts.inter(
                 fontSize: 11,

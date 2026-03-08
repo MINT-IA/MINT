@@ -46,7 +46,7 @@ class HypothesisEditorWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Hypotheses de simulation',
+          'Hypothèses de simulation',
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -55,7 +55,7 @@ class HypothesisEditorWidget extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Ajuste les parametres pour voir l\'impact sur les trajectoires.',
+          'Ajuste les paramètres pour voir l\'impact sur les trajectoires.',
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textSecondary,

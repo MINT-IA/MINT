@@ -104,7 +104,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
   Widget build(BuildContext context) {
     return Semantics(
       label:
-          'Thermometre penalite du mariage. Difference: ${_formatChf(_difference)}',
+          'Thermomètre pénalité du mariage. Différence: ${_formatChf(_difference)}',
       child: GestureDetector(
         onTap: widget.onTap,
         child: LayoutBuilder(
@@ -140,7 +140,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                   const SizedBox(height: 4),
                   Text(
                     _isPenalty
-                        ? 'Penalite du mariage'
+                        ? 'Pénalité du mariage'
                         : _difference < 0
                             ? 'Bonus du mariage'
                             : 'Aucun impact',
@@ -165,7 +165,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                         // Left label: singles
                         Expanded(
                           child: _buildSideLabel(
-                            title: '2 celibataires',
+                            title: '2 célibataires',
                             amount: widget.taxSingles,
                             alignment: CrossAxisAlignment.end,
                           ),
@@ -195,7 +195,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                         // Right label: married
                         Expanded(
                           child: _buildSideLabel(
-                            title: 'Maries',
+                            title: 'Mariés',
                             amount: widget.taxMarried,
                             alignment: CrossAxisAlignment.start,
                           ),
@@ -246,7 +246,7 @@ class _MarriagePenaltyGaugeState extends State<MarriagePenaltyGauge>
                               const SizedBox(width: 8),
                               Text(
                                 _difference == 0
-                                    ? 'Aucune difference'
+                                    ? 'Aucune différence'
                                     : '${_isPenalty ? '+' : ''}${_formatChf(_difference)}/an',
                                 style: GoogleFonts.montserrat(
                                   fontSize: 18,
