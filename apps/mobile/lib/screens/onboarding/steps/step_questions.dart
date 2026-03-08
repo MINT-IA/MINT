@@ -58,6 +58,7 @@ class _StepQuestionsState extends State<StepQuestions> {
   ];
 
   late TextEditingController _ageController;
+  late TextEditingController _firstNameController;
   bool _didTrackStart = false;
 
   @override
@@ -65,11 +66,14 @@ class _StepQuestionsState extends State<StepQuestions> {
     super.initState();
     _ageController =
         TextEditingController(text: widget.viewModel.age.toString());
+    _firstNameController =
+        TextEditingController(text: widget.viewModel.firstName ?? '');
   }
 
   @override
   void dispose() {
     _ageController.dispose();
+    _firstNameController.dispose();
     super.dispose();
   }
 
@@ -178,6 +182,49 @@ class _StepQuestionsState extends State<StepQuestions> {
                       color: MintColors.textSecondary,
                       height: 1.5,
                     ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── 0. PRENOM (optionnel) ─────────────────────────────────
+                  TextField(
+                    controller: _firstNameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: 'Comment on t\'appelle ?',
+                      hintText: 'Ton prénom (optionnel)',
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: _firstNameController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear,
+                                  size: 18, color: MintColors.textMuted),
+                              onPressed: () {
+                                _firstNameController.clear();
+                                widget.viewModel.setFirstName(null);
+                              },
+                            )
+                          : null,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: MintColors.primary),
+                      ),
+                    ),
+                    onChanged: (v) {
+                      widget.viewModel.setFirstName(v);
+                      setState(() {}); // rebuild suffixIcon
+                    },
                   ),
                   const SizedBox(height: 32),
 

@@ -26,6 +26,9 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   int age = 35;
   String? canton;
 
+  /// Optional first name — personalises coach narrative ("Salut Julie").
+  String? firstName;
+
   /// Employment status: 'salarie', 'independant', 'sans_emploi', 'retraite'.
   /// Impacts 3a ceiling (7'258 vs 36'288), LPP estimation, AVS.
   String? employmentStatus;
@@ -71,6 +74,11 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   String? error;
 
   // ─── Setters with notification ────────────────────────────────────────────
+
+  void setFirstName(String? value) {
+    firstName = value?.trim().isEmpty == true ? null : value?.trim();
+    notifyListeners();
+  }
 
   void setGrossSalary(double value) {
     grossSalary = value;

@@ -316,6 +316,8 @@ class CoachProfileProvider extends ChangeNotifier {
     required int age,
     required double grossSalary,
     required String canton,
+    /// Optional first name — personalises coach greeting.
+    String? firstName,
     /// 'CH', 'EU', or 'OTHER' — used to derive q_nationality for archetype detection.
     String? nationalityGroup,
     /// ISO country code when nationalityGroup == 'OTHER' (e.g. 'US', 'BR').
@@ -421,6 +423,10 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _lastAnswers = answers;
     _profile = CoachProfile.fromWizardAnswers(answers);
+    // Inject firstName immediately if provided — not part of wizard answers map.
+    if (firstName != null && firstName.isNotEmpty) {
+      _profile = _profile!.copyWith(firstName: firstName);
+    }
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;

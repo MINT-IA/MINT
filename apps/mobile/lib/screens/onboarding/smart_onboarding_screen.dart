@@ -285,6 +285,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       age: _viewModel.age,
       grossSalary: _viewModel.grossSalary,
       canton: _viewModel.canton!,
+      firstName: _viewModel.firstName,
       nationalityGroup: _viewModel.nationalityGroup,
       nationalityCountry: _viewModel.nationalityCountry,
       employmentStatus: _viewModel.employmentStatus,
