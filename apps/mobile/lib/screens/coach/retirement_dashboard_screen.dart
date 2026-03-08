@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/age_band_policy.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -63,6 +64,7 @@ class RetirementDashboardScreen extends StatefulWidget {
 class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ── Core state ──────────────────────────────────────────
   CoachProfile? _profile;
+  AgeBand? _ageBand;
   FinancialFitnessScore? _score;
   ProjectionResult? _projection;
   double _confidenceScore = 0;
@@ -252,6 +254,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final profile = _profile;
     if (profile == null) return;
 
+    // Compute AgeBand from profile age — drives primary signal selection.
+    _ageBand = AgeBandPolicy.forAge(profile.age).band;
+
     // Reengagement messages
     final taxSaving3a = profile.salaireBrutMensuel > 0
         ? pilier3aPlafondAvecLpp *
@@ -437,6 +442,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
 
+                // ── AgeBand signal primaire ───────────────
+                _buildAgeBandSection(),
+                const SizedBox(height: 16),
+
                 // ── P5: Patrimoine Snapshot ──────────────
                 PatrimoineSnapshotCard(
                   lppCapital: profile.prevoyance.avoirLppTotal ?? 0,
@@ -540,6 +549,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ..._buildCuratedCards(),
 
                 ConfidenceBar(score: _confidenceScore),
+                const SizedBox(height: 16),
+
+                // ── AgeBand signal primaire ───────────────
+                _buildAgeBandSection(),
                 const SizedBox(height: 16),
 
                 // ── Hero card: couple or single ──
@@ -1015,5 +1028,171 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
 
     return widgets;
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  AgeBand section — signal primaire adapté au stade de vie
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildAgeBandSection() {
+    final band = _ageBand ?? AgeBand.preRetirement;
+    switch (band) {
+      case AgeBand.youngProfessional:
+        return _AgeBandCard(
+          icon: Icons.savings_outlined,
+          title: 'Ton levier principal : le 3a',
+          subtitle:
+              'Chaque franc versé maintenant travaille 40 ans. Ouvrir ton 3a coûte 15 minutes.',
+          cta: 'Simuler mon 3a',
+          route: '/simulator/3a',
+          color: const Color(0xFF2E7D5E),
+        );
+      case AgeBand.stabilization:
+        return _AgeBandCard(
+          icon: Icons.home_outlined,
+          title: '3a + protection famille',
+          subtitle:
+              'Logement, couverture décès/invalidité : c\'est maintenant que l\'architecture se construit.',
+          cta: 'Voir les simulateurs',
+          route: '/simulator/3a',
+          color: const Color(0xFF1565C0),
+        );
+      case AgeBand.peakEarnings:
+        return _AgeBandCard(
+          icon: Icons.trending_up,
+          title: 'Rachat LPP + optimisation fiscale',
+          subtitle:
+              'Tes revenus sont au pic — c\'est la fenêtre pour réduire l\'écart de retraite.',
+          cta: 'Simuler un rachat',
+          route: '/lpp-deep/rachat',
+          color: const Color(0xFF6A1B9A),
+        );
+      case AgeBand.preRetirement:
+        return _AgeBandCard(
+          icon: Icons.timeline,
+          title: 'Ton gap retraite en CHF/mois',
+          subtitle:
+              'Rente vs capital, retraite anticipée, rachat échelonné : les décisions se rapprochent.',
+          cta: 'Rente vs Capital',
+          route: '/arbitrage/rente-vs-capital',
+          color: const Color(0xFFE65100),
+        );
+      case AgeBand.retirement:
+        return Column(
+          children: [
+            _AgeBandCard(
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'Ordre de retrait 3a',
+              subtitle:
+                  'Échelonner tes retraits 3a sur 3–5 ans réduit l\'impôt de manière significative selon le canton.',
+              cta: 'Planifier mes retraits',
+              route: '/coach/decaissement',
+              color: const Color(0xFF00695C),
+            ),
+            const SizedBox(height: 12),
+            _AgeBandCard(
+              icon: Icons.family_restroom,
+              title: 'Succession & transmission',
+              subtitle:
+                  'Testament, donation du vivant, bénéficiaires LPP : protéger ceux que tu aimes.',
+              cta: 'Explorer',
+              route: '/coach/succession',
+              color: const Color(0xFF37474F),
+            ),
+          ],
+        );
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  _AgeBandCard — carte signal primaire par stade de vie
+// ────────────────────────────────────────────────────────────
+
+class _AgeBandCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String cta;
+  final String route;
+  final Color color;
+
+  const _AgeBandCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.cta,
+    required this.route,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withAlpha(15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withAlpha(50)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withAlpha(30),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () => context.push(route),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        cta,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: color,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward, size: 14, color: color),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

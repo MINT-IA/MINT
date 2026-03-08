@@ -98,8 +98,10 @@ import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 // Timeline
 import 'package:mint_mobile/screens/timeline_screen.dart';
-// Coach screens (Sprint C5-C10)
+// Coach screens (Sprint C5-C10, S44)
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
+import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
@@ -202,6 +204,17 @@ final _router = GoRouter(
       path: '/coach/cockpit',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CockpitDetailScreen(),
+    ),
+    // Phase 2 — AgeBand 65+ (Sprint S44)
+    GoRoute(
+      path: '/coach/decaissement',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OptimisationDecaissementScreen(),
+    ),
+    GoRoute(
+      path: '/coach/succession',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
     // Feature Routes (Full Screen)
     GoRoute(
