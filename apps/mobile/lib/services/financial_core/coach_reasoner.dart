@@ -57,8 +57,16 @@ class CoachReasonerService {
     final split = _evaluateSplitLibrePassage(profile, age);
     if (split != null) results.add(split);
 
-    // Sort by descending annual impact (CHF)
-    results.sort((a, b) => b.impact.amountCHF.compareTo(a.impact.amountCHF));
+    // Sort by descending annualized impact (CHF).
+    // Normalize one-off amounts over years to retirement for fair comparison.
+    double annualized(Recommendation r) {
+      if (r.impact.period == Period.oneoff && yearsToRetirement > 0) {
+        return r.impact.amountCHF / yearsToRetirement;
+      }
+      return r.impact.amountCHF;
+    }
+
+    results.sort((a, b) => annualized(b).compareTo(annualized(a)));
 
     return results;
   }
@@ -99,6 +107,7 @@ class CoachReasonerService {
       'Taux marginal estime: ${(marginalRate * 100).toStringAsFixed(0)}%',
       'Rendement caisse: ${(r * 100).toStringAsFixed(1)}%',
       'Lacune restante: ${lacune.toStringAsFixed(0)} CHF',
+      'Outil educatif, ne constitue pas un conseil financier (LSFin)',
     ];
 
     final risks = <String>[
@@ -208,15 +217,16 @@ class CoachReasonerService {
       assumptions: [
         'Plafond 3a ${maxAnnual.toStringAsFixed(0)} CHF (${isIndepNoLpp ? "independant sans LPP" : "salarie affilie LPP"})',
         'Taux marginal estime: ${(marginalRate * 100).toStringAsFixed(0)}%',
-        'Contribution actuelle estimee: ${currentContrib.toStringAsFixed(0)} CHF/an',
+        'Contribution actuelle estimee: ${currentContrib.toStringAsFixed(0)} CHF/an (heuristique basee sur le solde total — precise via tes releves)',
+        'Outil educatif, ne constitue pas un conseil financier (LSFin)',
       ],
       impact: Impact(amountCHF: annualReturn, period: Period.yearly),
       risks: const [
         'Capital bloque jusqu\'a 60 ans (AHV21)',
-        'Rendement non garanti (place en fonds ou compte)',
+        'Rendement variable selon le type de placement (fonds ou compte)',
       ],
       alternatives: const [
-        'Rachat LPP si la lacune est importante (rendement garanti par la caisse)',
+        'Rachat LPP si la lacune est importante (rendement fixe par le reglement de la caisse)',
       ],
       evidenceLinks: const [
         EvidenceLink(
@@ -270,8 +280,8 @@ class CoachReasonerService {
     // Tax advantage: direct amorti = no deduction, indirect = 3a deduction
     final taxSaving = amountToRedirect * marginalRate;
     // Plus: mortgage interest remains deductible
-    final interestDeduction =
-        hypotheque * 0.015 * marginalRate; // estimated 1.5% rate
+    final hypoRate = profile.patrimoine.mortgageRate ?? 0.015;
+    final interestDeduction = hypotheque * hypoRate * marginalRate;
 
     final annualAdvantage = taxSaving + interestDeduction;
 
@@ -292,7 +302,8 @@ class CoachReasonerService {
       assumptions: [
         'Hypotheque restante: ${hypotheque.toStringAsFixed(0)} CHF',
         'Amortissement annuel estime: ${amountToRedirect.toStringAsFixed(0)} CHF',
-        'Taux hypothecaire estime: 1.5%',
+        'Taux hypothecaire: ${(hypoRate * 100).toStringAsFixed(2)}%',
+        'Outil educatif, ne constitue pas un conseil financier (LSFin)',
       ],
       impact: Impact(amountCHF: annualAdvantage, period: Period.yearly),
       risks: const [
@@ -379,6 +390,8 @@ class CoachReasonerService {
         'Capital total 3a: ${totalCapital.toStringAsFixed(0)} CHF',
         'Canton: ${profile.canton}',
         if (isMarried) 'Splitting conjugal applique',
+        'Hypothese : retraits effectues dans des annees fiscales differentes',
+        'Outil educatif, ne constitue pas un conseil financier (LSFin)',
       ],
       impact: Impact(amountCHF: taxSaving, period: Period.oneoff),
       risks: const [
@@ -456,6 +469,8 @@ class CoachReasonerService {
       assumptions: [
         'Avoir libre passage: ${totalLP.toStringAsFixed(0)} CHF',
         'Split en 2 comptes de ${half.toStringAsFixed(0)} CHF',
+        'Hypothese : retraits effectues dans des annees fiscales differentes',
+        'Outil educatif, ne constitue pas un conseil financier (LSFin)',
       ],
       impact: Impact(amountCHF: taxSaving, period: Period.oneoff),
       risks: const [
