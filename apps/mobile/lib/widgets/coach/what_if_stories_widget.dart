@@ -89,7 +89,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                 .toList()
                 .asMap()
                 .entries
-                .map((e) => _buildStoryCard(e.key, e.value)),
+                .map((e) => _buildStoryCard(context, e.key, e.value)),
             const SizedBox(height: 8),
             Text(
               'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
@@ -105,7 +105,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStoryCard(int index, WhatIfStory story) {
+  Widget _buildStoryCard(BuildContext context, int index, WhatIfStory story) {
     final isPositive = story.monthlyImpactChf >= 0;
     final impactColor =
         isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique;

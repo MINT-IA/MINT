@@ -121,6 +121,7 @@ import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
+import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
 // Arbitrage Phase 2 (Sprint S33)
@@ -717,6 +718,13 @@ final _router = GoRouter(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const TimelineScreen(),
+    ),
+    // Arbitrage Bilan (Sprint S45)
+    GoRoute(
+      path: '/arbitrage/bilan',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
+      builder: (context, state) => const ArbitrageBilanScreen(),
     ),
     // Arbitrage Phase 1 (Sprint S32)
     GoRoute(
