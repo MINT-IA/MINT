@@ -13,7 +13,17 @@ import tempfile
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.auth import require_current_user
 from app.main import app
+
+
+class _FakeUser:
+    id: str = "test-user-docling"
+    email: str = "test@mint.ch"
+
+
+def _fake_user():
+    return _FakeUser()
 
 _chromadb_available = importlib.util.find_spec("chromadb") is not None
 requires_chromadb = pytest.mark.skipif(
@@ -218,15 +228,18 @@ Rente d'invalidité | CHF 30'000 | CHF 12'000 | CHF 42'000
 
 @pytest.fixture
 def client():
-    """Test client for FastAPI app."""
+    """Test client for FastAPI app with auth override."""
     # Clear the in-memory document store between tests
     from app.api.v1.endpoints.documents import _document_store
     _document_store.clear()
+
+    app.dependency_overrides[require_current_user] = _fake_user
 
     with TestClient(app) as c:
         yield c
 
     _document_store.clear()
+    app.dependency_overrides.pop(require_current_user, None)
 
 
 @pytest.fixture
