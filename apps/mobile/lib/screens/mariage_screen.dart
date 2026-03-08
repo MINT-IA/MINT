@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:provider/provider.dart';
@@ -1091,6 +1092,12 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: 20),
 
         _buildClause3aSection(),
+        const SizedBox(height: 20),
+        SurvivorPensionWidget(
+          partnerAvsRente: avsRenteMaxMensuelle,
+          partnerLppMonthly: _renteLpp,
+          isConcubin: false,
+        ),
         const SizedBox(height: 24),
         _buildDisclaimer(),
       ],

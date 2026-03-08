@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
+import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SCREEN — Sprint S19 / Chomage (LACI)
@@ -35,10 +38,32 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
   // Checklist tracking
   final Set<int> _checkedItems = {};
 
+  bool _profileLoaded = false;
+
   @override
   void initState() {
     super.initState();
     _calculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_profileLoaded) return;
+    final provider = context.read<CoachProfileProvider>();
+    if (provider.hasProfile) {
+      final p = provider.profile!;
+      final salaireMensuel = p.revenuBrutAnnuel > 0
+          ? (p.revenuBrutAnnuel / 12).clamp(1500.0, 12646.0)
+          : 6000.0;
+      final age = p.age > 0 ? p.age.clamp(18, 65) : 35;
+      setState(() {
+        _gainAssure = salaireMensuel.roundToDouble();
+        _age = age;
+      });
+      _profileLoaded = true;
+      _calculate();
+    }
   }
 
   void _calculate() {
@@ -86,6 +111,11 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                     _buildResultCards(),
                     const SizedBox(height: 24),
                     _buildDurationCard(),
+                    const SizedBox(height: 24),
+                    UnemploymentCounterWidget(
+                      age: _age,
+                      monthlyBenefit: _result!.indemniteMensuelle,
+                    ),
                     const SizedBox(height: 24),
                     _buildTroisVagues(),
                     const SizedBox(height: 24),

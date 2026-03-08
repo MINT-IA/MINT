@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
+import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
+import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -628,6 +630,35 @@ class _ExpatScreenState extends State<ExpatScreen>
         const SizedBox(height: 20),
         _buildNoExitTaxBadge(),
         const SizedBox(height: 20),
+        ExpatCountdownWidget(
+          departureDate: _departureDate,
+          deadlines: const [
+            ExpatDeadline(
+              label: '3ème pilier 3a — clôture ou gel',
+              emoji: '🏦',
+              daysFromDeparture: -90,
+              action: 'Contacte ta banque pour planifier la clôture ou le transfert du 3a.',
+              legalRef: 'OPP3 art. 1',
+              consequence: 'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.',
+            ),
+            ExpatDeadline(
+              label: 'LPP — libre passage',
+              emoji: '💼',
+              daysFromDeparture: -60,
+              action: 'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.',
+              legalRef: 'LPP art. 5 + LFLP art. 4',
+            ),
+            ExpatDeadline(
+              label: 'AVS — cotisation volontaire',
+              emoji: '🛡️',
+              daysFromDeparture: 0,
+              action: 'Si tu t\'installes hors EU/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.',
+              legalRef: 'LAVS art. 2',
+              isEuOnly: false,
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
         if (_departResult != null) ...[
           _buildDepartTimeline(),
           const SizedBox(height: 20),
@@ -1161,6 +1192,11 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildAvsRecommendation(),
           const SizedBox(height: 20),
         ],
+        AvsGapWidget(
+          currentContributionYears: _yearsInCh,
+          currentAge: 40,
+        ),
+        const SizedBox(height: 20),
         _buildEducationalInsert(
           'Pour toucher une rente AVS complete (max CHF 2\'520/mois), '
           'il faut 44 annees de cotisation sans lacune. '

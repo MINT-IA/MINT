@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -39,11 +42,42 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
   };
 
   ArbitrageResult? _result;
+  bool _profileLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_profileLoaded) return;
+    final provider = context.read<CoachProfileProvider>();
+    if (provider.hasProfile) {
+      final p = provider.profile!;
+      final revenu = p.revenuBrutAnnuel;
+      // Approximate marginal tax rate from gross income (simplified bracket).
+      double taux = 30.0;
+      if (revenu > 0) {
+        if (revenu < 60000) taux = 20.0;
+        else if (revenu < 100000) taux = 27.0;
+        else if (revenu < 150000) taux = 33.0;
+        else taux = 38.0;
+      }
+      final canton = p.canton.isNotEmpty ? p.canton : 'VD';
+      final annees = p.anneesAvantRetraite.clamp(1, 40);
+      final isMarried = p.etatCivil == CoachCivilStatus.marie;
+      setState(() {
+        _tauxMarginal = taux;
+        _canton = canton;
+        _anneesAvantRetraite = annees;
+        _isMarried = isMarried;
+      });
+      _profileLoaded = true;
+      _recalculate();
+    }
   }
 
   @override

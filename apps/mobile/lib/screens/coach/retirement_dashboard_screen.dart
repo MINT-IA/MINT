@@ -370,6 +370,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
+    // State C only when there is NO profile at all (never post-onboarding).
     if (!provider.hasProfile || _projection == null) {
       return _buildStateC();
     }
@@ -377,10 +378,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     if (_confidenceScore >= 70 && _score != null) {
       return _buildStateA();
     }
-    if (_confidenceScore >= 40 && _score != null) {
-      return _buildStateB();
-    }
-    return _buildStateC();
+    // Any user with a projection sees State B (range + uncertainty bands),
+    // even with confidence < 40%. State C is reserved for zero-profile users.
+    return _buildStateB();
   }
 
   // ────────────────────────────────────────────────────────────
