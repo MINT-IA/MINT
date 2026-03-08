@@ -12,6 +12,8 @@ import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
+import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
+import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -124,22 +126,62 @@ class _BudgetScreenState extends State<BudgetScreen>
                   ),
                   const SizedBox(height: 24),
                 ],
+                // ── 50/30/20 Rule ─────────────────────────────────
                 _staggeredEntry(
                   index: 3,
-                  child: BudgetSandwichChart(
-                    incomes: const [
-                      BudgetLineItem(label: 'Salaire net', amount: 5000),
-                    ],
-                    expenses: const [
-                      BudgetLineItem(label: 'Loyer', amount: 1800),
-                      BudgetLineItem(label: 'Alimentation', amount: 600),
-                      BudgetLineItem(label: 'Transport', amount: 300),
-                      BudgetLineItem(label: 'Assurances', amount: 400),
-                      BudgetLineItem(label: 'Divers', amount: 500),
+                  child: Budget503020Widget(
+                    netSalary: widget.inputs.netIncome,
+                    chiffreChoc: plan.available > 0
+                        ? 'En épargnant CHF ${(plan.available * 0.20).toStringAsFixed(0)}/mois, tu accumules CHF ${(plan.available * 0.20 * 120).toStringAsFixed(0)} en 10 ans.'
+                        : null,
+                    categories: [
+                      BudgetCategory(
+                        label: 'Besoins',
+                        emoji: '🏠',
+                        percent: 50,
+                        amount: plan.available * 0.50,
+                        examples: const ['Loyer', 'LAMal', 'impôts', 'dettes'],
+                      ),
+                      BudgetCategory(
+                        label: 'Vie',
+                        emoji: '🛒',
+                        percent: 30,
+                        amount: plan.available * 0.30,
+                        examples: const ['Alimentation', 'transport', 'loisirs'],
+                      ),
+                      BudgetCategory(
+                        label: 'Futur',
+                        emoji: '🌱',
+                        percent: 20,
+                        amount: plan.available * 0.20,
+                        examples: const ['Épargne', '3a', 'projets'],
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // ── Sandwich visuel (données réelles) ─────────────
+                _staggeredEntry(
+                  index: 3,
+                  child: BudgetSandwichChart(
+                    incomes: [
+                      BudgetLineItem(label: 'Revenu net', amount: widget.inputs.netIncome),
+                    ],
+                    expenses: [
+                      if (widget.inputs.housingCost > 0)
+                        BudgetLineItem(label: 'Logement', amount: widget.inputs.housingCost),
+                      if (widget.inputs.taxProvision > 0)
+                        BudgetLineItem(label: 'Provision impôts', amount: widget.inputs.taxProvision),
+                      if (widget.inputs.healthInsurance > 0)
+                        BudgetLineItem(label: 'LAMal', amount: widget.inputs.healthInsurance),
+                      if (widget.inputs.debtPayments > 0)
+                        BudgetLineItem(label: 'Dettes', amount: widget.inputs.debtPayments),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 if (plan.emergencyFundMonths > 0 ||
                     widget.inputs.emergencyFundMonths > 0)
                   _staggeredEntry(
@@ -147,8 +189,63 @@ class _BudgetScreenState extends State<BudgetScreen>
                     child: _buildEmergencyFundCard(plan),
                   ),
                 const SizedBox(height: 24),
+
+                // ── Crash Test budget ─────────────────────────────
                 _staggeredEntry(
                   index: 4,
+                  child: CrashTestBudgetWidget(
+                    monthlyIncome: widget.inputs.netIncome,
+                    survivalIncome: widget.inputs.netIncome * 0.70,
+                    reserveMonths: widget.inputs.emergencyFundMonths > 0
+                        ? widget.inputs.emergencyFundMonths.toDouble()
+                        : null,
+                    lines: [
+                      if (widget.inputs.housingCost > 0)
+                        BudgetLine(
+                          label: 'Logement',
+                          emoji: '🏠',
+                          normalAmount: widget.inputs.housingCost,
+                          survivalAmount: widget.inputs.housingCost,
+                          status: BudgetLineStatus.locked,
+                        ),
+                      if (widget.inputs.healthInsurance > 0)
+                        BudgetLine(
+                          label: 'LAMal',
+                          emoji: '🏥',
+                          normalAmount: widget.inputs.healthInsurance,
+                          survivalAmount: widget.inputs.healthInsurance,
+                          status: BudgetLineStatus.locked,
+                        ),
+                      if (widget.inputs.taxProvision > 0)
+                        BudgetLine(
+                          label: 'Impôts',
+                          emoji: '🧾',
+                          normalAmount: widget.inputs.taxProvision,
+                          survivalAmount: widget.inputs.taxProvision * 0.80,
+                          status: BudgetLineStatus.paused,
+                        ),
+                      if (widget.inputs.debtPayments > 0)
+                        BudgetLine(
+                          label: 'Dettes',
+                          emoji: '💳',
+                          normalAmount: widget.inputs.debtPayments,
+                          survivalAmount: widget.inputs.debtPayments,
+                          status: BudgetLineStatus.locked,
+                        ),
+                      BudgetLine(
+                        label: 'Variables',
+                        emoji: '🛒',
+                        normalAmount: plan.variables,
+                        survivalAmount: plan.variables * 0.50,
+                        status: BudgetLineStatus.cut,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                _staggeredEntry(
+                  index: 5,
                   child: _buildDisclaimers(context),
                 ),
               ],
@@ -323,7 +420,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         ? 'Certaines charges sont encore manquantes. Complète ton diagnostic pour fiabiliser ce budget.'
         : 'Ce budget inclut des estimations (impôts/LAMal). Renseigne tes montants réels pour une projection plus fiable.';
     return GestureDetector(
-      onTap: () => context.push('/advisor'),
+      onTap: () => context.push('/profile/bilan'),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(

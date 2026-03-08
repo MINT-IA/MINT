@@ -105,14 +105,15 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     } else {
       // Estimate mode
       _inputMode = _InputMode.estimate;
-      _ageCtrl.text = profile.age.toString();
-      if (profile.salaireBrutMensuel > 0) {
-        _salaryCtrl.text = (profile.salaireBrutMensuel * 12).round().toString();
+      if (profile.age > 0) {
+        _ageCtrl.text = profile.age.toString();
       }
-      final lppTotal = profile.prevoyance.avoirLppTotal;
-      if (lppTotal != null && lppTotal > 0) {
-        _lppTotalCtrl.text = lppTotal.round().toString();
+      if (profile.revenuBrutAnnuel > 0) {
+        _salaryCtrl.text = profile.revenuBrutAnnuel.round().toString();
       }
+      final lppTotal = profile.prevoyance.avoirLppTotal ?? 350000;
+      _lppTotalCtrl.text = lppTotal.round().toString();
+      _ageRetraiteSlider.value = profile.effectiveRetirementAge.toDouble();
       _hasEstimatedValues = true;
     }
     if (profile.canton.isNotEmpty) _canton = profile.canton;
@@ -135,6 +136,32 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     super.dispose();
   }
 
+  /// Compute estimate-mode inputs from the LPP total entered by the user.
+  ///
+  /// Uses a 60/40 mandatory/surobligatoire split (typical for a 50-year-old
+  /// Swiss salarié·e) and a 6.5% blended conversion rate (slightly below the
+  /// 6.8% legal minimum to reflect real-world caisse rates).
+  ({
+    double capitalOblig,
+    double capitalSurob,
+    double renteAnnuelle,
+    double tcOblig,
+    double tcSurob,
+  }) _estimateInputs() {
+    final lppTotal =
+        double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
+    final capitalOblig = lppTotal * 0.60;
+    final capitalSurob = lppTotal * 0.40;
+    final renteAnnuelle = lppTotal * 0.065;
+    return (
+      capitalOblig: capitalOblig,
+      capitalSurob: capitalSurob,
+      renteAnnuelle: renteAnnuelle,
+      tcOblig: lppTauxConversionMin / 100,
+      tcSurob: 0.05,
+    );
+  }
+
   void _recalculate() {
     _recalculateAsync();
   }
@@ -149,14 +176,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     double? salary;
 
     if (_inputMode == _InputMode.estimate) {
-      // Estimate mode: use LPP total with 70/30 split as starting point
-      final lppTotal =
-          double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
-      capitalOblig = lppTotal * 0.7;
-      capitalSurob = lppTotal * 0.3;
-      tcOblig = lppTauxConversionMin / 100;
-      tcSurob = 0.05;
-      renteAnnuelle = capitalOblig * tcOblig;
+      // Estimate mode: derive inputs from LPP total via _estimateInputs()
+      final est = _estimateInputs();
+      capitalOblig = est.capitalOblig;
+      capitalSurob = est.capitalSurob;
+      renteAnnuelle = est.renteAnnuelle;
+      tcOblig = est.tcOblig;
+      tcSurob = est.tcSurob;
       currentAge = int.tryParse(_ageCtrl.text);
       salary = double.tryParse(_salaryCtrl.text.replaceAll("'", ''));
     } else {
@@ -177,6 +203,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
       final result = await ApiService.compareRenteVsCapital(
         capitalLppTotal: capitalTotal,
         capitalObligatoire: capitalOblig,
@@ -189,13 +216,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
         rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
-        horizon: 30,
+        horizon: horizon,
         isMarried: _isMarried,
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
       return;
     } catch (_) {
+      final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
       final fallback = ArbitrageEngine.compareRenteVsCapital(
         capitalLppTotal: capitalTotal,
         capitalObligatoire: capitalOblig,
@@ -208,7 +236,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
         rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
-        horizon: 30,
+        horizon: horizon,
         isMarried: _isMarried,
         dataSources: _dataSources,
         currentAge: currentAge,
@@ -670,19 +698,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             // Certificate mode
             _buildLabeledField(
               controller: _capitalObligCtrl,
-              label: 'Avoir obligatoire projete (CHF)',
+              label: 'Avoir LPP obligatoire (certificat LPP)',
               fieldName: 'lpp_obligatoire',
             ),
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _capitalSurobCtrl,
-              label: 'Avoir surobligatoire projete (CHF)',
+              label: 'Avoir LPP surobligatoire (certificat LPP)',
               fieldName: 'lpp_surobligatoire',
             ),
             const SizedBox(height: 12),
             _buildLabeledField(
               controller: _renteCtrl,
-              label: 'Rente annuelle projetee par ta caisse (CHF)',
+              label: 'Rente annuelle proposee (certificat LPP)',
               fieldName: 'rente_projetee',
             ),
             const SizedBox(height: 12),
