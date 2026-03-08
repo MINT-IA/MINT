@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 
 class OptimisationDecaissementScreen extends StatelessWidget {
   const OptimisationDecaissementScreen({super.key});
@@ -67,7 +68,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Principe ─────────────────────────────────
-                _SectionTitle(text: 'Le principe de l\'échelonnement'),
+                EduSectionTitle(text:'Le principe de l\'échelonnement'),
                 const SizedBox(height: 12),
                 _InfoCard(
                   icon: Icons.calendar_today_outlined,
@@ -92,7 +93,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Tableau illustratif ───────────────────────
-                _SectionTitle(text: 'Illustration : CHF 150\'000 en 3a'),
+                EduSectionTitle(text:'Illustration : CHF 150\'000 en 3a'),
                 const SizedBox(height: 12),
                 _WithdrawalTable(),
                 const SizedBox(height: 8),
@@ -107,7 +108,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Plan d'action ────────────────────────────
-                _SectionTitle(text: 'Comment planifier ton décaissement'),
+                EduSectionTitle(text:'Comment planifier ton décaissement'),
                 const SizedBox(height: 12),
                 _StepCard(
                   number: '1',
@@ -140,7 +141,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
-                _Disclaimer(
+                EduDisclaimer(
                   text:
                       'Information à caractère éducatif, ne constitue pas un conseil fiscal au sens de la LSFin. Les montants illustrés sont indicatifs. L\'impact exact dépend de ton canton de résidence, de tes autres revenus et de ta situation fiscale individuelle. Consulte un·e spécialiste avant toute décision de retrait.',
                 ),
@@ -196,23 +197,6 @@ class _ChiffreChocCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String text;
-  const _SectionTitle({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.montserrat(
-        fontSize: 15,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textPrimary,
       ),
     );
   }
@@ -546,37 +530,4 @@ class _LegalSources extends StatelessWidget {
   }
 }
 
-class _Disclaimer extends StatelessWidget {
-  final String text;
-  const _Disclaimer({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFE082)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline,
-              size: 16, color: Color(0xFFF57F17)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: const Color(0xFF5D4037),
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// EduDisclaimer and EduSectionTitle moved to widgets/coach/edu_shared_widgets.dart

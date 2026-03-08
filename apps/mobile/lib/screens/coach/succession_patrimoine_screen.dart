@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -69,7 +70,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Concepts clés ────────────────────────────
-                _SectionTitle(text: 'Les notions clés'),
+                EduSectionTitle(text:'Les notions clés'),
                 const SizedBox(height: 12),
 
                 _ConceptCard(
@@ -123,7 +124,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Checklist pratique ────────────────────────
-                _SectionTitle(text: 'Checklist protection patrimoine'),
+                EduSectionTitle(text:'Checklist protection patrimoine'),
                 const SizedBox(height: 12),
                 _ChecklistCard(
                   items: [
@@ -145,7 +146,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // ── Disclaimer LSFin ──────────────────────────
-                _Disclaimer(
+                EduDisclaimer(
                   text:
                       'Information à caractère éducatif, ne constitue pas un conseil juridique ou patrimonial au sens de la LSFin ou du CC. Les règles successorales varient selon la situation familiale, le régime matrimonial et le canton. Consulte un·e notaire ou un·e spécialiste en droit successoral pour ta situation personnelle.',
                 ),
@@ -212,23 +213,6 @@ class _AlertCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String text;
-  const _SectionTitle({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.montserrat(
-        fontSize: 15,
-        fontWeight: FontWeight.w700,
-        color: MintColors.textPrimary,
       ),
     );
   }
@@ -446,37 +430,4 @@ class _LegalSources extends StatelessWidget {
   }
 }
 
-class _Disclaimer extends StatelessWidget {
-  final String text;
-  const _Disclaimer({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFE082)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline,
-              size: 16, color: Color(0xFFF57F17)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: const Color(0xFF5D4037),
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// EduDisclaimer and EduSectionTitle moved to widgets/coach/edu_shared_widgets.dart
