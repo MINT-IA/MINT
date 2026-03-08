@@ -339,6 +339,28 @@ class LppCertificateParser {
             caseSensitive: false),
       ],
     ),
+
+    // ── Taux de rémunération ──
+    _FieldPattern(
+      fieldName: "remuneration_rate",
+      label: "Taux de rémunération",
+      profileField: "rendementCaisse",
+      isPercentage: true,
+      patterns: [
+        RegExp(
+            r"(?:int[ée]r[êe]ts?|r[ée]mun[ée]r[ée])\s*[\(\:]?\s*(?:taux\s+(?:de\s+)?)?([\d,.\s]+\s*%?)",
+            caseSensitive: false),
+        RegExp(
+            r"taux\s+(?:de\s+)?r[ée]mun[ée]ration\s*[:\s]*([\d,.\s]+\s*%?)",
+            caseSensitive: false),
+        RegExp(
+            r"(?:Verzinsung|Zinssatz)\s*[:\s]*([\d,.\s]+\s*%?)",
+            caseSensitive: false),
+        RegExp(
+            r"tasso\s+(?:di\s+)?remunerazione\s*[:\s]*([\d,.\s]+\s*%?)",
+            caseSensitive: false),
+      ],
+    ),
   ];
 
   // ── Main parsing method ───────────────────────────────────

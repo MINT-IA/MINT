@@ -297,6 +297,15 @@ KNOWN_FIELD_PATTERNS: dict[str, dict] = {
             r"koordinierter?\s+lohn",
         ],
     },
+    "taux_remuneration": {
+        "type": "percentage",
+        "patterns": [
+            r"(?:int[ée]r[êe]ts?|r[ée]mun[ée]r[ée])\s*[\(:]?\s*(?:taux\s+(?:de\s+)?)?",
+            r"taux\s+(?:de\s+)?r[ée]mun[ée]ration",
+            r"(?:Verzinsung|Zinssatz)",
+            r"tasso\s+(?:di\s+)?remunerazione",
+        ],
+    },
 }
 
 # Fields with the highest impact on projection precision
@@ -315,6 +324,7 @@ HIGH_IMPACT_FIELDS = [
     "cotisation_employeur",
     "prestation_invalidite",
     "prestation_deces",
+    "taux_remuneration",
 ]
 
 # Impact weight per field for confidence delta calculation
