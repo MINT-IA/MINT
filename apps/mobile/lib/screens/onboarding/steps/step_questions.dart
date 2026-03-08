@@ -57,6 +57,12 @@ class _StepQuestionsState extends State<StepQuestions> {
   late TextEditingController _ageController;
   bool _didTrackStart = false;
 
+  // ── Calibration literacy state (3 oui/non questions) ──────────────────────
+  // null = unanswered, true = oui, false = non
+  bool? _knowsLppBalance;
+  bool? _knowsConversionRate;
+  bool? _hasDone3a;
+
   @override
   void initState() {
     super.initState();
@@ -90,8 +96,18 @@ class _StepQuestionsState extends State<StepQuestions> {
     _setAge(parsed);
   }
 
+  /// Score 0-3 → FinancialLiteracyLevel
+  /// 0-1 = beginner, 2 = intermediate, 3 = advanced
+  void _applyLiteracy() {
+    final score = (_knowsLppBalance == true ? 1 : 0) +
+        (_knowsConversionRate == true ? 1 : 0) +
+        (_hasDone3a == true ? 1 : 0);
+    widget.viewModel.setLiteracyScore(score);
+  }
+
   void _onSubmit() {
     if (!widget.viewModel.canCompute) return;
+    _applyLiteracy();
     final vm = widget.viewModel;
     final salaryBracket = vm.grossSalary <= 60000
         ? '<=60k'
@@ -329,6 +345,46 @@ class _StepQuestionsState extends State<StepQuestions> {
                   ),
 
                   const SizedBox(height: 48),
+
+                  // ── CALIBRAGE CULTURE FINANCIERE ──────────────────────────
+                  // 3 questions oui/non pour scorer le niveau de connaissances
+                  // et personnaliser le contenu educatif.
+                  Text(
+                    'Pour adapter tes conseils',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '3 questions rapides — aucune bonne ou mauvaise reponse.',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textMuted,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _LiteracyQuestion(
+                    question: 'Je connais le montant de mon avoir LPP',
+                    value: _knowsLppBalance,
+                    onChanged: (v) => setState(() => _knowsLppBalance = v),
+                  ),
+                  const SizedBox(height: 14),
+                  _LiteracyQuestion(
+                    question: 'Je sais ce qu\'est le taux de conversion',
+                    value: _knowsConversionRate,
+                    onChanged: (v) => setState(() => _knowsConversionRate = v),
+                  ),
+                  const SizedBox(height: 14),
+                  _LiteracyQuestion(
+                    question: 'J\'ai deja verse sur un compte 3a',
+                    value: _hasDone3a,
+                    onChanged: (v) => setState(() => _hasDone3a = v),
+                  ),
+                  const SizedBox(height: 32),
 
                   // ── CTA ───────────────────────────────────────────────────
                   SizedBox(
@@ -1092,6 +1148,104 @@ class _CantonPicker extends StatelessWidget {
                 color: MintColors.textSecondary,
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LITERACY QUESTION — oui/non toggle pour les 3 questions de calibrage
+// ════════════════════════════════════════════════════════════════════════════
+
+class _LiteracyQuestion extends StatelessWidget {
+  final String question;
+  final bool? value;
+  final ValueChanged<bool?> onChanged;
+
+  const _LiteracyQuestion({
+    required this.question,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            question,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: MintColors.textPrimary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _LiteracyChip(
+                label: 'Oui',
+                selected: value == true,
+                onTap: () => onChanged(value == true ? null : true),
+              ),
+              const SizedBox(width: 10),
+              _LiteracyChip(
+                label: 'Non',
+                selected: value == false,
+                onTap: () => onChanged(value == false ? null : false),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiteracyChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _LiteracyChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? MintColors.primary.withAlpha(24) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? MintColors.primary : MintColors.lightBorder,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color:
+                selected ? MintColors.primary : MintColors.textSecondary,
           ),
         ),
       ),

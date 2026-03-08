@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 
@@ -134,6 +136,53 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   bool get showArrivalYear =>
       nationalityGroup != null &&
       (nationalityGroup != 'CH' || hasLivedAbroad == true);
+
+  // ─── Literacy calibration ─────────────────────────────────────────────────
+
+  /// Score brut 0-3 derive des 3 questions de calibrage en StepQuestions.
+  int _literacyScore = 0;
+
+  /// Niveau de culture financiere derive du score de calibrage.
+  /// 0-1 = beginner, 2 = intermediate, 3 = advanced.
+  FinancialLiteracyLevel get literacyLevel {
+    if (_literacyScore >= 3) return FinancialLiteracyLevel.advanced;
+    if (_literacyScore == 2) return FinancialLiteracyLevel.intermediate;
+    return FinancialLiteracyLevel.beginner;
+  }
+
+  void setLiteracyScore(int score) {
+    _literacyScore = score.clamp(0, 3);
+    notifyListeners();
+  }
+
+  // ─── OCR result ───────────────────────────────────────────────────────────
+
+  /// Champs extraits lors d'un scan OCR dans StepOcrUpload.
+  /// Null si aucun scan n'a ete effectue.
+  ExtractionResult? ocrResult;
+
+  /// Applique un resultat OCR au profil.
+  ///
+  /// Mappe les champs extraits vers les setters du ViewModel.
+  /// Les valeurs avec confidence < 0.50 sont ignorees (trop incertaines).
+  /// Ne stocke jamais le document source — seules les donnees extraites
+  /// sont conservees en memoire (LPD art. 6 — minimisation des donnees).
+  void applyOcrResult(ExtractionResult result) {
+    ocrResult = result;
+    for (final field in result.fields) {
+      if (field.confidence < 0.50) continue;
+      final value = field.value;
+      switch (field.fieldName) {
+        case 'lpp_total':
+          if (value is num) setExistingLpp(value.toDouble());
+        case 'epargne_3a':
+          if (value is num) setExisting3a(value.toDouble());
+        default:
+          break;
+      }
+    }
+    notifyListeners();
+  }
 
   void setStressType(String? value) {
     stressType = value;

@@ -19,6 +19,13 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 /// Etat civil pour le coach
 enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
 
+/// Niveau de culture financiere de l'utilisateur.
+///
+/// Derive des 3 questions de calibrage en fin de StepQuestions.
+/// Score 0-1 → beginner, 2 → intermediate, 3 → advanced.
+/// Valeur par defaut : beginner (backward-compatible).
+enum FinancialLiteracyLevel { beginner, intermediate, advanced }
+
 /// Source d'une donnee financiere dans le profil.
 /// Permet de distinguer les valeurs saisies, estimees ou certifiees.
 enum ProfileDataSource {
@@ -886,6 +893,11 @@ class CoachProfile {
   /// Ex: {'prevoyance.avoirLppTotal': ProfileDataSource.certificate}
   final Map<String, ProfileDataSource> dataSources;
 
+  // === CALIBRAGE ===
+  /// Niveau de culture financiere, derive des 3 questions de calibrage
+  /// en fin d'onboarding. Backward-compatible : absent → beginner.
+  final FinancialLiteracyLevel financialLiteracyLevel;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
@@ -919,6 +931,7 @@ class CoachProfile {
     Map<String, ProfileDataSource> dataSources = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
@@ -1175,6 +1188,7 @@ class CoachProfile {
     Map<String, ProfileDataSource>? dataSources,
     DateTime? createdAt,
     DateTime? updatedAt,
+    FinancialLiteracyLevel? financialLiteracyLevel,
   }) {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -1210,6 +1224,8 @@ class CoachProfile {
       dataSources: dataSources ?? this.dataSources,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      financialLiteracyLevel:
+          financialLiteracyLevel ?? this.financialLiteracyLevel,
     );
   }
 
@@ -1397,6 +1413,10 @@ class CoachProfile {
           json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt:
           json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
+        (e) => e.name == json['financialLiteracyLevel'],
+        orElse: () => FinancialLiteracyLevel.beginner,
+      ),
     );
   }
 
@@ -1434,6 +1454,7 @@ class CoachProfile {
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        'financialLiteracyLevel': financialLiteracyLevel.name,
       };
 
   // ════════════════════════════════════════════════════════════════
