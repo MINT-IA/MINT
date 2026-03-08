@@ -21,7 +21,7 @@ import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 ///
 /// Orchestrates the 7-step onboarding experience:
 ///   0: [StepStressSelector]  — intention selector (tap, auto-advance)
-///   1: [StepQuestions]        — 5 inputs + 3 calibrage literacy questions
+///   1: [StepQuestions]        — 5 core inputs (salary, age, status, nationality, canton)
 ///   2: [StepChiffreChoc]      — reveal of the first impactful number
 ///   3: [StepOcrUpload]        — optional document scan (LPD-compliant)
 ///   4: [StepJitExplanation]   — SI...ALORS mini-explanation
@@ -280,10 +280,6 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
 
   void _saveProfile(BuildContext context) {
     if (_viewModel.canton == null) return;
-    // Compute yearsAbroad for returning Swiss (hasLivedAbroad + arrivalYear).
-    // arrivalYear → years abroad = currentYear - arrivalYear - (age - currentAge).
-    // Simpler: yearsAbroad ≈ currentYear - arrivalYear - birthYear gaps.
-    // We pass arrivalYear directly; CoachProfileProvider derives yearsAbroad.
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
       age: _viewModel.age,
@@ -292,8 +288,6 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       nationalityGroup: _viewModel.nationalityGroup,
       nationalityCountry: _viewModel.nationalityCountry,
       employmentStatus: _viewModel.employmentStatus,
-      hasLivedAbroad: _viewModel.hasLivedAbroad,
-      arrivalYear: _viewModel.arrivalYear,
     );
     // Apply literacy level derived from calibration questions (Step 1).
     // Done via copyWith after the wizard-based profile is built so we don't

@@ -7,10 +7,13 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
-/// Step 1 of the Smart Onboarding flow — 5 required questions.
+/// Step 1 of the Smart Onboarding flow — 5 core questions.
 ///
-/// Collects: grossSalary, age, employmentStatus, nationality, canton.
+/// Collects: grossSalary, age, employmentStatus, nationalityGroup, canton.
 /// Calls [viewModel.compute()] then [onNext] when the user taps "Voir mon résultat".
+///
+/// AVS gap / lacunes → handled later via extrait AVS upload (StepOcrUpload),
+/// not asked here. Literacy calibration moved to StepChiffreChoc (post-reveal).
 ///
 /// Design rules:
 /// - Material 3, GoogleFonts.montserrat headings, GoogleFonts.inter body
@@ -57,12 +60,6 @@ class _StepQuestionsState extends State<StepQuestions> {
   late TextEditingController _ageController;
   bool _didTrackStart = false;
 
-  // ── Calibration literacy state (3 oui/non questions) ──────────────────────
-  // null = unanswered, true = oui, false = non
-  bool? _knowsLppBalance;
-  bool? _knowsConversionRate;
-  bool? _hasDone3a;
-
   @override
   void initState() {
     super.initState();
@@ -96,18 +93,8 @@ class _StepQuestionsState extends State<StepQuestions> {
     _setAge(parsed);
   }
 
-  /// Score 0-3 → FinancialLiteracyLevel
-  /// 0-1 = beginner, 2 = intermediate, 3 = advanced
-  void _applyLiteracy() {
-    final score = (_knowsLppBalance == true ? 1 : 0) +
-        (_knowsConversionRate == true ? 1 : 0) +
-        (_hasDone3a == true ? 1 : 0);
-    widget.viewModel.setLiteracyScore(score);
-  }
-
   void _onSubmit() {
     if (!widget.viewModel.canCompute) return;
-    _applyLiteracy();
     final vm = widget.viewModel;
     final salaryBracket = vm.grossSalary <= 60000
         ? '<=60k'
@@ -293,44 +280,6 @@ class _StepQuestionsState extends State<StepQuestions> {
                       widget.onInputChanged();
                     },
                   ),
-                  // Suisse ayant vécu à l'étranger — déclenche le calcul LPP/AVS correct
-                  if (widget.viewModel.showAbroadQuestion) ...[
-                    const SizedBox(height: 16),
-                    const _SectionTitle(
-                        label: 'As-tu interrompu tes cotisations AVS/LPP ?'),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Séjour à l\'étranger, période sans emploi…',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _AbroadQuestion(
-                      value: widget.viewModel.hasLivedAbroad,
-                      onChanged: (v) {
-                        widget.viewModel.setHasLivedAbroad(v);
-                        widget.onInputChanged();
-                      },
-                    ),
-                  ],
-                  if (widget.viewModel.showArrivalYear) ...[
-                    const SizedBox(height: 16),
-                    _SectionTitle(
-                      label: widget.viewModel.nationalityGroup == 'CH'
-                          ? 'Depuis quelle année cotises-tu en Suisse ?'
-                          : 'Depuis quand es-tu en Suisse ?',
-                    ),
-                    const SizedBox(height: 12),
-                    _ArrivalYearPicker(
-                      value: widget.viewModel.arrivalYear,
-                      onChanged: (v) {
-                        widget.viewModel.setArrivalYear(v);
-                        widget.onInputChanged();
-                      },
-                    ),
-                  ],
                   const SizedBox(height: 32),
 
                   // ── 5. CANTON ─────────────────────────────────────────────
@@ -345,46 +294,6 @@ class _StepQuestionsState extends State<StepQuestions> {
                   ),
 
                   const SizedBox(height: 48),
-
-                  // ── CALIBRAGE CULTURE FINANCIERE ──────────────────────────
-                  // 3 questions oui/non pour scorer le niveau de connaissances
-                  // et personnaliser le contenu educatif.
-                  Text(
-                    'Pour adapter tes conseils',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '3 questions rapides — aucune bonne ou mauvaise reponse.',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textMuted,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _LiteracyQuestion(
-                    question: 'Je connais le montant de mon avoir LPP',
-                    value: _knowsLppBalance,
-                    onChanged: (v) => setState(() => _knowsLppBalance = v),
-                  ),
-                  const SizedBox(height: 14),
-                  _LiteracyQuestion(
-                    question: 'Je sais ce qu\'est le taux de conversion',
-                    value: _knowsConversionRate,
-                    onChanged: (v) => setState(() => _knowsConversionRate = v),
-                  ),
-                  const SizedBox(height: 14),
-                  _LiteracyQuestion(
-                    question: 'J\'ai deja verse sur un compte 3a',
-                    value: _hasDone3a,
-                    onChanged: (v) => setState(() => _hasDone3a = v),
-                  ),
-                  const SizedBox(height: 32),
 
                   // ── CTA ───────────────────────────────────────────────────
                   SizedBox(
@@ -773,189 +682,6 @@ class _NationalityChips extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  ABROAD QUESTION — binary toggle for Swiss nationals who lived abroad
-// ════════════════════════════════════════════════════════════════════════════
-
-class _AbroadQuestion extends StatelessWidget {
-  final bool? value;
-  final ValueChanged<bool?> onChanged;
-
-  const _AbroadQuestion({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _AbroadChip(
-          label: 'Oui',
-          selected: value == true,
-          onTap: () => onChanged(value == true ? null : true),
-        ),
-        const SizedBox(width: 10),
-        _AbroadChip(
-          label: 'Non',
-          selected: value == false,
-          onTap: () => onChanged(value == false ? null : false),
-        ),
-      ],
-    );
-  }
-}
-
-class _AbroadChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _AbroadChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? MintColors.primary.withAlpha(24)
-              : MintColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? MintColors.primary : MintColors.lightBorder,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? MintColors.primary : MintColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  ARRIVAL YEAR PICKER — year dropdown for non-Swiss residents
-// ════════════════════════════════════════════════════════════════════════════
-
-class _ArrivalYearPicker extends StatelessWidget {
-  final int? value;
-  final ValueChanged<int?> onChanged;
-
-  const _ArrivalYearPicker({
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final currentYear = DateTime.now().year;
-    final years = List.generate(50, (i) => currentYear - i);
-    final displayValue = value != null ? '$value' : 'Annee d\'arrivee';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () async {
-          final selected = await showModalBottomSheet<int>(
-            context: context,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (ctx) {
-              return FractionallySizedBox(
-                heightFactor: 0.4,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'Annee d\'arrivee en Suisse',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: years.length,
-                        itemBuilder: (_, i) {
-                          final year = years[i];
-                          final isSelected = year == value;
-                          return ListTile(
-                            onTap: () => Navigator.of(ctx).pop(year),
-                            title: Text(
-                              '$year',
-                              style: GoogleFonts.inter(
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: MintColors.textPrimary,
-                              ),
-                            ),
-                            trailing: isSelected
-                                ? const Icon(Icons.check_circle,
-                                    color: MintColors.primary, size: 20)
-                                : null,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-          if (selected != null) onChanged(selected);
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              const Icon(Icons.calendar_today,
-                  size: 18, color: MintColors.textMuted),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  displayValue,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    color: value == null
-                        ? MintColors.textMuted
-                        : MintColors.textPrimary,
-                    fontWeight:
-                        value == null ? FontWeight.w400 : FontWeight.w600,
-                  ),
-                ),
-              ),
-              const Icon(Icons.keyboard_arrow_down,
-                  color: MintColors.textSecondary),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
 //  CANTON PICKER — search bottom sheet, 26 Swiss cantons
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -1155,100 +881,3 @@ class _CantonPicker extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  LITERACY QUESTION — oui/non toggle pour les 3 questions de calibrage
-// ════════════════════════════════════════════════════════════════════════════
-
-class _LiteracyQuestion extends StatelessWidget {
-  final String question;
-  final bool? value;
-  final ValueChanged<bool?> onChanged;
-
-  const _LiteracyQuestion({
-    required this.question,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            question,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _LiteracyChip(
-                label: 'Oui',
-                selected: value == true,
-                onTap: () => onChanged(value == true ? null : true),
-              ),
-              const SizedBox(width: 10),
-              _LiteracyChip(
-                label: 'Non',
-                selected: value == false,
-                onTap: () => onChanged(value == false ? null : false),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LiteracyChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _LiteracyChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? MintColors.primary.withAlpha(24) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? MintColors.primary : MintColors.lightBorder,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color:
-                selected ? MintColors.primary : MintColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
