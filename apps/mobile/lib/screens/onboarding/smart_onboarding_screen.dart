@@ -278,10 +278,19 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
 
   void _saveProfile(BuildContext context) {
     if (_viewModel.canton == null) return;
+    // Compute yearsAbroad for returning Swiss (hasLivedAbroad + arrivalYear).
+    // arrivalYear → years abroad = currentYear - arrivalYear - (age - currentAge).
+    // Simpler: yearsAbroad ≈ currentYear - arrivalYear - birthYear gaps.
+    // We pass arrivalYear directly; CoachProfileProvider derives yearsAbroad.
     context.read<CoachProfileProvider>().updateFromSmartFlow(
           age: _viewModel.age,
           grossSalary: _viewModel.grossSalary,
           canton: _viewModel.canton!,
+          nationalityGroup: _viewModel.nationalityGroup,
+          nationalityCountry: _viewModel.nationalityCountry,
+          employmentStatus: _viewModel.employmentStatus,
+          hasLivedAbroad: _viewModel.hasLivedAbroad,
+          arrivalYear: _viewModel.arrivalYear,
         );
   }
 
@@ -315,6 +324,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
               StepChiffreChoc(
                 viewModel: _viewModel,
                 animTrigger: _animTrigger,
+                onNext: () => _goToPage(3),
                 onEnrich: () => _saveThenEnrich(context),
                 onDashboard: () => _saveThenGo(context),
               ),

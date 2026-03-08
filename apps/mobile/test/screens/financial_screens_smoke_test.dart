@@ -205,14 +205,17 @@ void main() {
           home: LibrePassageScreen(),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Title in SliverAppBar
       expect(find.text('LIBRE PASSAGE'), findsOneWidget);
       // Situation section
       expect(find.textContaining('SITUATION'), findsOneWidget);
-      // Checklist section
-      expect(find.textContaining('CHECKLIST'), findsOneWidget);
+      // Checklist section (may be below fold — skipOffstage: false)
+      expect(
+        find.textContaining('CHECKLIST', skipOffstage: false),
+        findsOneWidget,
+      );
     });
   });
 

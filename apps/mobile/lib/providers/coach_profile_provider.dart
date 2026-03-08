@@ -316,6 +316,19 @@ class CoachProfileProvider extends ChangeNotifier {
     required int age,
     required double grossSalary,
     required String canton,
+    /// 'CH', 'EU', or 'OTHER' — used to derive q_nationality for archetype detection.
+    String? nationalityGroup,
+    /// ISO country code when nationalityGroup == 'OTHER' (e.g. 'US', 'BR').
+    String? nationalityCountry,
+    /// Employment status from onboarding ('salarie', 'independant', etc.).
+    String? employmentStatus,
+    /// True if a Swiss national has lived abroad and interrupted cotisations.
+    /// Maps to q_avs_lacunes_status = 'lived_abroad' so fromWizardAnswers()
+    /// computes the correct LPP gap and AVS reduction.
+    bool? hasLivedAbroad,
+    /// Year since which the user contributed to Swiss AVS/LPP (if hasLivedAbroad
+    /// or non-Swiss). Used to derive yearsAbroad for the wizard answers.
+    int? arrivalYear,
   }) {
     // Convert gross annual → net monthly
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
@@ -324,6 +337,32 @@ class CoachProfileProvider extends ChangeNotifier {
     const double socialChargesRate = 0.13;
     final netMonthly = (grossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
+    final effectiveEmployment = employmentStatus ?? 'salarie';
+
+    // Derive q_nationality for archetype detection (CLAUDE.md archetype table).
+    // 'CH' → swissNative/returningSwiss; 'EU' → expatEu (use 'FR' placeholder);
+    // 'OTHER' → expatUs (if 'US') or expatNonEu (any other value).
+    String? nationality;
+    if (nationalityGroup == 'CH') {
+      nationality = 'CH';
+    } else if (nationalityGroup == 'EU') {
+      nationality = 'FR'; // Generic EU/AELE placeholder → triggers expatEu archetype
+    } else if (nationalityGroup == 'OTHER') {
+      nationality = nationalityCountry; // 'US' → expatUs; null → expatNonEu fallback
+    }
+
+    // Returning Swiss: compute yearsAbroad from arrivalYear and birthYear.
+    // yearsAbroad = arrivalYear - (birthYear + 21) clamped to [0, age-21].
+    // This matches fromWizardAnswers 'lived_abroad' logic: avsGaps = yearsAbroad.
+    int? yearsAbroad;
+    if (hasLivedAbroad == true && arrivalYear != null) {
+      yearsAbroad = (arrivalYear - (birthYear + 21)).clamp(0, age - 21);
+    }
+
+    final bool isReturningSwiss = hasLivedAbroad == true && arrivalYear != null;
+    // Non-Swiss expat arriving late: contributions start from arrivalYear.
+    final bool isExpat =
+        nationalityGroup != null && nationalityGroup != 'CH' && arrivalYear != null;
 
     // Compute smart estimates via MinimalProfileService (financial_core)
     // so the aperçu financier shows realistic values instead of zeros.
@@ -333,23 +372,52 @@ class CoachProfileProvider extends ChangeNotifier {
       canton: canton,
     );
 
-    // AVS contribution years: age - 20 for Swiss native (cotisations dès 21 ans)
-    final avsContributionYears = (age - 20).clamp(0, 44);
+    // AVS contribution years (LAVS art. 29 — cotisations dès 21 ans).
+    final int avsContributionYears;
+    if (isReturningSwiss) {
+      // Reduced by time abroad
+      avsContributionYears = ((age - 20) - (yearsAbroad ?? 0)).clamp(0, 44);
+    } else if (isExpat) {
+      // Contributions start from max(arrivalAge, 21)
+      final arrivalAge = arrivalYear - birthYear;
+      final startAge = arrivalAge > 21 ? arrivalAge : 21;
+      avsContributionYears = (age - startAge).clamp(0, 44);
+    } else {
+      // Swiss native: cotisations since age 21
+      avsContributionYears = (age - 20).clamp(0, 44);
+    }
 
     final answers = <String, dynamic>{
       'q_birth_year': birthYear,
       'q_canton': canton,
       'q_net_income_period_chf': netMonthly,
-      'q_employment_status': 'employed',
-      // Smart defaults: employed + salary > seuil → has pension fund (LPP art. 7)
-      'q_has_pension_fund': grossSalary >= 22680,
-      // AVS years estimated from age (Swiss native default, LAVS art. 29)
+      // Use actual employment status — independant may not have LPP
+      'q_employment_status': effectiveEmployment,
+      // LPP access: salary > seuil AND salarié (LPP art. 7 — indépendants: opt.)
+      'q_has_pension_fund':
+          grossSalary >= 22680 && effectiveEmployment != 'independant',
+      // AVS years estimated from age and situation (LAVS art. 29)
       'q_avs_contribution_years': avsContributionYears,
       // AVS rente estimated via financial_core AvsCalculator
       '_coach_avs_rente_estimee': minimal.avsMonthlyRente,
       // Patrimoine: estimated savings = (age-25) × salary × 5%
       'q_cash_total': minimal.currentSavings,
+      // Nationality for archetype detection (see CLAUDE.md archetype table)
+      if (nationality != null) 'q_nationality': nationality,
     };
+
+    // Returning Swiss: inject lacunes and arrivalYear so fromWizardAnswers
+    // correctly starts LPP bonifications from arrivalAge, not from 25.
+    if (isReturningSwiss) {
+      answers['q_avs_lacunes_status'] = 'lived_abroad';
+      answers['q_avs_years_abroad'] = yearsAbroad;
+      answers['q_avs_arrival_year'] = arrivalYear;
+    } else if (isExpat) {
+      // Non-Swiss expat: use 'arrived_late' so fromWizardAnswers computes
+      // arrivalAge and starts LPP bonifications from the correct age.
+      answers['q_avs_lacunes_status'] = 'arrived_late';
+      answers['q_avs_arrival_year'] = arrivalYear;
+    }
 
     _lastAnswers = answers;
     _profile = CoachProfile.fromWizardAnswers(answers);
@@ -869,6 +937,11 @@ class CoachProfileProvider extends ChangeNotifier {
     double? salaireBrutMensuel,
     double? avoirLppTotal,
     double? totalEpargne3a,
+    /// Rachat LPP mensuel planifié (CHF/mois). Crée ou met à jour la
+    /// PlannedMonthlyContribution 'lpp_buyback_user'. Mis à 0 supprime
+    /// la contribution. Utilisé par ForecasterService via
+    /// profile.totalLppBuybackMensuel pour les projections LPP.
+    double? rachatLppMensuel,
     double? epargneLiquide,
     double? investissements,
     double? loyer,
@@ -1009,12 +1082,36 @@ class CoachProfileProvider extends ChangeNotifier {
       updatedSources['salaireBrutMensuel'] = ProfileDataSource.userInput;
     }
 
+    // Rachat LPP mensuel: crée/met à jour ou supprime 'lpp_buyback_user'.
+    List<PlannedMonthlyContribution>? updatedContribs;
+    if (rachatLppMensuel != null) {
+      final existing = List<PlannedMonthlyContribution>.from(
+        p.plannedContributions,
+      );
+      final idx = existing.indexWhere((c) => c.id == 'lpp_buyback_user');
+      if (rachatLppMensuel <= 0) {
+        if (idx >= 0) existing.removeAt(idx);
+      } else if (idx >= 0) {
+        existing[idx] = existing[idx].copyWith(amount: rachatLppMensuel);
+      } else {
+        existing.add(PlannedMonthlyContribution(
+          id: 'lpp_buyback_user',
+          label: 'Rachat LPP',
+          amount: rachatLppMensuel,
+          category: 'lpp_buyback',
+          isAutomatic: false,
+        ));
+      }
+      updatedContribs = existing;
+    }
+
     _profile = p.copyWith(
       salaireBrutMensuel: salaireBrutMensuel,
       prevoyance: updatedPrev,
       patrimoine: updatedPat,
       depenses: updatedDep,
       dettes: updatedDet,
+      plannedContributions: updatedContribs,
       dataSources: updatedSources,
       updatedAt: DateTime.now(),
     );
@@ -1036,14 +1133,18 @@ class CoachProfileProvider extends ChangeNotifier {
       }
       if (avoirLppTotal != null) answers['_coach_avoir_lpp'] = avoirLppTotal;
       if (totalEpargne3a != null) answers['_coach_total_3a'] = totalEpargne3a;
-      if (epargneLiquide != null) answers['q_cash_total'] = epargneLiquide;
-      if (investissements != null) {
-        answers['_coach_investissements'] = investissements;
+      if (rachatLppMensuel != null) {
+        answers['_coach_rachat_lpp_mensuel'] = rachatLppMensuel;
       }
-      // Persist depenses
-      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
+      if (epargneLiquide != null) answers['q_cash_total'] = epargneLiquide;
+      // Write to the same keys fromWizardAnswers() reads so values survive restart.
+      if (investissements != null) {
+        answers['q_investments_total'] = investissements;
+      }
+      // Persist depenses — use canonical wizard keys where they exist
+      if (loyer != null) answers['q_housing_cost_period_chf'] = loyer;
       if (assuranceMaladie != null) {
-        answers['_coach_depenses_assurance'] = assuranceMaladie;
+        answers['q_lamal_premium_monthly_chf'] = assuranceMaladie;
       }
       if (electricite != null) {
         answers['_coach_depenses_electricite'] = electricite;

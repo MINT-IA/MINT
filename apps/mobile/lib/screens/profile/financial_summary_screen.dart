@@ -451,6 +451,14 @@ class FinancialSummaryScreen extends StatelessWidget {
         indent: true,
       ));
     }
+    if (p.totalLppBuybackMensuel > 0) {
+      lines.add(FinancialLine(
+        label: 'Rachat planifié',
+        formattedValue: _formatChfMonth(p.totalLppBuybackMensuel),
+        source: ProfileDataSource.userInput,
+        indent: true,
+      ));
+    }
     if (prev.nomCaisse != null) {
       lines.add(FinancialLine(
         label: 'Caisse',
@@ -515,6 +523,15 @@ class FinancialSummaryScreen extends StatelessWidget {
           formattedValue: _formatChf(cp.totalEpargne3a),
         ));
       }
+      // FATCA warning: US citizens can use Raiffeisen but not VIAC/Finpension
+      if (p.conjoint!.isFatcaResident) {
+        lines.add(FinancialLine(
+          label: '\u26a0\ufe0f FATCA \u2014 Seule une minorit\u00e9 de prestataires accepte (ex. Raiffeisen)',
+          formattedValue: '',
+          source: ProfileDataSource.estimated,
+          indent: true,
+        ));
+      }
     }
 
     return FinancialSummaryCard(
@@ -537,6 +554,13 @@ class FinancialSummaryScreen extends StatelessWidget {
             label: 'Total épargne 3a (CHF)',
             initialValue: prev.totalEpargne3a > 0 ? prev.totalEpargne3a : null,
             key: 'totalEpargne3a',
+          ),
+          _EditField(
+            label: 'Rachat LPP mensuel prévu (CHF/mois)',
+            initialValue: p.totalLppBuybackMensuel > 0
+                ? p.totalLppBuybackMensuel
+                : null,
+            key: 'rachatLppMensuel',
           ),
         ],
       ),
@@ -987,6 +1011,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           salaireBrutMensuel: parseVal('salaireBrutMensuel'),
           avoirLppTotal: parseVal('avoirLppTotal'),
           totalEpargne3a: parseVal('totalEpargne3a'),
+          rachatLppMensuel: parseVal('rachatLppMensuel'),
           epargneLiquide: parseVal('epargneLiquide'),
           investissements: parseVal('investissements'),
           loyer: parseVal('loyer'),

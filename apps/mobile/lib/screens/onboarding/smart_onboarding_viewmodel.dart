@@ -35,6 +35,13 @@ class SmartOnboardingViewModel extends ChangeNotifier {
   /// Year of arrival in Switzerland (if not Swiss native).
   int? arrivalYear;
 
+  /// Whether a Swiss national lived/worked abroad and interrupted their
+  /// AVS/LPP contributions. Triggers the arrival-year sub-question even
+  /// when [nationalityGroup] == 'CH'. Maps to q_avs_lacunes_status =
+  /// 'lived_abroad' in wizard answers, so [fromWizardAnswers] computes
+  /// the correct LPP gap and AVS reduction.
+  bool? hasLivedAbroad;
+
   /// User's stress intention (tap selector, not a data question).
   /// Used to filter coaching tips by relevance.
   String? stressType;
@@ -112,9 +119,21 @@ class SmartOnboardingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Whether the nationality question shows the arrival year sub-question.
+  void setHasLivedAbroad(bool? value) {
+    hasLivedAbroad = value;
+    if (value == false) arrivalYear = null;
+    notifyListeners();
+  }
+
+  /// True when the "vécu à l'étranger" toggle should appear (Swiss only).
+  bool get showAbroadQuestion => nationalityGroup == 'CH';
+
+  /// True when the arrival year picker should appear.
+  /// Triggered for non-Swiss nationalities, OR for Swiss nationals who
+  /// explicitly confirmed they lived abroad ([hasLivedAbroad] == true).
   bool get showArrivalYear =>
-      nationalityGroup != null && nationalityGroup != 'CH';
+      nationalityGroup != null &&
+      (nationalityGroup != 'CH' || hasLivedAbroad == true);
 
   void setStressType(String? value) {
     stressType = value;

@@ -277,9 +277,35 @@ class _StepQuestionsState extends State<StepQuestions> {
                       widget.onInputChanged();
                     },
                   ),
+                  // Suisse ayant vécu à l'étranger — déclenche le calcul LPP/AVS correct
+                  if (widget.viewModel.showAbroadQuestion) ...[
+                    const SizedBox(height: 16),
+                    const _SectionTitle(
+                        label: 'As-tu interrompu tes cotisations AVS/LPP ?'),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Séjour à l\'étranger, période sans emploi…',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _AbroadQuestion(
+                      value: widget.viewModel.hasLivedAbroad,
+                      onChanged: (v) {
+                        widget.viewModel.setHasLivedAbroad(v);
+                        widget.onInputChanged();
+                      },
+                    ),
+                  ],
                   if (widget.viewModel.showArrivalYear) ...[
                     const SizedBox(height: 16),
-                    const _SectionTitle(label: 'Depuis quand es-tu en Suisse ?'),
+                    _SectionTitle(
+                      label: widget.viewModel.nationalityGroup == 'CH'
+                          ? 'Depuis quelle année cotises-tu en Suisse ?'
+                          : 'Depuis quand es-tu en Suisse ?',
+                    ),
                     const SizedBox(height: 12),
                     _ArrivalYearPicker(
                       value: widget.viewModel.arrivalYear,
@@ -686,6 +712,77 @@ class _NationalityChips extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ABROAD QUESTION — binary toggle for Swiss nationals who lived abroad
+// ════════════════════════════════════════════════════════════════════════════
+
+class _AbroadQuestion extends StatelessWidget {
+  final bool? value;
+  final ValueChanged<bool?> onChanged;
+
+  const _AbroadQuestion({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _AbroadChip(
+          label: 'Oui',
+          selected: value == true,
+          onTap: () => onChanged(value == true ? null : true),
+        ),
+        const SizedBox(width: 10),
+        _AbroadChip(
+          label: 'Non',
+          selected: value == false,
+          onTap: () => onChanged(value == false ? null : false),
+        ),
+      ],
+    );
+  }
+}
+
+class _AbroadChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _AbroadChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected
+              ? MintColors.primary.withAlpha(24)
+              : MintColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? MintColors.primary : MintColors.lightBorder,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? MintColors.primary : MintColors.textSecondary,
+          ),
+        ),
+      ),
     );
   }
 }

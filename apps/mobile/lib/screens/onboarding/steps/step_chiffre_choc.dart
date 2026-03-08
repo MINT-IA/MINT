@@ -25,6 +25,9 @@ class StepChiffreChoc extends StatefulWidget {
   /// Incrementing counter that triggers the reveal animation.
   final ValueNotifier<int> animTrigger;
 
+  /// Called when the user taps "Qu'est-ce que je peux faire?" → JIT step.
+  final VoidCallback onNext;
+
   /// Called when the user taps "Affiner mon profil".
   final VoidCallback onEnrich;
 
@@ -35,6 +38,7 @@ class StepChiffreChoc extends StatefulWidget {
     super.key,
     required this.viewModel,
     required this.animTrigger,
+    required this.onNext,
     required this.onEnrich,
     required this.onDashboard,
   });
@@ -323,7 +327,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
 
               const SizedBox(height: 32),
 
-              // ── PRIMARY CTA — action contextuelle ────────────────────────
+              // ── PRIMARY CTA — "Qu'est-ce que je peux faire?" → JIT step ───
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -333,7 +337,7 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                       screenName: 'smart_onboarding_chiffre_choc',
                       data: {'choc_type': choc.type.name},
                     );
-                    widget.onDashboard();
+                    widget.onNext();
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,

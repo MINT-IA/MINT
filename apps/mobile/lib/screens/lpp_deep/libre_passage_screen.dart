@@ -27,7 +27,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         statut: _statut,
         avoir: _avoir,
         age: _age,
-        hasNewEmployer: _hasNewEmployer,
+        hasNewEmployer: _statut == LibrePassageStatut.changementEmploi
+            ? _hasNewEmployer
+            : false,
         daysSinceDeparture: 10,
       );
 
@@ -64,9 +66,16 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 _buildSituationSelector(),
                 const SizedBox(height: 16),
 
-                // New employer toggle
-                _buildNewEmployerToggle(),
-                const SizedBox(height: 24),
+                // Profile inputs (age + avoir)
+                _buildProfileInputs(),
+                const SizedBox(height: 16),
+
+                // New employer toggle — only for job change
+                if (_statut == LibrePassageStatut.changementEmploi) ...[
+                  _buildNewEmployerToggle(),
+                  const SizedBox(height: 16),
+                ],
+                const SizedBox(height: 8),
 
                 // Alerts
                 if (result.alerts.isNotEmpty) ...[
@@ -177,6 +186,93 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     );
   }
 
+  Widget _buildProfileInputs() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'TON PROFIL',
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textMuted,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Age slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Ton âge',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              Text(
+                '$_age ans',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _age.toDouble(),
+            min: 18,
+            max: 65,
+            divisions: 47,
+            activeColor: MintColors.primary,
+            onChanged: (v) => setState(() => _age = v.round()),
+          ),
+          const SizedBox(height: 8),
+          // Avoir slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Avoir de libre passage',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              Text(
+                'CHF ${(_avoir / 1000).toStringAsFixed(0)}k',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _avoir,
+            min: 0,
+            max: 500000,
+            divisions: 100,
+            activeColor: MintColors.primary,
+            onChanged: (v) => setState(() => _avoir = v),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNewEmployerToggle() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -200,7 +296,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Avez-vous deja un nouvel employeur ?',
+                  'As-tu déjà un nouvel employeur ?',
                   style: TextStyle(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -498,8 +594,8 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Vos donnees restent sur votre appareil. Aucune information '
-              'n\'est transmise a des tiers. Conforme a la nLPD.',
+              'Tes données restent sur ton appareil. Aucune information '
+              'n\'est transmise à des tiers. Conforme à la nLPD.',
               style: TextStyle(
                 fontSize: 11,
                 color: MintColors.textMuted,

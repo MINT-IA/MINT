@@ -130,37 +130,22 @@ class ConjointProfile {
     return (effectiveRetirementAge - a).clamp(0, 99);
   }
 
-  /// If FATCA resident but prevoyance.canContribute3a is still true,
-  /// returns a corrected copy with canContribute3a = false.
+  /// FATCA residents cannot contribute to 3a with most providers.
+  /// Only a minority (e.g. Raiffeisen) accepts US persons (LSFin compliance).
   static PrevoyanceProfile? _enforceFatca3a(
     bool isFatca,
     PrevoyanceProfile? prev,
   ) {
-    if (!isFatca || prev == null || !prev.canContribute3a) return prev;
-    return PrevoyanceProfile(
-      nomCaisse: prev.nomCaisse,
-      avoirLppObligatoire: prev.avoirLppObligatoire,
-      avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
-      avoirLppTotal: prev.avoirLppTotal,
-      rachatMaximum: prev.rachatMaximum,
-      rachatEffectue: prev.rachatEffectue,
-      tauxConversion: prev.tauxConversion,
-      tauxConversionSuroblig: prev.tauxConversionSuroblig,
-      rendementCaisse: prev.rendementCaisse,
-      anneesContribuees: prev.anneesContribuees,
-      lacunesAVS: prev.lacunesAVS,
-      nombre3a: prev.nombre3a,
-      totalEpargne3a: prev.totalEpargne3a,
-      comptes3a: prev.comptes3a,
-      canContribute3a: false,
-    );
+    if (!isFatca || prev == null) return prev;
+    final json = prev.toJson();
+    json['canContribute3a'] = false;
+    return PrevoyanceProfile.fromJson(json);
   }
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
-    // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
-    final topCanContribute =
-        isFatca ? false : (json['canContribute3a'] ?? true);
+    // FATCA hard block: most providers refuse US persons (LSFin compliance).
+    final topCanContribute = json['canContribute3a'] ?? !isFatca;
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -212,7 +197,7 @@ class ConjointProfile {
     int? targetRetirementAge,
   }) {
     final effectiveFatca = isFatcaResident ?? this.isFatcaResident;
-    // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
+    // FATCA hard block: US persons cannot contribute to 3a (LSFin compliance).
     final effectiveCan =
         effectiveFatca ? false : (canContribute3a ?? this.canContribute3a);
     final effectivePrev = _enforceFatca3a(
@@ -1518,13 +1503,20 @@ class CoachProfile {
     final otherFixed = _parseDouble(answers['q_other_fixed_costs_monthly_chf']);
     final debtPayments = _parseDouble(answers['q_debt_payments_period_chf']);
 
+    // _coach_depenses_* keys are written by updateInline() for fields that
+    // have no canonical wizard question (electricite, transport, telecom,
+    // fraisMedicaux, autresDepensesFixes). They survive app restarts.
     final depenses = DepensesProfile(
       loyer: monthlyHousing,
       assuranceMaladie: assuranceMaladie,
-      autresDepensesFixes:
-          (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
+      electricite: _parseDouble(answers['_coach_depenses_electricite']),
+      transport: _parseDouble(answers['_coach_depenses_transport']),
+      telecom: _parseDouble(answers['_coach_depenses_telecom']),
+      fraisMedicaux: _parseDouble(answers['_coach_depenses_frais_medicaux']),
+      autresDepensesFixes: _parseDouble(answers['_coach_depenses_autres']) ??
+          ((taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
               ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
-              : null,
+              : null),
     );
 
     // ── Prevoyance ──────────────────────────────────────────
@@ -1663,7 +1655,25 @@ class CoachProfile {
     final hasDebt = _parseBool(answers['q_has_consumer_debt']);
     final debtPaymentsMonthly =
         _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
+    // _coach_dettes_* keys are written by updateInline() and survive restarts.
+    // They override the wizard proxy estimates (debtPayments × 24 heuristic).
+    final inlineHypotheque = _parseDouble(answers['_coach_dettes_hypotheque']);
+    final inlineCreditConso = _parseDouble(answers['_coach_dettes_credit']);
+    final inlineLeasing = _parseDouble(answers['_coach_dettes_leasing']);
+    final inlineAutresDettes = _parseDouble(answers['_coach_dettes_autres']);
+    final hasInlineDettes = inlineHypotheque != null ||
+        inlineCreditConso != null ||
+        inlineLeasing != null ||
+        inlineAutresDettes != null;
     final dettes = (() {
+      if (hasInlineDettes) {
+        return DetteProfile(
+          hypotheque: inlineHypotheque,
+          creditConsommation: inlineCreditConso,
+          leasing: inlineLeasing,
+          autresDettes: inlineAutresDettes,
+        );
+      }
       if (debtPaymentsMonthly > 0) {
         // Proxy conservateur: principal restant ≈ 24 mois de mensualités.
         return DetteProfile(creditConsommation: debtPaymentsMonthly * 24);
@@ -1775,6 +1785,28 @@ class CoachProfile {
       }
     }
 
+    // Restore inline-edited rachat LPP mensuel (persisted by updateInline).
+    // Overwrites any wizard-derived lpp_buyback_user contribution so the
+    // user's manual value always wins after an inline edit.
+    final coachRachatLppMensuel =
+        _parseDouble(answers['_coach_rachat_lpp_mensuel']);
+    if (coachRachatLppMensuel != null && coachRachatLppMensuel > 0) {
+      final idx =
+          contributions.indexWhere((c) => c.id == 'lpp_buyback_user');
+      if (idx >= 0) {
+        contributions[idx] =
+            contributions[idx].copyWith(amount: coachRachatLppMensuel);
+      } else {
+        contributions.add(PlannedMonthlyContribution(
+          id: 'lpp_buyback_user',
+          label: 'Rachat LPP',
+          amount: coachRachatLppMensuel,
+          category: 'lpp_buyback',
+          isAutomatic: false,
+        ));
+      }
+    }
+
     // ── Conjoint (partner) data from onboarding ────────────
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
@@ -1835,8 +1867,7 @@ class CoachProfile {
       final conjIsFatca = conjNationality == 'US';
 
       // === Conjoint prevoyance profile ===
-      // Propagate FATCA → canContribute3a on PrevoyanceProfile
-      // (canonical source for all engines)
+      // FATCA hard block: most providers refuse US persons (LSFin compliance).
       final conjointPrevoyance = PrevoyanceProfile(
         lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,

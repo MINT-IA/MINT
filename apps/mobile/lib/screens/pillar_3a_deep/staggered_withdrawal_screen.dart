@@ -187,8 +187,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             'En repartissant tes avoirs 3a sur plusieurs comptes et en les '
             'retirant sur differentes annees fiscales, tu reduis le taux '
             'moyen d\'imposition. La loi autorise jusqu\'a 5 comptes 3a par '
-            'personne (OPP3). Les retraits peuvent commencer des 5 ans avant '
-            'l\'age de la retraite.',
+            'personne (OPP3). Depuis la reforme AHV21 (2024), les retraits '
+            'anticipés sont possibles dès l\'age de 60 ans (5 ans avant '
+            'l\'age de retraite à 65 ans pour tous).',
             style: TextStyle(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -263,12 +264,14 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: 12),
 
           // Age retrait debut
+          // OPP3 art. 3 : retrait anticipé dès 5 ans avant l'âge de retraite.
+          // Depuis AHV21 (2024), l'âge de retraite est 65 pour tous → min = 60.
           _buildSliderRow(
             label: 'Age debut retraits',
             value: _ageRetraitDebut.toDouble(),
-            min: 59,
+            min: 60,
             max: 65,
-            divisions: 6,
+            divisions: 5,
             format: '$_ageRetraitDebut ans',
             onChanged: (v) => setState(() {
               _ageRetraitDebut = v.round();
