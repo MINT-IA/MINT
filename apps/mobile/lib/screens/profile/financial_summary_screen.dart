@@ -104,7 +104,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                             'Double bénéfice, zéro risque de marché.',
                         'avs':
                             'Chaque année manquante dans ton AVS réduit ta rente à vie. '
-                            'Vérifier et combler ces lacunes est l\'une des meilleures décisions que tu puisses prendre.',
+                            'Vérifier et combler ces lacunes est l\'une des décisions les plus importantes que tu puisses prendre.',
                       },
                     ),
                     const SizedBox(height: 8),

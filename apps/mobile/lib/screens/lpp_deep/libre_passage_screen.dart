@@ -103,7 +103,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                       label: 'Compte libre passage',
                       emoji: '🏦',
                       description:
-                          'Sécurité maximale, taux garanti 1-2%. Idéal si tu reprends un emploi rapidement.',
+                          'Sécurité maximale, taux fixe 1-2%. Idéal si tu reprends un emploi rapidement.',
                       fiveYearGain: _avoir * 0.07,
                       legalRef: 'LFLP art. 3 — délai 6 mois',
                     ),
