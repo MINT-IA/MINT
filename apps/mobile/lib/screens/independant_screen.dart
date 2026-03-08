@@ -9,6 +9,7 @@ import 'package:mint_mobile/widgets/coach/true_hourly_rate_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_vs_3a_decision_tree.dart';
 import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
 import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
+import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANT SCREEN — Sprint S12 / Chantier 6
@@ -116,6 +117,38 @@ class _IndependantScreenState extends State<IndependantScreen> {
                   // Recommendations
                   _buildRecommendations(),
                   const SizedBox(height: 20),
+
+                  // ── P7-D : Sauvetage LPP — libre passage (LFLP art. 3-4) ──
+                  if (!_hasLpp)
+                    LppRescueWidget(
+                      lppBalance: _revenuNet * 0.15,
+                      daysElapsed: 0,
+                      options: const [
+                        LppTransferOption(
+                          label: 'Fondation de libre passage',
+                          emoji: '🏦',
+                          description: 'Place ton avoir en libre passage avec un rendement correct.',
+                          fiveYearGain: 8500,
+                          recommended: true,
+                          legalRef: 'LFLP art. 4',
+                        ),
+                        LppTransferOption(
+                          label: 'Institution suppletive',
+                          emoji: '⚠️',
+                          description: 'Transfert automatique apres 6 mois — rendement minimal.',
+                          fiveYearGain: 1200,
+                          legalRef: 'OPP2 art. 10',
+                        ),
+                        LppTransferOption(
+                          label: 'Nouvelle caisse LPP',
+                          emoji: '🔄',
+                          description: 'Tu t\'affilies volontairement a une caisse LPP.',
+                          fiveYearGain: 12000,
+                          legalRef: 'LPP art. 44',
+                        ),
+                      ],
+                    ),
+                  if (!_hasLpp) const SizedBox(height: 20),
                 ],
 
                 // Disclaimer

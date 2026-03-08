@@ -14,6 +14,9 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
 import 'package:mint_mobile/widgets/coach/chiffre_choc_section.dart';
+import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
+import 'package:mint_mobile/widgets/coach/data_quality_card.dart';
+import 'package:mint_mobile/widgets/coach/what_if_stories_widget.dart';
 
 /// Écran "Mon aperçu financier" — vue consolidée de toutes les données
 /// du CoachProfile, organisées par section.
@@ -107,6 +110,11 @@ class FinancialSummaryScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     _buildSourceLegend(),
                     const SizedBox(height: 16),
+
+                    // ── FRI Radar Chart — santé financière en 4 axes ──
+                    _buildFriRadar(profile),
+                    const SizedBox(height: 16),
+
                     if (profile.isCouple) _buildCoupleToggle(context, profile),
                     _buildRevenusCard(context, profile),
                     _buildFiscaliteCard(context, profile),
@@ -117,7 +125,16 @@ class FinancialSummaryScreen extends StatelessWidget {
                     if (profile.isCouple)
                       _buildCoupleCard(context, profile),
                     const SizedBox(height: 16),
+
+                    // ── Data Quality Card — completude du profil ──
+                    _buildDataQualityCard(context, profile),
+                    const SizedBox(height: 16),
+
                     _buildDisclaimer(),
+                    const SizedBox(height: 24),
+
+                    // ── What-If Stories — scenarios exploratoires ──
+                    _buildWhatIfStories(profile),
                     const SizedBox(height: 32),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1144,6 +1161,131 @@ class FinancialSummaryScreen extends StatelessWidget {
           leasing: parseVal('leasing'),
           autresDettes: parseVal('autresDettes'),
         );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  FRI RADAR CHART — proxy scores from profile completeness
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildFriRadar(CoachProfile profile) {
+    // Compute proxy FRI scores (0-25 each) from available profile data
+    double liquidity = 5; // base
+    if (profile.patrimoine.epargneLiquide > 0) {
+      final months = profile.patrimoine.epargneLiquide /
+          (profile.salaireBrutMensuel > 0 ? profile.salaireBrutMensuel : 5000);
+      liquidity = (months / 6 * 25).clamp(0, 25); // 6 mois = 25/25
+    }
+
+    double fiscal = 5;
+    final has3a = profile.prevoyance.totalEpargne3a > 0;
+    final hasRachat = profile.totalLppBuybackMensuel > 0;
+    if (has3a) fiscal += 12;
+    if (hasRachat) fiscal += 8;
+    fiscal = fiscal.clamp(0, 25);
+
+    double retirement = 5;
+    final hasLpp = profile.prevoyance.avoirLppTotal != null &&
+        profile.prevoyance.avoirLppTotal! > 0;
+    if (hasLpp) retirement += 15;
+    if (has3a) retirement += 5;
+    retirement = retirement.clamp(0, 25);
+
+    double structural = 5;
+    if (profile.dettes.hypotheque == null || profile.dettes.hypotheque == 0) {
+      structural += 10;
+    }
+    if (profile.dettes.creditConsommation == null ||
+        profile.dettes.creditConsommation == 0) {
+      structural += 5;
+    }
+    if (profile.etatCivil == CoachCivilStatus.marie) structural += 5;
+    structural = structural.clamp(0, 25);
+
+    return FriRadarChart(
+      liquidity: liquidity,
+      fiscal: fiscal,
+      retirement: retirement,
+      structural: structural,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  DATA QUALITY CARD — known vs missing fields
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildDataQualityCard(BuildContext context, CoachProfile profile) {
+    final known = <String>[];
+    final missing = <String>[];
+
+    void check(String label, bool isKnown) {
+      if (isKnown) {
+        known.add(label);
+      } else {
+        missing.add(label);
+      }
+    }
+
+    check('Salaire brut', profile.salaireBrutMensuel > 0);
+    check('Canton', profile.canton.isNotEmpty);
+    check('Avoir LPP', profile.prevoyance.avoirLppTotal != null &&
+        profile.prevoyance.avoirLppTotal! > 0);
+    check('Epargne 3a', profile.prevoyance.totalEpargne3a > 0);
+    check('Epargne liquide', profile.patrimoine.epargneLiquide > 0);
+    check('Loyer / hypotheque', profile.depenses.loyer > 0 ||
+        (profile.dettes.hypotheque != null && profile.dettes.hypotheque! > 0));
+    check('Assurance maladie', profile.depenses.assuranceMaladie > 0);
+
+    final impactPercent = missing.isEmpty
+        ? null
+        : '+${(missing.length * 10).clamp(5, 30)} % precision';
+
+    return DataQualityCard(
+      knownFields: known,
+      missingFields: missing,
+      enrichImpact: impactPercent,
+      onEnrich: missing.isEmpty
+          ? null
+          : () => context.push('/onboarding/smart'),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  WHAT-IF STORIES — 3 micro-scenarios exploratoires
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildWhatIfStories(CoachProfile profile) {
+    final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
+    final salary = profile.salaireBrutMensuel * profile.nombreDeMois;
+
+    return WhatIfStoriesWidget(
+      stories: [
+        WhatIfStory(
+          emoji: '\u{1F3E6}',
+          question: 'Et si tu maximisais ton 3a chaque annee ?',
+          monthlyImpactChf: 7258 / 12 * 0.30,
+          explanation: 'A ton taux marginal, chaque franc verse en 3a te fait '
+              'economiser ~30 % d\'impots.',
+          actionLabel: 'Simuler',
+        ),
+        if (avoirLpp > 0)
+          WhatIfStory(
+            emoji: '\u{1F4C8}',
+            question: 'Et si ta caisse LPP passait de 1 % a 3 % ?',
+            monthlyImpactChf: avoirLpp * 0.02 / 12,
+            explanation: 'Un meilleur rendement LPP augmente ton capital '
+                'a la retraite sans effort de ta part.',
+            actionLabel: 'Comparer',
+          ),
+        WhatIfStory(
+          emoji: '\u{1F3E0}',
+          question: 'Et si tu achetais au lieu de louer ?',
+          monthlyImpactChf: salary > 0 ? salary * 0.005 / 12 : 50,
+          explanation: 'L\'amortissement indirect via le 2e pilier peut '
+              'reduire tes impots tout en constituant un patrimoine.',
+          actionLabel: 'Explorer',
+        ),
+      ],
+    );
   }
 }
 

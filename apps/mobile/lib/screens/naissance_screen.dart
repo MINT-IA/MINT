@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
+import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -1147,6 +1148,13 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               monthlyCost: 80,
             ),
           ],
+        ),
+        const SizedBox(height: 20),
+
+        // ── P8-C : Clause 3a bénéficiaire (OPP3 art. 2) ──
+        Clause3aWidget(
+          balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu
+          hasClause: false,
         ),
         const SizedBox(height: 20),
 
