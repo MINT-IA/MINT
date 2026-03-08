@@ -22,41 +22,45 @@ class FallbackTemplates {
   /// - Fiscal season
   /// - FRI score delta
   static String greeting(CoachContext ctx) {
+    final hasName = ctx.firstName.isNotEmpty;
+    final salut = hasName ? 'Salut ${ctx.firstName}.' : 'Bonjour.';
+
     // Same-day return
     if (ctx.daysSinceLastVisit == 0) {
-      return 'Bon retour, ${ctx.firstName}.';
+      return hasName ? 'Bon retour, ${ctx.firstName}.' : 'Bon retour.';
     }
 
     // Recent visit (< 7 days)
     if (ctx.daysSinceLastVisit < 7) {
-      return 'Content de te revoir, ${ctx.firstName}.';
+      return hasName ? 'Content de te revoir, ${ctx.firstName}.' : 'Content de te revoir.';
     }
 
     // Fiscal season: 3a deadline (Oct-Dec)
     if (ctx.fiscalSeason == '3a_deadline') {
-      return '${ctx.firstName}, pense à ton 3a avant la fin de l\'année.';
+      return hasName
+          ? '${ctx.firstName}, pense à ton 3a avant la fin de l\'année.'
+          : 'Pense à ton 3a avant la fin de l\'année.';
     }
 
     // Fiscal season: tax declaration (Feb-Mar)
     if (ctx.fiscalSeason == 'tax_declaration') {
-      return '${ctx.firstName}, c\'est la saison de la déclaration fiscale.';
+      return hasName
+          ? '${ctx.firstName}, c\'est la saison de la déclaration fiscale.'
+          : 'C\'est la saison de la déclaration fiscale.';
     }
 
     // Positive delta since last visit
     if (ctx.friDelta > 0) {
-      return 'Salut ${ctx.firstName}. '
-          '+${ctx.friDelta.toStringAsFixed(0)} points depuis ta dernière visite.';
+      return '$salut +${ctx.friDelta.toStringAsFixed(0)} points depuis ta dernière visite.';
     }
 
     // Negative delta
     if (ctx.friDelta < 0) {
-      return 'Salut ${ctx.firstName}. '
-          'Ton score a bougé de ${ctx.friDelta.toStringAsFixed(0)} points.';
+      return '$salut Ton score a bougé de ${ctx.friDelta.toStringAsFixed(0)} points.';
     }
 
     // Default: show current score
-    return 'Salut ${ctx.firstName}. '
-        'Ton score de solidité : ${ctx.friTotal.toStringAsFixed(0)}/100.';
+    return '$salut Ton score de solidité : ${ctx.friTotal.toStringAsFixed(0)}/100.';
   }
 
   // ═══════════════════════════════════════════════════════════════

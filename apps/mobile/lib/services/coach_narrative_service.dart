@@ -262,7 +262,7 @@ class CoachNarrativeService {
     final upcomingEvent = profile.familyChange ?? '';
 
     return CoachContextBuilder.build(
-      firstName: profile.firstName ?? 'utilisateur',
+      firstName: profile.firstName?.trim().isNotEmpty == true ? profile.firstName! : '',
       age: profile.age,
       canton: profile.canton,
       archetype: archetype,

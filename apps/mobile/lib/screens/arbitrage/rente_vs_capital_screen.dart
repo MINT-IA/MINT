@@ -600,52 +600,46 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFF0FDF4), Color(0xFFECFDF5)],
+          colors: [Color(0xFF1A6B45), Color(0xFF0F4D31)],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF86EFAC)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: MintColors.primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '💡  L\'INSIGHT CLÉ',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.8,
-                  ),
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '💡  L\'INSIGHT CLÉ',
+              style: GoogleFonts.montserrat(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 0.8,
               ),
-            ],
+            ),
           ),
           const SizedBox(height: 14),
           Text(
-            '6.8% de taux de conversion = ~4.5% de rendement garanti',
+            '6.8% taux de conversion\n= ~4.5% rendement sans risque',
             style: GoogleFonts.montserrat(
-              fontSize: 15,
+              fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF14532D),
+              color: Colors.white,
               height: 1.3,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            'Sur la part obligatoire LPP, la rente est presque toujours rationnelle : '
-            'aucun placement sans risque ne sert actuellement ce niveau. '
-            'Sur le surobligatoire (souvent 4.5-5.5%), le capital est souvent supérieur.',
+            'Sur la part obligatoire LPP, la rente est souvent rationnelle. '
+            'Sur le surobligatoire (4.5-5.5%), le capital peut être supérieur.',
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: const Color(0xFF166534),
+              color: Colors.white.withOpacity(0.85),
               height: 1.5,
             ),
           ),
@@ -653,7 +647,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -662,12 +656,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Stratégie mixte : rente sur obligatoire + capital sur surobligatoire. '
-                    'MINT la modélise — c\'est souvent la meilleure option.',
+                    'Stratégie mixte : rente sur obligatoire + capital sur surobligatoire.',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF14532D),
+                      color: Colors.white,
                       height: 1.4,
                     ),
                   ),
@@ -680,7 +673,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             'LPP art. 14/37 · LIFD art. 22 (rente) / art. 38 (capital)',
             style: GoogleFonts.inter(
               fontSize: 10,
-              color: const Color(0xFF16A34A),
+              color: Colors.white.withOpacity(0.6),
             ),
           ),
         ],

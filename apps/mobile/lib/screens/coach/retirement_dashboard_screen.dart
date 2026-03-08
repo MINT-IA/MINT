@@ -672,11 +672,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ────────────────────────────────────────────────────────────
 
   SliverAppBar _buildAppBar(String? firstName) {
-    // Use narrative greeting for AppBar title when available
-    final greeting = _narrative?.greeting ??
-        (firstName != null && firstName.isNotEmpty
-            ? 'Retraite \u00b7 $firstName'
-            : 'Ma retraite');
+    // AppBar shows a short stable title — narrative greeting lives in CoachBriefingCard only.
+    final title = firstName != null && firstName.isNotEmpty
+        ? 'Retraite \u00b7 $firstName'
+        : 'Mon tableau de bord';
 
     return SliverAppBar(
       expandedHeight: 80,
@@ -687,7 +686,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          greeting,
+          title,
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
