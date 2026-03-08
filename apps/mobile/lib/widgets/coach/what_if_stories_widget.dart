@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -31,12 +32,16 @@ class WhatIfStory {
   /// Actionable next step.
   final String? actionLabel;
 
+  /// Target route when tapped.
+  final String? route;
+
   const WhatIfStory({
     required this.emoji,
     required this.question,
     required this.monthlyImpactChf,
     required this.explanation,
     this.actionLabel,
+    this.route,
   });
 }
 
@@ -108,7 +113,11 @@ class WhatIfStoriesWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: GestureDetector(
-        onTap: onStoryTapped != null ? () => onStoryTapped!(index) : null,
+        onTap: onStoryTapped != null
+            ? () => onStoryTapped!(index)
+            : story.route != null
+                ? () => context.push(story.route!)
+                : null,
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(

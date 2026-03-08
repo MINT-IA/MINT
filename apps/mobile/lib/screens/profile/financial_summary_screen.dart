@@ -78,7 +78,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     FilledButton(
-                      onPressed: () => context.push('/onboarding/smart'),
+                      onPressed: () => context.push('/onboarding/quick'),
                       child: const Text('Commencer le diagnostic'),
                     ),
                   ],
@@ -144,7 +144,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                           await ReportPersistenceService.clear();
                           await SmartOnboardingDraftService.clearDraft();
                           if (context.mounted) {
-                            context.push('/onboarding/smart');
+                            context.push('/onboarding/quick');
                           }
                         },
                         icon: const Icon(Icons.refresh, size: 18),
@@ -1245,7 +1245,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       enrichImpact: impactPercent,
       onEnrich: missing.isEmpty
           ? null
-          : () => context.push('/onboarding/smart'),
+          : () => context.push('/document-scan'),
     );
   }
 
@@ -1266,6 +1266,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           explanation: 'A ton taux marginal, chaque franc verse en 3a te fait '
               'economiser ~30 % d\'impots.',
           actionLabel: 'Simuler',
+          route: '/simulator/3a',
         ),
         if (avoirLpp > 0)
           WhatIfStory(
@@ -1275,6 +1276,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             explanation: 'Un meilleur rendement LPP augmente ton capital '
                 'a la retraite sans effort de ta part.',
             actionLabel: 'Comparer',
+            route: '/arbitrage/rachat-vs-marche',
           ),
         WhatIfStory(
           emoji: '\u{1F3E0}',
@@ -1283,6 +1285,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           explanation: 'L\'amortissement indirect via le 2e pilier peut '
               'reduire tes impots tout en constituant un patrimoine.',
           actionLabel: 'Explorer',
+          route: '/arbitrage/location-vs-propriete',
         ),
       ],
     );

@@ -25,7 +25,7 @@ class DataQualityCard extends StatelessWidget {
   /// Champs manquants (affichage avec icone interrogation).
   final List<String> missingFields;
 
-  /// Callback du bouton "Enrichir". Si null, navigue vers /onboarding/smart.
+  /// Callback du bouton "Enrichir". Si null, navigue vers /document-scan.
   final VoidCallback? onEnrich;
 
   /// Texte d'impact potentiel (ex. "+15% pr\u00e9cision"). Optionnel.
@@ -242,7 +242,7 @@ class DataQualityCard extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: onEnrich ?? () => context.push('/onboarding/smart'),
+        onPressed: onEnrich ?? () => context.push('/document-scan'),
         icon: const Icon(Icons.edit_outlined, size: 18),
         label: Text(
           enrichImpact != null
