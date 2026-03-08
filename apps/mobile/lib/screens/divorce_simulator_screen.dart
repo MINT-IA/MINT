@@ -147,10 +147,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ],
             _buildEducationalFooter(),
             const SizedBox(height: 24),
-            _buildDisclaimer(),
-            const SizedBox(height: 24),
             _buildMintDivorceSection(),
             const SizedBox(height: 24),
+            _buildDisclaimer(),
             const SizedBox(height: 40),
           ],
         ),
@@ -1073,7 +1072,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       annualTaxMarried: taxMarried,
       annualTaxSingle: taxSingle,
       childrenCount: _numberOfChildren,
-      hasAlimony: _numberOfChildren > 0,
+      // Contribution d'entretien : possible même sans enfants (CC art. 125)
+      hasAlimony: _marriageDuration >= 10 || _numberOfChildren > 0,
     );
   }
 

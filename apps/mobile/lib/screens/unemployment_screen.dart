@@ -1111,42 +1111,50 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildMintCrashTestSection() {
     final survivalIncome = _gainAssure * 0.70; // taux LACI standard
+
+    // Derive budget lines proportionally from gainAssure
+    final loyer = (_gainAssure * 0.30).roundToDouble(); // ~30% du revenu
+    final lamal = (_gainAssure * 0.075).roundToDouble(); // ~7.5%
+    final transport = (_gainAssure * 0.033).roundToDouble(); // ~3.3%
+    final loisirs = (_gainAssure * 0.067).roundToDouble(); // ~6.7%
+    final epargne3a = (pilier3aPlafondAvecLpp / 12).roundToDouble(); // plafond mensuel
+
     return CrashTestBudgetWidget(
       monthlyIncome: _gainAssure,
       survivalIncome: survivalIncome,
-      lines: const [
+      lines: [
         BudgetLine(
           label: 'Loyer',
           emoji: '🏠',
-          normalAmount: 1800,
-          survivalAmount: 1800,
+          normalAmount: loyer,
+          survivalAmount: loyer, // incompressible
           status: BudgetLineStatus.locked,
         ),
         BudgetLine(
           label: 'LAMal',
           emoji: '🏥',
-          normalAmount: 450,
-          survivalAmount: 450,
+          normalAmount: lamal,
+          survivalAmount: lamal, // incompressible
           status: BudgetLineStatus.locked,
         ),
         BudgetLine(
           label: 'Transport',
           emoji: '🚌',
-          normalAmount: 200,
-          survivalAmount: 100,
+          normalAmount: transport,
+          survivalAmount: (transport * 0.50).roundToDouble(),
           status: BudgetLineStatus.cut,
         ),
         BudgetLine(
           label: 'Loisirs',
           emoji: '🎭',
-          normalAmount: 400,
-          survivalAmount: 50,
+          normalAmount: loisirs,
+          survivalAmount: (loisirs * 0.125).roundToDouble(),
           status: BudgetLineStatus.cut,
         ),
         BudgetLine(
           label: 'Épargne 3a',
           emoji: '🏦',
-          normalAmount: 605,
+          normalAmount: epargne3a,
           survivalAmount: 0,
           status: BudgetLineStatus.paused,
         ),

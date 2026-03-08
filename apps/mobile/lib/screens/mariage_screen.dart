@@ -6,6 +6,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MARIAGE SCREEN — Sprint S22 / Famille & Concubinage
@@ -1065,12 +1067,22 @@ class _MariageScreenState extends State<MariageScreen>
         _buildProtectionChecklist(),
         const SizedBox(height: 20),
 
-        _buildDisclaimer(),
+        _buildClause3aSection(),
         const SizedBox(height: 24),
-        const Clause3aWidget(
-          balance3a: 30000,
-        ),
+        _buildDisclaimer(),
       ],
+    );
+  }
+
+  Widget _buildClause3aSection() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    final balance = profile?.prevoyance.totalEpargne3a ?? 0;
+    // Estimation si pas de donnée : revenu moyen du couple × 5% × 10 ans
+    final estimated = balance > 0
+        ? balance
+        : (_revenu1 + _revenu2) * 0.05 * 10;
+    return Clause3aWidget(
+      balance3a: estimated,
     );
   }
 

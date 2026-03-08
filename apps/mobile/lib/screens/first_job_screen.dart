@@ -59,8 +59,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     if (_seededFromProfile) return;
     final profile = context.read<CoachProfileProvider>().profile;
     if (profile == null) return;
-    _seededFromProfile = true;
     final age = DateTime.now().year - profile.birthYear;
+    // Don't seed a 45+ year-old's salary into a "premier emploi" screen
+    if (age > 30) return;
+    _seededFromProfile = true;
     setState(() {
       _salaire = profile.salaireBrutMensuel.clamp(2000, 15000);
       _age = age.clamp(18, 30);
@@ -998,8 +1000,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     );
   }
 
+  /// Future Value of annuity: annual × ((1+r)^n - 1) / r
+  static double _fvAnnuity(double annual, int years, {double r = 0.04}) {
+    if (years <= 0) return 0;
+    return annual * ((pow(1 + r, years) - 1) / r);
+  }
+
   Widget _buildBudget503020() {
     final net = _result?.netEstime ?? _salaire * 0.85;
+    final annualSavings = net * 0.20 * 12;
+    final years = (65 - _age).clamp(0, 45);
+    final fv = _fvAnnuity(annualSavings, years);
     return Budget503020Widget(
       netSalary: net,
       categories: [
@@ -1025,25 +1036,22 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           examples: const ['Pilier 3a', 'Épargne', 'Fonds d\'urgence'],
         ),
       ],
-      chiffreChoc: 'Si tu épargnes ${((net * 0.20) * 12).round() ~/ 1000}\'000 CHF/an '
-          'dès maintenant, tu auras ~${(((net * 0.20) * 12 * 40 * 1.04).round() ~/ 1000)}\'000 CHF à 65 ans.',
+      chiffreChoc: 'Si tu épargnes ${(annualSavings.round() ~/ 1000)}\'000 CHF/an '
+          'dès maintenant, tu auras ~${(fv.round() ~/ 1000)}\'000 CHF à 65 ans.',
     );
   }
 
   Widget _buildCareerTimeLapse() {
-    final monthly3a = pilier3aPlafondAvecLpp / 12;
-    // FV annuity: annual contribution × ((1+r)^n - 1) / r — proper compound interest.
-    double approxCapital(int startAge) {
-      final years = (65 - startAge).clamp(0, 45);
-      if (years == 0) return 0;
-      const r = 0.04;
-      return monthly3a * 12 * ((pow(1 + r, years) - 1) / r);
-    }
+    const monthly3a = pilier3aPlafondAvecLpp / 12;
+    final annual3a = monthly3a * 12;
 
     final candidateAges = [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
     final scenarioAges = candidateAges.isEmpty ? [_age] : candidateAges;
     final scenarios = scenarioAges
-        .map((a) => TimeLapseScenario(startAge: a, capitalAt65: approxCapital(a)))
+        .map((a) => TimeLapseScenario(
+              startAge: a,
+              capitalAt65: _fvAnnuity(annual3a, (65 - a).clamp(0, 45)),
+            ))
         .toList();
 
     return CareerTimeLapseWidget(

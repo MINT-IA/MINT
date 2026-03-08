@@ -199,54 +199,60 @@ class _ExpatScreenState extends State<ExpatScreen>
           'Environ 5\'000 personnes en beneficient en Suisse.',
         ),
         const SizedBox(height: 20),
-        _buildDisclaimer(),
+        _buildTopCantonSection(),
         const SizedBox(height: 24),
-        TopCantonWidget(
-          currentCanton: _departCanton,
-          rankings: const [
-            CantonRanking(
-              rank: 1,
-              canton: 'Schwyz',
-              shortCode: 'SZ',
-              annualTaxSaving: 8500,
-              monthlyLamal: 310,
-              monthlyRent: 1800,
-              highlight: 'Fiscalité la plus avantageuse de Suisse',
-            ),
-            CantonRanking(
-              rank: 2,
-              canton: 'Zoug',
-              shortCode: 'ZG',
-              annualTaxSaving: 7200,
-              monthlyLamal: 295,
-              monthlyRent: 2200,
-              highlight: 'Hub international, accès Zurich',
-            ),
-            CantonRanking(
-              rank: 3,
-              canton: 'Nidwald',
-              shortCode: 'NW',
-              annualTaxSaving: 5800,
-              monthlyLamal: 288,
-              monthlyRent: 1600,
-            ),
-            CantonRanking(
-              rank: 4,
-              canton: 'Uri',
-              shortCode: 'UR',
-              annualTaxSaving: 5100,
-              monthlyLamal: 280,
-              monthlyRent: 1400,
-            ),
-            CantonRanking(
-              rank: 5,
-              canton: 'Appenzell Rh.-Int.',
-              shortCode: 'AI',
-              annualTaxSaving: 4600,
-              monthlyLamal: 285,
-              monthlyRent: 1500,
-            ),
-          ],
+        _buildDisclaimer(),
+      ],
+    );
+  }
+
+  Widget _buildTopCantonSection() {
+    // Scale tax savings relative to user income (base = 100k reference)
+    final scale = (_actualIncome / 100000).clamp(0.3, 10.0);
+    return TopCantonWidget(
+      currentCanton: _departCanton,
+      rankings: [
+        CantonRanking(
+          rank: 1,
+          canton: 'Schwyz',
+          shortCode: 'SZ',
+          annualTaxSaving: (8500 * scale).roundToDouble(),
+          monthlyLamal: 310,
+          monthlyRent: 1800,
+          highlight: 'Fiscalité la plus avantageuse de Suisse',
+        ),
+        CantonRanking(
+          rank: 2,
+          canton: 'Zoug',
+          shortCode: 'ZG',
+          annualTaxSaving: (7200 * scale).roundToDouble(),
+          monthlyLamal: 295,
+          monthlyRent: 2200,
+          highlight: 'Hub international, accès Zurich',
+        ),
+        CantonRanking(
+          rank: 3,
+          canton: 'Nidwald',
+          shortCode: 'NW',
+          annualTaxSaving: (5800 * scale).roundToDouble(),
+          monthlyLamal: 288,
+          monthlyRent: 1600,
+        ),
+        CantonRanking(
+          rank: 4,
+          canton: 'Uri',
+          shortCode: 'UR',
+          annualTaxSaving: (5100 * scale).roundToDouble(),
+          monthlyLamal: 280,
+          monthlyRent: 1400,
+        ),
+        CantonRanking(
+          rank: 5,
+          canton: 'Appenzell Rh.-Int.',
+          shortCode: 'AI',
+          annualTaxSaving: (4600 * scale).roundToDouble(),
+          monthlyLamal: 285,
+          monthlyRent: 1500,
         ),
       ],
     );
