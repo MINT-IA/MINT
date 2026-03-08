@@ -178,7 +178,7 @@ class DashboardCuratorService {
             ? '/arbitrage/rachat-vs-marche'
             : null;
       case 'tax_deadline':
-        return '/tools';
+        return '/fiscal';
       case 'retirement_countdown':
         return '/coach/dashboard';
       case 'emergency_fund':

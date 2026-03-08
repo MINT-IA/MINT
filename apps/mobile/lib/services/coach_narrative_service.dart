@@ -422,8 +422,14 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    // Build CoachContext for personalized FallbackTemplates
-    final ctx = _buildCoachContext(profile);
+    // Build CoachContext for personalized FallbackTemplates.
+    // Clear fiscalSeason if coaching tips already cover tax_deadline —
+    // avoids triple repetition (greeting + urgentAlert + curated card).
+    final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');
+    final rawCtx = _buildCoachContext(profile);
+    final ctx = hasTaxTip && rawCtx.fiscalSeason == 'tax_declaration'
+        ? rawCtx.copyWith(fiscalSeason: '')
+        : rawCtx;
 
     // Greeting — context-aware (fiscal season, FRI delta, days since visit)
     final greeting = FallbackTemplates.greeting(ctx);
@@ -480,8 +486,10 @@ class CoachNarrativeService {
     }
 
     // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID).
-    // Keep this alert in narrative to maintain explicit urgency in briefing.
-    if (urgentAlert == null && now.month >= 2 && now.month <= 3) {
+    // Suppressed if coaching tips already contain a 'tax_deadline' card
+    // (avoids triple repetition: greeting + urgentAlert + curated card).
+    final hasTaxDeadlineTip = tips.any((t) => t.id == 'tax_deadline');
+    if (urgentAlert == null && now.month >= 2 && now.month <= 3 && !hasTaxDeadlineTip) {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
       if (joursRestants >= 0) {
