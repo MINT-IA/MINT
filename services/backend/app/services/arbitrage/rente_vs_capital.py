@@ -86,7 +86,9 @@ def _estimate_income_tax_on_rente(rente_annuelle: float, canton: str, is_married
         FEDERAL_BRACKETS,
     )
 
-    # Revenu imposable: ~85% of rente (standard deductions)
+    # Revenu imposable: ~85% of rente after standard deductions
+    # (assurance maladie, frais médicaux, déduction forfaitaire — LIFD art. 33)
+    # This is a simplification; actual deductions depend on personal situation.
     revenu_imposable = rente_annuelle * 0.85
 
     # Federal tax via progressive brackets (LIFD art. 36)
@@ -136,21 +138,26 @@ def _build_full_rente_option(
     is_married: bool,
     horizon: int,
     age_retraite: int,
+    inflation: float = 0.0,
 ) -> TrajectoireOption:
     """Build Option A: Full Rente trajectory.
 
     Year-by-year: cumulative net rente income received.
+    LPP rente is NOT indexed — purchasing power erodes with inflation.
+    All values expressed in real terms (today's francs).
     No inheritance at death.
     """
     trajectory: List[YearlySnapshot] = []
     cumulative_net = 0.0
     cumulative_tax = 0.0
 
-    annual_tax = _estimate_income_tax_on_rente(rente_annuelle, canton, is_married)
-    net_annual = rente_annuelle - annual_tax
-
     for i in range(horizon):
         year = age_retraite + i
+        # LPP rente is nominal (not indexed) — deflate to real terms
+        deflator = (1 + inflation) ** (i + 1) if inflation > 0 else 1.0
+        real_rente = rente_annuelle / deflator
+        annual_tax = _estimate_income_tax_on_rente(real_rente, canton, is_married)
+        net_annual = real_rente - annual_tax
         cumulative_net += net_annual
         cumulative_tax += annual_tax
         trajectory.append(YearlySnapshot(
@@ -177,46 +184,59 @@ def _build_full_capital_option(
     rendement_capital: float,
     horizon: int,
     age_retraite: int,
+    inflation: float = 0.0,
 ) -> TrajectoireOption:
     """Build Option B: Full Capital trajectory.
 
-    Capital after withdrawal tax. Year-by-year: SWR withdrawals,
-    capital grows at rendement. Remaining capital is inheritable.
+    Capital taxed once at withdrawal (LIFD art. 38, progressive brackets).
+    Then invested and drawn down using Trinity Study SWR:
+      - Year 1: withdraw initialCapital × SWR
+      - Each following year: adjust that amount for inflation
+    SWR withdrawals are NOT taxable income (consumption of patrimony).
+    All values expressed in real terms (today's francs).
+    netPatrimony = remaining invested capital in real terms.
     """
     trajectory: List[YearlySnapshot] = []
 
-    # Withdrawal tax at retirement
+    # One-time withdrawal tax at retirement
     withdrawal_tax = _get_capital_tax(capital_total, canton, is_married)
-    remaining_capital = capital_total - withdrawal_tax
-    cumulative_withdrawals = 0.0
-    cumulative_tax = withdrawal_tax
+    capital_net = capital_total - withdrawal_tax
+    capital_net_at_start = capital_net
+    initial_withdrawal = 0.0
 
     for i in range(horizon):
         year = age_retraite + i
-        # SWR withdrawal from remaining capital
-        swr_withdrawal = remaining_capital * taux_retrait
-        remaining_capital -= swr_withdrawal
-        # Growth on remaining capital
-        growth = remaining_capital * rendement_capital
-        remaining_capital += growth
-        remaining_capital = max(0.0, remaining_capital)
-        cumulative_withdrawals += swr_withdrawal
+        # Capital grows at NOMINAL return
+        capital_net *= (1 + rendement_capital)
 
-        # Net patrimony = remaining capital + cumulative withdrawals
-        net_patrimony = remaining_capital + cumulative_withdrawals
+        # Trinity Study SWR: fixed initial withdrawal, inflation-adjusted
+        if i == 0:
+            initial_withdrawal = capital_net_at_start * taux_retrait
+        nominal_withdrawal = initial_withdrawal * ((1 + inflation) ** i)
+        # Cap withdrawal to remaining capital
+        actual_withdrawal = min(nominal_withdrawal, max(0.0, capital_net))
+        capital_net -= actual_withdrawal
+
+        # Express in real terms (deflate to today's purchasing power)
+        deflator = (1 + inflation) ** (i + 1) if inflation > 0 else 1.0
+        real_patrimony = capital_net / deflator
+        real_cashflow = actual_withdrawal / deflator
+
         trajectory.append(YearlySnapshot(
             year=year,
-            net_patrimony=round(net_patrimony, 2),
-            annual_cashflow=round(swr_withdrawal, 2),
-            cumulative_tax_delta=round(cumulative_tax, 2),
+            net_patrimony=round(real_patrimony, 2),
+            annual_cashflow=round(real_cashflow, 2),
+            cumulative_tax_delta=round(withdrawal_tax, 2),
         ))
 
+    # Terminal value = remaining capital in real terms
+    final_real = trajectory[-1].net_patrimony if trajectory else 0.0
     return TrajectoireOption(
         id="full_capital",
         label="Retrait en capital integral",
         trajectory=trajectory,
-        terminal_value=round(remaining_capital + cumulative_withdrawals, 2),
-        cumulative_tax_impact=round(cumulative_tax, 2),
+        terminal_value=round(final_real, 2),
+        cumulative_tax_impact=round(withdrawal_tax, 2),
     )
 
 
@@ -231,58 +251,68 @@ def _build_mixed_option(
     rendement_capital: float,
     horizon: int,
     age_retraite: int,
+    inflation: float = 0.0,
 ) -> TrajectoireOption:
     """Build Option C: Mixed trajectory (key differentiator).
 
-    Obligatoire -> rente at 6.8% conversion rate.
-    Surobligatoire -> capital (taxed at withdrawal, then SWR).
-    Combined: rente income + SWR income from surobligatoire capital.
+    Obligatoire -> rente at conversion rate (not indexed, erodes with inflation).
+    Surobligatoire -> capital (taxed at withdrawal, then Trinity Study SWR).
+    All values in real terms (today's francs).
     """
     trajectory: List[YearlySnapshot] = []
 
-    # Rente from obligatoire portion
+    # Rente from obligatoire portion (nominal, not indexed)
     rente_obligatoire_annuelle = capital_obligatoire * taux_conversion_obligatoire
-    rente_tax = _estimate_income_tax_on_rente(rente_obligatoire_annuelle, canton, is_married)
-    net_rente_annual = rente_obligatoire_annuelle - rente_tax
 
     # Capital from surobligatoire portion
     surob_withdrawal_tax = _get_capital_tax(capital_surobligatoire, canton, is_married)
-    remaining_surob = capital_surobligatoire - surob_withdrawal_tax
+    surob_net = capital_surobligatoire - surob_withdrawal_tax
+    surob_net_at_start = surob_net
+    initial_swr = 0.0
 
-    cumulative_net = 0.0
+    cumulative_real_net = 0.0
     cumulative_tax = surob_withdrawal_tax
-    cumulative_swr = 0.0
 
     for i in range(horizon):
         year = age_retraite + i
-        # Rente income from obligatoire
+        deflator = (1 + inflation) ** (i + 1) if inflation > 0 else 1.0
+
+        # Rente: nominal, deflated to real terms
+        real_rente = rente_obligatoire_annuelle / deflator
+        rente_tax = _estimate_income_tax_on_rente(real_rente, canton, is_married)
+        net_rente = real_rente - rente_tax
         cumulative_tax += rente_tax
 
-        # SWR from surobligatoire capital
-        swr_withdrawal = remaining_surob * taux_retrait
-        remaining_surob -= swr_withdrawal
-        growth = remaining_surob * rendement_capital
-        remaining_surob += growth
-        remaining_surob = max(0.0, remaining_surob)
-        cumulative_swr += swr_withdrawal
+        # SWR from surobligatoire: Trinity Study (fixed initial, inflation-adjusted)
+        surob_net *= (1 + rendement_capital)
+        if i == 0:
+            initial_swr = surob_net_at_start * taux_retrait
+        nominal_swr = initial_swr * ((1 + inflation) ** i)
+        actual_swr = min(nominal_swr, max(0.0, surob_net))
+        surob_net -= actual_swr
+        real_swr = actual_swr / deflator
 
-        total_annual_cashflow = net_rente_annual + swr_withdrawal
-        cumulative_net += total_annual_cashflow
+        # Real remaining surob capital
+        real_surob = surob_net / deflator
 
-        # Net patrimony = remaining surob capital + cumulative net income
-        net_patrimony = remaining_surob + cumulative_net
+        total_real_cashflow = net_rente + real_swr
+        cumulative_real_net += total_real_cashflow
+
+        # Net patrimony = remaining surob capital (real) + cumulative real income
+        net_patrimony = real_surob + cumulative_real_net
         trajectory.append(YearlySnapshot(
             year=year,
             net_patrimony=round(net_patrimony, 2),
-            annual_cashflow=round(total_annual_cashflow, 2),
+            annual_cashflow=round(total_real_cashflow, 2),
             cumulative_tax_delta=round(cumulative_tax, 2),
         ))
 
+    final_value = trajectory[-1].net_patrimony if trajectory else 0.0
     return TrajectoireOption(
         id="mixed",
         label="Mixte (rente obligatoire + capital surobligatoire)",
         trajectory=trajectory,
-        terminal_value=round(remaining_surob + cumulative_net, 2),
+        terminal_value=round(final_value, 2),
         cumulative_tax_impact=round(cumulative_tax, 2),
     )
 
@@ -350,7 +380,7 @@ def _build_hypotheses(
     return [
         f"Taux de retrait (SWR) sur le capital: {taux_retrait * 100:.1f}%/an",
         f"Rendement net du capital apres retraite: {rendement_capital * 100:.1f}%/an",
-        f"Inflation estimee: {inflation * 100:.1f}%/an (non appliquee dans cette version simplifiee)",
+        f"Inflation estimee: {inflation * 100:.1f}%/an (toutes les valeurs en francs d'aujourd'hui)",
         f"Taux de conversion obligatoire LPP: {taux_conversion_obligatoire * 100:.1f}%",
         f"Taux de conversion surobligatoire: {taux_conversion_surobligatoire * 100:.1f}%",
         f"Horizon de simulation: {horizon} ans apres la retraite",
@@ -413,13 +443,14 @@ def compare_rente_vs_capital(
     if canton not in TAUX_IMPOT_RETRAIT_CAPITAL:
         canton = "VD"  # Fallback to VD
 
-    # Build 3 options
+    # Build 3 options (all in real terms / today's francs)
     option_a = _build_full_rente_option(
         rente_annuelle=rente_annuelle_proposee,
         canton=canton,
         is_married=is_married,
         horizon=horizon,
         age_retraite=age_retraite,
+        inflation=inflation,
     )
 
     option_b = _build_full_capital_option(
@@ -430,6 +461,7 @@ def compare_rente_vs_capital(
         rendement_capital=rendement_capital,
         horizon=horizon,
         age_retraite=age_retraite,
+        inflation=inflation,
     )
 
     option_c = _build_mixed_option(
@@ -443,6 +475,7 @@ def compare_rente_vs_capital(
         rendement_capital=rendement_capital,
         horizon=horizon,
         age_retraite=age_retraite,
+        inflation=inflation,
     )
 
     options = [option_a, option_b, option_c]
@@ -490,6 +523,7 @@ def compare_rente_vs_capital(
             rendement_capital=variant_rendement_capital,
             horizon=horizon,
             age_retraite=age_retraite,
+            inflation=inflation,
         )
         variant_c = _build_mixed_option(
             capital_obligatoire=capital_obligatoire,
@@ -502,6 +536,7 @@ def compare_rente_vs_capital(
             rendement_capital=variant_rendement_capital,
             horizon=horizon,
             age_retraite=age_retraite,
+            inflation=inflation,
         )
         return compute_terminal_spread([option_a, variant_b, variant_c])
 
