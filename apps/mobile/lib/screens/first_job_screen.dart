@@ -1,5 +1,6 @@
 import 'dart:math' show pow;
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,8 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
+import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
+import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -111,6 +114,45 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     deductions: _result!.deductionItems,
                   ),
                   const SizedBox(height: 24),
+                  // ── P5-C : Radiographie fiche de paie ──────────
+                  PayslipXRayWidget(
+                    grossSalary: _salaire,
+                    netSalary: _salaire * 0.76,
+                    employerHiddenCost: _salaire * 1.13,
+                    deductions: [
+                      PayslipLine(
+                        label: 'AVS/AI/APG',
+                        emoji: '🛡️',
+                        amount: _salaire * 0.053,
+                        percentage: 5.3,
+                        explanation:
+                            'Cotisation salarié·e : 5.3% du brut. '
+                            'Ton employeur paie aussi 5.3% en plus.',
+                        legalRef: 'LAVS art. 5',
+                      ),
+                      PayslipLine(
+                        label: 'LPP (2e pilier)',
+                        emoji: '🏦',
+                        amount: _salaire * 0.08,
+                        percentage: 8.0,
+                        explanation:
+                            'Épargne vieillesse obligatoire dès 25 ans. '
+                            'Le taux exact dépend de ta caisse et ton âge.',
+                        legalRef: 'LPP art. 16',
+                      ),
+                      PayslipLine(
+                        label: 'Impôt à la source (estimation)',
+                        emoji: '🏛️',
+                        amount: _salaire * 0.09,
+                        percentage: 9.0,
+                        explanation:
+                            'Retenu directement sur le salaire si tu es imposé·e '
+                            'à la source. Le taux varie selon canton, statut et revenu.',
+                        legalRef: 'LIFD art. 83',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
                   _build3aRecommendation(),
                   const SizedBox(height: 24),
                   _build3aWarning(),
@@ -118,6 +160,49 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildLamalComparison(),
                   const SizedBox(height: 24),
                   _buildChecklist(),
+                  const SizedBox(height: 24),
+                  // ── P11-C : Checklist changement de job ────────
+                  JobChangeChecklistWidget(
+                    items: const [
+                      ChecklistItem(
+                        deadline: 'Avant de quitter',
+                        emoji: '📄',
+                        action:
+                            'Demande ton certificat LPP à ton employeur actuel.',
+                        legalRef: 'LPP art. 3 — libre passage',
+                        consequence:
+                            'Sans certificat, tu ne peux pas vérifier que le '
+                            'montant transféré est correct.',
+                      ),
+                      ChecklistItem(
+                        deadline: '30 jours',
+                        emoji: '🏦',
+                        action:
+                            'Vérifie que ton avoir LPP a été transféré à la '
+                            'caisse de ton nouvel employeur.',
+                        legalRef: 'OLP art. 3 — délai de transfert',
+                        consequence:
+                            'Sans transfert, ton capital va à la Fondation '
+                            'supplétive à un taux de 0.05%.',
+                      ),
+                      ChecklistItem(
+                        deadline: '1 mois',
+                        emoji: '🛡️',
+                        action:
+                            'Informe ton assurance-maladie LAMal du changement '
+                            'd\'employeur si tu bénéficiais d\'une couverture collective.',
+                        legalRef: 'LAMal art. 3',
+                      ),
+                      ChecklistItem(
+                        deadline: 'Dès le premier salaire',
+                        emoji: '🏦',
+                        action:
+                            'Continue tes versements au pilier 3a — '
+                            'l\'interruption te coûte des déductions fiscales.',
+                        legalRef: 'OPP3 art. 1',
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),
@@ -148,7 +233,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
         title: Text(
-          'Premier emploi',
+          S.of(context)!.firstJobTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -188,9 +273,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Comprends ta fiche de salaire ! On te montre où vont tes '
-              'cotisations, ce que ton employeur paie en plus, et les '
-              'premiers réflexes financiers à adopter.',
+              S.of(context)!.firstJobHeaderDesc,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -207,7 +290,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildSalaireSlider() {
     return _buildSliderCard(
-      title: 'Salaire brut mensuel',
+      title: S.of(context)!.firstJobSalaryTitle,
       valueLabel: FirstJobService.formatChf(_salaire),
       minLabel: "CHF 2'000",
       maxLabel: "CHF 15'000",
@@ -224,10 +307,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton âge',
-      valueLabel: '$_age ans',
-      minLabel: '18 ans',
-      maxLabel: '30 ans',
+      title: S.of(context)!.unemploymentAgeSliderTitle,
+      valueLabel: S.of(context)!.unemploymentAgeValue(_age),
+      minLabel: S.of(context)!.unemploymentAgeMin,
+      maxLabel: S.of(context)!.unemploymentAgeValue(30),
       value: _age.toDouble(),
       min: 18,
       max: 30,
@@ -378,7 +461,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Taux d\'activité',
+                S.of(context)!.firstJobActivityRate,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -486,7 +569,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PILIER 3A — À OUVRIR MAINTENANT',
+                S.of(context)!.firstJob3aHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -501,14 +584,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             children: [
               Expanded(
                 child: _buildMiniMetric(
-                  'Plafond annuel',
+                  S.of(context)!.firstJob3aAnnualCap,
                   FirstJobService.formatChf(r.plafondAnnuel3a),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildMiniMetric(
-                  'Suggestion /mois',
+                  S.of(context)!.firstJob3aMonthlySuggestion,
                   FirstJobService.formatChf(r.montantMensuelSuggere3a),
                 ),
               ),
@@ -596,7 +679,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ATTENTION — ASSURANCE-VIE 3A',
+                  S.of(context)!.firstJob3aWarningTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -641,7 +724,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'COMPARAISON FRANCHISES LAMAL',
+                S.of(context)!.firstJobLamalHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -792,7 +875,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PREMIERS RÉFLEXES',
+                S.of(context)!.firstJobChecklistHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -887,7 +970,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON À SAVOIR',
+              S.of(context)!.unemploymentGoodToKnow,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -900,31 +983,23 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'LPP dès 25 ans',
-          'La cotisation LPP (2e pilier) commence à 25 ans pour '
-          'l\'épargne vieillesse. Avant 25 ans, seuls les risques '
-          'décès et invalidité sont couverts.',
+          S.of(context)!.firstJobEduLppTitle,
+          S.of(context)!.firstJobEduLppBody,
         ),
         _buildEduCard(
           Icons.receipt_long_outlined,
-          '13e salaire',
-          'Si ton contrat prévoit un 13e salaire, celui-ci est aussi '
-          'soumis aux déductions sociales. Ton salaire mensuel brut '
-          'est alors le salaire annuel divisé par 13.',
+          S.of(context)!.firstJobEdu13Title,
+          S.of(context)!.firstJobEdu13Body,
         ),
         _buildEduCard(
           Icons.savings_outlined,
-          'Règle du 50/30/20',
-          'Un bon réflexe pour ton premier salaire : 50% pour les '
-          'dépenses fixes, 30% pour les loisirs, 20% pour l\'épargne '
-          'et la prévoyance (3a inclus).',
+          S.of(context)!.firstJobEduBudgetTitle,
+          S.of(context)!.firstJobEduBudgetBody,
         ),
         _buildEduCard(
           Icons.description_outlined,
-          'Déclaration fiscale',
-          'Dès ton premier emploi, tu devras remplir une déclaration '
-          'fiscale. Garde toutes tes attestations (salaire, 3a, '
-          'frais professionnels).',
+          S.of(context)!.firstJobEduTaxTitle,
+          S.of(context)!.firstJobEduTaxBody,
         ),
       ],
     );
@@ -1066,7 +1141,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       children: [
         Expanded(
           child: Text(
-            'Analyse MINT — Le film de ton salaire',
+            S.of(context)!.firstJobAnalysisHeader,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -1088,7 +1163,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             ),
           ),
           child: Text(
-            _seededFromProfile ? '📍 Ton profil' : '💡 Illustratif',
+            _seededFromProfile ? '📍 ${S.of(context)!.firstJobProfileBadge}' : '💡 ${S.of(context)!.firstJobIllustrativeBadge}',
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -1184,11 +1259,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations éducatives — ne constitue pas un conseil — '
-              'LACI/LPP/OPP3. Les montants sont approximatifs et ne '
-              'tiennent pas compte de toutes les spécificités cantonales. '
-              'Consulte priminfo.admin.ch pour les primes LAMal exactes. '
-              'Consulte un\u00B7e spécialiste en prévoyance.',
+              S.of(context)!.firstJobDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

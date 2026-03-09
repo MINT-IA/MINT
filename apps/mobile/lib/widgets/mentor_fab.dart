@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/theme/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/theme/colors.dart';
 
-/// FAB Mentor - Compagnon toujours accessible
+/// Coach MINT FAB — always-accessible entry point to the coach.
 ///
-/// Floating Action Button qui ouvre le modal Mentor
+/// Tapping opens a compact bottom sheet with 3 contextual quick actions
+/// instead of the old 5-button "Mentor Advisor" menu.
 class MentorFAB extends StatelessWidget {
   const MentorFAB({super.key, this.currentTabIndex = 0});
 
@@ -13,90 +15,77 @@ class MentorFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => _showMentorModal(context),
+      onPressed: () => _showCoachSheet(context),
       backgroundColor: MintColors.primary,
-      child: const Icon(Icons.auto_awesome, color: Colors.white),
+      elevation: 4,
+      child: const Icon(Icons.auto_awesome, color: Colors.white, size: 22),
     );
   }
 
-  void _showMentorModal(BuildContext context) {
+  void _showCoachSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
+      isScrollControlled: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => MentorModal(currentTabIndex: currentTabIndex),
+      builder: (context) => _CoachQuickSheet(currentTabIndex: currentTabIndex),
     );
   }
 }
 
-/// Modal Mentor avec actions rapides, contextualisees par tab
-class MentorModal extends StatelessWidget {
-  const MentorModal({super.key, this.currentTabIndex = 0});
+/// Compact coach sheet — 3 contextual actions, clean design.
+class _CoachQuickSheet extends StatelessWidget {
+  const _CoachQuickSheet({this.currentTabIndex = 0});
 
   final int currentTabIndex;
 
-  List<_MentorAction> _actionsForTab() {
-    const session = _MentorAction(
-      icon: Icons.play_circle_outline,
-      title: 'Lancer une session complète',
-      subtitle: 'Diagnostic personnalisé en 5 min',
+  List<_CoachAction> _actionsForTab() {
+    const chat = _CoachAction(
+      icon: Icons.chat_bubble_outline,
+      title: 'Parler au Coach',
+      subtitle: 'Pose ta question finance suisse',
+      color: MintColors.coachAccent,
+      route: '/coach/chat',
+    );
+    const scan = _CoachAction(
+      icon: Icons.document_scanner_outlined,
+      title: 'Scanner un document',
+      subtitle: 'LPP, AVS, fiscal — enrichis ton profil',
       color: MintColors.primary,
-      route: '/onboarding/smart',
+      route: '/document-scan',
     );
-    const rapport = _MentorAction(
-      icon: Icons.assessment_outlined,
-      title: 'Voir mon rapport actuel',
-      subtitle: 'État de ta situation financière',
-      color: MintColors.success,
-      route: '/report',
-    );
-    const simuler = _MentorAction(
+    const simuler = _CoachAction(
       icon: Icons.calculate_outlined,
-      title: 'Simuler un scénario',
-      subtitle: '3a, LPP, leasing, crédit...',
+      title: 'Simuler un scenario',
+      subtitle: '3a, rachat LPP, hypotheque...',
       color: Colors.orange,
       route: '/tools',
     );
-    const apprendre = _MentorAction(
-      icon: Icons.school_outlined,
-      title: 'Apprendre un concept',
-      subtitle: 'Pilier 3a, LPP, fiscalité...',
-      color: Colors.purple,
-      route: '/education/hub',
+    const rapport = _CoachAction(
+      icon: Icons.assessment_outlined,
+      title: 'Mon bilan financier',
+      subtitle: 'Rapport complet de ta situation',
+      color: MintColors.success,
+      route: '/report',
     );
-    const askMint = _MentorAction(
-      icon: Icons.chat_bubble_outline,
-      title: 'Parler au Coach',
-      subtitle: 'Pose tes questions finance suisse',
-      color: MintColors.accent,
-      route: '/coach/chat',
-    );
-    const enrichir = _MentorAction(
-      icon: Icons.person_add_outlined,
-      title: 'Enrichir mon profil',
-      subtitle: 'Plus de precision = projections plus fiables',
+    const enrichir = _CoachAction(
+      icon: Icons.tune_outlined,
+      title: 'Affiner mon profil',
+      subtitle: 'Plus de donnees = projections fiables',
       color: MintColors.primary,
       route: '/profile/bilan',
     );
-    const documents = _MentorAction(
-      icon: Icons.folder_outlined,
-      title: 'Mes documents',
-      subtitle: 'Coffre-fort numérique',
-      color: MintColors.success,
-      route: '/documents',
-    );
 
     switch (currentTabIndex) {
-      case 0: // Dashboard
-        return [session, rapport, simuler, apprendre, askMint];
-      case 1: // Agir
-        return [session, simuler, rapport, apprendre, askMint];
-      case 2: // Apprendre
-        return [simuler, apprendre, askMint, session, rapport];
-      case 3: // Profil
-        return [enrichir, documents, askMint, session, simuler];
+      case 0: // Dashboard — chat first, then scan to enrich, then simulate
+        return [chat, scan, simuler];
+      case 1: // Agir — simulate first (action-oriented), then chat, then report
+        return [simuler, chat, rapport];
+      case 2: // Apprendre — chat first (ask questions), then simulate, then scan
+        return [chat, simuler, scan];
+      case 3: // Profil — enrich first, then scan, then chat
+        return [enrichir, scan, chat];
       default:
-        return [session, rapport, simuler, apprendre, askMint];
+        return [chat, scan, simuler];
     }
   }
 
@@ -104,160 +93,134 @@ class MentorModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final actions = _actionsForTab();
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        children: [
-          // Handle
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: MintColors.border,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
 
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: MintColors.accentPastel,
-                    shape: BoxShape.circle,
+              // Header — compact
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: MintColors.coachAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: MintColors.coachAccent,
+                      size: 20,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.auto_awesome,
-                    color: MintColors.primary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Mentor Advisor',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Coach MINT',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Que puis-je faire pour toi ?',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: MintColors.textSecondary,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-          ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, size: 20, color: MintColors.textMuted),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-          // Actions (ordered by tab context)
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: actions.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final a = actions[index];
-                return _buildActionTile(
-                  context,
-                  icon: a.icon,
-                  title: a.title,
-                  subtitle: a.subtitle,
-                  color: a.color,
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push(a.route);
-                  },
-                );
-              },
-            ),
+              // Actions — 3 compact tiles
+              ...actions.map((a) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _buildActionTile(context, action: a),
+              )),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+  Widget _buildActionTile(BuildContext context, {required _CoachAction action}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+          context.push(action.route);
+        },
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: action.color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(action.icon, color: action.color, size: 20),
               ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      action.title,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
+                    const SizedBox(height: 2),
+                    Text(
+                      action.subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: MintColors.textMuted),
-          ],
+              Icon(Icons.arrow_forward_ios, size: 14, color: action.color.withValues(alpha: 0.5)),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _MentorAction {
-  const _MentorAction({
+class _CoachAction {
+  const _CoachAction({
     required this.icon,
     required this.title,
     required this.subtitle,

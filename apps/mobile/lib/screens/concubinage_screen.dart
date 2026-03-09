@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONCUBINAGE SCREEN — Sprint S22 / Famille & Concubinage
@@ -156,8 +157,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: 20),
 
         if (_comparisonResult != null) ...[
-          // Decision matrix
-          _buildDecisionMatrix(),
+          // Decision matrix — animated comparison visualization
+          ConcubinageDecisionMatrix(
+            criteria: _matrixCriteria,
+          ),
           const SizedBox(height: 20),
 
           // Score summary
@@ -280,6 +283,51 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ],
       ),
     );
+  }
+
+  List<ComparisonCriteria> get _matrixCriteria {
+    final isPenalite = _comparisonResult != null
+        ? (_comparisonResult!['fiscal'] as Map<String, dynamic>)['isPenalite']
+            as bool
+        : false;
+    return [
+      ComparisonCriteria(
+        label: 'Impots',
+        marriageLabel: isPenalite ? 'Penalite fiscale' : 'Bonus fiscal',
+        concubinageLabel: isPenalite ? 'Avantageux' : 'Desavantageux',
+        advantage:
+            isPenalite ? Advantage.concubinage : Advantage.marriage,
+        icon: Icons.account_balance_outlined,
+      ),
+      ComparisonCriteria(
+        label: 'Heritage',
+        marriageLabel: 'Exonere (CC art. 462)',
+        concubinageLabel: 'Impot cantonal',
+        advantage: Advantage.marriage,
+        icon: Icons.family_restroom,
+      ),
+      ComparisonCriteria(
+        label: 'Protection deces',
+        marriageLabel: 'AVS + LPP survivant',
+        concubinageLabel: 'Aucune rente automatique',
+        advantage: Advantage.marriage,
+        icon: Icons.shield_outlined,
+      ),
+      ComparisonCriteria(
+        label: 'Flexibilite',
+        marriageLabel: 'Procedure judiciaire',
+        concubinageLabel: 'Separation simplifiee',
+        advantage: Advantage.concubinage,
+        icon: Icons.swap_horiz,
+      ),
+      ComparisonCriteria(
+        label: 'Pension alim.',
+        marriageLabel: 'Protegee par le juge',
+        concubinageLabel: 'Accord prealable',
+        advantage: Advantage.marriage,
+        icon: Icons.balance,
+      ),
+    ];
   }
 
   Widget _buildDecisionMatrix() {

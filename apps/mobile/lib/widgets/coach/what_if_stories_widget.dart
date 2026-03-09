@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -31,12 +32,16 @@ class WhatIfStory {
   /// Actionable next step.
   final String? actionLabel;
 
+  /// Target route when tapped.
+  final String? route;
+
   const WhatIfStory({
     required this.emoji,
     required this.question,
     required this.monthlyImpactChf,
     required this.explanation,
     this.actionLabel,
+    this.route,
   });
 }
 
@@ -84,7 +89,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
                 .toList()
                 .asMap()
                 .entries
-                .map((e) => _buildStoryCard(e.key, e.value)),
+                .map((e) => _buildStoryCard(context, e.key, e.value)),
             const SizedBox(height: 8),
             Text(
               'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier (LSFin).',
@@ -100,7 +105,7 @@ class WhatIfStoriesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStoryCard(int index, WhatIfStory story) {
+  Widget _buildStoryCard(BuildContext context, int index, WhatIfStory story) {
     final isPositive = story.monthlyImpactChf >= 0;
     final impactColor =
         isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique;
@@ -108,7 +113,11 @@ class WhatIfStoriesWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: GestureDetector(
-        onTap: onStoryTapped != null ? () => onStoryTapped!(index) : null,
+        onTap: onStoryTapped != null
+            ? () => onStoryTapped!(index)
+            : story.route != null
+                ? () => context.push(story.route!)
+                : null,
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -70,7 +71,6 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
 
   // ── Computed values ──
   late String _coachMessage;
-  late String _levelLabel;
   late Color _scoreColor;
   late String _firstName;
 
@@ -85,17 +85,6 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
   void _computeDisplayValues() {
     final score = widget.score;
     _firstName = widget.profile.firstName ?? 'toi';
-
-    // Level label
-    if (score.global >= 80) {
-      _levelLabel = 'Excellent';
-    } else if (score.global >= 60) {
-      _levelLabel = 'Bon';
-    } else if (score.global >= 40) {
-      _levelLabel = 'Attention';
-    } else {
-      _levelLabel = 'Critique';
-    }
 
     // Score color
     if (score.global >= 80) {
@@ -346,7 +335,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
           children: [
             // Greeting with first name
             Text(
-              'Bravo $_firstName,',
+              S.of(context)!.scoreRevealGreeting(_firstName),
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -357,7 +346,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
             const SizedBox(height: 8),
             // Main title
             Text(
-              'Ton diagnostic\nest prêt.',
+              S.of(context)!.scoreRevealTitle,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontSize: 34,
@@ -458,7 +447,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                       ),
                     ),
                     child: Text(
-                      _levelLabel,
+                      _localizedLevelLabel(context),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -494,21 +483,21 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
         child: Column(
           children: [
             _buildSubScoreRow(
-              label: 'Budget',
+              label: S.of(context)!.scoreRevealBudget,
               score: widget.score.budget.score,
               icon: Icons.account_balance_wallet_outlined,
               slideOffset: _subScoreBudgetSlide.value,
             ),
             const SizedBox(height: 14),
             _buildSubScoreRow(
-              label: 'Prévoyance',
+              label: S.of(context)!.scoreRevealPrevoyance,
               score: widget.score.prevoyance.score,
               icon: Icons.shield_outlined,
               slideOffset: _subScorePrevoyanceSlide.value,
             ),
             const SizedBox(height: 14),
             _buildSubScoreRow(
-              label: 'Patrimoine',
+              label: S.of(context)!.scoreRevealPatrimoine,
               score: widget.score.patrimoine.score,
               icon: Icons.trending_up,
               slideOffset: _subScorePatrimoineSlide.value,
@@ -617,6 +606,14 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
     return MintColors.scoreCritique;
   }
 
+  String _localizedLevelLabel(BuildContext context) {
+    final score = widget.score.global;
+    if (score >= 80) return S.of(context)!.scoreRevealLevelExcellent;
+    if (score >= 60) return S.of(context)!.scoreRevealLevelGood;
+    if (score >= 40) return S.of(context)!.scoreRevealLevelWarning;
+    return S.of(context)!.scoreRevealLevelCritical;
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  PHASE 4: Coach Message (typing effect)
   // ════════════════════════════════════════════════════════════════
@@ -664,7 +661,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'TON COACH',
+                    S.of(context)!.scoreRevealCoachLabel,
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -716,7 +713,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 elevation: 0,
               ),
               child: Text(
-                'Voir mon dashboard',
+                S.of(context)!.scoreRevealCtaDashboard,
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -732,7 +729,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 ? () => context.push('/report/v2', extra: widget.wizardAnswers)
                 : null,
             child: Text(
-              'Voir le rapport détaillé',
+              S.of(context)!.scoreRevealCtaReport,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -753,7 +750,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
     return Opacity(
       opacity: _ctaOpacity.value * 0.8,
       child: Text(
-        'Outil éducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+        S.of(context)!.scoreRevealDisclaimer,
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 10,

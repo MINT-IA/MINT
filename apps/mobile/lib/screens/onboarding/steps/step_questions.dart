@@ -7,10 +7,13 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
-/// Step 1 of the Smart Onboarding flow — 5 required questions.
+/// Step 1 of the Smart Onboarding flow — 5 core questions.
 ///
-/// Collects: grossSalary, age, employmentStatus, nationality, canton.
+/// Collects: grossSalary, age, employmentStatus, nationalityGroup, canton.
 /// Calls [viewModel.compute()] then [onNext] when the user taps "Voir mon résultat".
+///
+/// AVS gap / lacunes → handled later via extrait AVS upload (StepOcrUpload),
+/// not asked here. Literacy calibration moved to StepChiffreChoc (post-reveal).
 ///
 /// Design rules:
 /// - Material 3, GoogleFonts.montserrat headings, GoogleFonts.inter body
@@ -55,6 +58,7 @@ class _StepQuestionsState extends State<StepQuestions> {
   ];
 
   late TextEditingController _ageController;
+  late TextEditingController _firstNameController;
   bool _didTrackStart = false;
 
   @override
@@ -62,11 +66,14 @@ class _StepQuestionsState extends State<StepQuestions> {
     super.initState();
     _ageController =
         TextEditingController(text: widget.viewModel.age.toString());
+    _firstNameController =
+        TextEditingController(text: widget.viewModel.firstName ?? '');
   }
 
   @override
   void dispose() {
     _ageController.dispose();
+    _firstNameController.dispose();
     super.dispose();
   }
 
@@ -176,6 +183,49 @@ class _StepQuestionsState extends State<StepQuestions> {
                       height: 1.5,
                     ),
                   ),
+                  const SizedBox(height: 28),
+
+                  // ── 0. PRENOM (optionnel) ─────────────────────────────────
+                  TextField(
+                    controller: _firstNameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: 'Comment on t\'appelle ?',
+                      hintText: 'Ton prénom (optionnel)',
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: _firstNameController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear,
+                                  size: 18, color: MintColors.textMuted),
+                              onPressed: () {
+                                _firstNameController.clear();
+                                widget.viewModel.setFirstName(null);
+                              },
+                            )
+                          : null,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: MintColors.primary),
+                      ),
+                    ),
+                    onChanged: (v) {
+                      widget.viewModel.setFirstName(v);
+                      setState(() {}); // rebuild suffixIcon
+                    },
+                  ),
                   const SizedBox(height: 32),
 
                   // ── 1. SALAIRE ────────────────────────────────────────────
@@ -277,40 +327,12 @@ class _StepQuestionsState extends State<StepQuestions> {
                       widget.onInputChanged();
                     },
                   ),
-                  // Suisse ayant vécu à l'étranger — déclenche le calcul LPP/AVS correct
-                  if (widget.viewModel.showAbroadQuestion) ...[
+                  if (widget.viewModel.nationalityGroup == 'OTHER') ...[
                     const SizedBox(height: 16),
-                    const _SectionTitle(
-                        label: 'As-tu interrompu tes cotisations AVS/LPP ?'),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Séjour à l\'étranger, période sans emploi…',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: MintColors.textMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _AbroadQuestion(
-                      value: widget.viewModel.hasLivedAbroad,
+                    _CountryPicker(
+                      value: widget.viewModel.nationalityCountry,
                       onChanged: (v) {
-                        widget.viewModel.setHasLivedAbroad(v);
-                        widget.onInputChanged();
-                      },
-                    ),
-                  ],
-                  if (widget.viewModel.showArrivalYear) ...[
-                    const SizedBox(height: 16),
-                    _SectionTitle(
-                      label: widget.viewModel.nationalityGroup == 'CH'
-                          ? 'Depuis quelle année cotises-tu en Suisse ?'
-                          : 'Depuis quand es-tu en Suisse ?',
-                    ),
-                    const SizedBox(height: 12),
-                    _ArrivalYearPicker(
-                      value: widget.viewModel.arrivalYear,
-                      onChanged: (v) {
-                        widget.viewModel.setArrivalYear(v);
+                        widget.viewModel.setNationalityCountry(v);
                         widget.onInputChanged();
                       },
                     ),
@@ -717,184 +739,75 @@ class _NationalityChips extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  ABROAD QUESTION — binary toggle for Swiss nationals who lived abroad
+//  COUNTRY PICKER — shown when nationalityGroup == 'OTHER'
 // ════════════════════════════════════════════════════════════════════════════
 
-class _AbroadQuestion extends StatelessWidget {
-  final bool? value;
-  final ValueChanged<bool?> onChanged;
+class _CountryPicker extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
 
-  const _AbroadQuestion({required this.value, required this.onChanged});
+  const _CountryPicker({required this.value, required this.onChanged});
+
+  // Common non-EU/non-CH nationalities in Switzerland
+  static const _countries = [
+    ('US', 'États-Unis'),
+    ('GB', 'Royaume-Uni'),
+    ('CA', 'Canada'),
+    ('IN', 'Inde'),
+    ('CN', 'Chine'),
+    ('BR', 'Brésil'),
+    ('AU', 'Australie'),
+    ('JP', 'Japon'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _AbroadChip(
-          label: 'Oui',
-          selected: value == true,
-          onTap: () => onChanged(value == true ? null : true),
-        ),
-        const SizedBox(width: 10),
-        _AbroadChip(
-          label: 'Non',
-          selected: value == false,
-          onTap: () => onChanged(value == false ? null : false),
-        ),
-      ],
-    );
-  }
-}
-
-class _AbroadChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _AbroadChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? MintColors.primary.withAlpha(24)
-              : MintColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? MintColors.primary : MintColors.lightBorder,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
+        Text(
+          'Ton pays d\'origine',
           style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? MintColors.primary : MintColors.textSecondary,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: MintColors.textMuted,
           ),
         ),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  ARRIVAL YEAR PICKER — year dropdown for non-Swiss residents
-// ════════════════════════════════════════════════════════════════════════════
-
-class _ArrivalYearPicker extends StatelessWidget {
-  final int? value;
-  final ValueChanged<int?> onChanged;
-
-  const _ArrivalYearPicker({
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final currentYear = DateTime.now().year;
-    final years = List.generate(50, (i) => currentYear - i);
-    final displayValue = value != null ? '$value' : 'Annee d\'arrivee';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () async {
-          final selected = await showModalBottomSheet<int>(
-            context: context,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (ctx) {
-              return FractionallySizedBox(
-                heightFactor: 0.4,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'Annee d\'arrivee en Suisse',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: years.length,
-                        itemBuilder: (_, i) {
-                          final year = years[i];
-                          final isSelected = year == value;
-                          return ListTile(
-                            onTap: () => Navigator.of(ctx).pop(year),
-                            title: Text(
-                              '$year',
-                              style: GoogleFonts.inter(
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: MintColors.textPrimary,
-                              ),
-                            ),
-                            trailing: isSelected
-                                ? const Icon(Icons.check_circle,
-                                    color: MintColors.primary, size: 20)
-                                : null,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _countries.map((entry) {
+            final (code, label) = entry;
+            final selected = value == code;
+            return InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => onChanged(selected ? null : code),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? MintColors.primary.withAlpha(24)
+                      : MintColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: selected ? MintColors.primary : MintColors.lightBorder,
+                    width: selected ? 2 : 1,
+                  ),
                 ),
-              );
-            },
-          );
-          if (selected != null) onChanged(selected);
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              const Icon(Icons.calendar_today,
-                  size: 18, color: MintColors.textMuted),
-              const SizedBox(width: 10),
-              Expanded(
                 child: Text(
-                  displayValue,
+                  label,
                   style: GoogleFonts.inter(
-                    fontSize: 15,
-                    color: value == null
-                        ? MintColors.textMuted
-                        : MintColors.textPrimary,
-                    fontWeight:
-                        value == null ? FontWeight.w400 : FontWeight.w600,
+                    fontSize: 13,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected ? MintColors.primary : MintColors.textSecondary,
                   ),
                 ),
               ),
-              const Icon(Icons.keyboard_arrow_down,
-                  color: MintColors.textSecondary),
-            ],
-          ),
+            );
+          }).toList(),
         ),
-      ),
+      ],
     );
   }
 }
@@ -1098,3 +1011,4 @@ class _CantonPicker extends StatelessWidget {
     );
   }
 }
+

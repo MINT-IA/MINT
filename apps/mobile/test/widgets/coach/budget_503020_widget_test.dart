@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final categories = [
@@ -28,6 +30,14 @@ void main() {
   ];
 
   Widget buildWidget({String? chiffreChoc}) => MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: Budget503020Widget(
             netSalary: 4210,

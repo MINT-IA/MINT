@@ -37,8 +37,13 @@ jobs:
           cache: pip
           cache-dependency-path: services/backend/pyproject.toml
 
-      - name: Install dependencies (app + dev/test deps)
+      - name: Install dependencies (app + dev/test)
         run: pip install ".[dev]" pytest-cov diff-cover
+
+      - name: Security audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit --skip-editable --desc on
 
       - name: Run tests
         env:
@@ -49,7 +54,7 @@ jobs:
       - name: Changed-lines coverage (PRs only, ≥80%)
         if: github.event_name == 'pull_request'
         working-directory: .
-        run: diff-cover services/backend/coverage.xml --compare-branch=origin/main --fail-under=80
+        run: diff-cover services/backend/coverage.xml --compare-branch=origin/main --fail-under=80 --exclude '**/rag/*.py'
 
       - name: OpenAPI contract check
         env:

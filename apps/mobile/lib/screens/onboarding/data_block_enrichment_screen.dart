@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
-import 'package:mint_mobile/services/coach/coach_models.dart';
-import 'package:mint_mobile/services/coach/coach_narrative_service.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -110,18 +108,20 @@ class _DataBlockEnrichmentScreenState
               _CoachModeToggle(
                 isCoachMode: _showCoachMode,
                 coachAvailable: coachAvailable,
-                onToggle: (value) => setState(() => _showCoachMode = value),
+                onToggle: (value) {
+                  if (value) {
+                    // Navigate to coach chat with contextual prompt
+                    final prompt = _coachPromptForBlock(canonicalBlockType);
+                    context.push('/coach/chat?prompt=${Uri.encodeComponent(prompt)}');
+                  } else {
+                    setState(() => _showCoachMode = false);
+                  }
+                },
               ),
               const SizedBox(height: 16),
 
-              // ── Coach bubble or description ─────────────────────
-              if (_showCoachMode && profile != null) ...[
-                _CoachBubble(
-                  profile: profile,
-                  blockType: canonicalBlockType,
-                ),
-                const SizedBox(height: 16),
-              ] else ...[
+              // ── Description ─────────────────────────────────────
+              ...[
                 Text(
                   meta.description,
                   style: GoogleFonts.inter(
@@ -408,12 +408,26 @@ class _DataBlockEnrichmentScreenState
     return categories.contains(category);
   }
 
+  String _coachPromptForBlock(String type) {
+    return switch (type) {
+      '3a' => 'Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.',
+      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour ameliorer ma situation.',
+      'avs' => 'Parle-moi de ma rente AVS : est-ce que j\'ai des lacunes de cotisation et comment les combler ?',
+      'patrimoine' => 'Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.',
+      'fiscalite' => 'Aide-moi a comprendre ma situation fiscale et les leviers d\'optimisation possibles.',
+      'revenu' => 'Je veux comprendre l\'impact de mon revenu sur ma prevoyance et mes impots.',
+      'objectifRetraite' => 'Quel serait l\'impact si je partais a la retraite plus tot ou plus tard ?',
+      'compositionMenage' => 'Comment la situation de couple influence mes projections de retraite ?',
+      _ => 'Aide-moi a completer mon profil financier.',
+    };
+  }
+
   String? _enrichmentRoute(String type) {
     const routes = {
       'revenu': '/profile/bilan',
       'lpp': '/document-scan',
       'avs': '/document-scan/avs-guide',
-      '3a': '/3a-deep/comparator',
+      '3a': '/profile/bilan',
       'patrimoine': '/profile/bilan',
       'fiscalite': '/document-scan?type=taxDeclaration',
       'objectifRetraite': '/profile/bilan',
@@ -767,103 +781,5 @@ class _ModeChip extends StatelessWidget {
 // Coach Bubble — conversational enrichment guide
 // ═══════════════════════════════════════════════════════════════
 
-class _CoachBubble extends StatelessWidget {
-  final CoachProfile profile;
-  final String blockType;
-
-  const _CoachBubble({
-    required this.profile,
-    required this.blockType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Build a minimal CoachContext for enrichment guide generation
-    final ctx = CoachContext(
-      firstName: profile.firstName ?? 'utilisateur',
-      archetype: profile.archetype.name,
-      age: profile.age,
-      canton: profile.canton,
-      confidenceScore: ConfidenceScorer.score(profile).score,
-    );
-
-    final guideText = CoachNarrativeService.generateEnrichmentGuide(
-      ctx,
-      blockType: blockType,
-    );
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            MintColors.primary.withAlpha(12),
-            MintColors.primary.withAlpha(6),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.primary.withAlpha(30)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: MintColors.primary.withAlpha(25),
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.smart_toy_outlined,
-                    size: 18,
-                    color: MintColors.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'Coach MINT',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.primary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: MintColors.primary.withAlpha(15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'SLM',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            guideText,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: MintColors.textPrimary,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// _CoachBubble removed — "Parle au coach" now navigates to /coach/chat
+// with a contextual prompt for the block type.

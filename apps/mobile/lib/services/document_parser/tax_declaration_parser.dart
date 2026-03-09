@@ -257,18 +257,18 @@ class TaxDeclarationParser {
         final effectiveRate = totalImpot / revenu * 100;
         if (effectiveRate < 3.0) {
           warnings.add(
-            "Le total des impots (${totalImpot.toStringAsFixed(0)} CHF) semble "
-            "tres bas par rapport au revenu imposable "
+            "Le total des impôts (${totalImpot.toStringAsFixed(0)} CHF) semble "
+            "très bas par rapport au revenu imposable "
             "(${revenu.toStringAsFixed(0)} CHF = ${effectiveRate.toStringAsFixed(1)}%). "
-            "Verifie les montants sur ton avis de taxation.",
+            "Vérifie les montants sur ton avis de taxation.",
           );
         }
         if (effectiveRate > 50.0) {
           warnings.add(
-            "Le total des impots (${totalImpot.toStringAsFixed(0)} CHF) semble "
-            "eleve par rapport au revenu imposable "
+            "Le total des impôts (${totalImpot.toStringAsFixed(0)} CHF) semble "
+            "élevé par rapport au revenu imposable "
             "(${revenu.toStringAsFixed(0)} CHF = ${effectiveRate.toStringAsFixed(1)}%). "
-            "Verifie les montants sur ton avis de taxation.",
+            "Vérifie les montants sur ton avis de taxation.",
           );
         }
       }
@@ -280,8 +280,8 @@ class TaxDeclarationParser {
     if (tauxMarginal != null && (tauxMarginal < 5.0 || tauxMarginal > 55.0)) {
       warnings.add(
         "Le taux marginal effectif (${tauxMarginal.toStringAsFixed(1)}%) "
-        "semble inhabituel. En Suisse, il se situe generalement entre "
-        "10% et 45% selon le canton et le revenu. Verifie sur ton avis de taxation.",
+        "semble inhabituel. En Suisse, il se situe généralement entre "
+        "10% et 45% selon le canton et le revenu. Vérifie sur ton avis de taxation.",
       );
     }
 
@@ -289,8 +289,8 @@ class TaxDeclarationParser {
     final fortune = _findFieldValue(fields, "fortune_imposable");
     if (fortune != null && fortune < 0) {
       warnings.add(
-        "La fortune imposable est negative (${fortune.toStringAsFixed(0)} CHF). "
-        "C'est possible si tes dettes depassent tes actifs, mais verifie le montant.",
+        "La fortune imposable est négative (${fortune.toStringAsFixed(0)} CHF). "
+        "C'est possible si tes dettes dépassent tes actifs, mais vérifie le montant.",
       );
     }
 
@@ -301,9 +301,9 @@ class TaxDeclarationParser {
       final deductionRate = deductions / revenu * 100;
       if (deductionRate > 60.0) {
         warnings.add(
-          "Les deductions (${deductions.toStringAsFixed(0)} CHF) representent "
+          "Les déductions (${deductions.toStringAsFixed(0)} CHF) représentent "
           "${deductionRate.toStringAsFixed(0)}% du revenu imposable. "
-          "C'est inhabituellement eleve. Verifie sur ta declaration.",
+          "C'est inhabituellement élevé. Vérifie sur ta déclaration.",
         );
       }
     }
@@ -318,18 +318,18 @@ class TaxDeclarationParser {
         if (inferredRate > 0 && inferredRate < 55) {
           fields.add(ExtractedField(
             fieldName: "taux_marginal_effectif",
-            label: "Taux marginal effectif (estime)",
+            label: "Taux marginal effectif (estimé)",
             value: double.parse(inferredRate.toStringAsFixed(1)),
             confidence: 0.55, // Lower confidence — inferred average, not marginal
             sourceText:
-                "Calcule: (cantonal + federal) / revenu imposable",
+                "Calculé: (cantonal + fédéral) / revenu imposable",
             needsReview: true,
             profileField: "actualMarginalRate",
           ));
           warnings.add(
-            "Le taux marginal effectif a ete estime a partir du taux moyen "
-            "(${inferredRate.toStringAsFixed(1)}%). Le taux marginal reel est "
-            "generalement 5 a 15 points plus eleve. Verifie sur ton avis de taxation.",
+            "Le taux marginal effectif a été estimé à partir du taux moyen "
+            "(${inferredRate.toStringAsFixed(1)}%). Le taux marginal réel est "
+            "généralement 5 à 15 points plus élevé. Vérifie sur ton avis de taxation.",
           );
         }
       }
@@ -348,13 +348,13 @@ class TaxDeclarationParser {
       confidenceDelta: _estimateConfidenceDeltaFromFields(fields),
       warnings: warnings,
       disclaimer:
-          "Outil educatif \u2014 ne constitue pas un conseil fiscal. "
-          "Verifie toujours les valeurs avec ton avis de taxation original. "
+          "Outil éducatif \u2014 ne constitue pas un conseil fiscal. "
+          "Vérifie toujours les valeurs avec ton avis de taxation original. "
           "MINT ne stocke jamais l'image du document (LSFin).",
       sources: [
         "LIFD art. 25-31 (revenu imposable)",
-        "LIFD art. 33-33a (deductions)",
-        "LIFD art. 38 (imposition capital prevoyance)",
+        "LIFD art. 33-33a (déductions)",
+        "LIFD art. 38 (imposition capital prévoyance)",
         "LHID art. 1-3 (harmonisation fiscale cantonale)",
       ],
     );

@@ -13,6 +13,8 @@ import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // =============================================================================
 // SMOKE TESTS — Simulator & Comparator Screens
@@ -56,6 +58,14 @@ void main() {
           ),
         ],
         child: const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Simulator3aScreen(),
         ),
       );
@@ -147,6 +157,14 @@ void main() {
   group('SimulatorLeasingScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: SimulatorLeasingScreen(),
       );
     }
@@ -179,7 +197,7 @@ void main() {
       await tester.pump();
 
       // "Mensualite prevue" uses accent: "Mensualité prévue"
-      expect(find.textContaining('Mensualit'), findsOneWidget);
+      expect(find.textContaining('Mensualit'), findsWidgets);
       expect(find.textContaining('leasing'), findsWidgets);
       // "Rendement alternatif espere" uses accent: "Rendement alternatif espéré"
       expect(find.textContaining('Rendement alternatif'), findsOneWidget);
@@ -190,7 +208,7 @@ void main() {
       await tester.pump();
 
       // "Cout d'opportunite" uses accent: "Coût d'opportunité"
-      expect(find.textContaining('opportunit'), findsOneWidget);
+      expect(find.textContaining('opportunit'), findsWidgets);
     });
 
     testWidgets('displays alternatives section in French', (tester) async {
@@ -223,7 +241,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.byType(Slider), findsNWidgets(3));
+      expect(find.byType(Slider), findsNWidgets(4));
     });
   });
 
@@ -237,6 +255,14 @@ void main() {
   group('SimulatorCompoundScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: SimulatorCompoundScreen(),
       );
     }
@@ -339,6 +365,14 @@ void main() {
       return ChangeNotifierProvider<CoachProfileProvider>(
         create: (_) => CoachProfileProvider(),
         child: const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: FiscalComparatorScreen(),
         ),
       );
@@ -484,6 +518,14 @@ void main() {
   group('GenderGapScreen', () {
     Widget buildScreen() {
       return const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: GenderGapScreen(),
       );
     }

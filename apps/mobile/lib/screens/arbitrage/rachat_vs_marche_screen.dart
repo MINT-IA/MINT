@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
@@ -24,7 +27,8 @@ class RachatVsMarcheScreen extends StatefulWidget {
   State<RachatVsMarcheScreen> createState() => _RachatVsMarcheScreenState();
 }
 
-class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
+class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
+    with ProfileAutoFillMixin {
   // ── Input controllers ──
   final _montantCtrl = TextEditingController(text: '30000');
   double _tauxMarginal = 30.0; // percentage
@@ -44,6 +48,28 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
   void initState() {
     super.initState();
     _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    autoFillFromProfile(context, (p) {
+      final revenu = p.revenuBrutAnnuel;
+      final canton = p.canton.isNotEmpty ? p.canton : 'VD';
+      // Use financial_core TaxCalculator — canton-aware marginal rate.
+      final taux = revenu > 0
+          ? (RetirementTaxCalculator.estimateMarginalRate(revenu, canton) * 100)
+          : 30.0;
+      final annees = p.anneesAvantRetraite.clamp(1, 40);
+      final isMarried = p.etatCivil == CoachCivilStatus.marie;
+      setState(() {
+        _tauxMarginal = taux;
+        _canton = canton;
+        _anneesAvantRetraite = annees;
+        _isMarried = isMarried;
+      });
+      _recalculate();
+    });
   }
 
   @override

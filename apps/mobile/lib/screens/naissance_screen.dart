@@ -1,10 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
+import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NAISSANCE SCREEN — Sprint S22 / Famille & Concubinage
@@ -128,7 +132,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          'Naissance & famille',
+          S.of(context)!.naissanceTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -162,11 +166,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        tabs: const [
-          Tab(text: 'Conge'),
-          Tab(text: 'Allocations'),
-          Tab(text: 'Impact'),
-          Tab(text: 'Checklist'),
+        tabs: [
+          Tab(text: S.of(context)!.naissanceTabConge),
+          Tab(text: S.of(context)!.naissanceTabAllocations),
+          Tab(text: S.of(context)!.naissanceTabImpact),
+          Tab(text: S.of(context)!.naissanceTabChecklist),
         ],
       ),
     );
@@ -227,7 +231,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Type de conge',
+                  S.of(context)!.naissanceLeaveType,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -241,16 +245,16 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   selectedForegroundColor: Colors.white,
                   textStyle: GoogleFonts.inter(fontSize: 12),
                 ),
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: true,
-                    label: Text('Mere'),
-                    icon: Icon(Icons.woman, size: 16),
+                    label: Text(S.of(context)!.naissanceMother),
+                    icon: const Icon(Icons.woman, size: 16),
                   ),
                   ButtonSegment(
                     value: false,
-                    label: Text('Pere'),
-                    icon: Icon(Icons.man, size: 16),
+                    label: Text(S.of(context)!.naissanceFather),
+                    icon: const Icon(Icons.man, size: 16),
                   ),
                 ],
                 selected: {_isMother},
@@ -267,7 +271,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
           // Salary slider
           _buildSlider(
-            label: 'Salaire mensuel brut',
+            label: S.of(context)!.naissanceMonthlySalary,
             value: _salaireMensuel,
             min: 2000,
             max: 15000,
@@ -355,12 +359,12 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
           // Details
           _buildResultRow(
-            'APG par jour',
+            S.of(context)!.naissanceApgPerDay,
             FamilyService.formatChf(apgDaily),
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Total APG',
+            S.of(context)!.naissanceTotalApg,
             FamilyService.formatChf(totalApg),
           ),
           if (isCapped) ...[
@@ -409,7 +413,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DETAIL QUOTIDIEN',
+                S.of(context)!.naissanceDailyDetail,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -421,14 +425,14 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ),
           const SizedBox(height: 16),
           _buildBarComparison(
-            label: 'Salaire/jour',
+            label: S.of(context)!.naissanceSalaryPerDay,
             value: salaireJour,
             maxValue: max(salaireJour, apgJour),
             color: MintColors.primary,
           ),
           const SizedBox(height: 12),
           _buildBarComparison(
-            label: 'APG/jour',
+            label: S.of(context)!.naissanceApgDay,
             value: apgJour,
             maxValue: max(salaireJour, apgJour),
             color: MintColors.success,
@@ -440,7 +444,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                diffJour > 0 ? 'Difference/jour' : 'Aucune perte',
+                diffJour > 0 ? S.of(context)!.naissanceDiffPerDay : S.of(context)!.naissanceNoLoss,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -461,7 +465,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           if (perte > 0) ...[
             const SizedBox(height: 8),
             Text(
-              'Perte totale estimee sur le conge : ${FamilyService.formatChf(perte)}',
+              'Perte totale estimée sur le congé : ${FamilyService.formatChf(perte)}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -561,7 +565,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Canton',
+                  S.of(context)!.naissanceCanton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -609,7 +613,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Nombre d\'enfants',
+                  S.of(context)!.naissanceNbEnfants,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -702,7 +706,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                     size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 8),
                 Text(
-                  'CLASSEMENT 26 CANTONS',
+                  S.of(context)!.naissanceRanking26,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -877,7 +881,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           child: Column(
             children: [
               _buildSlider(
-                label: 'Revenu annuel brut',
+                label: S.of(context)!.naissanceRevenuAnnuel,
                 value: _revenuImpact,
                 min: 30000,
                 max: 200000,
@@ -893,7 +897,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 children: [
                   Expanded(
                     child: Text(
-                      'Nombre d\'enfants',
+                      S.of(context)!.naissanceNbEnfants,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -915,7 +919,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
               const SizedBox(height: 16),
               _buildSlider(
-                label: 'Frais de garde mensuel/enfant',
+                label: S.of(context)!.naissanceFraisGarde,
                 value: _fraisGarde,
                 min: 0,
                 max: 3000,
@@ -934,22 +938,22 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         // 1. Tax savings
         _buildImpactSection(
           icon: Icons.savings_outlined,
-          title: 'Economies fiscales',
+          title: S.of(context)!.naissanceTaxSavings,
           color: MintColors.success,
           children: [
             _buildResultRow(
-              'Deduction par enfant',
+              S.of(context)!.naissanceDeductionPerChild,
               '$_nbEnfantsImpact x ${FamilyService.formatChf(FamilyService.deductionParEnfant)}',
             ),
             const SizedBox(height: 6),
             _buildResultRow(
-              'Deduction frais de garde',
+              S.of(context)!.naissanceDeductionChildcare,
               FamilyService.formatChf(
                   fiscalResult['deductionGarde'] as double),
             ),
             const SizedBox(height: 6),
             _buildResultRow(
-              'Economie fiscale estimee',
+              S.of(context)!.naissanceEstimatedTaxSaving,
               FamilyService.formatChf(economieFiscale),
             ),
           ],
@@ -959,11 +963,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         // 2. Allocations income
         _buildImpactSection(
           icon: Icons.child_care,
-          title: 'Revenu allocations',
+          title: S.of(context)!.naissanceAllowanceIncome,
           color: MintColors.success,
           children: [
             _buildResultRow(
-              'Allocations annuelles',
+              S.of(context)!.naissanceAnnualAllowances,
               FamilyService.formatChf(allocAnnuel),
             ),
             const SizedBox(height: 4),
@@ -982,21 +986,21 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         // 3. Career gap warning
         _buildImpactSection(
           icon: Icons.warning_amber_outlined,
-          title: 'Impact carriere (LPP)',
+          title: S.of(context)!.naissanceCareerImpact,
           color: MintColors.warning,
           children: [
             _buildResultRow(
-              'Interruption estimee',
-              '$interruptionMois mois',
+              S.of(context)!.naissanceEstimatedInterruption,
+              S.of(context)!.naissanceMonths(interruptionMois),
             ),
             const SizedBox(height: 6),
             _buildResultRow(
-              'Perte LPP estimee',
+              S.of(context)!.naissanceLppLossEstimated,
               '-${FamilyService.formatChf(lppPerteEstimee)}',
             ),
             const SizedBox(height: 4),
             Text(
-              'Moins de cotisations LPP = moins de capital a la retraite',
+              S.of(context)!.naissanceLppLessContributions,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textMuted,
@@ -1025,7 +1029,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           child: Column(
             children: [
               Text(
-                'Impact net annuel estime',
+                S.of(context)!.naissanceNetAnnualImpact,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -1049,7 +1053,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                'Economies fiscales + allocations - cout estime',
+                S.of(context)!.naissanceNetFormula,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textMuted,
@@ -1060,17 +1064,95 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ),
         const SizedBox(height: 20),
 
+        // Waterfall — fiscal impact breakdown (child tax deductions)
+        FiscalImpactWaterfall(
+          steps: [
+            WaterfallStep(
+              label: S.of(context)!.naissanceWaterfallRevenu,
+              amount: _revenuImpact,
+              isTotal: true,
+            ),
+            WaterfallStep(
+              label: S.of(context)!.naissanceTaxSavings,
+              amount: economieFiscale,
+            ),
+            WaterfallStep(
+              label: S.of(context)!.naissanceWaterfallAlloc,
+              amount: allocAnnuel,
+            ),
+            WaterfallStep(
+              label: S.of(context)!.naissanceWaterfallCosts,
+              amount: -coutEstime,
+            ),
+            WaterfallStep(
+              label: S.of(context)!.naissanceWaterfallChildcare,
+              amount: -fraisGardeAnnuel,
+            ),
+            WaterfallStep(
+              label: S.of(context)!.naissanceWaterfallAfter,
+              amount: _revenuImpact + netImpact,
+              isTotal: true,
+            ),
+          ],
+          totalSavings: economieFiscale + allocAnnuel,
+        ),
+        const SizedBox(height: 20),
+
         _buildEducationalInsert(
-          'Un enfant coute en moyenne CHF\u00A01\'500/mois en Suisse '
-          '(alimentation, vetements, activites, assurance). '
-          'Mais les allocations et deductions fiscales reduisent '
-          'significativement l\'impact net.',
+          S.of(context)!.naissanceChildCostEducational,
         ),
         const SizedBox(height: 20),
 
         BudgetBebeWidget(
           monthlyIncome: _revenuImpact / 12,
           costPerChild: 1200,
+        ),
+        const SizedBox(height: 20),
+
+        // ── P9-A : Coût du bonheur — décomposition mensuelle ──
+        BabyCostWidget(
+          yearsOfDependency: 25,
+          items: [
+            BabyCostItem(
+              label: S.of(context)!.naissanceBabyCostCreche,
+              emoji: '🏫',
+              monthlyCost: 1800,
+              note: S.of(context)!.naissanceBabyCostCrecheNote,
+            ),
+            BabyCostItem(
+              label: S.of(context)!.naissanceBabyCostAlimentation,
+              emoji: '🍼',
+              monthlyCost: 250,
+            ),
+            BabyCostItem(
+              label: S.of(context)!.naissanceBabyCostVetements,
+              emoji: '👕',
+              monthlyCost: 150,
+            ),
+            BabyCostItem(
+              label: S.of(context)!.naissanceBabyCostLamal,
+              emoji: '🏥',
+              monthlyCost: 120,
+              note: S.of(context)!.naissanceBabyCostLamalNote,
+            ),
+            BabyCostItem(
+              label: S.of(context)!.naissanceBabyCostActivites,
+              emoji: '⚽',
+              monthlyCost: 100,
+            ),
+            BabyCostItem(
+              label: S.of(context)!.naissanceBabyCostDivers,
+              emoji: '🎁',
+              monthlyCost: 80,
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // ── P8-C : Clause 3a bénéficiaire (OPP3 art. 2) ──
+        Clause3aWidget(
+          balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu
+          hasClause: false,
         ),
         const SizedBox(height: 20),
 
@@ -1129,7 +1211,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab4Checklist() {
-    final items = _naissanceChecklistItems;
+    final items = _buildNaissanceChecklistItems();
     final nbChecked = _checkedItems.length;
 
     return ListView(
@@ -1151,8 +1233,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'L\'arrivee d\'un enfant implique de nombreuses demarches '
-                  'administratives et financieres. Voici les etapes a ne pas oublier.',
+                  S.of(context)!.naissanceChecklistIntro,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1179,7 +1260,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '$nbChecked/${items.length} demarches effectuees',
+                    S.of(context)!.naissanceStepsCompleted(nbChecked, items.length),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1355,72 +1436,19 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
   // ── Checklist Data ──────────────────────────────────────
 
-  static final List<Map<String, String>> _naissanceChecklistItems = [
-    {
-      'title': 'Inscrire bebe a l\'assurance maladie (3 mois)',
-      'description':
-          'Tu as 3 mois apres la naissance pour inscrire ton enfant aupres d\'une caisse '
-          'maladie. Si tu le fais dans ce delai, la couverture est retroactive des la naissance. '
-          'Passe ce delai, l\'enfant risque une interruption de couverture. '
-          'Compare les primes enfants entre caisses — les ecarts peuvent etre significatifs.',
-    },
-    {
-      'title': 'Demander les allocations familiales',
-      'description':
-          'Fais la demande aupres de ton employeur (ou de ta caisse d\'allocations si tu es '
-          'independant-e). Les allocations sont versees des le mois de naissance. '
-          'Le montant depend du canton (CHF 200 a CHF 305/mois par enfant).',
-    },
-    {
-      'title': 'Annoncer la naissance a l\'etat civil',
-      'description':
-          'L\'hopital transmet generalement l\'annonce a l\'office de l\'etat civil. '
-          'Verifie que l\'acte de naissance est bien etabli. '
-          'Tu en auras besoin pour toutes les demarches administratives.',
-    },
-    {
-      'title': 'Organiser le conge parental (APG)',
-      'description':
-          'Conge maternite : 14 semaines a 80% du salaire (max CHF 220/jour). '
-          'Conge paternite : 2 semaines (10 jours), a prendre dans les 6 mois. '
-          'L\'inscription APG se fait via ton employeur ou directement aupres de la caisse de compensation.',
-    },
-    {
-      'title': 'Mettre a jour la declaration fiscale',
-      'description':
-          'Un enfant supplementaire te donne droit a une deduction fiscale de CHF 6\'700/an '
-          '(LIFD art. 35). Si tu as des frais de garde, tu peux deduire jusqu\'a CHF 25\'500/an. '
-          'Pense a adapter tes acomptes d\'impots pour l\'annee en cours.',
-    },
-    {
-      'title': 'Adapter le budget familial',
-      'description':
-          'Un enfant coute en moyenne CHF 1\'200 a CHF 1\'500/mois en Suisse '
-          '(alimentation, vetements, activites, assurance, couches, etc.). '
-          'Reevalue ton budget avec le module Budget de MINT.',
-    },
-    {
-      'title': 'Verifier la prevoyance (LPP et 3a)',
-      'description':
-          'Si tu reduis ton taux d\'activite, tes cotisations LPP baissent. '
-          'Chaque annee a temps partiel represente moins de capital a la retraite. '
-          'Envisage de compenser en versant le maximum au 3e pilier (CHF 7\'258/an).',
-    },
-    {
-      'title': 'Rediger ou mettre a jour le testament',
-      'description':
-          'L\'arrivee d\'un enfant modifie l\'ordre successoral. '
-          'Les enfants sont des heritiers reservataires (CC art. 471). '
-          'Si tu as un testament, verifie qu\'il respecte les reserves legales.',
-    },
-    {
-      'title': 'Souscrire une assurance risque deces/invalidite',
-      'description':
-          'Avec un enfant a charge, la protection financiere en cas de deces ou d\'invalidite '
-          'devient encore plus importante. Verifie ta couverture actuelle (LPP, assurance-vie) '
-          'et complete si necessaire.',
-    },
-  ];
+  List<Map<String, String>> _buildNaissanceChecklistItems() {
+    return [
+      {'title': S.of(context)!.naissanceChecklistItem1Title, 'description': S.of(context)!.naissanceChecklistItem1Desc},
+      {'title': S.of(context)!.naissanceChecklistItem2Title, 'description': S.of(context)!.naissanceChecklistItem2Desc},
+      {'title': S.of(context)!.naissanceChecklistItem3Title, 'description': S.of(context)!.naissanceChecklistItem3Desc},
+      {'title': S.of(context)!.naissanceChecklistItem4Title, 'description': S.of(context)!.naissanceChecklistItem4Desc},
+      {'title': S.of(context)!.naissanceChecklistItem5Title, 'description': S.of(context)!.naissanceChecklistItem5Desc},
+      {'title': S.of(context)!.naissanceChecklistItem6Title, 'description': S.of(context)!.naissanceChecklistItem6Desc},
+      {'title': S.of(context)!.naissanceChecklistItem7Title, 'description': S.of(context)!.naissanceChecklistItem7Desc},
+      {'title': S.of(context)!.naissanceChecklistItem8Title, 'description': S.of(context)!.naissanceChecklistItem8Desc},
+      {'title': S.of(context)!.naissanceChecklistItem9Title, 'description': S.of(context)!.naissanceChecklistItem9Desc},
+    ];
+  }
 
   // ════════════════════════════════════════════════════════════
   //  SHARED WIDGETS
@@ -1623,7 +1651,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le savais-tu ?',
+                  S.of(context)!.naissanceDidYouKnow,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1662,10 +1690,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations simplifiees a but educatif — ne constitue pas '
-              'un conseil en prevoyance ou conseil fiscal. Les montants dependent '
-              'de nombreux facteurs (canton, commune, situation familiale, etc.). '
-              'Consulte un-e specialiste pour un calcul personnalise.',
+              S.of(context)!.naissanceDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

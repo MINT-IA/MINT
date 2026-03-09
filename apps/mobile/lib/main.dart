@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
+import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 
@@ -21,15 +22,25 @@ Future<void> main() async {
   // Select a reachable API endpoint (defined URL first, then fallbacks).
   await ApiService.ensureReachableBaseUrl();
 
-  // Initialize SLM plugin runtime once at startup.
+  // Initialize SLM plugin runtime once at startup (5s — model check is I/O).
   try {
     final ready = await SlmDownloadService.instance
         .initializePlugin()
-        .timeout(const Duration(seconds: 3));
+        .timeout(const Duration(seconds: 5));
     FeatureFlags.slmPluginReady = ready;
   } catch (e) {
     FeatureFlags.slmPluginReady = false;
-    if (kDebugMode) debugPrint('Err SLM init: $e');
+    if (kDebugMode) debugPrint('Err SLM plugin: $e');
+  }
+
+  // Pre-load SLM engine into RAM (async, non-blocking).
+  // This way the first chat message doesn't wait for model loading.
+  if (FeatureFlags.slmPluginReady) {
+    SlmEngine.instance.initialize().then((ok) {
+      if (kDebugMode) debugPrint('SLM engine pre-init: $ok');
+    }).catchError((e) {
+      if (kDebugMode) debugPrint('SLM engine pre-init err: $e');
+    });
   }
 
   // Pull server feature flags before first frame so kill-switches

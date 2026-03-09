@@ -181,7 +181,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Column(
         children: [
           Text(
-            'Ton profil est plus precis',
+            'Ton profil est plus précis',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 24,
@@ -313,7 +313,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: Column(
           children: [
             Text(
-              'Chiffre choc recalcule',
+              'Chiffre choc recalculé',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -447,7 +447,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Champs mis a jour',
+              'Champs mis à jour',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -538,8 +538,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return Opacity(
       opacity: _ctaFadeIn.value,
       child: Text(
-        'Outil educatif — ne constitue pas un conseil en prevoyance. '
-        'Verifie toujours avec ton certificat original (LSFin).',
+        'Outil éducatif — ne constitue pas un conseil en prévoyance. '
+        'Vérifie toujours avec ton certificat original (LSFin).',
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 11,

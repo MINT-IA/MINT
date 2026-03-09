@@ -67,7 +67,7 @@ class CoachContextBuilder {
   ///   (e.g. {'prevoyance.avoirLppTotal': 'certificate'}).
   ///   Passed through as simplified dataReliability map for SLM prompting.
   static CoachContext build({
-    String firstName = 'utilisateur',
+    String firstName = '',
     int age = 30,
     String canton = 'VD',
     String archetype = 'swiss_native',

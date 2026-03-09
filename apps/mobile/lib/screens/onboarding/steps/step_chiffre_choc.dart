@@ -57,6 +57,18 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
   double _animatedTarget = 0;
   int _lastTrigger = 0;
 
+  // ── Literacy calibration (3 questions optionnelles post-reveal) ───────────
+  bool? _knowsLppBalance;
+  bool? _knowsConversionRate;
+  bool? _hasDone3a;
+
+  void _onLiteracyChanged() {
+    final score = (_knowsLppBalance == true ? 1 : 0) +
+        (_knowsConversionRate == true ? 1 : 0) +
+        (_hasDone3a == true ? 1 : 0);
+    widget.viewModel.setLiteracyScore(score);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -325,6 +337,61 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
                 ),
               ),
 
+              const SizedBox(height: 24),
+
+              // ── LITERACY — optionnel, post-reveal ────────────────────────
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pour personnaliser tes conseils',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '3 questions rapides — aucune bonne ou mauvaise reponse.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _LiteracyQuestion(
+                      question: 'Je connais le montant de mon avoir LPP',
+                      value: _knowsLppBalance,
+                      onChanged: (v) {
+                        setState(() => _knowsLppBalance = v);
+                        _onLiteracyChanged();
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _LiteracyQuestion(
+                      question: 'Je sais ce qu\'est le taux de conversion',
+                      value: _knowsConversionRate,
+                      onChanged: (v) {
+                        setState(() => _knowsConversionRate = v);
+                        _onLiteracyChanged();
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _LiteracyQuestion(
+                      question: 'J\'ai deja verse sur un compte 3a',
+                      value: _hasDone3a,
+                      onChanged: (v) {
+                        setState(() => _hasDone3a = v);
+                        _onLiteracyChanged();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 32),
 
               // ── PRIMARY CTA — "Qu'est-ce que je peux faire?" → JIT step ───
@@ -462,6 +529,100 @@ class _StepChiffreChocState extends State<StepChiffreChoc>
     }
 
     return 'CHF\u00A0${formatChf(animValue)}$suffix';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LITERACY QUESTION — oui/non toggle (3 questions de calibrage post-reveal)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _LiteracyQuestion extends StatelessWidget {
+  final String question;
+  final bool? value;
+  final ValueChanged<bool?> onChanged;
+
+  const _LiteracyQuestion({
+    required this.question,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              question,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textPrimary,
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          _LiteracyChip(
+            label: 'Oui',
+            selected: value == true,
+            onTap: () => onChanged(value == true ? null : true),
+          ),
+          const SizedBox(width: 8),
+          _LiteracyChip(
+            label: 'Non',
+            selected: value == false,
+            onTap: () => onChanged(value == false ? null : false),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiteracyChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _LiteracyChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? MintColors.primary.withAlpha(24) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? MintColors.primary : MintColors.lightBorder,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? MintColors.primary : MintColors.textSecondary,
+          ),
+        ),
+      ),
+    );
   }
 }
 

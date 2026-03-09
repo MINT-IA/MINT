@@ -94,6 +94,29 @@ class CoachContext {
     this.knownValues = const {},
     this.dataReliability = const {},
   });
+
+  CoachContext copyWith({String? fiscalSeason}) {
+    return CoachContext(
+      firstName: firstName,
+      archetype: archetype,
+      age: age,
+      canton: canton,
+      friTotal: friTotal,
+      friDelta: friDelta,
+      primaryFocus: primaryFocus,
+      replacementRatio: replacementRatio,
+      monthsLiquidity: monthsLiquidity,
+      taxSavingPotential: taxSavingPotential,
+      confidenceScore: confidenceScore,
+      daysSinceLastVisit: daysSinceLastVisit,
+      fiscalSeason: fiscalSeason ?? this.fiscalSeason,
+      upcomingEvent: upcomingEvent,
+      checkInStreak: checkInStreak,
+      lastMilestone: lastMilestone,
+      knownValues: knownValues,
+      dataReliability: dataReliability,
+    );
+  }
 }
 
 /// A number found in LLM output that doesn't match known values.

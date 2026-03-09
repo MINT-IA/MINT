@@ -7,6 +7,13 @@ import 'package:mint_mobile/theme/colors.dart';
 ///
 /// Used in FinancialSummaryScreen — each section (Revenus, Prévoyance,
 /// Patrimoine, Dépenses, Dettes) uses this same widget with different data.
+///
+/// Supports:
+/// - Standard lines (label + value)
+/// - Section headers (divider with label)
+/// - Subtotal lines (intermediate bold lines)
+/// - Hero line (highlighted key number with colored background)
+/// - Hint text (small educational note)
 class FinancialSummaryCard extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -16,6 +23,7 @@ class FinancialSummaryCard extends StatelessWidget {
   final VoidCallback? onScanCertificate;
   final String? scanLabel;
   final VoidCallback? onEdit;
+  final String? footnote;
 
   const FinancialSummaryCard({
     super.key,
@@ -27,6 +35,7 @@ class FinancialSummaryCard extends StatelessWidget {
     this.onScanCertificate,
     this.scanLabel,
     this.onEdit,
+    this.footnote,
   });
 
   @override
@@ -76,18 +85,34 @@ class FinancialSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Column(
               children: [
-                for (final line in lines) _buildLine(line),
+                for (final line in lines) _buildLineWidget(line),
               ],
             ),
           ),
           // Total line
           if (totalLine != null) ...[
             const Divider(height: 1, indent: 16, endIndent: 16),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: _buildLine(totalLine!, isBold: true),
-            ),
+            if (totalLine!.isHero)
+              _buildHeroLine(totalLine!)
+            else
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: _buildLine(totalLine!, isBold: true),
+              ),
           ],
+          // Footnote
+          if (footnote != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                footnote!,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: MintColors.textMuted,
+                  height: 1.3,
+                ),
+              ),
+            ),
           // Scan certificate CTA
           if (onScanCertificate != null) ...[
             const Divider(height: 1, indent: 16, endIndent: 16),
@@ -120,6 +145,113 @@ class FinancialSummaryCard extends StatelessWidget {
             ),
           ] else
             const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  /// Route to appropriate rendering based on line type.
+  Widget _buildLineWidget(FinancialLine line) {
+    if (line.isSectionHeader) return _buildSectionHeader(line);
+    if (line.isSubtotal) return _buildSubtotalLine(line);
+    if (line.isHero) return _buildHeroLine(line);
+    if (line.isHint) return _buildHintLine(line);
+    return _buildLine(line);
+  }
+
+  /// Section header: "── Déductions salariales ──"
+  Widget _buildSectionHeader(FinancialLine line) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 6),
+      child: Row(
+        children: [
+          const Expanded(child: Divider(height: 1)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              line.label,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+                color: MintColors.textMuted,
+              ),
+            ),
+          ),
+          const Expanded(child: Divider(height: 1)),
+        ],
+      ),
+    );
+  }
+
+  /// Subtotal line: bold, with top divider.
+  Widget _buildSubtotalLine(FinancialLine line) {
+    return Column(
+      children: [
+        const Divider(height: 8),
+        _buildLine(line, isBold: true),
+        const SizedBox(height: 4),
+      ],
+    );
+  }
+
+  /// Hero line: highlighted key number with colored background.
+  Widget _buildHeroLine(FinancialLine line) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: MintColors.primary.withAlpha(14),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.primary.withAlpha(40)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              line.label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: MintColors.primary,
+              ),
+            ),
+          ),
+          Text(
+            line.formattedValue,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: MintColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Hint line: small educational note with lightbulb.
+  Widget _buildHintLine(FinancialLine line) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6, top: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '\u{1F4A1} ',
+            style: GoogleFonts.inter(fontSize: 11),
+          ),
+          Expanded(
+            child: Text(
+              line.label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+                color: MintColors.textMuted,
+                height: 1.3,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -160,23 +292,26 @@ class FinancialSummaryCard extends StatelessWidget {
             ),
           ),
           // Value + source indicator
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                line.formattedValue,
-                style: GoogleFonts.inter(
-                  fontSize: isBold ? 14 : 13,
-                  fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
-                  color: MintColors.textPrimary,
+          if (line.formattedValue.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  line.formattedValue,
+                  style: GoogleFonts.inter(
+                    fontSize: isBold ? 14 : 13,
+                    fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+                    color: line.isDeduction
+                        ? MintColors.error
+                        : MintColors.textPrimary,
+                  ),
                 ),
-              ),
-              if (line.source != null) ...[
-                const SizedBox(width: 6),
-                _sourceIndicator(line.source!),
+                if (line.source != null) ...[
+                  const SizedBox(width: 6),
+                  _sourceIndicator(line.source!),
+                ],
               ],
-            ],
-          ),
+            ),
         ],
       ),
     );
@@ -211,18 +346,45 @@ class FinancialSummaryCard extends StatelessWidget {
 }
 
 /// A single line in a FinancialSummaryCard.
+///
+/// Supports multiple rendering modes:
+/// - Standard line: label + value (default)
+/// - Section header: divider with centered label (isSectionHeader)
+/// - Subtotal: bold intermediate total (isSubtotal)
+/// - Hero: highlighted key number with colored background (isHero)
+/// - Hint: small educational note with lightbulb (isHint)
+/// - Deduction: value displayed in red with − prefix (isDeduction)
 class FinancialLine {
   final String label;
   final String formattedValue;
   final ProfileDataSource? source;
   final bool indent;
   final bool isLast;
+  final bool isSectionHeader;
+  final bool isSubtotal;
+  final bool isHero;
+  final bool isHint;
+  final bool isDeduction;
 
   const FinancialLine({
     required this.label,
-    required this.formattedValue,
+    this.formattedValue = '',
     this.source,
     this.indent = false,
     this.isLast = false,
-  });
+    this.isSectionHeader = false,
+    this.isSubtotal = false,
+    this.isHero = false,
+    this.isHint = false,
+    this.isDeduction = false,
+  })  : assert(
+          !(isSectionHeader && isSubtotal) &&
+              !(isSectionHeader && isHero) &&
+              !(isSectionHeader && isHint) &&
+              !(isSubtotal && isHero) &&
+              !(isSubtotal && isHint) &&
+              !(isHero && isHint),
+          'FinancialLine: isSectionHeader, isSubtotal, isHero, isHint '
+          'are mutually exclusive rendering modes.',
+        );
 }

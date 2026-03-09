@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,20 +11,23 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
-/// Rente vs Capital arbitrage screen — compare full rente, full capital,
-/// and mixed strategies with real-time recalculation.
+/// Rente vs Capital arbitrage screen — the "a-ha" moment.
 ///
-/// Sprint S32 — Arbitrage Phase 1.
+/// 4-bloc layout for neophytes:
+///   A. Accroche (chiffre-choc + hero CHF/mois + micro-légendes)
+///   B. Explorer (slider espérance de vie + trajectory chart fused)
+///   C. Comprendre (3 educational before/after cards)
+///   D. Affiner (hypotheses + impact cards + tornado in ExpansionTile)
 ///
 /// NEVER ranks options. Side-by-side comparison only.
-/// All text in French, informal "tu".
-/// No banned terms.
+/// All text in French, informal "tu". No banned terms.
 class RenteVsCapitalScreen extends StatefulWidget {
   const RenteVsCapitalScreen({super.key});
 
@@ -30,11 +35,26 @@ class RenteVsCapitalScreen extends StatefulWidget {
   State<RenteVsCapitalScreen> createState() => _RenteVsCapitalScreenState();
 }
 
+enum _InputMode { estimate, certificate }
+
 class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
-  // ── Input controllers ──
-  final _capitalObligCtrl = TextEditingController(text: '200000');
-  final _capitalSurobCtrl = TextEditingController(text: '100000');
-  final _renteCtrl = TextEditingController(text: '20400');
+  // ── Input mode ──
+  _InputMode _inputMode = _InputMode.estimate;
+
+  // ── Estimate mode controllers ──
+  final _ageCtrl = TextEditingController(text: '50');
+  final _ageRetraiteSlider = ValueNotifier<double>(65);
+  final _salaryCtrl = TextEditingController(text: '100000');
+  final _lppTotalCtrl = TextEditingController(text: '350000');
+
+  // ── Certificate mode controllers ──
+  final _capitalObligCtrl = TextEditingController(text: '500000');
+  final _capitalSurobCtrl = TextEditingController(text: '150000');
+  final _renteCtrl = TextEditingController(text: '37000');
+  final _tcObligCtrl = TextEditingController(text: '6.8');
+  final _tcSurobCtrl = TextEditingController(text: '5.0');
+
+  // ── Shared inputs ──
   String _canton = 'VD';
   bool _isMarried = false;
 
@@ -45,15 +65,24 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     'inflation': 2.0,
   };
 
+  // ── Life expectancy slider ──
+  double _lifeExpectancy = 85;
+
   bool _isLoading = false;
   int _requestCounter = 0;
   ArbitrageResult? _result;
-  static const int _ageRetraiteReference = 65;
 
-  // ── CoachProfile auto-fill (P8 Phase 4) ──
+  // ── CoachProfile auto-fill ──
   bool _didAutoFill = false;
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
+
+  // ── New fields ──
+  double? _avsRenteMensuelle;
+  final _rachatAnnuelCtrl = TextEditingController(text: '0');
+  final _rachatMaxCtrl = TextEditingController(text: '0');
+  bool _hasEpl = false;
+  final _eplAmountCtrl = TextEditingController(text: '0');
 
   @override
   void initState() {
@@ -71,52 +100,183 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   void _autoFillFromProfile() {
-    final profile = context.read<CoachProfileProvider>().profile;
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
     if (profile == null) return;
 
+    final sources = profile.dataSources;
+    bool changed = false;
+    bool hasEstimates = false;
+
+    void apply(TextEditingController ctrl, String? value, String field) {
+      if (value != null && value.isNotEmpty) {
+        ctrl.text = value;
+        changed = true;
+        final src = sources[field];
+        if (src != null && src != ProfileDataSource.certificate) {
+          hasEstimates = true;
+        }
+      }
+    }
+
+    // Age from birth year
+    final currentYear = DateTime.now().year;
+    final age = currentYear - profile.birthYear;
+    apply(_ageCtrl, age.toString(), 'age');
+
+    // Gross annual salary
+    final salaryAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
+    if (salaryAnnuel > 0) {
+      apply(_salaryCtrl, salaryAnnuel.round().toString(), 'salaire_brut');
+    }
+
+    // LPP balance
     final lpp = profile.prevoyance.avoirLppTotal;
     if (lpp != null && lpp > 0) {
-      // MINT default: 70% obligatoire / 30% surobligatoire (moyenne industrie
-      // suisse, pas de source legale — valeur indicative, l'utilisateur peut
-      // modifier les champs).
-      final oblig = (lpp * 0.7).round();
-      final surob = (lpp * 0.3).round();
-      _capitalObligCtrl.text = oblig.toString();
-      _capitalSurobCtrl.text = surob.toString();
-      // Estimate rente from obligatory part at 6.8%
-      final rente = (oblig * (lppTauxConversionMin / 100)).round();
-      _renteCtrl.text = rente.toString();
-      _hasEstimatedValues = true;
+      apply(_lppTotalCtrl, lpp.round().toString(), 'prevoyance.avoirLppTotal');
     }
-    if (profile.canton.isNotEmpty) {
-      _canton = profile.canton;
+
+    // Canton
+    final canton = profile.canton;
+    if (cantonFullNames.containsKey(canton)) {
+      _canton = canton;
+      changed = true;
     }
-    _isMarried = profile.etatCivil == CoachCivilStatus.marie;
-    _dataSources = profile.dataSources;
-    _recalculate();
+
+    // Married
+    final married = profile.etatCivil == CoachCivilStatus.marie;
+    _isMarried = married;
+
+    // LPP oblig/surob split — use direct values if available, else 70/30 will be used
+    final lppOblig = profile.prevoyance.avoirLppObligatoire;
+    final lppSurob = profile.prevoyance.avoirLppSurobligatoire;
+    if (lppOblig != null && lppOblig > 0) {
+      apply(_capitalObligCtrl, lppOblig.round().toString(), 'prevoyance.avoirLppObligatoire');
+    }
+    if (lppSurob != null && lppSurob > 0) {
+      apply(_capitalSurobCtrl, lppSurob.round().toString(), 'prevoyance.avoirLppSurobligatoire');
+    }
+
+    // Conversion rates from certificate
+    final tcProfile = profile.prevoyance.tauxConversion;
+    if (tcProfile > 0) {
+      apply(_tcObligCtrl, (tcProfile * 100).toStringAsFixed(1), 'prevoyance.tauxConversion');
+    }
+    final tcSurobProfile = profile.prevoyance.tauxConversionSuroblig;
+    if (tcSurobProfile != null && tcSurobProfile > 0) {
+      apply(_tcSurobCtrl, (tcSurobProfile * 100).toStringAsFixed(1), 'prevoyance.tauxConversionSuroblig');
+    }
+
+    // AVS estimated monthly rente — used for display only (not engine input)
+    final avsRente = profile.prevoyance.renteAVSEstimeeMensuelle;
+    if (avsRente != null && avsRente > 0) {
+      _avsRenteMensuelle = avsRente;
+      changed = true;
+    }
+
+    // Retirement age from profile if available
+    final retirementAge = profile.targetRetirementAge;
+    if (retirementAge != null && retirementAge >= 58 && retirementAge <= 70) {
+      _ageRetraiteSlider.value = retirementAge.toDouble();
+      changed = true;
+    }
+
+    // Rachat potential from profile
+    final lacune = profile.prevoyance.lacuneRachatRestante;
+    if (lacune > 0) {
+      _rachatMaxCtrl.text = lacune.round().toString();
+      changed = true;
+    }
+
+    if (changed) {
+      _dataSources = Map.from(sources);
+      _hasEstimatedValues = hasEstimates;
+      _recalculate();
+    }
   }
 
   @override
   void dispose() {
+    _ageCtrl.dispose();
+    _salaryCtrl.dispose();
+    _lppTotalCtrl.dispose();
     _capitalObligCtrl.dispose();
     _capitalSurobCtrl.dispose();
     _renteCtrl.dispose();
+    _tcObligCtrl.dispose();
+    _tcSurobCtrl.dispose();
+    _ageRetraiteSlider.dispose();
+    _rachatAnnuelCtrl.dispose();
+    _rachatMaxCtrl.dispose();
+    _eplAmountCtrl.dispose();
     super.dispose();
   }
 
+  /// Compute estimate-mode inputs from the LPP total entered by the user.
   void _recalculate() {
     _recalculateAsync();
   }
 
   Future<void> _recalculateAsync() async {
     final requestId = ++_requestCounter;
-    final capitalOblig =
-        double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 200000;
-    final capitalSurob =
-        double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 100000;
-    final renteAnnuelle =
-        double.tryParse(_renteCtrl.text.replaceAll("'", '')) ?? 20400;
+    final ageRetraite = _ageRetraiteSlider.value.round();
+
+    double capitalOblig, capitalSurob, renteAnnuelle;
+    double tcOblig, tcSurob;
+    int? currentAge;
+    double? salary;
+
+    if (_inputMode == _InputMode.estimate) {
+      // Estimate mode: use LPP total with 70/30 split as starting point
+      final lppTotal =
+          double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
+      capitalOblig = lppTotal * 0.7;
+      capitalSurob = lppTotal * 0.3;
+      tcOblig = lppTauxConversionMin / 100;
+      tcSurob = 0.05;
+      renteAnnuelle = capitalOblig * tcOblig;
+      currentAge = int.tryParse(_ageCtrl.text);
+      salary = double.tryParse(_salaryCtrl.text.replaceAll("'", ''));
+    } else {
+      // Certificate mode: direct values
+      capitalOblig =
+          double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 500000;
+      capitalSurob =
+          double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 150000;
+      renteAnnuelle =
+          double.tryParse(_renteCtrl.text.replaceAll("'", '')) ?? 37000;
+      tcOblig = (double.tryParse(_tcObligCtrl.text) ?? 6.8) / 100;
+      tcSurob = (double.tryParse(_tcSurobCtrl.text) ?? 5.0) / 100;
+      currentAge = null;
+      salary = null;
+    }
+
+    // Rachat LPP: add future value of annual buybacks to current LPP
+    // FV annuity = annualBuyback × ((1+r)^n - 1) / r  (LPP growth rate 1.25%)
+    final rachatAnnuel = double.tryParse(_rachatAnnuelCtrl.text.replaceAll("'", '')) ?? 0;
+    if (rachatAnnuel > 0 && currentAge != null) {
+      final yearsToRetirement = math.max(0, _ageRetraite - currentAge);
+      const lppReturn = 0.0125;
+      final fvRachat = yearsToRetirement > 0
+          ? rachatAnnuel * (math.pow(1 + lppReturn, yearsToRetirement) - 1) / lppReturn
+          : rachatAnnuel;
+      capitalOblig += fvRachat * 0.7;
+      capitalSurob += fvRachat * 0.3;
+    }
+
+    // EPL: withdrawal for real estate reduces capital
+    final eplAmount = _hasEpl
+        ? (double.tryParse(_eplAmountCtrl.text.replaceAll("'", '')) ?? 0)
+        : 0.0;
+    if (eplAmount > 0) {
+      // EPL reduces proportionally from oblig/surob
+      final ratio = capitalOblig / math.max(1, capitalOblig + capitalSurob);
+      capitalOblig = math.max(0, capitalOblig - eplAmount * ratio);
+      capitalSurob = math.max(0, capitalSurob - eplAmount * (1 - ratio));
+    }
+
     final capitalTotal = capitalOblig + capitalSurob;
+    final horizon = math.max(30, (_lifeExpectancy - ageRetraite).round());
 
     setState(() => _isLoading = true);
     try {
@@ -125,17 +285,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         capitalObligatoire: capitalOblig,
         capitalSurobligatoire: capitalSurob,
         renteAnnuelleProposee: renteAnnuelle,
-        tauxConversionObligatoire: lppTauxConversionMin / 100,
-        tauxConversionSurobligatoire: 0.05,
+        tauxConversionObligatoire: tcOblig,
+        tauxConversionSurobligatoire: tcSurob,
         canton: _canton,
-        ageRetraite: 65,
+        ageRetraite: ageRetraite,
         tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
         rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
-        horizon: 25,
+        horizon: horizon,
         isMarried: _isMarried,
       );
-
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
       return;
@@ -145,18 +304,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         capitalObligatoire: capitalOblig,
         capitalSurobligatoire: capitalSurob,
         renteAnnuelleProposee: renteAnnuelle,
-        tauxConversionObligatoire: lppTauxConversionMin / 100,
-        tauxConversionSurobligatoire: 0.05,
+        tauxConversionObligatoire: tcOblig,
+        tauxConversionSurobligatoire: tcSurob,
         canton: _canton,
-        ageRetraite: 65,
+        ageRetraite: ageRetraite,
         tauxRetrait: (_hypotheses['swr'] ?? 4.0) / 100,
         rendementCapital: (_hypotheses['rendement'] ?? 3.0) / 100,
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
-        horizon: 25,
+        horizon: horizon,
         isMarried: _isMarried,
         dataSources: _dataSources,
+        currentAge: currentAge,
+        grossAnnualSalary: salary,
       );
-
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = fallback);
     } finally {
@@ -165,6 +325,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       }
     }
   }
+
+  int get _ageRetraite => _ageRetraiteSlider.value.round();
 
   List<TrajectoireOption> _optionsAsAgeTrajectories(
     List<TrajectoireOption> options,
@@ -175,7 +337,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         final snap = option.trajectory[i];
         mappedTrajectory.add(
           YearlySnapshot(
-            year: _ageRetraiteReference + i,
+            year: _ageRetraite + i,
             netPatrimony: snap.netPatrimony,
             annualCashflow: snap.annualCashflow,
             cumulativeTaxDelta: snap.cumulativeTaxDelta,
@@ -191,6 +353,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       );
     }).toList();
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BUILD — 4 BLOCS
+  // ═══════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
@@ -209,9 +375,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Rente ou capital LPP ?',
+                'Rente ou capital : ta décision',
                 style: GoogleFonts.montserrat(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -233,130 +399,62 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── Inputs ──
+                // ── Hero intro (why this matters) ──
+                _buildHeroIntro(),
+                const SizedBox(height: 20),
+
+                // ── Inputs (2 modes) ──
                 _buildInputSection(),
                 const SizedBox(height: 24),
 
-                // ── Chart ──
                 if (_isLoading && _result == null)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 24),
                     child: Center(child: CircularProgressIndicator()),
                   ),
+
                 if (_result != null) ...[
-                  // ── Indicatif banner (P8 Phase 4) ──
+                  // ── Confidence banner ──
                   if (_result!.confidenceScore < 70)
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: MintColors.warning.withAlpha(20),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: MintColors.warning.withAlpha(60)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
-                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (_hasEstimatedValues)
+                    _buildConfidenceBanner(),
+
+                  if (_hasEstimatedValues && _inputMode == _InputMode.estimate)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: 12),
                       child: SmartDefaultIndicator(
-                        source: 'Valeurs pre-remplies depuis ton profil '
-                            '(repartition estimee 70 % oblig. / 30 % surob.)',
+                        source: 'Valeurs pre-remplies depuis ton profil',
                         confidence: _result!.confidenceScore / 100,
                       ),
                     ),
-                  Text(
-                    'Trajectoires comparees',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Axe horizontal = age (65 a 90). '
-                    'Valeurs = patrimoine net cumule (capital restant + flux encaisses).',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TrajectoryComparisonChart(
-                    options: chartOptions,
-                    breakevenYear: _result!.breakevenYear,
-                    selectedAxisLabel: 'Age',
-                  ),
-                  const SizedBox(height: 20),
 
-                  // ── Breakeven ──
-                  BreakevenIndicatorWidget(
-                    breakevenYear: _result!.breakevenYear,
-                    ageRetraite: _ageRetraiteReference,
-                    horizon: 25,
-                    sensitivity: _result!.sensitivity,
-                    showCalendarYear: false,
-                  ),
-                  const SizedBox(height: 20),
+                  // ══════════════════════════════════════════════
+                  //  BLOC A — ACCROCHE
+                  //  Chiffre-choc + Hero CHF/mois + micro-légendes
+                  // ══════════════════════════════════════════════
+                  _buildChiffreChocAccroche(),
+                  const SizedBox(height: 16),
+                  _buildHeroMonthly(),
+                  const SizedBox(height: 24),
 
-                  ArbitrageTornadoSection(result: _result!),
-                  const SizedBox(height: 20),
+                  // ══════════════════════════════════════════════
+                  //  BLOC C — COMPRENDRE
+                  //  3 cartes éducatives (fiscalité, inflation, transmission)
+                  // ══════════════════════════════════════════════
+                  _buildEducationalCards(),
+                  const SizedBox(height: 24),
 
-                  // ── Chiffre choc ──
-                  _buildChiffreChocCard(),
-                  const SizedBox(height: 20),
+                  // ══════════════════════════════════════════════
+                  //  BLOC B — EXPLORER
+                  //  Slider espérance + chart trajectoire (fused)
+                  // ══════════════════════════════════════════════
+                  _buildExplorerBloc(chartOptions),
+                  const SizedBox(height: 24),
 
-                  // ── Hypothesis sliders ──
-                  HypothesisEditorWidget(
-                    hypotheses: const [
-                      HypothesisConfig(
-                        key: 'rendement',
-                        label: 'Rendement du capital',
-                        min: 0,
-                        max: 8,
-                        divisions: 16,
-                        defaultValue: 3,
-                      ),
-                      HypothesisConfig(
-                        key: 'swr',
-                        label: 'Taux de retrait (SWR)',
-                        min: 2,
-                        max: 6,
-                        divisions: 8,
-                        defaultValue: 4,
-                      ),
-                      HypothesisConfig(
-                        key: 'inflation',
-                        label: 'Inflation',
-                        min: 0,
-                        max: 4,
-                        divisions: 8,
-                        defaultValue: 2,
-                      ),
-                    ],
-                    values: _hypotheses,
-                    onChanged: (updated) {
-                      _hypotheses = updated;
-                      _recalculate();
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ── Hypotheses list ──
-                  _buildHypothesesSection(),
+                  // ══════════════════════════════════════════════
+                  //  BLOC D — AFFINER
+                  //  Hypothèses + impact cards + tornado (ExpansionTile)
+                  // ══════════════════════════════════════════════
+                  _buildAffinerBloc(),
                   const SizedBox(height: 20),
 
                   // ── Disclaimer ──
@@ -372,7 +470,127 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  INPUT SECTION
+  //  HERO INTRO — pourquoi tu devrais t'en soucier
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildHeroIntro() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.info.withAlpha(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.info.withAlpha(30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'À la retraite, tu choisis une fois pour toutes : '
+            'un revenu à vie ou ton capital en main.',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.textPrimary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 14),
+          _introPuce(
+            'Rente',
+            'Ta caisse de pension te verse un montant fixe chaque mois, '
+                'tant que tu vis — même si tu atteins 100 ans. '
+                'En échange, tu ne récupères jamais ton capital.',
+          ),
+          _introPuce(
+            'Capital',
+            'Tu récupères tout ton avoir LPP d\'un coup. Tu le places, '
+                'tu retires ce dont tu as besoin chaque mois. '
+                'Liberté totale, mais le risque de manquer est réel.',
+          ),
+          _introPuce(
+            'Mixte',
+            'La partie obligatoire en rente (taux 6.8 %) + '
+                'le surobligatoire en capital. Un compromis entre '
+                'sécurité et flexibilité.',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _introPuce(String term, String explanation) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: InkWell(
+        onTap: () => _showExplanation(term, explanation),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
+              Text(
+                term,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.info,
+                  decoration: TextDecoration.underline,
+                  decorationColor: MintColors.info.withAlpha(60),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showExplanation(String term, String text) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                  color: MintColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              term,
+              style: GoogleFonts.montserrat(
+                fontSize: 18, fontWeight: FontWeight.w700,
+                color: MintColors.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 15, color: MintColors.textPrimary, height: 1.6,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  INPUTS — 2 modes via SegmentedButton
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
@@ -386,46 +604,182 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Ton avoir LPP',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
+          // Mode selector
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<_InputMode>(
+              segments: const [
+                ButtonSegment(
+                  value: _InputMode.estimate,
+                  label: Text('Estimer pour moi'),
+                  icon: Icon(Icons.auto_fix_high, size: 16),
+                ),
+                ButtonSegment(
+                  value: _InputMode.certificate,
+                  label: Text('J\'ai mon certificat'),
+                  icon: Icon(Icons.description_outlined, size: 16),
+                ),
+              ],
+              selected: {_inputMode},
+              onSelectionChanged: (v) {
+                setState(() => _inputMode = v.first);
+                _recalculate();
+              },
+              style: ButtonStyle(
+                textStyle: WidgetStatePropertyAll(
+                  GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          _buildTextField(
-            controller: _capitalObligCtrl,
-            label: 'Capital obligatoire (CHF)',
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: _capitalSurobCtrl,
-            label: 'Capital surobligatoire (CHF)',
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: _renteCtrl,
-            label: 'Rente annuelle proposee (CHF)',
-          ),
-          const SizedBox(height: 16),
 
-          // Canton dropdown
+          if (_inputMode == _InputMode.estimate) ...[
+            _buildLabeledField(
+              controller: _ageCtrl,
+              label: 'Ton âge',
+              fieldName: 'age',
+            ),
+            const SizedBox(height: 12),
+            // Retirement age slider
+            _buildRetirementAgeSlider(),
+            const SizedBox(height: 12),
+            _buildLabeledField(
+              controller: _salaryCtrl,
+              label: 'Ton salaire brut annuel (CHF)',
+              fieldName: 'salaire_brut',
+            ),
+            const SizedBox(height: 12),
+            _buildLabeledField(
+              controller: _lppTotalCtrl,
+              label: 'Ton avoir LPP actuel (CHF)',
+              fieldName: 'lpp_total',
+            ),
+            const SizedBox(height: 12),
+            // Rachat LPP
+            _buildRachatSection(),
+            const SizedBox(height: 12),
+            // EPL
+            _buildEplSection(),
+            // Auto-computed readout
+            if (_result != null && _result!.isProjected) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: MintColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Capital estimé à $_ageRetraite ans : '
+                      '~${formatChf(_result!.capitalProjecte)}',
+                      style: GoogleFonts.inter(
+                        fontSize: 13, fontWeight: FontWeight.w600,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Rente estimée : ~${formatChf(_result!.renteNetMensuelle * 12)}/an',
+                      style: GoogleFonts.inter(
+                        fontSize: 12, color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        SmartDefaultIndicator(
+                          source: 'Projection basée sur ton âge, salaire et LPP actuel',
+                          confidence: _result!.confidenceScore / 100,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ] else ...[
+            // Certificate mode
+            _buildLabeledField(
+              controller: _capitalObligCtrl,
+              label: 'Avoir LPP obligatoire (certificat LPP)',
+              fieldName: 'lpp_obligatoire',
+            ),
+            const SizedBox(height: 12),
+            _buildLabeledField(
+              controller: _capitalSurobCtrl,
+              label: 'Avoir LPP surobligatoire (certificat LPP)',
+              fieldName: 'lpp_surobligatoire',
+            ),
+            const SizedBox(height: 12),
+            _buildLabeledField(
+              controller: _renteCtrl,
+              label: 'Rente annuelle proposée (certificat LPP)',
+              fieldName: 'rente_projetee',
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildLabeledField(
+                    controller: _tcObligCtrl,
+                    label: 'Taux conv. oblig. (%)',
+                    isPercent: true,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildLabeledField(
+                    controller: _tcSurobCtrl,
+                    label: 'Taux conv. surob. (%)',
+                    isPercent: true,
+                  ),
+                ),
+              ],
+            ),
+            // Confidence gratification
+            if (_result != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: MintColors.success.withAlpha(15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: MintColors.success.withAlpha(40)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle_outline,
+                          size: 20, color: MintColors.success),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Précision maximale — résultats basés sur tes vrais chiffres.',
+                          style: GoogleFonts.inter(
+                            fontSize: 12, color: MintColors.success,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+
+          const SizedBox(height: 16),
+          // Canton + Married
           Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Canton',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
+                    Text('Canton', style: _labelStyle),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -441,17 +795,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           final name = cantonFullNames[code] ?? code;
                           return DropdownMenuItem(
                             value: code,
-                            child: Text(
-                              '$code - $name',
-                              style: GoogleFonts.inter(fontSize: 14),
-                            ),
+                            child: Text('$code - $name',
+                                style: GoogleFonts.inter(fontSize: 14)),
                           );
                         }).toList(),
                         onChanged: (v) {
-                          if (v != null) {
-                            _canton = v;
-                            _recalculate();
-                          }
+                          if (v != null) { _canton = v; _recalculate(); }
                         },
                       ),
                     ),
@@ -459,82 +808,93 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              // Married toggle
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Marie·e',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
+                  Text('Marie·e', style: _labelStyle),
                   const SizedBox(height: 6),
                   Switch(
                     value: _isMarried,
                     activeColor: MintColors.primary,
-                    onChanged: (v) {
-                      _isMarried = v;
-                      _recalculate();
-                    },
+                    onChanged: (v) { _isMarried = v; _recalculate(); },
                   ),
                 ],
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _recalculate,
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              child: Text(
-                'Comparer les trajectoires',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildRetirementAgeSlider() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Retraite prévue à', style: _labelStyle),
+            const Spacer(),
+            ValueListenableBuilder<double>(
+              valueListenable: _ageRetraiteSlider,
+              builder: (_, v, __) => Text(
+                '${v.round()} ans',
+                style: GoogleFonts.inter(
+                  fontSize: 13, fontWeight: FontWeight.w600,
+                  color: MintColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SliderTheme(
+          data: SliderThemeData(
+            activeTrackColor: MintColors.primary,
+            inactiveTrackColor: MintColors.textMuted.withAlpha(40),
+            thumbColor: MintColors.primary,
+            overlayColor: MintColors.primary.withAlpha(30),
+            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+          ),
+          child: Slider(
+            value: _ageRetraiteSlider.value,
+            min: 58, max: 70, divisions: 12,
+            onChanged: (v) {
+              _ageRetraiteSlider.value = v;
+              _recalculate();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabeledField({
     required TextEditingController controller,
     required String label,
+    String? fieldName,
+    bool isPercent = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textSecondary,
-          ),
+        Row(
+          children: [
+            Expanded(child: Text(label, style: _labelStyle)),
+            if (fieldName != null)
+              FieldHelpTooltip(fieldName: fieldName),
+          ],
         ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: MintColors.textPrimary,
-          ),
+          keyboardType: isPercent
+              ? const TextInputType.numberWithOptions(decimal: true)
+              : TextInputType.number,
+          inputFormatters: isPercent
+              ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
+              : [FilteringTextInputFormatter.digitsOnly],
+          style: GoogleFonts.inter(fontSize: 15, color: MintColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
             fillColor: MintColors.surface,
@@ -543,8 +903,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
+              horizontal: 16, vertical: 14,
             ),
           ),
           onChanged: (_) => _recalculate(),
@@ -554,13 +913,82 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  CHIFFRE CHOC CARD
+  //  BLOC A — ACCROCHE
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildChiffreChocCard() {
-    if (_result == null) return const SizedBox.shrink();
+  /// Chiffre-choc en haut — pourquoi cette decision compte.
+  Widget _buildChiffreChocAccroche() {
+    final r = _result!;
+    // Build a punchy one-liner from the engine's chiffreChoc
+    final taxDelta = (r.impotCumulRente - r.impotRetraitCapital).abs();
+    final epuiseAge = r.capitalEpuiseAge;
+
+    // Dynamic accroche that adapts to the user's numbers
+    String accroche;
+    if (taxDelta > 10000 && epuiseAge != null) {
+      accroche = 'Cette décision peut te coûter '
+          '${formatChf(taxDelta)} d\'impôts en trop — '
+          'ou te laisser sans rien à $epuiseAge ans. '
+          'Tu ne peux la prendre qu\'une seule fois.';
+    } else if (taxDelta > 10000) {
+      accroche = 'Cette décision peut changer '
+          '${formatChf(taxDelta)} d\'impôts sur ta retraite. '
+          'Tu ne peux la prendre qu\'une seule fois.';
+    } else if (epuiseAge != null) {
+      accroche = 'Avec le capital, tu pourrais manquer d\'argent '
+          'dès $epuiseAge ans. Avec la rente, tu reçois '
+          'un montant fixe à vie. Tu ne peux choisir qu\'une fois.';
+    } else {
+      accroche = r.chiffreChoc;
+    }
+
     return Container(
       width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: MintColors.info.withAlpha(12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.info.withAlpha(30)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              accroche,
+              style: GoogleFonts.inter(
+                fontSize: 14, fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary, height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Hero CHF/mois — side-by-side with micro-légendes.
+  Widget _buildHeroMonthly() {
+    final r = _result!;
+    final renteMois = r.renteNetMensuelle;
+    final capitalMois = r.capitalRetraitMensuel;
+    final delta = (capitalMois - renteMois).abs();
+    final capitalDuration = r.capitalEpuiseAge != null
+        ? '~${r.capitalEpuiseAge! - _ageRetraite} ans'
+        : '30+ ans';
+    final swr = (_hypotheses['swr'] ?? 4.0);
+    final rendement = (_hypotheses['rendement'] ?? 3.0);
+
+    final higherIsCapital = capitalMois > renteMois;
+    final synthese = higherIsCapital
+        ? 'Le capital te donne ${formatChf(delta)}/mois de plus, '
+            'mais pourrait s\'épuiser.'
+        : 'La rente te donne ${formatChf(delta)}/mois de plus, '
+            'et ne s\'arrête jamais.';
+
+    return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: MintColors.card,
@@ -568,47 +996,741 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: MintColors.info.withAlpha(15),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
+            color: MintColors.primary.withAlpha(8),
+            blurRadius: 20, offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Rente column ──
+              Expanded(
+                child: Column(
+                  children: [
+                    Text('RENTE', style: GoogleFonts.montserrat(
+                      fontSize: 11, fontWeight: FontWeight.w700,
+                      color: MintColors.retirementAvs,
+                      letterSpacing: 1.2,
+                    )),
+                    const SizedBox(height: 6),
+                    Text(
+                      formatChf(renteMois),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 26, fontWeight: FontWeight.w800,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    Text('/mois', style: GoogleFonts.inter(
+                      fontSize: 13, color: MintColors.textSecondary,
+                    )),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: MintColors.retirementAvs.withAlpha(15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('à vie', style: GoogleFonts.inter(
+                        fontSize: 11, fontWeight: FontWeight.w600,
+                        color: MintColors.retirementAvs,
+                      )),
+                    ),
+                    const SizedBox(height: 8),
+                    // ── Micro-légende ──
+                    Text(
+                      'Ta caisse te verse ce montant chaque mois, tant que tu vis.',
+                      style: GoogleFonts.inter(
+                        fontSize: 10, color: MintColors.textMuted, height: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              // Divider
+              Container(width: 1, height: 100, color: MintColors.lightBorder),
+              // ── Capital column ──
+              Expanded(
+                child: Column(
+                  children: [
+                    Text('CAPITAL', style: GoogleFonts.montserrat(
+                      fontSize: 11, fontWeight: FontWeight.w700,
+                      color: MintColors.retirementLpp,
+                      letterSpacing: 1.2,
+                    )),
+                    const SizedBox(height: 6),
+                    Text(
+                      formatChf(capitalMois),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 26, fontWeight: FontWeight.w800,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    Text('/mois', style: GoogleFonts.inter(
+                      fontSize: 13, color: MintColors.textSecondary,
+                    )),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: MintColors.retirementLpp.withAlpha(15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('pendant $capitalDuration', style: GoogleFonts.inter(
+                        fontSize: 11, fontWeight: FontWeight.w600,
+                        color: MintColors.retirementLpp,
+                      )),
+                    ),
+                    const SizedBox(height: 8),
+                    // ── Micro-légende ──
+                    Text(
+                      'Tu retires ${swr.toStringAsFixed(0)} % par an '
+                      'd\'un capital placé à ${rendement.toStringAsFixed(0)} %.',
+                      style: GoogleFonts.inter(
+                        fontSize: 10, color: MintColors.textMuted, height: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           Container(
-            width: 44,
-            height: 44,
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.info.withAlpha(25),
-              shape: BoxShape.circle,
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              Icons.insights_rounded,
-              color: MintColors.info,
-              size: 24,
+            child: Text(
+              synthese,
+              style: GoogleFonts.inter(
+                fontSize: 13, color: MintColors.textPrimary,
+                height: 1.5, fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          // AVS complement if available
+          if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: MintColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: MintColors.lightBorder),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.inter(fontSize: 12, color: MintColors.textSecondary),
+                        children: [
+                          const TextSpan(text: 'AVS estimée : '),
+                          TextSpan(
+                            text: '~${formatChf(_avsRenteMensuelle!)}/mois',
+                            style: GoogleFonts.inter(
+                              fontSize: 12, fontWeight: FontWeight.w700,
+                              color: MintColors.textPrimary,
+                            ),
+                          ),
+                          const TextSpan(text: ' supplementaires dans les deux cas (LAVS art. 29)'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC B — EXPLORER (slider + chart fused)
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildExplorerBloc(List<TrajectoireOption> chartOptions) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Slider: "Et si je vis jusqu'a..." ──
+          Text(
+            'Et si je vis jusqu\'à...',
+            style: GoogleFonts.montserrat(
+              fontSize: 15, fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: MintColors.primary,
+              inactiveTrackColor: MintColors.textMuted.withAlpha(40),
+              thumbColor: MintColors.primary,
+              overlayColor: MintColors.primary.withAlpha(30),
+              trackHeight: 6,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+              valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+              showValueIndicator: ShowValueIndicator.always,
+            ),
+            child: Slider(
+              value: _lifeExpectancy,
+              min: 70, max: 100, divisions: 30,
+              label: '${_lifeExpectancy.round()} ans',
+              onChanged: (v) {
+                setState(() => _lifeExpectancy = v);
+                _recalculate();
+              },
+            ),
+          ),
+          _buildDeltaAtAge(_lifeExpectancy.round()),
+          const SizedBox(height: 6),
+          Text(
+            'Esperance de vie suisse : hommes 84 ans \u00b7 femmes 87 ans',
+            style: GoogleFonts.inter(
+              fontSize: 11, color: MintColors.textMuted,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Chart: capital restant vs revenus cumules de la rente ──
+          Text(
+            'Capital restant vs revenus cumulés de la rente',
+            style: GoogleFonts.montserrat(
+              fontSize: 15, fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Capital (vert) : ce qu\'il reste après tes retraits. Rente (bleu) : total reçu depuis le départ. '
+            'Le croisement = l\'âge auquel la rente a plus rapporté.',
+            style: GoogleFonts.inter(
+              fontSize: 12, color: MintColors.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            _result!.chiffreChoc,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-              height: 1.5,
+          TrajectoryComparisonChart(
+            options: chartOptions,
+            breakevenYear: _result!.breakevenYear,
+            selectedAxisLabel: 'Age',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeltaAtAge(int age) {
+    if (_result == null) return const SizedBox.shrink();
+    final yearIndex = age - _ageRetraite;
+    if (yearIndex < 0) return const SizedBox.shrink();
+
+    final renteOption = _result!.options.firstWhere(
+      (o) => o.id == 'full_rente', orElse: () => _result!.options.first,
+    );
+    final capitalOption = _result!.options.firstWhere(
+      (o) => o.id == 'full_capital', orElse: () => _result!.options.last,
+    );
+
+    if (yearIndex >= renteOption.trajectory.length ||
+        yearIndex >= capitalOption.trajectory.length) {
+      // Should not happen now that horizon is dynamic, but safety fallback
+      return Text(
+        'À $age ans : au-delà de l\'horizon de simulation.',
+        style: GoogleFonts.inter(fontSize: 13, color: MintColors.textSecondary),
+      );
+    }
+
+    final renteVal = renteOption.trajectory[yearIndex].netPatrimony;
+    final capitalVal = capitalOption.trajectory[yearIndex].netPatrimony;
+    final delta = capitalVal - renteVal;
+    final winner = delta > 0 ? 'Capital' : 'Rente';
+    final winnerColor = delta > 0 ? MintColors.retirementLpp : MintColors.retirementAvs;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: winnerColor.withAlpha(10),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            delta > 0 ? Icons.trending_up : Icons.trending_down,
+            color: winnerColor, size: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text.rich(
+              TextSpan(children: [
+                TextSpan(
+                  text: 'À $age ans : ',
+                  style: GoogleFonts.inter(
+                    fontSize: 13, color: MintColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                TextSpan(
+                  text: '$winner = +${formatChf(delta.abs())} ',
+                  style: GoogleFonts.inter(
+                    fontSize: 13, fontWeight: FontWeight.w700,
+                    color: winnerColor,
+                  ),
+                ),
+                TextSpan(
+                  text: 'd\'avance',
+                  style: GoogleFonts.inter(
+                    fontSize: 13, color: MintColors.textSecondary,
+                  ),
+                ),
+              ]),
             ),
-            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC C — COMPRENDRE (3 educational before/after cards)
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildEducationalCards() {
+    final r = _result!;
+    final inflation = (_hypotheses['inflation'] ?? 2.0) / 100;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ce que ça change concrètement',
+          style: GoogleFonts.montserrat(
+            fontSize: 16, fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Card 1: Fiscalite
+        _educationalCard(
+          icon: Icons.receipt_long,
+          iconColor: const Color(0xFF6366F1),
+          title: 'Fiscalité',
+          leftTitle: 'Rente',
+          leftSubtitle: 'Imposée chaque année',
+          leftValue: '~${formatChf(r.impotCumulRente)}',
+          leftDetail: 'sur 30 ans',
+          rightTitle: 'Capital',
+          rightSubtitle: 'Taxé une seule fois',
+          rightValue: '~${formatChf(r.impotRetraitCapital)}',
+          rightDetail: 'au retrait (LIFD art. 38)',
+          bottomText: r.impotCumulRente > r.impotRetraitCapital
+              ? 'Sur 30 ans, le capital te fait économiser '
+                '~${formatChf(r.impotCumulRente - r.impotRetraitCapital)} d\'impôts.'
+              : 'Sur 30 ans, la rente génère '
+                '~${formatChf(r.impotRetraitCapital - r.impotCumulRente)} d\'impôts en moins.',
+        ),
+        const SizedBox(height: 12),
+
+        // Card 2: Inflation
+        _educationalCard(
+          icon: Icons.trending_down,
+          iconColor: MintColors.warning,
+          title: 'Inflation',
+          leftTitle: 'Aujourd\'hui',
+          leftSubtitle: '',
+          leftValue: '${formatChf(r.renteNetMensuelle)}',
+          leftDetail: '/mois',
+          rightTitle: 'Dans 20 ans',
+          rightSubtitle: 'pouvoir d\'achat',
+          rightValue: '${formatChf(r.renteReelleAn20 / 12)}',
+          rightDetail: '/mois',
+          bottomText: 'Ta rente LPP n\'est pas indexée. '
+              'Elle achète ${((1 - 1 / math.pow(1 + inflation, 20)) * 100).round()} % '
+              'de moins dans 20 ans.',
+        ),
+        const SizedBox(height: 12),
+
+        // Card 3: Transmission
+        _educationalCard(
+          icon: Icons.family_restroom,
+          iconColor: MintColors.primary,
+          title: 'Transmission',
+          leftTitle: 'Rente',
+          leftSubtitle: _isMarried ? 'Ton conjoint reçoit' : 'À ton décès',
+          leftValue: _isMarried
+              ? '60 % = ${formatChf(r.renteSurvivant / 12)}/mois'
+              : 'Rien',
+          leftDetail: _isMarried ? 'LPP art. 19' : 'pour tes héritiers',
+          rightTitle: 'Capital',
+          rightSubtitle: 'Tes héritiers reçoivent',
+          rightValue: '100 %',
+          rightDetail: 'du solde restant',
+          bottomText: _isMarried
+              ? 'Avec la rente, seul\u00b7e ton conjoint\u00b7e reçoit 60 %. '
+                'Rien pour les enfants.'
+              : 'Avec la rente, rien ne revient à tes proches.',
+        ),
+      ],
+    );
+  }
+
+  Widget _educationalCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String leftTitle,
+    required String leftSubtitle,
+    required String leftValue,
+    required String leftDetail,
+    required String rightTitle,
+    required String rightSubtitle,
+    required String rightValue,
+    required String rightDetail,
+    required String bottomText,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Icon(icon, size: 18, color: iconColor),
+              const SizedBox(width: 8),
+              Text(title, style: GoogleFonts.montserrat(
+                fontSize: 14, fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              )),
+            ],
+          ),
+          const SizedBox(height: 14),
+          // Before/After comparison
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(leftTitle, style: GoogleFonts.inter(
+                      fontSize: 11, fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    )),
+                    if (leftSubtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(leftSubtitle, style: GoogleFonts.inter(
+                        fontSize: 10, color: MintColors.textMuted,
+                      )),
+                    ],
+                    const SizedBox(height: 6),
+                    Text(leftValue, style: GoogleFonts.montserrat(
+                      fontSize: 16, fontWeight: FontWeight.w800,
+                      color: MintColors.textPrimary,
+                    ), textAlign: TextAlign.center),
+                    const SizedBox(height: 2),
+                    Text(leftDetail, style: GoogleFonts.inter(
+                      fontSize: 10, color: MintColors.textMuted,
+                    )),
+                  ],
+                ),
+              ),
+              Container(width: 1, height: 60, color: MintColors.lightBorder),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(rightTitle, style: GoogleFonts.inter(
+                      fontSize: 11, fontWeight: FontWeight.w600,
+                      color: MintColors.textSecondary,
+                    )),
+                    if (rightSubtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(rightSubtitle, style: GoogleFonts.inter(
+                        fontSize: 10, color: MintColors.textMuted,
+                      )),
+                    ],
+                    const SizedBox(height: 6),
+                    Text(rightValue, style: GoogleFonts.montserrat(
+                      fontSize: 16, fontWeight: FontWeight.w800,
+                      color: MintColors.textPrimary,
+                    ), textAlign: TextAlign.center),
+                    const SizedBox(height: 2),
+                    Text(rightDetail, style: GoogleFonts.inter(
+                      fontSize: 10, color: MintColors.textMuted,
+                    )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Bottom insight
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withAlpha(10),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              bottomText,
+              style: GoogleFonts.inter(
+                fontSize: 12, color: MintColors.textPrimary,
+                height: 1.5, fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOC D — AFFINER (hypothèses + impact cards + tornado)
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildAffinerBloc() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Affiner ta simulation',
+          style: GoogleFonts.montserrat(
+            fontSize: 16, fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Pour ceux qui veulent creuser.',
+          style: GoogleFonts.inter(
+            fontSize: 12, color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // ── Hypothesis sliders (vulgarized labels) ──
+        HypothesisEditorWidget(
+          hypotheses: const [
+            HypothesisConfig(
+              key: 'rendement',
+              label: 'Ce que ton capital rapporte par an',
+              min: 0, max: 8, divisions: 16, defaultValue: 3,
+            ),
+            HypothesisConfig(
+              key: 'swr',
+              label: 'Combien tu retires chaque année',
+              min: 2, max: 6, divisions: 8, defaultValue: 4,
+            ),
+            HypothesisConfig(
+              key: 'inflation',
+              label: 'Inflation',
+              min: 0, max: 4, divisions: 8, defaultValue: 2,
+            ),
+          ],
+          values: _hypotheses,
+          onChanged: (updated) {
+            _hypotheses = updated;
+            _recalculate();
+          },
+        ),
+        const SizedBox(height: 20),
+
+        // ── Impact cards (simplified sensitivity) ──
+        _buildImpactCards(),
+        const SizedBox(height: 12),
+
+        // ── Tornado in ExpansionTile ──
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: const EdgeInsets.only(bottom: 8),
+          title: Text(
+            'Voir le diagramme de sensibilité',
+            style: GoogleFonts.inter(
+              fontSize: 13, fontWeight: FontWeight.w500,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          children: [ArbitrageTornadoSection(result: _result!)],
+        ),
+        const SizedBox(height: 16),
+
+        // ── Hypothèses détaillées ──
+        _buildHypothesesSection(),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  IMPACT CARDS (simplified sensitivity)
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildImpactCards() {
+    if (_result == null) return const SizedBox.shrink();
+    final variables = _result!.tornadoVariables;
+    if (variables.isEmpty) return const SizedBox.shrink();
+
+    // Filter out variables with negligible or zero swing — showing "+0" is
+    // worse than not showing the row at all (misleads the user).
+    final top = variables.where((v) => v.swing > 50).take(4).toList();
+    if (top.isEmpty) return const SizedBox.shrink();
+    final maxSwing = top.first.swing;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Qu\'est-ce qui change le plus le résultat ?',
+          style: GoogleFonts.montserrat(
+            fontSize: 15, fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Les paramètres les plus influents sur l\'écart entre tes options.',
+          style: GoogleFonts.inter(
+            fontSize: 12, color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        for (int i = 0; i < top.length; i++) ...[
+          _impactCard(i + 1, top[i], maxSwing),
+          if (i < top.length - 1) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
+  Widget _impactCard(int rank, ArbitrageTornadoVariable v, double maxSwing) {
+    final barFraction = maxSwing > 0 ? v.swing / maxSwing : 0.0;
+    final lowDelta = v.lowValue - v.baseValue;
+    final highDelta = v.highValue - v.baseValue;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 22, height: 22,
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withAlpha(15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Center(
+                  child: Text('#$rank', style: GoogleFonts.inter(
+                    fontSize: 10, fontWeight: FontWeight.w700,
+                    color: MintColors.primary,
+                  )),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(v.label, style: GoogleFonts.inter(
+                  fontSize: 13, fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                )),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          Text(
-            _result!.displaySummary,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              height: 1.4,
+          // Impact bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: barFraction,
+              minHeight: 6,
+              backgroundColor: MintColors.border.withAlpha(60),
+              valueColor: AlwaysStoppedAnimation(MintColors.primary.withAlpha(180)),
             ),
-            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${v.lowLabel} : ${_formatDelta(lowDelta)}',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: lowDelta < 0
+                      ? const Color(0xFFEF4444)
+                      : MintColors.success,
+                ),
+              ),
+              Text(
+                '${v.highLabel} : ${_formatDelta(highDelta)}',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: highDelta >= 0
+                      ? MintColors.success
+                      : const Color(0xFFEF4444),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  CONFIDENCE BANNER
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildConfidenceBanner() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withAlpha(20),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.warning.withAlpha(60)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Résultat indicatif — précise tes données pour un résultat plus fiable.',
+              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
+            ),
           ),
         ],
       ),
@@ -625,10 +1747,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
-        'Hypotheses utilisees',
+        'Hypothèses de cette simulation',
         style: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontSize: 14, fontWeight: FontWeight.w600,
           color: MintColors.textPrimary,
         ),
       ),
@@ -642,14 +1763,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 const Text('  \u2022  ',
                     style: TextStyle(color: MintColors.textMuted)),
                 Expanded(
-                  child: Text(
-                    h,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                      height: 1.4,
-                    ),
-                  ),
+                  child: Text(h, style: GoogleFonts.inter(
+                    fontSize: 12, color: MintColors.textSecondary, height: 1.4,
+                  )),
                 ),
               ],
             ),
@@ -676,42 +1792,152 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.info_outline_rounded,
-                size: 16,
-                color: MintColors.textMuted,
-              ),
+              const Icon(Icons.info_outline_rounded,
+                  size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
-              Text(
-                'Avertissement',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textMuted,
-                ),
-              ),
+              Text('Avertissement', style: GoogleFonts.inter(
+                fontSize: 12, fontWeight: FontWeight.w600,
+                color: MintColors.textMuted,
+              )),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            _result!.disclaimer,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              height: 1.4,
-            ),
-          ),
+          Text(_result!.disclaimer, style: GoogleFonts.inter(
+            fontSize: 11, color: MintColors.textMuted, height: 1.4,
+          )),
           const SizedBox(height: 8),
           Text(
             'Sources : ${_result!.sources.join(' | ')}',
             style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              height: 1.3,
+              fontSize: 10, color: MintColors.textMuted, height: 1.3,
             ),
           ),
         ],
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  FORMATTING HELPERS
+  // ═══════════════════════════════════════════════════════════════
+
+  static final _labelStyle = GoogleFonts.inter(
+    fontSize: 13, fontWeight: FontWeight.w500,
+    color: MintColors.textSecondary,
+  );
+
+  Widget _buildRachatSection() {
+    final maxRachat = double.tryParse(_rachatMaxCtrl.text.replaceAll("'", '')) ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Rachat LPP annuel prévu (CHF)',
+                style: _labelStyle,
+              ),
+            ),
+            if (maxRachat > 0)
+              Text(
+                'max ${formatChf(maxRachat)}',
+                style: GoogleFonts.inter(
+                  fontSize: 11, color: MintColors.textMuted,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _rachatAnnuelCtrl,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+          decoration: InputDecoration(
+            hintText: '0 (optionnel)',
+            hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
+            prefixText: 'CHF ',
+            filled: true,
+            fillColor: MintColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            suffixIcon: Tooltip(
+              message: 'Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
+              child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+            ),
+          ),
+          onChanged: (_) => _recalculate(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEplSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Retrait EPL pour achat immobilier',
+                style: _labelStyle,
+              ),
+            ),
+            Switch(
+              value: _hasEpl,
+              activeColor: MintColors.primary,
+              onChanged: (v) => setState(() { _hasEpl = v; _recalculate(); }),
+            ),
+          ],
+        ),
+        if (_hasEpl) ...[
+          const SizedBox(height: 6),
+          TextField(
+            controller: _eplAmountCtrl,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
+            decoration: InputDecoration(
+              hintText: "Montant retiré (min 20'000)",
+              hintStyle: GoogleFonts.inter(color: MintColors.textMuted),
+              prefixText: 'CHF ',
+              filled: true,
+              fillColor: MintColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: Tooltip(
+                message: "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+                child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              ),
+            ),
+            onChanged: (_) => _recalculate(),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'LPP art. 30c — OPP2 art. 5 (min CHF 20\'000)',
+            style: GoogleFonts.inter(fontSize: 10, color: MintColors.textMuted),
+          ),
+        ],
+      ],
+    );
+  }
+
+  static String _formatDelta(double delta) {
+    final abs = delta.abs();
+    String formatted;
+    if (abs >= 1000000) {
+      formatted = '${(abs / 1000000).toStringAsFixed(1)}M';
+    } else if (abs >= 10000) {
+      formatted = '${(abs / 1000).round()}k';
+    } else {
+      formatted = formatChf(abs);
+    }
+    return '${delta >= 0 ? '+' : '-'}$formatted';
   }
 }

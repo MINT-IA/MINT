@@ -14,8 +14,9 @@ Sources:
     - FINMA circ. 2008/21 (gestion des risques)
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.fri import (
     FriBreakdownResponse,
     FriComputeRequest,
@@ -79,15 +80,16 @@ def _breakdown_to_response(b) -> FriBreakdownResponse:
         "Outil educatif — ne constitue pas un conseil financier (LSFin)."
     ),
 )
-async def compute_fri_current(request: FriComputeRequest) -> FriDisplayResponse:
+@limiter.limit("10/minute")
+async def compute_fri_current(request: Request, body: FriComputeRequest) -> FriDisplayResponse:
     """Compute FRI with display rules.
 
     Returns FriDisplayResponse with breakdown, display permission,
     top improvement action, and compliance fields.
     """
-    inp = _input_schema_to_dataclass(request.input_data)
+    inp = _input_schema_to_dataclass(body.input_data)
 
-    result = FriDisplayService.compute_for_display(inp, request.confidence_score)
+    result = FriDisplayService.compute_for_display(inp, body.confidence_score)
 
     return FriDisplayResponse(
         breakdown=_breakdown_to_response(result.breakdown),
@@ -110,16 +112,17 @@ async def compute_fri_current(request: FriComputeRequest) -> FriDisplayResponse:
         "Outil educatif — ne constitue pas un conseil financier (LSFin)."
     ),
 )
-async def simulate_fri_action(request: FriSimulateRequest) -> FriSimulateResponse:
+@limiter.limit("10/minute")
+async def simulate_fri_action(request: Request, body: FriSimulateRequest) -> FriSimulateResponse:
     """Simulate a specific action and return the FRI delta.
 
     Returns FriSimulateResponse with delta, new breakdown, and description.
     """
-    inp = _input_schema_to_dataclass(request.input_data)
+    inp = _input_schema_to_dataclass(body.input_data)
 
     try:
         result = FriDisplayService.simulate_action(
-            inp, request.action_type, request.confidence_score,
+            inp, body.action_type, body.confidence_score,
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/services/lpp_deep_service.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/lpp_deep_service.dart' show RachatEchelonneSimulator, RachatEchelonneResult, RachatYearPlan;
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -86,6 +91,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         horizon: _horizon,
       );
 
+  bool _prefilled = false;
+
   @override
   void initState() {
     super.initState();
@@ -99,6 +106,40 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       curve: Curves.easeOutCubic,
     );
     _heroController.forward();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_prefilled) {
+      _prefilled = true;
+      _prefillFromProfile();
+    }
+  }
+
+  /// Pre-fill simulator inputs from the user's CoachProfile when available.
+  void _prefillFromProfile() {
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    final prev = profile.prevoyance;
+    if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
+      _avoirActuel = prev.avoirLppTotal!;
+    }
+    if (prev.lacuneRachatRestante > 0) {
+      _rachatMax = prev.lacuneRachatRestante;
+    }
+    final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
+    if (revenuBrut > 0) {
+      _revenu = revenuBrut;
+    }
+    if (profile.canton.isNotEmpty) {
+      _canton = profile.canton.toUpperCase();
+    }
+    final isMarried =
+        profile.etatCivil == CoachCivilStatus.marie;
+    _civilStatus = isMarried ? 'married' : 'single';
   }
 
   @override
@@ -163,6 +204,19 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
                 // Comparison cards
                 _buildComparisonSection(result),
+                const SizedBox(height: 24),
+
+                // Simulateur de départ anticipé à la retraite
+                EarlyRetirementSlider(
+                  monthlyIncomeAt65: 4000,
+                  scenarios: const [
+                    RetirementAgeScenario(age: 60, monthlyIncome: 3400, deltaPercent: -15, lifetimeDelta: -18000),
+                    RetirementAgeScenario(age: 62, monthlyIncome: 3600, deltaPercent: -10, lifetimeDelta: -12000),
+                    RetirementAgeScenario(age: 63, monthlyIncome: 3760, deltaPercent: -6, lifetimeDelta: -7200),
+                    RetirementAgeScenario(age: 64, monthlyIncome: 3880, deltaPercent: -3, lifetimeDelta: -3600),
+                    RetirementAgeScenario(age: 65, monthlyIncome: 4000, deltaPercent: 0),
+                  ],
+                ),
                 const SizedBox(height: 24),
 
                 // Waterfall chart
@@ -1416,9 +1470,9 @@ class _WaterfallPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double chartLeft = 70;
+    const double chartLeft = 70;
     final double chartRight = size.width - 16;
-    final double chartTop = 10;
+    const double chartTop = 10;
     final double chartBottom = size.height - 40;
     final double chartWidth = chartRight - chartLeft;
     final double chartHeight = chartBottom - chartTop;
@@ -1561,7 +1615,7 @@ class _WaterfallPainter extends CustomPainter {
 
   double _getBarHeight(double deduction, double chartHeight) {
     // Max deduction for scale = 200k (matches slider max)
-    final maxDeduction = 500000.0;
+    const maxDeduction = 500000.0;
     return (deduction / maxDeduction * chartHeight).clamp(8.0, chartHeight);
   }
 

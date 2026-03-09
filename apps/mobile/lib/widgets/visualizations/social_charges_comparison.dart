@@ -187,7 +187,7 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Charges sociales comparees',
+                'Charges sociales comparées',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -407,8 +407,8 @@ class _SocialChargesComparisonState extends State<SocialChargesComparison>
                     children: [
                       Text(
                         isSaving
-                            ? 'Economie en Suisse'
-                            : 'Surcout en Suisse',
+                            ? 'Économie en Suisse'
+                            : 'Surcoût en Suisse',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,

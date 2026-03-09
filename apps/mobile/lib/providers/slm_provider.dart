@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 
@@ -101,7 +102,10 @@ class SlmProvider extends ChangeNotifier {
     );
 
     if (success) {
-      await SlmEngine.instance.initialize();
+      final engineOk = await SlmEngine.instance.initialize();
+      if (engineOk) {
+        FeatureFlags.slmPluginReady = true;
+      }
     } else if (SlmDownloadService.instance.state == DownloadState.failed) {
       _lastError = SlmDownloadService.instance.lastError;
     }
@@ -133,12 +137,18 @@ class SlmProvider extends ChangeNotifier {
   }
 
   /// Manually initialize the engine (for the "Initialiser" button).
+  ///
+  /// Also sets [FeatureFlags.slmPluginReady] so that the
+  /// [CoachOrchestrator] uses the SLM tier immediately.
   Future<bool> initializeEngine() async {
     if (_isProcessing) return false;
     _isProcessing = true;
     notifyListeners();
 
     final success = await SlmEngine.instance.initialize();
+    if (success) {
+      FeatureFlags.slmPluginReady = true;
+    }
 
     _isProcessing = false;
     notifyListeners();

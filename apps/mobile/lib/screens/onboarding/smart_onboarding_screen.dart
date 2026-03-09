@@ -6,6 +6,7 @@ import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_chiffre_choc.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_jit_explanation.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_next_step.dart';
+import 'package:mint_mobile/screens/onboarding/steps/step_ocr_upload.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_stress_selector.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_top_actions.dart';
@@ -18,13 +19,14 @@ import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 
 /// Smart Onboarding — Value-First Flow (Lot 2 + P8-2).
 ///
-/// Orchestrates the 6-step onboarding experience:
+/// Orchestrates the 7-step onboarding experience:
 ///   0: [StepStressSelector]  — intention selector (tap, auto-advance)
-///   1: [StepQuestions]        — 3 inputs: salary, age, canton
+///   1: [StepQuestions]        — 5 core inputs (salary, age, status, nationality, canton)
 ///   2: [StepChiffreChoc]      — reveal of the first impactful number
-///   3: [StepJitExplanation]   — SI...ALORS mini-explanation
-///   4: [StepTopActions]       — Top 3 coaching tips
-///   5: [StepNextStep]         — Enrich profile or go to dashboard
+///   3: [StepOcrUpload]        — optional document scan (LPD-compliant)
+///   4: [StepJitExplanation]   — SI...ALORS mini-explanation
+///   5: [StepTopActions]       — Top 3 coaching tips
+///   6: [StepNextStep]         — Enrich profile or go to dashboard
 ///
 /// Uses a [PageView] with programmatic (non-swipeable) navigation so the user
 /// always follows the intentional sequence.
@@ -247,12 +249,14 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
       canton: _viewModel.canton ?? 'ZH',
       revenuAnnuel: _viewModel.grossSalary,
       has3a: _viewModel.existing3a != null && _viewModel.existing3a! > 0,
+      has3aAnswered: _viewModel.existing3a != null,
       montant3a: _viewModel.existing3a ?? 0,
       hasLpp: true,
       avoirLpp: _viewModel.existingLpp ?? 0,
       lacuneLpp: 0,
       chargesFixesMensuelles: profile.estimatedMonthlyExpenses,
       epargneDispo: _viewModel.currentSavings ?? 0,
+      hasSavingsAnswered: _viewModel.currentSavings != null,
     );
 
     final allTips = CoachingService.generateTips(profile: coachingProfile);
@@ -278,20 +282,27 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
 
   void _saveProfile(BuildContext context) {
     if (_viewModel.canton == null) return;
-    // Compute yearsAbroad for returning Swiss (hasLivedAbroad + arrivalYear).
-    // arrivalYear → years abroad = currentYear - arrivalYear - (age - currentAge).
-    // Simpler: yearsAbroad ≈ currentYear - arrivalYear - birthYear gaps.
-    // We pass arrivalYear directly; CoachProfileProvider derives yearsAbroad.
-    context.read<CoachProfileProvider>().updateFromSmartFlow(
-          age: _viewModel.age,
-          grossSalary: _viewModel.grossSalary,
-          canton: _viewModel.canton!,
-          nationalityGroup: _viewModel.nationalityGroup,
-          nationalityCountry: _viewModel.nationalityCountry,
-          employmentStatus: _viewModel.employmentStatus,
-          hasLivedAbroad: _viewModel.hasLivedAbroad,
-          arrivalYear: _viewModel.arrivalYear,
-        );
+    final provider = context.read<CoachProfileProvider>();
+    provider.updateFromSmartFlow(
+      age: _viewModel.age,
+      grossSalary: _viewModel.grossSalary,
+      canton: _viewModel.canton!,
+      firstName: _viewModel.firstName,
+      nationalityGroup: _viewModel.nationalityGroup,
+      nationalityCountry: _viewModel.nationalityCountry,
+      employmentStatus: _viewModel.employmentStatus,
+    );
+    // Apply literacy level derived from calibration questions (Step 1).
+    // Done via copyWith after the wizard-based profile is built so we don't
+    // need to thread it through the wizard answers map.
+    if (provider.profile != null) {
+      provider.updateProfile(
+        provider.profile!.copyWith(
+          financialLiteracyLevel: _viewModel.literacyLevel,
+          updatedAt: DateTime.now(),
+        ),
+      );
+    }
   }
 
   @override
@@ -313,7 +324,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
                 onNext: () => _goToPage(1),
               ),
 
-              // ── Page 1: 3 questions ──────────────────────────────────────
+              // ── Page 1: 5 questions + 3 calibrage literacy ───────────────
               StepQuestions(
                 viewModel: _viewModel,
                 onNext: _onStepQuestionsNext,
@@ -329,21 +340,27 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
                 onDashboard: () => _saveThenGo(context),
               ),
 
-              // ── Page 3: JIT explanation (SI...ALORS) ─────────────────────
-              StepJitExplanation(
-                chiffreChoc: _viewModel.chiffreChoc,
+              // ── Page 3: OCR document upload (LPD-compliant, optional) ────
+              StepOcrUpload(
+                viewModel: _viewModel,
                 onNext: () => _goToPage(4),
-                onBack: () => _goToPage(2),
               ),
 
-              // ── Page 4: Top 3 actions ────────────────────────────────────
-              StepTopActions(
-                tips: tips,
+              // ── Page 4: JIT explanation (SI...ALORS) ─────────────────────
+              StepJitExplanation(
+                chiffreChoc: _viewModel.chiffreChoc,
                 onNext: () => _goToPage(5),
                 onBack: () => _goToPage(3),
               ),
 
-              // ── Page 5: Next step (enrich or dashboard) ──────────────────
+              // ── Page 5: Top 3 actions ────────────────────────────────────
+              StepTopActions(
+                tips: tips,
+                onNext: () => _goToPage(6),
+                onBack: () => _goToPage(4),
+              ),
+
+              // ── Page 6: Next step (enrich or dashboard) ──────────────────
               StepNextStep(
                 confidenceScore: _viewModel.confidenceScore,
                 onEnrich: () => _saveThenEnrich(context),

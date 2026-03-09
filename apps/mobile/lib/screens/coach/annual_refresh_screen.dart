@@ -106,16 +106,16 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   String _employmentLabel(String status) {
     switch (status) {
       case 'salarie':
-        return 'Meme emploi';
+        return 'Même emploi';
       case 'nouvel_emploi':
         return 'Nouvel emploi';
       case 'independant':
-        return 'Independant\u00b7e';
+        return 'Indépendant\u00b7e';
       case 'chomage':
       case 'sans_emploi':
         return 'Sans emploi';
       default:
-        return 'Meme emploi';
+        return 'Même emploi';
     }
   }
 
@@ -145,7 +145,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       case 'divorce':
         return 'Divorce';
       case 'deces':
-        return 'Deces';
+        return 'Décès';
       default:
         return 'Aucun';
     }
@@ -156,11 +156,11 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       case 'conservateur':
         return 'Conservateur';
       case 'modere':
-        return 'Modere';
+        return 'Modéré';
       case 'agressif':
         return 'Agressif';
       default:
-        return 'Modere';
+        return 'Modéré';
     }
   }
 
@@ -241,7 +241,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Text(
-                  'Quelques questions rapides pour mettre ton profil a jour.',
+                  'Quelques questions rapides pour mettre ton profil à jour.',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textSecondary,
@@ -324,7 +324,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
   Widget _buildSalaireCard() {
     return _questionCard(
       number: 1,
-      title: 'Ton salaire brut mensuel a-t-il change ?',
+      title: 'Ton salaire brut mensuel a-t-il changé ?',
       child: Column(
         children: [
           Text(
@@ -413,7 +413,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       number: 3,
       title: 'Ton avoir LPP actuel',
       helpText:
-          'Regarde ton certificat de prevoyance (tu le recois chaque janvier)',
+          'Regarde ton certificat de prévoyance (tu le reçois chaque janvier)',
       child: TextFormField(
         controller: _lppController,
         keyboardType: TextInputType.number,
@@ -437,7 +437,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         style: GoogleFonts.inter(fontSize: 16, color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
-          if (val < 0) return 'Le montant doit etre positif';
+          if (val < 0) return 'Le montant doit être positif';
           return null;
         },
       ),
@@ -476,7 +476,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
         style: GoogleFonts.inter(fontSize: 16, color: MintColors.textPrimary),
         validator: (v) {
           final val = _parseChf(v ?? '');
-          if (val < 0) return 'Le montant doit etre positif';
+          if (val < 0) return 'Le montant doit être positif';
           return null;
         },
       ),
@@ -534,7 +534,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return _questionCard(
       number: 6,
-      title: 'Un changement familial cette annee ?',
+      title: 'Un changement familial cette année ?',
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -576,7 +576,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return _questionCard(
       number: 7,
-      title: 'Ta tolerance au risque',
+      title: 'Ta tolérance au risque',
       child: Row(
         children: options.map((opt) {
           final isSelected = _riskTolerance == opt;
@@ -661,7 +661,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 ),
               )
             : Text(
-                'Mettre a jour mon profil',
+                'Mettre à jour mon profil',
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -679,9 +679,9 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
-        'Cet outil est a but educatif et ne constitue pas un conseil financier '
-        'au sens de la LSFin. Consulte un\u00b7e specialiste pour des conseils '
-        'personnalises.',
+        'Cet outil est à but éducatif et ne constitue pas un conseil financier '
+        'au sens de la LSFin. Consulte un\u00b7e spécialiste pour des conseils '
+        'personnalisés.',
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 11,
@@ -742,7 +742,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 const SizedBox(height: 24),
                 // Title
                 Text(
-                  'Profil mis a jour !',
+                  'Profil mis à jour !',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
@@ -782,7 +782,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                             size: 24,
                           ),
                           _scoreColumn(
-                            'Apres',
+                            'Après',
                             _newScore ?? 0,
                             MintColors.coachAccent,
                           ),
@@ -792,7 +792,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                       // Delta text
                       if (improved)
                         Text(
-                          'Ton score a augmente de $delta points !',
+                          'Ton score a augmenté de $delta points !',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 15,
@@ -802,7 +802,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         )
                       else if (dropped)
                         Text(
-                          'Ton score a baisse de ${delta.abs()} points — verifions ensemble',
+                          'Ton score a baissé de ${delta.abs()} points — vérifions ensemble',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 15,
@@ -812,7 +812,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                         )
                       else
                         Text(
-                          'Ton score est stable — continue comme ca !',
+                          'Ton score est stable — continue comme ça !',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 15,

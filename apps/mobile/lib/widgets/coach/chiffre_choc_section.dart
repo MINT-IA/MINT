@@ -28,23 +28,36 @@ class ChiffreChocSection extends StatelessWidget {
     final revenuBrutAnnuel = profile.revenuBrutAnnuel;
     final cards = <Widget>[];
 
-    // 1. 3a tax savings gap — if not maxing out the pillar 3a
+    // 1. 3a tax savings gap — if not maxing out the pillar 3a.
+    // Guard: only show if we have substantive data AND we know the actual
+    // 3a contribution status. If the user already has 3a capital but no
+    // declared contribution, they're clearly contributing — we just don't
+    // know how much, so we can't compute a meaningful gap.
     final cotisation3aAnnuelle = profile.total3aMensuel * 12;
     const plafond3a = pilier3aPlafondAvecLpp; // OPP3 art. 7
-    if (cotisation3aAnnuelle < plafond3a &&
+    final has3aCapitalButNoContribDeclared =
+        profile.prevoyance.totalEpargne3a > 0 && cotisation3aAnnuelle <= 0;
+    final hasSubstantiveData = profile.prevoyance.avoirLppTotal != null ||
+        profile.prevoyance.totalEpargne3a > 0;
+    if (hasSubstantiveData &&
+        !has3aCapitalButNoContribDeclared &&
+        cotisation3aAnnuelle < plafond3a &&
         profile.prevoyance.canContribute3a) {
       final tauxMarginal =
           RetirementTaxCalculator.estimateMarginalRate(revenuBrutAnnuel, profile.canton);
-      final economiePotentielle =
+      final economieAnnuelle =
           (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
       final anneesRestantes = profile.anneesAvantRetraite;
-      final economieTotale = economiePotentielle * anneesRestantes;
-
-      if (economieTotale > 500) {
+      final economieCumulee = economieAnnuelle * anneesRestantes;
+      // Show ANNUAL savings as the headline number — honest and actionable.
+      // Mention cumulative in the message for motivation.
+      if (economieAnnuelle > 500) {
         cards.add(ChiffreChocCard(
-          value: economieTotale,
-          message: '\u00c9conomies d\'imp\u00f4ts potentielles d\'ici ta retraite en '
-              'maximisant ton 3a chaque ann\u00e9e.',
+          value: economieAnnuelle,
+          suffix: '/an',
+          message: '\u00c9conomie d\'imp\u00f4ts potentielle chaque ann\u00e9e en '
+              'maximisant ton 3a. '
+              'Sur $anneesRestantes ans, cela repr\u00e9sente ~CHF\u00A0${_formatChf(economieCumulee)}.',
           narrativeMessage: narratives['fiscalite'],
           source: 'OPP3 art. 7 \u00b7 LIFD',
           ctaLabel: 'Simuler mon 3a',

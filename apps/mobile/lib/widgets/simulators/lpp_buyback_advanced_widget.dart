@@ -310,7 +310,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           leading: const Icon(Icons.lightbulb_outline,
               color: MintColors.primary, size: 20),
           title: Text(
-            "Bon a savoir",
+            "Bon à savoir",
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -320,17 +320,17 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           children: [
             _buildBonASavoirItem(
               "Le rachat LPP est l'un des rares outils de planification "
-              "fiscale accessibles a tous les salarie\u00B7e\u00B7s en Suisse.",
+              "fiscale accessibles à tous les salarié\u00B7e\u00B7s en Suisse.",
             ),
             const SizedBox(height: 10),
             _buildBonASavoirItem(
-              "Chaque franc rachete est deductible de ton revenu imposable "
+              "Chaque franc racheté est déductible de ton revenu imposable "
               "(LIFD art. 33 al. 1 let. d).",
             ),
             const SizedBox(height: 10),
             _buildBonASavoirItem(
-              "Attention : tout retrait EPL est bloque pendant 3 ans "
-              "apres un rachat (LPP art. 79b al. 3).",
+              "Attention : tout retrait EPL est bloqué pendant 3 ans "
+              "après un rachat (LPP art. 79b al. 3).",
               isWarning: true,
             ),
           ],

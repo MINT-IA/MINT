@@ -119,7 +119,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
   Widget build(BuildContext context) {
     return Semantics(
       label:
-          'Completude de la pension AVS. ${widget.contributedYears} annees sur ${widget.totalYearsRequired}. '
+          'Complétude de la pension AVS. ${widget.contributedYears} années sur ${widget.totalYearsRequired}. '
           '${(_completeness * 100).round()} pour cent complete.',
       child: GestureDetector(
         onTap: widget.onTap,
@@ -184,7 +184,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Completude AVS',
+                'Complétude AVS',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -192,7 +192,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                 ),
               ),
               Text(
-                'Annees de cotisation  ·  Rente mensuelle',
+                'Années de cotisation  ·  Rente mensuelle',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -245,7 +245,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'completude',
+                    'complétude',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -290,7 +290,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                   children: [
                     Expanded(
                       child: _buildInfoTile(
-                        label: 'Annees manquantes',
+                        label: 'Années manquantes',
                         value: '$_missingYears',
                         color: _missingYears > 0
                             ? MintColors.error
@@ -304,7 +304,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                     ),
                     Expanded(
                       child: _buildInfoTile(
-                        label: 'Rente estimee',
+                        label: 'Rente estimée',
                         value: _formatChf(_estimatedPension),
                         color: MintColors.textPrimary,
                       ),
@@ -332,7 +332,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Reduction estimee: ${_formatChf(_missingYears * widget.reductionPerMissingYear)}/mois',
+                            'Réduction estimée: ${_formatChf(_missingYears * widget.reductionPerMissingYear)}/mois',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -440,7 +440,7 @@ class _PensionCompletenessRingState extends State<PensionCompletenessRing>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Tu peux combler des lacunes en cotisant volontairement dans les 5 ans suivant ton depart.',
+                          'Tu peux combler des lacunes en cotisant volontairement dans les 5 ans suivant ton départ.',
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: MintColors.textSecondary,

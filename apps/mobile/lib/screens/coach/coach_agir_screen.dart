@@ -150,17 +150,17 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
   Widget _buildResetMenuButton() {
     return PopupMenuButton<_AgirResetAction>(
-      tooltip: 'Réinitialiser',
+      tooltip: S.of(context)!.agirResetTooltip,
       icon: const Icon(Icons.tune, color: MintColors.textPrimary),
       onSelected: (value) => _handleResetAction(value),
-      itemBuilder: (_) => const [
+      itemBuilder: (_) => [
         PopupMenuItem<_AgirResetAction>(
           value: _AgirResetAction.resetHistory,
-          child: Text('Réinitialiser mon historique coach'),
+          child: Text(S.of(context)!.agirResetHistoryLabel),
         ),
         PopupMenuItem<_AgirResetAction>(
           value: _AgirResetAction.resetDiagnostic,
-          child: Text('Recommencer mon diagnostic'),
+          child: Text(S.of(context)!.agirResetDiagnosticLabel),
         ),
       ],
     );
@@ -171,10 +171,9 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final activityProvider = context.read<UserActivityProvider>();
     if (action == _AgirResetAction.resetHistory) {
       final confirmed = await _confirmResetDialog(
-        title: 'Réinitialiser ton historique coach ?',
-        message:
-            'Cela supprime tes check-ins, ton historique de score et la progression des simulateurs.',
-        cta: 'Réinitialiser',
+        title: S.of(context)!.agirResetHistoryTitle,
+        message: S.of(context)!.agirResetHistoryMessage,
+        cta: S.of(context)!.agirResetHistoryCta,
       );
       if (confirmed != true || !mounted) return;
 
@@ -184,16 +183,15 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
       await activityProvider.clearAll();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Historique coach réinitialisé.')),
+        SnackBar(content: Text(S.of(context)!.agirHistoryResetSnackbar)),
       );
       return;
     }
 
     final confirmed = await _confirmResetDialog(
-      title: 'Recommencer ton diagnostic ?',
-      message:
-          'Cela supprime ton diagnostic actuel et tes réponses mini-onboarding.',
-      cta: 'Recommencer',
+      title: S.of(context)!.agirResetDiagnosticTitle,
+      message: S.of(context)!.agirResetDiagnosticMessage,
+      cta: S.of(context)!.agirResetDiagnosticCta,
     );
     if (confirmed != true || !mounted) return;
 
@@ -296,21 +294,6 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: _buildEmptyProfile(context, s),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (coachProvider.isPartialProfile) {
-      return Scaffold(
-        backgroundColor: MintColors.background,
-        body: CustomScrollView(
-          slivers: [
-            _buildAppBar(context),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _buildPartialProfile(context, s, coachProvider),
             ),
           ],
         ),
@@ -478,11 +461,11 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     bool hasDebtInImmediate,
     CoachNarrativeMode narrativeMode,
   ) {
-    const groupMeta = <String, ({String label, Color color})>{
-      'immediate': (label: 'Priorite immediate', color: Color(0xFFFF453A)),
-      'trimestre': (label: 'Ce trimestre', color: Color(0xFFFF9F0A)),
-      'annee': (label: 'Cette annee', color: Color(0xFF007AFF)),
-      'long_terme': (label: 'Long terme', color: Color(0xFF24B14D)),
+    final groupMeta = <String, ({String label, Color color})>{
+      'immediate': (label: S.of(context)!.agirPriorityImmediate, color: const Color(0xFFFF453A)),
+      'trimestre': (label: S.of(context)!.agirPriorityTrimestre, color: const Color(0xFFFF9F0A)),
+      'annee': (label: S.of(context)!.agirPriorityAnnee, color: const Color(0xFF007AFF)),
+      'long_terme': (label: S.of(context)!.agirPriorityLongTerme, color: const Color(0xFF24B14D)),
     };
 
     final widgets = <Widget>[];
@@ -545,14 +528,14 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   color: MintColors.success,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.check_circle, color: Colors.white, size: 24),
-                    SizedBox(width: 8),
+                    const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                    const SizedBox(width: 8),
                     Text(
-                      'Fait',
-                      style: TextStyle(
+                      S.of(context)!.agirSwipeDone,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -569,19 +552,19 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   color: MintColors.warning,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Reporter 30j',
-                      style: TextStyle(
+                      S.of(context)!.agirSwipeSnooze,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.schedule, color: Colors.white, size: 24),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.schedule, color: Colors.white, size: 24),
                   ],
                 ),
               ),
@@ -592,7 +575,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${tip.title} — marque comme fait'),
+                        content: Text(S.of(context)!.agirSwipeDoneSnackbar(tip.title)),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -603,7 +586,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${tip.title} — reporte de 30 jours'),
+                        content: Text(S.of(context)!.agirSwipeSnoozeSnackbar(tip.title)),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -613,7 +596,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
               child: _CoachingTipCard(
                 tip: tip,
                 dependencyHint:
-                    showDependency ? 'Apres : remboursement dette' : null,
+                    showDependency ? S.of(context)!.agirDependencyDebt : null,
                 isExplored: isExplored,
                 narrativeMode: narrativeMode,
               ),
@@ -821,7 +804,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Ton plan d\'action t\'attend',
+              S.of(context)!.agirEmptyTitle,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 22,
@@ -831,8 +814,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Complète ton diagnostic pour obtenir un plan mensuel personnalisé '
-              'basé sur ta situation réelle.',
+              S.of(context)!.agirEmptyBody,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 14,
@@ -848,7 +830,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 onPressed: () => context.push('/advisor'),
                 icon: const Icon(Icons.play_arrow, size: 20),
                 label: Text(
-                  'Lancer mon diagnostic — 10 min',
+                  S.of(context)!.agirEmptyLaunchCta,
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -861,105 +843,6 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPartialProfile(
-    BuildContext context,
-    S? s,
-    CoachProfileProvider provider,
-  ) {
-    final quality = (provider.onboardingQualityScore * 100).round();
-    final section = provider.recommendedWizardSection;
-    final sectionLabel = switch (section) {
-      'identity' => s?.coachWizardSectionIdentity ?? 'Identite & foyer',
-      'income' => s?.coachWizardSectionIncome ?? 'Revenu & foyer',
-      'pension' => s?.coachWizardSectionPension ?? 'Prevoyance',
-      'property' => s?.coachWizardSectionProperty ?? 'Immobilier & dettes',
-      _ => s?.advisorMiniFullDiagnostic ?? 'Diagnostic',
-    };
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: MintColors.warning.withValues(alpha: 0.10),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.track_changes,
-                color: MintColors.warning,
-                size: 44,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              s?.coachAgirPartialTitle('$quality') ??
-                  'Plan en construction ($quality%)',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
-                fontSize: 21,
-                fontWeight: FontWeight.w700,
-                color: MintColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              s?.coachAgirPartialBody(sectionLabel) ??
-                  'Pour activer tes actions prioritaires, complete maintenant la section $sectionLabel.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: MintColors.textSecondary,
-                height: 1.45,
-              ),
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: () => context.push(
-                  '/advisor/wizard',
-                  extra: {'section': section},
-                ),
-                icon: const Icon(Icons.auto_awesome, size: 20),
-                label: Text(
-                  s?.coachAgirPartialAction(sectionLabel) ??
-                      'Completer $sectionLabel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => context.push('/coach/chat'),
-                child: Text(
-                  s?.askMintTitle ?? 'Demander a MINT',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -990,8 +873,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     // Build progress cards for each planned contribution
     final widgets = <Widget>[
       _buildSectionHeader(
-        title: 'Progression annuelle',
-        subtitle: 'Planifie vs verse en $currentYear',
+        title: S.of(context)!.agirProgressTitle,
+        subtitle: S.of(context)!.agirProgressSubtitle(currentYear.toString()),
         icon: Icons.bar_chart,
         color: const Color(0xFF6366F1),
       ),
@@ -1055,7 +938,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Aucun versement planifié',
+            S.of(context)!.agirNoContribTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -1064,7 +947,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Fais ton premier check-in pour configurer tes versements mensuels.',
+            S.of(context)!.agirNoContribBody,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 13,
@@ -1087,7 +970,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                 elevation: 0,
               ),
               child: Text(
-                'Configurer mes versements',
+                S.of(context)!.agirNoContribCta,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -1207,16 +1090,16 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     final checkInDate = DateTime(now.year, now.month, 1);
     events.add(_TimelineEvent(
       date: checkInDate,
-      title: 'Check-in mensuel',
+      title: S.of(context)!.agirTimelineCheckinTitle,
       subtitle: hasCurrentCheckIn
-          ? 'Fait — versements confirmes pour ce mois.'
-          : 'Confirme tes versements du mois en 2 min.',
+          ? S.of(context)!.agirTimelineCheckinDone
+          : S.of(context)!.agirTimelineCheckinPending,
       icon: hasCurrentCheckIn
           ? Icons.check_circle
           : Icons.calendar_today_outlined,
       color:
           hasCurrentCheckIn ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-      cta: hasCurrentCheckIn ? null : 'Faire mon check-in',
+      cta: hasCurrentCheckIn ? null : S.of(context)!.agirTimelineCheckinCta,
       isCompleted: hasCurrentCheckIn,
     ));
 
@@ -1241,7 +1124,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     // 6. Retirement
     events.add(_TimelineEvent(
       date: profile.goalA.targetDate,
-      title: 'Retraite ${profile.firstName ?? ''} (65 ans)',
+      title: S.of(context)!.agirTimelineRetirementTitle(profile.firstName ?? ''),
       subtitle: s?.agirTimelineRetireSub ?? 'Ton objectif principal.',
       icon: Icons.beach_access,
       color: MintColors.trajectoryOptimiste,
@@ -1311,7 +1194,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
             'Ton check-in mensuel est la prochaine action critique pour garder ta trajectoire fiable.');
 
     final whyNowRaw = topTip == null
-        ? 'Commence par une action simple pour enclencher ta dynamique.'
+        ? S.of(context)!.agirCoachPulseWhyDefault
         : (topTip.narrativeMessage ?? topTip.message);
     final whyNow =
         CoachNarrativeService.applyDetailMode(whyNowRaw, _narrativeMode);
@@ -1785,7 +1668,7 @@ class _TimelineItem extends StatelessWidget {
                         const Spacer(),
                         // Years until
                         Text(
-                          _yearsUntil(event.date),
+                          _yearsUntil(context, event.date),
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: MintColors.textMuted,
@@ -1916,15 +1799,15 @@ class _TimelineItem extends StatelessWidget {
     );
   }
 
-  String _yearsUntil(DateTime target) {
+  String _yearsUntil(BuildContext context, DateTime target) {
     final now = DateTime.now();
     final months = (target.year - now.year) * 12 + (target.month - now.month);
-    if (months < 1) return 'Ce mois';
-    if (months < 12) return 'dans $months mois';
+    if (months < 1) return S.of(context)!.agirTimelineThisMonth;
+    if (months < 12) return S.of(context)!.agirTimelineInMonths(months.toString());
     final years = months ~/ 12;
     final remainingMonths = months % 12;
-    if (remainingMonths == 0) return 'dans $years an${years > 1 ? 's' : ''}';
-    return 'dans $years an${years > 1 ? 's' : ''}';
+    if (years == 1 && remainingMonths == 0) return S.of(context)!.agirTimelineInOneYear;
+    return S.of(context)!.agirTimelineInYears(years.toString());
   }
 }
 
@@ -2170,7 +2053,7 @@ class _CoachingTipCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '/an',
+                              S.of(context)!.agirPerYear,
                               style: GoogleFonts.inter(
                                 fontSize: 10,
                                 color: MintColors.success,
@@ -2339,7 +2222,7 @@ class _ContributionProgressCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    'A confirmer',
+                    S.of(context)!.agirConfirmLabel,
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -2378,14 +2261,14 @@ class _ContributionProgressCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${ForecasterService.formatChf(actual)} verses',
+                S.of(context)!.agirVersesLabel(ForecasterService.formatChf(actual)),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
                 ),
               ),
               Text(
-                'Objectif : ${ForecasterService.formatChf(target)}',
+                S.of(context)!.agirObjectifLabel(ForecasterService.formatChf(target)),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textMuted,

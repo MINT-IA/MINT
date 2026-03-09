@@ -5,6 +5,8 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN TESTS — Phase 4 / BYOK + RAG wiring
@@ -34,6 +36,14 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
       child: const MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: CoachChatScreen(),
       ),
     );
@@ -52,10 +62,11 @@ void main() {
       expect(find.text('Coach MINT'), findsOneWidget);
     });
 
-    testWidgets('shows educational subtitle', (tester) async {
+    testWidgets('shows tier subtitle in app bar', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('Conversation éducative'), findsOneWidget);
+      // Without SLM or BYOK, the fallback tier shows "Mode hors-ligne"
+      expect(find.text('Mode hors-ligne'), findsOneWidget);
     });
 
     testWidgets('shows disclaimer text', (tester) async {
@@ -92,11 +103,11 @@ void main() {
       expect(find.byIcon(Icons.send), findsOneWidget);
     });
 
-    testWidgets('shows key icon when BYOK not configured', (tester) async {
+    testWidgets('shows settings icon in app bar', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
-      // Without BYOK configured, shows key icon instead of settings
-      expect(find.byIcon(Icons.key), findsOneWidget);
+      // Settings gear icon is always shown for IA configuration
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
     });
 
     testWidgets('shows back button', (tester) async {
@@ -148,8 +159,8 @@ void main() {
       await tester.tap(find.byIcon(Icons.send));
       await tester.pumpAndSettle();
 
-      // Coach response about 3a should appear
-      expect(find.textContaining('7\'258'), findsOneWidget);
+      // Coach response should appear (fallback path returns generic message)
+      expect(find.textContaining('coach IA'), findsOneWidget);
     });
 
     testWidgets('shows coach avatar icon', (tester) async {
@@ -165,7 +176,7 @@ void main() {
       expect(find.textContaining('LSFin'), findsOneWidget);
     });
 
-    testWidgets('shows sources section after 3a response', (tester) async {
+    testWidgets('shows fallback response with exploration options', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -175,13 +186,11 @@ void main() {
       await tester.tap(find.byIcon(Icons.send));
       await tester.pumpAndSettle();
 
-      // Sources section should appear with legal reference
-      expect(find.text('Sources'), findsOneWidget);
-      // OPP3 appears in both response text and source section
-      expect(find.textContaining('OPP3'), findsWidgets);
+      // Fallback response mentions simulators
+      expect(find.textContaining('simulateurs'), findsOneWidget);
     });
 
-    testWidgets('shows source icon in sources section', (tester) async {
+    testWidgets('shows fallback response with educational content', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -191,38 +200,35 @@ void main() {
       await tester.tap(find.byIcon(Icons.send));
       await tester.pumpAndSettle();
 
-      // Source section should have description icon
-      expect(find.byIcon(Icons.description_outlined), findsOneWidget);
-      // LPP art. 79b appears in both response text and source section
-      expect(find.textContaining('LPP art. 79b'), findsWidgets);
+      // Fallback response mentions educational content
+      expect(find.textContaining('éducatives'), findsOneWidget);
     });
   });
 
-  group('CoachChatScreen — BYOK CTA', () {
-    testWidgets('shows BYOK CTA when not configured', (tester) async {
+  group('CoachChatScreen — settings access', () {
+    testWidgets('settings icon navigates to BYOK config', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      // CTA card should be visible
-      expect(find.text('Configure ton coach IA'), findsOneWidget);
-      expect(find.text('Configurer'), findsOneWidget);
+      // Settings gear icon should be present
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
     });
 
-    testWidgets('BYOK CTA has smart_toy icon', (tester) async {
+    testWidgets('wifi_off icon shown for fallback tier', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byIcon(Icons.smart_toy_outlined), findsOneWidget);
+      // Fallback tier shows wifi_off icon in subtitle
+      expect(find.byIcon(Icons.wifi_off), findsWidgets);
     });
 
-    testWidgets('BYOK CTA subtitle mentions API key', (tester) async {
+    testWidgets('no BYOK CTA card in chat area', (tester) async {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(
-        find.textContaining('clé API'),
-        findsOneWidget,
-      );
+      // BYOK configuration is now done via settings icon, no in-chat CTA
+      expect(find.text('Configure ton coach IA'), findsNothing);
+      expect(find.text('Configurer'), findsNothing);
     });
   });
 

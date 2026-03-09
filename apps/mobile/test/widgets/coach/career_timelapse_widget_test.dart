@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   final scenarios = [
@@ -11,6 +13,14 @@ void main() {
   ];
 
   Widget buildWidget({int initialAge = 25}) => MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: CareerTimeLapseWidget(
             scenarios: scenarios,
@@ -55,6 +65,14 @@ void main() {
 
   testWidgets('returns SizedBox for empty scenarios', (tester) async {
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
       home: Scaffold(
         body: CareerTimeLapseWidget(scenarios: const [], monthly3aContribution: 605),
       ),

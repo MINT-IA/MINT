@@ -1,5 +1,6 @@
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -82,6 +83,21 @@ class LlmConfig {
   }
 }
 
+/// Which AI tier produced a coach message.
+enum ChatTier {
+  /// On-device SLM (Gemma 3n) — privacy-first, zero network.
+  slm,
+
+  /// Cloud BYOK LLM (OpenAI / Anthropic / Mistral).
+  byok,
+
+  /// Static fallback — no AI.
+  fallback,
+
+  /// Not applicable (user messages, system messages).
+  none,
+}
+
 /// Message dans l'historique de conversation
 class ChatMessage {
   final String role; // 'user', 'assistant', 'system'
@@ -90,6 +106,7 @@ class ChatMessage {
   final List<String>? suggestedActions;
   final List<RagSource> sources;
   final List<String> disclaimers;
+  final ChatTier tier;
 
   const ChatMessage({
     required this.role,
@@ -98,6 +115,7 @@ class ChatMessage {
     this.suggestedActions,
     this.sources = const [],
     this.disclaimers = const [],
+    this.tier = ChatTier.none,
   });
 
   bool get isUser => role == 'user';
@@ -132,8 +150,8 @@ class CoachLlmService {
 
   /// Envoie un message et recoit une reponse du coach
   ///
-  /// Le service prepend le system prompt avec le contexte utilisateur,
-  /// applique les guardrails, et retourne une CoachResponse.
+  /// Délègue à [CoachOrchestrator] pour la chaîne SLM → BYOK → mock.
+  /// ComplianceGuard est appliqué centralement dans l'orchestrateur.
   ///
   /// Si BYOK est configure (config.hasApiKey), route via le backend RAG
   /// pour obtenir des reponses groundees avec sources verifiables.
@@ -144,51 +162,50 @@ class CoachLlmService {
     required List<ChatMessage> history,
     required LlmConfig config,
   }) async {
-    // ── Mode RAG (BYOK configure) ──────────────────────────
-    if (config.hasApiKey) {
-      return _chatViaRag(
-        userMessage: userMessage,
-        profile: profile,
-        config: config,
-        history: history,
-      );
-    }
+    final coachCtx = _buildCoachContext(profile);
 
-    // ── Mode mock (pas de cle API) ─────────────────────────
-    final rawResponse = _getMockResponse(
+    // Delegate to CoachOrchestrator (SLM → BYOK → fallback chain).
+    // If SLM is available, it will be tried first (zero-network, privacy-first).
+    // BYOK is passed when config.hasApiKey, otherwise skipped.
+    final orchestratorResponse = await CoachOrchestrator.generateChat(
       userMessage: userMessage,
-      profile: profile,
+      history: history,
+      ctx: coachCtx,
+      byokConfig: config.hasApiKey ? config : null,
     );
 
-    // CRIT #6: try-catch around validate() to prevent crashes on edge cases.
-    ComplianceResult result;
-    try {
-      final coachCtx = _buildCoachContext(profile);
-      result = ComplianceGuard.validate(
-        rawResponse.message,
-        context: coachCtx,
-        componentType: ComponentType.general,
-      );
-    } catch (_) {
-      // If validation crashes, use fallback — never show unvalidated LLM output.
-      return CoachResponse(
-        message: _safeChatFallback(),
-        disclaimer: _disclaimer,
-        wasFiltered: true,
-      );
-    }
-
-    final isFallback = result.useFallback;
-    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
-
+    // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
+    // return it directly.
+    // The mock path is used as the final fallback by CoachOrchestrator itself,
+    // but we check here to add suggested actions via _inferSuggestedActions.
     return CoachResponse(
-      message: message,
-      // HIGH fix: clear sources/actions when using fallback (orphaned metadata).
-      suggestedActions: isFallback ? null : rawResponse.suggestedActions,
-      disclaimer: _disclaimer,
-      sources: isFallback ? const [] : rawResponse.sources,
-      disclaimers: const [],
-      wasFiltered: !result.isCompliant,
+      message: orchestratorResponse.message,
+      suggestedActions: orchestratorResponse.wasFiltered
+          ? null
+          : _inferSuggestedActions(userMessage),
+      disclaimer: orchestratorResponse.disclaimer,
+      sources: orchestratorResponse.sources,
+      disclaimers: orchestratorResponse.disclaimers,
+      wasFiltered: orchestratorResponse.wasFiltered,
+    );
+  }
+
+  /// Mode RAG direct (BYOK configure) — conservé pour compatibilité.
+  ///
+  /// Appelé par l'orchestrateur via [CoachOrchestrator._tryByokChat].
+  /// Reste accessible pour les tests unitaires de la couche RAG.
+  @Deprecated('Utilise CoachOrchestrator.generateChat() à la place.')
+  static Future<CoachResponse> chatViaRagDirect({
+    required String userMessage,
+    required CoachProfile profile,
+    required LlmConfig config,
+    required List<ChatMessage> history,
+  }) async {
+    return _chatViaRag(
+      userMessage: userMessage,
+      profile: profile,
+      config: config,
+      history: history,
     );
   }
 

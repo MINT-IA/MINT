@@ -23,6 +23,36 @@ String formatChf(double value) {
 /// Format with "CHF " prefix.
 String formatChfWithPrefix(double value) => 'CHF\u00a0${formatChf(value)}';
 
+/// Nullable CHF — returns em-dash for null, "0 CHF" for zero.
+/// Uses suffix format ("1'234 CHF") consistent with Swiss convention.
+String formatChfOrDash(double? value) {
+  if (value == null) return '\u2014';
+  if (value == 0) return '0\u00a0CHF';
+  return '${formatChf(value)}\u00a0CHF';
+}
+
+/// Nullable CHF with /mois suffix — returns em-dash for null.
+/// Uses suffix format ("1'234 CHF/mois").
+String formatChfMonthly(double? value) {
+  if (value == null) return '\u2014';
+  if (value == 0) return '0\u00a0CHF/mois';
+  return '${formatChf(value)}\u00a0CHF/mois';
+}
+
+/// Format percentage from decimal (0.452 → "45,2%"). Em-dash for null.
+/// Uses comma as decimal separator (Swiss French convention).
+String formatPctOrDash(double? value) {
+  if (value == null) return '\u2014';
+  final formatted = (value * 100).toStringAsFixed(1).replaceAll('.', ',');
+  return '$formatted\u00a0%';
+}
+
+/// Format a percentage value with comma decimal separator (Swiss French).
+/// Input is already in percent (e.g. 5.3 → "5,3").
+String formatPct(double value) {
+  return value.toStringAsFixed(1).replaceAll('.', ',');
+}
+
 /// Compact CHF formatter — omits "CHF" prefix for space-constrained contexts.
 /// Examples: 680'000 → "680k" | 1'200'000 → "1.2M" | 800 → "CHF 800"
 String formatChfCompact(double value) {

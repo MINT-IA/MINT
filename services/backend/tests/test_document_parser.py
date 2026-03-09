@@ -757,9 +757,9 @@ class TestDataModels:
 class TestKnownFieldPatterns:
     """Tests de la configuration des patterns."""
 
-    def test_all_13_fields_defined(self):
-        """13 champs LPP sont definis dans KNOWN_FIELD_PATTERNS."""
-        assert len(KNOWN_FIELD_PATTERNS) == 13
+    def test_all_14_fields_defined(self):
+        """14 champs LPP sont definis dans KNOWN_FIELD_PATTERNS."""
+        assert len(KNOWN_FIELD_PATTERNS) == 14
 
     def test_high_impact_fields_subset_of_patterns(self):
         """HIGH_IMPACT_FIELDS est un sous-ensemble de KNOWN_FIELD_PATTERNS."""
@@ -770,6 +770,6 @@ class TestKnownFieldPatterns:
         """Chaque champ a un type (amount/rate) et des patterns."""
         for name, defn in KNOWN_FIELD_PATTERNS.items():
             assert "type" in defn, f"{name} manque le type"
-            assert defn["type"] in ("amount", "rate"), f"{name} type invalide: {defn['type']}"
+            assert defn["type"] in ("amount", "rate", "percentage"), f"{name} type invalide: {defn['type']}"
             assert "patterns" in defn, f"{name} manque les patterns"
             assert len(defn["patterns"]) >= 2, f"{name} a trop peu de patterns"

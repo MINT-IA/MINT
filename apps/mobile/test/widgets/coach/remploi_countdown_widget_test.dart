@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // saleDate in the past (2025-06-01), deadline = 2027-06-01
@@ -8,6 +10,14 @@ void main() {
   // deferredTax = 36000 → "36'000"
 
   Widget buildWidget() => MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: RemploiCountdownWidget(

@@ -187,7 +187,7 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
 
               // ── DISCLAIMER ──────────────────────────────────────────
               Text(
-                'Outil educatif simplifie. Ne constitue pas un conseil '
+                'Outil éducatif simplifié. Ne constitue pas un conseil '
                 'financier (LSFin).',
                 style: GoogleFonts.inter(
                   fontSize: 10,
@@ -208,63 +208,63 @@ class _StepJitExplanationState extends State<StepJitExplanation> {
     return switch (type) {
       ChiffreChocType.liquidityAlert => const _JitExplanation(
           condition:
-              'ton epargne de securite couvre moins de 2 mois de charges',
+              'ton épargne de sécurité couvre moins de 2 mois de charges',
           consequence:
-              'un imprevu (perte d\'emploi, reparation urgente) peut '
-              'te mettre en difficulte financiere rapidement.',
+              'un imprévu (perte d\'emploi, réparation urgente) peut '
+              'te mettre en difficulté financière rapidement.',
           insight:
-              'Les experts recommandent 3 a 6 mois de charges fixes en '
-              'reserve. Meme 100 CHF/mois sur un compte epargne fait une '
-              'difference significative sur 12 mois.',
+              'Les experts recommandent 3 à 6 mois de charges fixes en '
+              'réserve. Même 100 CHF/mois sur un compte épargne fait une '
+              'différence significative sur 12 mois.',
           source: 'Recommandation Budget-conseil Suisse',
         ),
       ChiffreChocType.retirementGap => const _JitExplanation(
           condition:
-              'ton taux de remplacement a la retraite est inferieur a 60%',
+              'ton taux de remplacement à la retraite est inférieur à 60%',
           consequence:
               'ton niveau de vie pourrait baisser significativement '
-              'le jour ou tu arretes de travailler.',
+              'le jour où tu arrêtes de travailler.',
           insight:
               'En Suisse, l\'AVS et la LPP couvrent en moyenne 60% du '
-              'dernier salaire. Le 3e pilier et l\'epargne libre comblent '
-              'le reste. Plus tu commences tot, moins l\'effort mensuel '
+              'dernier salaire. Le 3e pilier et l\'épargne libre comblent '
+              'le reste. Plus tu commences tôt, moins l\'effort mensuel '
               'est important.',
           source: 'LAVS art. 34 / LPP art. 14',
         ),
       ChiffreChocType.taxSaving3a => const _JitExplanation(
           condition:
-              'tu ne verses pas le maximum dans ton 3e pilier chaque annee',
+              'tu ne verses pas le maximum dans ton 3e pilier chaque année',
           consequence:
-              'tu passes a cote d\'une economie fiscale et d\'un capital '
-              'retraite supplementaire.',
+              'tu passes à côté d\'une économie fiscale et d\'un capital '
+              'retraite supplémentaire.',
           insight:
-              'Chaque franc verse en 3a est deductible du revenu imposable. '
-              'Sur 20 ans, la difference entre verser 0 et le plafond '
-              '(7\'258 CHF) peut representer plus de 200\'000 CHF.',
+              'Chaque franc versé en 3a est déductible du revenu imposable. '
+              'Sur 20 ans, la différence entre verser 0 et le plafond '
+              '(7\'258 CHF) peut représenter plus de 200\'000 CHF.',
           source: 'OPP3 art. 7 / LIFD art. 33',
         ),
       ChiffreChocType.retirementIncome => const _JitExplanation(
           condition:
-              'ta projection de revenu a la retraite est estimee',
+              'ta projection de revenu à la retraite est estimée',
           consequence:
-              'connaitre ce montant te permet de planifier '
-              'et d\'ajuster ta strategie de prevoyance des maintenant.',
+              'connaître ce montant te permet de planifier '
+              'et d\'ajuster ta stratégie de prévoyance dès maintenant.',
           insight:
-              'Le systeme suisse a 3 piliers (AVS + LPP + 3a) couvre en '
-              'moyenne 60% du dernier salaire. Chaque pilier a ses regles '
-              'et ses leviers d\'optimisation specifiques.',
+              'Le système suisse à 3 piliers (AVS + LPP + 3a) couvre en '
+              'moyenne 60% du dernier salaire. Chaque pilier a ses règles '
+              'et ses leviers d\'optimisation spécifiques.',
           source: 'LAVS art. 34 / LPP art. 14 / OPP3 art. 7',
         ),
       _ => const _JitExplanation(
-          condition: 'tu n\'as pas encore un plan financier structure',
+          condition: 'tu n\'as pas encore un plan financier structuré',
           consequence:
-              'tu risques de passer a cote d\'opportunites d\'optimisation '
-              'fiscale et de prevoyance.',
+              'tu risques de passer à côté d\'opportunités d\'optimisation '
+              'fiscale et de prévoyance.',
           insight:
               'Un bilan financier annuel permet d\'identifier les leviers '
               'les plus impactants : 3a, rachat LPP, franchise LAMal, '
               'amortissement indirect.',
-          source: 'Recommandation educative MINT',
+          source: 'Recommandation éducative MINT',
         ),
     };
   }

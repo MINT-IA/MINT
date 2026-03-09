@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/coach/leasing_cost_widget.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -71,6 +72,14 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             _buildInputSection(),
             const SizedBox(height: 32),
             if (_result != null) _buildResultSection(),
+            const SizedBox(height: 32),
+            // ── P10-D : Le vrai coût du leasing ─────────────────
+            LeasingCostWidget(
+              vehiclePrice: _monthlyPayment * _durationMonths / 0.55,
+              monthlyLeasing: _monthlyPayment,
+              leasingDurationMonths: _durationMonths,
+              annualReturnRate: _alternativeRate / 100,
+            ),
             const SizedBox(height: 32),
             _buildAlternativesSection(),
             const SizedBox(height: 48),

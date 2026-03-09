@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
+import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -92,6 +93,40 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                   _buildRecommendationsSection(result.recommendations),
                   const SizedBox(height: 24),
                 ],
+
+                // ── P7-D : Opération sauvetage 2e pilier ─────────
+                LppRescueWidget(
+                  lppBalance: _avoir,
+                  daysElapsed: 10,
+                  options: [
+                    LppTransferOption(
+                      label: 'Compte libre passage',
+                      emoji: '🏦',
+                      description:
+                          'Sécurité maximale, taux fixe 1-2%. Idéal si tu reprends un emploi rapidement.',
+                      fiveYearGain: _avoir * 0.07,
+                      legalRef: 'LFLP art. 3 — délai 6 mois',
+                    ),
+                    LppTransferOption(
+                      label: 'Police d\'assurance',
+                      emoji: '🛡️',
+                      description:
+                          'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.',
+                      fiveYearGain: _avoir * 0.04,
+                      legalRef: 'OPP2 art. 10',
+                    ),
+                    LppTransferOption(
+                      label: 'Fonds de placement',
+                      emoji: '📈',
+                      description:
+                          'Potentiel de rendement supérieur. Risque de marché à accepter sur l\'horizon.',
+                      fiveYearGain: _avoir * 0.15,
+                      recommended: true,
+                      legalRef: 'LFLP art. 4',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // Link to sfbvg.ch
                 _buildCentrale2ePilier(),

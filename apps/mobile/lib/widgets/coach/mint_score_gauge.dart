@@ -154,9 +154,9 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Score de forme financiere. ${ widget.score} sur 100. '
+      label: 'Score de forme financière. ${ widget.score} sur 100. '
           'Niveau $_levelLabel. '
-          'Budget ${widget.budgetScore}, Prevoyance ${widget.prevoyanceScore}, '
+          'Budget ${widget.budgetScore}, Prévoyance ${widget.prevoyanceScore}, '
           'Patrimoine ${widget.patrimoineScore}.',
       child: GestureDetector(
         onTap: widget.onTap,
@@ -238,7 +238,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Forme financiere',
+                'Forme financière',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -384,7 +384,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 ),
                 const SizedBox(height: 12),
                 _buildSubScoreBar(
-                  label: 'Prevoyance',
+                  label: 'Prévoyance',
                   score: widget.prevoyanceScore,
                   icon: Icons.shield_outlined,
                 ),
@@ -610,7 +610,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
 
   Widget _buildDisclaimer() {
     return Text(
-      'Estimations educatives \u2014 ne constitue pas un conseil financier.',
+      'Estimations éducatives \u2014 ne constitue pas un conseil financier.',
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,

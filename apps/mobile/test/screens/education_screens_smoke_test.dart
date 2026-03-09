@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 // Screens under test
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 
 void main() {
@@ -15,6 +17,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -27,6 +37,14 @@ void main() {
     testWidgets('displays AppBar title J\'Y COMPRENDS RIEN', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -38,6 +56,14 @@ void main() {
     testWidgets('shows intro text about choosing a subject', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -56,6 +82,14 @@ void main() {
     testWidgets('shows all educational themes', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -70,6 +104,14 @@ void main() {
     testWidgets('shows "Lire + quiz" subtitle for themes', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -82,6 +124,14 @@ void main() {
     testWidgets('shows chevron right icons for navigation', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -93,6 +143,14 @@ void main() {
     testWidgets('uses ListView.builder for scrollable content', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -104,6 +162,14 @@ void main() {
     testWidgets('shows theme icons from educational data', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -118,6 +184,14 @@ void main() {
     testWidgets('renders all themes count matches data', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -130,6 +204,14 @@ void main() {
     testWidgets('can scroll to see more themes', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -146,6 +228,14 @@ void main() {
     testWidgets('has BackButton in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ComprendreHubScreen(),
         ),
       );
@@ -163,6 +253,14 @@ void main() {
     testWidgets('renders without crashing with valid themeId', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -175,6 +273,14 @@ void main() {
     testWidgets('shows theme question as hero text', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -190,6 +296,14 @@ void main() {
     testWidgets('shows action label from theme data', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -204,6 +318,14 @@ void main() {
     testWidgets('shows close button in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -215,6 +337,14 @@ void main() {
     testWidgets('shows theme icon', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -227,6 +357,14 @@ void main() {
     testWidgets('shows reminder text with notification icon', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -242,6 +380,14 @@ void main() {
     testWidgets('shows action recommended subtitle', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
@@ -256,6 +402,14 @@ void main() {
     testWidgets('renders with LPP theme', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: 'lpp'),
         ),
       );
@@ -270,6 +424,14 @@ void main() {
     testWidgets('renders with emergency theme', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: 'emergency'),
         ),
       );
@@ -284,6 +446,14 @@ void main() {
     testWidgets('shows error screen for unknown themeId', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: 'nonexistent'),
         ),
       );
@@ -297,6 +467,14 @@ void main() {
     testWidgets('has MintPremiumButton', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );

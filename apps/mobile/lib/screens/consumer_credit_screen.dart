@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/coach/debt_repayment_widget.dart';
 
 class ConsumerCreditSimulatorScreen extends StatefulWidget {
   const ConsumerCreditSimulatorScreen({super.key});
@@ -78,6 +79,34 @@ class _ConsumerCreditSimulatorScreenState extends State<ConsumerCreditSimulatorS
             if (_result != null) _buildResultSection(),
             const SizedBox(height: 32),
             _buildGuidanceSection(),
+            const SizedBox(height: 32),
+            // ── P10-B : Avalanche vs Boule de neige ──────────────
+            DebtRepaymentWidget(
+              debts: const [
+                DebtEntry(
+                  label: 'Carte de crédit',
+                  emoji: '💳',
+                  balance: 2000,
+                  monthlyRate: 0.015, // 1.5%/mois = 18%/an
+                  minimumPayment: 80,
+                ),
+                DebtEntry(
+                  label: 'Crédit conso',
+                  emoji: '🏦',
+                  balance: 8000,
+                  monthlyRate: 0.008, // 0.8%/mois ≈ 9.9%/an
+                  minimumPayment: 200,
+                ),
+                DebtEntry(
+                  label: 'BNPL (paiement différé)',
+                  emoji: '🛍️',
+                  balance: 1200,
+                  monthlyRate: 0.0, // 0% pendant période franchise
+                  minimumPayment: 100,
+                ),
+              ],
+              extraMonthly: 150,
+            ),
             const SizedBox(height: 48),
             _buildDisclaimer(),
             const SizedBox(height: 40),

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Arbitrage engine — pure static functions for rente vs capital and
@@ -72,24 +73,71 @@ class ArbitrageEngine {
     double tauxRetrait = 0.04,
     double rendementCapital = 0.03,
     double inflation = 0.02,
-    int horizon = 25,
+    int horizon = 30,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+    // ── Projection params (estimate mode) ──
+    int? currentAge,
+    double? grossAnnualSalary,
+    double? caisseReturn,
   }) {
     final startYear = DateTime.now().year;
 
+    // ── Project capital if current age provided (estimate mode) ──
+    double effectiveCapitalOblig = capitalObligatoire;
+    double effectiveCapitalSurob = capitalSurobligatoire;
+    double effectiveCapitalTotal = capitalLppTotal;
+    double effectiveRente = renteAnnuelleProposee;
+    bool isProjected = false;
+
+    if (currentAge != null &&
+        currentAge < ageRetraite &&
+        grossAnnualSalary != null &&
+        grossAnnualSalary > 0) {
+      final effectiveCaisseReturn = caisseReturn ?? 0.015;
+      // Project obligatoire
+      final projectedRenteOblig = LppCalculator.projectToRetirement(
+        currentBalance: capitalObligatoire,
+        currentAge: currentAge,
+        retirementAge: ageRetraite,
+        grossAnnualSalary: grossAnnualSalary,
+        caisseReturn: effectiveCaisseReturn,
+        conversionRate: tauxConversionObligatoire,
+      );
+      // Project surobligatoire (no statutory bonification)
+      final projectedRenteSurob = LppCalculator.projectToRetirement(
+        currentBalance: capitalSurobligatoire,
+        currentAge: currentAge,
+        retirementAge: ageRetraite,
+        grossAnnualSalary: grossAnnualSalary,
+        caisseReturn: effectiveCaisseReturn,
+        conversionRate: tauxConversionSurobligatoire,
+        bonificationRateOverride: 0.0,
+      );
+      effectiveCapitalOblig = tauxConversionObligatoire > 0
+          ? projectedRenteOblig / tauxConversionObligatoire
+          : capitalObligatoire;
+      effectiveCapitalSurob = tauxConversionSurobligatoire > 0
+          ? projectedRenteSurob / tauxConversionSurobligatoire
+          : capitalSurobligatoire;
+      effectiveCapitalTotal = effectiveCapitalOblig + effectiveCapitalSurob;
+      effectiveRente = projectedRenteOblig + projectedRenteSurob;
+      isProjected = true;
+    }
+
     // ── Option A: Full Rente ──
     final renteTrajectory = _buildRenteTrajectory(
-      renteAnnuelle: renteAnnuelleProposee,
+      renteAnnuelle: effectiveRente,
       canton: canton,
       horizon: horizon,
       startYear: startYear,
       isMarried: isMarried,
+      inflation: inflation,
     );
 
     // ── Option B: Full Capital ──
     final capitalTrajectory = _buildCapitalTrajectory(
-      capitalBrut: capitalLppTotal,
+      capitalBrut: effectiveCapitalTotal,
       canton: canton,
       horizon: horizon,
       startYear: startYear,
@@ -100,10 +148,10 @@ class ArbitrageEngine {
     );
 
     // ── Option C: Mixed ──
-    final renteMixte = capitalObligatoire * tauxConversionObligatoire;
+    final renteMixte = effectiveCapitalOblig * tauxConversionObligatoire;
     final mixedTrajectory = _buildMixedTrajectory(
       renteObligatoire: renteMixte,
-      capitalSurobligatoire: capitalSurobligatoire,
+      capitalSurobligatoire: effectiveCapitalSurob,
       canton: canton,
       horizon: horizon,
       startYear: startYear,
@@ -153,7 +201,7 @@ class ArbitrageEngine {
       double variantTcSurob = 0.05,
     }) {
       final variantCapital = _buildCapitalTrajectory(
-        capitalBrut: capitalLppTotal,
+        capitalBrut: effectiveCapitalTotal,
         canton: canton,
         horizon: horizon,
         startYear: startYear,
@@ -162,11 +210,11 @@ class ArbitrageEngine {
         inflation: inflation,
         isMarried: isMarried,
       );
-      final variantRenteMixte = (capitalObligatoire * variantTcOblig) +
-          (capitalSurobligatoire * variantTcSurob);
+      final variantRenteMixte = (effectiveCapitalOblig * variantTcOblig) +
+          (effectiveCapitalSurob * variantTcSurob);
       final variantMixed = _buildMixedTrajectory(
         renteObligatoire: variantRenteMixte,
-        capitalSurobligatoire: capitalSurobligatoire,
+        capitalSurobligatoire: effectiveCapitalSurob,
         canton: canton,
         horizon: horizon,
         startYear: startYear,
@@ -272,22 +320,96 @@ class ArbitrageEngine {
       assumptionHigh: tcSurobHigh,
     );
 
-    // Chiffre choc: cumulative cashflow difference at horizon
-    final renteCashflow = renteTrajectory.last.netPatrimony;
-    final capitalCashflow = capitalTrajectory.last.netPatrimony;
-    final delta = (capitalCashflow - renteCashflow).abs();
-    final betterOption = capitalCashflow > renteCashflow ? 'capital' : 'rente';
-    final chiffreChoc =
-        'Dans ce scenario simule, l\'option $betterOption genere '
-        '~${_formatChf(delta)} de patrimoine net supplementaire sur $horizon ans.';
+    // ── Compute hero + educational card data ──
+
+    // Rente net mensuelle (year 1, nominal)
+    final renteAnnualTaxY1 = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+          revenuAnnuelImposable: effectiveRente,
+          canton: canton,
+          etatCivil: isMarried ? 'marie' : 'celibataire',
+        ) *
+        12;
+    final renteNetAnnuelleY1 = effectiveRente - renteAnnualTaxY1;
+    final renteNetMensuelle = renteNetAnnuelleY1 / 12;
+
+    // Capital retrait mensuel (year 1, SWR-based)
+    final withdrawalTaxTotal = RetirementTaxCalculator.capitalWithdrawalTax(
+      capitalBrut: effectiveCapitalTotal,
+      canton: canton,
+      isMarried: isMarried,
+    );
+    final capitalNetStart = effectiveCapitalTotal - withdrawalTaxTotal;
+    // Year 1: capital grows then withdraw
+    final capitalAfterReturn = capitalNetStart * (1 + rendementCapital);
+    final initialWithdrawal = capitalAfterReturn * tauxRetrait;
+    final capitalRetraitMensuel = initialWithdrawal / 12;
+
+    // Capital exhaustion age
+    int? capitalEpuiseAge;
+    for (int i = 1; i < capitalTrajectory.length; i++) {
+      // Capital trajectory netPatrimony includes cumulative cashflow,
+      // so check if the remaining capital portion is <= 0.
+      // We detect exhaustion when annual cashflow drops to near-zero
+      // (the capital portion is drained).
+      final snap = capitalTrajectory[i];
+      // Extract remaining capital: netPatrimony - cumulativeCashflow
+      // Since we don't track separately, use the trajectory's design:
+      // when the withdrawal is capped to remaining capital and capital is 0
+      if (i > 1 && snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
+        capitalEpuiseAge = ageRetraite + i;
+        break;
+      }
+    }
+
+    // Impot cumul rente (total taxes on rente over horizon)
+    final impotCumulRente = renteTrajectory.last.cumulativeTaxDelta;
+
+    // Rente reelle an 20 (deflated)
+    final renteReelleAn20 = effectiveRente / math.pow(1 + inflation, 20);
+
+    // Rente survivant (60%, LPP art. 19)
+    final renteSurvivant = isMarried ? effectiveRente * 0.6 : 0.0;
+
+    // Chiffre choc — compare total economic value in real terms:
+    // Rente: cumulative net income (no residual capital)
+    final renteTotalValue = renteTrajectory.last.netPatrimony;
+    // Capital: cumulative real withdrawals + remaining portfolio
+    double capitalCumulativeWithdrawals = 0;
+    for (final snap in capitalTrajectory) {
+      capitalCumulativeWithdrawals += snap.annualCashflow;
+    }
+    final capitalResidual = capitalTrajectory.last.netPatrimony;
+    final capitalTotalValue = capitalCumulativeWithdrawals + capitalResidual;
+
+    final delta = (capitalTotalValue - renteTotalValue).abs();
+    final betterOption =
+        capitalTotalValue > renteTotalValue ? 'capital' : 'rente';
+
+    // Income gap: what you actually receive to live on
+    final incomeGap = (renteTotalValue - capitalCumulativeWithdrawals).abs();
+    final moreIncome =
+        renteTotalValue > capitalCumulativeWithdrawals ? 'rente' : 'capital';
+
+    String chiffreChoc;
+    if (capitalResidual > 10000 && moreIncome == 'rente') {
+      // Typical case: rente gives more income, but capital preserves wealth
+      chiffreChoc =
+          'La rente te verse ~${_formatChf(incomeGap)} de revenu net '
+          'de plus sur $horizon ans. Mais avec le capital, tu conserves '
+          '~${_formatChf(capitalResidual)} de patrimoine transmissible.';
+    } else {
+      chiffreChoc =
+          'Sur $horizon ans, l\'option $betterOption genere '
+          '~${_formatChf(delta)} de valeur economique nette supplementaire.';
+    }
 
     final displaySummary = breakevenYear != null
-        ? 'Les trajectoires se croisent vers ${startYear + breakevenYear} '
-            '(age ${ageRetraite + breakevenYear}). '
+        ? 'Les trajectoires se croisent vers l\'age de '
+            '${ageRetraite + breakevenYear} ans. '
             'Avant ce point, la rente procure un revenu regulier. '
             'Apres, le capital retire peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
-            'L\'ecart final est de ${_formatChf(delta)}.';
+            'L\'ecart de valeur totale est de ${_formatChf(delta)}.';
 
     return ArbitrageResult(
       options: options,
@@ -295,14 +417,16 @@ class ArbitrageEngine {
       chiffreChoc: chiffreChoc,
       displaySummary: displaySummary,
       hypotheses: [
-        'Rendement du capital : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
-        'Taux de retrait (SWR) : ${(tauxRetrait * 100).toStringAsFixed(1)} % par an',
+        'Ce que ton capital rapporte : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
+        'Retrait annuel du capital : ${(tauxRetrait * 100).toStringAsFixed(1)} % par an',
         'Inflation : ${(inflation * 100).toStringAsFixed(1)} % par an',
         'Horizon : $horizon ans (age ${ageRetraite + horizon})',
         'Canton : $canton',
         'Taux de conversion obligatoire : ${(tauxConversionObligatoire * 100).toStringAsFixed(1)} %',
         'Taux de conversion surobligatoire : ${(tauxConversionSurobligatoire * 100).toStringAsFixed(1)} %',
+        'Valeurs en francs d\'aujourd\'hui (pouvoir d\'achat reel)',
         if (isMarried) 'Splitting marie : reduction ~15 % sur impot retrait',
+        if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
       ],
       disclaimer:
           'Outil educatif — ne constitue pas un conseil financier (LSFin). '
@@ -312,12 +436,23 @@ class ArbitrageEngine {
         'LPP art. 14 (taux de conversion)',
         'LIFD art. 22 (imposition des rentes)',
         'LIFD art. 38 (impot sur retrait en capital)',
+        if (isMarried) 'LPP art. 19 (rente de survivant)',
       ],
       confidenceScore: _computeArbitrageConfidence(
         ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
         dataSources,
       ),
       sensitivity: sensitivity,
+      // ── New hero + card fields ──
+      renteNetMensuelle: renteNetMensuelle,
+      capitalRetraitMensuel: capitalRetraitMensuel,
+      capitalEpuiseAge: capitalEpuiseAge,
+      impotCumulRente: impotCumulRente,
+      impotRetraitCapital: withdrawalTaxTotal,
+      renteReelleAn20: renteReelleAn20,
+      renteSurvivant: renteSurvivant,
+      capitalProjecte: effectiveCapitalTotal,
+      isProjected: isProjected,
     );
   }
 
@@ -745,11 +880,49 @@ class ArbitrageEngine {
   }) {
     final startYear = DateTime.now().year;
 
-    // ── Option A: Rent + Invest ──
+    // ── Approach: compare net patrimony including cashflow delta ──
+    // Both options have annual costs (rent vs charges proprio).
+    // The DELTA in cashflow is reinvested by the cheaper option.
+    // This gives a fair apples-to-apples comparison.
+
     final loyerAnnuel = loyerMensuelActuel * 12;
+    final fondsPropres = capitalDisponible.clamp(0.0, prixBien);
+    double hypotheque = prixBien - fondsPropres;
+    double valeurBien = prixBien;
+
+    // First pass: compute annual proprio costs to get the cashflow delta
+    final annualProprioCharges = <double>[];
+    double tempHyp = hypotheque;
+    double tempVal = prixBien;
+    for (int y = 0; y <= horizonAnnees; y++) {
+      if (y == 0) {
+        annualProprioCharges.add(0);
+        continue;
+      }
+      tempVal *= (1 + appreciationImmo);
+      final interets = tempHyp * tauxHypotheque;
+      final amortissement = prixBien * 0.01;
+      final entretien = prixBien * tauxEntretien;
+      final valeurLocative = tempVal * 0.035;
+      final netTaxableIncome = valeurLocative - interets;
+      final taxImpact = netTaxableIncome > 0
+          ? RetirementTaxCalculator.estimateMonthlyIncomeTax(
+                revenuAnnuelImposable: netTaxableIncome,
+                canton: canton,
+                etatCivil: isMarried ? 'marie' : 'celibataire',
+              ) *
+              12
+          : 0.0;
+      annualProprioCharges.add(interets + amortissement + entretien + taxImpact);
+      tempHyp = math.max(0, tempHyp - amortissement);
+    }
+
+    // ── Option A: Rent + Invest ──
+    // Capital = capitalDisponible invested at market return.
+    // Each year, if renting is cheaper than owning, the savings are reinvested.
+    // If renting is more expensive, the extra cost is withdrawn from capital.
     double investCapital = capitalDisponible;
     final rentSnapshots = <YearlySnapshot>[];
-    double rentCumulCashflow = 0;
 
     for (int y = 0; y <= horizonAnnees; y++) {
       if (y == 0) {
@@ -763,28 +936,28 @@ class ArbitrageEngine {
       }
       // Capital grows at market return
       investCapital *= (1 + rendementMarche);
-      // Pay rent out of pocket (not from invested capital)
-      rentCumulCashflow -= loyerAnnuel;
+      // Cashflow delta: proprio charges - loyer (positive = renting is cheaper)
+      final cashflowDelta = annualProprioCharges[y] - loyerAnnuel;
+      // If renting is cheaper, surplus is invested. If more expensive, withdrawn.
+      investCapital += cashflowDelta;
 
       rentSnapshots.add(YearlySnapshot(
         year: startYear + y,
-        netPatrimony: investCapital + rentCumulCashflow,
+        netPatrimony: investCapital,
         annualCashflow: -loyerAnnuel,
         cumulativeTaxDelta: 0,
       ));
     }
 
     // ── Option B: Buy ──
-    final fondsPropresPct = capitalDisponible / prixBien;
-    final fondsPropres = capitalDisponible.clamp(0.0, prixBien);
-    double hypotheque = prixBien - fondsPropres;
-    double valeurBien = prixBien;
+    // Net patrimony = property value - remaining mortgage.
+    // All charges are paid from income (like rent is for option A).
+    hypotheque = prixBien - fondsPropres;
+    valeurBien = prixBien;
     final buySnapshots = <YearlySnapshot>[];
-    double buyCumulCost = 0;
 
     for (int y = 0; y <= horizonAnnees; y++) {
       if (y == 0) {
-        // Net patrimony = property value - mortgage
         buySnapshots.add(YearlySnapshot(
           year: startYear,
           netPatrimony: valeurBien - hypotheque,
@@ -793,38 +966,15 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Property appreciates
       valeurBien *= (1 + appreciationImmo);
-
-      // Annual costs
-      final interets = hypotheque * tauxHypotheque;
-      final amortissement = prixBien * 0.01; // 1% of initial price/year
-      final entretien = prixBien * tauxEntretien;
-
-      // Valeur locative = ~3.5% of property value (Swiss average)
-      final valeurLocative = valeurBien * 0.035;
-      // Tax impact: valeur locative as income minus interest deduction
-      final netTaxableIncome = valeurLocative - interets;
-      final taxImpact = netTaxableIncome > 0
-          ? RetirementTaxCalculator.estimateMonthlyIncomeTax(
-                revenuAnnuelImposable: netTaxableIncome,
-                canton: canton,
-                etatCivil: isMarried ? 'marie' : 'celibataire',
-              ) *
-              12
-          : 0.0;
-
-      final totalAnnualCost = interets + amortissement + entretien + taxImpact;
-      buyCumulCost += totalAnnualCost;
-
-      // Reduce mortgage by amortization
+      final amortissement = prixBien * 0.01;
       hypotheque = math.max(0, hypotheque - amortissement);
 
       buySnapshots.add(YearlySnapshot(
         year: startYear + y,
-        netPatrimony: valeurBien - hypotheque - buyCumulCost,
-        annualCashflow: -totalAnnualCost,
-        cumulativeTaxDelta: taxImpact * y,
+        netPatrimony: valeurBien - hypotheque,
+        annualCashflow: -annualProprioCharges[y],
+        cumulativeTaxDelta: 0,
       ));
     }
 
@@ -939,7 +1089,7 @@ class ArbitrageEngine {
         'Entretien : ${(tauxEntretien * 100).toStringAsFixed(1)} % du prix par an',
         'Horizon : $horizonAnnees ans',
         'Canton : $canton',
-        'Fonds propres : ${(fondsPropresPct * 100).toStringAsFixed(0)} %',
+        'Fonds propres : ${(capitalDisponible / prixBien * 100).toStringAsFixed(0)} %',
         if (isMarried) 'Splitting marie',
         ...alertes,
       ],
@@ -1500,13 +1650,15 @@ class ArbitrageEngine {
   /// Build year-by-year trajectory for full rente option.
   ///
   /// Rente is taxed as income every year (LIFD art. 22).
-  /// No capital patrimony — cumulative cashflow only.
+  /// LPP rente is NOT indexed — purchasing power erodes with inflation.
+  /// All values expressed in real terms (francs d'aujourd'hui).
   static List<YearlySnapshot> _buildRenteTrajectory({
     required double renteAnnuelle,
     required String canton,
     required int horizon,
     required int startYear,
     required bool isMarried,
+    double inflation = 0.0,
   }) {
     final snapshots = <YearlySnapshot>[];
     double cumulativeCashflow = 0;
@@ -1522,14 +1674,15 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Annual income tax on rente
+      // Rente LPP is NOT indexed — real value decreases with inflation
+      final realRente = renteAnnuelle / math.pow(1 + inflation, y);
       final annualTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: renteAnnuelle,
+            revenuAnnuelImposable: realRente,
             canton: canton,
             etatCivil: isMarried ? 'marie' : 'celibataire',
           ) *
           12;
-      final netAnnual = renteAnnuelle - annualTax;
+      final netAnnual = realRente - annualTax;
       cumulativeCashflow += netAnnual;
       cumulativeTax += annualTax;
 
@@ -1546,8 +1699,12 @@ class ArbitrageEngine {
   /// Build year-by-year trajectory for full capital option.
   ///
   /// Capital is taxed once at withdrawal (LIFD art. 38, progressive brackets).
-  /// Then invested and drawn down at SWR. SWR withdrawals are NOT taxable
-  /// income — they are consumption of own patrimony.
+  /// Then invested and drawn down using Trinity Study SWR:
+  ///   - Year 1: withdraw initialCapital × SWR
+  ///   - Each following year: adjust that amount for inflation
+  /// SWR withdrawals are NOT taxable income (consumption of patrimony).
+  /// All values expressed in real terms (francs d'aujourd'hui).
+  /// netPatrimony = remaining invested capital in real terms (francs today)
   static List<YearlySnapshot> _buildCapitalTrajectory({
     required double capitalBrut,
     required String canton,
@@ -1565,10 +1722,10 @@ class ArbitrageEngine {
       isMarried: isMarried,
     );
     double capitalNet = capitalBrut - withdrawalTax;
+    final capitalNetAtStart = capitalNet;
 
     final snapshots = <YearlySnapshot>[];
-    double cumulativeCashflow = 0;
-    final realReturn = rendement - inflation;
+    double initialWithdrawal = 0;
 
     for (int y = 0; y <= horizon; y++) {
       if (y == 0) {
@@ -1580,17 +1737,27 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Capital grows at real return
-      capitalNet *= (1 + realReturn);
-      // Withdraw at SWR (not taxed — consumption of patrimony)
-      final annualWithdrawal = capitalNet * tauxRetrait;
-      capitalNet -= annualWithdrawal;
-      cumulativeCashflow += annualWithdrawal;
+      // Capital grows at NOMINAL return
+      capitalNet *= (1 + rendement);
+
+      // Trinity Study SWR: fixed initial withdrawal, inflation-adjusted
+      if (y == 1) {
+        initialWithdrawal = capitalNetAtStart * tauxRetrait;
+      }
+      final nominalWithdrawal =
+          initialWithdrawal * math.pow(1 + inflation, y - 1);
+      // Cap withdrawal to remaining capital (can't withdraw more than exists)
+      final actualWithdrawal = math.min(nominalWithdrawal, math.max(0, capitalNet));
+      capitalNet -= actualWithdrawal;
+
+      // Express in real terms (deflate to today's purchasing power)
+      final realPatrimony = capitalNet / math.pow(1 + inflation, y);
+      final realCashflow = actualWithdrawal / math.pow(1 + inflation, y);
 
       snapshots.add(YearlySnapshot(
         year: startYear + y,
-        netPatrimony: capitalNet + cumulativeCashflow,
-        annualCashflow: annualWithdrawal,
+        netPatrimony: realPatrimony,
+        annualCashflow: realCashflow,
         cumulativeTaxDelta: withdrawalTax,
       ));
     }
@@ -1599,6 +1766,8 @@ class ArbitrageEngine {
 
   /// Build year-by-year trajectory for mixed option:
   /// obligatoire as rente (6.8%) + surobligatoire as capital.
+  /// Rente deflated for inflation. Capital uses Trinity Study SWR.
+  /// All values in real terms.
   static List<YearlySnapshot> _buildMixedTrajectory({
     required double renteObligatoire,
     required double capitalSurobligatoire,
@@ -1617,11 +1786,12 @@ class ArbitrageEngine {
       isMarried: isMarried,
     );
     double capitalNet = capitalSurobligatoire - withdrawalTax;
-    final realReturn = rendement - inflation;
+    final capitalNetAtStart = capitalNet;
 
     final snapshots = <YearlySnapshot>[];
     double cumulativeCashflow = 0;
     double cumulativeTax = withdrawalTax;
+    double initialCapitalWithdrawal = 0;
 
     for (int y = 0; y <= horizon; y++) {
       if (y == 0) {
@@ -1633,28 +1803,38 @@ class ArbitrageEngine {
         ));
         continue;
       }
-      // Rente part (income tax)
+      // Rente part: NOT indexed, deflated by inflation
+      final realRente = renteObligatoire / math.pow(1 + inflation, y);
       final renteTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: renteObligatoire,
+            revenuAnnuelImposable: realRente,
             canton: canton,
             etatCivil: isMarried ? 'marie' : 'celibataire',
           ) *
           12;
-      final renteNet = renteObligatoire - renteTax;
-
-      // Capital part grows and is drawn
-      capitalNet *= (1 + realReturn);
-      final capitalWithdrawal = capitalNet * tauxRetrait;
+      // Capital part: nominal growth + Trinity SWR
+      capitalNet *= (1 + rendement);
+      if (y == 1) {
+        initialCapitalWithdrawal = capitalNetAtStart * tauxRetrait;
+      }
+      final nominalWithdrawal =
+          initialCapitalWithdrawal * math.pow(1 + inflation, y - 1);
+      final capitalWithdrawal =
+          math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= capitalWithdrawal;
 
-      final totalCashflow = renteNet + capitalWithdrawal;
-      cumulativeCashflow += totalCashflow;
+      final totalNominalCashflow = renteObligatoire - renteTax + capitalWithdrawal;
+      cumulativeCashflow += totalNominalCashflow;
       cumulativeTax += renteTax;
+
+      // Express in real terms
+      final realPatrimony =
+          (capitalNet + cumulativeCashflow) / math.pow(1 + inflation, y);
+      final realCashflow = totalNominalCashflow / math.pow(1 + inflation, y);
 
       snapshots.add(YearlySnapshot(
         year: startYear + y,
-        netPatrimony: capitalNet + cumulativeCashflow,
-        annualCashflow: totalCashflow,
+        netPatrimony: realPatrimony,
+        annualCashflow: realCashflow,
         cumulativeTaxDelta: cumulativeTax,
       ));
     }

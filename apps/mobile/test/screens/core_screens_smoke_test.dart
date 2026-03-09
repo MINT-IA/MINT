@@ -10,6 +10,8 @@ import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   setUp(() {
@@ -24,6 +26,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsumerCreditSimulatorScreen(),
         ),
       );
@@ -36,6 +46,14 @@ void main() {
     testWidgets('displays French title in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsumerCreditSimulatorScreen(),
         ),
       );
@@ -50,6 +68,14 @@ void main() {
     testWidgets('shows calculator input sliders', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsumerCreditSimulatorScreen(),
         ),
       );
@@ -70,6 +96,14 @@ void main() {
     testWidgets('shows result section with computed values', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsumerCreditSimulatorScreen(),
         ),
       );
@@ -83,6 +117,14 @@ void main() {
     testWidgets('displays disclaimer with legal reference', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsumerCreditSimulatorScreen(),
         ),
       );
@@ -102,6 +144,14 @@ void main() {
     testWidgets('shows mentor guidance section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ConsumerCreditSimulatorScreen(),
         ),
       );
@@ -126,6 +176,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRiskCheckScreen(),
         ),
       );
@@ -138,6 +196,14 @@ void main() {
     testWidgets('displays French AppBar title', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRiskCheckScreen(),
         ),
       );
@@ -152,6 +218,14 @@ void main() {
     testWidgets('shows questionnaire with French questions', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRiskCheckScreen(),
         ),
       );
@@ -180,6 +254,14 @@ void main() {
     testWidgets('shows OUI/NON choice buttons', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRiskCheckScreen(),
         ),
       );
@@ -193,6 +275,14 @@ void main() {
     testWidgets('shows mentor intro and privacy note', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRiskCheckScreen(),
         ),
       );
@@ -213,6 +303,14 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRiskCheckScreen(),
         ),
       );
@@ -253,6 +351,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),
@@ -268,6 +374,14 @@ void main() {
     testWidgets('displays French title in AppBar', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),
@@ -282,6 +396,14 @@ void main() {
     testWidgets('shows wealth summary section', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),
@@ -299,6 +421,14 @@ void main() {
     testWidgets('shows account envelopes in French', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),
@@ -322,6 +452,14 @@ void main() {
     testWidgets('shows readiness index milestones', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),
@@ -342,6 +480,14 @@ void main() {
     testWidgets('shows coach advice when no debt', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),
@@ -371,6 +517,14 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: ChangeNotifierProvider<ProfileProvider>.value(
             value: profileProvider,
             child: const PortfolioScreen(),

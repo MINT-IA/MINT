@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
+import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -106,7 +108,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Divorce — Impact financier'),
+        title: Text(S.of(context)!.divorceAppBarTitle),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -149,6 +151,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             const SizedBox(height: 24),
             _buildMintDivorceSection(),
             const SizedBox(height: 24),
+            // ── P8-B : Prix du silence — concubin vs marié·e ──
+            PrixDuSilenceWidget(
+              patrimoine: _fortuneCommune > 0 ? _fortuneCommune : 200000,
+              marriedTaxRate: 0,
+              concubinTaxRate: 24,
+            ),
+            const SizedBox(height: 24),
             _buildDisclaimer(),
             const SizedBox(height: 40),
           ],
@@ -182,7 +191,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Impact financier d\'un divorce',
+                  S.of(context)!.divorceHeaderTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -191,7 +200,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Anticipez les consequences financieres',
+                  S.of(context)!.divorceHeaderSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -224,10 +233,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Un divorce a des consequences financieres souvent '
-              'sous-estimees : partage du patrimoine, de la prevoyance '
-              '(LPP/3a), impact fiscal et pension alimentaire. '
-              'Cet outil vous aide a y voir plus clair.',
+              S.of(context)!.divorceIntroText,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -243,24 +249,24 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Section 1: Situation Familiale ---
   Widget _buildSituationFamilialeSection() {
     return SimulatorCard(
-      title: 'SITUATION FAMILIALE',
-      subtitle: 'Duree du mariage, enfants, regime',
+      title: S.of(context)!.divorceSituationFamiliale,
+      subtitle: S.of(context)!.divorceSituationSubtitle,
       icon: Icons.people_outline,
       accentColor: Colors.purple.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Duree du mariage',
+            label: S.of(context)!.divorceDureeMariage,
             value: _marriageDuration.toDouble(),
             min: 1,
             max: 40,
             divisions: 39,
-            format: (v) => '${v.toInt()} ans',
+            format: (v) => S.of(context)!.divorceYears(v.toInt()),
             onChanged: (v) => setState(() => _marriageDuration = v.toInt()),
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Nombre d\'enfants',
+            label: S.of(context)!.divorceNbEnfants,
             value: _numberOfChildren.toDouble(),
             min: 0,
             max: 5,
@@ -279,19 +285,19 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Regime Chips ---
   Widget _buildRegimeChips() {
     final options = <MapEntry<MatrimonialRegime, String>>[
-      const MapEntry(
-          MatrimonialRegime.participationAuxAcquets, 'Participation aux acquets (defaut)'),
-      const MapEntry(
-          MatrimonialRegime.communauteDeBiens, 'Communaute de biens'),
-      const MapEntry(
-          MatrimonialRegime.separationDeBiens, 'Separation de biens'),
+      MapEntry(
+          MatrimonialRegime.participationAuxAcquets, S.of(context)!.divorceParticipationDefault),
+      MapEntry(
+          MatrimonialRegime.communauteDeBiens, S.of(context)!.divorceCommunaute),
+      MapEntry(
+          MatrimonialRegime.separationDeBiens, S.of(context)!.divorceSeparation),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Regime matrimonial',
+          S.of(context)!.divorceRegimeMatrimonial,
           style: GoogleFonts.inter(
             fontSize: 13,
             color: MintColors.textPrimary,
@@ -341,14 +347,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Section 2: Revenus ---
   Widget _buildRevenusSection() {
     return SimulatorCard(
-      title: 'REVENUS',
-      subtitle: 'Revenu annuel de chaque conjoint',
+      title: S.of(context)!.divorceRevenus,
+      subtitle: S.of(context)!.divorceRevenusSubtitle,
       icon: Icons.payments_outlined,
       accentColor: Colors.purple.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Conjoint 1 — revenu annuel',
+            label: S.of(context)!.divorceConjoint1Revenu,
             value: _incomeConjoint1,
             min: 0,
             max: 300000,
@@ -358,7 +364,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Conjoint 2 — revenu annuel',
+            label: S.of(context)!.divorceConjoint2Revenu,
             value: _incomeConjoint2,
             min: 0,
             max: 300000,
@@ -374,14 +380,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Section 3: Prévoyance ---
   Widget _buildPrevoyanceSection() {
     return SimulatorCard(
-      title: 'PREVOYANCE',
-      subtitle: 'LPP et 3a accumules pendant le mariage',
+      title: S.of(context)!.divorcePrevoyance,
+      subtitle: S.of(context)!.divorcePrevoyanceSubtitle,
       icon: Icons.account_balance_outlined,
       accentColor: Colors.purple.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'LPP Conjoint 1 (pendant le mariage)',
+            label: S.of(context)!.divorceLppConjoint1,
             value: _lppConjoint1,
             min: 0,
             max: 500000,
@@ -391,7 +397,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'LPP Conjoint 2 (pendant le mariage)',
+            label: S.of(context)!.divorceLppConjoint2,
             value: _lppConjoint2,
             min: 0,
             max: 500000,
@@ -401,7 +407,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: '3a Conjoint 1',
+            label: S.of(context)!.divorce3aConjoint1,
             value: _pillar3aConjoint1,
             min: 0,
             max: 200000,
@@ -411,7 +417,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: '3a Conjoint 2',
+            label: S.of(context)!.divorce3aConjoint2,
             value: _pillar3aConjoint2,
             min: 0,
             max: 200000,
@@ -427,14 +433,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Section 4: Patrimoine ---
   Widget _buildPatrimoineSection() {
     return SimulatorCard(
-      title: 'PATRIMOINE',
-      subtitle: 'Fortune et dettes communes',
+      title: S.of(context)!.divorcePatrimoine,
+      subtitle: S.of(context)!.divorcePatrimoineSubtitle,
       icon: Icons.home_outlined,
       accentColor: Colors.purple.shade600,
       child: Column(
         children: [
           _buildSlider(
-            label: 'Fortune commune',
+            label: S.of(context)!.divorceFortune,
             value: _fortuneCommune,
             min: 0,
             max: 2000000,
@@ -444,7 +450,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 16),
           _buildSlider(
-            label: 'Dettes communes',
+            label: S.of(context)!.divorceDettes,
             value: _dettesCommunes,
             min: 0,
             max: 1000000,
@@ -465,7 +471,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         onPressed: _simulate,
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
-          'Simuler',
+          S.of(context)!.divorceSimuler,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -501,7 +507,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               Icon(Icons.swap_horiz, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
-                'PARTAGE LPP',
+                S.of(context)!.divorcePartageLpp,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -512,13 +518,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildResultRow('Total LPP (pendant le mariage)',
+          _buildResultRow(S.of(context)!.divorceTotalLpp,
               _chfFmt(r.lppSplit.totalLpp)),
           const SizedBox(height: 8),
           _buildResultRow(
-              'Part Conjoint 1', _chfFmt(r.lppSplit.shareConjoint1)),
+              S.of(context)!.divorcePartConjoint1, _chfFmt(r.lppSplit.shareConjoint1)),
           _buildResultRow(
-              'Part Conjoint 2', _chfFmt(r.lppSplit.shareConjoint2)),
+              S.of(context)!.divorcePartConjoint2, _chfFmt(r.lppSplit.shareConjoint2)),
           const SizedBox(height: 12),
           if (r.lppSplit.transferAmount > 0) ...[
             Container(
@@ -577,7 +583,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   size: 18),
               const SizedBox(width: 8),
               Text(
-                'IMPACT FISCAL',
+                S.of(context)!.divorceImpactFiscal,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -589,15 +595,15 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildResultRow('Impot estime (marie)',
+          _buildResultRow(S.of(context)!.divorceImpotMarie,
               _chfFmt(r.taxImpact.estimatedTaxMarried)),
           const SizedBox(height: 8),
-          _buildResultRow('Impot Conjoint 1 (individuel)',
+          _buildResultRow(S.of(context)!.divorceImpotConjoint1,
               _chfFmt(r.taxImpact.estimatedTaxConjoint1)),
-          _buildResultRow('Impot Conjoint 2 (individuel)',
+          _buildResultRow(S.of(context)!.divorceImpotConjoint2,
               _chfFmt(r.taxImpact.estimatedTaxConjoint2)),
           _buildResultRow(
-              'Total apres divorce', _chfFmt(r.taxImpact.totalTaxAfter)),
+              S.of(context)!.divorceTotalApresDivorce, _chfFmt(r.taxImpact.totalTaxAfter)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(12),
@@ -617,7 +623,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Difference : ${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}/an',
+                    'Différence : ${isIncrease ? '+' : ''}${_chfFmt(r.taxImpact.delta)}/an',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -656,7 +662,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   color: Colors.purple.shade600, size: 18),
               const SizedBox(width: 8),
               Text(
-                'PARTAGE DU PATRIMOINE',
+                S.of(context)!.divorcePartagePatrimoine,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -667,7 +673,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildResultRow('Fortune nette',
+          _buildResultRow(S.of(context)!.divorceFortuneNette,
               _chfFmt(r.patrimoineSplit.fortuneNette)),
           const SizedBox(height: 8),
           // Visual bar for split
@@ -756,7 +762,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               Icon(Icons.child_care, color: MintColors.warning, size: 18),
               const SizedBox(width: 8),
               Text(
-                'PENSION ALIMENTAIRE (ESTIMATION)',
+                S.of(context)!.divorcePensionAlimentaire,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -785,9 +791,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Estimation basee sur l\'ecart de revenus et le nombre '
-            'd\'enfants. Le montant reel depend de nombreux facteurs '
-            '(garde, besoins, train de vie).',
+            S.of(context)!.divorcePensionDescription,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -806,7 +810,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
+          S.of(context)!.divorcePointsAttention,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -854,8 +858,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Actions a entreprendre',
-      subtitle: 'Checklist de preparation',
+      title: S.of(context)!.divorceActionsTitle,
+      subtitle: S.of(context)!.divorceActionsSubtitle,
       icon: Icons.checklist,
       accentColor: Colors.purple.shade600,
       child: Column(
@@ -928,7 +932,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPRENDRE',
+          S.of(context)!.divorceComprendre,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -938,22 +942,13 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que la participation aux acquets ?',
-          'La participation aux acquets est le regime matrimonial par defaut en '
-              'Suisse (CC art. 181 ss). Chaque conjoint conserve ses biens propres '
-              '(ceux acquis avant le mariage ou par succession/donation). Les acquets '
-              '(biens acquis pendant le mariage) sont partages a parts egales en cas '
-              'de divorce. C\'est le regime le plus courant en Suisse.',
+          S.of(context)!.divorceEduParticipationTitle,
+          S.of(context)!.divorceEduParticipationContent,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Comment fonctionne le partage LPP ?',
-          'Depuis le 1er janvier 2017 (CC art. 122), les avoirs de prevoyance '
-              'professionnelle (2e pilier) accumules pendant le mariage sont partages '
-              'a parts egales en cas de divorce. Le partage se fait directement entre '
-              'les deux caisses de pension, sans passage par le compte personnel des '
-              'conjoints. C\'est un droit imperieux auquel les conjoints ne peuvent '
-              'renoncer que dans des conditions strictes.',
+          S.of(context)!.divorceEduLppTitle,
+          S.of(context)!.divorceEduLppContent,
         ),
       ],
     );
@@ -1012,11 +1007,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations a titre indicatif '
-              'et ne constituent pas un conseil juridique ou financier '
-              'personnalise. Chaque situation est unique. Consultez un(e) '
-              'avocat(e) specialise(e) en droit de la famille et un·e spécialiste '
-              'en finances avant toute decision.',
+              S.of(context)!.divorceDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

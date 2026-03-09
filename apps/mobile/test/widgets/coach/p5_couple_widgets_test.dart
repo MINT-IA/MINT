@@ -5,6 +5,8 @@ import 'package:mint_mobile/services/retirement_projection_service.dart';
 import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
 import 'package:mint_mobile/widgets/dashboard/couple_action_plan.dart';
 import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // ════════════════════════════════════════════════════════════
@@ -14,6 +16,14 @@ void main() {
   group('HeroCoupleCard', () {
     testWidgets('displays both partners with names', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -34,6 +44,14 @@ void main() {
 
     testWidgets('shows household total', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -54,6 +72,14 @@ void main() {
 
     testWidgets('shows retirement ages', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -74,6 +100,14 @@ void main() {
 
     testWidgets('shows replacement ratio when provided', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -96,6 +130,14 @@ void main() {
 
     testWidgets('displays LSFin disclaimer', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -115,6 +157,14 @@ void main() {
 
     testWidgets('no banned terms', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -157,6 +207,14 @@ void main() {
     testWidgets('renders for couple profile', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -170,6 +228,14 @@ void main() {
     testWidgets('shows owner chips per action', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -184,6 +250,14 @@ void main() {
     testWidgets('returns SizedBox.shrink for single profile', (tester) async {
       final profile = _buildSingleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: CoupleActionPlan(profile: profile),
         ),
@@ -196,6 +270,14 @@ void main() {
     testWidgets('shows FATCA warning for US conjoint', (tester) async {
       final profile = _buildCoupleProfileWithFatca();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -210,6 +292,14 @@ void main() {
     testWidgets('shows AVS cap for married couple', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -224,6 +314,14 @@ void main() {
     testWidgets('displays LSFin disclaimer', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -237,6 +335,14 @@ void main() {
     testWidgets('no banned terms', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -258,6 +364,14 @@ void main() {
   group('CouplePhaseTimeline', () {
     testWidgets('renders with 2 phases', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CouplePhaseTimeline(
@@ -278,6 +392,14 @@ void main() {
 
     testWidgets('returns SizedBox.shrink with < 2 phases', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: CouplePhaseTimeline(
             userName: 'Julien',
@@ -301,6 +423,14 @@ void main() {
     testWidgets('shows slider when profile is provided', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CouplePhaseTimeline(
@@ -321,6 +451,14 @@ void main() {
 
     testWidgets('hides slider when no profile', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CouplePhaseTimeline(
@@ -339,6 +477,14 @@ void main() {
 
     testWidgets('displays LSFin disclaimer', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CouplePhaseTimeline(
@@ -358,6 +504,14 @@ void main() {
     testWidgets('slider drag updates displayed age', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CouplePhaseTimeline(
@@ -387,6 +541,14 @@ void main() {
     testWidgets('reset button appears when slider modified', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CouplePhaseTimeline(
@@ -421,6 +583,14 @@ void main() {
     testWidgets('AVS cap only for married, not concubinage', (tester) async {
       final profile = _buildConcubinProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -436,6 +606,14 @@ void main() {
     testWidgets('impact label includes "(estimation)" hedge', (tester) async {
       final profile = _buildCoupleProfile();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -449,6 +627,14 @@ void main() {
     testWidgets('FATCA 3a action has no route (not clickable)', (tester) async {
       final profile = _buildCoupleProfileWithFatca();
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -478,6 +664,14 @@ void main() {
 
       // UI should show FATCA block
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -510,6 +704,14 @@ void main() {
         ),
       );
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: CoupleActionPlan(profile: profile),
         ),
@@ -541,6 +743,14 @@ void main() {
         ],
       );
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -603,6 +813,14 @@ void main() {
         ],
       );
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CoupleActionPlan(profile: profile),
@@ -619,6 +837,14 @@ void main() {
   group('HeroCoupleCard — edge cases', () {
     testWidgets('handles zero income correctly', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(
@@ -638,6 +864,14 @@ void main() {
 
     testWidgets('handles very long names with ellipsis', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: HeroCoupleCard(

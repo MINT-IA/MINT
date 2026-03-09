@@ -22,6 +22,7 @@ void main() {
           canton: 'VD',
           revenuAnnuel: 80000,
           has3a: false,
+          has3aAnswered: true,
           hasLpp: true,
           avoirLpp: 100000,
           employmentStatus: EmploymentStatus.salarie,
@@ -175,6 +176,7 @@ void main() {
           has3a: true,
           montant3a: 7056,
           hasLpp: true,
+          hasSavingsAnswered: true,
           chargesFixesMensuelles: 4000,
           epargneDispo: 2000, // 0.5 months
           employmentStatus: EmploymentStatus.salarie,
@@ -198,6 +200,7 @@ void main() {
           has3a: true,
           montant3a: 7056,
           hasLpp: true,
+          hasSavingsAnswered: true,
           chargesFixesMensuelles: 3000,
           epargneDispo: 5000, // ~1.7 months
           employmentStatus: EmploymentStatus.salarie,
@@ -715,6 +718,7 @@ void main() {
           canton: 'XX',
           revenuAnnuel: 80000,
           has3a: false,
+          has3aAnswered: true,
           hasLpp: true,
           employmentStatus: EmploymentStatus.salarie,
         ),
