@@ -3857,5 +3857,45 @@
   "financialSummaryWhatIfLppAction": "Comparer",
   "financialSummaryWhatIfAchatQuestion": "Et si tu achetais au lieu de louer ?",
   "financialSummaryWhatIfAchatExplanation": "L'amortissement indirect via le 2e pilier peut réduire tes impôts tout en constituant un patrimoine.",
-  "financialSummaryWhatIfAchatAction": "Explorer"
+  "financialSummaryWhatIfAchatAction": "Explorer",
+  "dataQualityTitle": "Qualité des données",
+  "dataQualityMissingCount": "{count} information(s) à ajouter",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Profil complet",
+  "dataQualityKnownSection": "Données connues",
+  "dataQualityMissingSection": "Données manquantes",
+  "dataQualityCompleteness": "Complétude",
+  "dataQualityAccuracy": "Exactitude",
+  "dataQualityFreshness": "Fraîcheur",
+  "dataQualityCombined": "Score combiné",
+  "dataQualityEnrich": "Enrichir mon profil",
+  "dataQualityEnrichWithImpact": "Enrichir mon profil ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Salaire brut",
+  "confidenceLabelAgeCanton": "Âge / Canton",
+  "confidenceLabelMenage": "Situation du ménage",
+  "confidenceLabelAvoirLpp": "Avoir LPP",
+  "confidenceLabelTauxConversion": "Taux de conversion",
+  "confidenceLabelAnneesAvs": "Années AVS",
+  "confidenceLabelEpargne3a": "Épargne 3a",
+  "confidenceLabelPatrimoine": "Patrimoine",
+  "confidencePromptFreshnessPrefix": "Actualise\u00a0: ",
+  "confidencePromptFreshnessStale": "Donnée datant de {months} mois — rescanne ton certificat",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Confirme que cette valeur est toujours actuelle",
+  "confidencePromptAccuracyPrefix": "Confirme\u00a0: ",
+  "confidencePromptAccuracyEstimated": "Saisis ta valeur réelle",
+  "confidencePromptAccuracyCertificate": "Scanne ton certificat pour confirmer"
 }

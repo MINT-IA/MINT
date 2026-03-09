@@ -3981,5 +3981,45 @@
   "financialSummaryWhatIfLppAction": "Compare",
   "financialSummaryWhatIfAchatQuestion": "What if you bought instead of renting?",
   "financialSummaryWhatIfAchatExplanation": "Indirect amortization via the 2nd pillar can reduce your taxes while building wealth.",
-  "financialSummaryWhatIfAchatAction": "Explore"
+  "financialSummaryWhatIfAchatAction": "Explore",
+  "dataQualityTitle": "Data quality",
+  "dataQualityMissingCount": "{count} information(s) to add",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Profile complete",
+  "dataQualityKnownSection": "Known data",
+  "dataQualityMissingSection": "Missing data",
+  "dataQualityCompleteness": "Completeness",
+  "dataQualityAccuracy": "Accuracy",
+  "dataQualityFreshness": "Freshness",
+  "dataQualityCombined": "Combined score",
+  "dataQualityEnrich": "Enrich my profile",
+  "dataQualityEnrichWithImpact": "Enrich my profile ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Gross salary",
+  "confidenceLabelAgeCanton": "Age / Canton",
+  "confidenceLabelMenage": "Household situation",
+  "confidenceLabelAvoirLpp": "LPP assets",
+  "confidenceLabelTauxConversion": "Conversion rate",
+  "confidenceLabelAnneesAvs": "AVS years",
+  "confidenceLabelEpargne3a": "Pillar 3a savings",
+  "confidenceLabelPatrimoine": "Assets",
+  "confidencePromptFreshnessPrefix": "Update: ",
+  "confidencePromptFreshnessStale": "Data from {months} months ago — rescan your certificate",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Confirm this value is still current",
+  "confidencePromptAccuracyPrefix": "Confirm: ",
+  "confidencePromptAccuracyEstimated": "Enter your actual value",
+  "confidencePromptAccuracyCertificate": "Scan your certificate to confirm"
 }

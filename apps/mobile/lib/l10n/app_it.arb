@@ -3981,5 +3981,45 @@
   "financialSummaryWhatIfLppAction": "Confrontare",
   "financialSummaryWhatIfAchatQuestion": "E se comprassi invece di affittare?",
   "financialSummaryWhatIfAchatExplanation": "L'ammortamento indiretto tramite il 2° pilastro può ridurre le tasse e costruire patrimonio.",
-  "financialSummaryWhatIfAchatAction": "Esplorare"
+  "financialSummaryWhatIfAchatAction": "Esplorare",
+  "dataQualityTitle": "Qualità dei dati",
+  "dataQualityMissingCount": "{count} informazione/i da aggiungere",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Profilo completo",
+  "dataQualityKnownSection": "Dati conosciuti",
+  "dataQualityMissingSection": "Dati mancanti",
+  "dataQualityCompleteness": "Completezza",
+  "dataQualityAccuracy": "Accuratezza",
+  "dataQualityFreshness": "Freschezza",
+  "dataQualityCombined": "Punteggio combinato",
+  "dataQualityEnrich": "Arricchire il mio profilo",
+  "dataQualityEnrichWithImpact": "Arricchire il mio profilo ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Salario lordo",
+  "confidenceLabelAgeCanton": "Età / Cantone",
+  "confidenceLabelMenage": "Situazione familiare",
+  "confidenceLabelAvoirLpp": "Avere LPP",
+  "confidenceLabelTauxConversion": "Tasso di conversione",
+  "confidenceLabelAnneesAvs": "Anni AVS",
+  "confidenceLabelEpargne3a": "Risparmio 3a",
+  "confidenceLabelPatrimoine": "Patrimonio",
+  "confidencePromptFreshnessPrefix": "Aggiorna: ",
+  "confidencePromptFreshnessStale": "Dato di {months} mesi fa — riscansiona il tuo certificato",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Conferma che questo valore è ancora attuale",
+  "confidencePromptAccuracyPrefix": "Conferma: ",
+  "confidencePromptAccuracyEstimated": "Inserisci il tuo valore reale",
+  "confidencePromptAccuracyCertificate": "Scansiona il tuo certificato per confermare"
 }

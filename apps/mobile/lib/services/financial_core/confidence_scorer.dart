@@ -648,8 +648,11 @@ class ConfidenceScorer {
 
   /// Key fields tracked for accuracy/freshness scoring.
   /// Each maps to its weight in the completeness score.
+  /// Covers the same fields as V2 scorer for symmetric axes.
   static const Map<String, int> _trackedFields = {
     'salaireBrutMensuel': _wSalaire,
+    'ageCanton': _wAgeCanton,
+    'menage': _wMenage,
     'prevoyance.avoirLppTotal': _wLpp,
     'prevoyance.tauxConversion': _wTauxConversion,
     'prevoyance.anneesContribuees': _wAvs,
@@ -680,9 +683,35 @@ class ConfidenceScorer {
   ///
   /// The geometric mean ensures a zero on any axis pulls the whole score
   /// down — a complete but stale + estimated profile scores poorly.
+  /// Default French labels for field paths (used when no [labels] provided).
+  static const Map<String, String> _defaultFieldLabels = {
+    'salaireBrutMensuel': 'Salaire brut',
+    'ageCanton': '\u00c2ge / Canton',
+    'menage': 'Situation du m\u00e9nage',
+    'prevoyance.avoirLppTotal': 'Avoir LPP',
+    'prevoyance.tauxConversion': 'Taux de conversion',
+    'prevoyance.anneesContribuees': 'Ann\u00e9es AVS',
+    'prevoyance.totalEpargne3a': '\u00c9pargne 3a',
+    'patrimoine': 'Patrimoine',
+  };
+
+  /// Default French prompt templates (used when no [promptLabels] provided).
+  static const Map<String, String> _defaultPromptLabels = {
+    'freshnessPrefix': 'Actualise\u00a0: ',
+    'freshnessStale': 'Donn\u00e9e datant de {months} mois \u2014 rescanne ton certificat',
+    'freshnessConfirm': 'Confirme que cette valeur est toujours actuelle',
+    'accuracyPrefix': 'Confirme\u00a0: ',
+    'accuracyEstimated': 'Saisis ta valeur r\u00e9elle',
+    'accuracyCertificate': 'Scanne ton certificat pour confirmer',
+  };
+
   static EnhancedConfidence scoreEnhanced(CoachProfile profile, {
     DateTime? now,
+    Map<String, String>? labels,
+    Map<String, String>? promptLabels,
   }) {
+    final fieldLabels = labels ?? _defaultFieldLabels;
+    final prompts = promptLabels ?? _defaultPromptLabels;
     now ??= DateTime.now();
     final baseResult = score(profile);
     final completeness = baseResult.score;
@@ -696,7 +725,7 @@ class ConfidenceScorer {
       final weight = entry.value.toDouble();
       final source = profile.dataSources[fieldPath];
       if (source != null) {
-        accuracyWeightedSum += _accuracyWeights[source]! * weight;
+        accuracyWeightedSum += (_accuracyWeights[source] ?? 0.25) * weight;
       } else {
         // No source declared → system estimate
         accuracyWeightedSum += 0.25 * weight;
@@ -744,13 +773,15 @@ class ConfidenceScorer {
         final monthsOld = timestamp != null
             ? (now.difference(timestamp).inDays / 30.44).round()
             : 0;
+        final label = fieldLabels[fieldPath] ?? fieldPath;
         axisPrompts.add(EnrichmentPrompt(
-          label: 'Actualise: ${_fieldLabel(fieldPath)}',
+          label: '${prompts['freshnessPrefix'] ?? 'Actualise\u00a0: '}$label',
           impact: (entry.value * (1.0 - decay)).round().clamp(1, 15),
           category: 'freshness',
           action: monthsOld > 0
-              ? 'Donnee datant de $monthsOld mois — rescanne ton certificat'
-              : 'Confirme que cette valeur est toujours actuelle',
+              ? (prompts['freshnessStale'] ?? 'Donn\u00e9e datant de {months} mois')
+                  .replaceAll('{months}', '$monthsOld')
+              : prompts['freshnessConfirm'] ?? 'Confirme que cette valeur est toujours actuelle',
         ));
       }
     }
@@ -762,11 +793,12 @@ class ConfidenceScorer {
       if (source == ProfileDataSource.estimated ||
           source == ProfileDataSource.userInput) {
         final upgradeAction = source == ProfileDataSource.estimated
-            ? 'Saisis ta valeur reelle'
-            : 'Scanne ton certificat pour confirmer';
+            ? prompts['accuracyEstimated'] ?? 'Saisis ta valeur r\u00e9elle'
+            : prompts['accuracyCertificate'] ?? 'Scanne ton certificat pour confirmer';
+        final label = fieldLabels[fieldPath] ?? fieldPath;
         axisPrompts.add(EnrichmentPrompt(
-          label: 'Confirme: ${_fieldLabel(fieldPath)}',
-          impact: (entry.value * (1.0 - _accuracyWeights[source]!)).round().clamp(1, 15),
+          label: '${prompts['accuracyPrefix'] ?? 'Confirme\u00a0: '}$label',
+          impact: (entry.value * (1.0 - (_accuracyWeights[source] ?? 0.25))).round().clamp(1, 15),
           category: 'accuracy',
           action: upgradeAction,
         ));
@@ -793,18 +825,6 @@ class ConfidenceScorer {
     return math.exp(exponent * math.log(base));
   }
 
-  /// Human-readable label for field paths.
-  static String _fieldLabel(String fieldPath) {
-    const labels = {
-      'salaireBrutMensuel': 'Salaire brut',
-      'prevoyance.avoirLppTotal': 'Avoir LPP',
-      'prevoyance.tauxConversion': 'Taux de conversion',
-      'prevoyance.anneesContribuees': 'Annees AVS',
-      'prevoyance.totalEpargne3a': 'Epargne 3a',
-      'patrimoine': 'Patrimoine',
-    };
-    return labels[fieldPath] ?? fieldPath;
-  }
 }
 
 /// Enhanced 3-axis confidence result (S46).

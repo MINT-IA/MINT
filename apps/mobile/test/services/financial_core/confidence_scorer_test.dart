@@ -155,6 +155,8 @@ void main() {
         avoirLpp: 300000,
         dataTimestamps: {
           'salaireBrutMensuel': now.subtract(const Duration(days: 30)),
+          'ageCanton': now.subtract(const Duration(days: 30)),
+          'menage': now.subtract(const Duration(days: 30)),
           'prevoyance.avoirLppTotal': now.subtract(const Duration(days: 60)),
           'prevoyance.tauxConversion': now.subtract(const Duration(days: 60)),
           'prevoyance.anneesContribuees': now.subtract(const Duration(days: 90)),
@@ -176,6 +178,8 @@ void main() {
         avoirLpp: 200000,
         dataTimestamps: {
           'salaireBrutMensuel': twoYearsAgo,
+          'ageCanton': twoYearsAgo,
+          'menage': twoYearsAgo,
           'prevoyance.avoirLppTotal': twoYearsAgo,
           'prevoyance.tauxConversion': twoYearsAgo,
           'prevoyance.anneesContribuees': twoYearsAgo,

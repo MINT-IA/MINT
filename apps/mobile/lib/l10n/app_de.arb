@@ -3981,5 +3981,45 @@
   "financialSummaryWhatIfLppAction": "Vergleichen",
   "financialSummaryWhatIfAchatQuestion": "Was wäre, wenn du kaufst statt mietest?",
   "financialSummaryWhatIfAchatExplanation": "Indirekte Amortisation über die 2. Säule kann deine Steuern senken und gleichzeitig Vermögen aufbauen.",
-  "financialSummaryWhatIfAchatAction": "Erkunden"
+  "financialSummaryWhatIfAchatAction": "Erkunden",
+  "dataQualityTitle": "Datenqualität",
+  "dataQualityMissingCount": "{count} Information(en) hinzufügen",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Profil vollständig",
+  "dataQualityKnownSection": "Bekannte Daten",
+  "dataQualityMissingSection": "Fehlende Daten",
+  "dataQualityCompleteness": "Vollständigkeit",
+  "dataQualityAccuracy": "Genauigkeit",
+  "dataQualityFreshness": "Aktualität",
+  "dataQualityCombined": "Gesamtbewertung",
+  "dataQualityEnrich": "Mein Profil ergänzen",
+  "dataQualityEnrichWithImpact": "Mein Profil ergänzen ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Bruttolohn",
+  "confidenceLabelAgeCanton": "Alter / Kanton",
+  "confidenceLabelMenage": "Haushaltssituation",
+  "confidenceLabelAvoirLpp": "BVG-Guthaben",
+  "confidenceLabelTauxConversion": "Umwandlungssatz",
+  "confidenceLabelAnneesAvs": "AHV-Jahre",
+  "confidenceLabelEpargne3a": "Säule-3a-Guthaben",
+  "confidenceLabelPatrimoine": "Vermögen",
+  "confidencePromptFreshnessPrefix": "Aktualisiere: ",
+  "confidencePromptFreshnessStale": "Daten von vor {months} Monaten — scanne dein Zertifikat erneut",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Bestätige, dass dieser Wert noch aktuell ist",
+  "confidencePromptAccuracyPrefix": "Bestätige: ",
+  "confidencePromptAccuracyEstimated": "Gib deinen tatsächlichen Wert ein",
+  "confidencePromptAccuracyCertificate": "Scanne dein Zertifikat zur Bestätigung"
 }

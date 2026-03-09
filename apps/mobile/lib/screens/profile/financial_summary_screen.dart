@@ -404,7 +404,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
       final bonus = base * p.bonusPourcentage! / 100;
       lines.add(FinancialLine(
-        label: l10n.financialSummaryBonusEstime(p.bonusPourcentage!.toStringAsFixed(1)),
+        label: l10n.financialSummaryBonusEstime(formatPct(p.bonusPourcentage!)),
         formattedValue: '+ ${formatChfOrDash(bonus)}',
       ));
     }
@@ -485,7 +485,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     );
     lines.add(FinancialLine(
       label: l10n.financialSummaryTauxMarginalEstime,
-      formattedValue: '${(marginalRate * 100).toStringAsFixed(1)}%',
+      formattedValue: '${formatPct(marginalRate * 100)}\u00a0%',
     ));
 
     // 13ème / bonus info
@@ -792,7 +792,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         ));
         // LTV ratio avec conseil FINMA
         final ltv = pat.loanToValue;
-        final ltvPct = (ltv * 100).toStringAsFixed(1);
+        final ltvPct = formatPct(ltv * 100);
         lines.add(FinancialLine(
           label: ltv > 0.67
               ? l10n.financialSummaryLtvAmortissement(ltvPct)
@@ -1077,7 +1077,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               : l10n.financialSummaryHypotheque2emeRang)
           : l10n.financialSummaryHypotheque;
       final hypoDetail = det.tauxHypotheque != null
-          ? ' (${det.tauxHypotheque!.toStringAsFixed(1)}%)'
+          ? ' (${formatPct(det.tauxHypotheque!)}\u00a0%)'
           : '';
       lines.add(FinancialLine(
         label: '$hypoLabel$hypoDetail',
@@ -1123,7 +1123,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
       if (det.creditConsommation != null && det.creditConsommation! > 0) {
         final tauxLabel = det.tauxCreditConso != null
-            ? ' (${det.tauxCreditConso!.toStringAsFixed(1)}%)'
+            ? ' (${formatPct(det.tauxCreditConso!)}\u00a0%)'
             : '';
         lines.add(FinancialLine(
           label: '${l10n.financialSummaryCreditConsommation}$tauxLabel',
@@ -1141,7 +1141,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       }
       if (det.leasing != null && det.leasing! > 0) {
         final tauxLabel = det.tauxLeasing != null
-            ? ' (${det.tauxLeasing!.toStringAsFixed(1)}%)'
+            ? ' (${formatPct(det.tauxLeasing!)}\u00a0%)'
             : '';
         lines.add(FinancialLine(
           label: '${l10n.financialSummaryLeasing}$tauxLabel',
@@ -1169,7 +1169,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       final tauxMax = det.tauxMaxConsommation;
       if (tauxMax != null && tauxMax > 3) {
         lines.add(FinancialLine(
-          label: l10n.financialSummaryConseilRemboursement(tauxMax.toStringAsFixed(1)),
+          label: l10n.financialSummaryConseilRemboursement(formatPct(tauxMax)),
           isHint: true,
         ));
       }
@@ -1678,8 +1678,28 @@ class FinancialSummaryScreen extends StatelessWidget {
         (profile.dettes.hypotheque != null && profile.dettes.hypotheque! > 0));
     check(l10n.financialSummaryCheckAssuranceMaladie, profile.depenses.assuranceMaladie > 0);
 
-    // S46: Enhanced 3-axis scoring
-    final enhanced = ConfidenceScorer.scoreEnhanced(profile);
+    // S46: Enhanced 3-axis scoring with i18n labels
+    final enhanced = ConfidenceScorer.scoreEnhanced(
+      profile,
+      labels: {
+        'salaireBrutMensuel': l10n.confidenceLabelSalaire,
+        'ageCanton': l10n.confidenceLabelAgeCanton,
+        'menage': l10n.confidenceLabelMenage,
+        'prevoyance.avoirLppTotal': l10n.confidenceLabelAvoirLpp,
+        'prevoyance.tauxConversion': l10n.confidenceLabelTauxConversion,
+        'prevoyance.anneesContribuees': l10n.confidenceLabelAnneesAvs,
+        'prevoyance.totalEpargne3a': l10n.confidenceLabelEpargne3a,
+        'patrimoine': l10n.confidenceLabelPatrimoine,
+      },
+      promptLabels: {
+        'freshnessPrefix': l10n.confidencePromptFreshnessPrefix,
+        'freshnessStale': l10n.confidencePromptFreshnessStale('{months}'),
+        'freshnessConfirm': l10n.confidencePromptFreshnessConfirm,
+        'accuracyPrefix': l10n.confidencePromptAccuracyPrefix,
+        'accuracyEstimated': l10n.confidencePromptAccuracyEstimated,
+        'accuracyCertificate': l10n.confidencePromptAccuracyCertificate,
+      },
+    );
 
     final impactPercent = missing.isEmpty
         ? null

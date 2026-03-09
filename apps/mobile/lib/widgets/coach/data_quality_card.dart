@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -56,6 +57,7 @@ class DataQualityCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -68,15 +70,15 @@ class DataQualityCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(),
+          _buildHeader(l),
           if (completenessScore != null) ...[
             const SizedBox(height: 14),
-            _buildAxisBreakdown(),
+            _buildAxisBreakdown(l),
           ],
           if (knownFields.isNotEmpty) ...[
             const SizedBox(height: 14),
             _buildSection(
-              title: 'Donn\u00e9es connues',
+              title: l.dataQualityKnownSection,
               items: knownFields,
               isKnown: true,
             ),
@@ -84,14 +86,14 @@ class DataQualityCard extends StatelessWidget {
           if (missingFields.isNotEmpty) ...[
             const SizedBox(height: 14),
             _buildSection(
-              title: 'Donn\u00e9es manquantes',
+              title: l.dataQualityMissingSection,
               items: missingFields,
               isKnown: false,
             ),
           ],
           if (missingFields.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildEnrichButton(context),
+            _buildEnrichButton(context, l),
           ],
         ],
       ),
@@ -102,7 +104,7 @@ class DataQualityCard extends StatelessWidget {
   //  HEADER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S l) {
     final hasGaps = missingFields.isNotEmpty;
     return Row(
       children: [
@@ -131,7 +133,7 @@ class DataQualityCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Qualit\u00e9 des donn\u00e9es',
+                l.dataQualityTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -140,8 +142,8 @@ class DataQualityCard extends StatelessWidget {
               ),
               Text(
                 hasGaps
-                    ? '${missingFields.length} information(s) \u00e0 ajouter'
-                    : 'Profil complet',
+                    ? l.dataQualityMissingCount('${missingFields.length}')
+                    : l.dataQualityComplete,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textSecondary,
@@ -175,7 +177,7 @@ class DataQualityCard extends StatelessWidget {
   //  3-AXIS BREAKDOWN (S46)
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildAxisBreakdown() {
+  Widget _buildAxisBreakdown(S l) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -185,11 +187,11 @@ class DataQualityCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildAxisBar('Compl\u00e9tude', completenessScore!, MintColors.primary),
+          _buildAxisBar(l.dataQualityCompleteness, completenessScore!, MintColors.primary),
           const SizedBox(height: 8),
-          _buildAxisBar('Exactitude', accuracyScore ?? 25, MintColors.scoreExcellent),
+          _buildAxisBar(l.dataQualityAccuracy, accuracyScore ?? 25, MintColors.scoreExcellent),
           const SizedBox(height: 8),
-          _buildAxisBar('Fra\u00eecheur', freshnessScore ?? 50, MintColors.info),
+          _buildAxisBar(l.dataQualityFreshness, freshnessScore ?? 50, MintColors.info),
           if (combinedScore != null) ...[
             const SizedBox(height: 10),
             const Divider(height: 1, color: MintColors.lightBorder),
@@ -198,7 +200,7 @@ class DataQualityCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Score combin\u00e9',
+                  l.dataQualityCombined,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -206,7 +208,7 @@ class DataQualityCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${combinedScore!.round()} %',
+                  '${combinedScore!.round()}\u00a0%',
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -350,7 +352,7 @@ class DataQualityCard extends StatelessWidget {
   //  ENRICH BUTTON
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildEnrichButton(BuildContext context) {
+  Widget _buildEnrichButton(BuildContext context, S l) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
@@ -358,8 +360,8 @@ class DataQualityCard extends StatelessWidget {
         icon: const Icon(Icons.edit_outlined, size: 18),
         label: Text(
           enrichImpact != null
-              ? 'Enrichir mon profil ($enrichImpact)'
-              : 'Enrichir mon profil',
+              ? l.dataQualityEnrichWithImpact(enrichImpact!)
+              : l.dataQualityEnrich,
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
         style: OutlinedButton.styleFrom(

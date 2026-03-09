@@ -3981,5 +3981,45 @@
   "financialSummaryWhatIfLppAction": "Comparar",
   "financialSummaryWhatIfAchatQuestion": "¿Y si compraras en lugar de alquilar?",
   "financialSummaryWhatIfAchatExplanation": "La amortización indirecta por el 2.º pilar puede reducir tus impuestos y crear patrimonio.",
-  "financialSummaryWhatIfAchatAction": "Explorar"
+  "financialSummaryWhatIfAchatAction": "Explorar",
+  "dataQualityTitle": "Calidad de datos",
+  "dataQualityMissingCount": "{count} información(es) por agregar",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Perfil completo",
+  "dataQualityKnownSection": "Datos conocidos",
+  "dataQualityMissingSection": "Datos faltantes",
+  "dataQualityCompleteness": "Completitud",
+  "dataQualityAccuracy": "Exactitud",
+  "dataQualityFreshness": "Frescura",
+  "dataQualityCombined": "Puntuación combinada",
+  "dataQualityEnrich": "Enriquecer mi perfil",
+  "dataQualityEnrichWithImpact": "Enriquecer mi perfil ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Salario bruto",
+  "confidenceLabelAgeCanton": "Edad / Cantón",
+  "confidenceLabelMenage": "Situación del hogar",
+  "confidenceLabelAvoirLpp": "Activos LPP",
+  "confidenceLabelTauxConversion": "Tasa de conversión",
+  "confidenceLabelAnneesAvs": "Años AVS",
+  "confidenceLabelEpargne3a": "Ahorro 3a",
+  "confidenceLabelPatrimoine": "Patrimonio",
+  "confidencePromptFreshnessPrefix": "Actualiza: ",
+  "confidencePromptFreshnessStale": "Datos de hace {months} meses — reescanea tu certificado",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Confirma que este valor sigue siendo actual",
+  "confidencePromptAccuracyPrefix": "Confirma: ",
+  "confidencePromptAccuracyEstimated": "Ingresa tu valor real",
+  "confidencePromptAccuracyCertificate": "Escanea tu certificado para confirmar"
 }

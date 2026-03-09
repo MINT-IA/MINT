@@ -3981,5 +3981,45 @@
   "financialSummaryWhatIfLppAction": "Comparar",
   "financialSummaryWhatIfAchatQuestion": "E se comprasses em vez de arrendar?",
   "financialSummaryWhatIfAchatExplanation": "A amortização indireta pelo 2.º pilar pode reduzir impostos e construir património.",
-  "financialSummaryWhatIfAchatAction": "Explorar"
+  "financialSummaryWhatIfAchatAction": "Explorar",
+  "dataQualityTitle": "Qualidade dos dados",
+  "dataQualityMissingCount": "{count} informação(ões) a adicionar",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Perfil completo",
+  "dataQualityKnownSection": "Dados conhecidos",
+  "dataQualityMissingSection": "Dados em falta",
+  "dataQualityCompleteness": "Completude",
+  "dataQualityAccuracy": "Exatidão",
+  "dataQualityFreshness": "Atualidade",
+  "dataQualityCombined": "Pontuação combinada",
+  "dataQualityEnrich": "Enriquecer meu perfil",
+  "dataQualityEnrichWithImpact": "Enriquecer meu perfil ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Salário bruto",
+  "confidenceLabelAgeCanton": "Idade / Cantão",
+  "confidenceLabelMenage": "Situação do agregado",
+  "confidenceLabelAvoirLpp": "Ativos LPP",
+  "confidenceLabelTauxConversion": "Taxa de conversão",
+  "confidenceLabelAnneesAvs": "Anos AVS",
+  "confidenceLabelEpargne3a": "Poupança 3a",
+  "confidenceLabelPatrimoine": "Património",
+  "confidencePromptFreshnessPrefix": "Atualiza: ",
+  "confidencePromptFreshnessStale": "Dados de {months} meses atrás — rescaneie o seu certificado",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Confirma que este valor ainda é atual",
+  "confidencePromptAccuracyPrefix": "Confirma: ",
+  "confidencePromptAccuracyEstimated": "Insere o teu valor real",
+  "confidencePromptAccuracyCertificate": "Digitaliza o teu certificado para confirmar"
 }
