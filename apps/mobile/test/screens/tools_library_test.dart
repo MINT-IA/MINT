@@ -52,6 +52,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // Categories are displayed with .toUpperCase()
-    expect(find.text('PREVOYANCE'), findsOneWidget);
+    expect(find.text('PRÉVOYANCE'), findsOneWidget);
   });
 }

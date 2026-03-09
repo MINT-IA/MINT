@@ -23,6 +23,6 @@ void main() {
 
     expect(find.byType(LandingScreen), findsOneWidget);
     expect(find.text('Ton plan en 30 secondes'), findsOneWidget);
-    expect(find.text('Decouvrir MINT'), findsOneWidget);
+    expect(find.text('3 questions • Gratuit • Sans engagement'), findsOneWidget);
   });
 }

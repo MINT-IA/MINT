@@ -147,15 +147,19 @@ void main() {
       // Le narratif statique utilise FallbackTemplates context-aware
       // (greeting varie selon saison fiscale, FRI delta, etc.)
       expect(narrative.greeting, contains('Julien'));
-      // urgentAlert is now season-aware: non-null in Q4 (3a) and Feb-Mar (fiscal)
+      // urgentAlert is now season-aware: non-null in Q4 (3a) and Feb-Mar (fiscal).
+      // However, in Feb-Mar the urgentAlert is suppressed when coaching tips
+      // already include a 'tax_deadline' tip (avoids triple repetition).
       final now = DateTime.now();
+      final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');
       if (now.month >= 10 && now.month <= 12) {
         expect(narrative.urgentAlert, isNotNull);
         expect(narrative.urgentAlert, contains('3a'));
-      } else if (now.month >= 2 && now.month <= 3) {
+      } else if (now.month >= 2 && now.month <= 3 && !hasTaxTip) {
         expect(narrative.urgentAlert, isNotNull);
         expect(narrative.urgentAlert, contains('31 mars'));
       } else {
+        // Off-season, or Feb-Mar with tax_deadline tip already present
         expect(narrative.urgentAlert, isNull);
       }
       expect(narrative.milestoneMessage,
@@ -362,7 +366,7 @@ void main() {
       expect(narrative.greeting, contains('Alice'));
     });
 
-    test('greeting utilise "utilisateur" si firstName est null', () async {
+    test('greeting uses generic form when firstName is null', () async {
       final profile = _buildTestProfile(firstName: null);
       final tips = _generateTips(profile);
 
@@ -373,8 +377,11 @@ void main() {
         byokConfig: null,
       );
 
-      // CoachContext maps null firstName to 'utilisateur'
-      expect(narrative.greeting, contains('utilisateur'));
+      // CoachContext maps null firstName to '' (empty), so
+      // FallbackTemplates.greeting uses impersonal form (e.g. "Bonjour.")
+      expect(narrative.greeting, isNotEmpty);
+      // Must NOT contain a name (since none was provided)
+      expect(narrative.greeting, isNot(contains('null')));
     });
   });
 
@@ -689,9 +696,10 @@ void main() {
       }
     });
 
-    test('urgentAlert mentions fiscal deadline in Feb-Mar', () {
+    test('urgentAlert mentions fiscal deadline in Feb-Mar (unless tax_deadline tip present)', () {
       final profile = _buildTestProfile();
       final tips = _generateTips(profile);
+      final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');
       final narrative = CoachNarrativeService.generateStatic(
         profile: profile,
         scoreHistory: _buildScoreHistory(scores: [55, 58, 62]),
@@ -699,9 +707,15 @@ void main() {
       );
       final now = DateTime.now();
       if (now.month >= 2 && now.month <= 3) {
-        expect(narrative.urgentAlert, isNotNull);
-        expect(narrative.urgentAlert, contains('31 mars'));
-        expect(narrative.urgentAlert, contains('LIFD'));
+        if (hasTaxTip) {
+          // urgentAlert is suppressed to avoid triple repetition
+          // (greeting + urgentAlert + curated card)
+          expect(narrative.urgentAlert, isNull);
+        } else {
+          expect(narrative.urgentAlert, isNotNull);
+          expect(narrative.urgentAlert, contains('31 mars'));
+          expect(narrative.urgentAlert, contains('LIFD'));
+        }
       }
     });
 

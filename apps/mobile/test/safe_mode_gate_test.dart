@@ -381,7 +381,7 @@ void main() {
       // age <= 28 -> Premier emploi (3)
       // independent -> Outils independant (4)
       // income >= 5000 & age 25-50 -> Achat immobilier (5)
-      // high-tax canton GE -> Demenagement cantonal (6 - would be 6th)
+      // high-tax canton GE -> Déménagement cantonal (6 - would be 6th)
       // children > 0 -> Invalidite (7 - would be 7th)
       final suggestions = buildLifeEventSuggestions(
         age: 27,
@@ -496,7 +496,7 @@ void main() {
         final titles = suggestions.map((s) => s.title).toList();
         expect(
           titles,
-          contains('Demenagement cantonal'),
+          contains('Déménagement cantonal'),
           reason: 'Canton $canton should trigger canton move suggestion',
         );
       }
@@ -514,7 +514,7 @@ void main() {
       final titlesLowTax = suggestionsLowTax.map((s) => s.title).toList();
       expect(
         titlesLowTax,
-        isNot(contains('Demenagement cantonal')),
+        isNot(contains('Déménagement cantonal')),
         reason: 'Low-tax canton ZG should not trigger canton move suggestion',
       );
     });

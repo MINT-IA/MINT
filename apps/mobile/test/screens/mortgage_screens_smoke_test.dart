@@ -10,6 +10,8 @@ import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
+import '../test_helpers.dart';
+
 // =============================================================================
 // SMOKE TESTS — Mortgage Module Screens (5 screens)
 // =============================================================================
@@ -60,7 +62,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('CAPACITE D\'ACHAT'), findsOneWidget);
+      expect(find.text('CAPACITÉ D\'ACHAT'), findsOneWidget);
     });
 
     testWidgets('displays chiffre choc card with CHF amount', (tester) async {
@@ -110,7 +112,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAMÈTRES'), findsOneWidget);
       expect(find.text('Canton'), findsOneWidget);
       expect(find.text('Revenu brut annuel'), findsOneWidget);
     });
@@ -143,7 +145,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
       await tester.pump();
 
-      expect(find.text('DETAIL DU CALCUL'), findsOneWidget);
+      expect(find.text('DÉTAIL DU CALCUL'), findsOneWidget);
     });
 
     testWidgets('displays disclaimer after scrolling', (tester) async {
@@ -475,7 +477,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.textContaining('EVOLUTION SUR'), findsOneWidget);
+      expect(find.textContaining('ÉVOLUTION SUR'), findsOneWidget);
       expect(find.text('Capital 3a'), findsOneWidget);
     });
 
@@ -486,8 +488,8 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
-      expect(find.text('Montant hypothecaire'), findsOneWidget);
+      expect(find.text('PARAMÈTRES'), findsOneWidget);
+      expect(find.text('Montant hypothécaire'), findsOneWidget);
       expect(find.byType(Slider), findsNWidgets(4));
     });
 
@@ -500,7 +502,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.text('COMPARAISON DETAILLEE'), findsOneWidget);
+      expect(find.text('COMPARAISON DÉTAILLÉE'), findsOneWidget);
       expect(find.text('Amortissement direct'), findsOneWidget);
       expect(find.text('Amortissement indirect'), findsOneWidget);
     });

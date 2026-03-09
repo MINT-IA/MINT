@@ -46,8 +46,8 @@ void main() {
       });
 
       expect(parsed.single.key, 'capital_total');
-      expect(parsed.single.lowLabel, startsWith('CHF '));
-      expect(parsed.single.highLabel, startsWith('CHF '));
+      expect(parsed.single.lowLabel, startsWith('CHF\u00a0'));
+      expect(parsed.single.highLabel, startsWith('CHF\u00a0'));
     });
   });
 }

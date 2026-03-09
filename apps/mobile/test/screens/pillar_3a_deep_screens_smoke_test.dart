@@ -8,6 +8,8 @@ import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.da
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
+import '../test_helpers.dart';
+
 // =============================================================================
 // SMOKE TESTS — Pillar 3a Deep Module Screens (3 screens)
 // =============================================================================
@@ -59,14 +61,14 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('RETRAIT 3A ECHELONNE'), findsOneWidget);
+      expect(find.text('RETRAIT 3A ÉCHELONNÉ'), findsOneWidget);
     });
 
     testWidgets('displays chiffre choc with economie estimee', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.text('Economie estimee'), findsOneWidget);
+      expect(find.text('Économie estimée'), findsOneWidget);
       expect(find.textContaining('CHF'), findsWidgets);
       expect(find.textContaining('comptes'), findsWidgets);
     });
@@ -78,7 +80,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.textContaining('echelonner les retraits 3a'), findsOneWidget);
+      expect(find.textContaining('échelonner les retraits 3a'), findsOneWidget);
       expect(find.textContaining('progressif'), findsOneWidget);
     });
 
@@ -99,7 +101,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAMÈTRES'), findsOneWidget);
       expect(find.text('Avoir 3a total'), findsOneWidget);
       expect(find.text('Nombre de comptes 3a'), findsOneWidget);
       expect(find.text('Revenu imposable'), findsOneWidget);
@@ -123,8 +125,8 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.text('Age debut retraits'), findsOneWidget);
-      expect(find.text('Age dernier retrait'), findsOneWidget);
+      expect(find.text('Âge début retraits'), findsOneWidget);
+      expect(find.text('Âge dernier retrait'), findsOneWidget);
     });
 
     testWidgets('displays comparison section with bloc vs echelonne',
@@ -135,10 +137,10 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -700));
       await tester.pump();
 
-      expect(find.text('RESULTAT'), findsOneWidget);
+      expect(find.text('RÉSULTAT'), findsOneWidget);
       expect(find.text('EN BLOC'), findsOneWidget);
-      expect(find.text('ECHELONNE'), findsOneWidget);
-      expect(find.text('Impot estime'), findsWidgets);
+      expect(find.text('ÉCHELONNÉ'), findsOneWidget);
+      expect(find.text('Impôt estimé'), findsWidgets);
     });
 
     testWidgets('displays yearly plan table', (tester) async {

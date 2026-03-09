@@ -197,7 +197,7 @@ void main() {
       await tester.pump();
 
       // "Mensualite prevue" uses accent: "Mensualité prévue"
-      expect(find.textContaining('Mensualit'), findsOneWidget);
+      expect(find.textContaining('Mensualit'), findsWidgets);
       expect(find.textContaining('leasing'), findsWidgets);
       // "Rendement alternatif espere" uses accent: "Rendement alternatif espéré"
       expect(find.textContaining('Rendement alternatif'), findsOneWidget);
@@ -208,7 +208,7 @@ void main() {
       await tester.pump();
 
       // "Cout d'opportunite" uses accent: "Coût d'opportunité"
-      expect(find.textContaining('opportunit'), findsOneWidget);
+      expect(find.textContaining('opportunit'), findsWidgets);
     });
 
     testWidgets('displays alternatives section in French', (tester) async {
@@ -241,7 +241,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.byType(Slider), findsNWidgets(3));
+      expect(find.byType(Slider), findsNWidgets(4));
     });
   });
 

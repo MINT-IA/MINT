@@ -69,6 +69,13 @@ void main() {
       );
       await tester.pump();
 
+      // DebtSurvivalWidget takes up space at the top — scroll to reveal debt list
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
+      );
+      await tester.pump();
+
       expect(find.text('MES DETTES'), findsOneWidget);
       // Two default debts are provided in initState
       expect(find.text('Credit conso'), findsOneWidget);
@@ -93,7 +100,7 @@ void main() {
 
       await tester.drag(
         find.byType(CustomScrollView),
-        const Offset(0, -400),
+        const Offset(0, -1200),
       );
       await tester.pump();
 
@@ -118,7 +125,7 @@ void main() {
 
       await tester.drag(
         find.byType(CustomScrollView),
-        const Offset(0, -600),
+        const Offset(0, -1500),
       );
       await tester.pump();
 
@@ -145,7 +152,7 @@ void main() {
 
       await tester.drag(
         find.byType(CustomScrollView),
-        const Offset(0, -900),
+        const Offset(0, -2000),
       );
       await tester.pump();
 
@@ -187,6 +194,12 @@ void main() {
       );
       await tester.pump();
 
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
+      );
+      await tester.pump();
+
       expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
     });
 
@@ -206,6 +219,12 @@ void main() {
       );
       await tester.pump();
 
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
+      );
+      await tester.pump();
+
       expect(find.byIcon(Icons.delete_outline), findsNWidgets(2));
     });
 
@@ -222,6 +241,12 @@ void main() {
           supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
+      );
+      await tester.pump();
+
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
       );
       await tester.pump();
 
@@ -529,11 +554,11 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('Vous n\'etes pas seul'),
+        find.textContaining('Vous n\'êtes pas seul'),
         findsOneWidget,
       );
       expect(
-        find.textContaining('MINT ne transmet aucune donnee'),
+        find.textContaining('MINT ne transmet aucune donnée'),
         findsWidgets,
       );
     });
@@ -626,7 +651,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Protection des donnees (nLPD)'), findsOneWidget);
+      expect(find.text('Protection des données (nLPD)'), findsOneWidget);
       expect(
         find.textContaining('confidentielle'),
         findsOneWidget,
@@ -656,7 +681,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('informatif et pedagogique'),
+        find.textContaining('informatif et pédagogique'),
         findsOneWidget,
       );
     });

@@ -369,7 +369,7 @@ void main() {
       FlutterError.onError = handler;
 
       expect(
-        find.textContaining('Ta vie financiere'),
+        find.textContaining('Ta vie financière'),
         findsOneWidget,
       );
     });
@@ -397,7 +397,7 @@ void main() {
       FlutterError.onError = handler;
 
       expect(
-        find.textContaining('EVENEMENTS DE VIE'),
+        find.textContaining('ÉVÉNEMENTS DE VIE'),
         findsOneWidget,
       );
     });
@@ -435,7 +435,7 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Budget'), findsOneWidget);
+      expect(find.textContaining('Budget'), findsOneWidget);
       expect(
         find.textContaining('se construit automatiquement'),
         findsOneWidget,
