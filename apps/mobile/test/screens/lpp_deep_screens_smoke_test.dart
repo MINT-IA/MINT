@@ -37,18 +37,18 @@ void main() {
 
   group('RachatEchelonneScreen', () {
     Widget buildScreen() {
-      return ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
-        child: const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: RachatEchelonneScreen(),
+      return MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => CoachProfileProvider(),
+          child: const RachatEchelonneScreen(),
         ),
       );
     }
