@@ -2113,10 +2113,13 @@ class CoachProfile {
       'salaireBrutMensuel': baseTimestamp,
       'age': baseTimestamp,
       'canton': baseTimestamp,
+      'etatCivil': baseTimestamp,
       if (prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0)
         'prevoyance.avoirLppTotal': baseTimestamp,
       if (prevoyance.totalEpargne3a > 0)
         'prevoyance.totalEpargne3a': baseTimestamp,
+      if (prevoyance.anneesContribuees != null)
+        'prevoyance.anneesContribuees': baseTimestamp,
       if (prevoyance.renteAVSEstimeeMensuelle != null)
         'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
       if (prevoyance.tauxConversion != null)

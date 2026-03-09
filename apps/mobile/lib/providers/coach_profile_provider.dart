@@ -458,8 +458,10 @@ class CoachProfileProvider extends ChangeNotifier {
       'salaireBrutMensuel',
       'age',
       'canton',
+      'etatCivil',
       'prevoyance.avoirLppTotal',
       'prevoyance.totalEpargne3a',
+      'prevoyance.anneesContribuees',
       'prevoyance.renteAVSEstimeeMensuelle',
       'patrimoine.epargneLiquide',
     ];
@@ -469,6 +471,9 @@ class CoachProfileProvider extends ChangeNotifier {
         initialFields,
       ),
     );
+
+    // S47-fix: Persist timestamps so they survive app restart
+    _persistTimestamps(answers, _profile!.dataTimestamps);
 
     _isPartialProfile = true;
     _isLoaded = true;

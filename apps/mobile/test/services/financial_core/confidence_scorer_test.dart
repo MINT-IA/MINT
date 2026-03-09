@@ -125,7 +125,7 @@ void main() {
           'prevoyance.tauxConversion': ProfileDataSource.certificate,
           'prevoyance.anneesContribuees': ProfileDataSource.certificate,
           'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
-          'patrimoine': ProfileDataSource.userInput,
+          'patrimoine.epargneLiquide': ProfileDataSource.userInput,
         },
       );
       final now = DateTime(2026, 3, 9);
@@ -155,13 +155,14 @@ void main() {
         avoirLpp: 300000,
         dataTimestamps: {
           'salaireBrutMensuel': now.subtract(const Duration(days: 30)),
-          'ageCanton': now.subtract(const Duration(days: 30)),
-          'menage': now.subtract(const Duration(days: 30)),
+          'age': now.subtract(const Duration(days: 30)),
+          'canton': now.subtract(const Duration(days: 30)),
+          'etatCivil': now.subtract(const Duration(days: 30)),
           'prevoyance.avoirLppTotal': now.subtract(const Duration(days: 60)),
           'prevoyance.tauxConversion': now.subtract(const Duration(days: 60)),
           'prevoyance.anneesContribuees': now.subtract(const Duration(days: 90)),
           'prevoyance.totalEpargne3a': now.subtract(const Duration(days: 30)),
-          'patrimoine': now.subtract(const Duration(days: 15)),
+          'patrimoine.epargneLiquide': now.subtract(const Duration(days: 15)),
         },
       );
       final result = ConfidenceScorer.scoreEnhanced(profile, now: now);
@@ -178,13 +179,14 @@ void main() {
         avoirLpp: 200000,
         dataTimestamps: {
           'salaireBrutMensuel': twoYearsAgo,
-          'ageCanton': twoYearsAgo,
-          'menage': twoYearsAgo,
+          'age': twoYearsAgo,
+          'canton': twoYearsAgo,
+          'etatCivil': twoYearsAgo,
           'prevoyance.avoirLppTotal': twoYearsAgo,
           'prevoyance.tauxConversion': twoYearsAgo,
           'prevoyance.anneesContribuees': twoYearsAgo,
           'prevoyance.totalEpargne3a': twoYearsAgo,
-          'patrimoine': twoYearsAgo,
+          'patrimoine.epargneLiquide': twoYearsAgo,
         },
       );
       final result = ConfidenceScorer.scoreEnhanced(profile, now: now);
@@ -290,6 +292,7 @@ void main() {
       expect(profile.dataTimestamps, contains('salaireBrutMensuel'));
       expect(profile.dataTimestamps, contains('canton'));
       expect(profile.dataTimestamps, contains('age'));
+      expect(profile.dataTimestamps, contains('etatCivil'));
       expect(profile.dataTimestamps, contains('patrimoine.epargneLiquide'));
       // All timestamps should be recent (within last minute)
       final now = DateTime.now();

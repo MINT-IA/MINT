@@ -4005,6 +4005,8 @@
   },
   "confidenceLabelSalaire": "Salario lordo",
   "confidenceLabelAgeCanton": "Età / Cantone",
+  "confidenceLabelAge": "Età",
+  "confidenceLabelCanton": "Cantone",
   "confidenceLabelMenage": "Situazione familiare",
   "confidenceLabelAvoirLpp": "Avere LPP",
   "confidenceLabelTauxConversion": "Tasso di conversione",

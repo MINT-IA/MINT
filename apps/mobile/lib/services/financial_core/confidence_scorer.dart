@@ -651,13 +651,14 @@ class ConfidenceScorer {
   /// Covers the same fields as V2 scorer for symmetric axes.
   static const Map<String, int> _trackedFields = {
     'salaireBrutMensuel': _wSalaire,
-    'ageCanton': _wAgeCanton,
-    'menage': _wMenage,
+    'age': 4,          // split from _wAgeCanton (8 → 4+4)
+    'canton': 4,       // split from _wAgeCanton (8 → 4+4)
+    'etatCivil': _wMenage,
     'prevoyance.avoirLppTotal': _wLpp,
     'prevoyance.tauxConversion': _wTauxConversion,
     'prevoyance.anneesContribuees': _wAvs,
     'prevoyance.totalEpargne3a': _w3a,
-    'patrimoine': _wPatrimoine,
+    'patrimoine.epargneLiquide': _wPatrimoine,
   };
 
   /// Freshness decay: score 1.0 if updated < 6 months ago,
@@ -686,13 +687,14 @@ class ConfidenceScorer {
   /// Default French labels for field paths (used when no [labels] provided).
   static const Map<String, String> _defaultFieldLabels = {
     'salaireBrutMensuel': 'Salaire brut',
-    'ageCanton': '\u00c2ge / Canton',
-    'menage': 'Situation du m\u00e9nage',
+    'age': '\u00c2ge',
+    'canton': 'Canton',
+    'etatCivil': 'Situation du m\u00e9nage',
     'prevoyance.avoirLppTotal': 'Avoir LPP',
     'prevoyance.tauxConversion': 'Taux de conversion',
     'prevoyance.anneesContribuees': 'Ann\u00e9es AVS',
     'prevoyance.totalEpargne3a': '\u00c9pargne 3a',
-    'patrimoine': 'Patrimoine',
+    'patrimoine.epargneLiquide': 'Patrimoine',
   };
 
   /// Default French prompt templates (used when no [promptLabels] provided).

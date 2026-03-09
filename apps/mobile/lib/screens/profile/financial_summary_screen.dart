@@ -1683,13 +1683,14 @@ class FinancialSummaryScreen extends StatelessWidget {
       profile,
       labels: {
         'salaireBrutMensuel': l10n.confidenceLabelSalaire,
-        'ageCanton': l10n.confidenceLabelAgeCanton,
-        'menage': l10n.confidenceLabelMenage,
+        'age': l10n.confidenceLabelAge,
+        'canton': l10n.confidenceLabelCanton,
+        'etatCivil': l10n.confidenceLabelMenage,
         'prevoyance.avoirLppTotal': l10n.confidenceLabelAvoirLpp,
         'prevoyance.tauxConversion': l10n.confidenceLabelTauxConversion,
         'prevoyance.anneesContribuees': l10n.confidenceLabelAnneesAvs,
         'prevoyance.totalEpargne3a': l10n.confidenceLabelEpargne3a,
-        'patrimoine': l10n.confidenceLabelPatrimoine,
+        'patrimoine.epargneLiquide': l10n.confidenceLabelPatrimoine,
       },
       promptLabels: {
         'freshnessPrefix': l10n.confidencePromptFreshnessPrefix,

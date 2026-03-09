@@ -4005,6 +4005,8 @@
   },
   "confidenceLabelSalaire": "Bruttolohn",
   "confidenceLabelAgeCanton": "Alter / Kanton",
+  "confidenceLabelAge": "Alter",
+  "confidenceLabelCanton": "Kanton",
   "confidenceLabelMenage": "Haushaltssituation",
   "confidenceLabelAvoirLpp": "BVG-Guthaben",
   "confidenceLabelTauxConversion": "Umwandlungssatz",

@@ -4005,6 +4005,8 @@
   },
   "confidenceLabelSalaire": "Salário bruto",
   "confidenceLabelAgeCanton": "Idade / Cantão",
+  "confidenceLabelAge": "Idade",
+  "confidenceLabelCanton": "Cantão",
   "confidenceLabelMenage": "Situação do agregado",
   "confidenceLabelAvoirLpp": "Ativos LPP",
   "confidenceLabelTauxConversion": "Taxa de conversão",
