@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
+import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -933,6 +934,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ? context.read<CoachProfileProvider>().profile!.age
             : null;
         return AvsExtractParser.parseAvsExtract(text, userAge: age);
+      case DocumentType.salaryCertificate:
+        return SalaryCertificateParser.parse(text);
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
         throw UnsupportedError(
@@ -949,6 +952,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         return TaxDeclarationParser.sampleOcrText;
       case DocumentType.avsExtract:
         return AvsExtractParser.sampleOcrText;
+      case DocumentType.salaryCertificate:
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
         return LppCertificateParser.sampleOcrText;

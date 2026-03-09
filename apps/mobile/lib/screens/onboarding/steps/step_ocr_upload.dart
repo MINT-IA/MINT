@@ -8,6 +8,7 @@ import 'package:mint_mobile/screens/onboarding/smart_onboarding_viewmodel.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
+import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -199,6 +200,8 @@ class _StepOcrUploadState extends State<StepOcrUpload> {
         return AvsExtractParser.parseAvsExtract(text);
       case DocumentType.taxDeclaration:
         return TaxDeclarationParser.parseTaxDeclaration(text);
+      case DocumentType.salaryCertificate:
+        return SalaryCertificateParser.parse(text);
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
         // No dedicated parser yet — return minimal result

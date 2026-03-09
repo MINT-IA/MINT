@@ -431,6 +431,9 @@ class PatrimoineProfile {
   final double? mortgageRate;
   final double? monthlyRent;
 
+  // S45: Immobilier enrichi
+  final String? propertyDescription; // "Appt 4.5p, Sion (VS)"
+
   const PatrimoineProfile({
     this.epargneLiquide = 0,
     this.investissements = 0,
@@ -441,7 +444,29 @@ class PatrimoineProfile {
     this.mortgageBalance,
     this.mortgageRate,
     this.monthlyRent,
+    this.propertyDescription,
   });
+
+  /// Valeur immobilière effective (propertyMarketValue si renseigné, sinon legacy immobilier).
+  double get immobilierEffectif =>
+      propertyMarketValue ?? immobilier ?? 0;
+
+  /// Valeur nette immobilière = valeur marché - hypothèque restante.
+  double get immobilierNet =>
+      immobilierEffectif - (mortgageBalance ?? 0);
+
+  /// Loan-to-Value ratio (FINMA/ASB). 0 if no property.
+  double get loanToValue =>
+      immobilierEffectif > 0 ? (mortgageBalance ?? 0) / immobilierEffectif : 0;
+
+  /// Patrimoine brut total (liquidités + investissements + immobilier).
+  double get totalPatrimoineBrut =>
+      epargneLiquide + investissements + immobilierEffectif;
+
+  /// Patrimoine net (brut - dettes). Dettes passed via parameter since
+  /// PatrimoineProfile doesn't hold a reference to DetteProfile.
+  double patrimoineNet(double totalDettes) =>
+      totalPatrimoineBrut - totalDettes;
 
   double get totalPatrimoine =>
       epargneLiquide + investissements + (immobilier ?? 0);
@@ -460,6 +485,7 @@ class PatrimoineProfile {
       mortgageBalance: (json['mortgageBalance'] as num?)?.toDouble(),
       mortgageRate: (json['mortgageRate'] as num?)?.toDouble(),
       monthlyRent: (json['monthlyRent'] as num?)?.toDouble(),
+      propertyDescription: json['propertyDescription'] as String?,
     );
   }
 
@@ -473,6 +499,7 @@ class PatrimoineProfile {
     double? mortgageBalance,
     double? mortgageRate,
     double? monthlyRent,
+    String? propertyDescription,
   }) {
     return PatrimoineProfile(
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
@@ -486,6 +513,7 @@ class PatrimoineProfile {
       mortgageBalance: mortgageBalance ?? this.mortgageBalance,
       mortgageRate: mortgageRate ?? this.mortgageRate,
       monthlyRent: monthlyRent ?? this.monthlyRent,
+      propertyDescription: propertyDescription ?? this.propertyDescription,
     );
   }
 
@@ -499,21 +527,50 @@ class PatrimoineProfile {
         'mortgageBalance': mortgageBalance,
         'mortgageRate': mortgageRate,
         'monthlyRent': monthlyRent,
+        'propertyDescription': propertyDescription,
       };
 }
 
-/// Dettes
+/// Dettes — enriched with rates, terms, monthly payments (S45).
+///
+/// Two categories:
+/// - Structural debt (hypothèque) — adossée à un actif, intérêts déductibles
+/// - Consumer debt (crédit conso, leasing) — priorité remboursement
 class DetteProfile {
   final double? creditConsommation;
   final double? leasing;
   final double? hypotheque;
   final double? autresDettes;
 
+  // S45: Enrichment fields (optional, progressively filled)
+  final double? tauxHypotheque; // Taux d'intérêt hypothécaire (%)
+  final double? tauxCreditConso; // Taux d'intérêt crédit conso (%)
+  final double? tauxLeasing; // Taux leasing (%)
+  final double? mensualiteHypotheque; // Charge mensuelle hypothèque
+  final double? mensualiteCreditConso; // Mensualité crédit conso
+  final double? mensualiteLeasing; // Mensualité leasing
+  final DateTime? echeanceHypotheque; // Échéance renouvellement hypo
+  final DateTime? echeanceCreditConso; // Fin de remboursement
+  final DateTime? echeanceLeasing; // Fin du leasing
+  final int? rangHypotheque; // 1er ou 2ème rang
+  final bool amortissementIndirect; // Via 3a (true) ou direct (false)
+
   const DetteProfile({
     this.creditConsommation,
     this.leasing,
     this.hypotheque,
     this.autresDettes,
+    this.tauxHypotheque,
+    this.tauxCreditConso,
+    this.tauxLeasing,
+    this.mensualiteHypotheque,
+    this.mensualiteCreditConso,
+    this.mensualiteLeasing,
+    this.echeanceHypotheque,
+    this.echeanceCreditConso,
+    this.echeanceLeasing,
+    this.rangHypotheque,
+    this.amortissementIndirect = false,
   });
 
   double get totalDettes =>
@@ -524,12 +581,59 @@ class DetteProfile {
 
   bool get hasDette => totalDettes > 0;
 
+  /// Total charge mensuelle de toutes les dettes.
+  double get totalMensualite =>
+      (mensualiteHypotheque ?? 0) +
+      (mensualiteCreditConso ?? 0) +
+      (mensualiteLeasing ?? 0);
+
+  /// Dettes "toxiques" (consommation) — priorité de remboursement.
+  double get detteConsommation =>
+      (creditConsommation ?? 0) + (leasing ?? 0);
+
+  /// Dettes structurelles (hypothèque) — adossées à un actif.
+  double get detteStructurelle => hypotheque ?? 0;
+
+  /// Taux le plus élevé parmi les dettes conso — cible de remboursement.
+  double? get tauxMaxConsommation {
+    final taux = <double>[];
+    if (tauxCreditConso != null && (creditConsommation ?? 0) > 0) {
+      taux.add(tauxCreditConso!);
+    }
+    if (tauxLeasing != null && (leasing ?? 0) > 0) taux.add(tauxLeasing!);
+    if (taux.isEmpty) return null;
+    return taux.reduce((a, b) => a > b ? a : b);
+  }
+
+  /// Intérêts hypothécaires annuels (déductibles fiscalement, LIFD art. 33).
+  double get interetsHypothecairesAnnuels =>
+      (hypotheque ?? 0) * (tauxHypotheque ?? 0) / 100;
+
   factory DetteProfile.fromJson(Map<String, dynamic> json) {
     return DetteProfile(
       creditConsommation: (json['creditConsommation'] as num?)?.toDouble(),
       leasing: (json['leasing'] as num?)?.toDouble(),
       hypotheque: (json['hypotheque'] as num?)?.toDouble(),
       autresDettes: (json['autresDettes'] as num?)?.toDouble(),
+      tauxHypotheque: (json['tauxHypotheque'] as num?)?.toDouble(),
+      tauxCreditConso: (json['tauxCreditConso'] as num?)?.toDouble(),
+      tauxLeasing: (json['tauxLeasing'] as num?)?.toDouble(),
+      mensualiteHypotheque:
+          (json['mensualiteHypotheque'] as num?)?.toDouble(),
+      mensualiteCreditConso:
+          (json['mensualiteCreditConso'] as num?)?.toDouble(),
+      mensualiteLeasing: (json['mensualiteLeasing'] as num?)?.toDouble(),
+      echeanceHypotheque: json['echeanceHypotheque'] != null
+          ? DateTime.tryParse(json['echeanceHypotheque'] as String)
+          : null,
+      echeanceCreditConso: json['echeanceCreditConso'] != null
+          ? DateTime.tryParse(json['echeanceCreditConso'] as String)
+          : null,
+      echeanceLeasing: json['echeanceLeasing'] != null
+          ? DateTime.tryParse(json['echeanceLeasing'] as String)
+          : null,
+      rangHypotheque: json['rangHypotheque'] as int?,
+      amortissementIndirect: json['amortissementIndirect'] as bool? ?? false,
     );
   }
 
@@ -538,12 +642,37 @@ class DetteProfile {
     double? leasing,
     double? hypotheque,
     double? autresDettes,
+    double? tauxHypotheque,
+    double? tauxCreditConso,
+    double? tauxLeasing,
+    double? mensualiteHypotheque,
+    double? mensualiteCreditConso,
+    double? mensualiteLeasing,
+    DateTime? echeanceHypotheque,
+    DateTime? echeanceCreditConso,
+    DateTime? echeanceLeasing,
+    int? rangHypotheque,
+    bool? amortissementIndirect,
   }) {
     return DetteProfile(
       creditConsommation: creditConsommation ?? this.creditConsommation,
       leasing: leasing ?? this.leasing,
       hypotheque: hypotheque ?? this.hypotheque,
       autresDettes: autresDettes ?? this.autresDettes,
+      tauxHypotheque: tauxHypotheque ?? this.tauxHypotheque,
+      tauxCreditConso: tauxCreditConso ?? this.tauxCreditConso,
+      tauxLeasing: tauxLeasing ?? this.tauxLeasing,
+      mensualiteHypotheque:
+          mensualiteHypotheque ?? this.mensualiteHypotheque,
+      mensualiteCreditConso:
+          mensualiteCreditConso ?? this.mensualiteCreditConso,
+      mensualiteLeasing: mensualiteLeasing ?? this.mensualiteLeasing,
+      echeanceHypotheque: echeanceHypotheque ?? this.echeanceHypotheque,
+      echeanceCreditConso: echeanceCreditConso ?? this.echeanceCreditConso,
+      echeanceLeasing: echeanceLeasing ?? this.echeanceLeasing,
+      rangHypotheque: rangHypotheque ?? this.rangHypotheque,
+      amortissementIndirect:
+          amortissementIndirect ?? this.amortissementIndirect,
     );
   }
 
@@ -552,6 +681,17 @@ class DetteProfile {
         'leasing': leasing,
         'hypotheque': hypotheque,
         'autresDettes': autresDettes,
+        'tauxHypotheque': tauxHypotheque,
+        'tauxCreditConso': tauxCreditConso,
+        'tauxLeasing': tauxLeasing,
+        'mensualiteHypotheque': mensualiteHypotheque,
+        'mensualiteCreditConso': mensualiteCreditConso,
+        'mensualiteLeasing': mensualiteLeasing,
+        'echeanceHypotheque': echeanceHypotheque?.toIso8601String(),
+        'echeanceCreditConso': echeanceCreditConso?.toIso8601String(),
+        'echeanceLeasing': echeanceLeasing?.toIso8601String(),
+        'rangHypotheque': rangHypotheque,
+        'amortissementIndirect': amortissementIndirect,
       };
 }
 

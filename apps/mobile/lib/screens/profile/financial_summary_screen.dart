@@ -116,8 +116,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     if (profile.isCouple) _buildCoupleToggle(context, profile),
-                    _buildRevenusCard(context, profile),
-                    _buildFiscaliteCard(context, profile),
+                    _buildRevenusCascadeCard(context, profile),
                     _buildPrevoyanceCard(context, profile),
                     _buildPatrimoineCard(context, profile),
                     _buildDepensesCard(context, profile),
@@ -389,20 +388,53 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  REVENUS
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildRevenusCard(BuildContext context, CoachProfile p) {
-    final lines = <FinancialLine>[
-      FinancialLine(
-        label: 'Salaire brut mensuel',
-        formattedValue: _formatChfMonth(p.salaireBrutMensuel),
-        source: _source(p, 'salaireBrutMensuel'),
-      ),
-      FinancialLine(
-        label: '\u00d7 ${p.nombreDeMois} mois${p.bonusPourcentage != null && p.bonusPourcentage! > 0 ? " + ${_pct.format(p.bonusPourcentage)}% bonus" : ""}',
-        formattedValue: '',
-      ),
-    ];
+  // ══════════════════════════════════════════════════════════════
+  //  REVENUS & FISCALITÉ — Cascade unifiée brut → net → disponible
+  //
+  //  Fix S45: L'ancienne carte Fiscalité listait l'impôt dans les
+  //  déductions mais affichait "Net fiche de paie (avant impôt)" comme
+  //  total — incohérence sémantique. Maintenant c'est une cascade claire.
+  // ══════════════════════════════════════════════════════════════
 
-    // Conjoint
+  Widget _buildRevenusCascadeCard(BuildContext context, CoachProfile p) {
+    final gross = p.revenuBrutAnnuel;
+    if (gross <= 0) return const SizedBox.shrink();
+
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: gross,
+      canton: p.canton,
+      age: p.age,
+    );
+
+    final lines = <FinancialLine>[];
+
+    // ── Revenus bruts ──
+    lines.add(FinancialLine(
+      label: 'Salaire brut mensuel',
+      formattedValue: _formatChfMonth(p.salaireBrutMensuel),
+      source: _source(p, 'salaireBrutMensuel'),
+    ));
+
+    // 13ème salaire (si > 12 mois)
+    if (p.nombreDeMois > 12) {
+      final treizieme = (p.salaireBrutMensuel ?? 0) * (p.nombreDeMois - 12);
+      lines.add(FinancialLine(
+        label: '${p.nombreDeMois == 13 ? "13\u00e8me salaire" : "${p.nombreDeMois}\u00e8me mois"} (annuel)',
+        formattedValue: '+ ${_formatChf(treizieme)}',
+      ));
+    }
+
+    // Bonus (si déclaré)
+    if (p.bonusPourcentage != null && p.bonusPourcentage! > 0) {
+      final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
+      final bonus = base * p.bonusPourcentage! / 100;
+      lines.add(FinancialLine(
+        label: 'Bonus estimé (${_pct.format(p.bonusPourcentage)}%)',
+        formattedValue: '+ ${_formatChf(bonus)}',
+      ));
+    }
+
+    // Conjoint (si couple)
     if (p.isCouple && p.conjoint?.salaireBrutMensuel != null) {
       lines.add(FinancialLine(
         label: '${p.conjoint?.firstName ?? "Conjoint\u00b7e"} brut mensuel',
@@ -411,16 +443,109 @@ class FinancialSummaryScreen extends StatelessWidget {
       ));
     }
 
+    // Subtotal: Revenu brut annuel
+    lines.add(FinancialLine(
+      label: p.isCouple ? 'Revenu brut annuel couple' : 'Revenu brut annuel',
+      formattedValue: _formatChf(
+          p.isCouple ? p.revenuBrutAnnuelCouple : gross),
+      isSubtotal: true,
+    ));
+
+    // Mensuel lissé (si 13ème ou bonus)
+    if (p.nombreDeMois > 12 || (p.bonusPourcentage ?? 0) > 0) {
+      lines.add(FinancialLine(
+        label: 'soit lissé sur 12 mois',
+        formattedValue: _formatChfMonth(gross / 12),
+      ));
+    }
+
+    // ── Déductions salariales ──
+    lines.add(const FinancialLine(
+      label: 'Déductions salariales',
+      isSectionHeader: true,
+    ));
+
+    lines.add(FinancialLine(
+      label: 'Charges sociales (AVS/AI/AC)',
+      formattedValue: '\u2212 ${_formatChfMonth(breakdown.socialCharges / 12)}',
+      isDeduction: true,
+    ));
+
+    lines.add(FinancialLine(
+      label: 'Cotisation LPP employé·e',
+      formattedValue: '\u2212 ${_formatChfMonth(breakdown.lppEmployee / 12)}',
+      isDeduction: true,
+    ));
+
+    // Subtotal: Net fiche de paie
+    lines.add(FinancialLine(
+      label: 'Net fiche de paie',
+      formattedValue: _formatChfMonth(breakdown.monthlyNetPayslip),
+      isSubtotal: true,
+    ));
+
+    // Hint about what "net fiche de paie" means
+    lines.add(const FinancialLine(
+      label: 'Ce qui arrive sur ton compte chaque mois',
+      isHint: true,
+    ));
+
+    // ── Fiscalité ──
+    lines.add(const FinancialLine(
+      label: 'Fiscalité',
+      isSectionHeader: true,
+    ));
+
+    lines.add(FinancialLine(
+      label: 'Impôt estimé (ICC + IFD)',
+      formattedValue: '\u2212 ${_formatChfMonth(breakdown.incomeTaxEstimate / 12)}',
+      isDeduction: true,
+    ));
+
+    // Taux marginal
+    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
+      gross,
+      p.canton.isNotEmpty ? p.canton : 'ZH',
+    );
+    lines.add(FinancialLine(
+      label: 'Taux marginal estimé',
+      formattedValue: '${_pct.format(marginalRate * 100)}%',
+    ));
+
+    // 13ème / bonus info
+    if (p.nombreDeMois > 12 || (p.bonusPourcentage ?? 0) > 0) {
+      final treizieme = p.nombreDeMois > 12
+          ? (p.salaireBrutMensuel ?? 0) * (p.nombreDeMois - 12)
+          : 0.0;
+      final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
+      final bonus = (p.bonusPourcentage ?? 0) > 0
+          ? base * p.bonusPourcentage! / 100
+          : 0.0;
+      final extraAnnuel = treizieme + bonus;
+      final extraNet = extraAnnuel * breakdown.netRatio;
+      lines.add(FinancialLine(
+        label: '${p.nombreDeMois > 12 ? "13\u00e8me" : ""}${p.nombreDeMois > 12 && bonus > 0 ? " + " : ""}${bonus > 0 ? "bonus" : ""} : ~${_formatChf(extraNet)} net/an (non inclus dans le mensuel)',
+        isHint: true,
+      ));
+    }
+
     return FinancialSummaryCard(
-      title: 'Revenus',
+      title: 'Revenus & Fiscalité',
       icon: Icons.account_balance_wallet_outlined,
       iconColor: MintColors.primary,
       lines: lines,
+      // Hero total: Disponible après impôt
       totalLine: FinancialLine(
-        label: p.isCouple ? 'Total couple / an' : 'Total / an',
-        formattedValue: _formatChf(
-            p.isCouple ? p.revenuBrutAnnuelCouple : p.revenuBrutAnnuel),
+        label: 'Disponible après impôt',
+        formattedValue: _formatChfMonth(breakdown.disposableIncome / 12),
+        isHero: true,
       ),
+      footnote: 'Estimation simplifiée. L\'AANP et l\'IJM varient selon '
+          'l\'employeur et ne sont pas inclus. La LPP employé·e reflète '
+          'le minimum légal (50/50) \u2014 ta caisse peut appliquer un '
+          'autre split.',
+      onScanCertificate: () => context.push('/document-scan'),
+      scanLabel: 'Scanner ma fiche de salaire',
       onEdit: () => _showEditSheet(
         context,
         title: 'Modifier le revenu',
@@ -432,80 +557,6 @@ class FinancialSummaryScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  //  FISCALITÉ (décomposition brut → net)
-  // ══════════════════════════════════════════════════════════════
-
-  Widget _buildFiscaliteCard(BuildContext context, CoachProfile p) {
-    final gross = p.revenuBrutAnnuel;
-    if (gross <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    final breakdown = NetIncomeBreakdown.compute(
-      grossSalary: gross,
-      canton: p.canton,
-      age: p.age,
-    );
-
-    final lines = <FinancialLine>[
-      FinancialLine(
-        label: 'Charges sociales (AVS/AC)',
-        formattedValue: _formatChfMonth(breakdown.socialCharges / 12),
-      ),
-      FinancialLine(
-        label: 'Cotisation LPP employé·e',
-        formattedValue: _formatChfMonth(breakdown.lppEmployee / 12),
-      ),
-      FinancialLine(
-        label: 'Impôt sur le revenu',
-        formattedValue: _formatChfMonth(breakdown.incomeTaxEstimate / 12),
-      ),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FinancialSummaryCard(
-          title: 'Fiscalité',
-          icon: Icons.receipt_long_outlined,
-          iconColor: MintColors.warning,
-          lines: lines,
-          totalLine: FinancialLine(
-            label: 'Net fiche de paie (avant impôt)',
-            formattedValue: _formatChfMonth(breakdown.monthlyNetPayslip),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Estimation simplifiée. L\'AANP et l\'IJM varient selon l\'employeur '
-            'et ne sont pas inclus. La LPP employé·e reflète le minimum légal '
-            '(50/50) \u2014 ta caisse peut appliquer un autre split.',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              height: 1.3,
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Disponible après impôt : ${_formatChfMonth(breakdown.disposableIncome / 12)}',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
     );
   }
 
@@ -713,31 +764,126 @@ class FinancialSummaryScreen extends StatelessWidget {
 
   FinancialSummaryCard _buildPatrimoineCard(BuildContext context, CoachProfile p) {
     final pat = p.patrimoine;
+    final det = p.dettes;
+    final lines = <FinancialLine>[];
+
+    // ── Liquidités ──
+    lines.add(const FinancialLine(
+      label: 'Liquidités',
+      isSectionHeader: true,
+    ));
+    lines.add(FinancialLine(
+      label: 'Épargne liquide',
+      formattedValue: _formatChf(pat.epargneLiquide),
+      source: _source(p, 'patrimoine.epargneLiquide'),
+    ));
+    lines.add(FinancialLine(
+      label: 'Investissements',
+      formattedValue: _formatChf(pat.investissements),
+      source: _source(p, 'patrimoine.investissements'),
+    ));
+
+    // ── Immobilier (si renseigné) ──
+    final hasProperty = pat.immobilierEffectif > 0;
+    if (hasProperty) {
+      lines.add(const FinancialLine(
+        label: 'Immobilier',
+        isSectionHeader: true,
+      ));
+      if (pat.propertyDescription != null) {
+        lines.add(FinancialLine(
+          label: pat.propertyDescription!,
+          formattedValue: '',
+        ));
+      }
+      lines.add(FinancialLine(
+        label: 'Valeur estimée',
+        formattedValue: _formatChf(pat.immobilierEffectif),
+        source: _source(p, 'patrimoine.propertyMarketValue'),
+      ));
+      if ((pat.mortgageBalance ?? 0) > 0) {
+        lines.add(FinancialLine(
+          label: 'Hypothèque restante',
+          formattedValue: '\u2212 ${_formatChf(pat.mortgageBalance)}',
+          isDeduction: true,
+        ));
+        lines.add(FinancialLine(
+          label: 'Valeur nette immobilière',
+          formattedValue: _formatChf(pat.immobilierNet),
+          isSubtotal: true,
+        ));
+        // LTV ratio avec conseil FINMA
+        final ltv = pat.loanToValue;
+        final ltvPct = _pct.format(ltv * 100);
+        lines.add(FinancialLine(
+          label: 'Ratio LTV : $ltvPct%${ltv > 0.67 ? " — amortissement 2\u00e8me rang obligatoire" : ltv > 0.50 ? " — en bonne voie" : " — excellent"}',
+          isHint: true,
+        ));
+      }
+    }
+
+    // ── Prévoyance (stock, cross-link) ──
+    final prev = p.prevoyance;
+    if (prev != null) {
+      lines.add(const FinancialLine(
+        label: 'Prévoyance (capital)',
+        isSectionHeader: true,
+      ));
+      if ((prev.avoirLppTotal ?? 0) > 0) {
+        lines.add(FinancialLine(
+          label: 'Avoir LPP total',
+          formattedValue: _formatChf(prev.avoirLppTotal),
+          source: _source(p, 'prevoyance.avoirLppTotal'),
+        ));
+      }
+      if (prev.totalEpargne3a > 0) {
+        lines.add(FinancialLine(
+          label: 'Capital 3a (${prev.nombre3a} compte${prev.nombre3a > 1 ? "s" : ""})',
+          formattedValue: _formatChf(prev.totalEpargne3a),
+          source: _source(p, 'prevoyance.totalEpargne3a'),
+        ));
+      }
+      if (prev.totalLibrePassage > 0) {
+        lines.add(FinancialLine(
+          label: 'Libre passage',
+          formattedValue: _formatChf(prev.totalLibrePassage),
+          source: _source(p, 'prevoyance.librePassage'),
+        ));
+      }
+    }
+
+    // ── Totaux ──
+    final prevCapital = (prev?.avoirLppTotal ?? 0) +
+        (prev?.totalEpargne3a ?? 0) +
+        (prev?.totalLibrePassage ?? 0);
+    final patrimoineBrut = pat.epargneLiquide +
+        pat.investissements +
+        pat.immobilierEffectif +
+        prevCapital;
+    final patrimoineNet = patrimoineBrut - det.totalDettes;
+
+    lines.add(FinancialLine(
+      label: 'Patrimoine brut',
+      formattedValue: _formatChf(patrimoineBrut),
+      isSubtotal: true,
+    ));
+    if (det.totalDettes > 0) {
+      lines.add(FinancialLine(
+        label: 'Dettes totales',
+        formattedValue: '\u2212 ${_formatChf(det.totalDettes)}',
+        isDeduction: true,
+      ));
+    }
+
     return FinancialSummaryCard(
       title: 'Patrimoine',
       icon: Icons.savings_outlined,
       iconColor: MintColors.success,
-      lines: [
-        FinancialLine(
-          label: 'Épargne liquide',
-          formattedValue: _formatChf(pat.epargneLiquide),
-          source: _source(p, 'patrimoine.epargneLiquide'),
-        ),
-        FinancialLine(
-          label: 'Investissements',
-          formattedValue: _formatChf(pat.investissements),
-          source: _source(p, 'patrimoine.investissements'),
-        ),
-        if (pat.immobilier != null && pat.immobilier! > 0)
-          FinancialLine(
-            label: 'Immobilier (valeur)',
-            formattedValue: _formatChf(pat.immobilier),
-            source: _source(p, 'patrimoine.immobilier'),
-          ),
-      ],
+      lines: lines,
       totalLine: FinancialLine(
-        label: 'Total patrimoine',
-        formattedValue: _formatChf(pat.totalPatrimoine),
+        label: 'Patrimoine net (fortune)',
+        formattedValue: _formatChf(patrimoineNet),
+        isHero: true,
       ),
       onEdit: () => _showEditSheet(
         context,
@@ -753,6 +899,13 @@ class FinancialSummaryScreen extends StatelessWidget {
             initialValue:
                 pat.investissements > 0 ? pat.investissements : null,
             key: 'investissements',
+          ),
+          _EditField(
+            label: 'Valeur immobilière (CHF)',
+            initialValue: pat.immobilierEffectif > 0
+                ? pat.immobilierEffectif
+                : null,
+            key: 'propertyMarketValue',
           ),
         ],
       ),
@@ -885,6 +1038,34 @@ class FinancialSummaryScreen extends StatelessWidget {
 
   FinancialSummaryCard _buildDettesCard(BuildContext context, CoachProfile p) {
     final det = p.dettes;
+
+    VoidCallback onEditDettes() => () => _showEditSheet(
+          context,
+          title: 'Modifier les dettes',
+          fields: [
+            _EditField(
+              label: 'Hypothèque (CHF)',
+              initialValue: det.hypotheque,
+              key: 'hypotheque',
+            ),
+            _EditField(
+              label: 'Crédit consommation (CHF)',
+              initialValue: det.creditConsommation,
+              key: 'creditConsommation',
+            ),
+            _EditField(
+              label: 'Leasing (CHF)',
+              initialValue: det.leasing,
+              key: 'leasing',
+            ),
+            _EditField(
+              label: 'Autres dettes (CHF)',
+              initialValue: det.autresDettes,
+              key: 'autresDettes',
+            ),
+          ],
+        );
+
     if (!det.hasDette) {
       return FinancialSummaryCard(
         title: 'Dettes',
@@ -892,53 +1073,127 @@ class FinancialSummaryScreen extends StatelessWidget {
         iconColor: MintColors.textMuted,
         lines: const [
           FinancialLine(
-            label: 'Aucune dette déclarée',
+            label: 'Aucune dette déclarée — ',
             formattedValue: '\u2014',
           ),
         ],
-        onEdit: () => _showEditSheet(
-          context,
-          title: 'Modifier les dettes',
-          fields: [
-            const _EditField(label: 'Hypothèque (CHF)', key: 'hypotheque'),
-            const _EditField(
-                label: 'Crédit consommation (CHF)', key: 'creditConsommation'),
-            const _EditField(label: 'Leasing (CHF)', key: 'leasing'),
-            const _EditField(label: 'Autres dettes (CHF)', key: 'autresDettes'),
-          ],
-        ),
+        onEdit: onEditDettes(),
       );
     }
 
     final lines = <FinancialLine>[];
-    if (det.hypotheque != null && det.hypotheque! > 0) {
+
+    // ── Dette structurelle (hypothèque) ──
+    if (det.detteStructurelle > 0) {
+      lines.add(const FinancialLine(
+        label: 'Dette structurelle',
+        isSectionHeader: true,
+      ));
+      final hypoLabel = det.rangHypotheque != null
+          ? 'Hypothèque ${det.rangHypotheque == 1 ? "1er" : "2\u00e8me"} rang'
+          : 'Hypothèque';
+      final hypoDetail = det.tauxHypotheque != null
+          ? ' (${_pct.format(det.tauxHypotheque)}%)'
+          : '';
       lines.add(FinancialLine(
-        label: 'Hypothèque',
+        label: '$hypoLabel$hypoDetail',
         formattedValue: _formatChf(det.hypotheque),
         source: _source(p, 'dettes.hypotheque'),
       ));
+      if (det.mensualiteHypotheque != null) {
+        lines.add(FinancialLine(
+          label: 'Charge mensuelle',
+          formattedValue: _formatChfMonth(det.mensualiteHypotheque),
+          indent: true,
+        ));
+      }
+      if (det.echeanceHypotheque != null) {
+        final remaining = det.echeanceHypotheque!
+            .difference(DateTime.now())
+            .inDays;
+        final years = (remaining / 365).ceil();
+        lines.add(FinancialLine(
+          label: 'Échéance : ${DateFormat('MM/yyyy').format(det.echeanceHypotheque!)} (~$years ans)',
+          formattedValue: '',
+          indent: true,
+          isLast: true,
+        ));
+      }
+      // Intérêts déductibles
+      if (det.tauxHypotheque != null) {
+        final interets = det.interetsHypothecairesAnnuels;
+        lines.add(FinancialLine(
+          label: 'Intérêts déductibles (LIFD art. 33) : ${_formatChf(interets)}/an',
+          isHint: true,
+        ));
+      }
     }
-    if (det.leasing != null && det.leasing! > 0) {
-      lines.add(FinancialLine(
-        label: 'Leasing',
-        formattedValue: _formatChf(det.leasing),
-        source: _source(p, 'dettes.leasing'),
+
+    // ── Dette à la consommation ──
+    if (det.detteConsommation > 0 || (det.autresDettes ?? 0) > 0) {
+      lines.add(const FinancialLine(
+        label: 'Dette à la consommation',
+        isSectionHeader: true,
       ));
+
+      if (det.creditConsommation != null && det.creditConsommation! > 0) {
+        final tauxLabel = det.tauxCreditConso != null
+            ? ' (${_pct.format(det.tauxCreditConso)}%)'
+            : '';
+        lines.add(FinancialLine(
+          label: 'Crédit consommation$tauxLabel',
+          formattedValue: _formatChf(det.creditConsommation),
+          source: _source(p, 'dettes.creditConsommation'),
+        ));
+        if (det.mensualiteCreditConso != null) {
+          lines.add(FinancialLine(
+            label: 'Mensualité',
+            formattedValue: _formatChfMonth(det.mensualiteCreditConso),
+            indent: true,
+            isLast: det.echeanceCreditConso == null,
+          ));
+        }
+      }
+      if (det.leasing != null && det.leasing! > 0) {
+        final tauxLabel = det.tauxLeasing != null
+            ? ' (${_pct.format(det.tauxLeasing)}%)'
+            : '';
+        lines.add(FinancialLine(
+          label: 'Leasing$tauxLabel',
+          formattedValue: _formatChf(det.leasing),
+          source: _source(p, 'dettes.leasing'),
+        ));
+        if (det.mensualiteLeasing != null) {
+          lines.add(FinancialLine(
+            label: 'Mensualité',
+            formattedValue: _formatChfMonth(det.mensualiteLeasing),
+            indent: true,
+            isLast: true,
+          ));
+        }
+      }
+      if (det.autresDettes != null && det.autresDettes! > 0) {
+        lines.add(FinancialLine(
+          label: 'Autres dettes',
+          formattedValue: _formatChf(det.autresDettes),
+          source: _source(p, 'dettes.autresDettes'),
+        ));
+      }
+
+      // Conseil priorité remboursement
+      final tauxMax = det.tauxMaxConsommation;
+      if (tauxMax != null && tauxMax > 3) {
+        lines.add(FinancialLine(
+          label: 'Rembourse d\'abord la dette à ${_pct.format(tauxMax)}% '
+              'avant d\'investir. Chaque CHF remboursé = '
+              '${_pct.format(tauxMax)}% de rendement garanti.',
+          isHint: true,
+        ));
+      }
     }
-    if (det.creditConsommation != null && det.creditConsommation! > 0) {
-      lines.add(FinancialLine(
-        label: 'Crédit consommation',
-        formattedValue: _formatChf(det.creditConsommation),
-        source: _source(p, 'dettes.creditConsommation'),
-      ));
-    }
-    if (det.autresDettes != null && det.autresDettes! > 0) {
-      lines.add(FinancialLine(
-        label: 'Autres dettes',
-        formattedValue: _formatChf(det.autresDettes),
-        source: _source(p, 'dettes.autresDettes'),
-      ));
-    }
+
+    // Charge mensuelle totale
+    final totalMensualite = det.totalMensualite;
 
     return FinancialSummaryCard(
       title: 'Dettes',
@@ -947,34 +1202,9 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines: lines,
       totalLine: FinancialLine(
         label: 'Total dettes',
-        formattedValue: _formatChf(det.totalDettes),
+        formattedValue: '${_formatChf(det.totalDettes)}${totalMensualite > 0 ? " (${_formatChfMonth(totalMensualite)})" : ""}',
       ),
-      onEdit: () => _showEditSheet(
-        context,
-        title: 'Modifier les dettes',
-        fields: [
-          _EditField(
-            label: 'Hypothèque (CHF)',
-            initialValue: det.hypotheque,
-            key: 'hypotheque',
-          ),
-          _EditField(
-            label: 'Crédit consommation (CHF)',
-            initialValue: det.creditConsommation,
-            key: 'creditConsommation',
-          ),
-          _EditField(
-            label: 'Leasing (CHF)',
-            initialValue: det.leasing,
-            key: 'leasing',
-          ),
-          _EditField(
-            label: 'Autres dettes (CHF)',
-            initialValue: det.autresDettes,
-            key: 'autresDettes',
-          ),
-        ],
-      ),
+      onEdit: onEditDettes(),
     );
   }
 
