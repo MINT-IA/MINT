@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COUPLE PATRIMOINE CARD — 3-column patrimoine overview
@@ -61,14 +62,7 @@ class CouplePatrimoineCard extends StatelessWidget {
     this.conjointIsEstimated = false,
   });
 
-  static final _chfFormat = NumberFormat('#,##0', 'fr_CH');
-
-  String _fmt(double value) => _chfFormat.format(value.round());
-
-  String _fmtSigned(double value) {
-    if (value < 0) return '−${_fmt(value.abs())}';
-    return _fmt(value);
-  }
+  String _fmt(double value) => formatChf(value);
 
   bool get _isCouple => conjointFirstName != null;
 
@@ -78,6 +72,7 @@ class CouplePatrimoineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -99,8 +94,8 @@ class CouplePatrimoineCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     _isCouple
-                        ? 'Patrimoine — $firstName & $conjointFirstName'
-                        : 'Patrimoine — $firstName',
+                        ? l.patrimoineCoupleTitleCouple(firstName, conjointFirstName!)
+                        : l.patrimoineCoupleTitleSolo(firstName),
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -120,18 +115,18 @@ class CouplePatrimoineCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _buildLiquideColumn()),
+                  Expanded(child: _buildLiquideColumn(l)),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildImmobilierColumn()),
+                  Expanded(child: _buildImmobilierColumn(l)),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildPrevoyanceColumn()),
+                  Expanded(child: _buildPrevoyanceColumn(l)),
                 ],
               ),
             ),
           ),
 
           // Summary box
-          _buildSummaryBox(),
+          _buildSummaryBox(l),
 
           const SizedBox(height: 8),
         ],
@@ -141,7 +136,7 @@ class CouplePatrimoineCard extends StatelessWidget {
 
   // ── Column 1: LIQUIDE ──
 
-  Widget _buildLiquideColumn() {
+  Widget _buildLiquideColumn(S l) {
     final totalLiquide = epargneLiquide +
         conjointEpargneLiquide +
         investissements +
@@ -149,37 +144,37 @@ class CouplePatrimoineCard extends StatelessWidget {
 
     return _columnContainer(
       children: [
-        _columnHeader('LIQUIDE'),
+        _columnHeader(l.patrimoineLiquide),
         const SizedBox(height: 8),
-        _ownerRow('Épargne', epargneLiquide, isUser: true),
+        _ownerRow(l.patrimoineEpargne, epargneLiquide, isUser: true),
         if (_isCouple && conjointEpargneLiquide > 0)
-          _ownerRow('Épargne', conjointEpargneLiquide, isUser: false),
+          _ownerRow(l.patrimoineEpargne, conjointEpargneLiquide, isUser: false),
         const SizedBox(height: 4),
-        _ownerRow('Invest.', investissements, isUser: true),
+        _ownerRow(l.patrimoineInvest, investissements, isUser: true),
         if (_isCouple && conjointInvestissements > 0)
-          _ownerRow('Invest.', conjointInvestissements, isUser: false),
+          _ownerRow(l.patrimoineInvest, conjointInvestissements, isUser: false),
         const Divider(height: 12),
-        _totalRow('Total', totalLiquide),
+        _totalRow(l.patrimoineTotal, totalLiquide),
       ],
     );
   }
 
   // ── Column 2: IMMOBILIER ──
 
-  Widget _buildImmobilierColumn() {
+  Widget _buildImmobilierColumn(S l) {
     final netImmobilier = immobilierValeur - mortgageBalance;
     final ltvPercent = (loanToValue * 100).round();
     final hasProperty = immobilierValeur > 0;
 
     return _columnContainer(
       children: [
-        _columnHeader('IMMOBILIER'),
+        _columnHeader(l.patrimoineImmobilier),
         const SizedBox(height: 8),
         if (!hasProperty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              'Aucun bien',
+              l.patrimoineAucunBien,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,
@@ -202,13 +197,13 @@ class CouplePatrimoineCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          _labelValueRow('Valeur', _fmt(immobilierValeur)),
-          _labelValueRow('−Hypo.', _fmt(mortgageBalance),
+          _labelValueRow(l.patrimoineValeur, _fmt(immobilierValeur)),
+          _labelValueRow(l.patrimoineHypo, _fmt(mortgageBalance),
               valueColor: MintColors.error),
           const Divider(height: 12),
-          _totalRow('Net', netImmobilier),
+          _totalRow(l.patrimoineNet, netImmobilier),
           const SizedBox(height: 4),
-          _ltvIndicator(ltvPercent),
+          _ltvIndicator(ltvPercent, l),
         ],
       ],
     );
@@ -216,7 +211,7 @@ class CouplePatrimoineCard extends StatelessWidget {
 
   // ── Column 3: PRÉVOYANCE ──
 
-  Widget _buildPrevoyanceColumn() {
+  Widget _buildPrevoyanceColumn(S l) {
     final totalPrevoyance = avoirLpp +
         conjointAvoirLpp +
         capital3a +
@@ -225,28 +220,28 @@ class CouplePatrimoineCard extends StatelessWidget {
 
     return _columnContainer(
       children: [
-        _columnHeader('PRÉVOYANCE'),
+        _columnHeader(l.patrimoinePrevoyance),
         const SizedBox(height: 8),
-        _ownerRow('LPP', avoirLpp, isUser: true),
+        _ownerRow(l.patrimoineLpp, avoirLpp, isUser: true),
         if (_isCouple && conjointAvoirLpp > 0)
-          _ownerRow('LPP', conjointAvoirLpp, isUser: false),
+          _ownerRow(l.patrimoineLpp, conjointAvoirLpp, isUser: false),
         const SizedBox(height: 4),
-        _ownerRow('3a', capital3a, isUser: true),
+        _ownerRow(l.patrimoine3a, capital3a, isUser: true),
         if (_isCouple && conjointCapital3a > 0)
-          _ownerRow('3a', conjointCapital3a, isUser: false),
+          _ownerRow(l.patrimoine3a, conjointCapital3a, isUser: false),
         if (librePassage > 0) ...[
           const SizedBox(height: 4),
-          _labelValueRow('Libre pass.', _fmt(librePassage)),
+          _labelValueRow(l.patrimoineLibrePassage, _fmt(librePassage)),
         ],
         const Divider(height: 12),
-        _totalRow('Total', totalPrevoyance),
+        _totalRow(l.patrimoineTotal, totalPrevoyance),
       ],
     );
   }
 
   // ── Summary box ──
 
-  Widget _buildSummaryBox() {
+  Widget _buildSummaryBox(S l) {
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       padding: const EdgeInsets.all(12),
@@ -257,16 +252,16 @@ class CouplePatrimoineCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _summaryLine('Patrimoine brut', _fmt(patrimoineBrut)),
+          _summaryLine(l.patrimoineBrut, patrimoineBrut),
           if (totalDettes > 0)
-            _summaryLine('−Dettes', _fmt(totalDettes),
+            _summaryLine(l.patrimoineDettes, totalDettes,
                 valueColor: MintColors.error),
           const SizedBox(height: 4),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Patrimoine net',
+                  l.patrimoineNetLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -275,7 +270,7 @@ class CouplePatrimoineCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'CHF\u00a0${_fmtSigned(patrimoineNet)}',
+                formatChfWithPrefix(patrimoineNet),
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -287,8 +282,8 @@ class CouplePatrimoineCard extends StatelessWidget {
           if (_isCouple && partUser != null && partConjoint != null) ...[
             const SizedBox(height: 6),
             Text(
-              'dont $firstName ~CHF\u00a0${_fmt(partUser!)} '
-              '| dont $conjointFirstName ~CHF\u00a0${_fmt(partConjoint!)}',
+              '${l.patrimoineDont(firstName, _fmt(partUser!))} '
+              '| ${l.patrimoineDont(conjointFirstName!, _fmt(partConjoint!))}',
               style: GoogleFonts.inter(
                 fontSize: 10,
                 color: MintColors.textMuted,
@@ -439,7 +434,7 @@ class CouplePatrimoineCard extends StatelessWidget {
     );
   }
 
-  Widget _summaryLine(String label, String value, {Color? valueColor}) {
+  Widget _summaryLine(String label, double amount, {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
@@ -454,7 +449,7 @@ class CouplePatrimoineCard extends StatelessWidget {
             ),
           ),
           Text(
-            'CHF\u00a0$value',
+            formatChfWithPrefix(amount),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -466,18 +461,18 @@ class CouplePatrimoineCard extends StatelessWidget {
     );
   }
 
-  Widget _ltvIndicator(int ltvPercent) {
+  Widget _ltvIndicator(int ltvPercent, S l) {
     final Color ltvColor;
     final String advice;
     if (ltvPercent <= 65) {
       ltvColor = MintColors.success;
-      advice = 'LTV saine';
+      advice = l.patrimoineLtvSaine;
     } else if (ltvPercent <= 80) {
       ltvColor = MintColors.warning;
-      advice = 'Amortissement recommandé';
+      advice = l.patrimoineLtvAmortissement;
     } else {
       ltvColor = MintColors.error;
-      advice = 'LTV élevée — amortir';
+      advice = l.patrimoineLtvElevee;
     }
 
     return Row(
@@ -489,7 +484,7 @@ class CouplePatrimoineCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
-            'LTV $ltvPercent%',
+            l.patrimoineLtvDisplay('$ltvPercent'),
             style: GoogleFonts.montserrat(
               fontSize: 9,
               fontWeight: FontWeight.w700,

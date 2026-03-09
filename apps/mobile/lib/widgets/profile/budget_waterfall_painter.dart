@@ -25,6 +25,9 @@ class WaterfallStep {
   });
 
   /// Build the full cascade from gross salary to free margin.
+  ///
+  /// [labels] allows the caller to pass i18n'd labels via S.of(context)!.
+  /// If null, French defaults are used.
   static List<WaterfallStep> fromBreakdown({
     required double grossMonthly,
     required double socialCharges,
@@ -36,7 +39,9 @@ class WaterfallStep {
     double otherFixed = 0,
     double pillar3a = 0,
     double investment = 0,
+    Map<String, String>? labels,
   }) {
+    final l = labels ?? const {};
     final netPayslip = grossMonthly - socialCharges - lppEmployee;
     final disposable = netPayslip - incomeTax;
     var resteAVivre = disposable - rent - healthInsurance;
@@ -47,20 +52,20 @@ class WaterfallStep {
     if (investment > 0) margeLibre -= investment;
 
     final steps = <WaterfallStep>[
-      WaterfallStep(label: 'Brut mensuel', amount: grossMonthly, isIncome: true),
-      WaterfallStep(label: 'AVS / AC', amount: socialCharges),
-      WaterfallStep(label: 'LPP employ\u00e9', amount: lppEmployee),
-      WaterfallStep(label: 'Net fiche de paie', amount: netPayslip, isSubtotal: true),
-      WaterfallStep(label: 'Imp\u00f4ts', amount: incomeTax),
-      WaterfallStep(label: 'Disponible', amount: disposable, isSubtotal: true),
-      WaterfallStep(label: 'Loyer', amount: rent),
-      WaterfallStep(label: 'LAMal', amount: healthInsurance),
-      if (leasing > 0) WaterfallStep(label: 'Leasing', amount: leasing),
-      if (otherFixed > 0) WaterfallStep(label: 'Autres fixes', amount: otherFixed),
-      WaterfallStep(label: 'Reste \u00e0 vivre', amount: resteAVivre, isSubtotal: true),
-      if (pillar3a > 0) WaterfallStep(label: '3a', amount: pillar3a),
-      if (investment > 0) WaterfallStep(label: 'Investissement', amount: investment),
-      WaterfallStep(label: 'Marge libre', amount: margeLibre, isSubtotal: true),
+      WaterfallStep(label: l['brutMensuel'] ?? 'Brut mensuel', amount: grossMonthly, isIncome: true),
+      WaterfallStep(label: l['avsAc'] ?? 'AVS / AC', amount: socialCharges),
+      WaterfallStep(label: l['lppEmploye'] ?? 'LPP employ\u00e9', amount: lppEmployee),
+      WaterfallStep(label: l['netFicheDePaie'] ?? 'Net fiche de paie', amount: netPayslip, isSubtotal: true),
+      WaterfallStep(label: l['impots'] ?? 'Imp\u00f4ts', amount: incomeTax),
+      WaterfallStep(label: l['disponible'] ?? 'Disponible', amount: disposable, isSubtotal: true),
+      WaterfallStep(label: l['loyer'] ?? 'Loyer', amount: rent),
+      WaterfallStep(label: l['lamal'] ?? 'LAMal', amount: healthInsurance),
+      if (leasing > 0) WaterfallStep(label: l['leasing'] ?? 'Leasing', amount: leasing),
+      if (otherFixed > 0) WaterfallStep(label: l['autresFixes'] ?? 'Autres fixes', amount: otherFixed),
+      WaterfallStep(label: l['resteAVivre'] ?? 'Reste \u00e0 vivre', amount: resteAVivre, isSubtotal: true),
+      if (pillar3a > 0) WaterfallStep(label: l['pillar3a'] ?? '3a', amount: pillar3a),
+      if (investment > 0) WaterfallStep(label: l['investissement'] ?? 'Investissement', amount: investment),
+      WaterfallStep(label: l['margeLibre'] ?? 'Marge libre', amount: margeLibre, isSubtotal: true),
     ];
 
     return steps;

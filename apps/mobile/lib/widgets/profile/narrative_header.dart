@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class NarrativeHeader extends StatelessWidget {
   final String? firstName;
@@ -27,59 +28,52 @@ class NarrativeHeader extends StatelessWidget {
     this.onBoostTap,
   });
 
-  static final _chfFormat = NumberFormat('#,##0', 'fr_CH');
-
-  String _formatChf(double amount) => _chfFormat.format(amount.round());
-
-  String _buildNarrative() {
-    final name = firstName ?? 'Tu';
+  String _buildNarrative(S l) {
+    final name = firstName ?? l.narrativeDefaultName;
     final isCouple = conjointFirstName != null;
     final hasHighPatrimoine = patrimoineNet > 500000;
+    final marginStr = formatChf(freeMargin.abs());
+    final patStr = formatChf(patrimoineNet);
 
     // Couple variant
     if (isCouple) {
-      final marginStr = _formatChf(freeMargin.abs());
       final base = freeMargin >= 0
-          ? 'Ensemble, vous avez une marge de $marginStr CHF/mois.'
-          : 'Ensemble, votre budget est serré de $marginStr CHF/mois.';
+          ? l.narrativeCouplePositiveMargin(marginStr)
+          : l.narrativeCoupleTightBudget(marginStr);
       if (hasHighPatrimoine) {
-        return '$base Avec un patrimoine de ${_formatChf(patrimoineNet)} CHF, vous avez des leviers.';
+        return '$base ${l.narrativeCoupleHighPatrimoine(patStr)}';
       }
       return base;
     }
 
     // Solo variants by health level
     if (replacementRate > 60 && freeMargin > 0) {
-      // High health
-      final phrase =
-          '$name, tu es en bonne santé financière. Continue.';
+      final phrase = l.narrativeHighHealth(name);
       if (hasHighPatrimoine) {
-        return '$phrase Ton patrimoine de ${_formatChf(patrimoineNet)} CHF te donne une belle marge de manœuvre.';
+        return '$phrase ${l.narrativeHighHealthPatrimoine(patStr)}';
       }
       return phrase;
     }
 
     if (replacementRate < 40 || freeMargin < 0) {
-      // Low health
-      final phrase =
-          '$name, concentre-toi sur l\'essentiel. On va stabiliser ensemble.';
+      final phrase = l.narrativeLowHealth(name);
       if (hasHighPatrimoine) {
-        return '$phrase Ton patrimoine de ${_formatChf(patrimoineNet)} CHF est un atout à protéger.';
+        return '$phrase ${l.narrativeLowHealthPatrimoine(patStr)}';
       }
       return phrase;
     }
 
     // Medium health
-    final phrase =
-        '$name, tu as de bonnes bases. Quelques actions peuvent faire la différence.';
+    final phrase = l.narrativeMediumHealth(name);
     if (hasHighPatrimoine) {
-      return '$phrase Ton patrimoine de ${_formatChf(patrimoineNet)} CHF est un bon point de départ.';
+      return '$phrase ${l.narrativeMediumHealthPatrimoine(patStr)}';
     }
     return phrase;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final clampedScore = confidenceScore.clamp(0.0, 100.0);
 
     return Container(
@@ -93,7 +87,7 @@ class NarrativeHeader extends StatelessWidget {
         children: [
           // Narrative phrase
           Text(
-            _buildNarrative(),
+            _buildNarrative(l),
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -122,7 +116,7 @@ class NarrativeHeader extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Confiance profil : ${clampedScore.round()}%',
+                l.narrativeConfidenceLabel('${clampedScore.round()}'),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: MintColors.textMuted,

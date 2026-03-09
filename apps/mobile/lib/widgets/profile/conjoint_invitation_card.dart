@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -32,12 +33,17 @@ class ConjointInvitationCard extends StatelessWidget {
     this.onLink,
     this.onChangeRegime,
     this.regimeMatrimonial = 'participation_acquets',
-  });
+  }) : assert(
+         invitationLevel == 'declared' ||
+             invitationLevel == 'invited' ||
+             invitationLevel == 'linked',
+         'invitationLevel must be one of: declared, invited, linked',
+       );
 
-  static const _regimeLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'separation': 'Séparation de biens',
-    'communaute': 'Communauté de biens',
+  Map<String, String> _regimeLabels(S l) => {
+    'participation_acquets': l.conjointRegimeParticipation,
+    'separation': l.conjointRegimeSeparation,
+    'communaute': l.conjointRegimeCommunaute,
   };
 
   bool get _isLinked => invitationLevel == 'linked';
@@ -45,14 +51,15 @@ class ConjointInvitationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: MintColors.card,
         borderRadius: BorderRadius.circular(16),
-        border: _isLinked
-            ? Border.all(color: MintColors.lightBorder)
-            : _dashedBorder(),
+        border: Border.all(
+          color: _isLinked ? MintColors.lightBorder : Colors.transparent,
+        ),
       ),
       // For dashed border we use foregroundDecoration
       foregroundDecoration: _isLinked
@@ -72,26 +79,26 @@ class ConjointInvitationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header row
-            _buildHeader(),
+            _buildHeader(l),
             const SizedBox(height: 12),
 
             // Status message
-            _buildStatusMessage(),
+            _buildStatusMessage(l),
             const SizedBox(height: 12),
 
             // CTAs
-            _buildActions(),
+            _buildActions(l),
 
             // Régime matrimonial footer
             const Divider(height: 24),
-            _buildRegimeFooter(),
+            _buildRegimeFooter(l),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S l) {
     return Row(
       children: [
         Container(
@@ -112,8 +119,8 @@ class ConjointInvitationCard extends StatelessWidget {
         Expanded(
           child: Text(
             _isLinked
-                ? 'Profils liés'
-                : 'Profil conjoint·e',
+                ? l.conjointProfilsLies
+                : l.conjointProfilConjoint,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -125,25 +132,19 @@ class ConjointInvitationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusMessage() {
+  Widget _buildStatusMessage(S l) {
     final String message;
     final Color bgColor;
 
     switch (invitationLevel) {
       case 'declared':
-        message =
-            '$conjointFirstName n\'a pas de compte MINT. '
-            'Ses données sont estimées (\u{1F7E1}).';
+        message = l.conjointDeclaredStatus(conjointFirstName);
         bgColor = MintColors.warning.withAlpha(15);
       case 'invited':
-        message =
-            'Invitation envoyée à $conjointFirstName. '
-            'En attente de réponse.';
+        message = l.conjointInvitedStatus(conjointFirstName);
         bgColor = MintColors.info.withAlpha(15);
       case 'linked':
-        message =
-            '\u2705 Profils liés ! Les données de $conjointFirstName '
-            'sont synchronisées.';
+        message = l.conjointLinkedStatus(conjointFirstName);
         bgColor = MintColors.success.withAlpha(15);
       default:
         message = '';
@@ -168,20 +169,20 @@ class ConjointInvitationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActions() {
+  Widget _buildActions(S l) {
     switch (invitationLevel) {
       case 'declared':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _actionButton(
-              label: 'Inviter $conjointFirstName (5 questions, sans compte)',
+              label: l.conjointInviteLabel(conjointFirstName),
               onTap: onInvite,
               isPrimary: true,
             ),
             const SizedBox(height: 8),
             _actionButton(
-              label: 'Lier nos profils',
+              label: l.conjointLierProfils,
               onTap: onLink,
               isPrimary: false,
             ),
@@ -189,7 +190,7 @@ class ConjointInvitationCard extends StatelessWidget {
         );
       case 'invited':
         return _actionButton(
-          label: 'Renvoyer l\'invitation',
+          label: l.conjointRenvoyerInvitation,
           onTap: onInvite,
           isPrimary: true,
         );
@@ -255,9 +256,9 @@ class ConjointInvitationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRegimeFooter() {
+  Widget _buildRegimeFooter(S l) {
     final regimeLabel =
-        _regimeLabels[regimeMatrimonial] ?? regimeMatrimonial;
+        _regimeLabels(l)[regimeMatrimonial] ?? regimeMatrimonial;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,14 +273,14 @@ class ConjointInvitationCard extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  text: 'Régime matrimonial : ',
+                  text: l.conjointRegimeLabel,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textMuted,
                   ),
                 ),
-                TextSpan(text: '$regimeLabel (défaut CC art. 196)'),
+                TextSpan(text: '$regimeLabel ${l.conjointRegimeDefault}'),
               ],
             ),
           ),
@@ -289,7 +290,7 @@ class ConjointInvitationCard extends StatelessWidget {
           GestureDetector(
             onTap: onChangeRegime,
             child: Text(
-              'modifier',
+              l.conjointModifier,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -304,11 +305,6 @@ class ConjointInvitationCard extends StatelessWidget {
     );
   }
 
-  /// Creates a border decoration.
-  /// Note: Flutter does not natively support dashed borders without
-  /// CustomPainter. We use a dotted-style solid border with reduced
-  /// opacity to suggest an incomplete/pending state.
-  Border _dashedBorder() {
-    return Border.all(color: Colors.transparent);
-  }
+  /// Valid invitation levels.
+  static const validLevels = {'declared', 'invited', 'linked'};
 }

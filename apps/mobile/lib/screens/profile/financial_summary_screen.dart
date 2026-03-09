@@ -448,50 +448,50 @@ class FinancialSummaryScreen extends StatelessWidget {
     // Mensuel lissé (si 13ème ou bonus)
     if (p.nombreDeMois > 12 || (p.bonusPourcentage ?? 0) > 0) {
       lines.add(FinancialLine(
-        label: 'soit lissé sur 12 mois',
+        label: l10n.financialSummarySoitLisseSur12Mois,
         formattedValue: _formatChfMonth(gross / 12),
       ));
     }
 
     // ── Déductions salariales ──
-    lines.add(const FinancialLine(
-      label: 'Déductions salariales',
+    lines.add(FinancialLine(
+      label: l10n.financialSummaryDeductionsSalariales,
       isSectionHeader: true,
     ));
 
     lines.add(FinancialLine(
-      label: 'Charges sociales (AVS/AI/AC)',
+      label: l10n.financialSummaryChargesSociales,
       formattedValue: '\u2212 ${_formatChfMonth(breakdown.socialCharges / 12)}',
       isDeduction: true,
     ));
 
     lines.add(FinancialLine(
-      label: 'Cotisation LPP employé·e',
+      label: l10n.financialSummaryCotisationLpp,
       formattedValue: '\u2212 ${_formatChfMonth(breakdown.lppEmployee / 12)}',
       isDeduction: true,
     ));
 
     // Subtotal: Net fiche de paie
     lines.add(FinancialLine(
-      label: 'Net fiche de paie',
+      label: l10n.financialSummaryNetFicheDePaie,
       formattedValue: _formatChfMonth(breakdown.monthlyNetPayslip),
       isSubtotal: true,
     ));
 
     // Hint about what "net fiche de paie" means
-    lines.add(const FinancialLine(
-      label: 'Ce qui arrive sur ton compte chaque mois',
+    lines.add(FinancialLine(
+      label: l10n.financialSummaryNetFicheDePaieHint,
       isHint: true,
     ));
 
     // ── Fiscalité ──
-    lines.add(const FinancialLine(
-      label: 'Fiscalité',
+    lines.add(FinancialLine(
+      label: l10n.financialSummaryFiscalite,
       isSectionHeader: true,
     ));
 
     lines.add(FinancialLine(
-      label: 'Impôt estimé (ICC + IFD)',
+      label: l10n.financialSummaryImpotEstime,
       formattedValue: '\u2212 ${_formatChfMonth(breakdown.incomeTaxEstimate / 12)}',
       isDeduction: true,
     ));
@@ -502,7 +502,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       p.canton.isNotEmpty ? p.canton : 'ZH',
     );
     lines.add(FinancialLine(
-      label: 'Taux marginal estimé',
+      label: l10n.financialSummaryTauxMarginalEstime,
       formattedValue: '${_pct.format(marginalRate * 100)}%',
     ));
 
@@ -517,35 +517,33 @@ class FinancialSummaryScreen extends StatelessWidget {
           : 0.0;
       final extraAnnuel = treizieme + bonus;
       final extraNet = extraAnnuel * breakdown.disposableRatio;
+      final hintLabel = '${p.nombreDeMois > 12 ? "13\u00e8me" : ""}${p.nombreDeMois > 12 && bonus > 0 ? " + " : ""}${bonus > 0 ? "bonus" : ""}';
       lines.add(FinancialLine(
-        label: '${p.nombreDeMois > 12 ? "13\u00e8me" : ""}${p.nombreDeMois > 12 && bonus > 0 ? " + " : ""}${bonus > 0 ? "bonus" : ""} : ~${_formatChf(extraNet)} net/an (non inclus dans le mensuel)',
+        label: l10n.financialSummary13emeEtBonusHint(hintLabel, _formatChf(extraNet)),
         isHint: true,
       ));
     }
 
     return FinancialSummaryCard(
-      title: 'Revenus & Fiscalité',
+      title: l10n.financialSummaryRevenusEtFiscalite,
       icon: Icons.account_balance_wallet_outlined,
       iconColor: MintColors.primary,
       lines: lines,
       // Hero total: Disponible après impôt
       totalLine: FinancialLine(
-        label: 'Disponible après impôt',
+        label: l10n.financialSummaryDisponibleApresImpot,
         formattedValue: _formatChfMonth(breakdown.disposableIncome / 12),
         isHero: true,
       ),
-      footnote: 'Estimation simplifiée. L\'AANP et l\'IJM varient selon '
-          'l\'employeur et ne sont pas inclus. La LPP employé·e reflète '
-          'le minimum légal (50/50) \u2014 ta caisse peut appliquer un '
-          'autre split.',
+      footnote: l10n.financialSummaryFootnoteRevenus,
       onScanCertificate: () => context.push('/document-scan'),
-      scanLabel: 'Scanner ma fiche de salaire',
+      scanLabel: l10n.financialSummaryScanFicheSalaire,
       onEdit: () => _showEditSheet(
         context,
-        title: 'Modifier le revenu',
+        title: l10n.financialSummaryModifierRevenu,
         fields: [
           _EditField(
-            label: 'Salaire brut mensuel (CHF)',
+            label: l10n.financialSummaryEditSalaireBrut,
             initialValue: p.salaireBrutMensuel,
             key: 'salaireBrutMensuel',
           ),
@@ -1370,8 +1368,10 @@ class FinancialSummaryScreen extends StatelessWidget {
       totalDettes: det.totalDettes,
       patrimoineBrut: patrimoineBrut,
       patrimoineNet: patrimoineNet,
-      partUser: prevCapital + pat.epargneLiquide + pat.investissements,
-      partConjoint: conjointPrevCapital.toDouble(),
+      // Note: conjoint patrimoine (épargne/invest) not yet in ConjointProfile model.
+      // partUser includes all user assets; partConjoint only prévoyance for now.
+      partUser: prevCapital + pat.epargneLiquide + pat.investissements + pat.immobilierEffectif,
+      partConjoint: conjointPrevCapital,
       conjointIsEstimated: conjoint?.invitationLevel != 'linked',
     );
   }
@@ -1433,7 +1433,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       conjointAgeRetraite: conjoint?.effectiveRetirementAge,
       renteAvsUser: prev.renteAVSEstimeeMensuelle ?? 0,
       renteAvsConjoint: p.isCouple ? (cp?.renteAVSEstimeeMensuelle ?? 0) : null,
-      renteLppUser: (prev.avoirLppTotal ?? 0) * (prev.tauxConversion ?? 0.068) / 12,
+      renteLppUser: (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12,
       renteLppConjoint: p.isCouple
           ? (cp?.avoirLppTotal ?? 0) * (cp?.tauxConversion ?? 0.068) / 12
           : null,
@@ -1710,7 +1710,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     return WhatIfStoriesWidget(
       stories: [
-        WhatIfStory(
+        const WhatIfStory(
           emoji: '\u{1F3E6}',
           question: 'Et si tu maximisais ton 3a chaque annee ?',
           monthlyImpactChf: 7258 / 12 * 0.30,
@@ -1754,3 +1754,4 @@ class _EditField {
     required this.key,
   });
 }
+

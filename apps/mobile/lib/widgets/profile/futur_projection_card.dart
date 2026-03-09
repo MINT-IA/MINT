@@ -4,8 +4,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// "Futur" panel of the triptyque layout — retirement income projection.
 ///
@@ -50,8 +51,6 @@ class FuturProjectionCard extends StatelessWidget {
     this.onDetailTap,
   });
 
-  static final _chf = NumberFormat('#,##0', 'fr_CH');
-
   bool get _isCouple => conjointFirstName != null;
 
   /// SWR = Safe Withdrawal Rate: 4% annual / 12 = monthly drawdown.
@@ -94,10 +93,11 @@ class FuturProjectionCard extends StatelessWidget {
   double get _totalCapitalRetraite =>
       _total3aCapital + _totalCapitalLP + _totalInvestissements;
 
-  String _fmtChf(double v) => _chf.format(v.round());
+  String _fmtChf(double v) => formatChf(v);
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -108,16 +108,16 @@ class FuturProjectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(l),
           const Divider(height: 1, indent: 16, endIndent: 16),
-          _buildKpiRow(),
+          _buildKpiRow(l),
           const Divider(height: 1, indent: 16, endIndent: 16),
-          _buildIncomeSection(),
+          _buildIncomeSection(l),
           const Divider(height: 1, indent: 16, endIndent: 16),
-          _buildCapitalSection(),
-          if (confidenceScore < 70) _buildUncertaintyBand(),
-          _buildFootnote(),
-          if (onDetailTap != null) _buildDetailCta(),
+          _buildCapitalSection(l),
+          if (confidenceScore < 70) _buildUncertaintyBand(l),
+          _buildFootnote(l),
+          if (onDetailTap != null) _buildDetailCta(l),
           if (onDetailTap == null) const SizedBox(height: 8),
         ],
       ),
@@ -126,7 +126,7 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── Header ────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S l) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
@@ -135,7 +135,7 @@ class FuturProjectionCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Horizon Retraite',
+              l.futurHorizonTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -151,7 +151,7 @@ class FuturProjectionCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Couple',
+                l.futurCoupleLabel,
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -166,13 +166,13 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── KPI Row ────────────────
 
-  Widget _buildKpiRow() {
+  Widget _buildKpiRow(S l) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
           _kpiCard(
-            'Taux de remplacement',
+            l.futurTauxRemplacement,
             '${_tauxRemplacement.toStringAsFixed(0)}%',
             _tauxRemplacement >= 60
                 ? MintColors.success
@@ -182,13 +182,13 @@ class FuturProjectionCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           _kpiCard(
-            'Age retraite',
+            l.futurAgeRetraite,
             '$ageRetraite ans',
             MintColors.info,
           ),
           const SizedBox(width: 8),
           _kpiCard(
-            'Confiance',
+            l.futurConfiance,
             '${confidenceScore.toStringAsFixed(0)}%',
             confidenceScore >= 70
                 ? MintColors.success
@@ -238,54 +238,54 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── Income Section ────────────────
 
-  Widget _buildIncomeSection() {
+  Widget _buildIncomeSection(S l) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel('Revenu mensuel projeté à la retraite'),
+          _sectionLabel(l.futurRevenuMensuelProjection),
           const SizedBox(height: 8),
           _incomeLine(
-            'Rente AVS',
+            l.futurRenteAvs,
             _totalAvsMonthly,
             MintColors.retirementAvs,
-            detail: _isCouple
+            detail: _isCouple && renteAvsConjoint != null
                 ? '${_fmtChf(renteAvsUser)} + ${_fmtChf(renteAvsConjoint!)}'
                 : null,
           ),
           _incomeLine(
-            'Rente LPP estimée',
+            l.futurRenteLpp,
             _totalLppMonthly,
             MintColors.retirementLpp,
-            detail: _isCouple
+            detail: _isCouple && renteLppConjoint != null
                 ? '${_fmtChf(renteLppUser)} + ${_fmtChf(renteLppConjoint!)}'
                 : null,
           ),
           if (_total3aCapital > 0)
             _incomeLine(
-              'Pilier 3a (SWR 4%)',
+              l.futurPilier3aSwr,
               _swr3aMonthly,
               MintColors.retirement3a,
-              hint: 'Capital ${_fmtChf(_total3aCapital)}',
+              hint: l.futurCapitalLabel(_fmtChf(_total3aCapital)),
             ),
           if (_totalCapitalLP > 0)
             _incomeLine(
-              'Libre passage (SWR 4%)',
+              l.futurLibrePassageSwr,
               _swrLpMonthly,
               MintColors.retirementLibre,
-              hint: 'Capital ${_fmtChf(_totalCapitalLP)}',
+              hint: l.futurCapitalLabel(_fmtChf(_totalCapitalLP)),
             ),
           if (_totalInvestissements > 0)
             _incomeLine(
-              'Investissements (SWR 4%)',
+              l.futurInvestissementsSwr,
               _swrInvestMonthly,
               MintColors.amber,
-              hint: 'Capital ${_fmtChf(_totalInvestissements)}',
+              hint: l.futurCapitalLabel(_fmtChf(_totalInvestissements)),
             ),
           const SizedBox(height: 4),
           // Hero total line
-          _buildHeroTotal(),
+          _buildHeroTotal(l),
           const SizedBox(height: 8),
         ],
       ),
@@ -372,7 +372,7 @@ class FuturProjectionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroTotal() {
+  Widget _buildHeroTotal(S l) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -385,8 +385,8 @@ class FuturProjectionCard extends StatelessWidget {
           Expanded(
             child: Text(
               _isCouple
-                  ? 'Total couple projeté'
-                  : 'Total mensuel projeté',
+                  ? l.futurTotalCoupleProjecte
+                  : l.futurTotalMensuelProjecte,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -409,19 +409,19 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── Capital Section ────────────────
 
-  Widget _buildCapitalSection() {
+  Widget _buildCapitalSection(S l) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel('Capital à la retraite'),
+          _sectionLabel(l.futurCapitalRetraite),
           const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Capital total (3a + LP + investissements)',
+                  l.futurCapitalTotal,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -447,9 +447,7 @@ class FuturProjectionCard extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Le retrait en capital est taxé séparément '
-                  '(LIFD art. 38). L\'impôt dépend du canton et '
-                  'du montant retiré (barème progressif).',
+                  l.futurCapitalTaxHint,
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontStyle: FontStyle.italic,
@@ -467,7 +465,7 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── Uncertainty Band ────────────────
 
-  Widget _buildUncertaintyBand() {
+  Widget _buildUncertaintyBand(S l) {
     final uncertaintyPct = (100 - confidenceScore).clamp(10, 50);
     final low = _totalMonthlyProjected * (1 - uncertaintyPct / 100);
     final high = _totalMonthlyProjected * (1 + uncertaintyPct / 100);
@@ -491,7 +489,7 @@ class FuturProjectionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Marge d\'incertitude (\u00b1 ${uncertaintyPct.toStringAsFixed(0)}%)',
+                  l.futurMargeIncertitude(uncertaintyPct.toStringAsFixed(0)),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -500,7 +498,7 @@ class FuturProjectionCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Fourchette : CHF ${_fmtChf(low)} \u2013 ${_fmtChf(high)}/mois',
+                  l.futurFourchette(_fmtChf(low), _fmtChf(high)),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: MintColors.textSecondary,
@@ -508,7 +506,7 @@ class FuturProjectionCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Complete ton profil pour affiner la projection.',
+                  l.futurCompleterProfil,
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontStyle: FontStyle.italic,
@@ -525,13 +523,11 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── Footnote ────────────────
 
-  Widget _buildFootnote() {
+  Widget _buildFootnote(S l) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Text(
-        'Projection éducative \u2014 ne constitue pas un conseil (LSFin). '
-        'SWR = taux de retrait prudent (4%/an). '
-        'Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.',
+        l.futurDisclaimer,
         style: GoogleFonts.inter(
           fontSize: 10,
           color: MintColors.textMuted,
@@ -543,7 +539,7 @@ class FuturProjectionCard extends StatelessWidget {
 
   // ──────────────── Detail CTA ────────────────
 
-  Widget _buildDetailCta() {
+  Widget _buildDetailCta(S l) {
     return Column(
       children: [
         const Divider(height: 1, indent: 16, endIndent: 16),
@@ -562,7 +558,7 @@ class FuturProjectionCard extends StatelessWidget {
                     size: 16, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
-                  'Explorer les détails',
+                  l.futurExplorerDetails,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

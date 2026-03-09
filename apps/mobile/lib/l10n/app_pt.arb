@@ -3586,5 +3586,400 @@
   "naissanceBabyCostLamal": "Seguro de saúde infantil",
   "naissanceBabyCostLamalNote": "Prémio médio infantil — sem franquia até aos 18 anos",
   "naissanceBabyCostActivites": "Atividades e lazer",
-  "naissanceBabyCostDivers": "Diversos (brinquedos, higiene…)"
+  "naissanceBabyCostDivers": "Diversos (brinquedos, higiene…)",
+  "waterfallBrutMensuel": "Brut mensuel",
+  "waterfallAvsAc": "AVS / AC",
+  "waterfallLppEmploye": "LPP employé",
+  "waterfallNetFicheDePaie": "Net fiche de paie",
+  "waterfallImpots": "Impôts",
+  "waterfallDisponible": "Disponible",
+  "waterfallLoyer": "Loyer",
+  "waterfallLamal": "LAMal",
+  "waterfallLeasing": "Leasing",
+  "waterfallAutresFixes": "Autres fixes",
+  "waterfallResteAVivre": "Reste à vivre",
+  "waterfallPillar3a": "3a",
+  "waterfallInvestissement": "Investissement",
+  "waterfallMargeLibre": "Marge libre",
+  "waterfallTitle": "Cascade budgétaire",
+  "narrativeDefaultName": "Tu",
+  "narrativeCouplePositiveMargin": "Ensemble, vous avez une marge de {margin} CHF/mois.",
+  "@narrativeCouplePositiveMargin": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeCoupleTightBudget": "Ensemble, votre budget est serré de {margin} CHF/mois.",
+  "@narrativeCoupleTightBudget": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeCoupleHighPatrimoine": "Avec un patrimoine de {patrimoine} CHF, vous avez des leviers.",
+  "@narrativeCoupleHighPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeHighHealth": "{name}, tu es en bonne santé financière. Continue.",
+  "@narrativeHighHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeHighHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF te donne une belle marge de manœuvre.",
+  "@narrativeHighHealthPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeLowHealth": "{name}, concentre-toi sur l'essentiel. On va stabiliser ensemble.",
+  "@narrativeLowHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeLowHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF est un atout à protéger.",
+  "@narrativeLowHealthPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeMediumHealth": "{name}, tu as de bonnes bases. Quelques actions peuvent faire la différence.",
+  "@narrativeMediumHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeMediumHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF est un bon point de départ.",
+  "@narrativeMediumHealthPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeConfidenceLabel": "Confiance profil : {score}%",
+  "@narrativeConfidenceLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "patrimoineCoupleTitleCouple": "Patrimoine — {firstName} & {conjointName}",
+  "@patrimoineCoupleTitleCouple": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      },
+      "conjointName": {
+        "type": "String"
+      }
+    }
+  },
+  "patrimoineCoupleTitleSolo": "Patrimoine — {firstName}",
+  "@patrimoineCoupleTitleSolo": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "patrimoineLiquide": "LIQUIDE",
+  "patrimoineImmobilier": "IMMOBILIER",
+  "patrimoinePrevoyance": "PRÉVOYANCE",
+  "patrimoineEpargne": "Épargne",
+  "patrimoineInvest": "Invest.",
+  "patrimoineAucunBien": "Aucun bien",
+  "patrimoineValeur": "Valeur",
+  "patrimoineHypo": "−Hypo.",
+  "patrimoineNet": "Net",
+  "patrimoineLtvSaine": "LTV saine",
+  "patrimoineLtvAmortissement": "Amortissement recommandé",
+  "patrimoineLtvElevee": "LTV élevée — amortir",
+  "patrimoineLtvDisplay": "LTV {percent}%",
+  "@patrimoineLtvDisplay": { "placeholders": { "percent": { "type": "String" } } },
+  "patrimoineLpp": "LPP",
+  "patrimoine3a": "3a",
+  "patrimoineLibrePassage": "Libre pass.",
+  "patrimoineTotal": "Total",
+  "patrimoineBrut": "Patrimoine brut",
+  "patrimoineDettes": "−Dettes",
+  "patrimoineNetLabel": "Patrimoine net",
+  "patrimoineDont": "dont {name} ~CHF {amount}",
+  "@patrimoineDont": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointProfilsLies": "Profils liés",
+  "conjointProfilConjoint": "Profil conjoint·e",
+  "conjointDeclaredStatus": "{name} n'a pas de compte MINT. Ses données sont estimées (🟡).",
+  "@conjointDeclaredStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointInvitedStatus": "Invitation envoyée à {name}. En attente de réponse.",
+  "@conjointInvitedStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointLinkedStatus": "✅ Profils liés ! Les données de {name} sont synchronisées.",
+  "@conjointLinkedStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointInviteLabel": "Inviter {name} (5 questions, sans compte)",
+  "@conjointInviteLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointLierProfils": "Lier nos profils",
+  "conjointRenvoyerInvitation": "Renvoyer l'invitation",
+  "conjointRegimeLabel": "Régime matrimonial : ",
+  "conjointRegimeParticipation": "Participation aux acquêts",
+  "conjointRegimeSeparation": "Séparation de biens",
+  "conjointRegimeCommunaute": "Communauté de biens",
+  "conjointRegimeDefault": "(défaut CC art. 196)",
+  "conjointModifier": "modifier",
+  "futurHorizonTitle": "Horizon Retraite",
+  "futurCoupleLabel": "Couple",
+  "futurTauxRemplacement": "Taux de remplacement",
+  "futurAgeRetraite": "Age retraite",
+  "futurConfiance": "Confiance",
+  "futurRevenuMensuelProjection": "Revenu mensuel projeté à la retraite",
+  "futurRenteAvs": "Rente AVS",
+  "futurRenteLpp": "Rente LPP estimée",
+  "futurPilier3aSwr": "Pilier 3a (SWR 4%)",
+  "futurCapitalLabel": "Capital {amount}",
+  "@futurCapitalLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "futurLibrePassageSwr": "Libre passage (SWR 4%)",
+  "futurInvestissementsSwr": "Investissements (SWR 4%)",
+  "futurTotalCoupleProjecte": "Total couple projeté",
+  "futurTotalMensuelProjecte": "Total mensuel projeté",
+  "futurCapitalRetraite": "Capital à la retraite",
+  "futurCapitalTotal": "Capital total (3a + LP + investissements)",
+  "futurCapitalTaxHint": "Le retrait en capital est taxé séparément (LIFD art. 38). Le SWR n'est pas un revenu imposable.",
+  "futurMargeIncertitude": "Marge d'incertitude (± {pct}%)",
+  "@futurMargeIncertitude": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "futurFourchette": "Fourchette : CHF {low} – {high}/mois",
+  "@futurFourchette": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurExplorerDetails": "Explorer les détails",
+
+  "financialSummaryTitle": "RESUMO FINANCEIRO",
+  "financialSummaryNoProfile": "Nenhum perfil registado",
+  "financialSummaryStartDiagnostic": "Iniciar o diagnóstico",
+  "financialSummaryRestartDiagnostic": "Reiniciar o diagnóstico",
+  "financialSummaryNarrativeFiscalite": "A otimização fiscal é a tua primeira alavanca: 3a, resgate LPP, deduções.",
+  "financialSummaryNarrativePrevoyance": "A tua previdência determina o teu conforto na reforma. Cada ano conta.",
+  "financialSummaryNarrativeAvs": "O AVS é a base da tua reforma. Verifica as tuas lacunas de contribuição.",
+  "financialSummaryLegendSaisi": "Inserido",
+  "financialSummaryLegendEstime": "Estimado",
+  "financialSummaryLegendCertifie": "Certificado",
+  "financialSummarySalaireBrutMensuel": "Salário bruto mensal",
+  "financialSummary13emeSalaire": "13.º salário",
+  "financialSummaryNemeMois": "{n}.º mês",
+  "@financialSummaryNemeMois": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryBonusEstime": "Bónus estimado ({pct}%)",
+  "@financialSummaryBonusEstime": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryConjointBrutMensuel": "{name} — bruto mensal",
+  "@financialSummaryConjointBrutMensuel": { "placeholders": { "name": { "type": "String" } } },
+  "financialSummaryDefaultConjoint": "Cônjuge",
+  "financialSummaryRevenuBrutAnnuel": "Rendimento bruto anual",
+  "financialSummaryRevenuBrutAnnuelCouple": "Rendimento bruto anual (casal)",
+  "financialSummarySoitLisseSur12Mois": "distribuído em 12 meses",
+  "financialSummaryDeductionsSalariales": "Deduções salariais",
+  "financialSummaryChargesSociales": "Encargos sociais (AVS/AI/AC)",
+  "financialSummaryCotisationLpp": "Contribuição LPP empregado·a",
+  "financialSummaryNetFicheDePaie": "Líquido recibo de vencimento",
+  "financialSummaryNetFicheDePaieHint": "O que chega à tua conta todos os meses",
+  "financialSummaryFiscalite": "Fiscalidade",
+  "financialSummaryImpotEstime": "Imposto estimado (ICC + IFD)",
+  "financialSummaryTauxMarginalEstime": "Taxa marginal estimada",
+  "financialSummary13emeEtBonusHint": "{label}: ~{montant} líquido/ano (não incluído no mensal)",
+  "@financialSummary13emeEtBonusHint": { "placeholders": { "label": { "type": "String" }, "montant": { "type": "String" } } },
+  "financialSummaryRevenusEtFiscalite": "Rendimentos e Fiscalidade",
+  "financialSummaryDisponibleApresImpot": "Disponível após impostos",
+  "financialSummaryFootnoteRevenus": "Estimativa simplificada. A AANP e a IJM variam consoante o empregador e não estão incluídas. A LPP empregado reflete o mínimo legal (50/50) — a tua caixa pode aplicar outra repartição.",
+  "financialSummaryScanFicheSalaire": "Digitalizar o meu recibo",
+  "financialSummaryModifierRevenu": "Modificar rendimento",
+  "financialSummaryEditSalaireBrut": "Salário bruto mensal (CHF)",
+  "financialSummaryAvs1erPilier": "AVS (1.º pilar)",
+  "financialSummaryAnneesCotisees": "Anos de contribuição",
+  "financialSummaryAnneesUnit": "{n} anos",
+  "@financialSummaryAnneesUnit": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryLacunes": "Lacunas",
+  "financialSummaryRenteEstimee": "Renda estimada",
+  "financialSummaryLpp2ePilier": "LPP (2.º pilar)",
+  "financialSummaryAvoirTotal": "Ativos totais",
+  "financialSummaryObligatoire": "Obrigatório",
+  "financialSummarySurobligatoire": "Supra-obrigatório",
+  "financialSummaryTauxConversion": "Taxa de conversão",
+  "financialSummaryRachatPossible": "Resgate possível",
+  "financialSummaryRachatPlanifie": "Resgate planeado",
+  "financialSummaryCaisse": "Caixa",
+  "financialSummary3a3ePilier": "3a (3.º pilar)",
+  "financialSummaryNComptes": "{n} conta(s)",
+  "@financialSummaryNComptes": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryLibrePassage": "Livre passagem",
+  "financialSummaryCompteN": "Conta {n}",
+  "@financialSummaryCompteN": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryConjointLpp": "{name} — LPP",
+  "@financialSummaryConjointLpp": { "placeholders": { "name": { "type": "String" } } },
+  "financialSummaryConjoint3a": "{name} — 3a",
+  "@financialSummaryConjoint3a": { "placeholders": { "name": { "type": "String" } } },
+  "financialSummaryFatcaWarning": "\u26a0\ufe0f FATCA — Apenas uma minoria de fornecedores aceita (ex. Raiffeisen)",
+  "financialSummaryPrevoyanceTitle": "Previdência",
+  "financialSummaryScanCertificatLpp": "Digitalizar certificado LPP / AVS",
+  "financialSummaryModifierPrevoyance": "Modificar previdência",
+  "financialSummaryEditAvoirLpp": "Ativos LPP totais (CHF)",
+  "financialSummaryEditNombre3a": "Número de contas 3a",
+  "financialSummaryEditTotal3a": "Poupança total 3a (CHF)",
+  "financialSummaryEditRachatLpp": "Resgate LPP mensal previsto (CHF/mês)",
+  "financialSummaryLiquidites": "Liquidez",
+  "financialSummaryEpargneLiquide": "Poupança líquida",
+  "financialSummaryInvestissements": "Investimentos",
+  "financialSummaryImmobilier": "Imobiliário",
+  "financialSummaryValeurEstimee": "Valor estimado",
+  "financialSummaryHypothequeRestante": "Hipoteca restante",
+  "financialSummaryValeurNetteImmobiliere": "Valor líquido imobiliário",
+  "financialSummaryLtvAmortissement": "Rácio LTV: {pct}% — amortização 2.º grau obrigatória",
+  "@financialSummaryLtvAmortissement": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryLtvBonneVoie": "Rácio LTV: {pct}% — bom caminho",
+  "@financialSummaryLtvBonneVoie": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryLtvExcellent": "Rácio LTV: {pct}% — excelente",
+  "@financialSummaryLtvExcellent": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryPrevoyanceCapital": "Previdência (capital)",
+  "financialSummaryAvoirLppTotal": "Ativos LPP totais",
+  "financialSummaryCapital3a": "Capital 3a ({n} conta{s})",
+  "@financialSummaryCapital3a": { "placeholders": { "n": { "type": "String" }, "s": { "type": "String" } } },
+  "financialSummaryPatrimoineBrut": "Património bruto",
+  "financialSummaryDettesTotales": "Dívidas totais",
+  "financialSummaryPatrimoine": "Património",
+  "financialSummaryPatrimoineTotalBloque": "Património total (incl. previdência bloqueada)",
+  "financialSummaryModifierPatrimoine": "Modificar património",
+  "financialSummaryEditEpargneLiquide": "Poupança líquida (CHF)",
+  "financialSummaryEditInvestissements": "Investimentos (CHF)",
+  "financialSummaryEditValeurImmobiliere": "Valor imobiliário (CHF)",
+  "financialSummaryLoyerCharges": "Renda / encargos",
+  "financialSummaryAssuranceMaladie": "Seguro de saúde",
+  "financialSummaryElectriciteEnergie": "Eletricidade / energia",
+  "financialSummaryTransport": "Transporte",
+  "financialSummaryTelecom": "Telecomunicações",
+  "financialSummaryFraisMedicaux": "Despesas médicas",
+  "financialSummaryAutresFraisFixes": "Outras despesas fixas",
+  "financialSummaryAucuneDepense": "Nenhuma despesa registada",
+  "financialSummaryDepensesFixes": "Despesas fixas",
+  "financialSummaryTotalMensuel": "Total mensal",
+  "financialSummaryModifierDepenses": "Modificar despesas",
+  "financialSummaryEditLoyerCharges": "Renda / encargos (CHF/mês)",
+  "financialSummaryEditAssuranceMaladie": "Seguro de saúde (CHF/mês)",
+  "financialSummaryEditElectricite": "Eletricidade / energia (CHF/mês)",
+  "financialSummaryEditTransport": "Transporte (CHF/mês)",
+  "financialSummaryEditTelecom": "Telecomunicações (CHF/mês)",
+  "financialSummaryEditFraisMedicaux": "Despesas médicas (CHF/mês)",
+  "financialSummaryEditAutresFraisFixes": "Outras despesas fixas (CHF/mês)",
+  "financialSummaryModifierDettes": "Modificar dívidas",
+  "financialSummaryEditHypotheque": "Hipoteca (CHF)",
+  "financialSummaryEditCreditConsommation": "Crédito ao consumo (CHF)",
+  "financialSummaryEditLeasing": "Leasing (CHF)",
+  "financialSummaryEditAutresDettes": "Outras dívidas (CHF)",
+  "financialSummaryDettes": "Dívidas",
+  "financialSummaryAucuneDetteDeclaree": "Nenhuma dívida declarada — ",
+  "financialSummaryDetteStructurelle": "Dívida estrutural",
+  "financialSummaryHypotheque1erRang": "Hipoteca 1.º grau",
+  "financialSummaryHypotheque2emeRang": "Hipoteca 2.º grau",
+  "financialSummaryHypotheque": "Hipoteca",
+  "financialSummaryChargeMensuelle": "Encargo mensal",
+  "financialSummaryEcheance": "Vencimento: {date} (~{years} anos)",
+  "@financialSummaryEcheance": { "placeholders": { "date": { "type": "String" }, "years": { "type": "String" } } },
+  "financialSummaryInteretsDeductibles": "Juros dedutíveis (LIFD art. 33): {montant}/ano",
+  "@financialSummaryInteretsDeductibles": { "placeholders": { "montant": { "type": "String" } } },
+  "financialSummaryDetteConsommation": "Dívida de consumo",
+  "financialSummaryCreditConsommation": "Crédito ao consumo",
+  "financialSummaryMensualite": "Mensalidade",
+  "financialSummaryLeasing": "Leasing",
+  "financialSummaryAutresDettes": "Outras dívidas",
+  "financialSummaryConseilRemboursement": "Paga primeiro a dívida a {taux}% antes de investir. Cada CHF reembolsado = {taux}% de rendimento efetivo.",
+  "@financialSummaryConseilRemboursement": { "placeholders": { "taux": { "type": "String" } } },
+  "financialSummaryTotalDettes": "Dívidas totais",
+  "financialSummaryScannerDocument": "Digitalizar um documento",
+  "financialSummaryCascadeBudgetaire": "Cascata orçamental",
+  "financialSummaryToi": "Tu",
+  "financialSummaryConjointeDefault": "Cônjuge",
+  "financialSummaryDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro (LSFin, LAVS, LPP, LIFD). Os valores estimados (~) são calculados a partir de médias suíças. Digitaliza os teus certificados para melhorar a precisão.",
+  "financialSummaryEnregistrer": "Guardar",
+  "financialSummaryCheckSalaireBrut": "Salário bruto",
+  "financialSummaryCheckCanton": "Cantão",
+  "financialSummaryCheckAvoirLpp": "Ativos LPP",
+  "financialSummaryCheckEpargne3a": "Poupança 3a",
+  "financialSummaryCheckEpargneLiquide": "Poupança líquida",
+  "financialSummaryCheckLoyerHypotheque": "Renda / hipoteca",
+  "financialSummaryCheckAssuranceMaladie": "Seguro de saúde",
+  "financialSummaryWhatIf3aQuestion": "E se maximizasses o teu 3a todos os anos?",
+  "financialSummaryWhatIf3aExplanation": "Na tua taxa marginal, cada franco depositado em 3a poupa-te ~30% de impostos.",
+  "financialSummaryWhatIf3aAction": "Simular",
+  "financialSummaryWhatIfLppQuestion": "E se a tua caixa LPP passasse de 1% a 3%?",
+  "financialSummaryWhatIfLppExplanation": "Um melhor rendimento LPP aumenta o teu capital de reforma sem esforço.",
+  "financialSummaryWhatIfLppAction": "Comparar",
+  "financialSummaryWhatIfAchatQuestion": "E se comprasses em vez de arrendar?",
+  "financialSummaryWhatIfAchatExplanation": "A amortização indireta pelo 2.º pilar pode reduzir impostos e construir património.",
+  "financialSummaryWhatIfAchatAction": "Explorar"
 }
