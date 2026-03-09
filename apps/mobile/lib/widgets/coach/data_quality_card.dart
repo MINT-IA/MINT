@@ -31,12 +31,22 @@ class DataQualityCard extends StatelessWidget {
   /// Texte d'impact potentiel (ex. "+15% pr\u00e9cision"). Optionnel.
   final String? enrichImpact;
 
+  /// S46: 3-axis scores (0-100). When provided, displays axis breakdown.
+  final double? completenessScore;
+  final double? accuracyScore;
+  final double? freshnessScore;
+  final double? combinedScore;
+
   const DataQualityCard({
     super.key,
     required this.knownFields,
     required this.missingFields,
     this.onEnrich,
     this.enrichImpact,
+    this.completenessScore,
+    this.accuracyScore,
+    this.freshnessScore,
+    this.combinedScore,
   });
 
   @override
@@ -59,6 +69,10 @@ class DataQualityCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(),
+          if (completenessScore != null) ...[
+            const SizedBox(height: 14),
+            _buildAxisBreakdown(),
+          ],
           if (knownFields.isNotEmpty) ...[
             const SizedBox(height: 14),
             _buildSection(
@@ -155,6 +169,104 @@ class DataQualityCard extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  3-AXIS BREAKDOWN (S46)
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildAxisBreakdown() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          _buildAxisBar('Compl\u00e9tude', completenessScore!, MintColors.primary),
+          const SizedBox(height: 8),
+          _buildAxisBar('Exactitude', accuracyScore ?? 25, MintColors.scoreExcellent),
+          const SizedBox(height: 8),
+          _buildAxisBar('Fra\u00eecheur', freshnessScore ?? 50, MintColors.info),
+          if (combinedScore != null) ...[
+            const SizedBox(height: 10),
+            const Divider(height: 1, color: MintColors.lightBorder),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Score combin\u00e9',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  '${combinedScore!.round()} %',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: _scoreColor(combinedScore!),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAxisBar(String label, double value, Color color) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 85,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: (value / 100).clamp(0, 1),
+              minHeight: 8,
+              backgroundColor: color.withValues(alpha: 0.12),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 36,
+          child: Text(
+            '${value.round()}%',
+            textAlign: TextAlign.right,
+            style: GoogleFonts.montserrat(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: _scoreColor(value),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _scoreColor(double value) {
+    if (value >= 70) return MintColors.scoreExcellent;
+    if (value >= 40) return MintColors.scoreAttention;
+    return MintColors.error;
   }
 
   // ────────────────────────────────────────────────────────────

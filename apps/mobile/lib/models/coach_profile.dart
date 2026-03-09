@@ -1041,6 +1041,11 @@ class CoachProfile {
   /// Ex: {'prevoyance.avoirLppTotal': ProfileDataSource.certificate}
   final Map<String, ProfileDataSource> dataSources;
 
+  /// Per-field update timestamps for freshness scoring (S46).
+  /// Key = same field path as dataSources, value = when the value was last set.
+  /// Fields absent from this map default to profile.createdAt for decay calc.
+  final Map<String, DateTime> dataTimestamps;
+
   // === CALIBRAGE ===
   /// Niveau de culture financiere, derive des 3 questions de calibrage
   /// en fin d'onboarding. Backward-compatible : absent → beginner.
@@ -1077,6 +1082,7 @@ class CoachProfile {
     this.targetRetirementAge,
     this.initialProjectionSnapshot,
     Map<String, ProfileDataSource> dataSources = const {},
+    this.dataTimestamps = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
     this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
@@ -1334,6 +1340,7 @@ class CoachProfile {
     int? targetRetirementAge,
     Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
+    Map<String, DateTime>? dataTimestamps,
     DateTime? createdAt,
     DateTime? updatedAt,
     FinancialLiteracyLevel? financialLiteracyLevel,
@@ -1370,6 +1377,7 @@ class CoachProfile {
       initialProjectionSnapshot:
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
       dataSources: dataSources ?? this.dataSources,
+      dataTimestamps: dataTimestamps ?? this.dataTimestamps,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       financialLiteracyLevel:
@@ -1557,6 +1565,10 @@ class CoachProfile {
             ),
           ) ??
           const {},
+      dataTimestamps: (json['dataTimestamps'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, DateTime.parse(v as String)),
+          ) ??
+          const {},
       createdAt:
           json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt:
@@ -1600,6 +1612,8 @@ class CoachProfile {
         'targetRetirementAge': targetRetirementAge,
         'initialProjectionSnapshot': initialProjectionSnapshot,
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
+        'dataTimestamps': dataTimestamps.map(
+            (k, v) => MapEntry(k, v.toIso8601String())),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'financialLiteracyLevel': financialLiteracyLevel.name,

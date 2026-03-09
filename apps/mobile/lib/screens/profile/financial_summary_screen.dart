@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -9,6 +10,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
 import 'package:mint_mobile/widgets/profile/budget_waterfall_painter.dart';
@@ -31,26 +33,6 @@ import 'package:mint_mobile/widgets/coach/what_if_stories_widget.dart';
 /// Each section has an edit icon that opens an inline edit dialog.
 class FinancialSummaryScreen extends StatelessWidget {
   const FinancialSummaryScreen({super.key});
-
-  static final _chf = NumberFormat('#,##0', 'fr_CH');
-  static final _pct = NumberFormat('0.0', 'fr_CH');
-
-  String _formatChf(double? value) {
-    if (value == null) return '\u2014';
-    if (value == 0) return '0 CHF';
-    return "${_chf.format(value)} CHF";
-  }
-
-  String _formatChfMonth(double? value) {
-    if (value == null) return '\u2014';
-    if (value == 0) return '0 CHF/mois';
-    return "${_chf.format(value)} CHF/mois";
-  }
-
-  String _formatPct(double? value) {
-    if (value == null) return '\u2014';
-    return '${_pct.format(value * 100)}%';
-  }
 
   ProfileDataSource _source(CoachProfile p, String field) {
     return p.dataSources[field] ?? ProfileDataSource.estimated;
@@ -402,7 +384,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     // ── Revenus bruts ──
     lines.add(FinancialLine(
       label: l10n.financialSummarySalaireBrutMensuel,
-      formattedValue: _formatChfMonth(p.salaireBrutMensuel),
+      formattedValue: formatChfMonthly(p.salaireBrutMensuel),
       source: _source(p, 'salaireBrutMensuel'),
     ));
 
@@ -413,7 +395,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         label: p.nombreDeMois == 13
             ? l10n.financialSummary13emeSalaire
             : l10n.financialSummaryNemeMois('${p.nombreDeMois}'),
-        formattedValue: '+ ${_formatChf(treizieme)}',
+        formattedValue: '+ ${formatChfOrDash(treizieme)}',
       ));
     }
 
@@ -422,8 +404,8 @@ class FinancialSummaryScreen extends StatelessWidget {
       final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
       final bonus = base * p.bonusPourcentage! / 100;
       lines.add(FinancialLine(
-        label: l10n.financialSummaryBonusEstime(_pct.format(p.bonusPourcentage)),
-        formattedValue: '+ ${_formatChf(bonus)}',
+        label: l10n.financialSummaryBonusEstime(p.bonusPourcentage!.toStringAsFixed(1)),
+        formattedValue: '+ ${formatChfOrDash(bonus)}',
       ));
     }
 
@@ -432,7 +414,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines.add(FinancialLine(
         label: l10n.financialSummaryConjointBrutMensuel(
             p.conjoint?.firstName ?? l10n.financialSummaryDefaultConjoint),
-        formattedValue: _formatChfMonth(p.conjoint!.salaireBrutMensuel),
+        formattedValue: formatChfMonthly(p.conjoint!.salaireBrutMensuel),
         source: _source(p, 'conjoint.salaireBrutMensuel'),
       ));
     }
@@ -440,7 +422,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     // Subtotal: Revenu brut annuel
     lines.add(FinancialLine(
       label: p.isCouple ? l10n.financialSummaryRevenuBrutAnnuelCouple : l10n.financialSummaryRevenuBrutAnnuel,
-      formattedValue: _formatChf(
+      formattedValue: formatChfOrDash(
           p.isCouple ? p.revenuBrutAnnuelCouple : gross),
       isSubtotal: true,
     ));
@@ -449,7 +431,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     if (p.nombreDeMois > 12 || (p.bonusPourcentage ?? 0) > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummarySoitLisseSur12Mois,
-        formattedValue: _formatChfMonth(gross / 12),
+        formattedValue: formatChfMonthly(gross / 12),
       ));
     }
 
@@ -461,20 +443,20 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     lines.add(FinancialLine(
       label: l10n.financialSummaryChargesSociales,
-      formattedValue: '\u2212 ${_formatChfMonth(breakdown.socialCharges / 12)}',
+      formattedValue: '\u2212 ${formatChfMonthly(breakdown.socialCharges / 12)}',
       isDeduction: true,
     ));
 
     lines.add(FinancialLine(
       label: l10n.financialSummaryCotisationLpp,
-      formattedValue: '\u2212 ${_formatChfMonth(breakdown.lppEmployee / 12)}',
+      formattedValue: '\u2212 ${formatChfMonthly(breakdown.lppEmployee / 12)}',
       isDeduction: true,
     ));
 
     // Subtotal: Net fiche de paie
     lines.add(FinancialLine(
       label: l10n.financialSummaryNetFicheDePaie,
-      formattedValue: _formatChfMonth(breakdown.monthlyNetPayslip),
+      formattedValue: formatChfMonthly(breakdown.monthlyNetPayslip),
       isSubtotal: true,
     ));
 
@@ -492,7 +474,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     lines.add(FinancialLine(
       label: l10n.financialSummaryImpotEstime,
-      formattedValue: '\u2212 ${_formatChfMonth(breakdown.incomeTaxEstimate / 12)}',
+      formattedValue: '\u2212 ${formatChfMonthly(breakdown.incomeTaxEstimate / 12)}',
       isDeduction: true,
     ));
 
@@ -503,7 +485,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     );
     lines.add(FinancialLine(
       label: l10n.financialSummaryTauxMarginalEstime,
-      formattedValue: '${_pct.format(marginalRate * 100)}%',
+      formattedValue: '${(marginalRate * 100).toStringAsFixed(1)}%',
     ));
 
     // 13ème / bonus info
@@ -519,7 +501,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       final extraNet = extraAnnuel * breakdown.disposableRatio;
       final hintLabel = '${p.nombreDeMois > 12 ? "13\u00e8me" : ""}${p.nombreDeMois > 12 && bonus > 0 ? " + " : ""}${bonus > 0 ? "bonus" : ""}';
       lines.add(FinancialLine(
-        label: l10n.financialSummary13emeEtBonusHint(hintLabel, _formatChf(extraNet)),
+        label: l10n.financialSummary13emeEtBonusHint(hintLabel, formatChfOrDash(extraNet)),
         isHint: true,
       ));
     }
@@ -532,7 +514,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       // Hero total: Disponible après impôt
       totalLine: FinancialLine(
         label: l10n.financialSummaryDisponibleApresImpot,
-        formattedValue: _formatChfMonth(breakdown.disposableIncome / 12),
+        formattedValue: formatChfMonthly(breakdown.disposableIncome / 12),
         isHero: true,
       ),
       footnote: l10n.financialSummaryFootnoteRevenus,
@@ -585,7 +567,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     lines.add(FinancialLine(
       label: l10n.financialSummaryRenteEstimee,
       formattedValue: prev.renteAVSEstimeeMensuelle != null
-          ? _formatChfMonth(prev.renteAVSEstimeeMensuelle)
+          ? formatChfMonthly(prev.renteAVSEstimeeMensuelle)
           : '\u2014',
       source: _source(p, 'prevoyance.renteAVSEstimeeMensuelle'),
       indent: true,
@@ -599,41 +581,41 @@ class FinancialSummaryScreen extends StatelessWidget {
     ));
     lines.add(FinancialLine(
       label: l10n.financialSummaryAvoirTotal,
-      formattedValue: _formatChf(prev.avoirLppTotal),
+      formattedValue: formatChfOrDash(prev.avoirLppTotal),
       source: _source(p, 'prevoyance.avoirLppTotal'),
       indent: true,
     ));
     if (prev.avoirLppObligatoire != null) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryObligatoire,
-        formattedValue: _formatChf(prev.avoirLppObligatoire),
+        formattedValue: formatChfOrDash(prev.avoirLppObligatoire),
         indent: true,
       ));
     }
     if (prev.avoirLppSurobligatoire != null) {
       lines.add(FinancialLine(
         label: l10n.financialSummarySurobligatoire,
-        formattedValue: _formatChf(prev.avoirLppSurobligatoire),
+        formattedValue: formatChfOrDash(prev.avoirLppSurobligatoire),
         indent: true,
       ));
     }
     lines.add(FinancialLine(
       label: l10n.financialSummaryTauxConversion,
-      formattedValue: _formatPct(prev.tauxConversion),
+      formattedValue: formatPctOrDash(prev.tauxConversion),
       source: _source(p, 'prevoyance.tauxConversion'),
       indent: true,
     ));
     if (prev.lacuneRachatRestante > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryRachatPossible,
-        formattedValue: _formatChf(prev.lacuneRachatRestante),
+        formattedValue: formatChfOrDash(prev.lacuneRachatRestante),
         indent: true,
       ));
     }
     if (p.totalLppBuybackMensuel > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryRachatPlanifie,
-        formattedValue: _formatChfMonth(p.totalLppBuybackMensuel),
+        formattedValue: formatChfMonthly(p.totalLppBuybackMensuel),
         source: ProfileDataSource.userInput,
         indent: true,
       ));
@@ -657,7 +639,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         final c = prev.comptes3a[i];
         lines.add(FinancialLine(
           label: c.provider,
-          formattedValue: _formatChf(c.solde),
+          formattedValue: formatChfOrDash(c.solde),
           indent: true,
           isLast: i == prev.comptes3a.length - 1 && prev.librePassage.isEmpty,
         ));
@@ -665,7 +647,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     } else {
       lines.add(FinancialLine(
         label: l10n.financialSummaryNComptes('${prev.nombre3a}'),
-        formattedValue: _formatChf(prev.totalEpargne3a),
+        formattedValue: formatChfOrDash(prev.totalEpargne3a),
         source: _source(p, 'prevoyance.totalEpargne3a'),
         indent: true,
         isLast: prev.librePassage.isEmpty,
@@ -682,7 +664,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         final lp = prev.librePassage[i];
         lines.add(FinancialLine(
           label: lp.institution ?? l10n.financialSummaryCompteN('${i + 1}'),
-          formattedValue: _formatChf(lp.solde),
+          formattedValue: formatChfOrDash(lp.solde),
           indent: true,
           isLast: i == prev.librePassage.length - 1,
         ));
@@ -695,13 +677,13 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines.add(FinancialLine(
         label: l10n.financialSummaryConjointLpp(
             p.conjoint?.firstName ?? l10n.financialSummaryDefaultConjoint),
-        formattedValue: _formatChf(cp.avoirLppTotal),
+        formattedValue: formatChfOrDash(cp.avoirLppTotal),
       ));
       if (cp.totalEpargne3a > 0) {
         lines.add(FinancialLine(
           label: l10n.financialSummaryConjoint3a(
               p.conjoint?.firstName ?? l10n.financialSummaryDefaultConjoint),
-          formattedValue: _formatChf(cp.totalEpargne3a),
+          formattedValue: formatChfOrDash(cp.totalEpargne3a),
         ));
       }
       // FATCA warning: US citizens can use Raiffeisen but not VIAC/Finpension
@@ -770,12 +752,12 @@ class FinancialSummaryScreen extends StatelessWidget {
     ));
     lines.add(FinancialLine(
       label: l10n.financialSummaryEpargneLiquide,
-      formattedValue: _formatChf(pat.epargneLiquide),
+      formattedValue: formatChfOrDash(pat.epargneLiquide),
       source: _source(p, 'patrimoine.epargneLiquide'),
     ));
     lines.add(FinancialLine(
       label: l10n.financialSummaryInvestissements,
-      formattedValue: _formatChf(pat.investissements),
+      formattedValue: formatChfOrDash(pat.investissements),
       source: _source(p, 'patrimoine.investissements'),
     ));
 
@@ -794,23 +776,23 @@ class FinancialSummaryScreen extends StatelessWidget {
       }
       lines.add(FinancialLine(
         label: l10n.financialSummaryValeurEstimee,
-        formattedValue: _formatChf(pat.immobilierEffectif),
+        formattedValue: formatChfOrDash(pat.immobilierEffectif),
         source: _source(p, 'patrimoine.propertyMarketValue'),
       ));
       if ((pat.mortgageBalance ?? 0) > 0) {
         lines.add(FinancialLine(
           label: l10n.financialSummaryHypothequeRestante,
-          formattedValue: '\u2212 ${_formatChf(pat.mortgageBalance)}',
+          formattedValue: '\u2212 ${formatChfOrDash(pat.mortgageBalance)}',
           isDeduction: true,
         ));
         lines.add(FinancialLine(
           label: l10n.financialSummaryValeurNetteImmobiliere,
-          formattedValue: _formatChf(pat.immobilierNet),
+          formattedValue: formatChfOrDash(pat.immobilierNet),
           isSubtotal: true,
         ));
         // LTV ratio avec conseil FINMA
         final ltv = pat.loanToValue;
-        final ltvPct = _pct.format(ltv * 100);
+        final ltvPct = (ltv * 100).toStringAsFixed(1);
         lines.add(FinancialLine(
           label: ltv > 0.67
               ? l10n.financialSummaryLtvAmortissement(ltvPct)
@@ -831,21 +813,21 @@ class FinancialSummaryScreen extends StatelessWidget {
     if ((prev.avoirLppTotal ?? 0) > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryAvoirLppTotal,
-        formattedValue: _formatChf(prev.avoirLppTotal),
+        formattedValue: formatChfOrDash(prev.avoirLppTotal),
         source: _source(p, 'prevoyance.avoirLppTotal'),
       ));
     }
     if (prev.totalEpargne3a > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryCapital3a('${prev.nombre3a}', prev.nombre3a > 1 ? 's' : ''),
-        formattedValue: _formatChf(prev.totalEpargne3a),
+        formattedValue: formatChfOrDash(prev.totalEpargne3a),
         source: _source(p, 'prevoyance.totalEpargne3a'),
       ));
     }
     if (prev.totalLibrePassage > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryLibrePassage,
-        formattedValue: _formatChf(prev.totalLibrePassage),
+        formattedValue: formatChfOrDash(prev.totalLibrePassage),
         source: _source(p, 'prevoyance.librePassage'),
       ));
     }
@@ -862,13 +844,13 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     lines.add(FinancialLine(
       label: l10n.financialSummaryPatrimoineBrut,
-      formattedValue: _formatChf(patrimoineBrut),
+      formattedValue: formatChfOrDash(patrimoineBrut),
       isSubtotal: true,
     ));
     if (det.totalDettes > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryDettesTotales,
-        formattedValue: '\u2212 ${_formatChf(det.totalDettes)}',
+        formattedValue: '\u2212 ${formatChfOrDash(det.totalDettes)}',
         isDeduction: true,
       ));
     }
@@ -880,7 +862,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines: lines,
       totalLine: FinancialLine(
         label: l10n.financialSummaryPatrimoineTotalBloque,
-        formattedValue: _formatChf(patrimoineNet),
+        formattedValue: formatChfOrDash(patrimoineNet),
         isHero: true,
       ),
       onEdit: () => _showEditSheet(
@@ -922,49 +904,49 @@ class FinancialSummaryScreen extends StatelessWidget {
     if (dep.loyer > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryLoyerCharges,
-        formattedValue: _formatChfMonth(dep.loyer),
+        formattedValue: formatChfMonthly(dep.loyer),
         source: _source(p, 'depenses.loyer'),
       ));
     }
     if (dep.assuranceMaladie > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryAssuranceMaladie,
-        formattedValue: _formatChfMonth(dep.assuranceMaladie),
+        formattedValue: formatChfMonthly(dep.assuranceMaladie),
         source: _source(p, 'depenses.assuranceMaladie'),
       ));
     }
     if (dep.electricite != null && dep.electricite! > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryElectriciteEnergie,
-        formattedValue: _formatChfMonth(dep.electricite),
+        formattedValue: formatChfMonthly(dep.electricite),
         source: _source(p, 'depenses.electricite'),
       ));
     }
     if (dep.transport != null && dep.transport! > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryTransport,
-        formattedValue: _formatChfMonth(dep.transport),
+        formattedValue: formatChfMonthly(dep.transport),
         source: _source(p, 'depenses.transport'),
       ));
     }
     if (dep.telecom != null && dep.telecom! > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryTelecom,
-        formattedValue: _formatChfMonth(dep.telecom),
+        formattedValue: formatChfMonthly(dep.telecom),
         source: _source(p, 'depenses.telecom'),
       ));
     }
     if (dep.fraisMedicaux != null && dep.fraisMedicaux! > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryFraisMedicaux,
-        formattedValue: _formatChfMonth(dep.fraisMedicaux),
+        formattedValue: formatChfMonthly(dep.fraisMedicaux),
         source: _source(p, 'depenses.fraisMedicaux'),
       ));
     }
     if (dep.autresDepensesFixes != null && dep.autresDepensesFixes! > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryAutresFraisFixes,
-        formattedValue: _formatChfMonth(dep.autresDepensesFixes),
+        formattedValue: formatChfMonthly(dep.autresDepensesFixes),
         source: _source(p, 'depenses.autresDepensesFixes'),
       ));
     }
@@ -984,7 +966,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       totalLine: dep.totalMensuel > 0
           ? FinancialLine(
               label: l10n.financialSummaryTotalMensuel,
-              formattedValue: _formatChfMonth(dep.totalMensuel),
+              formattedValue: formatChfMonthly(dep.totalMensuel),
             )
           : null,
       onEdit: () => _showEditSheet(
@@ -1095,17 +1077,17 @@ class FinancialSummaryScreen extends StatelessWidget {
               : l10n.financialSummaryHypotheque2emeRang)
           : l10n.financialSummaryHypotheque;
       final hypoDetail = det.tauxHypotheque != null
-          ? ' (${_pct.format(det.tauxHypotheque)}%)'
+          ? ' (${det.tauxHypotheque!.toStringAsFixed(1)}%)'
           : '';
       lines.add(FinancialLine(
         label: '$hypoLabel$hypoDetail',
-        formattedValue: _formatChf(det.hypotheque),
+        formattedValue: formatChfOrDash(det.hypotheque),
         source: _source(p, 'dettes.hypotheque'),
       ));
       if (det.mensualiteHypotheque != null) {
         lines.add(FinancialLine(
           label: l10n.financialSummaryChargeMensuelle,
-          formattedValue: _formatChfMonth(det.mensualiteHypotheque),
+          formattedValue: formatChfMonthly(det.mensualiteHypotheque),
           indent: true,
         ));
       }
@@ -1126,7 +1108,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       if (det.tauxHypotheque != null) {
         final interets = det.interetsHypothecairesAnnuels;
         lines.add(FinancialLine(
-          label: l10n.financialSummaryInteretsDeductibles(_formatChf(interets)),
+          label: l10n.financialSummaryInteretsDeductibles(formatChfOrDash(interets)),
           isHint: true,
         ));
       }
@@ -1141,17 +1123,17 @@ class FinancialSummaryScreen extends StatelessWidget {
 
       if (det.creditConsommation != null && det.creditConsommation! > 0) {
         final tauxLabel = det.tauxCreditConso != null
-            ? ' (${_pct.format(det.tauxCreditConso)}%)'
+            ? ' (${det.tauxCreditConso!.toStringAsFixed(1)}%)'
             : '';
         lines.add(FinancialLine(
           label: '${l10n.financialSummaryCreditConsommation}$tauxLabel',
-          formattedValue: _formatChf(det.creditConsommation),
+          formattedValue: formatChfOrDash(det.creditConsommation),
           source: _source(p, 'dettes.creditConsommation'),
         ));
         if (det.mensualiteCreditConso != null) {
           lines.add(FinancialLine(
             label: l10n.financialSummaryMensualite,
-            formattedValue: _formatChfMonth(det.mensualiteCreditConso),
+            formattedValue: formatChfMonthly(det.mensualiteCreditConso),
             indent: true,
             isLast: det.echeanceCreditConso == null,
           ));
@@ -1159,17 +1141,17 @@ class FinancialSummaryScreen extends StatelessWidget {
       }
       if (det.leasing != null && det.leasing! > 0) {
         final tauxLabel = det.tauxLeasing != null
-            ? ' (${_pct.format(det.tauxLeasing)}%)'
+            ? ' (${det.tauxLeasing!.toStringAsFixed(1)}%)'
             : '';
         lines.add(FinancialLine(
           label: '${l10n.financialSummaryLeasing}$tauxLabel',
-          formattedValue: _formatChf(det.leasing),
+          formattedValue: formatChfOrDash(det.leasing),
           source: _source(p, 'dettes.leasing'),
         ));
         if (det.mensualiteLeasing != null) {
           lines.add(FinancialLine(
             label: l10n.financialSummaryMensualite,
-            formattedValue: _formatChfMonth(det.mensualiteLeasing),
+            formattedValue: formatChfMonthly(det.mensualiteLeasing),
             indent: true,
             isLast: true,
           ));
@@ -1178,7 +1160,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       if (det.autresDettes != null && det.autresDettes! > 0) {
         lines.add(FinancialLine(
           label: l10n.financialSummaryAutresDettes,
-          formattedValue: _formatChf(det.autresDettes),
+          formattedValue: formatChfOrDash(det.autresDettes),
           source: _source(p, 'dettes.autresDettes'),
         ));
       }
@@ -1187,7 +1169,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       final tauxMax = det.tauxMaxConsommation;
       if (tauxMax != null && tauxMax > 3) {
         lines.add(FinancialLine(
-          label: l10n.financialSummaryConseilRemboursement(_pct.format(tauxMax)),
+          label: l10n.financialSummaryConseilRemboursement(tauxMax.toStringAsFixed(1)),
           isHint: true,
         ));
       }
@@ -1203,7 +1185,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       lines: lines,
       totalLine: FinancialLine(
         label: l10n.financialSummaryTotalDettes,
-        formattedValue: '${_formatChf(det.totalDettes)}${totalMensualite > 0 ? " (${_formatChfMonth(totalMensualite)})" : ""}',
+        formattedValue: '${formatChfOrDash(det.totalDettes)}${totalMensualite > 0 ? " (${formatChfMonthly(totalMensualite)})" : ""}',
       ),
       onEdit: onEditDettes(),
     );
@@ -1500,7 +1482,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     final controllers = <String, TextEditingController>{};
     for (final f in fields) {
       controllers[f.key] = TextEditingController(
-        text: f.initialValue != null ? _chf.format(f.initialValue!) : '',
+        text: f.initialValue != null ? formatChf(f.initialValue!) : '',
       );
     }
 
@@ -1696,14 +1678,21 @@ class FinancialSummaryScreen extends StatelessWidget {
         (profile.dettes.hypotheque != null && profile.dettes.hypotheque! > 0));
     check(l10n.financialSummaryCheckAssuranceMaladie, profile.depenses.assuranceMaladie > 0);
 
+    // S46: Enhanced 3-axis scoring
+    final enhanced = ConfidenceScorer.scoreEnhanced(profile);
+
     final impactPercent = missing.isEmpty
         ? null
-        : '+${(missing.length * 10).clamp(5, 30)} % precision';
+        : '+${(missing.length * 10).clamp(5, 30)} % pr\u00e9cision';
 
     return DataQualityCard(
       knownFields: known,
       missingFields: missing,
       enrichImpact: impactPercent,
+      completenessScore: enhanced.completeness,
+      accuracyScore: enhanced.accuracy,
+      freshnessScore: enhanced.freshness,
+      combinedScore: enhanced.combined,
       onEnrich: missing.isEmpty
           ? null
           : () => context.push('/document-scan'),
