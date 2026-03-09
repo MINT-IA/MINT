@@ -19,12 +19,10 @@
 name: TestFlight
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [main]
-    paths:
-      - "apps/mobile/**"
-  workflow_dispatch:  # Manual trigger from GitHub UI
+  # REMOVED auto-trigger on PR merge to save macOS minutes (10x multiplier).
+  # TestFlight builds are now manual-only via workflow_dispatch.
+  # This saves ~350 min/build × N merges/month.
+  workflow_dispatch:  # Manual trigger from GitHub UI or CLI: gh workflow run TestFlight
 
 concurrency:
   group: testflight-${{ github.ref }}
@@ -33,9 +31,7 @@ concurrency:
 jobs:
   build-and-upload:
     name: Build iOS + Upload TestFlight
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true)
+    if: github.event_name == 'workflow_dispatch'
     runs-on: macos-15
     timeout-minutes: 45
 
