@@ -793,6 +793,7 @@ class TestDocumentTypeDetection:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 @requires_chromadb
 class TestDoclingRAGIntegration:
     """Tests for RAG indexation of extracted document data."""
