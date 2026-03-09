@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -10,6 +11,11 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/profile/financial_summary_card.dart';
+import 'package:mint_mobile/widgets/profile/budget_waterfall_painter.dart';
+import 'package:mint_mobile/widgets/profile/narrative_header.dart';
+import 'package:mint_mobile/widgets/profile/couple_patrimoine_card.dart';
+import 'package:mint_mobile/widgets/profile/conjoint_invitation_card.dart';
+import 'package:mint_mobile/widgets/profile/futur_projection_card.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/chiffre_choc_selector.dart';
@@ -70,7 +76,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                         size: 48, color: MintColors.textMuted),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucun profil renseigné',
+                      S.of(context)!.financialSummaryNoProfile,
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         color: MintColors.textSecondary,
@@ -79,7 +85,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: () => context.push('/onboarding/quick'),
-                      child: const Text('Commencer le diagnostic'),
+                      child: Text(S.of(context)!.financialSummaryStartDiagnostic),
                     ),
                   ],
                 ),
@@ -92,37 +98,50 @@ class FinancialSummaryScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ── Narrative Header — contextual phrase + confidence ──
+                    _buildNarrativeHeader(profile),
+                    const SizedBox(height: 16),
+
                     _buildChiffreChocBanner(profile),
                     ChiffreChocSection(
                       profile: profile,
-                      narratives: const {
-                        'fiscalite':
-                            'Chaque année sans maximiser ton 3a, c\'est de l\'argent que tu offres à l\'État. '
-                            'Il n\'est pas trop tard pour rattraper.',
-                        'prevoyance':
-                            'Racheter ta lacune LPP, c\'est investir dans ta retraite tout en réduisant tes impôts. '
-                            'Double bénéfice, zéro risque de marché.',
-                        'avs':
-                            'Chaque année manquante dans ton AVS réduit ta rente à vie. '
-                            'Vérifier et combler ces lacunes est l\'une des décisions les plus importantes que tu puisses prendre.',
+                      narratives: {
+                        'fiscalite': S.of(context)!.financialSummaryNarrativeFiscalite,
+                        'prevoyance': S.of(context)!.financialSummaryNarrativePrevoyance,
+                        'avs': S.of(context)!.financialSummaryNarrativeAvs,
                       },
                     ),
                     const SizedBox(height: 8),
-                    _buildSourceLegend(),
+                    _buildSourceLegend(context),
                     const SizedBox(height: 16),
 
                     // ── FRI Radar Chart — santé financière en 4 axes ──
                     _buildFriRadar(profile),
                     const SizedBox(height: 16),
 
-                    if (profile.isCouple) _buildCoupleToggle(context, profile),
+                    // ══════════════════════════════════════════════════
+                    //  TRIPTYQUE: FLUX / STOCK / FUTUR
+                    // ══════════════════════════════════════════════════
+
+                    // ── FLUX: Waterfall + Revenus cascade ──
+                    _buildWaterfallSection(context, profile),
                     _buildRevenusCascadeCard(context, profile),
-                    _buildPrevoyanceCard(context, profile),
-                    _buildPatrimoineCard(context, profile),
                     _buildDepensesCard(context, profile),
                     _buildDettesCard(context, profile),
+
+                    // ── STOCK: Patrimoine + Prévoyance ──
+                    _buildPrevoyanceCard(context, profile),
                     if (profile.isCouple)
-                      _buildCoupleCard(context, profile),
+                      _buildCouplePatrimoine(profile)
+                    else
+                      _buildPatrimoineCard(context, profile),
+
+                    // ── Couple invitation ──
+                    if (profile.isCouple)
+                      _buildConjointInvitation(context, profile),
+
+                    // ── FUTUR: Projection retraite ──
+                    _buildFuturProjection(profile),
                     const SizedBox(height: 16),
 
                     // ── Data Quality Card — completude du profil ──
@@ -148,7 +167,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                         },
                         icon: const Icon(Icons.refresh, size: 18),
                         label: Text(
-                          'Recommencer le diagnostic',
+                          S.of(context)!.financialSummaryRestartDiagnostic,
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -196,7 +215,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         ),
         titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
         title: Text(
-          'APERÇU FINANCIER',
+          S.of(context)!.financialSummaryTitle,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -306,7 +325,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         _ => Icons.insights_rounded,
       };
 
-  Widget _buildSourceLegend() {
+  Widget _buildSourceLegend(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -316,9 +335,9 @@ class FinancialSummaryScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _legendItem('\u2713', 'saisi', MintColors.success),
-          _legendItem('~', 'estimé', MintColors.warning),
-          _legendItem('\u2B06', 'certifié', MintColors.info),
+          _legendItem('\u2713', S.of(context)!.financialSummaryLegendSaisi, MintColors.success),
+          _legendItem('~', S.of(context)!.financialSummaryLegendEstime, MintColors.warning),
+          _legendItem('\u2B06', S.of(context)!.financialSummaryLegendCertifie, MintColors.info),
         ],
       ),
     );
@@ -352,37 +371,7 @@ class FinancialSummaryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCoupleToggle(BuildContext context, CoachProfile profile) {
-    final conjoint = profile.conjoint;
-    if (conjoint == null) return const SizedBox.shrink();
-    final name1 = profile.firstName ?? 'Toi';
-    final name2 = conjoint.firstName ?? 'Conjoint\u00b7e';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: MintColors.coachBubble,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.people_outline, size: 18, color: MintColors.info),
-            const SizedBox(width: 10),
-            Text(
-              'Couple : $name1 + $name2',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // _buildCoupleToggle removed — replaced by NarrativeHeader + ConjointInvitationCard
 
   // ══════════════════════════════════════════════════════════════
   //  REVENUS
@@ -408,9 +397,11 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     final lines = <FinancialLine>[];
 
+    final l10n = S.of(context)!;
+
     // ── Revenus bruts ──
     lines.add(FinancialLine(
-      label: 'Salaire brut mensuel',
+      label: l10n.financialSummarySalaireBrutMensuel,
       formattedValue: _formatChfMonth(p.salaireBrutMensuel),
       source: _source(p, 'salaireBrutMensuel'),
     ));
@@ -419,7 +410,9 @@ class FinancialSummaryScreen extends StatelessWidget {
     if (p.nombreDeMois > 12) {
       final treizieme = (p.salaireBrutMensuel ?? 0) * (p.nombreDeMois - 12);
       lines.add(FinancialLine(
-        label: '${p.nombreDeMois == 13 ? "13\u00e8me salaire" : "${p.nombreDeMois}\u00e8me mois"} (annuel)',
+        label: p.nombreDeMois == 13
+            ? l10n.financialSummary13emeSalaire
+            : l10n.financialSummaryNemeMois('${p.nombreDeMois}'),
         formattedValue: '+ ${_formatChf(treizieme)}',
       ));
     }
@@ -429,7 +422,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
       final bonus = base * p.bonusPourcentage! / 100;
       lines.add(FinancialLine(
-        label: 'Bonus estimé (${_pct.format(p.bonusPourcentage)}%)',
+        label: l10n.financialSummaryBonusEstime(_pct.format(p.bonusPourcentage)),
         formattedValue: '+ ${_formatChf(bonus)}',
       ));
     }
@@ -437,7 +430,8 @@ class FinancialSummaryScreen extends StatelessWidget {
     // Conjoint (si couple)
     if (p.isCouple && p.conjoint?.salaireBrutMensuel != null) {
       lines.add(FinancialLine(
-        label: '${p.conjoint?.firstName ?? "Conjoint\u00b7e"} brut mensuel',
+        label: l10n.financialSummaryConjointBrutMensuel(
+            p.conjoint?.firstName ?? l10n.financialSummaryDefaultConjoint),
         formattedValue: _formatChfMonth(p.conjoint!.salaireBrutMensuel),
         source: _source(p, 'conjoint.salaireBrutMensuel'),
       ));
@@ -445,7 +439,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     // Subtotal: Revenu brut annuel
     lines.add(FinancialLine(
-      label: p.isCouple ? 'Revenu brut annuel couple' : 'Revenu brut annuel',
+      label: p.isCouple ? l10n.financialSummaryRevenuBrutAnnuelCouple : l10n.financialSummaryRevenuBrutAnnuel,
       formattedValue: _formatChf(
           p.isCouple ? p.revenuBrutAnnuelCouple : gross),
       isSubtotal: true,
@@ -522,7 +516,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           ? base * p.bonusPourcentage! / 100
           : 0.0;
       final extraAnnuel = treizieme + bonus;
-      final extraNet = extraAnnuel * breakdown.netRatio;
+      final extraNet = extraAnnuel * breakdown.disposableRatio;
       lines.add(FinancialLine(
         label: '${p.nombreDeMois > 12 ? "13\u00e8me" : ""}${p.nombreDeMois > 12 && bonus > 0 ? " + " : ""}${bonus > 0 ? "bonus" : ""} : ~${_formatChf(extraNet)} net/an (non inclus dans le mensuel)',
         isHint: true,
@@ -824,38 +818,36 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     // ── Prévoyance (stock, cross-link) ──
     final prev = p.prevoyance;
-    if (prev != null) {
-      lines.add(const FinancialLine(
-        label: 'Prévoyance (capital)',
-        isSectionHeader: true,
+    lines.add(const FinancialLine(
+      label: 'Prévoyance (capital)',
+      isSectionHeader: true,
+    ));
+    if ((prev.avoirLppTotal ?? 0) > 0) {
+      lines.add(FinancialLine(
+        label: 'Avoir LPP total',
+        formattedValue: _formatChf(prev.avoirLppTotal),
+        source: _source(p, 'prevoyance.avoirLppTotal'),
       ));
-      if ((prev.avoirLppTotal ?? 0) > 0) {
-        lines.add(FinancialLine(
-          label: 'Avoir LPP total',
-          formattedValue: _formatChf(prev.avoirLppTotal),
-          source: _source(p, 'prevoyance.avoirLppTotal'),
-        ));
-      }
-      if (prev.totalEpargne3a > 0) {
-        lines.add(FinancialLine(
-          label: 'Capital 3a (${prev.nombre3a} compte${prev.nombre3a > 1 ? "s" : ""})',
-          formattedValue: _formatChf(prev.totalEpargne3a),
-          source: _source(p, 'prevoyance.totalEpargne3a'),
-        ));
-      }
-      if (prev.totalLibrePassage > 0) {
-        lines.add(FinancialLine(
-          label: 'Libre passage',
-          formattedValue: _formatChf(prev.totalLibrePassage),
-          source: _source(p, 'prevoyance.librePassage'),
-        ));
-      }
+    }
+    if (prev.totalEpargne3a > 0) {
+      lines.add(FinancialLine(
+        label: 'Capital 3a (${prev.nombre3a} compte${prev.nombre3a > 1 ? "s" : ""})',
+        formattedValue: _formatChf(prev.totalEpargne3a),
+        source: _source(p, 'prevoyance.totalEpargne3a'),
+      ));
+    }
+    if (prev.totalLibrePassage > 0) {
+      lines.add(FinancialLine(
+        label: 'Libre passage',
+        formattedValue: _formatChf(prev.totalLibrePassage),
+        source: _source(p, 'prevoyance.librePassage'),
+      ));
     }
 
     // ── Totaux ──
-    final prevCapital = (prev?.avoirLppTotal ?? 0) +
-        (prev?.totalEpargne3a ?? 0) +
-        (prev?.totalLibrePassage ?? 0);
+    final prevCapital = (prev.avoirLppTotal ?? 0) +
+        prev.totalEpargne3a +
+        prev.totalLibrePassage;
     final patrimoineBrut = pat.epargneLiquide +
         pat.investissements +
         pat.immobilierEffectif +
@@ -881,7 +873,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       iconColor: MintColors.success,
       lines: lines,
       totalLine: FinancialLine(
-        label: 'Patrimoine net (fortune)',
+        label: 'Patrimoine total (y.c. prévoyance bloquée)',
         formattedValue: _formatChf(patrimoineNet),
         isHero: true,
       ),
@@ -1186,7 +1178,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         lines.add(FinancialLine(
           label: 'Rembourse d\'abord la dette à ${_pct.format(tauxMax)}% '
               'avant d\'investir. Chaque CHF remboursé = '
-              '${_pct.format(tauxMax)}% de rendement garanti.',
+              '${_pct.format(tauxMax)}% de rendement effectif.',
           isHint: true,
         ));
       }
@@ -1208,38 +1200,261 @@ class FinancialSummaryScreen extends StatelessWidget {
     );
   }
 
+  // _buildCoupleCard removed — replaced by ConjointInvitationCard + CouplePatrimoineCard
+
   // ══════════════════════════════════════════════════════════════
-  //  COUPLE (edit shortcut)
+  //  NARRATIVE HEADER — contextual phrase + confidence bar
   // ══════════════════════════════════════════════════════════════
 
-  FinancialSummaryCard _buildCoupleCard(BuildContext context, CoachProfile p) {
+  Widget _buildNarrativeHeader(CoachProfile p) {
+    final gross = p.revenuBrutAnnuel;
+    if (gross <= 0) return const SizedBox.shrink();
+
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: gross,
+      canton: p.canton.isNotEmpty ? p.canton : 'ZH',
+      age: p.age,
+    );
+    final dep = p.depenses;
+    final freeMargin = breakdown.disposableIncome / 12 - dep.totalMensuel;
+
+    final det = p.dettes;
+    final prev = p.prevoyance;
+    final prevCapital = (prev.avoirLppTotal ?? 0) +
+        prev.totalEpargne3a +
+        prev.totalLibrePassage;
+    final pat = p.patrimoine;
+    final patrimoineBrut = pat.epargneLiquide +
+        pat.investissements +
+        pat.immobilierEffectif +
+        prevCapital;
+    final patrimoineNet = patrimoineBrut - det.totalDettes;
+
+    // Replacement rate estimate
+    final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
+    final renteLpp = (prev.avoirLppTotal ?? 0) * 0.068 / 12; // taux conversion min
+    final projectedMonthly = renteAvs + renteLpp;
+    final currentDisposable = breakdown.disposableIncome / 12;
+    final replacementRate = currentDisposable > 0
+        ? projectedMonthly / currentDisposable
+        : 0.0;
+
+    // Confidence score from data completeness
+    final knownCount = [
+      p.salaireBrutMensuel > 0,
+      p.canton.isNotEmpty,
+      prev.avoirLppTotal != null && prev.avoirLppTotal! > 0,
+      prev.totalEpargne3a > 0,
+      pat.epargneLiquide > 0,
+      dep.loyer > 0 || (det.hypotheque != null && det.hypotheque! > 0),
+      dep.assuranceMaladie > 0,
+    ].where((b) => b).length;
+    final confidence = (knownCount / 7 * 100).clamp(0.0, 100.0);
+
+    return NarrativeHeader(
+      firstName: p.firstName,
+      conjointFirstName: p.isCouple ? p.conjoint?.firstName : null,
+      freeMargin: freeMargin,
+      patrimoineNet: patrimoineNet,
+      replacementRate: replacementRate,
+      confidenceScore: confidence,
+      confidenceBoostAvailable: confidence < 100 ? ((7 - knownCount) * 10).clamp(5, 30).toInt() : null,
+      boostAction: confidence < 100 ? 'Scanner un document' : null,
+      onBoostTap: confidence < 100 ? () {} : null,
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  WATERFALL — budget cascade visualization
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildWaterfallSection(BuildContext context, CoachProfile p) {
+    final gross = p.revenuBrutAnnuel;
+    if (gross <= 0) return const SizedBox.shrink();
+
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: gross,
+      canton: p.canton.isNotEmpty ? p.canton : 'ZH',
+      age: p.age,
+    );
+    final dep = p.depenses;
+    final det = p.dettes;
+
+    final steps = WaterfallStep.fromBreakdown(
+      grossMonthly: gross / 12,
+      socialCharges: breakdown.socialCharges / 12,
+      lppEmployee: breakdown.lppEmployee / 12,
+      incomeTax: breakdown.incomeTaxEstimate / 12,
+      rent: dep.loyer,
+      healthInsurance: dep.assuranceMaladie,
+      leasing: det.mensualiteLeasing ?? 0,
+      otherFixed: (dep.electricite ?? 0) +
+          (dep.transport ?? 0) +
+          (dep.telecom ?? 0) +
+          (dep.fraisMedicaux ?? 0) +
+          (dep.autresDepensesFixes ?? 0),
+      pillar3a: p.prevoyance.totalEpargne3a > 0 ? 7258 / 12 : 0,
+      investment: p.patrimoine.investissements > 0 ? 500 : 0,
+    );
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.waterfall_chart, size: 18, color: MintColors.primary),
+              const SizedBox(width: 10),
+              Text(
+                'Cascade budgétaire',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          BudgetWaterfallChart(steps: steps),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  COUPLE PATRIMOINE — 3-column layout with owner badges
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildCouplePatrimoine(CoachProfile p) {
+    final pat = p.patrimoine;
+    final prev = p.prevoyance;
+    final det = p.dettes;
     final conjoint = p.conjoint;
-    final lines = <FinancialLine>[];
-    if (conjoint != null) {
-      lines.add(FinancialLine(
-        label: conjoint.firstName ?? 'Conjoint\u00b7e',
-        formattedValue: conjoint.age != null ? '${conjoint.age} ans' : '\u2014',
-      ));
-      if (conjoint.salaireBrutMensuel != null) {
-        lines.add(FinancialLine(
-          label: 'Salaire brut mensuel',
-          formattedValue: _formatChfMonth(conjoint.salaireBrutMensuel),
-          indent: true,
-        ));
-      }
-    }
-    if (lines.isEmpty) {
-      lines.add(const FinancialLine(
-        label: 'Aucune donnée conjoint\u00b7e',
-        formattedValue: '\u2014',
-      ));
-    }
-    return FinancialSummaryCard(
-      title: 'Couple',
-      icon: Icons.people_outline,
-      iconColor: MintColors.info,
-      lines: lines,
-      onEdit: () => context.push('/data-block/couple'),  // Couple edit: separate flow
+    final cp = conjoint?.prevoyance;
+
+    final prevCapital = (prev.avoirLppTotal ?? 0) +
+        prev.totalEpargne3a +
+        prev.totalLibrePassage;
+    final conjointPrevCapital = (cp?.avoirLppTotal ?? 0) +
+        (cp?.totalEpargne3a ?? 0) +
+        (cp?.totalLibrePassage ?? 0);
+    final patrimoineBrut = pat.epargneLiquide +
+        pat.investissements +
+        pat.immobilierEffectif +
+        prevCapital +
+        conjointPrevCapital;
+    final patrimoineNet = patrimoineBrut - det.totalDettes;
+
+    return CouplePatrimoineCard(
+      firstName: p.firstName ?? 'Toi',
+      conjointFirstName: conjoint?.firstName,
+      epargneLiquide: pat.epargneLiquide,
+      investissements: pat.investissements,
+      immobilierValeur: pat.immobilierEffectif,
+      mortgageBalance: pat.mortgageBalance ?? 0,
+      loanToValue: pat.loanToValue,
+      propertyDescription: pat.propertyDescription,
+      avoirLpp: prev.avoirLppTotal ?? 0,
+      conjointAvoirLpp: cp?.avoirLppTotal ?? 0,
+      capital3a: prev.totalEpargne3a,
+      conjointCapital3a: cp?.totalEpargne3a ?? 0,
+      librePassage: prev.totalLibrePassage,
+      totalDettes: det.totalDettes,
+      patrimoineBrut: patrimoineBrut,
+      patrimoineNet: patrimoineNet,
+      partUser: prevCapital + pat.epargneLiquide + pat.investissements,
+      partConjoint: conjointPrevCapital.toDouble(),
+      conjointIsEstimated: conjoint?.invitationLevel != 'linked',
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  CONJOINT INVITATION — CTA for couple data sharing
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildConjointInvitation(BuildContext context, CoachProfile p) {
+    final conjoint = p.conjoint;
+    if (conjoint == null) return const SizedBox.shrink();
+
+    return ConjointInvitationCard(
+      conjointFirstName: conjoint.firstName ?? 'Conjoint\u00b7e',
+      invitationLevel: conjoint.invitationLevel,
+      onInvite: () {
+        // TODO: implement invite flow
+      },
+      onLink: () {
+        // TODO: implement link flow
+      },
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  FUTUR PROJECTION — retirement income overview
+  // ══════════════════════════════════════════════════════════════
+
+  Widget _buildFuturProjection(CoachProfile p) {
+    final gross = p.revenuBrutAnnuel;
+    if (gross <= 0) return const SizedBox.shrink();
+
+    final breakdown = NetIncomeBreakdown.compute(
+      grossSalary: gross,
+      canton: p.canton.isNotEmpty ? p.canton : 'ZH',
+      age: p.age,
+    );
+
+    final prev = p.prevoyance;
+    final conjoint = p.conjoint;
+    final cp = conjoint?.prevoyance;
+
+    // Confidence score
+    final knownCount = [
+      p.salaireBrutMensuel > 0,
+      p.canton.isNotEmpty,
+      prev.avoirLppTotal != null && prev.avoirLppTotal! > 0,
+      prev.totalEpargne3a > 0,
+      p.patrimoine.epargneLiquide > 0,
+      p.depenses.loyer > 0,
+      p.depenses.assuranceMaladie > 0,
+    ].where((b) => b).length;
+    final confidence = (knownCount / 7 * 100).clamp(0.0, 100.0);
+
+    return FuturProjectionCard(
+      firstName: p.firstName ?? 'Toi',
+      conjointFirstName: p.isCouple ? conjoint?.firstName : null,
+      ageRetraite: p.effectiveRetirementAge,
+      conjointAgeRetraite: conjoint?.effectiveRetirementAge,
+      renteAvsUser: prev.renteAVSEstimeeMensuelle ?? 0,
+      renteAvsConjoint: p.isCouple ? (cp?.renteAVSEstimeeMensuelle ?? 0) : null,
+      renteLppUser: (prev.avoirLppTotal ?? 0) * (prev.tauxConversion ?? 0.068) / 12,
+      renteLppConjoint: p.isCouple
+          ? (cp?.avoirLppTotal ?? 0) * (cp?.tauxConversion ?? 0.068) / 12
+          : null,
+      capital3aUser: prev.totalEpargne3a,
+      capital3aConjoint: p.isCouple ? (cp?.totalEpargne3a ?? 0) : null,
+      capitalLibrePassage: prev.totalLibrePassage > 0 ? prev.totalLibrePassage : null,
+      investissementsMarche: p.patrimoine.investissements > 0
+          ? p.patrimoine.investissements
+          : null,
+      disposableActuel: breakdown.disposableIncome / 12,
+      disposableCouple: p.isCouple && conjoint != null
+          ? breakdown.disposableIncome / 12 +
+              (conjoint.revenuBrutAnnuel > 0
+                  ? NetIncomeBreakdown.compute(
+                      grossSalary: conjoint.revenuBrutAnnuel,
+                      canton: p.canton,
+                      age: conjoint.age ?? 45,
+                    ).disposableIncome / 12
+                  : 0)
+          : null,
+      confidenceScore: confidence,
     );
   }
 

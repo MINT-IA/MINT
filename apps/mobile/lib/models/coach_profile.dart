@@ -98,6 +98,12 @@ class ConjointProfile {
   /// Null means default (65 ans).
   final int? targetRetirementAge;
 
+  /// Invitation / linking level for couple data sharing.
+  /// - 'declared': user declared conjoint data manually (estimated confidence)
+  /// - 'invited': invitation sent (5 questions, no account needed)
+  /// - 'linked': both accounts linked (synced data)
+  final String invitationLevel;
+
   const ConjointProfile({
     this.firstName,
     this.birthYear,
@@ -111,6 +117,7 @@ class ConjointProfile {
     this.prevoyance,
     this.arrivalAge,
     this.targetRetirementAge,
+    this.invitationLevel = 'declared',
   });
 
   /// Revenu brut annuel estime
@@ -171,6 +178,7 @@ class ConjointProfile {
       prevoyance: prev,
       arrivalAge: json['arrivalAge'] as int?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
+      invitationLevel: json['invitationLevel'] as String? ?? 'declared',
     );
   }
 
@@ -187,6 +195,7 @@ class ConjointProfile {
         'prevoyance': prevoyance?.toJson(),
         'arrivalAge': arrivalAge,
         'targetRetirementAge': targetRetirementAge,
+        'invitationLevel': invitationLevel,
       };
 
   ConjointProfile copyWith({
@@ -202,6 +211,7 @@ class ConjointProfile {
     PrevoyanceProfile? prevoyance,
     int? arrivalAge,
     int? targetRetirementAge,
+    String? invitationLevel,
   }) {
     final effectiveFatca = isFatcaResident ?? this.isFatcaResident;
     // FATCA hard block: US persons cannot contribute to 3a (LSFin compliance).
@@ -224,6 +234,7 @@ class ConjointProfile {
       prevoyance: effectivePrev,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
+      invitationLevel: invitationLevel ?? this.invitationLevel,
     );
   }
 }
@@ -460,16 +471,13 @@ class PatrimoineProfile {
       immobilierEffectif > 0 ? (mortgageBalance ?? 0) / immobilierEffectif : 0;
 
   /// Patrimoine brut total (liquidités + investissements + immobilier).
-  double get totalPatrimoineBrut =>
+  double get totalPatrimoine =>
       epargneLiquide + investissements + immobilierEffectif;
 
   /// Patrimoine net (brut - dettes). Dettes passed via parameter since
   /// PatrimoineProfile doesn't hold a reference to DetteProfile.
   double patrimoineNet(double totalDettes) =>
-      totalPatrimoineBrut - totalDettes;
-
-  double get totalPatrimoine =>
-      epargneLiquide + investissements + (immobilier ?? 0);
+      totalPatrimoine - totalDettes;
 
   factory PatrimoineProfile.fromJson(Map<String, dynamic> json) {
     return PatrimoineProfile(

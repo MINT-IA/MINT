@@ -377,5 +377,14 @@ class FinancialLine {
     this.isHero = false,
     this.isHint = false,
     this.isDeduction = false,
-  });
+  })  : assert(
+          !(isSectionHeader && isSubtotal) &&
+              !(isSectionHeader && isHero) &&
+              !(isSectionHeader && isHint) &&
+              !(isSubtotal && isHero) &&
+              !(isSubtotal && isHint) &&
+              !(isHero && isHint),
+          'FinancialLine: isSectionHeader, isSubtotal, isHero, isHint '
+          'are mutually exclusive rendering modes.',
+        );
 }
