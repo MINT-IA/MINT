@@ -54,7 +54,7 @@ jobs:
       - name: Changed-lines coverage (PRs only, ≥80%)
         if: github.event_name == 'pull_request'
         working-directory: .
-        run: diff-cover services/backend/coverage.xml --compare-branch=origin/main --fail-under=80 --exclude services/backend/app/services/rag/*
+        run: diff-cover services/backend/coverage.xml --compare-branch=origin/main --fail-under=80 --exclude '**/rag/*.py'
 
       - name: OpenAPI contract check
         env:
