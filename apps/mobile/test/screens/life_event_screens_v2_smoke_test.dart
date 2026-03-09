@@ -52,14 +52,14 @@ void main() {
     testWidgets('displays screen title in French', (tester) async {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Mariage & fiscalite'), findsOneWidget);
+      expect(find.text('Mariage & fiscalité'), findsOneWidget);
     });
 
     testWidgets('all 4 tabs are present', (tester) async {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Impots'), findsOneWidget);
-      expect(find.text('Regime'), findsOneWidget);
+      expect(find.text('Impôts'), findsOneWidget);
+      expect(find.text('Régime'), findsOneWidget);
       expect(find.text('Protection'), findsOneWidget);
       expect(find.text('Checklist'), findsOneWidget);
     });
@@ -102,12 +102,12 @@ void main() {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
       // Tap Regime tab
-      await tester.tap(find.text('Regime'));
+      await tester.tap(find.text('Régime'));
       await tester.pumpAndSettle();
-      expect(find.text('REGIME MATRIMONIAL'), findsOneWidget);
-      expect(find.text('Participation aux acquets'), findsOneWidget);
-      expect(find.text('Separation de biens'), findsOneWidget);
-      expect(find.text('Communaute de biens'), findsOneWidget);
+      expect(find.text('RÉGIME MATRIMONIAL'), findsOneWidget);
+      expect(find.text('Participation aux acquêts'), findsOneWidget);
+      expect(find.text('Séparation de biens'), findsOneWidget);
+      expect(find.text('Communauté de biens'), findsOneWidget);
     });
 
     testWidgets('Tab 3 (Protection) renders without crash', (tester) async {
@@ -130,7 +130,7 @@ void main() {
       await tester.tap(find.text('Checklist'));
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('demarches', skipOffstage: false),
+        find.textContaining('démarches', skipOffstage: false),
         findsWidgets,
       );
     });
@@ -170,7 +170,7 @@ void main() {
     testWidgets('all 4 tabs are present', (tester) async {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Conge'), findsOneWidget);
+      expect(find.text('Congé'), findsOneWidget);
       expect(find.text('Allocations'), findsOneWidget);
       expect(find.text('Impact'), findsOneWidget);
       expect(find.text('Checklist'), findsOneWidget);
@@ -180,15 +180,15 @@ void main() {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
       // Default tab is Conge — should show salary slider and type toggle
-      expect(find.text('Type de conge'), findsOneWidget);
+      expect(find.text('Type de congé'), findsOneWidget);
       expect(find.text('Salaire mensuel brut'), findsOneWidget);
     });
 
     testWidgets('Tab 1 (Conge) shows Mere/Pere toggle', (tester) async {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Mere'), findsOneWidget);
-      expect(find.text('Pere'), findsOneWidget);
+      expect(find.text('Mère'), findsOneWidget);
+      expect(find.text('Père'), findsOneWidget);
     });
 
     testWidgets('Tab 1 (Conge) has disclaimer after scrolling',
@@ -233,7 +233,7 @@ void main() {
       await tester.tap(find.text('Checklist'));
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('demarches', skipOffstage: false),
+        find.textContaining('démarches', skipOffstage: false),
         findsWidgets,
       );
     });
@@ -393,7 +393,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('DONATION'), findsOneWidget);
       expect(find.text('Montant de la donation'), findsOneWidget);
-      expect(find.text('Lien de parente'), findsOneWidget);
+      expect(find.text('Lien de parenté'), findsOneWidget);
     });
 
     testWidgets('shows succession context section', (tester) async {
@@ -461,15 +461,15 @@ void main() {
 
       // After calculation, result cards should appear in widget tree
       expect(
-        find.text('IMPOT SUR LA DONATION', skipOffstage: false),
+        find.text('IMPÔT SUR LA DONATION', skipOffstage: false),
         findsOneWidget,
       );
       expect(
-        find.textContaining('RESERVE HEREDITAIRE', skipOffstage: false),
+        find.textContaining('RÉSERVE HÉRÉDITAIRE', skipOffstage: false),
         findsOneWidget,
       );
       expect(
-        find.text('QUOTITE DISPONIBLE', skipOffstage: false),
+        find.text('QUOTITÉ DISPONIBLE', skipOffstage: false),
         findsOneWidget,
       );
       expect(
@@ -507,13 +507,13 @@ void main() {
     testWidgets('displays screen title', (tester) async {
       await tester.pumpWidget(buildHousingSaleScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Vente immobiliere'), findsOneWidget);
+      expect(find.text('Vente immobilière'), findsOneWidget);
     });
 
     testWidgets('shows header with French content', (tester) async {
       await tester.pumpWidget(buildHousingSaleScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Simuler ta vente immobiliere'), findsOneWidget);
+      expect(find.text('Simuler ta vente immobilière'), findsOneWidget);
     });
 
     testWidgets('shows intro educational text', (tester) async {
@@ -602,7 +602,7 @@ void main() {
 
       // After calculation, result cards should appear in widget tree
       expect(
-        find.text('PLUS-VALUE IMMOBILIERE', skipOffstage: false),
+        find.text('PLUS-VALUE IMMOBILIÈRE', skipOffstage: false),
         findsOneWidget,
       );
       expect(

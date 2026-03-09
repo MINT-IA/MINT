@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
@@ -7,6 +8,7 @@ import 'package:mint_mobile/screens/lpp_deep/libre_passage_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/epl_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // =============================================================================
 // SMOKE TESTS — LPP Deep Module Screens (3 screens)
@@ -35,16 +37,19 @@ void main() {
 
   group('RachatEchelonneScreen', () {
     Widget buildScreen() {
-      return const MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        home: RachatEchelonneScreen(),
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: RachatEchelonneScreen(),
+        ),
       );
     }
 
@@ -189,9 +194,11 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
       await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
+      await tester.pump();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
       await tester.pump();
 
       expect(find.textContaining('nLPD'), findsOneWidget);
@@ -204,7 +211,9 @@ void main() {
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
       await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
+      await tester.pump();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
       await tester.pump();
 
       expect(find.byIcon(Icons.info_outline), findsWidgets);
@@ -254,7 +263,7 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      expect(find.textContaining('Propriete du logement'), findsOneWidget);
+      expect(find.textContaining('Propriété du logement'), findsOneWidget);
       expect(find.textContaining('CHF 20\'000'), findsOneWidget);
     });
 
@@ -265,10 +274,10 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
       await tester.pump();
 
-      expect(find.text('PARAMETRES'), findsOneWidget);
+      expect(find.text('PARAMÈTRES'), findsOneWidget);
       expect(find.text('Avoir LPP total'), findsOneWidget);
-      expect(find.text('Age'), findsOneWidget);
-      expect(find.text('Montant souhaite'), findsOneWidget);
+      expect(find.text('Âge'), findsOneWidget);
+      expect(find.text('Montant souhaité'), findsOneWidget);
     });
 
     testWidgets('has 3 Slider widgets (avoir, age, montant)', (tester) async {
@@ -289,7 +298,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      expect(find.text('Rachats LPP recents'), findsOneWidget);
+      expect(find.text('Rachats LPP récents'), findsOneWidget);
       expect(find.byType(Switch), findsOneWidget);
     });
 
@@ -300,7 +309,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
 
-      expect(find.text('RESULTAT'), findsOneWidget);
+      expect(find.text('RÉSULTAT'), findsOneWidget);
       expect(find.text('Montant maximum retirable'), findsOneWidget);
       expect(find.text('Montant applicable'), findsOneWidget);
     });
@@ -313,8 +322,8 @@ void main() {
       await tester.pump();
 
       expect(find.text('IMPACT SUR LES PRESTATIONS'), findsOneWidget);
-      expect(find.textContaining('invalidite'), findsWidgets);
-      expect(find.textContaining('deces'), findsWidgets);
+      expect(find.textContaining('invalidité'), findsWidgets);
+      expect(find.textContaining('décès'), findsWidgets);
     });
 
     testWidgets('displays tax estimation section', (tester) async {
@@ -327,8 +336,8 @@ void main() {
       await tester.pump();
 
       expect(find.text('ESTIMATION FISCALE'), findsOneWidget);
-      expect(find.textContaining('Impot estime'), findsOneWidget);
-      expect(find.textContaining('Montant net'), findsOneWidget);
+      expect(find.textContaining('Impôt estimé'), findsOneWidget);
+      expect(find.textContaining('Montant net après impôt'), findsOneWidget);
     });
 
     testWidgets('displays taux reduit explanation', (tester) async {
@@ -340,7 +349,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
       await tester.pump();
 
-      expect(find.textContaining('taux reduit'), findsOneWidget);
+      expect(find.textContaining('taux réduit'), findsOneWidget);
     });
 
     testWidgets('displays disclaimer after scrolling', (tester) async {
