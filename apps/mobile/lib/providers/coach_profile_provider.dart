@@ -26,6 +26,33 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
 
+  /// S47: Stamp dataTimestamps for a set of field paths.
+  /// Merges with existing timestamps — only overwrites the given fields.
+  static Map<String, DateTime> _stampTimestamps(
+    Map<String, DateTime> existing,
+    Iterable<String> fieldPaths, {
+    DateTime? now,
+  }) {
+    final ts = Map<String, DateTime>.from(existing);
+    final stamp = now ?? DateTime.now();
+    for (final path in fieldPaths) {
+      ts[path] = stamp;
+    }
+    return ts;
+  }
+
+  /// S47: Persist dataTimestamps into wizard answers for reload survival.
+  static void _persistTimestamps(
+    Map<String, dynamic> answers,
+    Map<String, DateTime> timestamps,
+  ) {
+    final serialized = <String, String>{};
+    for (final entry in timestamps.entries) {
+      serialized[entry.key] = entry.value.toIso8601String();
+    }
+    answers['_coach_data_timestamps'] = serialized;
+  }
+
   /// True pendant le chargement initial.
   bool get isLoading => _isLoading;
 
@@ -422,6 +449,27 @@ class CoachProfileProvider extends ChangeNotifier {
     if (firstName != null && firstName.isNotEmpty) {
       _profile = _profile!.copyWith(firstName: firstName);
     }
+
+    // S47: Stamp initial timestamps for all fields populated by smart onboarding.
+    // Core fields are userInput quality (age, salary, canton); derived fields
+    // (AVS, LPP estimates, savings) are estimated quality but still get timestamps
+    // so freshness scoring can track when the profile was last refreshed.
+    final initialFields = <String>[
+      'salaireBrutMensuel',
+      'age',
+      'canton',
+      'prevoyance.avoirLppTotal',
+      'prevoyance.totalEpargne3a',
+      'prevoyance.renteAVSEstimeeMensuelle',
+      'patrimoine.epargneLiquide',
+    ];
+    _profile = _profile!.copyWith(
+      dataTimestamps: _stampTimestamps(
+        _profile!.dataTimestamps,
+        initialFields,
+      ),
+    );
+
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
@@ -722,9 +770,22 @@ class CoachProfileProvider extends ChangeNotifier {
       updatedSources['prevoyance.rendementCaisse'] =
           ProfileDataSource.certificate;
 
+    // S47: Stamp timestamps for all fields touched by this extraction
+    final touchedFields = <String>[];
+    if (avoirTotal != null) touchedFields.add('prevoyance.avoirLppTotal');
+    if (avoirOblig != null) touchedFields.add('prevoyance.avoirLppObligatoire');
+    if (avoirSuroblig != null) touchedFields.add('prevoyance.avoirLppSurobligatoire');
+    if (tauxConvOblig != null) touchedFields.add('prevoyance.tauxConversion');
+    if (tauxConvSuroblig != null) touchedFields.add('prevoyance.tauxConversionSuroblig');
+    if (lacuneRachat != null) touchedFields.add('prevoyance.rachatMaximum');
+    if (salaireAssure != null) touchedFields.add('prevoyance.salaireAssure');
+    if (rendementCaisseVal != null) touchedFields.add('prevoyance.rendementCaisse');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
     _profile = p.copyWith(
       prevoyance: updatedPrevoyance,
       dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
     );
 
@@ -741,6 +802,7 @@ class CoachProfileProvider extends ChangeNotifier {
     if (lacuneRachat != null) answers['_coach_rachat_maximum'] = lacuneRachat;
     if (salaireAssure != null) answers['_coach_salaire_assure'] = salaireAssure;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
     answers['_coach_lpp_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(answers);
 
@@ -823,9 +885,18 @@ class CoachProfileProvider extends ChangeNotifier {
     if (ramd != null)
       updatedSources['prevoyance.ramd'] = ProfileDataSource.certificate;
 
+    // S47: Stamp timestamps for all fields touched by this extraction
+    final touchedFields = <String>[];
+    if (anneesContrib != null) touchedFields.add('prevoyance.anneesContribuees');
+    if (lacunesCotisation != null) touchedFields.add('prevoyance.lacunesAVS');
+    if (renteEstimee != null) touchedFields.add('prevoyance.renteAVSEstimeeMensuelle');
+    if (ramd != null) touchedFields.add('prevoyance.ramd');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
     _profile = p.copyWith(
       prevoyance: updatedPrevoyance,
       dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
     );
 
@@ -839,6 +910,7 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['_coach_avs_rente_estimee'] = renteEstimee;
     if (ramd != null) answers['_coach_avs_ramd'] = ramd;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
     answers['_coach_avs_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(answers);
 
@@ -903,8 +975,17 @@ class CoachProfileProvider extends ChangeNotifier {
       updatedSources['fiscal.impots'] = ProfileDataSource.certificate;
     }
 
+    // S47: Stamp timestamps for all fields touched by this extraction
+    final touchedFields = <String>[];
+    if (revenuImposable != null) touchedFields.add('fiscal.revenuImposable');
+    if (fortuneImposable != null) touchedFields.add('fiscal.fortuneImposable');
+    if (tauxMarginal != null) touchedFields.add('fiscal.tauxMarginal');
+    if (impotCantonal != null || impotFederal != null) touchedFields.add('fiscal.impots');
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
     _profile = p.copyWith(
       dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
     );
 
@@ -929,6 +1010,7 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['_coach_tax_taux_marginal'] = tauxMarginal;
     }
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
     answers['_coach_tax_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(answers);
 
@@ -1090,6 +1172,28 @@ class CoachProfileProvider extends ChangeNotifier {
       updatedSources['salaireBrutMensuel'] = ProfileDataSource.userInput;
     }
 
+    // S47: Stamp timestamps for all fields touched by this inline edit
+    final touchedFields = <String>[
+      if (salaireBrutMensuel != null) 'salaireBrutMensuel',
+      if (avoirLppTotal != null) 'prevoyance.avoirLppTotal',
+      if (totalEpargne3a != null) 'prevoyance.totalEpargne3a',
+      if (rachatLppMensuel != null) 'prevoyance.rachatLppMensuel',
+      if (epargneLiquide != null) 'patrimoine.epargneLiquide',
+      if (investissements != null) 'patrimoine.investissements',
+      if (loyer != null) 'depenses.loyer',
+      if (assuranceMaladie != null) 'depenses.assuranceMaladie',
+      if (electricite != null) 'depenses.electricite',
+      if (transport != null) 'depenses.transport',
+      if (telecom != null) 'depenses.telecom',
+      if (fraisMedicaux != null) 'depenses.fraisMedicaux',
+      if (autresDepensesFixes != null) 'depenses.autresDepensesFixes',
+      if (hypotheque != null) 'dettes.hypotheque',
+      if (creditConsommation != null) 'dettes.creditConsommation',
+      if (leasing != null) 'dettes.leasing',
+      if (autresDettes != null) 'dettes.autresDettes',
+    ];
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
     // Rachat LPP mensuel: crée/met à jour ou supprime 'lpp_buyback_user'.
     List<PlannedMonthlyContribution>? updatedContribs;
     if (rachatLppMensuel != null) {
@@ -1121,6 +1225,7 @@ class CoachProfileProvider extends ChangeNotifier {
       dettes: updatedDet,
       plannedContributions: updatedContribs,
       dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
     );
 
@@ -1177,6 +1282,7 @@ class CoachProfileProvider extends ChangeNotifier {
         answers['_coach_dettes_autres'] = autresDettes;
       }
       answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+      if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
       await ReportPersistenceService.saveAnswers(answers);
     } catch (e) {
       debugPrint('[CoachProfileProvider] persistence error: $e');
@@ -1296,6 +1402,21 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     if (hypotheque != null) updatedSources['dettes.hypotheque'] = ProfileDataSource.openBanking;
 
+    // S47: Stamp timestamps for all fields touched by open banking sync
+    final touchedFields = <String>[
+      if (epargneLiquide > 0) 'patrimoine.epargneLiquide',
+      if (investissements > 0) 'patrimoine.investissements',
+      if (epargne3a > 0) 'prevoyance.totalEpargne3a',
+      if (loyer != null) 'depenses.loyer',
+      if (assurance != null) 'depenses.assuranceMaladie',
+      if (electricite != null) 'depenses.electricite',
+      if (transport != null) 'depenses.transport',
+      if (telecom != null) 'depenses.telecom',
+      if (fraisMedicaux != null) 'depenses.fraisMedicaux',
+      if (hypotheque != null) 'dettes.hypotheque',
+    ];
+    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
+
     // ── 5. Apply update ──────────────────────────────────────
     _profile = p.copyWith(
       prevoyance: updatedPrev,
@@ -1303,6 +1424,7 @@ class CoachProfileProvider extends ChangeNotifier {
       depenses: updatedDep,
       dettes: updatedDet,
       dataSources: updatedSources,
+      dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
     );
 
@@ -1325,6 +1447,7 @@ class CoachProfileProvider extends ChangeNotifier {
       }
       if (hypotheque != null) answers['_coach_dettes_hypotheque'] = hypotheque;
       answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+      if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
       answers['_coach_blink_source'] = 'open_banking';
       await ReportPersistenceService.saveAnswers(answers);
     } catch (e) {

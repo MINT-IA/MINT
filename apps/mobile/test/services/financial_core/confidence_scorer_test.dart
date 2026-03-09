@@ -273,6 +273,136 @@ void main() {
       expect(enhanced.completeness, equals(v2.score));
     });
   });
+
+  group('S47: dataTimestamps wiring', () {
+    test('fromWizardAnswers stamps initial fields with base timestamp', () {
+      final answers = <String, dynamic>{
+        'q_birth_year': 1977,
+        'q_canton': 'VS',
+        'q_net_income_period_chf': 7500.0,
+        'q_has_pension_fund': true,
+        'q_has_3a': true,
+        'q_3a_annual_contribution': 7258.0,
+        'q_cash_total': 50000.0,
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      // Core fields should have timestamps
+      expect(profile.dataTimestamps, contains('salaireBrutMensuel'));
+      expect(profile.dataTimestamps, contains('canton'));
+      expect(profile.dataTimestamps, contains('age'));
+      expect(profile.dataTimestamps, contains('patrimoine.epargneLiquide'));
+      // All timestamps should be recent (within last minute)
+      final now = DateTime.now();
+      for (final ts in profile.dataTimestamps.values) {
+        expect(now.difference(ts).inSeconds, lessThan(60));
+      }
+    });
+
+    test('fromWizardAnswers restores persisted timestamps', () {
+      final oldDate = DateTime(2025, 6, 15);
+      final answers = <String, dynamic>{
+        'q_birth_year': 1977,
+        'q_canton': 'VS',
+        'q_net_income_period_chf': 7500.0,
+        '_coach_data_timestamps': {
+          'prevoyance.avoirLppTotal': oldDate.toIso8601String(),
+          'patrimoine.epargneLiquide': oldDate.toIso8601String(),
+        },
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      // Persisted timestamps should override base timestamp
+      expect(
+        profile.dataTimestamps['prevoyance.avoirLppTotal'],
+        equals(oldDate),
+      );
+      expect(
+        profile.dataTimestamps['patrimoine.epargneLiquide'],
+        equals(oldDate),
+      );
+      // Non-persisted fields should have fresh timestamps
+      expect(
+        profile.dataTimestamps['salaireBrutMensuel']!.isAfter(oldDate),
+        isTrue,
+      );
+    });
+
+    test('fresh timestamps → high freshness score', () {
+      final now = DateTime(2026, 3, 9);
+      final profile = _buildProfile(
+        age: 50,
+        salary: 10000,
+        canton: 'VD',
+        avoirLpp: 300000,
+        epargne3a: 50000,
+        patrimoine: 80000,
+        tauxConversion: 0.054,
+        anneesContribuees: 25,
+        dataSources: {
+          'salaireBrutMensuel': ProfileDataSource.certificate,
+          'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
+        },
+        dataTimestamps: {
+          'salaireBrutMensuel': now.subtract(const Duration(days: 30)),
+          'prevoyance.avoirLppTotal': now.subtract(const Duration(days: 60)),
+          'patrimoine.epargneLiquide': now.subtract(const Duration(days: 15)),
+        },
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile, now: now);
+      // All data is < 6 months old → freshness should be decent
+      // (weighted average includes fields without timestamps → default 0.5)
+      expect(result.freshness, greaterThanOrEqualTo(60));
+    });
+
+    test('stale timestamps → low freshness score + prompts', () {
+      final now = DateTime(2026, 3, 9);
+      final profile = _buildProfile(
+        age: 50,
+        salary: 10000,
+        canton: 'VD',
+        avoirLpp: 300000,
+        dataSources: {
+          'salaireBrutMensuel': ProfileDataSource.userInput,
+          'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
+        },
+        dataTimestamps: {
+          'salaireBrutMensuel': now.subtract(const Duration(days: 900)),
+          'prevoyance.avoirLppTotal': now.subtract(const Duration(days: 900)),
+        },
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile, now: now);
+      // Data is ~30 months old → freshness should be low
+      expect(result.freshness, lessThan(50));
+      // Should have freshness prompts
+      final freshnessPrompts =
+          result.axisPrompts.where((p) => p.category == 'freshness');
+      expect(freshnessPrompts, isNotEmpty);
+    });
+
+    test('mixed timestamps → freshness reflects weighted average', () {
+      final now = DateTime(2026, 3, 9);
+      final profile = _buildProfile(
+        age: 50,
+        salary: 10000,
+        canton: 'VD',
+        avoirLpp: 300000,
+        epargne3a: 50000,
+        patrimoine: 80000,
+        dataSources: {
+          'salaireBrutMensuel': ProfileDataSource.certificate,
+          'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
+        },
+        dataTimestamps: {
+          // Salary fresh, LPP stale
+          'salaireBrutMensuel': now.subtract(const Duration(days: 30)),
+          'prevoyance.avoirLppTotal': now.subtract(const Duration(days: 800)),
+        },
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile, now: now);
+      // Freshness should be moderate (mix of fresh and stale)
+      expect(result.freshness, greaterThan(30));
+      expect(result.freshness, lessThan(90));
+    });
+  });
 }
 
 /// Helper to build a CoachProfile for testing.

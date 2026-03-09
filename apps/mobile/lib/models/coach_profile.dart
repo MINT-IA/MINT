@@ -2103,6 +2103,43 @@ class CoachProfile {
       }
     }
 
+    // S47: Build initial dataTimestamps for all populated fields.
+    // Use persisted updatedAt as base (reflects when data was actually entered),
+    // falling back to now for first-time creation.
+    final baseTimestamp = savedUpdatedAt != null
+        ? (DateTime.tryParse(savedUpdatedAt) ?? DateTime.now())
+        : DateTime.now();
+    final initialTimestamps = <String, DateTime>{
+      'salaireBrutMensuel': baseTimestamp,
+      'age': baseTimestamp,
+      'canton': baseTimestamp,
+      if (prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0)
+        'prevoyance.avoirLppTotal': baseTimestamp,
+      if (prevoyance.totalEpargne3a > 0)
+        'prevoyance.totalEpargne3a': baseTimestamp,
+      if (prevoyance.renteAVSEstimeeMensuelle != null)
+        'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
+      if (prevoyance.tauxConversion != null)
+        'prevoyance.tauxConversion': baseTimestamp,
+      'patrimoine.epargneLiquide': baseTimestamp,
+      if (patrimoine.investissements > 0)
+        'patrimoine.investissements': baseTimestamp,
+      if (depenses.loyer > 0) 'depenses.loyer': baseTimestamp,
+      if (depenses.assuranceMaladie > 0)
+        'depenses.assuranceMaladie': baseTimestamp,
+    };
+
+    // Restore persisted timestamps from answers (written by updateInline /
+    // extraction methods). These override the base timestamp for fields that
+    // were individually refreshed.
+    final persistedTs = answers['_coach_data_timestamps'];
+    if (persistedTs is Map) {
+      for (final entry in persistedTs.entries) {
+        final dt = DateTime.tryParse(entry.value.toString());
+        if (dt != null) initialTimestamps[entry.key.toString()] = dt;
+      }
+    }
+
     return CoachProfile(
       firstName: firstName,
       birthYear: birthYear,
@@ -2134,6 +2171,7 @@ class CoachProfile {
       createdAt:
           savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
       dataSources: restoredDataSources,
+      dataTimestamps: initialTimestamps,
     );
   }
 
