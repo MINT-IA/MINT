@@ -87,7 +87,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         avoirActuel: _avoirActuel,
         rachatMax: _rachatMax,
         revenuImposable: _revenu,
-        tauxMarginalEstime: _effectiveTaux,
+        canton: _canton,
+        civilStatus: _civilStatus,
         horizon: _horizon,
       );
 

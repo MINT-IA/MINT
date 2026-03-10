@@ -20,7 +20,8 @@ void main() {
         avoirActuel: 200000,
         rachatMax: 50000,
         revenuImposable: 120000,
-        tauxMarginalEstime: 0.35,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 5,
       );
       // Delta positif = echelonne economise plus que bloc
@@ -34,18 +35,20 @@ void main() {
         avoirActuel: 100000,
         rachatMax: 30000,
         revenuImposable: 80000,
-        tauxMarginalEstime: 0.30,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 3,
       );
       expect(result.yearlyPlan.length, 3);
     });
 
-    test('chaque annee a rachat = rachatMax / horizon', () {
+    test('chaque annee a rachat = min(rachatMax / horizon, revenu)', () {
       final result = RachatEchelonneSimulator.compare(
         avoirActuel: 100000,
         rachatMax: 40000,
         revenuImposable: 80000,
-        tauxMarginalEstime: 0.30,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 4,
       );
       for (final plan in result.yearlyPlan) {
@@ -58,7 +61,8 @@ void main() {
         avoirActuel: 100000,
         rachatMax: 20000,
         revenuImposable: 90000,
-        tauxMarginalEstime: 0.30,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 2,
       );
       for (final plan in result.yearlyPlan) {
@@ -74,22 +78,27 @@ void main() {
         avoirActuel: 100000,
         rachatMax: 30000,
         revenuImposable: 80000,
-        tauxMarginalEstime: 0.30,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 10, // within 1-15 range
       );
       // Source clamps horizon to 1-15, so 10 is within range
       expect(resultHigh.yearlyPlan.length, 10);
     });
 
-    test('taux marginal clampe entre 0.10 et 0.50', () {
+    test('economie fiscale ne depasse pas impot total paye', () {
       final result = RachatEchelonneSimulator.compare(
         avoirActuel: 100000,
-        rachatMax: 20000,
+        rachatMax: 80000,
         revenuImposable: 80000,
-        tauxMarginalEstime: 0.05, // < 0.10
-        horizon: 2,
+        canton: 'VS',
+        civilStatus: 'married',
+        horizon: 1,
       );
-      // L'economie devrait etre calculee avec taux 0.10 (min clamp)
+      // L'economie ne peut pas depasser l'impot total
+      // Pour un revenu de 80k VS marie, l'impot est ~8-12k
+      // L'economie bloc est capee a ce montant
+      expect(result.economieBlocTotal, lessThanOrEqualTo(15000));
       expect(result.economieBlocTotal, greaterThan(0));
     });
 
@@ -98,7 +107,8 @@ void main() {
         avoirActuel: 100000,
         rachatMax: 0,
         revenuImposable: 80000,
-        tauxMarginalEstime: 0.30,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 3,
       );
       expect(result.economieBlocTotal, 0);
@@ -110,11 +120,12 @@ void main() {
         avoirActuel: 100000,
         rachatMax: 300000, // deduction > revenu imposable
         revenuImposable: 100000,
-        tauxMarginalEstime: 0.40,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 1,
       );
-      // Impossible d'economiser plus que la deduction taxable * taux marginal.
-      expect(result.economieBlocTotal, lessThanOrEqualTo(40000));
+      // Bloc deductible cappe a revenu (100k), economie capee a impot total
+      expect(result.economieBlocTotal, lessThanOrEqualTo(30000));
     });
 
     test('disclaimer mentionne LPP art. 79b al. 3', () {
@@ -122,11 +133,45 @@ void main() {
         avoirActuel: 100000,
         rachatMax: 20000,
         revenuImposable: 80000,
-        tauxMarginalEstime: 0.30,
+        canton: 'VD',
+        civilStatus: 'single',
         horizon: 3,
       );
       expect(result.disclaimer, contains('79b'));
       expect(result.disclaimer, contains('spécialiste'));
+    });
+
+    test('rachat annuel cappe au revenu imposable', () {
+      // Si rachat total = 600k sur 3 ans = 200k/an,
+      // mais revenu = 100k, chaque annee ne deduit que 100k
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 200000,
+        rachatMax: 600000,
+        revenuImposable: 100000,
+        canton: 'ZH',
+        civilStatus: 'single',
+        horizon: 3,
+      );
+      for (final plan in result.yearlyPlan) {
+        expect(plan.montantRachat, lessThanOrEqualTo(100000));
+      }
+    });
+
+    test('Julien golden test — rachat 33k/an sur revenu 122k VS marie', () {
+      final result = RachatEchelonneSimulator.compare(
+        avoirActuel: 70377,
+        rachatMax: 500000, // ~539k lacune
+        revenuImposable: 122207,
+        canton: 'VS',
+        civilStatus: 'married',
+        horizon: 15,
+      );
+      // Rachat annuel = 500k/15 = 33'333
+      expect(result.yearlyPlan.first.montantRachat, closeTo(33333, 1));
+      // Economie par an doit etre < impot total (~15-20k pour 122k VS marie)
+      expect(result.yearlyPlan.first.economieFiscale, lessThan(20000));
+      // Economie par an doit etre raisonnable (5-10k pour 33k deduit)
+      expect(result.yearlyPlan.first.economieFiscale, greaterThan(2000));
     });
   });
 
