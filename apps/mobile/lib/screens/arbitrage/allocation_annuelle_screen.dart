@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Allocation annuelle arbitrage screen — compare 3a, rachat LPP,
@@ -166,29 +167,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
                   // ── Indicatif banner (P8 Phase 4) ──
-                  if (_result!.confidenceScore < 70)
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: MintColors.warning.withAlpha(20),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: MintColors.warning.withAlpha(60)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
-                              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: '3a',
+                  ),
                   if (_hasEstimatedValues)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),

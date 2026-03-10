@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rente vs Capital arbitrage screen — the "a-ha" moment.
@@ -415,8 +416,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
                 if (_result != null) ...[
                   // ── Confidence banner ──
-                  if (_result!.confidenceScore < 70)
-                    _buildConfidenceBanner(),
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: 'lpp',
+                  ),
 
                   if (_hasEstimatedValues && _inputMode == _InputMode.estimate)
                     Padding(
@@ -1712,31 +1715,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
   //  CONFIDENCE BANNER
   // ═══════════════════════════════════════════════════════════════
-
-  Widget _buildConfidenceBanner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withAlpha(20),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MintColors.warning.withAlpha(60)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Résultat indicatif — précise tes données pour un résultat plus fiable.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════
   //  HYPOTHESES EXPANDABLE

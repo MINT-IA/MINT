@@ -12,6 +12,8 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rachat LPP vs Investissement libre arbitrage screen.
 ///
@@ -43,6 +45,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   };
 
   ArbitrageResult? _result;
+  bool _hasEstimatedValues = false;
 
   @override
   void initState() {
@@ -54,6 +57,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     autoFillFromProfile(context, (p) {
+      _hasEstimatedValues = true;
       final revenu = p.revenuBrutAnnuel;
       final canton = p.canton.isNotEmpty ? p.canton : 'VD';
       // Use financial_core TaxCalculator — canton-aware marginal rate.
@@ -139,6 +143,19 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
 
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: 'lpp',
+                  ),
+                  if (_hasEstimatedValues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   Text(
                     'Trajectoires comparees',
                     style: GoogleFonts.montserrat(
