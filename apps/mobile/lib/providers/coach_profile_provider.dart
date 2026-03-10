@@ -1050,6 +1050,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? creditConsommation,
     double? leasing,
     double? autresDettes,
+    double? rendementCaisse,
   }) async {
     if (_profile == null) return;
     final p = _profile!;
@@ -1057,7 +1058,10 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
 
     PrevoyanceProfile? updatedPrev;
-    if (avoirLppTotal != null || totalEpargne3a != null || nombre3a != null) {
+    if (avoirLppTotal != null ||
+        totalEpargne3a != null ||
+        nombre3a != null ||
+        rendementCaisse != null) {
       updatedPrev = PrevoyanceProfile(
         anneesContribuees: p.prevoyance.anneesContribuees,
         lacunesAVS: p.prevoyance.lacunesAVS,
@@ -1070,7 +1074,7 @@ class CoachProfileProvider extends ChangeNotifier {
         rachatEffectue: p.prevoyance.rachatEffectue,
         tauxConversion: p.prevoyance.tauxConversion,
         tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
-        rendementCaisse: p.prevoyance.rendementCaisse,
+        rendementCaisse: rendementCaisse ?? p.prevoyance.rendementCaisse,
         salaireAssure: p.prevoyance.salaireAssure,
         ramd: p.prevoyance.ramd,
         nombre3a: nombre3a ?? p.prevoyance.nombre3a,
@@ -1085,6 +1089,10 @@ class CoachProfileProvider extends ChangeNotifier {
       }
       if (totalEpargne3a != null) {
         updatedSources['prevoyance.totalEpargne3a'] =
+            ProfileDataSource.userInput;
+      }
+      if (rendementCaisse != null) {
+        updatedSources['prevoyance.rendementCaisse'] =
             ProfileDataSource.userInput;
       }
     }
@@ -1182,6 +1190,7 @@ class CoachProfileProvider extends ChangeNotifier {
       if (salaireBrutMensuel != null) 'salaireBrutMensuel',
       if (avoirLppTotal != null) 'prevoyance.avoirLppTotal',
       if (totalEpargne3a != null) 'prevoyance.totalEpargne3a',
+      if (rendementCaisse != null) 'prevoyance.rendementCaisse',
       if (rachatLppMensuel != null) 'prevoyance.rachatLppMensuel',
       if (epargneLiquide != null) 'patrimoine.epargneLiquide',
       if (investissements != null) 'patrimoine.investissements',
@@ -1250,6 +1259,9 @@ class CoachProfileProvider extends ChangeNotifier {
         answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
       }
       if (avoirLppTotal != null) answers['_coach_avoir_lpp'] = avoirLppTotal;
+      if (rendementCaisse != null) {
+        answers['_coach_rendement_caisse'] = rendementCaisse;
+      }
       if (totalEpargne3a != null) answers['_coach_total_3a'] = totalEpargne3a;
       if (rachatLppMensuel != null) {
         answers['_coach_rachat_lpp_mensuel'] = rachatLppMensuel;

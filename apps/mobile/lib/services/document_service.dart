@@ -94,6 +94,7 @@ class LppExtractedFields {
   final double? rachatMaximum;
   final double? cotisationEmploye;
   final double? cotisationEmployeur;
+  final double? remunerationRate;
 
   const LppExtractedFields({
     this.avoirObligatoire,
@@ -112,6 +113,7 @@ class LppExtractedFields {
     this.rachatMaximum,
     this.cotisationEmploye,
     this.cotisationEmployeur,
+    this.remunerationRate,
   });
 
   factory LppExtractedFields.fromJson(Map<String, dynamic> json) {
@@ -133,6 +135,7 @@ class LppExtractedFields {
       rachatMaximum: _toDouble(json['rachat_maximum']),
       cotisationEmploye: _toDouble(json['cotisation_employe']),
       cotisationEmployeur: _toDouble(json['cotisation_employeur']),
+      remunerationRate: _toDouble(json['remuneration_rate']),
     );
   }
 
@@ -172,6 +175,9 @@ class LppExtractedFields {
     if (cotisationEmployeur != null) {
       map['cotisation_employeur'] = cotisationEmployeur;
     }
+    if (remunerationRate != null) {
+      map['remuneration_rate'] = remunerationRate;
+    }
     return map;
   }
 
@@ -194,6 +200,7 @@ class LppExtractedFields {
     if (rachatMaximum != null) count++;
     if (cotisationEmploye != null) count++;
     if (cotisationEmployeur != null) count++;
+    if (remunerationRate != null) count++;
     return count;
   }
 

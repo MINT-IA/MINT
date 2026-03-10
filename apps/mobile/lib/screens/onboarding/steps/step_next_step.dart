@@ -16,12 +16,14 @@ class StepNextStep extends StatelessWidget {
   final double confidenceScore;
   final VoidCallback onEnrich;
   final VoidCallback onDashboard;
+  final VoidCallback? onCheckin;
 
   const StepNextStep({
     super.key,
     required this.confidenceScore,
     required this.onEnrich,
     required this.onDashboard,
+    this.onCheckin,
   });
 
   @override
@@ -144,6 +146,34 @@ class StepNextStep extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onCheckin != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      AnalyticsService().trackEvent(
+                        'first_checkin_from_onboarding',
+                        category: 'conversion',
+                        screenName: 'smart_onboarding_next_step',
+                      );
+                      onCheckin!();
+                    },
+                    icon: const Icon(Icons.receipt_long_rounded, size: 18),
+                    label: Text(
+                      'Faire mon premier check-in',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: MintColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
 
               // ── DISCLAIMER ──────────────────────────────────────────

@@ -265,6 +265,15 @@ class _PulseScreenState extends State<PulseScreen> {
                   child: _buildBriefingBanner(_cachedBriefing!),
                 ),
 
+              // 2c-bis. No check-in nudge (coaching loop bridge)
+              if (_cachedBriefing == null &&
+                  !_hasCheckInThisMonth(profile))
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 20, right: 20, bottom: 16),
+                  child: _buildNoCheckInBanner(context),
+                ),
+
               // 2d. FRI — Financial Readiness Index
               if (_cachedFri != null && visibilityScore.total >= 50)
                 Padding(
@@ -528,6 +537,59 @@ class _PulseScreenState extends State<PulseScreen> {
   // ────────────────────────────────────────────────────────
   //  POST-CHECK-IN BRIEFING BANNER (#2)
   // ────────────────────────────────────────────────────────
+
+  bool _hasCheckInThisMonth(CoachProfile profile) {
+    final now = DateTime.now();
+    return profile.checkIns.any(
+      (ci) => ci.month.year == now.year && ci.month.month == now.month,
+    );
+  }
+
+  Widget _buildNoCheckInBanner(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_today_rounded,
+              size: 16, color: MintColors.info),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Aucun check-in ce mois. Enregistre tes versements '
+              'pour suivre ta progression.',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textSecondary,
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: () => context.go('/coach/checkin'),
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              'Check-in',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildBriefingBanner(MonthlyBriefingDelta briefing) {
     final trendIcon = switch (briefing.trend) {

@@ -1762,6 +1762,8 @@ class CoachProfile {
         _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
     final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
+    final coachRendementCaisse =
+        _parseDouble(answers['_coach_rendement_caisse']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
     final coachAvsRenteEstimee =
         _parseDouble(answers['_coach_avs_rente_estimee']);
@@ -1801,6 +1803,7 @@ class CoachProfile {
       tauxConversion: coachTauxConversion ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
+      rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
