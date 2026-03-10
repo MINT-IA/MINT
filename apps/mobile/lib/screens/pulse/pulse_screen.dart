@@ -26,7 +26,8 @@ import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/monthly_briefing_service.dart';
+import 'dart:math' show min, sqrt, pow;
 
 // ────────────────────────────────────────────────────────────
 //  PULSE SCREEN — S48 / Phase 0
@@ -67,6 +68,11 @@ class _PulseScreenState extends State<PulseScreen> {
   List<TemporalItem> _temporalItems = const [];
   List<ResponseCard> _responseCards = const [];
 
+  // ── Cached projections (avoid 3x ForecasterService calls) ──
+  ProjectionResult? _cachedProjection;
+  MonthlyBriefingDelta? _cachedBriefing;
+  _FriScore? _cachedFri;
+
   // ── Profile tracking (avoid unnecessary recomputation) ───
   CoachProfile? _lastProfile;
 
@@ -89,7 +95,17 @@ class _PulseScreenState extends State<PulseScreen> {
     if (_lastProfile == profile) return;
     _lastProfile = profile;
 
-    // ── Compute temporal items (synchronous) ──────────────
+    // ── Cache projection (used by key figures + couple + FRI) ──
+    try {
+      _cachedProjection = ForecasterService.project(profile: profile);
+    } catch (_) {
+      _cachedProjection = null;
+    }
+
+    // ── Compute FRI (Financial Readiness Index) ──────────
+    _cachedFri = _computeFri(profile);
+
+    // ── Compute temporal items (uses FRI) ───────────────
     _computeTemporalItems(profile);
 
     // ── Generate response cards (synchronous) ─────────────
@@ -97,6 +113,9 @@ class _PulseScreenState extends State<PulseScreen> {
       profile: profile,
       limit: 4,
     );
+
+    // ── Monthly briefing (post-check-in banner) ──────────
+    _cachedBriefing = MonthlyBriefingService.fromProfile(profile);
 
     // ── Generate narrative (async, non-blocking) ──────────
     final tips = _buildCoachingTips(profile);
@@ -114,10 +133,11 @@ class _PulseScreenState extends State<PulseScreen> {
                 profile.salaireBrutMensuel * 12, profile.canton)
         : 0.0;
 
+    final fri = _cachedFri;
     _temporalItems = TemporalPriorityService.prioritize(
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       taxSaving3a: taxSaving3a,
-      friTotal: 0,
+      friTotal: fri?.total ?? 0,
       friDelta: 0,
       limit: 4,
     );
@@ -225,7 +245,32 @@ class _PulseScreenState extends State<PulseScreen> {
 
               // 2. Score de visibilite
               VisibilityScoreCard(score: visibilityScore),
+
+              // 2b. Score history sparkline
+              if (coachProvider.scoreHistory.length >= 2)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _ScoreSparkline(
+                    history: coachProvider.scoreHistory,
+                  ),
+                ),
               const SizedBox(height: 16),
+
+              // 2c. Post-check-in briefing banner
+              if (_cachedBriefing != null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 20, right: 20, bottom: 16),
+                  child: _buildBriefingBanner(_cachedBriefing!),
+                ),
+
+              // 2d. FRI — Financial Readiness Index
+              if (_cachedFri != null && visibilityScore.total >= 50)
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 20, right: 20, bottom: 16),
+                  child: _buildFriCard(_cachedFri!),
+                ),
 
               // 3. Key figures (retraite + budget + patrimoine)
               Padding(
@@ -322,33 +367,21 @@ class _PulseScreenState extends State<PulseScreen> {
   // ────────────────────────────────────────────────────────
 
   Widget _buildKeyFigures(CoachProfile profile) {
-    // Retirement projection (base scenario)
+    // Retirement projection (from cache)
     double? retraiteEstimee;
     double? tauxRemplacement;
-    try {
-      final projection = ForecasterService.project(profile: profile);
-      retraiteEstimee = projection.base.revenuAnnuelRetraite / 12;
-      final revenuActuel = profile.salaireBrutMensuel > 0
-          ? NetIncomeBreakdown.compute(
-              grossSalary: profile.salaireBrutMensuel * 12,
-              canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-              age: DateTime.now().year - profile.birthYear,
-            ).monthlyNetPayslip
-          : 0.0;
+    if (_cachedProjection != null) {
+      retraiteEstimee =
+          _cachedProjection!.base.revenuAnnuelRetraite / 12;
+      final revenuActuel = _computeRevenuNet(profile);
       if (revenuActuel > 0) {
         tauxRemplacement = (retraiteEstimee / revenuActuel * 100);
       }
-    } catch (_) {}
+    }
 
     // Budget libre
     final depMensuelles = profile.totalDepensesMensuelles;
-    final revenuNet = profile.salaireBrutMensuel > 0
-        ? NetIncomeBreakdown.compute(
-            grossSalary: profile.salaireBrutMensuel * 12,
-            canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-            age: DateTime.now().year - profile.birthYear,
-          ).monthlyNetPayslip
-        : 0.0;
+    final revenuNet = _computeRevenuNet(profile);
     final budgetLibre = revenuNet - depMensuelles;
 
     // Patrimoine total
@@ -408,13 +441,13 @@ class _PulseScreenState extends State<PulseScreen> {
     final conjName = profile.conjoint?.firstName ?? 'ton conjoint';
     final firstName = profile.firstName ?? 'Toi';
 
-    // Try couple projection
+    // Couple projection (from cache)
     String? coupleRevenu;
-    try {
-      final projection = ForecasterService.project(profile: profile);
-      final monthlyCouple = projection.base.revenuAnnuelRetraite / 12;
+    if (_cachedProjection != null) {
+      final monthlyCouple =
+          _cachedProjection!.base.revenuAnnuelRetraite / 12;
       coupleRevenu = 'CHF ${monthlyCouple.round()}/mois';
-    } catch (_) {}
+    }
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -474,6 +507,233 @@ class _PulseScreenState extends State<PulseScreen> {
                 size: 14, color: MintColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  HELPERS
+  // ────────────────────────────────────────────────────────
+
+  double _computeRevenuNet(CoachProfile profile) {
+    if (profile.salaireBrutMensuel <= 0) return 0.0;
+    return NetIncomeBreakdown.compute(
+      grossSalary: profile.salaireBrutMensuel * 12,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: DateTime.now().year - profile.birthYear,
+    ).monthlyNetPayslip;
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  POST-CHECK-IN BRIEFING BANNER (#2)
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildBriefingBanner(MonthlyBriefingDelta briefing) {
+    final trendIcon = switch (briefing.trend) {
+      BriefingTrend.enHausse => Icons.trending_up,
+      BriefingTrend.enBaisse => Icons.trending_down,
+      BriefingTrend.stable => Icons.trending_flat,
+    };
+    final trendColor = switch (briefing.trend) {
+      BriefingTrend.enHausse => MintColors.success,
+      BriefingTrend.enBaisse => MintColors.warning,
+      BriefingTrend.stable => MintColors.textSecondary,
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: trendColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: trendColor.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(trendIcon, size: 16, color: trendColor),
+              const SizedBox(width: 8),
+              Text(
+                'Bilan du mois — ${briefing.trendLabel}',
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          if (briefing.insights.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              briefing.insights.first,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textSecondary,
+                height: 1.4,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  FRI — Financial Readiness Index (#3)
+  // ────────────────────────────────────────────────────────
+
+  _FriScore _computeFri(CoachProfile profile) {
+    final monthlyExpenses = profile.totalDepensesMensuelles > 0
+        ? profile.totalDepensesMensuelles
+        : 3500.0; // fallback suisse moyen
+
+    // L — Liquidity (0-25)
+    final liquidAssets = profile.patrimoine.epargneLiquide;
+    final monthsCover =
+        monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0.0;
+    var l = 25 * min(1.0, sqrt(monthsCover / 6.0));
+    l = l.clamp(0, 25);
+
+    // F — Fiscal Efficiency (0-25)
+    final actual3a = profile.prevoyance.totalEpargne3a ?? 0;
+    final max3a = 7258.0; // pilier3aPlafondAvecLpp
+    final utilisation3a = max3a > 0 ? (actual3a / max3a).clamp(0.0, 1.0) : 0.0;
+    var f = 25 * (0.6 * utilisation3a);
+    // rachat LPP component (simplified: if potentiel > 0 and no buyback done)
+    f = f.clamp(0, 25);
+
+    // R — Retirement (0-25)
+    var r = 0.0;
+    if (_cachedProjection != null) {
+      final revenuNet = _computeRevenuNet(profile);
+      if (revenuNet > 0) {
+        final retirementIncome =
+            _cachedProjection!.base.revenuAnnuelRetraite / 12;
+        final replacementRatio = retirementIncome / revenuNet;
+        r = 25 * min(1.0, pow(replacementRatio / 0.70, 1.5).toDouble());
+      }
+    }
+    r = r.clamp(0, 25);
+
+    // S — Structural Risk (0-25)
+    var s = 25.0;
+    if (profile.patrimoine.loanToValue > 0.80) s -= 5;
+    final totalAssets = profile.patrimoine.totalPatrimoine;
+    if (totalAssets > 0) {
+      final concentration =
+          profile.patrimoine.immobilierEffectif / totalAssets;
+      if (concentration > 0.70) s -= 4;
+    }
+    s = s.clamp(0, 25);
+
+    final total = l + f + r + s;
+    final weakest = <String, double>{'L': l, 'F': f, 'R': r, 'S': s}
+        .entries
+        .reduce((a, b) => a.value <= b.value ? a : b);
+
+    final weakLabel = switch (weakest.key) {
+      'L' => 'Liquidite',
+      'F' => 'Optimisation fiscale',
+      'R' => 'Retraite',
+      'S' => 'Risques structurels',
+      _ => '',
+    };
+
+    return _FriScore(
+      total: total,
+      l: l,
+      f: f,
+      r: r,
+      s: s,
+      weakestLabel: weakLabel,
+      weakestValue: weakest.value,
+    );
+  }
+
+  Widget _buildFriCard(_FriScore fri) {
+    final color = fri.total >= 65
+        ? MintColors.success
+        : fri.total >= 40
+            ? MintColors.warning
+            : MintColors.error;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.shield_outlined, size: 18, color: color),
+              const SizedBox(width: 8),
+              Text(
+                'Solidite financiere',
+                style: GoogleFonts.outfit(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${fri.total.round()} / 100',
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // 4-bar gauge
+          Row(
+            children: [
+              _FriBar(label: 'L', value: fri.l, max: 25),
+              const SizedBox(width: 6),
+              _FriBar(label: 'F', value: fri.f, max: 25),
+              const SizedBox(width: 6),
+              _FriBar(label: 'R', value: fri.r, max: 25),
+              const SizedBox(width: 6),
+              _FriBar(label: 'S', value: fri.s, max: 25),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Weakest point + action
+          Row(
+            children: [
+              Icon(Icons.info_outline, size: 14, color: MintColors.textMuted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Point le plus fragile : ${fri.weakestLabel}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -744,4 +1004,213 @@ class _KeyFigureCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// ────────────────────────────────────────────────────────
+//  FRI DATA CLASS
+// ────────────────────────────────────────────────────────
+
+class _FriScore {
+  final double total;
+  final double l; // Liquidity
+  final double f; // Fiscal
+  final double r; // Retirement
+  final double s; // Structural
+  final String weakestLabel;
+  final double weakestValue;
+
+  const _FriScore({
+    required this.total,
+    required this.l,
+    required this.f,
+    required this.r,
+    required this.s,
+    required this.weakestLabel,
+    required this.weakestValue,
+  });
+}
+
+// ────────────────────────────────────────────────────────
+//  FRI BAR (single component gauge)
+// ────────────────────────────────────────────────────────
+
+class _FriBar extends StatelessWidget {
+  final String label;
+  final double value;
+  final double max;
+
+  const _FriBar({
+    required this.label,
+    required this.value,
+    required this.max,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = (value / max).clamp(0.0, 1.0);
+    final color = ratio >= 0.7
+        ? MintColors.success
+        : ratio >= 0.4
+            ? MintColors.warning
+            : MintColors.error;
+
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: ratio,
+              minHeight: 6,
+              backgroundColor: MintColors.surface,
+              valueColor: AlwaysStoppedAnimation(color),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '${value.round()}',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textMuted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────
+//  SCORE SPARKLINE (#1)
+// ────────────────────────────────────────────────────────
+
+class _ScoreSparkline extends StatelessWidget {
+  final List<Map<String, dynamic>> history;
+
+  const _ScoreSparkline({required this.history});
+
+  @override
+  Widget build(BuildContext context) {
+    if (history.length < 2) return const SizedBox.shrink();
+
+    // Extract scores, keep last 12 months
+    final recent = history.length > 12
+        ? history.sublist(history.length - 12)
+        : history;
+    final scores =
+        recent.map((e) => (e['score'] as num?)?.toDouble() ?? 0).toList();
+    final first = scores.first;
+    final last = scores.last;
+    final delta = last - first;
+    final deltaColor =
+        delta >= 0 ? MintColors.success : MintColors.warning;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          // Sparkline chart
+          Expanded(
+            child: SizedBox(
+              height: 28,
+              child: CustomPaint(
+                painter: _SparklinePainter(scores: scores),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Delta badge
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: deltaColor.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '${delta >= 0 ? '+' : ''}${delta.round()} pts',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: deltaColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SparklinePainter extends CustomPainter {
+  final List<double> scores;
+
+  _SparklinePainter({required this.scores});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (scores.length < 2) return;
+
+    final maxScore = scores.reduce((a, b) => a > b ? a : b);
+    final minScore = scores.reduce((a, b) => a < b ? a : b);
+    final range = (maxScore - minScore).clamp(1.0, 100.0);
+
+    final paint = Paint()
+      ..color = MintColors.primary
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    for (var i = 0; i < scores.length; i++) {
+      final x = i / (scores.length - 1) * size.width;
+      final y =
+          size.height - ((scores[i] - minScore) / range * size.height);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    canvas.drawPath(path, paint);
+
+    // Fill gradient under curve
+    final fillPath = Path.from(path)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    final fillPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          MintColors.primary.withValues(alpha: 0.15),
+          MintColors.primary.withValues(alpha: 0.0),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawPath(fillPath, fillPaint);
+
+    // Last point dot
+    final dotPaint = Paint()
+      ..color = MintColors.primary
+      ..style = PaintingStyle.fill;
+    final lastX = size.width;
+    final lastY = size.height -
+        ((scores.last - minScore) / range * size.height);
+    canvas.drawCircle(Offset(lastX, lastY), 3, dotPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SparklinePainter old) =>
+      old.scores != scores;
 }
