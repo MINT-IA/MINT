@@ -288,6 +288,121 @@ void main() {
   });
 
   // ════════════════════════════════════════════════════════════
+  //  FRI delta from persisted snapshots
+  // ════════════════════════════════════════════════════════════
+
+  group('FRI delta — persisted snapshots', () {
+    test('friDelta computed from check-in friScore fields', () {
+      final profile = _buildProfile();
+      final prev = _checkIn(
+        month: DateTime(2026, 2, 1),
+        versements: {'3a': 604},
+      );
+      final curr = _checkIn(
+        month: DateTime(2026, 3, 1),
+        versements: {'3a': 604},
+      );
+
+      // Create check-ins with FRI snapshots
+      final prevWithFri = MonthlyCheckIn(
+        month: prev.month,
+        versements: prev.versements,
+        completedAt: prev.completedAt,
+        friScore: 52.0,
+      );
+      final currWithFri = MonthlyCheckIn(
+        month: curr.month,
+        versements: curr.versements,
+        completedAt: curr.completedAt,
+        friScore: 58.5,
+      );
+
+      final briefing = MonthlyBriefingService.compare(
+        profile: profile,
+        current: currWithFri,
+        previous: prevWithFri,
+      );
+
+      expect(briefing.friDelta, closeTo(6.5, 0.01));
+    });
+
+    test('friDelta is 0 when previous has no friScore (legacy)', () {
+      final profile = _buildProfile();
+      final prev = _checkIn(month: DateTime(2026, 2, 1));
+      final curr = MonthlyCheckIn(
+        month: DateTime(2026, 3, 1),
+        versements: const {'3a': 604},
+        completedAt: DateTime.now(),
+        friScore: 55.0,
+      );
+
+      final briefing = MonthlyBriefingService.compare(
+        profile: profile,
+        current: curr,
+        previous: prev,
+      );
+
+      expect(briefing.friDelta, 0.0);
+    });
+
+    test('friDelta is 0 for first check-in', () {
+      final profile = _buildProfile();
+      final curr = MonthlyCheckIn(
+        month: DateTime(2026, 3, 1),
+        versements: const {'3a': 604},
+        completedAt: DateTime.now(),
+        friScore: 55.0,
+      );
+
+      final briefing = MonthlyBriefingService.compare(
+        profile: profile,
+        current: curr,
+      );
+
+      expect(briefing.friDelta, 0.0);
+    });
+
+    test('negative friDelta when FRI decreases', () {
+      final profile = _buildProfile();
+      final prevWithFri = MonthlyCheckIn(
+        month: DateTime(2026, 2, 1),
+        versements: const {'3a': 604},
+        completedAt: DateTime.now(),
+        friScore: 60.0,
+      );
+      final currWithFri = MonthlyCheckIn(
+        month: DateTime(2026, 3, 1),
+        versements: const {'3a': 604},
+        completedAt: DateTime.now(),
+        friScore: 45.0,
+      );
+
+      final briefing = MonthlyBriefingService.compare(
+        profile: profile,
+        current: currWithFri,
+        previous: prevWithFri,
+      );
+
+      expect(briefing.friDelta, closeTo(-15.0, 0.01));
+    });
+
+    test('fitnessScore persisted in check-in', () {
+      final ci = MonthlyCheckIn(
+        month: DateTime(2026, 3, 1),
+        versements: const {'3a': 604},
+        completedAt: DateTime.now(),
+        friScore: 55.0,
+        fitnessScore: 72,
+      );
+      final json = ci.toJson();
+      final restored = MonthlyCheckIn.fromJson(json);
+
+      expect(restored.friScore, 55.0);
+      expect(restored.fitnessScore, 72);
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
   //  MicroActionEngine.suggest() — basic
   // ════════════════════════════════════════════════════════════
 

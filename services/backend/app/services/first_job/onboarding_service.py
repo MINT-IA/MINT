@@ -31,6 +31,7 @@ from app.constants.social_insurance import (
     AC_COTISATION_SALARIE,
     AC_COTISATION_SOLIDARITE_SALARIE,
     AC_PLAFOND_SALAIRE_ASSURE,
+    LAMAL_QUOTE_PART_CAP_ADULT,
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
@@ -67,7 +68,7 @@ PILLAR_3A_LIMIT = PILIER_3A_PLAFOND_AVEC_LPP  # CHF/year for employees (OPP3 art
 
 # LAMal franchise options
 LAMAL_FRANCHISES = [300, 500, 1000, 1500, 2000, 2500]
-LAMAL_QUOTE_PART_MAX = 700.0  # 10% after franchise, capped at 700 CHF/year
+LAMAL_QUOTE_PART_MAX = LAMAL_QUOTE_PART_CAP_ADULT  # 10% after franchise, capped at 700 CHF/year
 
 # Approximate LAMal monthly premiums by franchise level (young adult, ZH 2025)
 # These are approximate averages — actual premiums vary by insurer and canton

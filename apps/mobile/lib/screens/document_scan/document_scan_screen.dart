@@ -1138,6 +1138,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       value: lpp.salaireAssure,
       profileField: 'lppInsuredSalary',
     );
+    addField(
+      fieldName: 'remuneration_rate',
+      label: 'Taux de rémunération',
+      value: lpp.remunerationRate,
+      profileField: 'rendementCaisse',
+    );
 
     return ExtractionResult(
       documentType: DocumentType.lppCertificate,

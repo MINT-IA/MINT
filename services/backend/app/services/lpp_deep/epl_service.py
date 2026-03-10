@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from app.constants.social_insurance import (
+    EPL_MONTANT_MINIMUM,
+    EPL_BLOCAGE_RACHAT_ANNEES,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     RETRAIT_CAPITAL_TRANCHES,
     calculate_progressive_capital_tax,
@@ -93,9 +95,9 @@ class EPLService:
     - One-time capital withdrawal tax at reduced rate
     """
 
-    MINIMUM_RETRAIT = 20000.0       # OPP2 art. 5
-    AGE_REGLE_50 = 50               # LPP art. 30c al. 2
-    BLOCAGE_RACHAT_ANNEES = 3       # LPP art. 79b al. 3
+    MINIMUM_RETRAIT = EPL_MONTANT_MINIMUM       # OPP2 art. 5
+    AGE_REGLE_50 = 50                            # LPP art. 30c al. 2
+    BLOCAGE_RACHAT_ANNEES = EPL_BLOCAGE_RACHAT_ANNEES  # LPP art. 79b al. 3
 
     def simulate(
         self,

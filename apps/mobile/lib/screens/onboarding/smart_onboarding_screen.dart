@@ -271,7 +271,24 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
   Future<void> _saveThenGo(BuildContext context) async {
     _saveProfile(context);
     await SmartOnboardingDraftService.clearDraft();
-    if (context.mounted) context.go('/home');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Profil cree ! Tu peux tracker tes versements '
+            'mensuels dans l\'onglet Agir.',
+          ),
+          duration: Duration(seconds: 5),
+        ),
+      );
+      context.go('/home');
+    }
+  }
+
+  Future<void> _saveThenCheckin(BuildContext context) async {
+    _saveProfile(context);
+    await SmartOnboardingDraftService.clearDraft();
+    if (context.mounted) context.go('/coach/checkin');
   }
 
   Future<void> _saveThenEnrich(BuildContext context) async {
@@ -365,6 +382,7 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
                 confidenceScore: _viewModel.confidenceScore,
                 onEnrich: () => _saveThenEnrich(context),
                 onDashboard: () => _saveThenGo(context),
+                onCheckin: () => _saveThenCheckin(context),
               ),
             ],
           ),

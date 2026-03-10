@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 // ────────────────────────────────────────────────────────────
 //  RESPONSE CARD MODEL — Phase 1 / Pulse Dynamic Cards
 // ────────────────────────────────────────────────────────────
@@ -176,6 +178,15 @@ class ResponseCard {
   /// Points d'impact sur le score de visibilite.
   final int impactPoints;
 
+  /// Categorie pour le filtrage (prevoyance, fiscalite, budget, etc.).
+  final String category;
+
+  /// Impact estime en CHF (null si non quantifiable).
+  final double? impactChf;
+
+  /// Icone Material optionnelle.
+  final IconData? icon;
+
   const ResponseCard({
     required this.id,
     required this.type,
@@ -189,6 +200,9 @@ class ResponseCard {
     this.sources = const [],
     this.alertes = const [],
     this.impactPoints = 0,
+    this.category = '',
+    this.impactChf,
+    this.icon,
   });
 
   /// Nombre de jours avant la deadline (null si pas de deadline).
@@ -202,9 +216,34 @@ class ResponseCard {
     final days = daysUntilDeadline;
     if (days == null) return null;
     if (days <= 0) return 'Expire';
-    if (days <= 30) return '$days jours';
+    if (days == 1) return 'Demain';
+    if (days <= 30) return 'J-$days';
     final months = (days / 30).round();
     return '$months mois';
+  }
+
+  /// Couleur de bordure selon l'urgence.
+  Color get borderColor {
+    switch (urgency) {
+      case CardUrgency.high:
+        return const Color(0xFFE53935);
+      case CardUrgency.medium:
+        return const Color(0xFF1A73E8);
+      case CardUrgency.low:
+        return const Color(0xFF9E9E9E);
+    }
+  }
+
+  /// Couleur de fond du badge selon l'urgence.
+  Color get badgeColor {
+    switch (urgency) {
+      case CardUrgency.high:
+        return const Color(0xFFFFEBEE);
+      case CardUrgency.medium:
+        return const Color(0xFFE3F2FD);
+      case CardUrgency.low:
+        return const Color(0xFFF5F5F5);
+    }
   }
 
   Map<String, dynamic> toJson() => {
@@ -220,5 +259,7 @@ class ResponseCard {
         'sources': sources,
         'alertes': alertes,
         'impactPoints': impactPoints,
+        if (category.isNotEmpty) 'category': category,
+        if (impactChf != null) 'impactChf': impactChf,
       };
 }

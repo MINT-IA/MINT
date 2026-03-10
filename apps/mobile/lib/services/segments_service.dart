@@ -118,7 +118,7 @@ class GenderGapService {
 
   /// Analyse the pension gap between current activity rate and 100%.
   static GenderGapResult analyse({required GenderGapInput input}) {
-    final anneesRestantes = (ageRetraite - input.age).clamp(0, 40);
+    final anneesRestantes = (avsAgeReferenceHomme - input.age).clamp(0, 40);
 
     // Salary at 100% (extrapolated from current taux)
     final salaire100 = input.tauxActivite > 0
@@ -162,8 +162,8 @@ class GenderGapService {
     );
 
     // Convert capital to annual pension
-    final renteAt100 = capital100 * tauxConversion;
-    final renteAtCurrentTaux = capitalActuel * tauxConversion;
+    final renteAt100 = capital100 * lppTauxConversionMinDecimal;
+    final renteAtCurrentTaux = capitalActuel * lppTauxConversionMinDecimal;
     final lacuneAnnuelle = renteAt100 - renteAtCurrentTaux;
     final lacuneTotale = lacuneAnnuelle * 20; // approx 20 years of retirement
 
@@ -181,7 +181,7 @@ class GenderGapService {
       lacuneTotale: lacuneTotale,
       salaireCoordonne100: salaireCoordonne100,
       salaireCoordonneActuel: salaireCoordonneActuel,
-      deductionCoordination: deductionCoordination,
+      deductionCoordination: lppDeductionCoordination,
       anneesRestantes: anneesRestantes,
       recommendations: recommendations,
       statistiqueOfs: statistiqueOfs,
@@ -228,7 +228,7 @@ class GenderGapService {
     ));
 
     // 3. Proratisation coordination
-    if (input.tauxActivite < 100 && salaireCoordonneActuel < maxSalaireCoordonne * 0.5) {
+    if (input.tauxActivite < 100 && salaireCoordonneActuel < lppSalaireCoordMax * 0.5) {
       recs.add(const GenderGapRecommendation(
         title: 'Vérifier la proratisation de la coordination',
         description:
@@ -709,19 +709,7 @@ class IndependantResult {
 /// Key risks: no mandatory LPP, no mandatory IJM (CRITICAL),
 /// no mandatory LAA.
 class IndependantService {
-  // ── Constants ──────────────────────────────────────────────
-
-  /// 3a ceiling for self-employed without LPP (20% of net income, OPP3 art. 7).
-  static const double plafond3aMax = 36288;
-
-  /// 3a ceiling for self-employed WITH voluntary LPP (OPP3 art. 7, 2025/2026).
-  static const double plafond3aAvecLpp = 7258;
-
-  /// AVS rate for self-employed (full rate at income > 58'800).
-  static const double tauxAvsPlein = 0.106;
-
-  /// Swiss legal retirement age.
-  static const int ageRetraite = 65;
+  // ── Constants (delegated to social_insurance.dart) ─────────
 
   /// Simplified degressive AVS rates for low incomes.
   /// Key: income threshold, Value: effective rate.
@@ -754,8 +742,8 @@ class IndependantService {
     // 3a ceiling: 20% of net income if no LPP, max 35'280
     // If voluntary LPP: standard 7'258
     final plafond3a = input.hasLpp
-        ? plafond3aAvecLpp
-        : min(input.revenuNet * 0.20, plafond3aMax);
+        ? pilier3aPlafondAvecLpp
+        : min(input.revenuNet * 0.20, pilier3aPlafondSansLpp);
 
     // Protection cost simulation
     final protectionCost = _computeProtectionCost(
@@ -844,9 +832,9 @@ class IndependantService {
         urgency: input.has3a ? 'basse' : 'haute',
         recommendation: input.has3a
             ? 'Vérifie que tu verses le plafond '
-                '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}).'
+                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}).'
             : 'Ouvrez un 3e pilier et versez le maximum '
-                '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}). '
+                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}). '
                 'Sans LPP, le 3a est ton principal outil de prévoyance.',
         source: 'OPP3 art. 7',
       ),
@@ -856,7 +844,7 @@ class IndependantService {
   /// Compute AVS contribution for self-employed (degressive scale).
   static double _computeAvsContribution(double revenuNet) {
     if (revenuNet <= 0) return 0;
-    if (revenuNet >= 58800) return revenuNet * tauxAvsPlein;
+    if (revenuNet >= 58800) return revenuNet * avsCotisationTotal;
 
     // Find applicable bracket
     for (int i = _avsDegressifBrackets.length - 1; i >= 0; i--) {

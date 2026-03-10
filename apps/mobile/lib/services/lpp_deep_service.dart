@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 // ============================================================================
@@ -85,7 +86,7 @@ class RachatEchelonneSimulator {
       canton: canton,
       age: 50,
     );
-    final netMensuel = baseBreakdown.netPayslip / 12;
+    final netMensuel = baseBreakdown.monthlyNetPayslip;
     final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
       netMonthlyIncome: netMensuel,
       cantonCode: canton,
@@ -102,7 +103,7 @@ class RachatEchelonneSimulator {
       canton: canton,
       age: 50,
     );
-    final netMensuelApresBloc = blocBreakdown.netPayslip / 12;
+    final netMensuelApresBloc = blocBreakdown.monthlyNetPayslip;
     final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
       netMonthlyIncome: netMensuelApresBloc,
       cantonCode: canton,
@@ -126,7 +127,7 @@ class RachatEchelonneSimulator {
       canton: canton,
       age: 50,
     );
-    final netMensuelApresEchelon = echelonBreakdown.netPayslip / 12;
+    final netMensuelApresEchelon = echelonBreakdown.monthlyNetPayslip;
     final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
       netMonthlyIncome: netMensuelApresEchelon,
       cantonCode: canton,

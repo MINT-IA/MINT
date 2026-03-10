@@ -4,6 +4,8 @@
 /// Every prompt is versioned, stored in code, never generated dynamically.
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 import 'coach_models.dart';
 
 class PromptRegistry {
@@ -158,7 +160,7 @@ TACHE : Guide l'utilisateur pour completer le bloc "$blockType".
       '3a' => 'DONNEES CONNUES :\n'
           '- Nombre de comptes 3a : ${ctx.knownValues['nombre_3a']?.toInt() ?? 0}\n'
           '- Total epargne 3a : ${ctx.knownValues['epargne_3a'] ?? 0} CHF\n'
-          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? 7258} CHF/an\n'
+          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? pilier3aPlafondAvecLpp} CHF/an\n'
           '\n'
           'OBJECTIF : Connaitre le solde exact et le provider de chaque compte 3a.\n'
           'Un versement 3a est deductible des impots. Impact sur confiance : +8 pts.',

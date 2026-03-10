@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -1223,7 +1224,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     // Replacement rate estimate
     final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
-    final renteLpp = (prev.avoirLppTotal ?? 0) * 0.068 / 12; // taux conversion min
+    final renteLpp = (prev.avoirLppTotal ?? 0) * lppTauxConversionMinDecimal / 12;
     final projectedMonthly = renteAvs + renteLpp;
     final currentDisposable = breakdown.disposableIncome / 12;
     final replacementRate = currentDisposable > 0
@@ -1284,7 +1285,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           (dep.telecom ?? 0) +
           (dep.fraisMedicaux ?? 0) +
           (dep.autresDepensesFixes ?? 0),
-      pillar3a: p.prevoyance.totalEpargne3a > 0 ? 7258 / 12 : 0,
+      pillar3a: p.prevoyance.totalEpargne3a > 0 ? pilier3aPlafondAvecLpp / 12 : 0,
       investment: p.patrimoine.investissements > 0 ? 500 : 0,
     );
 
@@ -1428,7 +1429,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       renteAvsConjoint: p.isCouple ? (cp?.renteAVSEstimeeMensuelle ?? 0) : null,
       renteLppUser: (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12,
       renteLppConjoint: p.isCouple
-          ? (cp?.avoirLppTotal ?? 0) * (cp?.tauxConversion ?? 0.068) / 12
+          ? (cp?.avoirLppTotal ?? 0) * (cp?.tauxConversion ?? lppTauxConversionMinDecimal) / 12
           : null,
       avoirLppUser: prev.avoirLppTotal ?? 0,
       avoirLppConjoint: p.isCouple ? (cp?.avoirLppTotal ?? 0) : null,
@@ -1737,7 +1738,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         WhatIfStory(
           emoji: '\u{1F3E6}',
           question: l10n.financialSummaryWhatIf3aQuestion,
-          monthlyImpactChf: 7258 / 12 * 0.30,
+          monthlyImpactChf: pilier3aPlafondAvecLpp / 12 * 0.30,
           explanation: l10n.financialSummaryWhatIf3aExplanation,
           actionLabel: l10n.financialSummaryWhatIf3aAction,
           route: '/simulator/3a',

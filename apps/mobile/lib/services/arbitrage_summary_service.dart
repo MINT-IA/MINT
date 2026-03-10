@@ -200,7 +200,7 @@ class ArbitrageSummaryService {
       capitalObligatoire: lppAvoir * 0.6,
       capitalSurobligatoire: lppAvoir * 0.4,
       renteAnnuelleProposee: lppAvoir * convRate,
-      tauxConversionObligatoire: 0.068,
+      tauxConversionObligatoire: lppTauxConversionMinDecimal,
       tauxConversionSurobligatoire: convRate,
       canton: canton,
       isMarried: isMarried,

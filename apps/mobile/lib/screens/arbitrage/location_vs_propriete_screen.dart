@@ -53,6 +53,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   // ── CoachProfile auto-fill (P8 Phase 4) ──
   bool _didAutoFill = false;
+  Map<String, ProfileDataSource> _dataSources = {};
 
   @override
   void initState() {
@@ -85,6 +86,12 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
         _capitalCtrl.text = capital.round().toString();
         _hasEstimatedValues = true;
       }
+      // Loyer mensuel from profile
+      if (profile.depenses.loyer > 0) {
+        _loyerCtrl.text = profile.depenses.loyer.round().toString();
+        _hasEstimatedValues = true;
+      }
+      _dataSources = profile.dataSources;
     });
     _recalculate();
   }
@@ -116,6 +123,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       tauxHypotheque: (_hypotheses['taux_hypo'] ?? 2.0) / 100,
       tauxEntretien: 0.01,
       isMarried: _isMarried,
+      dataSources: _dataSources.isNotEmpty ? _dataSources : null,
     );
 
     setState(() => _result = result);

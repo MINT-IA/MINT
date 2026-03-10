@@ -323,7 +323,7 @@ class PrecisionService {
 
     // Check 5: Pillar 3a balance vs age
     if (pillar3a > 0 && age > 0) {
-      const maxAnnual = 7258.0;
+      const maxAnnual = pilier3aPlafondAvecLpp;
       final maxYears3a = (age - 18).clamp(0, 47).toDouble();
       // Reasonable upper bound: max contribution each year + ~3% annual return
       final theoreticalMax = maxAnnual * maxYears3a * 1.4;
@@ -484,7 +484,7 @@ class PrecisionService {
     // --- Pillar 3a balance ---
     final contributing3aYears = (age - 25).clamp(0, 40).toDouble();
     final estimated3a = contributing3aYears > 0
-        ? contributing3aYears * 7258 * 0.6 // assume 60% utilization
+        ? contributing3aYears * pilier3aPlafondAvecLpp * 0.6 // assume 60% utilization
         : 0.0;
     defaults.add(SmartDefault(
       fieldName: 'pillar_3a_balance',
@@ -521,7 +521,7 @@ class PrecisionService {
     ));
 
     // --- Tax saving 3a ---
-    final taxSaving3a = 7258 * tauxEstimate;
+    final taxSaving3a = pilier3aPlafondAvecLpp * tauxEstimate;
     defaults.add(SmartDefault(
       fieldName: 'tax_saving_3a',
       value: _round(taxSaving3a),

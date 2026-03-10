@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -909,8 +910,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     for (final contribution in profile.plannedContributions) {
       final annualTarget = contribution.amount * 12;
       // Special case for 3a: cap at pillar 3a ceiling
-      final target = contribution.category == '3a' && annualTarget > 7258
-          ? 7258.0
+      final target = contribution.category == '3a' && annualTarget > pilier3aPlafondAvecLpp
+          ? pilier3aPlafondAvecLpp
           : annualTarget;
 
       // Sum actual from matching check-in keys

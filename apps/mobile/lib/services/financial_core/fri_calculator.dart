@@ -20,6 +20,8 @@ library;
 
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 /// Input data for FRI computation.
 ///
 /// All values should come from financial_core calculators,
@@ -62,7 +64,7 @@ class FriInput {
     this.shortTermDebtRatio = 0,
     this.incomeVolatility = 'low',
     this.actual3a = 0,
-    this.max3a = 7258,
+    this.max3a = pilier3aPlafondAvecLpp,
     this.potentielRachatLpp = 0,
     this.rachatEffectue = 0,
     this.tauxMarginal = 0,

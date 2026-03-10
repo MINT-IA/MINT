@@ -154,11 +154,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           : CoachLlmService.initialSuggestions;
     }
 
+    // Response cards contextuelles pour le greeting
+    final greetingCards = ResponseCardService.generate(
+      profile: p,
+      limit: 2,
+    );
+
     _messages.add(ChatMessage(
       role: 'assistant',
       content: greeting,
       timestamp: DateTime.now(),
       suggestedActions: suggestions,
+      responseCards: greetingCards,
       tier: tier,
     ));
   }
@@ -326,8 +333,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         content: finalText,
         timestamp: DateTime.now(),
         suggestedActions: suggestedActions,
-        tier: ChatTier.slm,
         responseCards: cards,
+        tier: ChatTier.slm,
       );
       _isStreaming = false;
     });
@@ -360,8 +367,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           suggestedActions: response.suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
-          tier: tier,
           responseCards: cards,
+          tier: tier,
         ));
         _isLoading = false;
       });

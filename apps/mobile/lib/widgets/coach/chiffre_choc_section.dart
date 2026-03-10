@@ -92,7 +92,7 @@ class ChiffreChocSection extends StatelessWidget {
     final lacunesAVS = profile.prevoyance.lacunesAVS ?? 0;
     if (lacunesAVS > 0) {
       final perteTotaleAnnuelle =
-          AvsCalculator.monthlyLossFromGap(lacunesAVS) * 12;
+          AvsCalculator.annualRente(AvsCalculator.monthlyLossFromGap(lacunesAVS));
       // Over ~20 years of retirement
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
 

@@ -209,7 +209,7 @@ class MonteCarloProjectionService {
         final conjSalary = conjoint.revenuBrutAnnuel;
         // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
         final conjConvRate = LppCalculator.adjustedConversionRate(
-          baseRate: conjoint.prevoyance?.tauxConversion ?? 0.068,
+          baseRate: conjoint.prevoyance?.tauxConversion ?? lppTauxConversionMinDecimal,
           retirementAge: conjointRetirementAge,
         );
         // Rachats LPP conjoint: contributions dont l'id/label contient

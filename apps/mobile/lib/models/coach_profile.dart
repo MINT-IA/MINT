@@ -291,7 +291,7 @@ class PrevoyanceProfile {
     this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
-    this.tauxConversion = 0.068,
+    this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
     this.salaireAssure,
@@ -339,7 +339,7 @@ class PrevoyanceProfile {
           (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
-      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
+      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
@@ -869,6 +869,12 @@ class MonthlyCheckIn {
   final String? note;
   final DateTime completedAt;
 
+  /// FRI score snapshot at check-in time (0-100). Null for legacy check-ins.
+  final double? friScore;
+
+  /// Financial Fitness Score at check-in time (0-100). Null for legacy check-ins.
+  final int? fitnessScore;
+
   const MonthlyCheckIn({
     required this.month,
     required this.versements,
@@ -876,6 +882,8 @@ class MonthlyCheckIn {
     this.revenusExceptionnels,
     this.note,
     required this.completedAt,
+    this.friScore,
+    this.fitnessScore,
   });
 
   /// Total des versements du mois
@@ -895,6 +903,8 @@ class MonthlyCheckIn {
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
       completedAt: DateTime.parse(json['completedAt']),
+      friScore: (json['friScore'] as num?)?.toDouble(),
+      fitnessScore: json['fitnessScore'] as int?,
     );
   }
 
@@ -905,6 +915,8 @@ class MonthlyCheckIn {
         'revenusExceptionnels': revenusExceptionnels,
         'note': note,
         'completedAt': completedAt.toIso8601String(),
+        'friScore': friScore,
+        'fitnessScore': fitnessScore,
       };
 }
 
@@ -1761,6 +1773,8 @@ class CoachProfile {
         _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
     final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
+    final coachRendementCaisse =
+        _parseDouble(answers['_coach_rendement_caisse']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
     final coachAvsRenteEstimee =
         _parseDouble(answers['_coach_avs_rente_estimee']);
@@ -1797,9 +1811,10 @@ class CoachProfile {
       avoirLppTotal: estimatedLpp,
       avoirLppObligatoire: coachAvoirLppOblig,
       avoirLppSurobligatoire: coachAvoirLppSuroblig,
-      tauxConversion: coachTauxConversion ?? 0.068,
+      tauxConversion: coachTauxConversion ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
+      rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
@@ -2438,7 +2453,6 @@ class CoachProfile {
           avoirLppTotal: 50000,
           rachatMaximum: 50000,
           rachatEffectue: 0,
-          tauxConversion: 0.068,
           rendementCaisse: 0.015,
           nombre3a: 0,
           totalEpargne3a: 0,
@@ -2464,7 +2478,6 @@ class CoachProfile {
         avoirLppTotal: 300000,
         rachatMaximum: 300000,
         rachatEffectue: 0,
-        tauxConversion: 0.068,
         rendementCaisse: 0.02,
         nombre3a: 5,
         totalEpargne3a: 35000,

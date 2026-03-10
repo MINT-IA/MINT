@@ -213,7 +213,7 @@ class TornadoSensitivityService {
     {
       final baseTaux = profile.prevoyance.tauxConversion;
       const lowTaux = 0.050;
-      final highTaux = baseTaux >= 0.068 ? 0.072 : 0.068;
+      final highTaux = baseTaux >= lppTauxConversionMinDecimal ? 0.072 : lppTauxConversionMinDecimal;
       final low = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance, tauxConversion: lowTaux),
