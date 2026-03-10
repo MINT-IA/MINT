@@ -561,8 +561,7 @@ class _PulseScreenState extends State<PulseScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Aucun check-in ce mois. Enregistre tes versements '
-              'pour suivre ta progression.',
+              S.of(context)!.pulseNoCheckinMsg,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
@@ -580,7 +579,7 @@ class _PulseScreenState extends State<PulseScreen> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              'Check-in',
+              S.of(context)!.pulseCheckinBtn,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -619,7 +618,7 @@ class _PulseScreenState extends State<PulseScreen> {
               Icon(trendIcon, size: 16, color: trendColor),
               const SizedBox(width: 8),
               Text(
-                'Bilan du mois \u2014 ${briefing.trendLabel}',
+                S.of(context)!.pulseBriefingTitle(briefing.trendLabel),
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -671,11 +670,12 @@ class _PulseScreenState extends State<PulseScreen> {
             : MintColors.error;
 
     // Identify weakest component for guidance
+    final l = S.of(context)!;
     final components = {
-      'Liquidite': fri.liquidite,
-      'Optimisation fiscale': fri.fiscalite,
-      'Retraite': fri.retraite,
-      'Risques structurels': fri.risque,
+      l.pulseFriLiquidite: fri.liquidite,
+      l.pulseFriFiscalite: fri.fiscalite,
+      l.pulseFriRetraite: fri.retraite,
+      l.pulseFriRisque: fri.risque,
     };
     final weakest = components.entries
         .reduce((a, b) => a.value <= b.value ? a : b);
@@ -702,7 +702,7 @@ class _PulseScreenState extends State<PulseScreen> {
               Icon(Icons.shield_outlined, size: 18, color: color),
               const SizedBox(width: 8),
               Text(
-                'Solidite financiere',
+                l.pulseFriTitle,
                 style: GoogleFonts.outfit(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -743,7 +743,7 @@ class _PulseScreenState extends State<PulseScreen> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Point le plus fragile : ${weakest.key}',
+                  l.pulseFriWeakest(weakest.key),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,

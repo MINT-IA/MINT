@@ -3993,6 +3993,25 @@
       "hint": {"type": "String"}
     }
   },
+  "pulseNoCheckinMsg": "Aucun check-in ce mois. Enregistre tes versements pour suivre ta progression.",
+  "pulseCheckinBtn": "Check-in",
+  "pulseBriefingTitle": "Bilan du mois \u2014 {trend}",
+  "@pulseBriefingTitle": {
+    "placeholders": {
+      "trend": {"type": "String"}
+    }
+  },
+  "pulseFriLiquidite": "Liquidité",
+  "pulseFriFiscalite": "Optimisation fiscale",
+  "pulseFriRetraite": "Retraite",
+  "pulseFriRisque": "Risques structurels",
+  "pulseFriTitle": "Solidité financière",
+  "pulseFriWeakest": "Point le plus fragile\u00a0: {axis}",
+  "@pulseFriWeakest": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
 
   "lppBuybackAdvTitle": "Optimisation de rachat LPP",
   "lppBuybackAdvSubtitle": "Effet levier fiscal + capitalisation",
