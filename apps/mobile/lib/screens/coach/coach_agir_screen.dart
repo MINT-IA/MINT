@@ -408,11 +408,17 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
 
                 // ── Section: Micro-actions (Coach Vivant) ────
                 Builder(builder: (context) {
+                  final currentMonthCheckIn = hasCurrentCheckIn
+                      ? profile.checkIns.cast<MonthlyCheckIn?>().firstWhere(
+                            (ci) =>
+                                ci!.month.year == now.year &&
+                                ci.month.month == now.month,
+                            orElse: () => null,
+                          )
+                      : null;
                   final actions = MicroActionEngine.suggest(
                     profile: profile,
-                    currentCheckIn: hasCurrentCheckIn
-                        ? profile.checkIns.last
-                        : null,
+                    currentCheckIn: currentMonthCheckIn,
                   );
                   if (actions.isEmpty) return const SizedBox.shrink();
                   return Padding(
