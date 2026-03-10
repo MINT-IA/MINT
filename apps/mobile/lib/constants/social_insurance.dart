@@ -128,6 +128,26 @@ const double avsFranchiseRetraiteMensuelle = 1400.0;
 /// Facteur rente de survivant (80% de la rente du defunt).
 const double avsSurvivorFactor = 0.80;
 
+// 13eme rente AVS (initiative populaire adoptee en mars 2024)
+// Versement: une fois par an en decembre, a partir de decembre 2026.
+// Montant = 1/12 de la somme annuelle des rentes vieillesse versees.
+// Uniquement rentes de vieillesse (pas AI, pas survivants, pas enfants).
+// Base legale: LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis.
+
+/// 13eme rente AVS active. True des 2026 (premier versement decembre 2026).
+const bool avs13emeRenteActive = true;
+
+/// Annee du premier versement de la 13eme rente AVS.
+const int avs13emeRenteAnneeDebut = 2026;
+
+/// Nombre de rentes mensuelles par an (12 standard + 1 treizieme).
+const int avsNombreRentesParAn = 13;
+
+/// Facteur multiplicateur pour convertir la rente annuelle 12 mois en 13 mois.
+/// Rente annuelle effective = rente mensuelle x 12 x avs13emeRenteFactor
+///                          = rente mensuelle x 13.
+const double avs13emeRenteFactor = 13.0 / 12.0;
+
 /// Cotisation annuelle minimale AVS volontaire (expatries).
 const double avsVolontaireCotisationMin = 514.0;
 

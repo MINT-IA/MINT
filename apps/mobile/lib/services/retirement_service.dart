@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -84,7 +85,7 @@ class RetirementService {
     // Calculate rente
     final baseRente = avsRenteMaxMensuelle * gapFactor;
     final renteMensuelle = baseRente * factor;
-    final renteAnnuelle = renteMensuelle * 12;
+    final renteAnnuelle = AvsCalculator.annualRente(renteMensuelle);
 
     // Couple
     double? renteCouple;

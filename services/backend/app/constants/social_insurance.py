@@ -129,6 +129,28 @@ AVS_FRANCHISE_RETRAITE_ANNUELLE: float = 16_800.0
 AVS_SURVIVOR_FACTOR: float = 0.80
 """Facteur rente de survivant (80% de la rente du defunt)."""
 
+# 13eme rente AVS (initiative populaire adoptee en mars 2024)
+# Versement: une fois par an en decembre, a partir de decembre 2026.
+# Montant = 1/12 de la somme annuelle des rentes vieillesse versees.
+# En pratique: rente annuelle effective = rente mensuelle × 13.
+# Uniquement rentes de vieillesse (pas AI, pas survivants, pas enfants).
+# N'affecte PAS les prestations complementaires (PC).
+# Base legale: LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis.
+
+AVS_13EME_RENTE_ACTIVE: bool = True
+"""13eme rente AVS active. True des 2026 (premier versement decembre 2026)."""
+
+AVS_13EME_RENTE_ANNEE_DEBUT: int = 2026
+"""Annee du premier versement de la 13eme rente AVS."""
+
+AVS_NOMBRE_RENTES_PAR_AN: int = 13
+"""Nombre de rentes mensuelles par an (12 standard + 1 treizieme)."""
+
+AVS_13EME_RENTE_FACTOR: float = 13.0 / 12.0
+"""Facteur multiplicateur pour convertir la rente annuelle 12 mois en 13 mois.
+Rente annuelle effective = rente mensuelle × 12 × AVS_13EME_RENTE_FACTOR
+                         = rente mensuelle × 13."""
+
 # AVS volontaire (expatries)
 AVS_VOLONTAIRE_COTISATION_MIN: float = 514.0
 """Cotisation annuelle minimale AVS volontaire (LAVS art. 2)."""

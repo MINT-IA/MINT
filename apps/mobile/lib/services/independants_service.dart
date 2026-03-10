@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANTS SERVICE — Sprint S18 / Indépendants complet
@@ -581,7 +582,7 @@ class IndependantsService {
     final anneesRestantes = max(65 - age, 0);
 
     // Without LPP: AVS only (LAVS art. 34, max rente = 2520 × 12)
-    final renteAvsMax = avsRenteMaxMensuelle * 12; // 30240 CHF
+    final renteAvsMax = AvsCalculator.annualRente(avsRenteMaxMensuelle); // 32760 CHF (13 rentes)
     final projectionSansLpp = renteAvsMax;
 
     // With LPP: project capital at retirement

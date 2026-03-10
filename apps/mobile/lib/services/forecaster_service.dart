@@ -800,7 +800,7 @@ class ForecasterService {
       avsConjoint: avsConjointMonthly,
       isMarried: isMarried,
     );
-    final renteAvsAnnuelle = coupleAvs.total * 12;
+    final renteAvsAnnuelle = AvsCalculator.annualRente(coupleAvs.total);
 
     // LPP rente — adjust conversion rate for early retirement (LPP art. 13)
     final userConvRate = LppCalculator.adjustedConversionRate(
@@ -842,8 +842,8 @@ class ForecasterService {
       revenuAnnuelRetraite: revenuRetraiteAnnuel,
       decomposition: {
         'avs': renteAvsAnnuelle,
-        'avs_user': coupleAvs.user * 12,
-        'avs_conjoint': coupleAvs.conjoint * 12,
+        'avs_user': AvsCalculator.annualRente(coupleAvs.user),
+        'avs_conjoint': AvsCalculator.annualRente(coupleAvs.conjoint),
         'lpp_user': renteLppUser,
         'lpp_conjoint': renteLppConjoint,
         '3a': retrait3aAnnualise,
