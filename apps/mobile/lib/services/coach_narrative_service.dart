@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/streak_service.dart';
@@ -80,6 +81,13 @@ class CoachNarrative {
   /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
   final String? retirementCountdown;
 
+  /// Monthly briefing comparison N vs N-1 (Coach Vivant Track A).
+  /// Example: "Tes versements sont en hausse de 12% vs le mois dernier."
+  final String? monthlyComparison;
+
+  /// Versements trend label ("en hausse", "stable", "en baisse").
+  final String? versementsTrend;
+
   /// Source (llm ou static) pour debug
   final bool isLlmGenerated;
 
@@ -96,6 +104,8 @@ class CoachNarrative {
     this.scenarioNarrations,
     this.chiffreChocNarration,
     this.retirementCountdown,
+    this.monthlyComparison,
+    this.versementsTrend,
     required this.isLlmGenerated,
     required this.generatedAt,
   });
@@ -111,6 +121,8 @@ class CoachNarrative {
         'scenarioNarrations': scenarioNarrations,
         'chiffreChocNarration': chiffreChocNarration,
         'retirementCountdown': retirementCountdown,
+        'monthlyComparison': monthlyComparison,
+        'versementsTrend': versementsTrend,
         'isLlmGenerated': isLlmGenerated,
         'generatedAt': generatedAt.toIso8601String(),
       };
@@ -129,6 +141,8 @@ class CoachNarrative {
           .toList(),
       chiffreChocNarration: json['chiffreChocNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
+      monthlyComparison: json['monthlyComparison'] as String?,
+      versementsTrend: json['versementsTrend'] as String?,
       isLlmGenerated: json['isLlmGenerated'] as bool? ?? false,
       generatedAt: json['generatedAt'] != null
           ? DateTime.parse(json['generatedAt'] as String)
@@ -510,6 +524,21 @@ class CoachNarrativeService {
           'a $retAge ans.';
     }
 
+    // ── Monthly briefing N vs N-1 (Coach Vivant Track A) ──
+    String? monthlyComparison;
+    String? versementsTrend;
+    try {
+      final briefing = MonthlyBriefingService.fromProfile(profile);
+      if (briefing != null) {
+        versementsTrend = briefing.trendLabel;
+        if (briefing.insights.isNotEmpty) {
+          monthlyComparison = briefing.insights.first;
+        }
+      }
+    } catch (_) {
+      // Non-critical: skip if check-in data is incomplete
+    }
+
     return CoachNarrative(
       greeting: greeting,
       scoreSummary: scoreSummary,
@@ -521,6 +550,8 @@ class CoachNarrativeService {
       scenarioNarrations: scenarioNarrations,
       chiffreChocNarration: chiffreChocNarration,
       retirementCountdown: retirementCountdown,
+      monthlyComparison: monthlyComparison,
+      versementsTrend: versementsTrend,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),
     );
@@ -635,6 +666,10 @@ class CoachNarrativeService {
         urgentAlert: narrative.urgentAlert,
         milestoneMessage: narrative.milestoneMessage,
         scenarioNarrations: narrative.scenarioNarrations,
+        chiffreChocNarration: narrative.chiffreChocNarration,
+        retirementCountdown: narrative.retirementCountdown,
+        monthlyComparison: narrative.monthlyComparison,
+        versementsTrend: narrative.versementsTrend,
         isLlmGenerated: true, // SLM is a local LLM
         generatedAt: DateTime.now(),
       );
@@ -1159,6 +1194,8 @@ class CoachNarrativeService {
           .toList(),
       chiffreChocNarration: json['chiffreChocNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
+      monthlyComparison: json['monthlyComparison'] as String?,
+      versementsTrend: json['versementsTrend'] as String?,
       isLlmGenerated: true,
       generatedAt: DateTime.now(),
     );
@@ -1190,6 +1227,10 @@ class CoachNarrativeService {
       retirementCountdown: narrative.retirementCountdown != null
           ? _filterBannedTerms(narrative.retirementCountdown!)
           : null,
+      monthlyComparison: narrative.monthlyComparison != null
+          ? _filterBannedTerms(narrative.monthlyComparison!)
+          : null,
+      versementsTrend: narrative.versementsTrend,
       isLlmGenerated: narrative.isLlmGenerated,
       generatedAt: narrative.generatedAt,
     );
