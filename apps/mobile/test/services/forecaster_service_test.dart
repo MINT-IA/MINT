@@ -426,6 +426,44 @@ void main() {
       expect(json['disclaimer'], isA<String>());
       expect(json['sources'], isA<List>());
     });
+
+    test('ProjectionResult fromJson round-trip preserves aggregate data', () {
+      final demo = CoachProfile.buildDemo();
+      final original = ForecasterService.project(profile: demo);
+      final json = original.toJson();
+      final restored = ProjectionResult.fromJson(json);
+
+      // Aggregate figures preserved
+      expect(restored.base.capitalFinal, original.base.capitalFinal);
+      expect(restored.base.revenuAnnuelRetraite,
+          original.base.revenuAnnuelRetraite);
+      expect(restored.prudent.capitalFinal, original.prudent.capitalFinal);
+      expect(
+          restored.optimiste.capitalFinal, original.optimiste.capitalFinal);
+      expect(
+          restored.tauxRemplacementBase, original.tauxRemplacementBase);
+
+      // Labels preserved
+      expect(restored.prudent.label, 'Prudent');
+      expect(restored.base.label, 'Base');
+      expect(restored.optimiste.label, 'Optimiste');
+
+      // Disclaimer and sources preserved
+      expect(restored.disclaimer, original.disclaimer);
+      expect(restored.sources, original.sources);
+
+      // Points NOT persisted (by design — lightweight snapshot)
+      expect(restored.base.points, isEmpty);
+      expect(restored.milestones, isEmpty);
+    });
+
+    test('ProjectionResult fromJson handles empty/null gracefully', () {
+      final restored = ProjectionResult.fromJson(const {});
+      expect(restored.base.capitalFinal, 0);
+      expect(restored.tauxRemplacementBase, 0);
+      expect(restored.disclaimer, '');
+      expect(restored.sources, isEmpty);
+    });
   });
 
   // ════════════════════════════════════════════════════════════

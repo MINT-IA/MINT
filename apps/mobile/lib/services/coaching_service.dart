@@ -894,8 +894,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   ) {
     const stressToCategories = {
       'stress_retraite': ['retraite', 'prevoyance'],
-      'stress_fiscal': ['fiscalite'],
+      'stress_impots': ['fiscalite'],
       'stress_budget': ['budget'],
+      'stress_patrimoine': ['prevoyance', 'budget'],
+      'stress_couple': ['retraite', 'prevoyance', 'fiscalite'],
       'stress_general': ['retraite', 'fiscalite', 'budget', 'prevoyance'],
     };
     final categories = stressToCategories[stressType] ??
