@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class MintColors {
   // Primary - Neo-Sober Anthracite (Replaces Emerald/Teal)
   static const Color primary = Color(0xFF1D1D1F); // Apple Anthracite
+  static const Color primaryLight = Color(0xFF2D2D2F); // Gradient end
   static const Color accent = Color(0xFF00382E); // Deep Green accent only
   static const Color accentPastel = Color(0xFFE0F2F1); // Soft Green for backgrounds
 
