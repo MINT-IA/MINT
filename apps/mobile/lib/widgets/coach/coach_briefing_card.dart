@@ -119,6 +119,13 @@ class CoachBriefingCard extends StatelessWidget {
             ),
           ],
 
+          // ── Monthly comparison (Coach Vivant N vs N-1) ──
+          if (narrative?.monthlyComparison != null &&
+              narrative!.monthlyComparison!.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _buildMonthlyComparison(),
+          ],
+
           // ── Top tip / urgent alert ─────────────────────
           if (_hasTopContent) ...[
             const SizedBox(height: 12),
@@ -128,6 +135,46 @@ class CoachBriefingCard extends StatelessWidget {
           // ── Confidence chip ────────────────────────────
           const SizedBox(height: 12),
           _buildConfidenceChip(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthlyComparison() {
+    final trend = narrative!.versementsTrend ?? 'stable';
+    final icon = switch (trend) {
+      'en hausse' => Icons.trending_up,
+      'en baisse' => Icons.trending_down,
+      _ => Icons.trending_flat,
+    };
+    final color = switch (trend) {
+      'en hausse' => MintColors.success,
+      'en baisse' => MintColors.warning,
+      _ => MintColors.textSecondary,
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              narrative!.monthlyComparison!,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: MintColors.textPrimary,
+                height: 1.4,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
