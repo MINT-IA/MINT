@@ -189,6 +189,9 @@ class _PulseScreenState extends State<PulseScreen> {
     // ── Compute visibility score (couple-aware) ──────────
     final visibilityScore = _computeVisibilityScore(profile);
 
+    // ── Response cards (computed once, not per-build) ────
+    final cards = _responseCards(profile, visibilityScore);
+
     return CustomScrollView(
       slivers: [
         _buildAppBar(context, profile),
@@ -223,7 +226,7 @@ class _PulseScreenState extends State<PulseScreen> {
               ],
 
               // 4. Response Cards dynamiques (Phase 1)
-              if (_responseCards(profile, visibilityScore).isNotEmpty) ...[
+              if (cards.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
@@ -247,9 +250,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ResponseCardStrip(
-                  cards: _responseCards(profile, visibilityScore),
-                ),
+                ResponseCardStrip(cards: cards),
                 const SizedBox(height: 24),
               ],
 

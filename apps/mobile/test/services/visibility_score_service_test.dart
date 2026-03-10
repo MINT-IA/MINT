@@ -87,7 +87,7 @@ void main() {
       expect(result.percentage, lessThanOrEqualTo(100));
     });
 
-    test('axis scores are clamped 0-25', () {
+    test('axis scores are clamped 0-maxScore', () {
       final profile = _makeProfile(
         salaire: 8000,
         canton: 'VD',
@@ -111,8 +111,8 @@ void main() {
       for (final axis in result.axes) {
         expect(axis.score, greaterThanOrEqualTo(0.0),
             reason: '${axis.id} >= 0');
-        expect(axis.score, lessThanOrEqualTo(25.0),
-            reason: '${axis.id} <= 25');
+        expect(axis.score, lessThanOrEqualTo(axis.maxScore),
+            reason: '${axis.id} <= maxScore (${axis.maxScore})');
       }
     });
 
@@ -500,6 +500,114 @@ void main() {
         hint: 'Test hint',
       );
       expect(axis.percentage, 0.0);
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  CONTEXTUAL WEIGHTS — Phase 1
+  // ════════════════════════════════════════════════════════════
+
+  group('Contextual weights (Phase 1)', () {
+    test('age 52 gives Retraite weight 30, Liquidite 20', () {
+      final profile = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        birthYear: 1974, // age 52
+        employmentStatus: 'salarie',
+      );
+      final result = VisibilityScoreService.compute(profile);
+
+      final retraite = result.axes.firstWhere((a) => a.id == 'retraite');
+      final liquidite = result.axes.firstWhere((a) => a.id == 'liquidite');
+
+      expect(retraite.maxScore, 30.0, reason: '50+ → Retraite 30');
+      expect(liquidite.maxScore, 20.0, reason: '50+ → Liquidite 20');
+    });
+
+    test('age 30 gives Liquidite weight 30, Retraite 20', () {
+      final profile = _makeProfile(
+        salaire: 5000,
+        canton: 'ZH',
+        birthYear: 1996, // age 30
+        employmentStatus: 'salarie',
+      );
+      final result = VisibilityScoreService.compute(profile);
+
+      final retraite = result.axes.firstWhere((a) => a.id == 'retraite');
+      final liquidite = result.axes.firstWhere((a) => a.id == 'liquidite');
+
+      expect(liquidite.maxScore, 30.0, reason: '<35 → Liquidite 30');
+      expect(retraite.maxScore, 20.0, reason: '<35 → Retraite 20');
+    });
+
+    test('age 40 keeps default 25/25/25/25', () {
+      final profile = _makeProfile(
+        salaire: 7000,
+        canton: 'GE',
+        birthYear: 1986, // age 40
+        employmentStatus: 'salarie',
+      );
+      final result = VisibilityScoreService.compute(profile);
+
+      for (final axis in result.axes) {
+        expect(axis.maxScore, 25.0,
+            reason: '${axis.id}: age 35-49 → default 25');
+      }
+    });
+
+    test('independant gets Securite +5, Retraite -5', () {
+      final profile = _makeProfile(
+        salaire: 6000,
+        canton: 'BE',
+        birthYear: 1986, // age 40 → default base
+        employmentStatus: 'independant',
+      );
+      final result = VisibilityScoreService.compute(profile);
+
+      final securite = result.axes.firstWhere((a) => a.id == 'securite');
+      final retraite = result.axes.firstWhere((a) => a.id == 'retraite');
+
+      expect(securite.maxScore, 30.0,
+          reason: 'independant: 25 + 5 = 30');
+      expect(retraite.maxScore, 20.0,
+          reason: 'independant: 25 - 5 = 20');
+    });
+
+    test('50+ independant: Retraite 30-5=25, Securite 25+5=30', () {
+      final profile = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        birthYear: 1974, // age 52
+        employmentStatus: 'independant',
+      );
+      final result = VisibilityScoreService.compute(profile);
+
+      final retraite = result.axes.firstWhere((a) => a.id == 'retraite');
+      final securite = result.axes.firstWhere((a) => a.id == 'securite');
+
+      expect(retraite.maxScore, 25.0,
+          reason: '50+ base 30 - 5 indep = 25');
+      expect(securite.maxScore, 30.0,
+          reason: '50+ base 25 + 5 indep = 30');
+    });
+
+    test('total of all axes maxScore always sums to 100', () {
+      final profiles = [
+        _makeProfile(birthYear: 2000, employmentStatus: 'salarie'),
+        _makeProfile(birthYear: 1986, employmentStatus: 'salarie'),
+        _makeProfile(birthYear: 1970, employmentStatus: 'salarie'),
+        _makeProfile(birthYear: 1986, employmentStatus: 'independant'),
+        _makeProfile(birthYear: 1970, employmentStatus: 'independant'),
+      ];
+
+      for (final profile in profiles) {
+        final result = VisibilityScoreService.compute(profile);
+        final totalMax =
+            result.axes.fold<double>(0, (s, a) => s + a.maxScore);
+        expect(totalMax, 100.0,
+            reason: 'weights sum to 100 for age ${profile.age}, '
+                '${profile.employmentStatus}');
+      }
     });
   });
 
