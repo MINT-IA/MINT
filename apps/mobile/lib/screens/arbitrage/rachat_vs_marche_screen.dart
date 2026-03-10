@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rachat LPP vs Investissement libre arbitrage screen.
 ///
@@ -53,7 +54,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    autoFillFromProfile(context, (p) {
+    autoFillFromProfile(context, (CoachProfile p) {
       final revenu = p.revenuBrutAnnuel;
       final canton = p.canton.isNotEmpty ? p.canton : 'VD';
       // Use financial_core TaxCalculator — canton-aware marginal rate.
@@ -139,6 +140,42 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
 
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  if (_result!.confidenceScore < 70)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: MintColors.warning.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border:
+                            Border.all(color: MintColors.warning.withAlpha(60)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline,
+                              size: 18, color: MintColors.warning),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Resultat indicatif — precise tes donnees pour un resultat plus fiable.',
+                              style: GoogleFonts.inter(
+                                  fontSize: 12, color: MintColors.warning),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (profileAutoFilled)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   Text(
                     'Trajectoires comparees',
                     style: GoogleFonts.montserrat(

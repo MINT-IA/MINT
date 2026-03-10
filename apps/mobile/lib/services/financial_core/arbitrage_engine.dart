@@ -1403,17 +1403,17 @@ class ArbitrageEngine {
     Map<String, ProfileDataSource>? dataSources,
   }) {
     if (assets.isEmpty) {
-      return const ArbitrageResult(
-        options: [],
+      return ArbitrageResult(
+        options: const [],
         breakevenYear: null,
         chiffreChoc: 'Ajoute au moins un avoir pour voir la comparaison.',
         displaySummary: '',
-        hypotheses: [],
+        hypotheses: const [],
         disclaimer:
             'Outil educatif — ne constitue pas un conseil financier (LSFin).',
-        sources: ['LIFD art. 38 (impot sur retrait en capital)'],
-        confidenceScore: 0,
-        sensitivity: {},
+        sources: const ['LIFD art. 38 (impot sur retrait en capital)'],
+        confidenceScore: _computeArbitrageConfidence([], dataSources),
+        sensitivity: const {},
       );
     }
 
