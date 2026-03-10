@@ -236,7 +236,8 @@ class IndependantsService {
   static const double _tauxConversion = lppTauxConversionMin / 100;
 
   /// LPP maximum coordinated salary (LPP art. 8).
-  static const double _maxSalaireCoordonne = 63540;
+  /// Uses centralized constant from social_insurance.dart.
+  static const double _maxSalaireCoordonne = lppSalaireCoordMax;
 
   /// LPP minimum interest rate (aligned with backend: 1.25%).
   static const double _projectedReturn = 0.0125;

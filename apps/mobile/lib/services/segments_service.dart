@@ -93,7 +93,7 @@ class GenderGapService {
   static const double deductionCoordination = 26460;
 
   /// Maximum coordinated salary (LPP).
-  static const double maxSalaireCoordonne = 64260;
+  static const double maxSalaireCoordonne = lppSalaireCoordMax;
 
   /// Minimum coordinated salary (LPP).
   static const double minSalaireCoordonne = 3780;

@@ -62,7 +62,7 @@ class _SimulatorDisabilityGapScreenState
         final annualGross = _revenuMensuel * 12 / 0.78; // rough net→gross
         if (annualGross >= lppSeuilEntree) {
           final coordinated = (annualGross - lppDeductionCoordination)
-              .clamp(lppSalaireCoordMin.toDouble(), 64260.0);
+              .clamp(lppSalaireCoordMin.toDouble(), lppSalaireCoordMax);
           // ~40% of coordinated salary as disability rente (LPP art. 24)
           estimatedLppDisability = coordinated * 0.40 / 12;
         }
