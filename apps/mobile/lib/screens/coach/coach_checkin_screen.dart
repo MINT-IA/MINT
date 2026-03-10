@@ -17,6 +17,8 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
+import 'package:mint_mobile/services/monthly_briefing_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHECK-IN SCREEN — Sprint C6 / MINT Coach
@@ -59,6 +61,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   String _scoreDeltaReason = '';
   int _scoreBefore = 0;
   int _scoreAfter = 0;
+  MonthlyBriefingDelta? _briefing;
 
   bool _profileInitialized = false;
 
@@ -240,6 +243,18 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
     // Re-schedule notifications with updated profile (new check-in resets reminders)
     NotificationService().scheduleCoachingReminders(profile: updatedProfile);
+
+    // ── Monthly briefing N vs N-1 (Coach Vivant) ──
+    final previousCheckIn = _profile.checkIns.isNotEmpty
+        ? (List<MonthlyCheckIn>.from(_profile.checkIns)
+              ..sort((a, b) => b.month.compareTo(a.month)))
+            .first
+        : null;
+    _briefing = MonthlyBriefingService.compare(
+      profile: updatedProfile,
+      current: checkIn,
+      previous: previousCheckIn,
+    );
 
     setState(() {
       _isSubmitted = true;
@@ -1163,7 +1178,21 @@ Reponds uniquement avec le texte final.
 
       // Coach tip card
       _buildCoachTipCard(),
-      const SizedBox(height: 32),
+      const SizedBox(height: 16),
+
+      // ── Monthly briefing insights (Coach Vivant) ──
+      if (_briefing != null && _briefing!.insights.isNotEmpty)
+        _buildBriefingInsightsCard(),
+      if (_briefing != null && _briefing!.insights.isNotEmpty)
+        const SizedBox(height: 16),
+
+      // ── Micro-actions (Coach Vivant) ──
+      if (_briefing != null && _briefing!.microActions.isNotEmpty)
+        MicroActionSection(actions: _briefing!.microActions),
+      if (_briefing != null && _briefing!.microActions.isNotEmpty)
+        const SizedBox(height: 16),
+
+      const SizedBox(height: 16),
 
       // CTA: see trajectory
       SizedBox(
@@ -1450,6 +1479,79 @@ Reponds uniquement avec le texte final.
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ── Monthly briefing insights card (Coach Vivant) ──────────
+  Widget _buildBriefingInsightsCard() {
+    final briefing = _briefing!;
+    final trendIcon = switch (briefing.trend) {
+      BriefingTrend.enHausse => Icons.trending_up,
+      BriefingTrend.enBaisse => Icons.trending_down,
+      BriefingTrend.stable => Icons.trending_flat,
+    };
+    final trendColor = switch (briefing.trend) {
+      BriefingTrend.enHausse => MintColors.success,
+      BriefingTrend.enBaisse => MintColors.warning,
+      BriefingTrend.stable => MintColors.textSecondary,
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: trendColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: trendColor.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(trendIcon, size: 18, color: trendColor),
+              const SizedBox(width: 8),
+              Text(
+                'Ton evolution',
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: trendColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  briefing.trendLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: trendColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          for (final insight in briefing.insights)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                insight,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textPrimary,
+                  height: 1.4,
+                ),
+              ),
+            ),
         ],
       ),
     );

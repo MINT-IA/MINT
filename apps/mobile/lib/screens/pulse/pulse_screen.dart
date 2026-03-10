@@ -15,9 +15,12 @@ import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/services/micro_action_engine.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
+import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
@@ -219,13 +222,44 @@ class _PulseScreenState extends State<PulseScreen> {
               VisibilityScoreCard(score: visibilityScore),
               const SizedBox(height: 16),
 
-              // 3. Temporal strip (echeances urgentes)
+              // 3. Key figures (retraite + budget + patrimoine)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildKeyFigures(profile),
+              ),
+              const SizedBox(height: 16),
+
+              // 3b. Couple card (first-class, if applicable)
+              if (profile.isCouple && profile.conjoint != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildCoupleCard(profile),
+                ),
+              if (profile.isCouple && profile.conjoint != null)
+                const SizedBox(height: 16),
+
+              // 4. Temporal strip (echeances urgentes)
               if (_temporalItems.isNotEmpty) ...[
                 TemporalStrip(items: _temporalItems),
                 const SizedBox(height: 20),
               ],
 
-              // 4. Response Cards dynamiques (Phase 1)
+              // 4b. Micro-actions (Coach Vivant)
+              Builder(builder: (context) {
+                final actions = MicroActionEngine.suggest(profile: profile);
+                if (actions.isEmpty) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      MicroActionSection(actions: actions),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                );
+              }),
+
+              // 5. Response Cards dynamiques (Phase 1)
               if (cards.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -265,6 +299,167 @@ class _PulseScreenState extends State<PulseScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  KEY FIGURES — retraite, budget, patrimoine
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildKeyFigures(CoachProfile profile) {
+    // Retirement projection (base scenario)
+    double? retraiteEstimee;
+    double? tauxRemplacement;
+    try {
+      final projection = ForecasterService.project(profile: profile);
+      retraiteEstimee = projection.base.revenuAnnuelRetraite / 12;
+      final revenuActuel = profile.salaireBrutMensuel > 0
+          ? NetIncomeBreakdown.compute(
+              grossSalary: profile.salaireBrutMensuel * 12,
+              canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+              age: DateTime.now().year - profile.birthYear,
+            ).monthlyNetPayslip
+          : 0.0;
+      if (revenuActuel > 0) {
+        tauxRemplacement = (retraiteEstimee / revenuActuel * 100);
+      }
+    } catch (_) {}
+
+    // Budget libre
+    final depMensuelles = profile.totalDepensesMensuelles;
+    final revenuNet = profile.salaireBrutMensuel > 0
+        ? NetIncomeBreakdown.compute(
+            grossSalary: profile.salaireBrutMensuel * 12,
+            canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+            age: DateTime.now().year - profile.birthYear,
+          ).monthlyNetPayslip
+        : 0.0;
+    final budgetLibre = revenuNet - depMensuelles;
+
+    // Patrimoine total
+    final patrimoine = profile.patrimoine.totalPatrimoine +
+        (profile.prevoyance.avoirLppTotal ?? 0) +
+        (profile.prevoyance.totalEpargne3a ?? 0);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _KeyFigureCard(
+            label: 'Retraite estimee',
+            value: retraiteEstimee != null
+                ? 'CHF ${retraiteEstimee.round()}/mois'
+                : '\u2014',
+            subtitle: tauxRemplacement != null
+                ? '${tauxRemplacement.round()}% du revenu'
+                : null,
+            icon: Icons.beach_access_outlined,
+            color: MintColors.primary,
+            onTap: () => context.push('/retirement'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _KeyFigureCard(
+            label: 'Budget libre',
+            value: budgetLibre > 0
+                ? '+CHF ${budgetLibre.round()}/m'
+                : 'CHF ${budgetLibre.round()}/m',
+            icon: Icons.account_balance_wallet_outlined,
+            color: budgetLibre >= 0 ? MintColors.success : MintColors.warning,
+            onTap: () => context.push('/budget'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _KeyFigureCard(
+            label: 'Patrimoine',
+            value: patrimoine >= 1000
+                ? 'CHF ${(patrimoine / 1000).round()}k'
+                : 'CHF ${patrimoine.round()}',
+            icon: Icons.trending_up_outlined,
+            color: MintColors.info,
+            onTap: () => context.push('/profile/bilan'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  COUPLE CARD — first class
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildCoupleCard(CoachProfile profile) {
+    final conjName = profile.conjoint?.firstName ?? 'ton conjoint';
+    final firstName = profile.firstName ?? 'Toi';
+
+    // Try couple projection
+    String? coupleRevenu;
+    try {
+      final projection = ForecasterService.project(profile: profile);
+      final monthlyCouple = projection.base.revenuAnnuelRetraite / 12;
+      coupleRevenu = 'CHF ${monthlyCouple.round()}/mois';
+    } catch (_) {}
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => context.push('/profile/bilan'),
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.people_outline,
+                  size: 24, color: MintColors.primary),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$firstName + $conjName',
+                    style: GoogleFonts.outfit(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  if (coupleRevenu != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Retraite couple : $coupleRevenu',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded,
+                size: 14, color: MintColors.textMuted),
+          ],
+        ),
+      ),
     );
   }
 
@@ -466,6 +661,87 @@ class _PulseScreenState extends State<PulseScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact card for a single key figure (retraite, budget, patrimoine).
+class _KeyFigureCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final String? subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _KeyFigureCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+    this.subtitle,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: GoogleFonts.outfit(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: MintColors.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: MintColors.textSecondary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle!,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

@@ -18,6 +18,8 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/widgets/coach/streak_badge.dart';
+import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
+import 'package:mint_mobile/services/micro_action_engine.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH AGIR SCREEN — Sprint C7 / MINT Coach
@@ -402,7 +404,24 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                     monthLabel: currentMonthLabel,
                   ),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 24),
+
+                // ── Section: Micro-actions (Coach Vivant) ────
+                Builder(builder: (context) {
+                  final actions = MicroActionEngine.suggest(
+                    profile: profile,
+                    currentCheckIn: hasCurrentCheckIn
+                        ? profile.checkIns.last
+                        : null,
+                  );
+                  if (actions.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: MicroActionSection(actions: actions),
+                  );
+                }),
+
+                const SizedBox(height: 12),
 
                 // ── Section: Timeline ────────────────────────
                 _buildSectionHeader(
