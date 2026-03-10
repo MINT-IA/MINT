@@ -33,6 +33,7 @@ import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
 import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
+import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
 import 'package:mint_mobile/widgets/coach/horizon_line_widget.dart';
 import 'package:mint_mobile/widgets/coach/financial_weather_widget.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
@@ -459,6 +460,55 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   epargne: profile.patrimoine.epargneLiquide + profile.patrimoine.investissements + profile.prevoyance.totalLibrePassage,
                   immobilier: profile.patrimoine.immobilier ?? 0,
                 ),
+                const SizedBox(height: 16),
+
+                // ── P5: FRI Radar Chart ──────────────────
+                Builder(builder: (_) {
+                  final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+                  // Map blocs → 4 FRI axes (each 0-25)
+                  final patrimoineBloc = blocs['patrimoine'];
+                  final ageCanton = blocs['age_canton'];
+                  final trois = blocs['3a'];
+                  final lpp = blocs['lpp'];
+                  final avs = blocs['avs'];
+                  final taux = blocs['taux_conversion'];
+                  final objectif = blocs['objectifRetraite'];
+                  final archetype = blocs['archetype'];
+                  final menage = blocs['compositionMenage'];
+                  final foreign = blocs['foreign_pension'];
+                  final revenu = blocs['revenu'];
+
+                  double norm(double raw, double max) =>
+                      max > 0 ? (raw / max * 25).clamp(0, 25) : 0;
+
+                  final liquidity = norm(
+                    (patrimoineBloc?.score ?? 0) + (revenu?.score ?? 0),
+                    (patrimoineBloc?.maxScore ?? 0) + (revenu?.maxScore ?? 0),
+                  );
+                  final fiscal = norm(
+                    (ageCanton?.score ?? 0) + (trois?.score ?? 0),
+                    (ageCanton?.maxScore ?? 0) + (trois?.maxScore ?? 0),
+                  );
+                  final retirement = norm(
+                    (lpp?.score ?? 0) + (avs?.score ?? 0) +
+                    (taux?.score ?? 0) + (objectif?.score ?? 0),
+                    (lpp?.maxScore ?? 0) + (avs?.maxScore ?? 0) +
+                    (taux?.maxScore ?? 0) + (objectif?.maxScore ?? 0),
+                  );
+                  final structural = norm(
+                    (archetype?.score ?? 0) + (menage?.score ?? 0) +
+                    (foreign?.score ?? 0),
+                    (archetype?.maxScore ?? 0) + (menage?.maxScore ?? 0) +
+                    (foreign?.maxScore ?? 0),
+                  );
+
+                  return FriRadarChart(
+                    liquidity: liquidity,
+                    fiscal: fiscal,
+                    retirement: retirement,
+                    structural: structural,
+                  );
+                }),
                 const SizedBox(height: 16),
 
                 // ── Trajectory Chart (3-scenario fan chart) ──

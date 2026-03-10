@@ -79,8 +79,13 @@ class RachatEchelonneSimulator {
     final clampedRachat = rachatMax.clamp(0.0, double.infinity);
 
     // --- Impôt de base (sans rachat) ---
-    // Convert brut to net mensuel (approx: brut * 0.87 / 12 for social charges)
-    final netMensuel = revenuImposable * 0.87 / 12;
+    // Use NetIncomeBreakdown to convert gross → net (replaces hardcoded * 0.87)
+    final baseBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: revenuImposable,
+      canton: canton,
+      age: 50,
+    );
+    final netMensuel = baseBreakdown.netPayslip / 12;
     final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
       netMonthlyIncome: netMensuel,
       cantonCode: canton,
@@ -92,7 +97,12 @@ class RachatEchelonneSimulator {
     // --- Bloc (1 an) ---
     // On ne peut déduire que min(rachat, revenu) en 1 an (LIFD art. 33).
     final blocDeductible = clampedRachat.clamp(0.0, revenuImposable);
-    final netMensuelApresBloc = (revenuImposable - blocDeductible) * 0.87 / 12;
+    final blocBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: revenuImposable - blocDeductible,
+      canton: canton,
+      age: 50,
+    );
+    final netMensuelApresBloc = blocBreakdown.netPayslip / 12;
     final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
       netMonthlyIncome: netMensuelApresBloc,
       cantonCode: canton,
@@ -111,8 +121,12 @@ class RachatEchelonneSimulator {
     final List<RachatYearPlan> plan = [];
     double totalEconomieEchelonne = 0;
 
-    final netMensuelApresEchelon =
-        (revenuImposable - rachatAnnuelEffectif) * 0.87 / 12;
+    final echelonBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: revenuImposable - rachatAnnuelEffectif,
+      canton: canton,
+      age: 50,
+    );
+    final netMensuelApresEchelon = echelonBreakdown.netPayslip / 12;
     final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
       netMonthlyIncome: netMensuelApresEchelon,
       cantonCode: canton,
