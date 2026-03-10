@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/temporal_priority_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MICRO-ACTION ENGINE — Coach Vivant (Track A)
@@ -123,60 +124,142 @@ class MicroActionEngine {
   }
 
   // ──────────────────────────────────────────────────
-  //  PRIVATE: Temporal actions (calendar-driven)
+  //  PRIVATE: Temporal actions (via TemporalPriorityService)
   // ──────────────────────────────────────────────────
 
   static List<MicroAction> _temporalActions(
       CoachProfile profile, DateTime now) {
     final actions = <MicroAction>[];
-    final daysUntilYearEnd =
-        DateTime(now.year, 12, 31).difference(now).inDays;
 
-    // 3a deadline (Oct-Dec = high urgency)
-    if (now.month >= 10) {
-      final plafond =
-          profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
-      final verse3a = profile.total3aMensuel * 12;
-      final marge = (plafond - verse3a).clamp(0.0, plafond);
-      if (marge > 0) {
-        final taxSaving = marge * 0.30; // ~30% marginal estimate
-        actions.add(MicroAction(
-          id: 'verse_3a_deadline',
-          title: 'Verse ton 3a avant le 31 decembre',
-          description:
-              'Il reste $daysUntilYearEnd jours. Marge restante : CHF ${marge.round()}.',
-          category: '3a',
-          estimatedMinutes: 5,
-          estimatedImpactChf: taxSaving,
-          deeplink: '/simulator/3a',
-          priorityScore: 95,
-          urgency: daysUntilYearEnd <= 30
-              ? MicroActionUrgency.critical
-              : MicroActionUrgency.high,
-          icon: Icons.savings_outlined,
-          source: 'OPP3 art. 7',
-        ));
-      }
-    }
+    // ── Compute personalized 3a data for TemporalPriority ──
+    final plafond =
+        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+    final verse3a = profile.total3aMensuel * 12;
+    final marge3a = (plafond - verse3a).clamp(0.0, plafond);
+    final taxSaving3a = marge3a * 0.30; // ~30% marginal estimate
 
-    // Fiscal season (Jan-Mar)
-    if (now.month >= 1 && now.month <= 3) {
-      actions.add(const MicroAction(
-        id: 'fiscal_deductions',
-        title: 'Verifie tes deductions fiscales',
-        description:
-            'Saison fiscale en cours. Rassemble tes attestations 3a et LPP.',
-        category: 'fiscalite',
-        estimatedMinutes: 15,
-        deeplink: '/profile/bilan',
-        priorityScore: 90,
-        urgency: MicroActionUrgency.high,
-        icon: Icons.receipt_long_outlined,
-        source: 'LIFD art. 33',
+    // ── Get real temporal items from TemporalPriorityService ──
+    final temporalItems = TemporalPriorityService.prioritize(
+      today: now,
+      canton: profile.canton,
+      taxSaving3a: taxSaving3a,
+      limit: 3,
+    );
+
+    // ── Convert TemporalItems → MicroActions ──
+    for (final item in temporalItems) {
+      actions.add(MicroAction(
+        id: _temporalItemId(item),
+        title: item.title,
+        description: '${item.body} ${item.timeConstraint}',
+        category: _temporalItemCategory(item),
+        estimatedMinutes: _temporalItemMinutes(item),
+        estimatedImpactChf: _parseChfFromPersonalNumber(item.personalNumber),
+        deeplink: item.deeplink,
+        priorityScore: _temporalUrgencyToScore(item.urgency),
+        urgency: _mapTemporalUrgency(item.urgency),
+        icon: _temporalItemIcon(item),
+        source: _temporalItemSource(item),
       ));
     }
 
     return actions;
+  }
+
+  /// Map TemporalItem to a stable MicroAction id.
+  static String _temporalItemId(TemporalItem item) {
+    final dl = item.deeplink.replaceAll('/', '_').replaceAll(RegExp('^_'), '');
+    if (item.title.contains('3a') || item.title.contains('3e pilier')) {
+      return 'verse_3a_deadline';
+    }
+    if (item.title.contains('fiscal') || item.title.contains('declaration')) {
+      return 'fiscal_deductions';
+    }
+    if (item.title.contains('FRI') || item.title.contains('score')) {
+      return 'quarterly_fri_review';
+    }
+    if (item.title.contains('plafond')) {
+      return 'new_year_plafonds';
+    }
+    return 'temporal_$dl';
+  }
+
+  /// Infer category from TemporalItem content.
+  static String _temporalItemCategory(TemporalItem item) {
+    if (item.title.contains('3a') || item.title.contains('3e pilier')) {
+      return '3a';
+    }
+    if (item.title.contains('fiscal') || item.title.contains('declaration')) {
+      return 'fiscalite';
+    }
+    return 'retraite';
+  }
+
+  /// Estimated minutes to act on a temporal item.
+  static int _temporalItemMinutes(TemporalItem item) {
+    if (item.title.contains('3a')) return 5;
+    if (item.title.contains('fiscal')) return 15;
+    return 5;
+  }
+
+  /// Parse CHF amount from personalNumber string (e.g. "CHF 1'820").
+  static double? _parseChfFromPersonalNumber(String personalNumber) {
+    if (personalNumber.isEmpty) return null;
+    final cleaned = personalNumber
+        .replaceAll('CHF', '')
+        .replaceAll("'", '')
+        .replaceAll('\u2019', '')
+        .trim();
+    return double.tryParse(cleaned);
+  }
+
+  /// Map TemporalUrgency → MicroAction priority score (0-100).
+  static int _temporalUrgencyToScore(TemporalUrgency urgency) {
+    switch (urgency) {
+      case TemporalUrgency.critical:
+        return 98;
+      case TemporalUrgency.high:
+        return 92;
+      case TemporalUrgency.medium:
+        return 80;
+      case TemporalUrgency.low:
+        return 60;
+    }
+  }
+
+  /// Map TemporalUrgency → MicroActionUrgency.
+  static MicroActionUrgency _mapTemporalUrgency(TemporalUrgency urgency) {
+    switch (urgency) {
+      case TemporalUrgency.critical:
+        return MicroActionUrgency.critical;
+      case TemporalUrgency.high:
+        return MicroActionUrgency.high;
+      case TemporalUrgency.medium:
+        return MicroActionUrgency.medium;
+      case TemporalUrgency.low:
+        return MicroActionUrgency.low;
+    }
+  }
+
+  /// Icon for temporal-driven micro-actions.
+  static IconData _temporalItemIcon(TemporalItem item) {
+    if (item.title.contains('3a')) return Icons.savings_outlined;
+    if (item.title.contains('fiscal') || item.title.contains('declaration')) {
+      return Icons.receipt_long_outlined;
+    }
+    if (item.title.contains('FRI') || item.title.contains('score')) {
+      return Icons.analytics_outlined;
+    }
+    return Icons.calendar_today_outlined;
+  }
+
+  /// Legal source for temporal-driven micro-actions.
+  static String? _temporalItemSource(TemporalItem item) {
+    if (item.title.contains('3a')) return 'OPP3 art. 7';
+    if (item.title.contains('fiscal') || item.title.contains('declaration')) {
+      return 'LIFD art. 33';
+    }
+    return null;
   }
 
   // ──────────────────────────────────────────────────

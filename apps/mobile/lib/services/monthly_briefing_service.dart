@@ -1,6 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
-import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -115,8 +114,8 @@ class MonthlyBriefingService {
     // ── Trend detection ──────────────────────────────
     final trend = _detectTrend(vDeltaPct, previous);
 
-    // ── FRI delta ────────────────────────────────────
-    final friDelta = _computeFriDelta(profile);
+    // ── FRI delta (from persisted check-in snapshots) ─
+    final friDelta = _computeFriDelta(current, previous);
 
     // ── Insights generation ──────────────────────────
     final insights = _generateInsights(
@@ -183,20 +182,19 @@ class MonthlyBriefingService {
   }
 
   // ──────────────────────────────────────────────────
-  //  PRIVATE: FRI delta (uses FinancialFitnessService)
+  //  PRIVATE: FRI delta (from persisted check-in snapshots)
   // ──────────────────────────────────────────────────
 
-  static double _computeFriDelta(CoachProfile profile) {
-    // FRI delta requires historical snapshots — not yet persisted.
-    // For now, return 0. Once SnapshotService persists scores,
-    // this will compare current FRI vs previous month's FRI.
-    try {
-      // Compute current FRI score for reference (delta will come from history)
-      FinancialFitnessService.calculate(profile: profile);
-      return 0;
-    } catch (_) {
-      return 0;
+  static double _computeFriDelta(
+      MonthlyCheckIn current, MonthlyCheckIn? previous) {
+    // Both check-ins need persisted FRI scores for a real delta.
+    // Legacy check-ins (before FRI snapshot) have null friScore → delta = 0.
+    final currentFri = current.friScore;
+    final previousFri = previous?.friScore;
+    if (currentFri != null && previousFri != null) {
+      return currentFri - previousFri;
     }
+    return 0;
   }
 
   // ──────────────────────────────────────────────────

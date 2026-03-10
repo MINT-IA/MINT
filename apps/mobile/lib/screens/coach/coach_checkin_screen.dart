@@ -19,6 +19,7 @@ import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
 import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/fri_computation_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHECK-IN SCREEN — Sprint C6 / MINT Coach
@@ -159,7 +160,31 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     // Calculate totals
     _totalVersements = versements.values.fold(0.0, (s, v) => s + v);
 
-    // Create the check-in
+    // Compute FRI score at check-in time for historical tracking
+    double? friScoreAtCheckIn;
+    try {
+      final projForFri = ForecasterService.project(
+        profile: _profile,
+        targetDate: _profile.goalA.targetDate,
+      );
+      final fri = FriComputationService.compute(
+        profile: _profile,
+        projection: projForFri,
+      );
+      friScoreAtCheckIn = fri.total;
+    } catch (_) {
+      // FRI computation is best-effort — don't block check-in
+    }
+
+    // ── Score before (needed for check-in snapshot) ─────────
+    final scoreBefore = FinancialFitnessService.calculate(
+      profile: _profile,
+      previousScore: coachProvider.previousScore,
+    );
+    _scoreBefore = scoreBefore.global;
+    _coachTip = scoreBefore.coachMessage;
+
+    // Create the check-in with FRI + fitness score snapshots
     final checkIn = MonthlyCheckIn(
       month: DateTime(DateTime.now().year, DateTime.now().month),
       versements: versements,
@@ -167,19 +192,13 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       revenusExceptionnels: double.tryParse(_revenusController.text),
       note: _noteController.text.isNotEmpty ? _noteController.text : null,
       completedAt: DateTime.now(),
+      friScore: friScoreAtCheckIn,
+      fitnessScore: _scoreBefore,
     );
 
     // Simulate updated profile with the new check-in for streak calc
     final updatedCheckIns = [..._profile.checkIns, checkIn];
     _streak = _calculateStreak(updatedCheckIns);
-
-    // ── Score before / after ────────────────────────────────
-    final scoreBefore = FinancialFitnessService.calculate(
-      profile: _profile,
-      previousScore: coachProvider.previousScore,
-    );
-    _scoreBefore = scoreBefore.global;
-    _coachTip = scoreBefore.coachMessage;
 
     // Build updated profile with new check-in + potentially updated contributions
     final updatedProfile =

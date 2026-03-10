@@ -858,6 +858,12 @@ class MonthlyCheckIn {
   final String? note;
   final DateTime completedAt;
 
+  /// FRI score snapshot at check-in time (0-100). Null for legacy check-ins.
+  final double? friScore;
+
+  /// Financial Fitness Score at check-in time (0-100). Null for legacy check-ins.
+  final int? fitnessScore;
+
   const MonthlyCheckIn({
     required this.month,
     required this.versements,
@@ -865,6 +871,8 @@ class MonthlyCheckIn {
     this.revenusExceptionnels,
     this.note,
     required this.completedAt,
+    this.friScore,
+    this.fitnessScore,
   });
 
   /// Total des versements du mois
@@ -884,6 +892,8 @@ class MonthlyCheckIn {
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
       completedAt: DateTime.parse(json['completedAt']),
+      friScore: (json['friScore'] as num?)?.toDouble(),
+      fitnessScore: json['fitnessScore'] as int?,
     );
   }
 
@@ -894,6 +904,8 @@ class MonthlyCheckIn {
         'revenusExceptionnels': revenusExceptionnels,
         'note': note,
         'completedAt': completedAt.toIso8601String(),
+        'friScore': friScore,
+        'fitnessScore': fitnessScore,
       };
 }
 
