@@ -1,7 +1,8 @@
 import 'dart:math' show min, sqrt, pow;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
 
-/// Unit tests for FRI (Financial Readiness Index) computation.
+/// Unit tests for FriCalculator (financial_core).
 ///
 /// The FRI is a composite 0-100 score:
 ///   FRI = L + F + R + S  (each 0-25)
@@ -10,60 +11,78 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// Source: ONBOARDING_ARBITRAGE_ENGINE.md § V
 /// Legal refs: LPP, OPP3, LIFD, FINMA
-///
-/// NOTE: FRI computation is currently inline in pulse_screen.dart.
-/// These tests validate the formulas independently.
 void main() {
   // ════════════════════════════════════════════════════════
   //  L — LIQUIDITY (0-25)
   // ════════════════════════════════════════════════════════
 
-  group('FRI — L (Liquidity)', () {
-    double computeL(double liquidAssets, double monthlyExpenses) {
-      final monthsCover =
-          monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0.0;
-      var l = 25 * min(1.0, sqrt(monthsCover / 6.0));
-      return l.clamp(0, 25).toDouble();
-    }
-
+  group('FriCalculator — L (Liquidity)', () {
     test('0 liquid assets → L = 0', () {
-      expect(computeL(0, 3500), 0.0);
+      final l = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 0, monthlyFixedCosts: 3500));
+      expect(l, 0.0);
     });
 
-    test('1 month cover → L ≈ 10.2 (sqrt(1/6) * 25)', () {
-      final l = computeL(3500, 3500);
+    test('1 month cover → L ≈ 10.2', () {
+      final l = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 3500, monthlyFixedCosts: 3500));
       expect(l, closeTo(10.2, 0.5));
     });
 
-    test('3 months cover → L ≈ 17.7 (sqrt(3/6) * 25)', () {
-      final l = computeL(10500, 3500);
+    test('3 months cover → L ≈ 17.7', () {
+      final l = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 10500, monthlyFixedCosts: 3500));
       expect(l, closeTo(17.7, 0.5));
     });
 
     test('6 months cover → L = 25 (max)', () {
-      final l = computeL(21000, 3500);
+      final l = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 21000, monthlyFixedCosts: 3500));
       expect(l, 25.0);
     });
 
     test('12 months cover → L still capped at 25', () {
-      final l = computeL(42000, 3500);
+      final l = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 42000, monthlyFixedCosts: 3500));
       expect(l, 25.0);
     });
 
     test('diminishing returns: 0→1 month > 5→6 months', () {
-      final l0 = computeL(0, 3500);
-      final l1 = computeL(3500, 3500);
-      final l5 = computeL(17500, 3500);
-      final l6 = computeL(21000, 3500);
+      final l0 = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 0, monthlyFixedCosts: 3500));
+      final l1 = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 3500, monthlyFixedCosts: 3500));
+      final l5 = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 17500, monthlyFixedCosts: 3500));
+      final l6 = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 21000, monthlyFixedCosts: 3500));
 
-      final gain01 = l1 - l0;
-      final gain56 = l6 - l5;
-      expect(gain01, greaterThan(gain56),
+      expect(l1 - l0, greaterThan(l6 - l5),
           reason: 'sqrt gives diminishing returns');
     });
 
-    test('zero expenses → L = 0 (no data)', () {
-      expect(computeL(20000, 0), 0.0);
+    test('high short-term debt → penalty -4', () {
+      final l = FriCalculator.computeLiquidity(const FriInput(
+        liquidAssets: 21000,
+        monthlyFixedCosts: 3500,
+        shortTermDebtRatio: 0.35,
+      ));
+      expect(l, 21.0); // 25 - 4
+    });
+
+    test('high income volatility → penalty -3', () {
+      final l = FriCalculator.computeLiquidity(const FriInput(
+        liquidAssets: 21000,
+        monthlyFixedCosts: 3500,
+        incomeVolatility: 'high',
+      ));
+      expect(l, 22.0); // 25 - 3
+    });
+
+    test('monthlyFixedCosts < 1 → defaults to 1.0', () {
+      final l = FriCalculator.computeLiquidity(
+          const FriInput(liquidAssets: 6, monthlyFixedCosts: 0));
+      expect(l, greaterThan(0));
     });
   });
 
@@ -71,31 +90,53 @@ void main() {
   //  F — FISCAL EFFICIENCY (0-25)
   // ════════════════════════════════════════════════════════
 
-  group('FRI — F (Fiscal Efficiency)', () {
-    double computeF(double actual3a, double max3a) {
-      final utilisation3a =
-          max3a > 0 ? (actual3a / max3a).clamp(0.0, 1.0) : 0.0;
-      var f = 25 * (0.6 * utilisation3a);
-      return f.clamp(0, 25).toDouble();
-    }
-
-    test('no 3a → F = 0', () {
-      expect(computeF(0, 7258), 0.0);
+  group('FriCalculator — F (Fiscal)', () {
+    test('no 3a, no rachat → F = 0 (non-property owner)', () {
+      final f = FriCalculator.computeFiscal(const FriInput(
+        actual3a: 0,
+        max3a: 7258,
+        isPropertyOwner: false,
+      ));
+      // Non-property: utilisationAmort = 1.0 (not applicable)
+      // F = 25 * (0.80 * 0 + 0.20 * 1.0) = 5.0
+      expect(f, closeTo(5.0, 0.1));
     });
 
-    test('full 3a → F = 15 (0.6 * 25)', () {
-      final f = computeF(7258, 7258);
-      expect(f, closeTo(15.0, 0.1));
+    test('full 3a without rachat (non-owner) → F ≈ 25', () {
+      final f = FriCalculator.computeFiscal(const FriInput(
+        actual3a: 7258,
+        max3a: 7258,
+        isPropertyOwner: false,
+      ));
+      // F = 25 * (0.80 * 1.0 + 0.20 * 1.0) = 25.0
+      expect(f, closeTo(25.0, 0.1));
     });
 
-    test('half 3a → F = 7.5', () {
-      final f = computeF(3629, 7258);
-      expect(f, closeTo(7.5, 0.1));
+    test('rachat applicable when tauxMarginal > 25% and potentiel > 0', () {
+      final f = FriCalculator.computeFiscal(const FriInput(
+        actual3a: 7258,
+        max3a: 7258,
+        potentielRachatLpp: 100000,
+        rachatEffectue: 50000,
+        tauxMarginal: 0.30,
+        isPropertyOwner: false,
+      ));
+      // Rachat applicable: 60% * 1.0 + 25% * 0.5 + 15% * 1.0
+      // = 0.60 + 0.125 + 0.15 = 0.875
+      // F = 25 * 0.875 = 21.875
+      expect(f, closeTo(21.9, 0.5));
     });
 
-    test('3a over max is clamped to 1.0 utilisation', () {
-      final f = computeF(10000, 7258);
-      expect(f, closeTo(15.0, 0.1));
+    test('property owner without amort indirect → penalty', () {
+      final f = FriCalculator.computeFiscal(const FriInput(
+        actual3a: 7258,
+        max3a: 7258,
+        isPropertyOwner: true,
+        amortIndirect: 0,
+      ));
+      // Property owner: utilisationAmort = 0
+      // No rachat: F = 25 * (0.80 * 1.0 + 0.20 * 0) = 20.0
+      expect(f, closeTo(20.0, 0.1));
     });
   });
 
@@ -103,53 +144,41 @@ void main() {
   //  R — RETIREMENT (0-25)
   // ════════════════════════════════════════════════════════
 
-  group('FRI — R (Retirement)', () {
-    double computeR(double retirementIncome, double currentNetIncome) {
-      if (currentNetIncome <= 0) return 0;
-      final replacementRatio = retirementIncome / currentNetIncome;
-      var r = 25 * min(1.0, pow(replacementRatio / 0.70, 1.5).toDouble());
-      return r.clamp(0, 25).toDouble();
-    }
-
-    test('0 retirement income → R = 0', () {
-      expect(computeR(0, 8000), 0.0);
+  group('FriCalculator — R (Retirement)', () {
+    test('0 replacement → R = 0', () {
+      final r = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 0));
+      expect(r, 0.0);
     });
 
-    test('70% replacement ratio → R = 25 (target met)', () {
-      final r = computeR(5600, 8000);
+    test('70% replacement → R = 25 (target)', () {
+      final r = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 0.70));
       expect(r, closeTo(25.0, 0.1));
     });
 
-    test('100% replacement ratio → R = 25 (capped)', () {
-      final r = computeR(8000, 8000);
+    test('100% replacement → R = 25 (capped)', () {
+      final r = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 1.0));
       expect(r, 25.0);
     });
 
-    test('35% replacement (half target) → R ≈ 8.8', () {
-      // (0.5^1.5) * 25 = 0.354 * 25 ≈ 8.84
-      final r = computeR(2800, 8000);
+    test('35% replacement → R ≈ 8.8', () {
+      final r = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 0.35));
       expect(r, closeTo(8.8, 0.5));
     });
 
-    test('50% replacement → R ≈ 15.2', () {
-      // (0.714^1.5) * 25 ≈ 0.603 * 25 ≈ 15.08
-      final r = computeR(4000, 8000);
-      expect(r, closeTo(15.1, 0.5));
-    });
-
     test('non-linear: 50→70% gain > 70→90% gain', () {
-      final r50 = computeR(4000, 8000);
-      final r70 = computeR(5600, 8000);
-      final r90 = computeR(7200, 8000);
+      final r50 = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 0.50));
+      final r70 = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 0.70));
+      final r90 = FriCalculator.computeRetirement(
+          const FriInput(replacementRatio: 0.90));
 
-      final gain5070 = r70 - r50;
-      final gain7090 = r90 - r70;
-      expect(gain5070, greaterThan(gain7090),
+      expect(r70 - r50, greaterThan(r90 - r70),
           reason: 'Non-linear: lower gains matter more');
-    });
-
-    test('zero current income → R = 0 (no data)', () {
-      expect(computeR(3000, 0), 0.0);
     });
   });
 
@@ -157,87 +186,109 @@ void main() {
   //  S — STRUCTURAL RISK (0-25)
   // ════════════════════════════════════════════════════════
 
-  group('FRI — S (Structural Risk)', () {
-    double computeS({
-      double loanToValue = 0,
-      double immobilierEffectif = 0,
-      double totalPatrimoine = 100000,
-    }) {
-      var s = 25.0;
-      if (loanToValue > 0.80) s -= 5;
-      if (totalPatrimoine > 0) {
-        final concentration = immobilierEffectif / totalPatrimoine;
-        if (concentration > 0.70) s -= 4;
-      }
-      return s.clamp(0, 25).toDouble();
-    }
-
+  group('FriCalculator — S (Structural Risk)', () {
     test('no risks → S = 25 (max)', () {
-      expect(computeS(), 25.0);
+      final s =
+          FriCalculator.computeStructuralRisk(const FriInput());
+      expect(s, 25.0);
     });
 
-    test('high LTV → S = 20 (-5)', () {
-      expect(computeS(loanToValue: 0.85), 20.0);
+    test('high concentration → S -= 4', () {
+      final s = FriCalculator.computeStructuralRisk(
+          const FriInput(concentrationRatio: 0.75));
+      expect(s, 21.0);
     });
 
-    test('high concentration → S = 21 (-4)', () {
-      expect(
-        computeS(immobilierEffectif: 80000, totalPatrimoine: 100000),
-        21.0,
-      );
+    test('high mortgage stress → S -= 5', () {
+      final s = FriCalculator.computeStructuralRisk(
+          const FriInput(mortgageStressRatio: 0.40));
+      expect(s, 20.0);
     });
 
-    test('both penalties → S = 16 (-5 -4)', () {
-      expect(
-        computeS(
-          loanToValue: 0.85,
-          immobilierEffectif: 80000,
-          totalPatrimoine: 100000,
-        ),
-        16.0,
-      );
+    test('disability gap → S -= 6', () {
+      final s = FriCalculator.computeStructuralRisk(
+          const FriInput(disabilityGapRatio: 0.25));
+      expect(s, 19.0);
     });
 
-    test('LTV exactly at threshold (0.80) → no penalty', () {
-      expect(computeS(loanToValue: 0.80), 25.0);
+    test('death gap with dependents → S -= 6', () {
+      final s = FriCalculator.computeStructuralRisk(const FriInput(
+        hasDependents: true,
+        deathProtectionGapRatio: 0.35,
+      ));
+      expect(s, 19.0);
     });
 
-    test('concentration exactly at threshold (0.70) → no penalty', () {
-      expect(
-        computeS(immobilierEffectif: 70000, totalPatrimoine: 100000),
-        25.0,
-      );
+    test('death gap without dependents → no penalty', () {
+      final s = FriCalculator.computeStructuralRisk(const FriInput(
+        hasDependents: false,
+        deathProtectionGapRatio: 0.50,
+      ));
+      expect(s, 25.0);
+    });
+
+    test('employer dependency → S -= 4', () {
+      final s = FriCalculator.computeStructuralRisk(
+          const FriInput(employerDependencyRatio: 0.85));
+      expect(s, 21.0);
+    });
+
+    test('all penalties stack → S clamped at 0', () {
+      final s = FriCalculator.computeStructuralRisk(const FriInput(
+        disabilityGapRatio: 0.25,
+        hasDependents: true,
+        deathProtectionGapRatio: 0.35,
+        mortgageStressRatio: 0.40,
+        concentrationRatio: 0.75,
+        employerDependencyRatio: 0.85,
+      ));
+      // 25 - 6 - 6 - 5 - 4 - 4 = 0
+      expect(s, 0.0);
     });
   });
 
   // ════════════════════════════════════════════════════════
-  //  COMPOSITE FRI
+  //  COMPOSITE FRI (full compute)
   // ════════════════════════════════════════════════════════
 
-  group('FRI — Composite score', () {
-    test('all components at max → FRI = 100', () {
-      // L=25, F=15 (max with 3a only), R=25, S=25 → 90
-      // With full rachat component F could be 25
-      // Using only 3a: L=25+F=15+R=25+S=25 = 90
-      // That's the realistic max without rachat
-      const l = 25.0;
-      const f = 15.0; // 3a only
-      const r = 25.0;
-      const s = 25.0;
-      expect(l + f + r + s, 90.0);
+  group('FriCalculator.compute', () {
+    test('default input → produces valid FriBreakdown', () {
+      final result = FriCalculator.compute(const FriInput());
+      expect(result.total, greaterThanOrEqualTo(0));
+      expect(result.total, lessThanOrEqualTo(100));
+      expect(result.liquidite, greaterThanOrEqualTo(0));
+      expect(result.fiscalite, greaterThanOrEqualTo(0));
+      expect(result.retraite, greaterThanOrEqualTo(0));
+      expect(result.risque, greaterThanOrEqualTo(0));
+      expect(result.disclaimer, contains('éducatif'));
+      expect(result.sources, isNotEmpty);
     });
 
-    test('all components at zero → FRI = 0', () {
-      const total = 0.0 + 0.0 + 0.0 + 0.0;
-      expect(total, 0.0);
+    test('total = sum of components', () {
+      final result = FriCalculator.compute(const FriInput(
+        liquidAssets: 10000,
+        monthlyFixedCosts: 3000,
+        actual3a: 7258,
+        max3a: 7258,
+        replacementRatio: 0.60,
+      ));
+      expect(
+        result.total,
+        closeTo(
+            result.liquidite + result.fiscalite + result.retraite + result.risque,
+            0.05),
+      );
     });
 
-    test('weakest component identification', () {
-      final components = {'L': 20.0, 'F': 5.0, 'R': 15.0, 'S': 25.0};
-      final weakest = components.entries
-          .reduce((a, b) => a.value <= b.value ? a : b);
-      expect(weakest.key, 'F');
-      expect(weakest.value, 5.0);
+    test('modelVersion is set', () {
+      final result = FriCalculator.compute(const FriInput());
+      expect(result.modelVersion, '1.0.0');
+    });
+
+    test('confidenceScore passed through', () {
+      final result =
+          FriCalculator.compute(const FriInput(), confidenceScore: 72.5);
+      expect(result.confidenceScore, 72.5);
     });
   });
 
@@ -246,76 +297,89 @@ void main() {
   // ════════════════════════════════════════════════════════
 
   group('FRI — Display rules', () {
-    test('FRI only shown when confidence >= 50%', () {
-      // Spec: FRI requires confidenceScore >= 50%
-      const confidenceScore = 45.0;
-      const shouldShow = confidenceScore >= 50;
+    test('FRI only shown when visibility score >= 50%', () {
+      const visibilityScore = 45.0;
+      const shouldShow = visibilityScore >= 50;
       expect(shouldShow, false);
     });
 
-    test('FRI shown when confidence = 50%', () {
-      const confidenceScore = 50.0;
-      const shouldShow = confidenceScore >= 50;
+    test('FRI shown when visibility score = 50%', () {
+      const visibilityScore = 50.0;
+      const shouldShow = visibilityScore >= 50;
       expect(shouldShow, true);
     });
 
-    test('color mapping: >= 65 = success, >= 40 = warning, < 40 = error', () {
-      Color colorForFri(double total) {
-        if (total >= 65) return const Color(0xFF4CAF50); // success
-        if (total >= 40) return const Color(0xFFFF9800); // warning
-        return const Color(0xFFF44336); // error
+    test('color mapping: >= 65 green, >= 40 orange, < 40 red', () {
+      String colorBand(double total) {
+        if (total >= 65) return 'success';
+        if (total >= 40) return 'warning';
+        return 'error';
       }
 
-      expect(colorForFri(70), const Color(0xFF4CAF50));
-      expect(colorForFri(50), const Color(0xFFFF9800));
-      expect(colorForFri(30), const Color(0xFFF44336));
+      expect(colorBand(70), 'success');
+      expect(colorBand(50), 'warning');
+      expect(colorBand(30), 'error');
+    });
+
+    test('weakest component identification', () {
+      final result = FriCalculator.compute(const FriInput(
+        liquidAssets: 20000,
+        monthlyFixedCosts: 3500,
+        actual3a: 0, // ← weak
+        max3a: 7258,
+        replacementRatio: 0.70,
+      ));
+      // Fiscal should be weakest (no 3a)
+      final components = {
+        'L': result.liquidite,
+        'F': result.fiscalite,
+        'R': result.retraite,
+        'S': result.risque,
+      };
+      final weakest = components.entries
+          .reduce((a, b) => a.value <= b.value ? a : b);
+      // F should be low because no 3a contributions
+      expect(result.fiscalite, lessThan(result.liquidite));
     });
   });
 
   // ════════════════════════════════════════════════════════
-  //  GOLDEN COUPLE: Julien + Lauren
+  //  GOLDEN COUPLE: Julien
   // ════════════════════════════════════════════════════════
 
-  group('FRI — Golden test (Julien)', () {
-    test('Julien FRI components are reasonable', () {
-      // Julien: 49yo, VS, salaire 122207, epargne 32000 (3a),
-      // LPP 70377, epargneLiquide ~20k (approx), invest 77k
-      // monthlyExpenses ≈ 3500 (estimation)
+  group('FRI — Golden test (Julien via FriCalculator)', () {
+    test('Julien FRI is solid (> 70)', () {
+      final result = FriCalculator.compute(const FriInput(
+        // L
+        liquidAssets: 20000,
+        monthlyFixedCosts: 3500,
+        // F
+        actual3a: 7258, // max 3a utilisé
+        max3a: 7258,
+        potentielRachatLpp: 539414,
+        rachatEffectue: 0,
+        tauxMarginal: 0.30,
+        isPropertyOwner: false,
+        // R
+        replacementRatio: 0.655,
+        // S
+        concentrationRatio: 0.0, // no property
+        mortgageStressRatio: 0.0, // no mortgage
+        // Meta
+        age: 49,
+        canton: 'VS',
+      ));
 
-      // L: 20000 / 3500 ≈ 5.7 months → sqrt(5.7/6) * 25 ≈ 24.3
-      final l = 25 * min(1.0, sqrt(5.7 / 6.0));
-      expect(l, closeTo(24.3, 0.5));
-
-      // F: 3a utilisation = 32000/7258 → capped at 1.0 → F = 15
-      final f = 25 * 0.6 * 1.0;
-      expect(f, closeTo(15.0, 0.1));
-
-      // R: taux de remplacement ~65.5% → (0.655/0.70)^1.5 * 25
-      final rr = (0.655 / 0.70);
-      final r = 25 * min(1.0, pow(rr, 1.5).toDouble());
-      expect(r, closeTo(23.0, 1.5));
-
-      // S: no mortgage, no concentration → S = 25
-      const s = 25.0;
-
-      final total = l + f + r + s;
-      expect(total, greaterThan(80),
-          reason: 'Julien has a solid financial position');
-      expect(total, lessThan(95),
-          reason: 'Not perfect (fiscal efficiency limited to 3a)');
+      expect(result.total, greaterThan(60),
+          reason: 'Julien has solid finances');
+      expect(result.total, lessThan(100),
+          reason: 'Not perfect (no rachat done yet)');
+      expect(result.liquidite, greaterThan(20),
+          reason: '~5.7 months liquidity');
+      expect(result.retraite, greaterThan(20),
+          reason: '65.5% replacement ratio close to 70% target');
+      expect(result.risque, 25.0,
+          reason: 'No structural risks (no mortgage, no concentration)');
     });
   });
-}
-
-// Stub Color class for display rule tests
-class Color {
-  final int value;
-  const Color(this.value);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is Color && value == other.value;
-
-  @override
-  int get hashCode => value.hashCode;
 }

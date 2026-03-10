@@ -12,6 +12,8 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
+import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -27,7 +29,6 @@ import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
-import 'dart:math' show min, sqrt, pow;
 
 // ────────────────────────────────────────────────────────────
 //  PULSE SCREEN — S48 / Phase 0
@@ -71,7 +72,7 @@ class _PulseScreenState extends State<PulseScreen> {
   // ── Cached projections (avoid 3x ForecasterService calls) ──
   ProjectionResult? _cachedProjection;
   MonthlyBriefingDelta? _cachedBriefing;
-  _FriScore? _cachedFri;
+  FriBreakdown? _cachedFri;
 
   // ── Profile tracking (avoid unnecessary recomputation) ───
   CoachProfile? _lastProfile;
@@ -586,80 +587,35 @@ class _PulseScreenState extends State<PulseScreen> {
   //  FRI — Financial Readiness Index (#3)
   // ────────────────────────────────────────────────────────
 
-  _FriScore _computeFri(CoachProfile profile) {
-    final monthlyExpenses = profile.totalDepensesMensuelles > 0
-        ? profile.totalDepensesMensuelles
-        : 3500.0; // fallback suisse moyen
-
-    // L — Liquidity (0-25)
-    final liquidAssets = profile.patrimoine.epargneLiquide;
-    final monthsCover =
-        monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0.0;
-    var l = 25 * min(1.0, sqrt(monthsCover / 6.0));
-    l = l.clamp(0, 25);
-
-    // F — Fiscal Efficiency (0-25)
-    final actual3a = profile.prevoyance.totalEpargne3a ?? 0;
-    final max3a = 7258.0; // pilier3aPlafondAvecLpp
-    final utilisation3a = max3a > 0 ? (actual3a / max3a).clamp(0.0, 1.0) : 0.0;
-    var f = 25 * (0.6 * utilisation3a);
-    // rachat LPP component (simplified: if potentiel > 0 and no buyback done)
-    f = f.clamp(0, 25);
-
-    // R — Retirement (0-25)
-    var r = 0.0;
-    if (_cachedProjection != null) {
-      final revenuNet = _computeRevenuNet(profile);
-      if (revenuNet > 0) {
-        final retirementIncome =
-            _cachedProjection!.base.revenuAnnuelRetraite / 12;
-        final replacementRatio = retirementIncome / revenuNet;
-        r = 25 * min(1.0, pow(replacementRatio / 0.70, 1.5).toDouble());
-      }
+  /// Delegate FRI computation to FriComputationService (financial_core bridge).
+  /// Never duplicate calculation logic — anti-pattern #12.
+  FriBreakdown _computeFri(CoachProfile profile) {
+    if (_cachedProjection == null) {
+      // Without projection, compute with minimal FriInput
+      return FriCalculator.compute(const FriInput());
     }
-    r = r.clamp(0, 25);
-
-    // S — Structural Risk (0-25)
-    var s = 25.0;
-    if (profile.patrimoine.loanToValue > 0.80) s -= 5;
-    final totalAssets = profile.patrimoine.totalPatrimoine;
-    if (totalAssets > 0) {
-      final concentration =
-          profile.patrimoine.immobilierEffectif / totalAssets;
-      if (concentration > 0.70) s -= 4;
-    }
-    s = s.clamp(0, 25);
-
-    final total = l + f + r + s;
-    final weakest = <String, double>{'L': l, 'F': f, 'R': r, 'S': s}
-        .entries
-        .reduce((a, b) => a.value <= b.value ? a : b);
-
-    final weakLabel = switch (weakest.key) {
-      'L' => 'Liquidite',
-      'F' => 'Optimisation fiscale',
-      'R' => 'Retraite',
-      'S' => 'Risques structurels',
-      _ => '',
-    };
-
-    return _FriScore(
-      total: total,
-      l: l,
-      f: f,
-      r: r,
-      s: s,
-      weakestLabel: weakLabel,
-      weakestValue: weakest.value,
+    return FriComputationService.compute(
+      profile: profile,
+      projection: _cachedProjection!,
     );
   }
 
-  Widget _buildFriCard(_FriScore fri) {
+  Widget _buildFriCard(FriBreakdown fri) {
     final color = fri.total >= 65
         ? MintColors.success
         : fri.total >= 40
             ? MintColors.warning
             : MintColors.error;
+
+    // Identify weakest component for guidance
+    final components = {
+      'Liquidite': fri.liquidite,
+      'Optimisation fiscale': fri.fiscalite,
+      'Retraite': fri.retraite,
+      'Risques structurels': fri.risque,
+    };
+    final weakest = components.entries
+        .reduce((a, b) => a.value <= b.value ? a : b);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -706,13 +662,13 @@ class _PulseScreenState extends State<PulseScreen> {
           // 4-bar gauge
           Row(
             children: [
-              _FriBar(label: 'L', value: fri.l, max: 25),
+              _FriBar(label: 'L', value: fri.liquidite, max: 25),
               const SizedBox(width: 6),
-              _FriBar(label: 'F', value: fri.f, max: 25),
+              _FriBar(label: 'F', value: fri.fiscalite, max: 25),
               const SizedBox(width: 6),
-              _FriBar(label: 'R', value: fri.r, max: 25),
+              _FriBar(label: 'R', value: fri.retraite, max: 25),
               const SizedBox(width: 6),
-              _FriBar(label: 'S', value: fri.s, max: 25),
+              _FriBar(label: 'S', value: fri.risque, max: 25),
             ],
           ),
           const SizedBox(height: 10),
@@ -724,7 +680,7 @@ class _PulseScreenState extends State<PulseScreen> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Point le plus fragile : ${fri.weakestLabel}',
+                  'Point le plus fragile : ${weakest.key}',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -1004,30 +960,6 @@ class _KeyFigureCard extends StatelessWidget {
       ),
     );
   }
-}
-
-// ────────────────────────────────────────────────────────
-//  FRI DATA CLASS
-// ────────────────────────────────────────────────────────
-
-class _FriScore {
-  final double total;
-  final double l; // Liquidity
-  final double f; // Fiscal
-  final double r; // Retirement
-  final double s; // Structural
-  final String weakestLabel;
-  final double weakestValue;
-
-  const _FriScore({
-    required this.total,
-    required this.l,
-    required this.f,
-    required this.r,
-    required this.s,
-    required this.weakestLabel,
-    required this.weakestValue,
-  });
 }
 
 // ────────────────────────────────────────────────────────
