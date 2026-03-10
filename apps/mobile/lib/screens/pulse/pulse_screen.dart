@@ -17,8 +17,10 @@ import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
 import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
+import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
-import 'package:mint_mobile/widgets/pulse/pulse_action_card.dart';
 import 'package:mint_mobile/widgets/pulse/comprendre_section.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 
@@ -59,6 +61,7 @@ class _PulseScreenState extends State<PulseScreen> {
   CoachNarrative? _narrative;
   int _narrativeGeneration = 0;
   List<TemporalItem> _temporalItems = const [];
+  List<ResponseCard> _responseCards = const [];
 
   // ── Profile tracking (avoid unnecessary recomputation) ───
   CoachProfile? _lastProfile;
@@ -84,6 +87,12 @@ class _PulseScreenState extends State<PulseScreen> {
 
     // ── Compute temporal items (synchronous) ──────────────
     _computeTemporalItems(profile);
+
+    // ── Generate response cards (synchronous) ─────────────
+    _responseCards = ResponseCardService.generate(
+      profile: profile,
+      limit: 4,
+    );
 
     // ── Generate narrative (async, non-blocking) ──────────
     final tips = _buildCoachingTips(profile);
@@ -220,8 +229,8 @@ class _PulseScreenState extends State<PulseScreen> {
                 const SizedBox(height: 20),
               ],
 
-              // 4. Actions prioritaires
-              if (visibilityScore.actions.isNotEmpty) ...[
+              // 4. Response cards dynamiques
+              if (_responseCards.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
@@ -237,7 +246,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    'Gagne en visibilite sur ta situation',
+                    'Actions personnalisees selon ton profil',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textSecondary,
@@ -248,8 +257,11 @@ class _PulseScreenState extends State<PulseScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
-                    children: visibilityScore.actions
-                        .map((a) => PulseActionCard(action: a))
+                    children: _responseCards
+                        .map((c) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: ResponseCardWidget(card: c),
+                            ))
                         .toList(),
                   ),
                 ),

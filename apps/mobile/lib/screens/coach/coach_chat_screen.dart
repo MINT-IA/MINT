@@ -14,6 +14,9 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
@@ -136,19 +139,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           'le budget ou la retraite en Suisse.$scoreSuffix';
     }
 
-    final tips = CoachingService.generateTips(
-      profile: p.toCoachingProfile(),
+    // Suggested prompts personnalisees (Phase 1)
+    final suggestions = ResponseCardService.suggestedPrompts(
+      profile: p,
+      limit: 4,
     );
-    final topTipActions = tips.take(3).map((t) => t.title).toList();
-    final suggestions = topTipActions.isNotEmpty
-        ? topTipActions
-        : CoachLlmService.initialSuggestions;
+
+    // Response cards contextuelles pour le greeting
+    final greetingCards = ResponseCardService.generate(
+      profile: p,
+      limit: 2,
+    );
 
     _messages.add(ChatMessage(
       role: 'assistant',
       content: greeting,
       timestamp: DateTime.now(),
       suggestedActions: suggestions,
+      responseCards: greetingCards,
       tier: tier,
     ));
   }
@@ -305,12 +313,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ? null
         : _inferSuggestedActions(userMessage);
 
+    // Response cards contextuelles au topic
+    final cards = _profile != null
+        ? ResponseCardService.forChatTopic(
+            profile: _profile!,
+            topic: userMessage,
+          )
+        : <ResponseCard>[];
+
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: finalText,
         timestamp: DateTime.now(),
         suggestedActions: suggestedActions,
+        responseCards: cards,
         tier: ChatTier.slm,
       );
       _isStreaming = false;
@@ -331,6 +348,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
 
+      // Response cards contextuelles au topic
+      final cards = _profile != null
+          ? ResponseCardService.forChatTopic(
+              profile: _profile!,
+              topic: text,
+            )
+          : <ResponseCard>[];
+
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
@@ -339,6 +364,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           suggestedActions: response.suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
+          responseCards: cards,
           tier: tier,
         ));
         _isLoading = false;
@@ -824,6 +850,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               padding: const EdgeInsets.only(left: 40, right: 48),
               child: _buildDisclaimersSection(msg.disclaimers),
             ),
+          ],
+          // Response cards inline (Phase 1)
+          if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            ResponseCardStrip(cards: msg.responseCards),
           ],
           // Suggested actions
           if (!isStreamingThis &&

@@ -1,4 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -108,6 +109,9 @@ class ChatMessage {
   final List<String> disclaimers;
   final ChatTier tier;
 
+  /// Response cards inline (Phase 1) — contextuelles au message.
+  final List<ResponseCard> responseCards;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -116,6 +120,7 @@ class ChatMessage {
     this.sources = const [],
     this.disclaimers = const [],
     this.tier = ChatTier.none,
+    this.responseCards = const [],
   });
 
   bool get isUser => role == 'user';
