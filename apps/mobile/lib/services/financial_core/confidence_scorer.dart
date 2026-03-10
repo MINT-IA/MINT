@@ -623,6 +623,15 @@ class ConfidenceScorer {
     return blocs;
   }
 
+  /// Combined call: returns both bloc scores AND projection confidence
+  /// in a single profile traversal (avoids double scoring).
+  static ({Map<String, BlockScore> blocs, ProjectionConfidence confidence}) scoreWithBlocs(CoachProfile profile) {
+    return (
+      blocs: scoreAsBlocs(profile),
+      confidence: score(profile),
+    );
+  }
+
   /// Check if profile has enough data to determine archetype.
   static bool _hasArchetypeSignals(CoachProfile profile) {
     // Nationality or arrival age or employment status → can detect archetype

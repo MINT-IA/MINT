@@ -114,8 +114,7 @@ class VisibilityScoreService {
 
   /// Calcule le score de visibilite pour un profil.
   static VisibilityScore compute(CoachProfile profile) {
-    final blocs = ConfidenceScorer.scoreAsBlocs(profile);
-    final confidence = ConfidenceScorer.score(profile);
+    final (:blocs, :confidence) = ConfidenceScorer.scoreWithBlocs(profile);
 
     // ── Regrouper les blocs en 4 axes ──────────────────────
     final liquidite = _computeLiquiditeAxis(blocs, profile);
@@ -150,9 +149,9 @@ class VisibilityScoreService {
     final userScore = compute(userProfile);
     final conjScore = compute(conjointProfile);
 
-    // Moyenne ponderee par revenu
-    final userRevenu = userProfile.salaireBrutMensuel * 12;
-    final conjRevenu = conjointProfile.salaireBrutMensuel * 12;
+    // Moyenne ponderee par revenu (revenuBrutAnnuel inclut 13e mois + bonus)
+    final userRevenu = userProfile.revenuBrutAnnuel;
+    final conjRevenu = conjointProfile.revenuBrutAnnuel;
     final totalRevenu = userRevenu + conjRevenu;
 
     double coupleTotal;
@@ -183,7 +182,7 @@ class VisibilityScoreService {
         icon: uAxis.icon,
         score: avgScore,
         maxScore: uAxis.maxScore,
-        status: avgScore >= uAxis.maxScore * 0.7
+        status: avgScore >= uAxis.maxScore * 0.8
             ? 'complete'
             : avgScore > 0
                 ? 'partial'
