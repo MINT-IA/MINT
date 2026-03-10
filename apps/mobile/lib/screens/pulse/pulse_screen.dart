@@ -311,7 +311,7 @@ class _PulseScreenState extends State<PulseScreen> {
       arrivalAge: conj.arrivalAge,
       targetRetirementAge: conj.targetRetirementAge,
       prevoyance: conj.prevoyance ?? const PrevoyanceProfile(),
-      patrimoine: const PatrimoineProfile(),
+      patrimoine: conj.patrimoine ?? const PatrimoineProfile(),
       goalA: GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(birthYr + retirementAge),

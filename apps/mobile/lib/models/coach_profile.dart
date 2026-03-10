@@ -90,6 +90,10 @@ class ConjointProfile {
   final bool canContribute3a; // false si FATCA resident (certains providers)
   final PrevoyanceProfile? prevoyance;
 
+  /// Patrimoine du conjoint (epargne, investissements).
+  /// Null si non renseigne — Liquidite axis sera sous-evalue.
+  final PatrimoineProfile? patrimoine;
+
   /// Age at which the conjoint arrived in Switzerland.
   /// If null, assumes contributions since age 20 (Swiss native).
   final int? arrivalAge;
@@ -115,6 +119,7 @@ class ConjointProfile {
     this.isFatcaResident = false,
     this.canContribute3a = true,
     this.prevoyance,
+    this.patrimoine,
     this.arrivalAge,
     this.targetRetirementAge,
     this.invitationLevel = 'declared',
@@ -176,6 +181,9 @@ class ConjointProfile {
       isFatcaResident: isFatca,
       canContribute3a: topCanContribute,
       prevoyance: prev,
+      patrimoine: json['patrimoine'] != null
+          ? PatrimoineProfile.fromJson(json['patrimoine'])
+          : null,
       arrivalAge: json['arrivalAge'] as int?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
       invitationLevel: json['invitationLevel'] as String? ?? 'declared',
@@ -193,6 +201,7 @@ class ConjointProfile {
         'isFatcaResident': isFatcaResident,
         'canContribute3a': canContribute3a,
         'prevoyance': prevoyance?.toJson(),
+        'patrimoine': patrimoine?.toJson(),
         'arrivalAge': arrivalAge,
         'targetRetirementAge': targetRetirementAge,
         'invitationLevel': invitationLevel,
@@ -209,6 +218,7 @@ class ConjointProfile {
     bool? isFatcaResident,
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
+    PatrimoineProfile? patrimoine,
     int? arrivalAge,
     int? targetRetirementAge,
     String? invitationLevel,
@@ -232,6 +242,7 @@ class ConjointProfile {
       isFatcaResident: effectiveFatca,
       canContribute3a: effectiveCan,
       prevoyance: effectivePrev,
+      patrimoine: patrimoine ?? this.patrimoine,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
       invitationLevel: invitationLevel ?? this.invitationLevel,
