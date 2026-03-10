@@ -417,6 +417,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       child: TextFormField(
         controller: _lppController,
         keyboardType: TextInputType.number,
+        onTapOutside: (_) => FocusScope.of(context).unfocus(),
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
         decoration: InputDecoration(
           suffixText: 'CHF',
@@ -456,6 +457,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       child: TextFormField(
         controller: _threeAController,
         keyboardType: TextInputType.number,
+        onTapOutside: (_) => FocusScope.of(context).unfocus(),
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
         decoration: InputDecoration(
           suffixText: 'CHF',

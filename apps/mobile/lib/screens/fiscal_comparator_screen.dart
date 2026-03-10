@@ -519,6 +519,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 child: TextField(
                   controller: _fortuneController,
                   keyboardType: TextInputType.number,
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: MintColors.textPrimary,

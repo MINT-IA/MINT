@@ -419,6 +419,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: GoogleFonts.inter(
             fontSize: 15,

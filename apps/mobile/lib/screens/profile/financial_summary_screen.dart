@@ -1526,6 +1526,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                   controller: controllers[f.key],
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   decoration: InputDecoration(
                     hintText: '0',
                     border: OutlineInputBorder(

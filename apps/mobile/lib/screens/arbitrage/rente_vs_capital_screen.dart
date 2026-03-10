@@ -891,6 +891,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           keyboardType: isPercent
               ? const TextInputType.numberWithOptions(decimal: true)
               : TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: isPercent
               ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
               : [FilteringTextInputFormatter.digitsOnly],
@@ -1852,6 +1853,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         TextField(
           controller: _rachatAnnuelCtrl,
           keyboardType: TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
           decoration: InputDecoration(
@@ -1899,6 +1901,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           TextField(
             controller: _eplAmountCtrl,
             keyboardType: TextInputType.number,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             style: GoogleFonts.inter(fontSize: 14, color: MintColors.textPrimary),
             decoration: InputDecoration(

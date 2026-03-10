@@ -470,6 +470,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: GoogleFonts.inter(
             fontSize: 15,

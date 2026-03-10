@@ -443,6 +443,7 @@ class _CalendrierRetraitsScreenState extends State<CalendrierRetraitsScreen> {
                 child: TextField(
                   controller: asset.amountCtrl,
                   keyboardType: TextInputType.number,
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   style: GoogleFonts.inter(
                     fontSize: 14,

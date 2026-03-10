@@ -300,7 +300,10 @@ class _StepQuestionsState extends State<StepQuestions> {
                         ),
                       ),
                       onFieldSubmitted: (_) => _applyAgeFromInput(),
-                      onTapOutside: (_) => _applyAgeFromInput(),
+                      onTapOutside: (_) {
+                        FocusScope.of(context).unfocus();
+                        _applyAgeFromInput();
+                      },
                     ),
                   ),
                   const SizedBox(height: 32),
