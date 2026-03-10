@@ -27,7 +27,6 @@ from datetime import date
 from typing import List, Optional
 
 from app.constants.social_insurance import (
-    EPL_MONTANT_MINIMUM,
     LPP_DEDUCTION_COORDINATION,
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
@@ -423,7 +422,7 @@ class CoachingEngine:
         taux = self._get_marginal_rate(profile.canton)
         # Estimate: suggest buying back up to the full gap,
         # but show impact for a reasonable yearly amount
-        montant_rachat_sugere = min(profile.lacune_lpp, EPL_MONTANT_MINIMUM)
+        montant_rachat_sugere = min(profile.lacune_lpp, 20_000.0)
         economie_fiscale = montant_rachat_sugere * taux
 
         tips.append(CoachingTip(
