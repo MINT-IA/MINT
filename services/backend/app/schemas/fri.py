@@ -23,6 +23,8 @@ from typing import List, Literal
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
 
 # ===========================================================================
 # Base config
@@ -63,7 +65,7 @@ class FriInputSchema(FriBaseModel):
         description="CHF verse en 3a cette annee",
     )
     max_3a: float = Field(
-        default=7258.0, ge=0.0,
+        default=PILIER_3A_PLAFOND_AVEC_LPP, ge=0.0,
         description="CHF plafond 3a (7258 salarie, 36288 indep.)",
     )
     potentiel_rachat_lpp: float = Field(

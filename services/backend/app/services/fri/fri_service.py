@@ -27,6 +27,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
 
 @dataclass
 class FriInput:
@@ -43,7 +45,7 @@ class FriInput:
 
     # F — Fiscal efficiency
     actual_3a: float = 0.0              # CHF contributed to 3a this year
-    max_3a: float = 7258.0             # CHF max 3a (7'258 salarie, 36'288 indep.)
+    max_3a: float = PILIER_3A_PLAFOND_AVEC_LPP  # CHF max 3a (7'258 salarie, 36'288 indep.)
     potentiel_rachat_lpp: float = 0.0   # CHF potential LPP buyback
     rachat_effectue: float = 0.0        # CHF LPP buyback completed
     taux_marginal: float = 0.0          # Marginal tax rate (0-1)

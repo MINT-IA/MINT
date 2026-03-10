@@ -342,6 +342,22 @@ HYPOTHEQUE_PART_2E_PILIER_MAX: float = 0.10
 """Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat)."""
 
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LAMal — Assurance-maladie obligatoire
+# Base legale: LAMal art. 62-64
+# ══════════════════════════════════════════════════════════════════════════════
+
+LAMAL_QUOTE_PART_RATE: float = 0.10
+"""Quote-part: 10% des frais au-dessus de la franchise (LAMal art. 64)."""
+
+LAMAL_QUOTE_PART_CAP_ADULT: float = 700.0
+"""Quote-part maximale annuelle adultes >= 26 ans (LAMal art. 64 al. 2)."""
+
+LAMAL_QUOTE_PART_CAP_CHILD: float = 350.0
+"""Quote-part maximale annuelle enfants < 18 ans (LAMal art. 64 al. 4)."""
+
+
 AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""
 
