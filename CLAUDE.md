@@ -157,13 +157,39 @@ git push origin <current-branch>
 ## DESIGN SYSTEM (Flutter)
 
 - **Fonts**: GoogleFonts — Montserrat (headings), Inter (body)
-- **Colors**: `MintColors` from `lib/theme/colors.dart`
+- **Colors**: `MintColors` from `lib/theme/colors.dart` — NEVER hardcode hex values, always use `MintColors.*`
 - **Navigation**: GoRouter
 - **State**: Provider
+- **i18n**: `flutter_localizations` + `intl` — see below
 - **AppBar**: SliverAppBar with gradient from MintColors.primary
 - **Material 3** design
 - **Responsive layout**
 - **CustomPainter** for charts and visualizations
+
+### Internationalization (i18n) — NON-NEGOTIABLE
+
+> **ARB files**: `apps/mobile/lib/l10n/app_{fr,de,en,es,it,pt}.arb` (6 languages)
+
+**ALL user-facing strings MUST go through `AppLocalizations`.**
+NEVER hardcode user-facing text in Dart files. This includes:
+- Screen titles, subtitles, section headers
+- Button labels, CTA text
+- Disclaimers, tooltips, error messages
+- Card titles, descriptions, chiffre-choc labels
+- Narrative text, coaching tips, micro-action descriptions
+- Axis labels (Liquidité, Fiscalité, Retraite, Sécurité)
+
+**How to add a string:**
+1. Add the key + French text (with proper accents) to `app_fr.arb`
+2. Add translations to other `.arb` files (at minimum `app_fr.arb`)
+3. Use `AppLocalizations.of(context)!.yourKey` in widgets
+4. For services that don't have `BuildContext`, pass localized strings as parameters
+
+**Why this matters:**
+- ARB files handle accents correctly (é, è, ê, ô, ù, etc.)
+- Hardcoded ASCII strings lose French diacritics → broken UX
+- Multi-language support is a V2 requirement for Swiss market (FR/DE/IT/EN)
+- Single source of truth for all user-facing text
 
 ---
 
@@ -357,3 +383,5 @@ Archived docs: `docs/archive/`, `visions/archive/`, `.claude/archive/` — histo
 12. **Duplicate calculation logic** — NEVER create private `_calculateTax()`, `_estimateAvs()`, etc. in service files. Always use `financial_core/` calculators. If a method doesn't exist, add it to the appropriate calculator class.
 13. **Ignore future AVS contribution years** — `AvsCalculator.computeMonthlyRente()` correctly adds future years until retirement. Don't use raw `contributionYears / 44` as reduction factor.
 14. **Apply married couple AVS cap to concubins** — LAVS art. 35 cap (150% = 3780 CHF) applies ONLY to married couples. Always pass `isMarried: true/false` to `AvsCalculator.computeCouple()`.
+15. **Hardcode user-facing strings in Dart** — NEVER write `'Ton texte ici'` in widgets or services. ALL user-facing text goes in `app_fr.arb` and is accessed via `AppLocalizations.of(context)!.key`. Hardcoded strings lose accents, break i18n, and are unmaintainable.
+16. **Hardcode colors as hex values** — NEVER use `Color(0xFFXXXXXX)` in widgets or models. Always use `MintColors.*` from `lib/theme/colors.dart`. If a color doesn't exist, add it to `MintColors`.
