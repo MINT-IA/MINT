@@ -22,6 +22,8 @@ class FuturProjectionCard extends StatelessWidget {
   final double? renteAvsConjoint;
   final double renteLppUser;
   final double? renteLppConjoint;
+  final double avoirLppUser;
+  final double? avoirLppConjoint;
   final double capital3aUser;
   final double? capital3aConjoint;
   final double? capitalLibrePassage;
@@ -41,6 +43,8 @@ class FuturProjectionCard extends StatelessWidget {
     this.renteAvsConjoint,
     required this.renteLppUser,
     this.renteLppConjoint,
+    this.avoirLppUser = 0,
+    this.avoirLppConjoint,
     required this.capital3aUser,
     this.capital3aConjoint,
     this.capitalLibrePassage,
@@ -90,8 +94,11 @@ class FuturProjectionCard extends StatelessWidget {
           ? (_totalMonthlyProjected / _currentReference) * 100
           : 0;
 
+  double get _totalLppCapital =>
+      avoirLppUser + (avoirLppConjoint ?? 0);
+
   double get _totalCapitalRetraite =>
-      _total3aCapital + _totalCapitalLP + _totalInvestissements;
+      _totalLppCapital + _total3aCapital + _totalCapitalLP + _totalInvestissements;
 
   String _fmtChf(double v) => formatChf(v);
 

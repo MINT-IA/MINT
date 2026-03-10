@@ -1430,6 +1430,8 @@ class FinancialSummaryScreen extends StatelessWidget {
       renteLppConjoint: p.isCouple
           ? (cp?.avoirLppTotal ?? 0) * (cp?.tauxConversion ?? 0.068) / 12
           : null,
+      avoirLppUser: prev.avoirLppTotal ?? 0,
+      avoirLppConjoint: p.isCouple ? (cp?.avoirLppTotal ?? 0) : null,
       capital3aUser: prev.totalEpargne3a,
       capital3aConjoint: p.isCouple ? (cp?.totalEpargne3a ?? 0) : null,
       capitalLibrePassage: prev.totalLibrePassage > 0 ? prev.totalLibrePassage : null,

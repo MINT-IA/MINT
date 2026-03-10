@@ -3689,7 +3689,7 @@
   "futurTotalCoupleProjecte": "Total couple projeté",
   "futurTotalMensuelProjecte": "Total mensuel projeté",
   "futurCapitalRetraite": "Capital à la retraite",
-  "futurCapitalTotal": "Capital total (3a + LP + investissements)",
+  "futurCapitalTotal": "Capital total (LPP + 3a + LP + investissements)",
   "futurCapitalTaxHint": "Le retrait en capital est taxé séparément (LIFD art. 38). Le SWR n'est pas un revenu imposable.",
   "futurMargeIncertitude": "Marge d'incertitude (\u00b1 {pct}%)",
   "@futurMargeIncertitude": { "placeholders": { "pct": { "type": "String" } } },
