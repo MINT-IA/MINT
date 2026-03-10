@@ -93,6 +93,15 @@ AVS_RENTE_MIN_MENSUELLE: float = 1_260.0
 AVS_RENTE_COUPLE_MAX_MENSUELLE: float = 3_780.0
 """Rente AVS maximale pour un couple mensuelle (= 150% de la rente max)."""
 
+AVS_RAMD_MIN: float = 14_700.0
+"""RAMD minimum (revenu annuel moyen determinant). Rente = min si salaire <= RAMD_MIN."""
+
+AVS_RAMD_MAX: float = 88_200.0
+"""RAMD maximum. Rente = max si salaire >= RAMD_MAX (LAVS art. 34, echelle 44)."""
+
+AVS_RENTE_MAX_ANNUELLE: float = AVS_RENTE_MAX_MENSUELLE * 12
+"""Rente AVS maximale annuelle (12 mois, sans 13eme rente)."""
+
 AVS_COTISATION_SALARIE: float = 0.053
 """Taux de cotisation AVS part salarie: 5.3% (total 10.6% avec part employeur)."""
 

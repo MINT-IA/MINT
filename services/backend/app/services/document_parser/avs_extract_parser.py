@@ -27,6 +27,7 @@ from __future__ import annotations
 import re
 from typing import Optional
 
+from app.constants.social_insurance import AVS_RAMD_MIN, AVS_RAMD_MAX
 from app.services.document_parser.document_models import (
     DocumentType,
     ExtractedField,
@@ -327,7 +328,7 @@ def _cross_validate_avs(result: ExtractionResult) -> None:
     ramd_f = result.get_field("ramd")
     if ramd_f and isinstance(ramd_f.value, (int, float)):
         # RAMD should be between minimum AVS and about 2x the max insured salary
-        if ramd_f.value < 14_700:
+        if ramd_f.value < AVS_RAMD_MIN:
             result.warnings.append(
                 f"Le RAMD ({ramd_f.value:,.0f} CHF) est inferieur au minimum AVS. "
                 "Verifie ce montant sur ton extrait CI."
