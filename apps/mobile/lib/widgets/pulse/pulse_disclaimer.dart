@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Micro-disclaimer inline pour le dashboard Pulse.
@@ -11,6 +12,7 @@ class PulseDisclaimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(12),
@@ -29,8 +31,7 @@ class PulseDisclaimer extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Outil éducatif. Ne constitue pas un conseil financier '
-              'personnalisé. LSFin art.\u00a03',
+              l.pulseDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,

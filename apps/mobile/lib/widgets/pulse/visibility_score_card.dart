@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -15,6 +16,7 @@ class VisibilityScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
@@ -38,7 +40,7 @@ class VisibilityScoreCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Visibilité financière',
+                  l.pulseVisibilityTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -67,7 +69,7 @@ class VisibilityScoreCard extends StatelessWidget {
           if (score.coupleWeakName != null &&
               score.coupleWeakScore != null &&
               (score.total - score.coupleWeakScore!).abs() > 15)
-            _buildCoupleAlert(),
+            _buildCoupleAlert(l),
         ],
       ),
     );
@@ -143,7 +145,7 @@ class VisibilityScoreCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCoupleAlert() {
+  Widget _buildCoupleAlert(S l) {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
@@ -161,8 +163,10 @@ class VisibilityScoreCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Le profil de ${score.coupleWeakName} est à '
-              '${score.coupleWeakScore?.round() ?? 0}\u00a0% de visibilité',
+              l.pulseCoupleAlertWeak(
+                score.coupleWeakName ?? '',
+                '${score.coupleWeakScore?.round() ?? 0}',
+              ),
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Section "Comprendre" en bas du dashboard Pulse.
@@ -10,38 +11,38 @@ import 'package:mint_mobile/theme/colors.dart';
 class ComprendreSection extends StatelessWidget {
   const ComprendreSection({super.key});
 
-  static const _items = [
+  static List<_ComprendreItem> _items(S l) => [
     _ComprendreItem(
-      title: 'Rente ou capital\u00a0?',
-      subtitle: 'Compare les deux options de retrait',
+      title: l.pulseComprendreRenteCapital,
+      subtitle: l.pulseComprendreRenteCapitalSub,
       icon: Icons.compare_arrows,
       route: '/arbitrage/rente-vs-capital',
       color: MintColors.retirementLpp,
     ),
     _ComprendreItem(
-      title: 'Simuler un rachat LPP',
-      subtitle: 'Découvre l\'impact fiscal d\'un rachat',
+      title: l.pulseComprendreRachatLpp,
+      subtitle: l.pulseComprendreRachatLppSub,
       icon: Icons.account_balance,
       route: '/lpp-deep/rachat',
       color: MintColors.retirementAvs,
     ),
     _ComprendreItem(
-      title: 'Explorer mon 3a',
-      subtitle: 'Découvre l\'économie d\'impôt annuelle',
+      title: l.pulseComprendre3a,
+      subtitle: l.pulseComprendre3aSub,
       icon: Icons.savings,
       route: '/simulator/3a',
       color: MintColors.retirement3a,
     ),
     _ComprendreItem(
-      title: 'Mon budget mensuel',
-      subtitle: 'Visualise tes revenus et dépenses',
+      title: l.pulseComprendre_budget,
+      subtitle: l.pulseComprendre_budgetSub,
       icon: Icons.pie_chart_outline,
       route: '/budget',
       color: MintColors.info,
     ),
     _ComprendreItem(
-      title: 'Acheter un bien\u00a0?',
-      subtitle: 'Estime ta capacité d\'emprunt',
+      title: l.pulseComprendreAchat,
+      subtitle: l.pulseComprendreAchatSub,
       icon: Icons.home_outlined,
       route: '/mortgage/affordability',
       color: MintColors.teal,
@@ -50,13 +51,15 @@ class ComprendreSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final items = _items(l);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Comprendre',
+            l.pulseComprendreTitle,
             style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -65,14 +68,14 @@ class ComprendreSection extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Explore tes simulateurs',
+            l.pulseComprendreSubtitle,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
             ),
           ),
           const SizedBox(height: 14),
-          ..._items.map((item) => _buildItem(context, item)),
+          ...items.map((item) => _buildItem(context, item)),
         ],
       ),
     );

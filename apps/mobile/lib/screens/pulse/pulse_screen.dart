@@ -18,6 +18,7 @@ import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
 import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
@@ -263,25 +264,30 @@ class _PulseScreenState extends State<PulseScreen> {
               if (cards.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Tes priorités',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Actions personnalisées selon ton profil',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
+                  child: Builder(builder: (context) {
+                    final l = S.of(context)!;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.pulsePrioritiesTitle,
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l.pulsePrioritiesSubtitle,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MintColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
                 const SizedBox(height: 12),
                 ResponseCardStrip(cards: cards),
@@ -289,11 +295,11 @@ class _PulseScreenState extends State<PulseScreen> {
               ],
 
               // 5. Section Comprendre
-              const ComprendreSection(),
+              ComprendreSection(),
               const SizedBox(height: 24),
 
               // 6. Disclaimer (toujours visible)
-              const PulseDisclaimer(),
+              PulseDisclaimer(),
               const SizedBox(height: 32),
             ],
           ),
@@ -307,6 +313,7 @@ class _PulseScreenState extends State<PulseScreen> {
   // ────────────────────────────────────────────────────────
 
   Widget _buildKeyFigures(CoachProfile profile) {
+    final l = S.of(context)!;
     // Retirement projection (base scenario)
     double? retraiteEstimee;
     double? tauxRemplacement;
@@ -345,12 +352,12 @@ class _PulseScreenState extends State<PulseScreen> {
       children: [
         Expanded(
           child: _KeyFigureCard(
-            label: 'Retraite estimée',
+            label: l.pulseKeyFigRetraite,
             value: retraiteEstimee != null
                 ? 'CHF ${retraiteEstimee.round()}/mois'
                 : '\u2014',
             subtitle: tauxRemplacement != null
-                ? '${tauxRemplacement.round()}\u00a0% du revenu'
+                ? l.pulseKeyFigRetraitePct('${tauxRemplacement.round()}')
                 : null,
             icon: Icons.beach_access_outlined,
             color: MintColors.primary,
@@ -360,7 +367,7 @@ class _PulseScreenState extends State<PulseScreen> {
         const SizedBox(width: 10),
         Expanded(
           child: _KeyFigureCard(
-            label: 'Budget libre',
+            label: l.pulseKeyFigBudgetLibre,
             value: budgetLibre > 0
                 ? '+CHF ${budgetLibre.round()}/m'
                 : 'CHF ${budgetLibre.round()}/m',
@@ -372,7 +379,7 @@ class _PulseScreenState extends State<PulseScreen> {
         const SizedBox(width: 10),
         Expanded(
           child: _KeyFigureCard(
-            label: 'Patrimoine',
+            label: l.pulseKeyFigPatrimoine,
             value: patrimoine >= 1000
                 ? 'CHF ${(patrimoine / 1000).round()}k'
                 : 'CHF ${patrimoine.round()}',
@@ -390,6 +397,7 @@ class _PulseScreenState extends State<PulseScreen> {
   // ────────────────────────────────────────────────────────
 
   Widget _buildCoupleCard(CoachProfile profile) {
+    final l = S.of(context)!;
     final conjName = profile.conjoint?.firstName ?? 'ton conjoint';
     final firstName = profile.firstName ?? 'Toi';
 
@@ -445,7 +453,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   if (coupleRevenu != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      'Retraite couple\u00a0: $coupleRevenu',
+                      l.pulseCoupleRetraite(coupleRevenu!),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -533,10 +541,11 @@ class _PulseScreenState extends State<PulseScreen> {
   // ────────────────────────────────────────────────────────
 
   SliverAppBar _buildAppBar(BuildContext context, CoachProfile profile) {
+    final l = S.of(context)!;
     final firstName = profile.firstName ?? 'toi';
     final greeting = profile.isCouple && profile.conjoint?.firstName != null
-        ? 'Bonjour $firstName et ${profile.conjoint!.firstName}'
-        : 'Bonjour $firstName';
+        ? l.pulseGreetingCouple(firstName, profile.conjoint!.firstName!)
+        : l.pulseGreeting(firstName);
 
     return SliverAppBar(
       expandedHeight: 100,
@@ -570,6 +579,7 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l = S.of(context)!;
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -580,7 +590,7 @@ class _PulseScreenState extends State<PulseScreen> {
           flexibleSpace: FlexibleSpaceBar(
             titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
             title: Text(
-              'Bienvenue sur MINT',
+              l.pulseWelcome,
               style: GoogleFonts.outfit(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -615,7 +625,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Commence par remplir ton profil\u00a0!',
+                    l.pulseEmptyTitle,
                     style: GoogleFonts.outfit(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -625,8 +635,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Quelques questions suffisent pour obtenir '
-                    'ta première estimation de visibilité financière.',
+                    l.pulseEmptySubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.textSecondary,
@@ -640,7 +649,7 @@ class _PulseScreenState extends State<PulseScreen> {
                       context.push('/onboarding/smart');
                     },
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Démarrer'),
+                    label: Text(l.pulseEmptyCtaStart),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
                       foregroundColor: Colors.white,
@@ -654,7 +663,7 @@ class _PulseScreenState extends State<PulseScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const PulseDisclaimer(),
+                  PulseDisclaimer(),
                 ],
               ),
             ),

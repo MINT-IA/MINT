@@ -3992,5 +3992,31 @@
     "placeholders": {
       "hint": {"type": "String"}
     }
-  }
+  },
+
+  "lppBuybackAdvTitle": "Optimisation de rachat LPP",
+  "lppBuybackAdvSubtitle": "Effet levier fiscal + capitalisation",
+  "lppBuybackAdvPotential": "Potentiel de rachat",
+  "lppBuybackAdvYears": "Années jusqu'à la retraite",
+  "lppBuybackAdvStaggering": "Lissage (staggering)",
+  "lppBuybackAdvFundRate": "Taux de la caisse LPP",
+  "lppBuybackAdvIncome": "Revenu imposable",
+  "lppBuybackAdvFinalCapital": "Valeur finale capitalisée",
+  "lppBuybackAdvRealReturn": "Rendement réel\u00a0: {pct}\u00a0% / an",
+  "@lppBuybackAdvRealReturn": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "lppBuybackAdvTaxSaving": "Économie impôts",
+  "lppBuybackAdvNetEffort": "Effort net",
+  "lppBuybackAdvTotalGain": "Gain total de l'opération",
+  "lppBuybackAdvCapitalMinusEffort": "Capital - Effort net",
+  "lppBuybackAdvFundRateLabel": "Taux LPP servi",
+  "lppBuybackAdvLeverageEffect": "Effet levier fiscal",
+  "lppBuybackAdvBonASavoir": "Bon à savoir",
+  "lppBuybackAdvBon1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
+  "lppBuybackAdvBon2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art.\u00a033 al.\u00a01 let.\u00a0d).",
+  "lppBuybackAdvBon3": "Attention\u00a0: tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art.\u00a079b al.\u00a03).",
+  "lppBuybackAdvDisclaimer": "Simulation incluant l'intérêt de la caisse et l'économie d'impôt lissée. Le rendement réel est calculé sur ton effort net réel."
 }
