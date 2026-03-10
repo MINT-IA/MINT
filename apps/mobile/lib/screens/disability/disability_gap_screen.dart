@@ -63,7 +63,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     double lppInvalidity = 0.0;
     if (annualGross >= lppSeuilEntree) {
       final coordinated = (annualGross - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, 64260.0);
+          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
       lppInvalidity = coordinated * 0.40 / 12;
     }
     final act3Income = aiRenteEntiere + lppInvalidity;
@@ -110,7 +110,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final annualGross = _grossMonthly * 12;
     if (annualGross < lppSeuilEntree) return 0;
     final coordinated = (annualGross - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin, 64260.0);
+        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
     final rate = getLppBonificationRate(_age);
     final annualContrib = coordinated * rate;
     // Simplified: flat contributions, 1% employer return
@@ -123,7 +123,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final yearsToRetirement = (65 - _age).clamp(0, 40);
     if (reducedGross < lppSeuilEntree) return 0;
     final coordinated = (reducedGross - lppDeductionCoordination)
-        .clamp(0.0, 64260.0);
+        .clamp(0.0, lppSalaireCoordMax);
     if (coordinated <= 0) return 0;
     final rate = getLppBonificationRate(_age);
     final annualContrib = coordinated * rate;

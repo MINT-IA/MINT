@@ -60,7 +60,7 @@ class _LandingScreenState extends State<LandingScreen> {
       retirementAge: 65,
       grossAnnualSalary: _salary,
       caisseReturn: 0.01,
-      conversionRate: 0.068,
+      conversionRate: lppTauxConversionMinDecimal,
     );
     final lppMonthly = lppAnnualRente / 12;
     final totalMonthly = avsMonthly + lppMonthly;

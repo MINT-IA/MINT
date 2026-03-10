@@ -19,71 +19,20 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 class RetirementService {
   RetirementService._();
 
-  // ════════════════════════════════════════════════════════════
-  //  AVS CONSTANTS (LAVS art. 21-29, 2025/2026)
-  // ════════════════════════════════════════════════════════════
+  // All constants delegated to social_insurance.dart.
+  // Kept as static getters for backward compatibility with callers
+  // using RetirementService.avsMaxRenteAnnuelle etc.
+  static double get avsMaxRenteAnnuelle => avsRenteMaxAnnuelle;
+  static double get avsCoupleFactor => 1.50;
+  static int get avsRetirementAge => avsAgeReferenceHomme;
+  static double get avsAnticipationPenaltyPerYear => avsReductionAnticipation;
+  static int get maxContributionYears => avsDureeCotisationComplete;
+  static double get lppConversionRate => lppTauxConversionMinDecimal;
+  static Map<String, String> get cantonNames => cantonFullNames;
 
-  /// Maximum AVS annual pension (single person).
-  static const double avsMaxRenteAnnuelle = 30240.0;
-
-  /// Couple plafond factor (150% of single max).
-  static const double avsCoupleFactor = 1.50;
-
-  /// Reference retirement age.
-  static const int avsRetirementAge = 65;
-
-  /// Anticipation penalty per year (6.8%/yr).
-  static const double avsAnticipationPenaltyPerYear = 0.068;
-
-  // avsDeferralBonus moved to social_insurance.dart (LAVS art. 39)
-
-  /// Maximum contribution years for full AVS pension.
-  static const int maxContributionYears = 44;
-
-  // ════════════════════════════════════════════════════════════
-  //  LPP CONSTANTS (LPP art. 14)
-  // ════════════════════════════════════════════════════════════
-
-  /// Minimum legal conversion rate (6.8%).
-  static const double lppConversionRate = 0.068;
-
-  // tauxImpotRetraitCapital moved to social_insurance.dart
-
-  /// Canton full names (French).
-  static const Map<String, String> cantonNames = {
-    'ZH': 'Zurich',
-    'BE': 'Berne',
-    'LU': 'Lucerne',
-    'UR': 'Uri',
-    'SZ': 'Schwyz',
-    'OW': 'Obwald',
-    'NW': 'Nidwald',
-    'GL': 'Glaris',
-    'ZG': 'Zoug',
-    'FR': 'Fribourg',
-    'SO': 'Soleure',
-    'BS': 'Bale-Ville',
-    'BL': 'Bale-Campagne',
-    'SH': 'Schaffhouse',
-    'AR': 'Appenzell RE',
-    'AI': 'Appenzell RI',
-    'SG': 'Saint-Gall',
-    'GR': 'Grisons',
-    'AG': 'Argovie',
-    'TG': 'Thurgovie',
-    'TI': 'Tessin',
-    'VD': 'Vaud',
-    'VS': 'Valais',
-    'NE': 'Neuchatel',
-    'GE': 'Geneve',
-    'JU': 'Jura',
-  };
-
-  /// Sorted canton codes (alphabetical).
-  static List<String> get sortedCantonCodes {
-    final codes = cantonNames.keys.toList()..sort();
-    return codes;
-  }
+  /// Sorted canton codes (alphabetical). Delegates to social_insurance.dart.
+  // Note: named differently to avoid shadowing top-level sortedCantonCodes.
+  static List<String> get allCantonCodes => sortedCantonCodes;
 
   // ════════════════════════════════════════════════════════════
   //  1. AVS ESTIMATE

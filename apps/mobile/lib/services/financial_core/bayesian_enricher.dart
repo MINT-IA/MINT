@@ -412,8 +412,8 @@ class BayesianProfileEnricher {
     }
 
     // If user provided a non-default taux, treat as declared
-    // Default in PrevoyanceProfile is 0.068 (minimum legal)
-    final isNonDefault = (declared - 0.068).abs() > 0.001;
+    // Default in PrevoyanceProfile is lppTauxConversionMinDecimal (minimum legal)
+    final isNonDefault = (declared - lppTauxConversionMinDecimal).abs() > 0.001;
     if (isNonDefault) {
       return _collapseToDeclared(
         field: 'tauxConversion',

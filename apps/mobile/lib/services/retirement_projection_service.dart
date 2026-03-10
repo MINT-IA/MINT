@@ -418,7 +418,7 @@ class RetirementProjectionService {
       final conjPrev = profile.conjoint!.prevoyance;
       final conjBuyback = _conjointLppBuyback(profile);
       final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-        baseRate: conjPrev?.tauxConversion ?? 0.068,
+        baseRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
         retirementAge: ageConjoint,
       );
       final lppConjRente = LppCalculator.projectToRetirement(
@@ -427,7 +427,7 @@ class RetirementProjectionService {
         retirementAge: ageConjoint,
         grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? 0.068,
+        conversionRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
         monthlyBuyback: conjBuyback,
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -785,7 +785,7 @@ class RetirementProjectionService {
         retirementAge: ageConjoint,
         grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? 0.068,
+        conversionRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
         monthlyBuyback: _conjointLppBuyback(profile),
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -799,7 +799,7 @@ class RetirementProjectionService {
             profile.etatCivil == CoachCivilStatus.marie;
         // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
         final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-          baseRate: conjPrev?.tauxConversion ?? 0.068,
+          baseRate: conjPrev?.tauxConversion ?? lppTauxConversionMinDecimal,
           retirementAge: ageConjoint,
         );
         final lppConjMonthly = LppCalculator.blendedMonthly(

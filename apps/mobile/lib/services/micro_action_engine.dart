@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
@@ -133,7 +134,7 @@ class MicroActionEngine {
 
     // ── Compute personalized 3a data for TemporalPriority ──
     final plafond =
-        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond - verse3a).clamp(0.0, plafond);
     final taxSaving3a = marge3a * 0.30; // ~30% marginal estimate

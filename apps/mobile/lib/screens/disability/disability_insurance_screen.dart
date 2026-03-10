@@ -133,7 +133,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     double lppInvalidity = 0.0;
     if (annualGross >= lppSeuilEntree) {
       final coordinated = (annualGross - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, 64260.0);
+          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
       lppInvalidity = coordinated * 0.40 / 12;
     }
     final act3Income = aiRenteEntiere + lppInvalidity;

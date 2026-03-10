@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -204,7 +205,7 @@ class CoachNarrativeService {
 
     // Tax saving potential (3a margin × estimated marginal rate)
     final plafond3a =
-        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
     final taxSaving = marge3a * 0.30; // ~30% marginal estimate
@@ -482,7 +483,7 @@ class CoachNarrativeService {
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
-          profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+          profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -755,7 +756,7 @@ class CoachNarrativeService {
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
     final plafond3a =
-        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -929,8 +930,8 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    if (cotisation3a < 7258 && profile.prevoyance.canContribute3a) {
-      final marge = 7258 - cotisation3a;
+    if (cotisation3a < pilier3aPlafondAvecLpp && profile.prevoyance.canContribute3a) {
+      final marge = pilier3aPlafondAvecLpp - cotisation3a;
       snippets.add(
           'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
           'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
@@ -984,7 +985,7 @@ class CoachNarrativeService {
   /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
   /// Pure compound interest: annual 7258 CHF at 2% average return.
   static String? _buildTimeMachineInsight(CoachProfile profile) {
-    const plafond = 7258.0;
+    const plafond = pilier3aPlafondAvecLpp;
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;

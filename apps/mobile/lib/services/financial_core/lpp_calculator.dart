@@ -131,7 +131,7 @@ class LppCalculator {
     if (lppCapitalPct <= 0 || annualRente <= 0) return annualRente / 12;
 
     // Back-calculate projected balance from annual rente
-    final effectiveRate = conversionRate > 0 ? conversionRate : 0.068;
+    final effectiveRate = conversionRate > 0 ? conversionRate : lppTauxConversionMinDecimal;
     final projectedBalance = annualRente / effectiveRate;
 
     // Rente portion

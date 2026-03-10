@@ -280,7 +280,7 @@ class WithdrawalSequencingService {
         final effectiveConversion = LppCalculator.adjustedConversionRate(
           baseRate: profile.prevoyance.tauxConversion > 0
               ? profile.prevoyance.tauxConversion
-              : 0.068,
+              : lppTauxConversionMinDecimal,
           retirementAge: retirementAge,
         );
         final projectedBalance = projectedLppRente / effectiveConversion;

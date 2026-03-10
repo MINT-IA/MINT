@@ -43,6 +43,9 @@ LPP_SALAIRE_MAX: float = 90_720.0
 LPP_TAUX_CONVERSION_MIN: float = 6.8
 """Taux de conversion minimum LPP en % (LPP art. 14 al. 2). Capital -> rente."""
 
+LPP_TAUX_CONVERSION_MIN_DECIMAL: float = 0.068
+"""Taux de conversion minimum LPP en fraction decimale (0.068 = 6.8%)."""
+
 LPP_TAUX_INTERET_MIN: float = 1.25
 """Taux d'interet minimum LPP en % (fixe par le Conseil federal)."""
 
@@ -301,6 +304,43 @@ def calculate_progressive_capital_tax(montant: float, base_rate: float) -> float
         total_tax += taxable * base_rate * multiplier
         remaining -= taxable
     return round(total_tax, 2)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# EPL — Encouragement a la propriete du logement
+# Base legale: LPP art. 30c, OPP2 art. 5
+# ══════════════════════════════════════════════════════════════════════════════
+
+EPL_MONTANT_MINIMUM: float = 20_000.0
+"""Montant minimum pour un retrait EPL (OPP2 art. 5)."""
+
+EPL_BLOCAGE_RACHAT_ANNEES: int = 3
+"""Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3)."""
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Hypotheque — Pratique bancaire suisse (ASB / FINMA)
+# ══════════════════════════════════════════════════════════════════════════════
+
+HYPOTHEQUE_TAUX_THEORIQUE: float = 0.05
+"""Taux d'interet theorique pour le calcul de capacite (5%)."""
+
+HYPOTHEQUE_TAUX_AMORTISSEMENT: float = 0.01
+"""Taux d'amortissement annuel minimum (1%)."""
+
+HYPOTHEQUE_TAUX_FRAIS_ACCESSOIRES: float = 0.01
+"""Taux de frais accessoires annuels (entretien, assurance) (1%)."""
+
+HYPOTHEQUE_TAUX_CHARGES_TOTAL: float = 0.07
+"""Taux de charges theoriques combines (5% + 1% + 1% = 7%)."""
+
+HYPOTHEQUE_RATIO_CHARGES_MAX: float = 1.0 / 3.0
+"""Ratio maximal des charges par rapport au revenu brut (regle du 1/3)."""
+
+HYPOTHEQUE_FONDS_PROPRES_MIN: float = 0.20
+"""Part minimale de fonds propres (20% du prix d'achat)."""
+
+HYPOTHEQUE_PART_2E_PILIER_MAX: float = 0.10
+"""Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat)."""
+
 
 AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""

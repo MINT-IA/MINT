@@ -35,6 +35,10 @@ const double lppSalaireMax = 90720.0;
 /// Taux de conversion minimum LPP en % (LPP art. 14 al. 2).
 const double lppTauxConversionMin = 6.8;
 
+/// Taux de conversion minimum LPP en fraction decimale (0.068 = 6.8%).
+/// Utiliser cette valeur dans les calculs (pas lppTauxConversionMin / 100).
+const double lppTauxConversionMinDecimal = 0.068;
+
 /// Reduction du taux de conversion par annee de retraite anticipee.
 /// Pratique standard des caisses suisses: ~0.2 points de % par annee
 /// avant l'age de reference (LPP art. 13 al. 2).
@@ -282,6 +286,48 @@ const List<String> sortedCantonCodes = [
   'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
   'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
 ];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LAMal — Assurance-maladie obligatoire
+// Base legale: LAMal art. 64
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EPL — Encouragement a la propriete du logement
+// Base legale: LPP art. 30c, OPP2 art. 5
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Montant minimum pour un retrait EPL (OPP2 art. 5).
+const double eplMontantMinimum = 20000.0;
+
+/// Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3).
+const int eplBlocageRachatAnnees = 3;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Hypotheque — Pratique bancaire suisse (ASB / FINMA)
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Taux d'interet theorique pour le calcul de capacite (Tragbarkeitsrechnung).
+const double hypothequeTauxTheorique = 0.05;
+
+/// Taux d'amortissement annuel minimum (pratique standard).
+const double hypothequeTauxAmortissement = 0.01;
+
+/// Taux de frais accessoires annuels (entretien, assurance).
+const double hypothequeTauxFraisAccessoires = 0.01;
+
+/// Taux de charges theoriques combines (interet + amortissement + frais).
+/// 5% + 1% + 1% = 7%.
+const double hypothequeTauxChargesTotal = 0.07;
+
+/// Ratio maximal des charges par rapport au revenu brut (regle du 1/3).
+const double hypothequeRatioChargesMax = 1.0 / 3.0;
+
+/// Part minimale de fonds propres (20% du prix d'achat).
+const double hypothequeFondsPropresMin = 0.20;
+
+/// Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat).
+const double hypothequePart2ePilierMax = 0.10;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // LAMal — Assurance-maladie obligatoire

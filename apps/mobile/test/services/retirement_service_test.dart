@@ -308,7 +308,7 @@ void main() {
     });
 
     test('cantons tries alphabetiquement', () {
-      final codes = RetirementService.sortedCantonCodes;
+      final codes = RetirementService.allCantonCodes;
       for (int i = 1; i < codes.length; i++) {
         expect(codes[i].compareTo(codes[i - 1]), greaterThan(0));
       }

@@ -10,7 +10,8 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
-const double _lppConversionRate = 0.068;
+// LPP conversion rate: use centralized constant from social_insurance.dart
+// (lppTauxConversionMinDecimal = 0.068)
 
 /// All 26 supported Swiss cantons.
 List<String> get supportedCantons => sortedCantonCodes;
@@ -113,7 +114,7 @@ RenteVsCapitalResult computeRenteVsCapital({
   double? retraitMensuelOverride,
 }) {
   final renteAnnuelle =
-      avoirObligatoire * _lppConversionRate +
+      avoirObligatoire * lppTauxConversionMinDecimal +
       avoirSurobligatoire * tauxConversionSurob;
   final renteMensuelle = renteAnnuelle / 12;
 

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
@@ -80,16 +81,17 @@ class AffordabilityCalculator {
     // Charges max = revenu x 1/3
     // => prix <= (revenu x 1/3 + FP x 6%) / 7%
     // Aussi : prix <= FP / 20% (contrainte fonds propres)
-    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * 0.10) : 0.0);
+    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0);
+    final tauxChargesSansAccessoires = hypothequeTauxTheorique + hypothequeTauxAmortissement;
     final prixMaxRevenu = revenu > 0
-        ? (revenu / 3.0 + fondsPropresTotal * 0.06) / 0.07
+        ? (revenu * hypothequeRatioChargesMax + fondsPropresTotal * tauxChargesSansAccessoires) / hypothequeTauxChargesTotal
         : 0.0;
-    final prixMaxEquity = fondsPropresTotal / 0.20;
+    final prixMaxEquity = fondsPropresTotal / hypothequeFondsPropresMin;
     final prixMaxAccessible = min(prixMaxRevenu, prixMaxEquity);
-    final hypothequeMax = prixMaxAccessible * 0.80;
+    final hypothequeMax = prixMaxAccessible * (1.0 - hypothequeFondsPropresMin);
 
     // Fonds propres pour le prix demande
-    final fondsPropresRequis = prix * 0.20;
+    final fondsPropresRequis = prix * hypothequeFondsPropresMin;
     final manqueFondsPropres =
         fondsPropresRequis > fondsPropresTotal
             ? fondsPropresRequis - fondsPropresTotal
@@ -98,12 +100,12 @@ class AffordabilityCalculator {
     // Charges theoriques pour le prix demande
     // interets + amortissement sur hypotheque (6%), frais accessoires sur prix (1%)
     final hypotheque = max(0.0, prix - fondsPropresTotal);
-    final chargesAnnuelles = hypotheque * 0.06 + prix * 0.01;
+    final chargesAnnuelles = hypotheque * tauxChargesSansAccessoires + prix * hypothequeTauxFraisAccessoires;
     final chargesTheoriquesMensuelles = chargesAnnuelles / 12;
     final ratioCharges =
         revenu > 0 ? chargesAnnuelles / revenu : 1.0;
 
-    final capaciteOk = ratioCharges <= 1 / 3;
+    final capaciteOk = ratioCharges <= hypothequeRatioChargesMax;
     final fondsPropresOk = fondsPropresTotal >= fondsPropresRequis;
 
     // Chiffre choc
@@ -521,7 +523,7 @@ class AmortizationCalculator {
     final rend3a = rendement3a.clamp(0.0, 0.08);
 
     // Default : 1% de l'hypotheque, plafonne au max 3a (identique au backend)
-    final amortissementAnnuel = min(montant * 0.01, pilier3aPlafondAvecLpp);
+    final amortissementAnnuel = min(montant * hypothequeTauxAmortissement, pilier3aPlafondAvecLpp);
 
     // --- Direct : amortissement annuel reduit la dette ---
     final directPlan = <AmortizationYearPoint>[];
@@ -676,8 +678,8 @@ class EplCombinedCalculator {
     final prix = prixCible.clamp(0.0, 10000000.0);
 
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    final fondsPropresRequis = prix * 0.20;
-    final lppMax = prix * 0.10; // Max 10% du prix en LPP
+    final fondsPropresRequis = prix * hypothequeFondsPropresMin;
+    final lppMax = prix * hypothequePart2ePilierMax; // Max 10% du prix en LPP
 
     // Allocation dans l'ordre recommande : Cash > 3a > LPP
     double restant = fondsPropresRequis;
@@ -793,30 +795,7 @@ class EplCombinedCalculator {
   }
 
   /// Impot sur le retrait en capital (progressif marginal).
-  /// Identique a pillar_3a_deep_service.
-  static double _calculerImpotRetrait(double montant, double tauxBase) {
-    if (montant <= 0) return 0;
-    const brackets = [
-      [0, 100000, 1.0],
-      [100000, 200000, 1.15],
-      [200000, 500000, 1.30],
-      [500000, 1000000, 1.50],
-    ];
-    const lastMultiplier = 1.70;
-
-    double impot = 0;
-    double remaining = montant;
-
-    for (final bracket in brackets) {
-      final trancheSize = bracket[1] - bracket[0];
-      final taxable = remaining.clamp(0.0, trancheSize);
-      impot += taxable * tauxBase * bracket[2];
-      remaining -= taxable;
-      if (remaining <= 0) break;
-    }
-    if (remaining > 0) {
-      impot += remaining * tauxBase * lastMultiplier;
-    }
-    return impot;
-  }
+  /// Delegue a RetirementTaxCalculator.progressiveTax (financial_core).
+  static double _calculerImpotRetrait(double montant, double tauxBase) =>
+      RetirementTaxCalculator.progressiveTax(montant, tauxBase);
 }

@@ -66,10 +66,10 @@ class ArbitrageEngine {
     required double capitalObligatoire,
     required double capitalSurobligatoire,
     required double renteAnnuelleProposee,
-    double tauxConversionObligatoire = 0.068,
+    double tauxConversionObligatoire = lppTauxConversionMinDecimal,
     double tauxConversionSurobligatoire = 0.05,
     required String canton,
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     double tauxRetrait = 0.04,
     double rendementCapital = 0.03,
     double inflation = 0.02,
@@ -197,7 +197,7 @@ class ArbitrageEngine {
     double spreadVariant({
       double variantTauxRetrait = 0.04,
       double variantRendement = 0.03,
-      double variantTcOblig = 0.068,
+      double variantTcOblig = lppTauxConversionMinDecimal,
       double variantTcSurob = 0.05,
     }) {
       final variantCapital = _buildCapitalTrajectory(
@@ -276,7 +276,7 @@ class ArbitrageEngine {
       assumptionHigh: retraitHigh,
     );
 
-    final tcObligLow = math.max(0.068, tauxConversionObligatoire - 0.005);
+    final tcObligLow = math.max(lppTauxConversionMinDecimal, tauxConversionObligatoire - 0.005);
     final tcObligHigh = tauxConversionObligatoire + 0.005;
     _addTornadoSensitivity(
       sensitivity,
@@ -1125,7 +1125,7 @@ class ArbitrageEngine {
     int anneesAvantRetraite = 20,
     double rendementLpp = 0.0125,
     double rendementMarche = 0.04,
-    double tauxConversion = 0.068,
+    double tauxConversion = lppTauxConversionMinDecimal,
     String canton = 'VD',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,

@@ -809,7 +809,7 @@ class ForecasterService {
     );
     final renteLppUser = lppBalance * userConvRate;
     final conjConvRate = LppCalculator.adjustedConversionRate(
-      baseRate: profile.conjoint?.prevoyance?.tauxConversion ?? 0.068,
+      baseRate: profile.conjoint?.prevoyance?.tauxConversion ?? lppTauxConversionMinDecimal,
       retirementAge: conjRetirementAge,
     );
     final renteLppConjoint = conjLppBalance * conjConvRate;

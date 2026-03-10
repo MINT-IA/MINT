@@ -128,10 +128,10 @@ class CoachingService {
   // ──────────────────────────────────────────────────────────
 
   /// 3a ceiling for salaried employees (2025/2026, OPP3 art. 7).
-  static const double _plafond3aSalarie = 7258;
+  static const double _plafond3aSalarie = pilier3aPlafondAvecLpp;
 
   /// 3a ceiling for self-employed without LPP (2025/2026, OPP3 art. 7).
-  static const double _plafond3aIndependant = 36288;
+  static const double _plafond3aIndependant = pilier3aPlafondSansLpp;
 
   /// Swiss legal retirement age (post-AVS21 reform, unified at 65).
   static const int _ageRetraite = 65;

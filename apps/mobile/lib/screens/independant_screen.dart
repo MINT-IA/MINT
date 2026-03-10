@@ -1127,7 +1127,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               'Pas de couverture invalidité',
               'Pas de rente garantie',
             ],
-            annualTaxSavings: (_revenuNet * 0.20).clamp(0, 36288) * 0.25,
+            annualTaxSavings: (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) * 0.25,
           ),
         ),
         const SizedBox(height: 20),

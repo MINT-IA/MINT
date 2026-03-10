@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 
@@ -342,7 +343,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       final obligVal = oblig.value as double;
       final surobligVal =
           suroblig != null ? suroblig.value as double : total - obligVal;
-      final rentableAt68 = obligVal * 0.068;
+      final rentableAt68 = obligVal * lppTauxConversionMinDecimal;
       final surobligRate = convRate != null ? convRate.value as double : null;
       final renteSuroblig = surobligRate != null
           ? surobligVal * (surobligRate / 100)
