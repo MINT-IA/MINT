@@ -1514,7 +1514,7 @@ Reponds uniquement avec le texte final.
               const SizedBox(width: 8),
               Text(
                 'Ton evolution',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: MintColors.textPrimary,

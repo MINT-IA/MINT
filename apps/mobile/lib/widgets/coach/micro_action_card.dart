@@ -66,7 +66,7 @@ class MicroActionCard extends StatelessWidget {
                     children: [
                       Text(
                         action.title,
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.montserrat(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: MintColors.textPrimary,
@@ -184,7 +184,7 @@ class MicroActionSection extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
             title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: MintColors.textPrimary,
