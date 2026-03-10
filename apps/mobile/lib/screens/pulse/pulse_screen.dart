@@ -98,7 +98,7 @@ class _PulseScreenState extends State<PulseScreen> {
     final taxSaving3a = profile.salaireBrutMensuel > 0
         ? pilier3aPlafondAvecLpp *
             RetirementTaxCalculator.estimateMarginalRate(
-                profile.salaireBrutMensuel * 12, profile.canton)
+                profile.revenuBrutAnnuel, profile.canton)
         : 0.0;
 
     _temporalItems = TemporalPriorityService.prioritize(

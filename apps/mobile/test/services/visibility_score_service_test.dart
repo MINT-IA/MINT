@@ -385,6 +385,84 @@ void main() {
       }
     });
 
+    test('couple weighting accounts for 13e mois correctly', () {
+      // With 13 months, user has higher weight than with 12
+      final user13 = _makeProfile(
+        firstName: 'A',
+        salaire: 8000,
+        nombreDeMois: 13, // revenuBrutAnnuel = 104'000
+        canton: 'VD',
+        birthYear: 1975,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 200000,
+          tauxConversion: 0.068,
+          anneesContribuees: 25,
+        ),
+      );
+      final user12 = _makeProfile(
+        firstName: 'A',
+        salaire: 8000,
+        nombreDeMois: 12, // revenuBrutAnnuel = 96'000
+        canton: 'VD',
+        birthYear: 1975,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 200000,
+          tauxConversion: 0.068,
+          anneesContribuees: 25,
+        ),
+      );
+      final conjoint = _makeProfile(
+        firstName: 'B',
+        salaire: 3000,
+        canton: 'VD',
+        birthYear: 1980,
+        employmentStatus: 'salarie',
+      );
+
+      final result13 = VisibilityScoreService.computeCouple(user13, conjoint);
+      final result12 = VisibilityScoreService.computeCouple(user12, conjoint);
+
+      // With 13 months, user A has higher relative weight → couple score
+      // should be closer to A's individual score (which is higher than B's)
+      // This verifies revenuBrutAnnuel is used, not salaireBrutMensuel * 12
+      expect(result13.total, isNot(equals(result12.total)),
+          reason: '13e mois should change weighting');
+    });
+
+    test('couple with bonus changes weighting', () {
+      final withBonus = _makeProfile(
+        firstName: 'A',
+        salaire: 8000,
+        bonusPourcentage: 10, // +10% → revenuBrutAnnuel = 105'600
+        canton: 'VD',
+        birthYear: 1975,
+        employmentStatus: 'salarie',
+      );
+      final noBonus = _makeProfile(
+        firstName: 'A',
+        salaire: 8000, // revenuBrutAnnuel = 96'000
+        canton: 'VD',
+        birthYear: 1975,
+        employmentStatus: 'salarie',
+      );
+      final conjoint = _makeProfile(
+        firstName: 'B',
+        salaire: 3000,
+        canton: 'VD',
+        birthYear: 1980,
+        employmentStatus: 'salarie',
+      );
+
+      final resultBonus = VisibilityScoreService.computeCouple(withBonus, conjoint);
+      final resultNoBonus = VisibilityScoreService.computeCouple(noBonus, conjoint);
+
+      // Bonus increases revenuBrutAnnuel → changes weighting
+      expect(resultBonus.total, isNot(equals(resultNoBonus.total)),
+          reason: 'bonus should change weighting');
+    });
+
     test('couple actions are deduplicated by id', () {
       final user = _makeProfile(firstName: 'A');
       final conjoint = _makeProfile(firstName: 'B');
