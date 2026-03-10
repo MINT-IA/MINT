@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_action_card.dart';
@@ -13,7 +14,7 @@ import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 VisibilityScore _makeScore({
   double total = 72,
   int percentage = 72,
-  String narrative = 'Bonne visibilite !',
+  String narrative = 'Bonne visibilité\u00a0!',
   List<VisibilityAxis>? axes,
   List<VisibilityAction>? actions,
   String? coupleWeakName,
@@ -27,7 +28,7 @@ VisibilityScore _makeScore({
         const [
           VisibilityAxis(
             id: 'liquidite',
-            label: 'Liquidite',
+            label: 'Liquidité',
             icon: 'wallet',
             score: 20,
             maxScore: 25,
@@ -45,7 +46,7 @@ VisibilityScore _makeScore({
           ),
           VisibilityAxis(
             id: 'fiscalite',
-            label: 'Fiscalite',
+            label: 'Fiscalité',
             icon: 'receipt',
             score: 22,
             maxScore: 25,
@@ -54,7 +55,7 @@ VisibilityScore _makeScore({
           ),
           VisibilityAxis(
             id: 'securite',
-            label: 'Securite',
+            label: 'Sécurité',
             icon: 'shield',
             score: 15,
             maxScore: 25,
@@ -89,10 +90,10 @@ void main() {
         MaterialApp(home: Scaffold(body: VisibilityScoreCard(score: score))),
       );
 
-      expect(find.text('Liquidite'), findsOneWidget);
+      expect(find.text('Liquidité'), findsOneWidget);
       expect(find.text('Retraite'), findsOneWidget);
-      expect(find.text('Fiscalite'), findsOneWidget);
-      expect(find.text('Securite'), findsOneWidget);
+      expect(find.text('Fiscalité'), findsOneWidget);
+      expect(find.text('Sécurité'), findsOneWidget);
     });
 
     testWidgets('renders axis scores as "X/25"', (tester) async {
@@ -107,21 +108,21 @@ void main() {
     });
 
     testWidgets('renders narrative text', (tester) async {
-      final score = _makeScore(narrative: 'Bonne visibilite !');
+      final score = _makeScore(narrative: 'Bonne visibilité\u00a0!');
       await tester.pumpWidget(
         MaterialApp(home: Scaffold(body: VisibilityScoreCard(score: score))),
       );
 
-      expect(find.text('Bonne visibilite !'), findsOneWidget);
+      expect(find.text('Bonne visibilité\u00a0!'), findsOneWidget);
     });
 
-    testWidgets('renders title "Visibilite financiere"', (tester) async {
+    testWidgets('renders title "Visibilité financière"', (tester) async {
       final score = _makeScore();
       await tester.pumpWidget(
         MaterialApp(home: Scaffold(body: VisibilityScoreCard(score: score))),
       );
 
-      expect(find.text('Visibilite financiere'), findsOneWidget);
+      expect(find.text('Visibilité financière'), findsOneWidget);
     });
 
     testWidgets('shows couple alert when gap > 15', (tester) async {
@@ -254,6 +255,108 @@ void main() {
       expect(find.byIcon(Icons.arrow_forward_ios), findsNWidgets(5));
     });
 
+    testWidgets('items display proper accented French text', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: SingleChildScrollView(child: ComprendreSection()))),
+      );
+
+      // Subtitles with correct French accents (é, è, ô, etc.)
+      expect(find.textContaining('Découvre'), findsNWidgets(2));
+      expect(find.textContaining('capacité'), findsOneWidget);
+      expect(find.textContaining('dépenses'), findsOneWidget);
+      expect(find.textContaining('économie'), findsOneWidget);
+    });
+
+    testWidgets('each item navigates to the correct route when tapped',
+        (tester) async {
+      String? lastPushedRoute;
+
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) => const Scaffold(
+              body: SingleChildScrollView(child: ComprendreSection()),
+            ),
+          ),
+          // Catch-all routes for each ComprendreSection item
+          GoRoute(
+            path: '/arbitrage/rente-vs-capital',
+            builder: (_, __) {
+              lastPushedRoute = '/arbitrage/rente-vs-capital';
+              return const SizedBox();
+            },
+          ),
+          GoRoute(
+            path: '/lpp-deep/rachat',
+            builder: (_, __) {
+              lastPushedRoute = '/lpp-deep/rachat';
+              return const SizedBox();
+            },
+          ),
+          GoRoute(
+            path: '/simulator/3a',
+            builder: (_, __) {
+              lastPushedRoute = '/simulator/3a';
+              return const SizedBox();
+            },
+          ),
+          GoRoute(
+            path: '/budget',
+            builder: (_, __) {
+              lastPushedRoute = '/budget';
+              return const SizedBox();
+            },
+          ),
+          GoRoute(
+            path: '/mortgage/affordability',
+            builder: (_, __) {
+              lastPushedRoute = '/mortgage/affordability';
+              return const SizedBox();
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+
+      // Tap "Rente ou capital ?" → /arbitrage/rente-vs-capital
+      await tester.tap(find.text('Rente ou capital\u00a0?'));
+      await tester.pumpAndSettle();
+      expect(lastPushedRoute, '/arbitrage/rente-vs-capital');
+
+      // Go back and tap next item
+      router.go('/');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Simuler un rachat LPP'));
+      await tester.pumpAndSettle();
+      expect(lastPushedRoute, '/lpp-deep/rachat');
+
+      router.go('/');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Explorer mon 3a'));
+      await tester.pumpAndSettle();
+      expect(lastPushedRoute, '/simulator/3a');
+
+      router.go('/');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Mon budget mensuel'));
+      await tester.pumpAndSettle();
+      expect(lastPushedRoute, '/budget');
+
+      router.go('/');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Acheter un bien\u00a0?'));
+      await tester.pumpAndSettle();
+      expect(lastPushedRoute, '/mortgage/affordability');
+    });
+
     testWidgets('subtitles are educational (no banned terms)', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: SingleChildScrollView(child: ComprendreSection()))),
@@ -277,7 +380,7 @@ void main() {
         const MaterialApp(home: Scaffold(body: PulseDisclaimer())),
       );
 
-      expect(find.textContaining('Outil educatif'), findsOneWidget);
+      expect(find.textContaining('Outil éducatif'), findsOneWidget);
       expect(find.textContaining('LSFin art. 3'), findsOneWidget);
     });
 
@@ -287,6 +390,16 @@ void main() {
       );
 
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
+    });
+
+    testWidgets('always renders LSFin reference', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: PulseDisclaimer())),
+      );
+
+      // LSFin reference must always be visible (compliance requirement)
+      expect(find.textContaining('LSFin'), findsOneWidget);
+      expect(find.textContaining('art.'), findsOneWidget);
     });
 
     testWidgets('contains "ne constitue pas un conseil"', (tester) async {

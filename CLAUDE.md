@@ -367,6 +367,47 @@ Archived docs: `docs/archive/`, `visions/archive/`, `.claude/archive/` — histo
 
 ---
 
+## PROD-READY QUALITY STANDARDS (NON-NEGOTIABLE)
+
+> Every feature merge MUST meet ALL these gates. No "acceptable for V1" shortcuts.
+
+### Code Quality
+- **Zero `flutter analyze` errors** — no warnings, no infos suppressed
+- **All tests pass** — `flutter test` + `python3 -m pytest` green before merge
+- **French diacritics everywhere** — `é`, `è`, `ê`, `ô`, `ù`, `ç`, `à` in all user-facing strings. ASCII "e" for accented letters = bug, not cosmetic
+- **Non-breaking spaces** before `!`, `?`, `:`, `;`, `%` in French text (`\u00a0`)
+- **No orphan logic** — every financial calculation delegates to `financial_core/`. If you write `_calculate*()`, `_estimate*()`, `_compute*()` in a service file, you're doing it wrong
+
+### Test Coverage
+- **Service files** — minimum 10 unit tests per service (edge cases, compliance)
+- **Screen/widget files** — widget tests for every stateful screen (render, empty state, error state)
+- **Golden couple** — Julien + Lauren data must be tested against known expected values
+- **Confidence score** — every projection test must assert `confidenceScore` + `enrichmentPrompts`
+
+### Compliance (Swiss Law)
+- **Disclaimer present** in every financial output (screen, service return, API response)
+- **Sources cited** — `LPP art. X`, `LIFD art. Y`, `LAVS art. Z` in service docstrings
+- **No banned terms** — scan all user-facing text before commit
+- **Capital ≠ income** — NEVER double-tax: retrait taxé (LIFD art. 38), SWR = consommation patrimoine
+
+### Architecture
+- **Backend = source of truth** — Flutter mirrors but never invents calculations
+- **financial_core/ = single calculator library** — all AVS, LPP, tax calculations go through it
+- **Provider for state** — no raw StatefulWidget state for shared data
+- **GoRouter for navigation** — no Navigator.push
+- **MintColors for all colors** — no hex literals
+- **ARB keys for all strings** — add to `app_fr.arb` even if i18n generation isn't wired yet
+
+### Before Every Merge
+```bash
+flutter analyze          # Must be 0 issues
+flutter test             # Must be 100% pass
+cd services/backend && python3 -m pytest tests/ -q  # Must pass
+grep -rn "garanti\|certain\|assure\|sans risque\|optimal\|meilleur\|parfait" apps/mobile/lib/  # Must be 0 hits
+```
+
+---
+
 ## ANTI-PATTERNS (never do)
 
 1. **Code without reading existing code first** — Always understand before modifying

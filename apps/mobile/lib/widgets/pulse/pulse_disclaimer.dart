@@ -29,8 +29,8 @@ class PulseDisclaimer extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Outil educatif. Ne constitue pas un conseil financier '
-              'personnalise. LSFin art. 3',
+              'Outil éducatif. Ne constitue pas un conseil financier '
+              'personnalisé. LSFin art.\u00a03',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: MintColors.textMuted,

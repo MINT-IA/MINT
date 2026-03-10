@@ -12,7 +12,7 @@ class ComprendreSection extends StatelessWidget {
 
   static const _items = [
     _ComprendreItem(
-      title: 'Rente ou capital ?',
+      title: 'Rente ou capital\u00a0?',
       subtitle: 'Compare les deux options de retrait',
       icon: Icons.compare_arrows,
       route: '/arbitrage/rente-vs-capital',
@@ -20,28 +20,28 @@ class ComprendreSection extends StatelessWidget {
     ),
     _ComprendreItem(
       title: 'Simuler un rachat LPP',
-      subtitle: 'Decouvre l\'impact fiscal d\'un rachat',
+      subtitle: 'Découvre l\'impact fiscal d\'un rachat',
       icon: Icons.account_balance,
       route: '/lpp-deep/rachat',
       color: MintColors.retirementAvs,
     ),
     _ComprendreItem(
       title: 'Explorer mon 3a',
-      subtitle: 'Decouvre l\'economie d\'impot annuelle',
+      subtitle: 'Découvre l\'économie d\'impôt annuelle',
       icon: Icons.savings,
       route: '/simulator/3a',
       color: MintColors.retirement3a,
     ),
     _ComprendreItem(
       title: 'Mon budget mensuel',
-      subtitle: 'Visualise tes revenus et depenses',
+      subtitle: 'Visualise tes revenus et dépenses',
       icon: Icons.pie_chart_outline,
       route: '/budget',
       color: MintColors.info,
     ),
     _ComprendreItem(
-      title: 'Acheter un bien ?',
-      subtitle: 'Estime ta capacite d\'emprunt',
+      title: 'Acheter un bien\u00a0?',
+      subtitle: 'Estime ta capacité d\'emprunt',
       icon: Icons.home_outlined,
       route: '/mortgage/affordability',
       color: MintColors.teal,

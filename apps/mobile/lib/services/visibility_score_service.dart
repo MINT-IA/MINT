@@ -285,7 +285,7 @@ class VisibilityScoreService {
 
     return VisibilityAxis(
       id: 'liquidite',
-      label: 'Liquidite',
+      label: 'Liquidité',
       icon: 'wallet',
       score: normalized,
       maxScore: maxWeight,
@@ -293,8 +293,8 @@ class VisibilityScoreService {
       hint: revenu == 0
           ? 'Ajoute ton salaire pour commencer'
           : patrimoine == 0
-              ? 'Renseigne ton epargne et investissements'
-              : 'Tes donnees de liquidite sont completes',
+              ? 'Renseigne ton épargne et investissements'
+              : 'Tes données de liquidité sont complètes',
     );
   }
 
@@ -318,16 +318,16 @@ class VisibilityScoreService {
 
     return VisibilityAxis(
       id: 'fiscalite',
-      label: 'Fiscalite',
+      label: 'Fiscalité',
       icon: 'receipt',
       score: normalized,
       maxScore: maxWeight,
       status: status,
       hint: ageCanton == 0
-          ? 'Indique ton age et canton de residence'
+          ? 'Indique ton âge et canton de résidence'
           : fiscal < 8
-              ? 'Scanne ta declaration fiscale'
-              : 'Tes donnees fiscales sont completes',
+              ? 'Scanne ta déclaration fiscale'
+              : 'Tes données fiscales sont complètes',
     );
   }
 
@@ -361,7 +361,7 @@ class VisibilityScoreService {
     } else if (troisA < 4) {
       hint = 'Renseigne tes comptes 3a';
     } else {
-      hint = 'Tes donnees retraite sont completes';
+      hint = 'Tes données retraite sont complètes';
     }
 
     return VisibilityAxis(
@@ -396,7 +396,7 @@ class VisibilityScoreService {
 
     return VisibilityAxis(
       id: 'securite',
-      label: 'Securite',
+      label: 'Sécurité',
       icon: 'shield',
       score: normalized,
       maxScore: maxWeight,
@@ -404,8 +404,8 @@ class VisibilityScoreService {
       hint: menage == 0
           ? 'Indique ta situation familiale'
           : archetype == 0
-              ? 'Complete ton statut professionnel'
-              : 'Tes donnees de securite sont completes',
+              ? 'Complète ton statut professionnel'
+              : 'Tes données de sécurité sont complètes',
     );
   }
 
@@ -424,16 +424,16 @@ class VisibilityScoreService {
 
     if (percentage >= 80) {
       return 'Tu as une vision claire de ta situation. '
-          'Continue a maintenir tes donnees a jour.';
+          'Continue à maintenir tes données à jour.';
     } else if (percentage >= 60) {
-      return 'Bonne visibilite ! '
+      return 'Bonne visibilité\u00a0! '
           'Affine ta ${weakest?.label.toLowerCase() ?? 'situation'} pour aller plus loin.';
     } else if (percentage >= 40) {
-      return 'Tu commences a y voir plus clair. '
+      return 'Tu commences à y voir plus clair. '
           'Concentre-toi sur ta ${weakest?.label.toLowerCase() ?? 'situation'}.';
     } else {
       return 'Chaque information compte. '
-          'Commence par ${weakest?.hint.toLowerCase() ?? 'renseigner tes donnees'}.';
+          'Commence par ${weakest?.hint.toLowerCase() ?? 'renseigner tes données'}.';
     }
   }
 

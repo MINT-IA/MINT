@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SEGMENTS SOCIOLOGIQUES SERVICE — Sprint S12 / Chantier 6
@@ -126,31 +127,38 @@ class GenderGapService {
 
     // Coordinated salary at 100%
     final salaireCoordonne100 =
-        _computeSalaireCoordonne(salaire100);
+        LppCalculator.computeSalaireCoordonne(salaire100);
 
     // Coordinated salary at current taux
     final salaireCoordonneActuel =
-        _computeSalaireCoordonne(input.revenuAnnuel);
+        LppCalculator.computeSalaireCoordonne(input.revenuAnnuel);
 
-    // Get contribution rate for current age
-    final tauxCotis = _getTauxCotisation(input.age);
+    // Get contribution rate for current age (LPP art. 16)
+    final tauxCotis = getLppBonificationRate(input.age);
 
     // Project LPP capital at retirement for 100% activity
-    final capital100 = _projectCapital(
-      avoirActuel: input.avoirLpp,
-      salaireCoordonne: salaireCoordonne100,
-      tauxCotisation: tauxCotis,
-      anneesRestantes: anneesRestantes,
-      age: input.age,
+    // Delegates to LppCalculator.projectToRetirement() with conversionRate=1.0
+    // to get raw capital (not rente), using salaireAssureOverride for pre-computed
+    // coordinated salary.
+    final capital100 = LppCalculator.projectToRetirement(
+      currentBalance: input.avoirLpp,
+      currentAge: input.age,
+      retirementAge: ageRetraite,
+      grossAnnualSalary: salaire100,
+      caisseReturn: projectedReturn,
+      conversionRate: 1.0, // Return raw capital, not rente
+      salaireAssureOverride: salaireCoordonne100,
     );
 
     // Project LPP capital at retirement for current taux
-    final capitalActuel = _projectCapital(
-      avoirActuel: input.avoirLpp,
-      salaireCoordonne: salaireCoordonneActuel,
-      tauxCotisation: tauxCotis,
-      anneesRestantes: anneesRestantes,
-      age: input.age,
+    final capitalActuel = LppCalculator.projectToRetirement(
+      currentBalance: input.avoirLpp,
+      currentAge: input.age,
+      retirementAge: ageRetraite,
+      grossAnnualSalary: input.revenuAnnuel,
+      caisseReturn: projectedReturn,
+      conversionRate: 1.0, // Return raw capital, not rente
+      salaireAssureOverride: salaireCoordonneActuel,
     );
 
     // Convert capital to annual pension
@@ -182,38 +190,8 @@ class GenderGapService {
 
   // ── Private helpers ────────────────────────────────────────
 
-  /// Compute the coordinated salary (salaire coordonne).
-  static double _computeSalaireCoordonne(double salaireBrut) {
-    final coordonne = salaireBrut - deductionCoordination;
-    if (coordonne < minSalaireCoordonne) {
-      return salaireBrut > deductionCoordination ? minSalaireCoordonne : 0;
-    }
-    return coordonne.clamp(0.0, maxSalaireCoordonne);
-  }
-
-  /// Get the LPP contribution rate for a given age.
-  static double _getTauxCotisation(int age) => getLppBonificationRate(age);
-
   /// Projected annual return on LPP capital (conservative estimate).
   static const double projectedReturn = 0.015;
-
-  /// Project LPP capital at retirement using age-varying contribution rates.
-  /// Includes 1.5% projected annual return (aligned with backend).
-  static double _projectCapital({
-    required double avoirActuel,
-    required double salaireCoordonne,
-    required double tauxCotisation,
-    required int anneesRestantes,
-    required int age,
-  }) {
-    double capital = avoirActuel;
-    for (int i = 0; i < anneesRestantes; i++) {
-      final ageYear = age + i;
-      final taux = _getTauxCotisation(ageYear);
-      capital = capital * (1 + projectedReturn) + salaireCoordonne * taux;
-    }
-    return capital;
-  }
 
   /// Build personalised recommendations.
   static List<GenderGapRecommendation> _buildRecommendations({

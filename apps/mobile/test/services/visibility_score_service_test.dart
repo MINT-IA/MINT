@@ -262,7 +262,7 @@ void main() {
       if (result.percentage >= 80) {
         expect(result.narrative, contains('vision claire'));
       } else if (result.percentage >= 60) {
-        expect(result.narrative, contains('visibilite'));
+        expect(result.narrative, contains('visibilité'));
       }
     });
 
@@ -508,7 +508,7 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('Contextual weights (Phase 1)', () {
-    test('age 52 gives Retraite weight 30, Liquidite 20', () {
+    test('age 52 gives Retraite weight 30, Liquidité 20', () {
       final profile = _makeProfile(
         salaire: 8000,
         canton: 'VD',
@@ -521,10 +521,10 @@ void main() {
       final liquidite = result.axes.firstWhere((a) => a.id == 'liquidite');
 
       expect(retraite.maxScore, 30.0, reason: '50+ → Retraite 30');
-      expect(liquidite.maxScore, 20.0, reason: '50+ → Liquidite 20');
+      expect(liquidite.maxScore, 20.0, reason: '50+ → Liquidité 20');
     });
 
-    test('age 30 gives Liquidite weight 30, Retraite 20', () {
+    test('age 30 gives Liquidité weight 30, Retraite 20', () {
       final profile = _makeProfile(
         salaire: 5000,
         canton: 'ZH',
@@ -536,7 +536,7 @@ void main() {
       final retraite = result.axes.firstWhere((a) => a.id == 'retraite');
       final liquidite = result.axes.firstWhere((a) => a.id == 'liquidite');
 
-      expect(liquidite.maxScore, 30.0, reason: '<35 → Liquidite 30');
+      expect(liquidite.maxScore, 30.0, reason: '<35 → Liquidité 30');
       expect(retraite.maxScore, 20.0, reason: '<35 → Retraite 20');
     });
 
@@ -555,7 +555,7 @@ void main() {
       }
     });
 
-    test('independant gets Securite +5, Retraite -5', () {
+    test('independant gets Sécurité +5, Retraite -5', () {
       final profile = _makeProfile(
         salaire: 6000,
         canton: 'BE',
@@ -573,7 +573,7 @@ void main() {
           reason: 'independant: 25 - 5 = 20');
     });
 
-    test('50+ independant: Retraite 30-5=25, Securite 25+5=30', () {
+    test('50+ independant: Retraite 30-5=25, Sécurité 25+5=30', () {
       final profile = _makeProfile(
         salaire: 8000,
         canton: 'VD',

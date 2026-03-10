@@ -264,7 +264,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    'Tes priorites',
+                    'Tes priorités',
                     style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    'Actions personnalisees selon ton profil',
+                    'Actions personnalisées selon ton profil',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textSecondary,
@@ -345,12 +345,12 @@ class _PulseScreenState extends State<PulseScreen> {
       children: [
         Expanded(
           child: _KeyFigureCard(
-            label: 'Retraite estimee',
+            label: 'Retraite estimée',
             value: retraiteEstimee != null
                 ? 'CHF ${retraiteEstimee.round()}/mois'
                 : '\u2014',
             subtitle: tauxRemplacement != null
-                ? '${tauxRemplacement.round()}% du revenu'
+                ? '${tauxRemplacement.round()}\u00a0% du revenu'
                 : null,
             icon: Icons.beach_access_outlined,
             color: MintColors.primary,
@@ -445,7 +445,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   if (coupleRevenu != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      'Retraite couple : $coupleRevenu',
+                      'Retraite couple\u00a0: $coupleRevenu',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,
@@ -615,7 +615,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Commence par remplir ton profil',
+                    'Commence par remplir ton profil\u00a0!',
                     style: GoogleFonts.outfit(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -626,7 +626,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   const SizedBox(height: 10),
                   Text(
                     'Quelques questions suffisent pour obtenir '
-                    'ta premiere estimation de visibilite financiere.',
+                    'ta première estimation de visibilité financière.',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.textSecondary,
@@ -640,7 +640,7 @@ class _PulseScreenState extends State<PulseScreen> {
                       context.push('/onboarding/smart');
                     },
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Demarrer'),
+                    label: const Text('Démarrer'),
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
                       foregroundColor: Colors.white,

@@ -38,7 +38,7 @@ class VisibilityScoreCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Visibilite financiere',
+                  'Visibilité financière',
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -161,8 +161,8 @@ class VisibilityScoreCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Le profil de ${score.coupleWeakName} est a '
-              '${score.coupleWeakScore?.round() ?? 0}% de visibilite',
+              'Le profil de ${score.coupleWeakName} est à '
+              '${score.coupleWeakScore?.round() ?? 0}\u00a0% de visibilité',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
