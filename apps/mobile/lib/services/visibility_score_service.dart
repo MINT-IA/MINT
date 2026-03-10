@@ -11,13 +11,16 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 //  Ce n'est PAS un jugement sur la qualite de la situation.
 //  C'est une mesure de CLARTE : "tu vois X% de ta situation."
 //
-//  4 axes (25 pts chacun en Phase 0) :
+//  4 axes avec ponderation contextuelle (Phase 1) :
 //    Liquidite — Budget, epargne, dettes, coussin securite
 //    Fiscalite — Canton, 3a, rachats, taux marginal
 //    Retraite  — AVS, LPP, 3a, age retraite
 //    Securite  — Assurances, protection famille, succession
 //
-//  Phase 1 : ponderation contextuelle (age/archetype).
+//  Phase 1 : poids dynamiques selon age et archetype.
+//    - 50+ : Retraite 30, Securite 25, Fiscalite 25, Liquidite 20
+//    - Independant : Securite +5, Liquidite +5
+//    - < 35 : Liquidite 30, Fiscalite 25, Retraite 20, Securite 25
 //
 //  Utilise ConfidenceScorer (financial_core) comme moteur —
 //  ne duplique AUCUNE logique de calcul.
@@ -116,11 +119,14 @@ class VisibilityScoreService {
   static VisibilityScore compute(CoachProfile profile) {
     final (:blocs, :confidence) = ConfidenceScorer.scoreWithBlocs(profile);
 
+    // ── Poids contextuels (Phase 1) ─────────────────────────
+    final weights = _contextualWeights(profile);
+
     // ── Regrouper les blocs en 4 axes ──────────────────────
-    final liquidite = _computeLiquiditeAxis(blocs, profile);
-    final fiscalite = _computeFiscaliteAxis(blocs, profile);
-    final retraite = _computeRetraiteAxis(blocs, profile);
-    final securite = _computeSecuriteAxis(blocs, profile);
+    final liquidite = _computeLiquiditeAxis(blocs, profile, weights.liquidite);
+    final fiscalite = _computeFiscaliteAxis(blocs, profile, weights.fiscalite);
+    final retraite = _computeRetraiteAxis(blocs, profile, weights.retraite);
+    final securite = _computeSecuriteAxis(blocs, profile, weights.securite);
 
     final axes = [liquidite, retraite, fiscalite, securite];
     final total = axes.fold<double>(0, (sum, a) => sum + a.score);
@@ -216,23 +222,64 @@ class VisibilityScoreService {
   }
 
   // ════════════════════════════════════════════════════════════
+  //  CONTEXTUAL WEIGHTS — Phase 1
+  // ════════════════════════════════════════════════════════════
+
+  /// Poids des 4 axes adaptes au profil. Somme = 100.
+  static _AxisWeights _contextualWeights(CoachProfile profile) {
+    final age = profile.age;
+    final isIndep = profile.employmentStatus == 'independant';
+
+    // Base: egal 25/25/25/25
+    double wLiq = 25, wFisc = 25, wRet = 25, wSec = 25;
+
+    // Age-driven rebalancing
+    if (age >= 50) {
+      // Retraite devient prioritaire
+      wRet = 30;
+      wLiq = 20;
+      // Fiscalite et securite restent a 25
+    } else if (age < 35) {
+      // Liquidite plus importante pour les jeunes
+      wLiq = 30;
+      wRet = 20;
+      // Fiscalite et securite restent a 25
+    }
+
+    // Archetype-driven adjustments
+    if (isIndep) {
+      // Independants : securite + liquidite renforcees
+      wSec += 5;
+      wRet -= 5;
+    }
+
+    return _AxisWeights(
+      liquidite: wLiq,
+      fiscalite: wFisc,
+      retraite: wRet,
+      securite: wSec,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
   //  AXES — regroupement des blocs ConfidenceScorer
   // ════════════════════════════════════════════════════════════
 
   static VisibilityAxis _computeLiquiditeAxis(
     Map<String, BlockScore> blocs,
-    CoachProfile profile,
-  ) {
+    CoachProfile profile, [
+    double maxWeight = 25,
+  ]) {
     // Liquidite = revenu (12) + patrimoine (7) = 19 pts max dans scorer
-    // Normalise sur 25
+    // Normalise sur maxWeight (contextual)
     final revenu = blocs['revenu']?.score ?? 0;
     final patrimoine = blocs['patrimoine']?.score ?? 0;
     final raw = revenu + patrimoine; // max 19
-    final normalized = (raw / 19 * 25).clamp(0.0, 25.0);
+    final normalized = (raw / 19 * maxWeight).clamp(0.0, maxWeight);
 
-    final status = normalized >= 20
+    final status = normalized >= maxWeight * 0.8
         ? 'complete'
-        : normalized >= 10
+        : normalized >= maxWeight * 0.4
             ? 'partial'
             : 'missing';
 
@@ -241,7 +288,7 @@ class VisibilityScoreService {
       label: 'Liquidite',
       icon: 'wallet',
       score: normalized,
-      maxScore: 25,
+      maxScore: maxWeight,
       status: status,
       hint: revenu == 0
           ? 'Ajoute ton salaire pour commencer'
@@ -253,18 +300,19 @@ class VisibilityScoreService {
 
   static VisibilityAxis _computeFiscaliteAxis(
     Map<String, BlockScore> blocs,
-    CoachProfile profile,
-  ) {
+    CoachProfile profile, [
+    double maxWeight = 25,
+  ]) {
     // Fiscalite = fiscalite bloc (max 15) + age_canton (8) = 23 pts max
-    // Normalise sur 25
+    // Normalise sur maxWeight (contextual)
     final fiscal = blocs['fiscalite']?.score ?? 0;
     final ageCanton = blocs['age_canton']?.score ?? 0;
     final raw = fiscal + ageCanton; // max 23
-    final normalized = (raw / 23 * 25).clamp(0.0, 25.0);
+    final normalized = (raw / 23 * maxWeight).clamp(0.0, maxWeight);
 
-    final status = normalized >= 20
+    final status = normalized >= maxWeight * 0.8
         ? 'complete'
-        : normalized >= 10
+        : normalized >= maxWeight * 0.4
             ? 'partial'
             : 'missing';
 
@@ -273,7 +321,7 @@ class VisibilityScoreService {
       label: 'Fiscalite',
       icon: 'receipt',
       score: normalized,
-      maxScore: 25,
+      maxScore: maxWeight,
       status: status,
       hint: ageCanton == 0
           ? 'Indique ton age et canton de residence'
@@ -285,22 +333,23 @@ class VisibilityScoreService {
 
   static VisibilityAxis _computeRetraiteAxis(
     Map<String, BlockScore> blocs,
-    CoachProfile profile,
-  ) {
+    CoachProfile profile, [
+    double maxWeight = 25,
+  ]) {
     // Retraite = objectifRetraite (10) + lpp (18) + taux_conversion (5) +
     //            avs (10) + 3a (8) = 51 pts max
-    // Normalise sur 25
+    // Normalise sur maxWeight (contextual)
     final objectif = blocs['objectifRetraite']?.score ?? 0;
     final lpp = blocs['lpp']?.score ?? 0;
     final taux = blocs['taux_conversion']?.score ?? 0;
     final avs = blocs['avs']?.score ?? 0;
     final troisA = blocs['3a']?.score ?? 0;
     final raw = objectif + lpp + taux + avs + troisA; // max 51
-    final normalized = (raw / 51 * 25).clamp(0.0, 25.0);
+    final normalized = (raw / 51 * maxWeight).clamp(0.0, maxWeight);
 
-    final status = normalized >= 20
+    final status = normalized >= maxWeight * 0.8
         ? 'complete'
-        : normalized >= 10
+        : normalized >= maxWeight * 0.4
             ? 'partial'
             : 'missing';
 
@@ -320,7 +369,7 @@ class VisibilityScoreService {
       label: 'Retraite',
       icon: 'beach_access',
       score: normalized,
-      maxScore: 25,
+      maxScore: maxWeight,
       status: status,
       hint: hint,
     );
@@ -328,19 +377,20 @@ class VisibilityScoreService {
 
   static VisibilityAxis _computeSecuriteAxis(
     Map<String, BlockScore> blocs,
-    CoachProfile profile,
-  ) {
+    CoachProfile profile, [
+    double maxWeight = 25,
+  ]) {
     // Securite = menage (15) + archetype (5) + foreign_pension (2) = 22 pts max
-    // Normalise sur 25
+    // Normalise sur maxWeight (contextual)
     final menage = blocs['compositionMenage']?.score ?? 0;
     final archetype = blocs['archetype']?.score ?? 0;
     final foreign = blocs['foreign_pension']?.score ?? 0;
     final raw = menage + archetype + foreign; // max 22
-    final normalized = (raw / 22 * 25).clamp(0.0, 25.0);
+    final normalized = (raw / 22 * maxWeight).clamp(0.0, maxWeight);
 
-    final status = normalized >= 20
+    final status = normalized >= maxWeight * 0.8
         ? 'complete'
-        : normalized >= 10
+        : normalized >= maxWeight * 0.4
             ? 'partial'
             : 'missing';
 
@@ -349,7 +399,7 @@ class VisibilityScoreService {
       label: 'Securite',
       icon: 'shield',
       score: normalized,
-      maxScore: 25,
+      maxScore: maxWeight,
       status: status,
       hint: menage == 0
           ? 'Indique ta situation familiale'
@@ -447,4 +497,20 @@ class VisibilityScoreService {
       _ => 'info',
     };
   }
+}
+
+/// Poids contextuels des 4 axes de visibilite.
+/// Somme toujours = 100.
+class _AxisWeights {
+  final double liquidite;
+  final double fiscalite;
+  final double retraite;
+  final double securite;
+
+  const _AxisWeights({
+    required this.liquidite,
+    required this.fiscalite,
+    required this.retraite,
+    required this.securite,
+  });
 }

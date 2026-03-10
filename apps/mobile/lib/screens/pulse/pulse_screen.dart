@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -13,12 +14,13 @@ import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
+import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
-import 'package:mint_mobile/widgets/pulse/pulse_action_card.dart';
 import 'package:mint_mobile/widgets/pulse/comprendre_section.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 
@@ -220,8 +222,8 @@ class _PulseScreenState extends State<PulseScreen> {
                 const SizedBox(height: 20),
               ],
 
-              // 4. Actions prioritaires
-              if (visibilityScore.actions.isNotEmpty) ...[
+              // 4. Response Cards dynamiques (Phase 1)
+              if (_responseCards(profile, visibilityScore).isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
@@ -237,7 +239,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    'Gagne en visibilite sur ta situation',
+                    'Actions personnalisees selon ton profil',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textSecondary,
@@ -245,13 +247,8 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: visibilityScore.actions
-                        .map((a) => PulseActionCard(action: a))
-                        .toList(),
-                  ),
+                ResponseCardStrip(
+                  cards: _responseCards(profile, visibilityScore),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -267,6 +264,21 @@ class _PulseScreenState extends State<PulseScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  RESPONSE CARDS — dynamic, contextual
+  // ────────────────────────────────────────────────────────
+
+  List<ResponseCard> _responseCards(
+    CoachProfile profile,
+    VisibilityScore score,
+  ) {
+    return ResponseCardService.generateForPulse(
+      profile,
+      limit: 3,
+      visibilityScore: score,
     );
   }
 
