@@ -842,6 +842,7 @@ Reponds uniquement avec le texte final.
                     controller: amountController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
                     style: GoogleFonts.inter(
                         fontSize: 14, color: MintColors.textPrimary),
                     decoration: InputDecoration(
@@ -992,6 +993,7 @@ Reponds uniquement avec le texte final.
           TextFormField(
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             style: GoogleFonts.inter(
               fontSize: 16,
               color: MintColors.textPrimary,
@@ -1590,6 +1592,7 @@ class _ContributionRow extends StatelessWidget {
                   controller: controller,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   textAlign: TextAlign.right,
                   style: GoogleFonts.inter(
                     fontSize: 16,

@@ -496,6 +496,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
           keyboardType: isNumberInput
               ? const TextInputType.numberWithOptions(decimal: true)
               : TextInputType.text,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           autofocus: true,
           decoration: InputDecoration(
             hintText: widget.question.hint,

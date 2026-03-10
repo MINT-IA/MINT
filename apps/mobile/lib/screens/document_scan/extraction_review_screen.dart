@@ -469,6 +469,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               controller: controller,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
                 labelText: 'Nouvelle valeur',
                 labelStyle: GoogleFonts.inter(fontSize: 14),
