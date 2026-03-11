@@ -65,7 +65,7 @@ class LppBuybackAdvancedSimulator {
       if (y <= staggeringYears) {
         contribution = buybackPerYear;
         // Estimate tax saving for this year's slice
-        currentYearTaxSaving = _estimateTaxSaving(taxableIncome, contribution, canton);
+        currentYearTaxSaving = RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: contribution, canton: canton);
         totalTaxSavings += currentYearTaxSaving;
       }
 
@@ -106,27 +106,4 @@ class LppBuybackAdvancedSimulator {
     );
   }
 
-  /// Estimates tax saving for a deduction using canton-aware marginal rates
-  /// from financial_core (RetirementTaxCalculator.estimateMarginalRate).
-  static double _estimateTaxSaving(
-      double income, double deduction, String canton) {
-    if (deduction <= 0) return 0.0;
-
-    // Numerical integration over the deduction range using the canton-aware
-    // marginal rate from financial_core.
-    const int steps = 10;
-    final double stepSize = deduction / steps;
-    double currentIncome = income;
-    double totallySaved = 0.0;
-
-    for (int i = 0; i < steps; i++) {
-      final double midPoint = currentIncome - (stepSize / 2);
-      final double rate =
-          RetirementTaxCalculator.estimateMarginalRate(midPoint, canton);
-      totallySaved += stepSize * rate;
-      currentIncome -= stepSize;
-    }
-
-    return totallySaved;
-  }
 }

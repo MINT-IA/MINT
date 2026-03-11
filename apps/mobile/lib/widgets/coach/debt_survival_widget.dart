@@ -180,7 +180,7 @@ class DebtSurvivalWidget extends StatelessWidget {
         Expanded(child: _buildKpiCard(
           label: 'Dernier retard',
           value: daysSinceLastLate == 0 ? 'Aucun' : '$daysSinceLastLate j',
-          sub: daysSinceLastLate == 0 ? 'parfait' : 'depuis',
+          sub: daysSinceLastLate == 0 ? 'à jour' : 'depuis',
           color: lateStatus,
           emoji: '⏰',
         )),

@@ -51,13 +51,13 @@ class BuybackSimulator {
     // Saving = Integral of Marginal Rate from (Income - Deduction) to Income.
 
     double singleShotSaving =
-        _estimateTaxSaving(taxableIncome, totalBuybackAmount, canton);
+        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: totalBuybackAmount, canton: canton);
 
     // 2. Estimation "Staggered"
     // Deduction par an = Total / Years
     double yearlyDeduction = totalBuybackAmount / years;
     double yearlySaving =
-        _estimateTaxSaving(taxableIncome, yearlyDeduction, canton);
+        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: yearlyDeduction, canton: canton);
 
     double staggeredTotalSaving = yearlySaving * years;
 
@@ -70,28 +70,4 @@ class BuybackSimulator {
     );
   }
 
-  /// Estime l'économie d'impôt d'une déduction donnée sur le revenu donné.
-  /// Delegates to RetirementTaxCalculator.estimateMarginalRate() from financial_core.
-  static double _estimateTaxSaving(
-      double income, double deduction, String canton) {
-    if (deduction <= 0) return 0.0;
-
-    // Numerical integration over the deduction range using the canton-aware
-    // marginal rate from financial_core. We slice the deduction into steps
-    // and sum the marginal tax saved at each income level.
-    const int steps = 10;
-    final double stepSize = deduction / steps;
-    double currentIncome = income;
-    double totallySaved = 0.0;
-
-    for (int i = 0; i < steps; i++) {
-      final double midPoint = currentIncome - (stepSize / 2);
-      final double rate =
-          RetirementTaxCalculator.estimateMarginalRate(midPoint, canton);
-      totallySaved += stepSize * rate;
-      currentIncome -= stepSize;
-    }
-
-    return totallySaved;
-  }
 }

@@ -49,7 +49,7 @@ const _kSteps = [
     number: 3,
     emoji: '📊',
     title: 'Quel type d\'hypothèque ?',
-    subtitle: 'Hypothèque fixe : sécurité, taux garanti 2-15 ans. SARON (variable) : taux plus bas mais risque de hausse. Mix possible. Taux actuel ≠ taux théorique 5%.',
+    subtitle: 'Hypothèque fixe : sécurité, taux fixe pour 2-15 ans. SARON (variable) : taux plus bas mais risque de hausse. Mix possible. Taux actuel ≠ taux théorique 5%.',
     action: 'Compare les offres de 3 banques minimum',
     legalRef: 'FINMA — Circular 2008/10 (standards hypothécaires)',
   ),

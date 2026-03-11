@@ -76,7 +76,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         monthlyIncome: act1Income,
         emoji: '🟢',
         color: MintColors.success,
-        detail: '80% de ton salaire garanti par ton employeur',
+        detail: '80\u00a0% de ton salaire versé par ton employeur',
       ),
       DisabilityAct(
         label: _hasIjm ? 'ACTE 2 · IJM (assurance maladie)' : 'ACTE 2 · Pas d\'IJM',

@@ -87,7 +87,7 @@ class _ConfidenceBarState extends State<ConfidenceBar>
 
   /// P1-I: Zone description for thermometer.
   String get _zoneDescription {
-    if (widget.score >= 95) return 'Photo parfaite';
+    if (widget.score >= 95) return 'Très bonne estimation';
     if (widget.score >= 70) return 'Bonne estimation';
     if (widget.score >= 40) return 'Estimation large';
     return 'On devine beaucoup';

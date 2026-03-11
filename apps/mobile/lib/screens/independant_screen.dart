@@ -1106,7 +1106,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             pros: const [
               'Couverture invalidité incluse',
               'Cotisations déductibles',
-              'Rente garantie à la retraite',
+              'Rente prévue à la retraite',
             ],
             cons: const [
               'Cotisations obligatoires élevées',
@@ -1125,7 +1125,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
             ],
             cons: const [
               'Pas de couverture invalidité',
-              'Pas de rente garantie',
+              'Pas de rente prévue',
             ],
             annualTaxSavings: (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) * 0.25,
           ),
