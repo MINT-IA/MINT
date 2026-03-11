@@ -550,7 +550,7 @@ class WizardQuestionsV2 {
           condition: (answers) => answers['q_housing_status'] == 'owner',
         ),
 
-        const WizardQuestion(
+        WizardQuestion(
           id: 'q_mortgage_balance',
           title: 'Solde hypothécaire restant ?',
           subtitle:
