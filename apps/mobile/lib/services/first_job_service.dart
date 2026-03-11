@@ -129,7 +129,8 @@ class FirstJobService {
   static const double _aanpRate = 0.013;
 
   /// LPP maximum coordinated salary.
-  static const double _lppMaxCoordinated = 63540.0;
+  /// Uses centralized constant from social_insurance.dart.
+  static const double _lppMaxCoordinated = lppSalaireCoordMax;
 
   /// LAMal franchise options.
   static const List<int> _lamalFranchises = [300, 500, 1000, 1500, 2000, 2500];

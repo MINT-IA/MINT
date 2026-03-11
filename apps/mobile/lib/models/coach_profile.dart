@@ -90,6 +90,10 @@ class ConjointProfile {
   final bool canContribute3a; // false si FATCA resident (certains providers)
   final PrevoyanceProfile? prevoyance;
 
+  /// Patrimoine du conjoint (epargne, investissements).
+  /// Null si non renseigne — Liquidite axis sera sous-evalue.
+  final PatrimoineProfile? patrimoine;
+
   /// Age at which the conjoint arrived in Switzerland.
   /// If null, assumes contributions since age 20 (Swiss native).
   final int? arrivalAge;
@@ -115,6 +119,7 @@ class ConjointProfile {
     this.isFatcaResident = false,
     this.canContribute3a = true,
     this.prevoyance,
+    this.patrimoine,
     this.arrivalAge,
     this.targetRetirementAge,
     this.invitationLevel = 'declared',
@@ -176,6 +181,9 @@ class ConjointProfile {
       isFatcaResident: isFatca,
       canContribute3a: topCanContribute,
       prevoyance: prev,
+      patrimoine: json['patrimoine'] != null
+          ? PatrimoineProfile.fromJson(json['patrimoine'])
+          : null,
       arrivalAge: json['arrivalAge'] as int?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
       invitationLevel: json['invitationLevel'] as String? ?? 'declared',
@@ -193,6 +201,7 @@ class ConjointProfile {
         'isFatcaResident': isFatcaResident,
         'canContribute3a': canContribute3a,
         'prevoyance': prevoyance?.toJson(),
+        'patrimoine': patrimoine?.toJson(),
         'arrivalAge': arrivalAge,
         'targetRetirementAge': targetRetirementAge,
         'invitationLevel': invitationLevel,
@@ -209,6 +218,7 @@ class ConjointProfile {
     bool? isFatcaResident,
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
+    PatrimoineProfile? patrimoine,
     int? arrivalAge,
     int? targetRetirementAge,
     String? invitationLevel,
@@ -232,6 +242,7 @@ class ConjointProfile {
       isFatcaResident: effectiveFatca,
       canContribute3a: effectiveCan,
       prevoyance: effectivePrev,
+      patrimoine: patrimoine ?? this.patrimoine,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
       invitationLevel: invitationLevel ?? this.invitationLevel,
@@ -280,7 +291,7 @@ class PrevoyanceProfile {
     this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
-    this.tauxConversion = 0.068,
+    this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
     this.salaireAssure,
@@ -328,7 +339,7 @@ class PrevoyanceProfile {
           (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
-      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
+      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
@@ -858,6 +869,12 @@ class MonthlyCheckIn {
   final String? note;
   final DateTime completedAt;
 
+  /// FRI score snapshot at check-in time (0-100). Null for legacy check-ins.
+  final double? friScore;
+
+  /// Financial Fitness Score at check-in time (0-100). Null for legacy check-ins.
+  final int? fitnessScore;
+
   const MonthlyCheckIn({
     required this.month,
     required this.versements,
@@ -865,6 +882,8 @@ class MonthlyCheckIn {
     this.revenusExceptionnels,
     this.note,
     required this.completedAt,
+    this.friScore,
+    this.fitnessScore,
   });
 
   /// Total des versements du mois
@@ -884,6 +903,8 @@ class MonthlyCheckIn {
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
       completedAt: DateTime.parse(json['completedAt']),
+      friScore: (json['friScore'] as num?)?.toDouble(),
+      fitnessScore: json['fitnessScore'] as int?,
     );
   }
 
@@ -894,6 +915,8 @@ class MonthlyCheckIn {
         'revenusExceptionnels': revenusExceptionnels,
         'note': note,
         'completedAt': completedAt.toIso8601String(),
+        'friScore': friScore,
+        'fitnessScore': fitnessScore,
       };
 }
 
@@ -1750,6 +1773,8 @@ class CoachProfile {
         _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
     final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
+    final coachRendementCaisse =
+        _parseDouble(answers['_coach_rendement_caisse']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
     final coachAvsRenteEstimee =
         _parseDouble(answers['_coach_avs_rente_estimee']);
@@ -1786,9 +1811,10 @@ class CoachProfile {
       avoirLppTotal: estimatedLpp,
       avoirLppObligatoire: coachAvoirLppOblig,
       avoirLppSurobligatoire: coachAvoirLppSuroblig,
-      tauxConversion: coachTauxConversion ?? 0.068,
+      tauxConversion: coachTauxConversion ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
+      rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
@@ -2122,8 +2148,8 @@ class CoachProfile {
         'prevoyance.anneesContribuees': baseTimestamp,
       if (prevoyance.renteAVSEstimeeMensuelle != null)
         'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
-      if (prevoyance.tauxConversion != null)
-        'prevoyance.tauxConversion': baseTimestamp,
+      // tauxConversion is always set (non-null double with default)
+      'prevoyance.tauxConversion': baseTimestamp,
       'patrimoine.epargneLiquide': baseTimestamp,
       if (patrimoine.investissements > 0)
         'patrimoine.investissements': baseTimestamp,
@@ -2427,7 +2453,6 @@ class CoachProfile {
           avoirLppTotal: 50000,
           rachatMaximum: 50000,
           rachatEffectue: 0,
-          tauxConversion: 0.068,
           rendementCaisse: 0.015,
           nombre3a: 0,
           totalEpargne3a: 0,
@@ -2453,7 +2478,6 @@ class CoachProfile {
         avoirLppTotal: 300000,
         rachatMaximum: 300000,
         rachatEffectue: 0,
-        tauxConversion: 0.068,
         rendementCaisse: 0.02,
         nombre3a: 5,
         totalEpargne3a: 35000,

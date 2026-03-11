@@ -95,7 +95,7 @@ class BabyCostWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFE3F2FD),
+        color: MintColors.neutralBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

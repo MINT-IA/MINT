@@ -175,7 +175,7 @@ class _PillarDecompositionState extends State<PillarDecomposition>
                       label: '2\u00e8me pilier (LPP conjoint\u00b7e)',
                       amount: widget.lppConjointMonthly,
                       total: total,
-                      color: const Color(0xFF5C6BC0),
+                      color: MintColors.indigoMuted,
                       icon: Icons.account_balance_outlined,
                       progress: _animation.value,
                     ),

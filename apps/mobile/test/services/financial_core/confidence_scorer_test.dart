@@ -406,6 +406,121 @@ void main() {
       expect(result.freshness, lessThan(90));
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  SCORE AS BLOCS (P8 Phase 3)
+  // ════════════════════════════════════════════════════════════
+
+  group('ConfidenceScorer.scoreAsBlocs', () {
+    test('returns all expected bloc keys', () {
+      final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      expect(blocs.keys, containsAll([
+        'revenu',
+        'age_canton',
+        'archetype',
+        'objectifRetraite',
+        'compositionMenage',
+        'lpp',
+        'taux_conversion',
+        'avs',
+        '3a',
+        'patrimoine',
+        'foreign_pension',
+      ]));
+    });
+
+    test('total maxScore sums to 115 (100 core + 15 fiscalite)', () {
+      final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      final totalMax = blocs.values.fold(0.0, (s, b) => s + b.maxScore);
+      // 100 pts for core blocs + 15 pts for fiscalite virtual bloc
+      expect(totalMax, 115.0);
+    });
+
+    test('score <= maxScore for all blocs', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'VD',
+        avoirLpp: 150000,
+        epargne3a: 40000,
+        patrimoine: 100000,
+      );
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      for (final entry in blocs.entries) {
+        expect(
+          entry.value.score,
+          lessThanOrEqualTo(entry.value.maxScore),
+          reason: '${entry.key}: score ${entry.value.score} > max ${entry.value.maxScore}',
+        );
+      }
+    });
+
+    test('complete profile has all blocs complete or partial', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'VD',
+        avoirLpp: 150000,
+        epargne3a: 40000,
+        patrimoine: 100000,
+        anneesContribuees: 20,
+      );
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      // Core blocs should not be 'missing'
+      expect(blocs['revenu']!.status, 'complete');
+      expect(blocs['age_canton']!.status, 'complete');
+      expect(blocs['lpp']!.status, isNot('missing'));
+    });
+
+    test('objectifRetraite is partial when no explicit retirement age', () {
+      final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      expect(blocs['objectifRetraite']!.status, 'partial');
+      expect(blocs['objectifRetraite']!.score, 3.0); // default partial score
+    });
+
+    test('compositionMenage is complete for single person', () {
+      final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      // celibataire → complete
+      expect(blocs['compositionMenage']!.status, 'complete');
+      expect(blocs['compositionMenage']!.score, blocs['compositionMenage']!.maxScore);
+    });
+
+    test('empty profile has zero score for missing blocs', () {
+      final profile = _buildProfile(age: 0, salary: 0, canton: '');
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      expect(blocs['revenu']!.score, 0);
+      expect(blocs['age_canton']!.score, 0);
+      expect(blocs['revenu']!.status, 'missing');
+    });
+
+    test('lpp bloc is partial when avoir declared', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'VD',
+        avoirLpp: 150000,
+      );
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      expect(blocs['lpp']!.status, 'partial');
+      expect(blocs['lpp']!.score, 11.0);
+    });
+
+    test('lpp bloc is complete for independant sans LPP', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+      );
+      final blocs = ConfidenceScorer.scoreAsBlocs(profile);
+      expect(blocs['lpp']!.status, 'complete');
+      expect(blocs['lpp']!.score, blocs['lpp']!.maxScore);
+    });
+  });
 }
 
 /// Helper to build a CoachProfile for testing.

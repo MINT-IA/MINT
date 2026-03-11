@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 /// Input data for one LPP plan (current or new job).
 class LPPPlanInput {
@@ -374,17 +375,27 @@ class JobComparisonService {
   }
 
   /// Project retirement capital at age 65 with annual contributions.
+  /// Delegates to LppCalculator.projectToRetirement() from financial_core.
   static double _projectCapital(LPPPlanInput plan, int yearsToRetirement) {
-    // Simplified projection: current avoir + yearly total contributions
-    // with a conservative 1% annual return on existing capital.
-    double capital = plan.avoirVieillesse;
-    final annualContribution = plan.totalCotisationAnnuelle;
-    const annualReturn = 0.0125; // BVG minimum interest rate (LPP)
+    final currentAge = 65 - yearsToRetirement;
+    final salaireAssure = plan.effectiveSalaireAssure;
+    // Compute effective bonification rate from plan's total contribution
+    // (employee + employer) relative to the insured salary.
+    final bonificationRate = salaireAssure > 0
+        ? plan.totalCotisationAnnuelle / salaireAssure
+        : 0.0;
 
-    for (int i = 0; i < yearsToRetirement; i++) {
-      capital = capital * (1 + annualReturn) + annualContribution;
-    }
-    return capital;
+    // Use conversionRate=1.0 to get raw projected capital (not rente).
+    return LppCalculator.projectToRetirement(
+      currentBalance: plan.avoirVieillesse,
+      currentAge: currentAge,
+      retirementAge: 65,
+      grossAnnualSalary: plan.salaireBrut,
+      caisseReturn: 0.0125, // BVG minimum interest rate
+      conversionRate: 1.0, // Return raw capital, not rente
+      bonificationRateOverride: bonificationRate,
+      salaireAssureOverride: salaireAssure,
+    );
   }
 
   /// Format CHF with Swiss apostrophe.

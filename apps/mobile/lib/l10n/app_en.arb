@@ -4023,5 +4023,143 @@
   "confidencePromptFreshnessConfirm": "Confirm this value is still current",
   "confidencePromptAccuracyPrefix": "Confirm: ",
   "confidencePromptAccuracyEstimated": "Enter your actual value",
-  "confidencePromptAccuracyCertificate": "Scan your certificate to confirm"
+  "confidencePromptAccuracyCertificate": "Scan your certificate to confirm",
+
+  "pulseTitle": "Pulse",
+  "pulseGreeting": "Hello {name}",
+  "@pulseGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "pulseGreetingCouple": "Hello {name1} and {name2}",
+  "@pulseGreetingCouple": {
+    "placeholders": {
+      "name1": {"type": "String"},
+      "name2": {"type": "String"}
+    }
+  },
+  "pulseWelcome": "Welcome to MINT",
+  "pulseEmptyTitle": "Start by filling in your profile!",
+  "pulseEmptySubtitle": "A few questions are enough to get your first financial visibility estimate.",
+  "pulseEmptyCtaStart": "Get started",
+  "pulseVisibilityTitle": "Financial visibility",
+  "pulsePrioritiesTitle": "Your priorities",
+  "pulsePrioritiesSubtitle": "Personalised actions based on your profile",
+  "pulseComprendreTitle": "Understand",
+  "pulseComprendreSubtitle": "Explore your simulators",
+  "pulseComprendreRenteCapital": "Annuity or lump sum?",
+  "pulseComprendreRenteCapitalSub": "Compare both withdrawal options",
+  "pulseComprendreRachatLpp": "Simulate an LPP buyback",
+  "pulseComprendreRachatLppSub": "Discover the tax impact of a buyback",
+  "pulseComprendre3a": "Explore my 3a",
+  "pulseComprendre3aSub": "Discover your annual tax saving",
+  "pulseComprendre_budget": "My monthly budget",
+  "pulseComprendre_budgetSub": "View your income and expenses",
+  "pulseComprendreAchat": "Buy a property?",
+  "pulseComprendreAchatSub": "Estimate your borrowing capacity",
+  "pulseDisclaimer": "Educational tool. Does not constitute personalised financial advice. FinSA art.\u00a03",
+  "pulseKeyFigRetraite": "Estimated retirement",
+  "pulseKeyFigRetraitePct": "{pct}\u00a0% of income",
+  "@pulseKeyFigRetraitePct": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "pulseKeyFigBudgetLibre": "Free budget",
+  "pulseKeyFigPatrimoine": "Net worth",
+  "pulseCoupleRetraite": "Couple retirement: {montant}",
+  "@pulseCoupleRetraite": {
+    "placeholders": {
+      "montant": {"type": "String"}
+    }
+  },
+  "pulseCoupleAlertWeak": "{name}'s profile is at {score}\u00a0% visibility",
+  "@pulseCoupleAlertWeak": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "score": {"type": "String"}
+    }
+  },
+  "pulseAxisLiquidite": "Liquidity",
+  "pulseAxisFiscalite": "Taxation",
+  "pulseAxisRetraite": "Retirement",
+  "pulseAxisSecurite": "Security",
+  "pulseHintAddSalary": "Add your salary to get started",
+  "pulseHintAddSavings": "Enter your savings and investments",
+  "pulseHintLiquiditeComplete": "Your liquidity data is complete",
+  "pulseHintAddAgeCanton": "Enter your age and canton of residence",
+  "pulseHintScanTax": "Scan your tax return",
+  "pulseHintFiscaliteComplete": "Your tax data is complete",
+  "pulseHintAddLpp": "Add your LPP certificate",
+  "pulseHintExtractAvs": "Order your AVS extract",
+  "pulseHintAdd3a": "Enter your 3a accounts",
+  "pulseHintRetraiteComplete": "Your retirement data is complete",
+  "pulseHintAddFamily": "Enter your family situation",
+  "pulseHintAddStatus": "Complete your professional status",
+  "pulseHintSecuriteComplete": "Your security data is complete",
+  "pulseNarrativeExcellent": "You have a clear view of your situation. Keep your data up to date.",
+  "pulseNarrativeGood": "Good visibility! Refine your {axis} to go further.",
+  "@pulseNarrativeGood": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeModerate": "You're starting to see more clearly. Focus on your {axis}.",
+  "@pulseNarrativeModerate": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeWeak": "Every piece of information counts. Start with {hint}.",
+  "@pulseNarrativeWeak": {
+    "placeholders": {
+      "hint": {"type": "String"}
+    }
+  },
+  "pulseNoCheckinMsg": "No check-in this month. Record your payments to track your progress.",
+  "pulseCheckinBtn": "Check-in",
+  "pulseBriefingTitle": "Monthly review \u2014 {trend}",
+  "@pulseBriefingTitle": {
+    "placeholders": {
+      "trend": {"type": "String"}
+    }
+  },
+  "pulseFriLiquidite": "Liquidity",
+  "pulseFriFiscalite": "Tax optimisation",
+  "pulseFriRetraite": "Retirement",
+  "pulseFriRisque": "Structural risks",
+  "pulseFriTitle": "Financial strength",
+  "pulseFriWeakest": "Weakest point: {axis}",
+  "@pulseFriWeakest": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+
+  "lppBuybackAdvTitle": "LPP buyback optimisation",
+  "lppBuybackAdvSubtitle": "Tax leverage + capitalisation effect",
+  "lppBuybackAdvPotential": "Buyback potential",
+  "lppBuybackAdvYears": "Years until retirement",
+  "lppBuybackAdvStaggering": "Staggering",
+  "lppBuybackAdvFundRate": "LPP fund rate",
+  "lppBuybackAdvIncome": "Taxable income",
+  "lppBuybackAdvFinalCapital": "Final capitalised value",
+  "lppBuybackAdvRealReturn": "Real return: {pct}\u00a0% / year",
+  "@lppBuybackAdvRealReturn": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "lppBuybackAdvTaxSaving": "Tax saving",
+  "lppBuybackAdvNetEffort": "Net effort",
+  "lppBuybackAdvTotalGain": "Total gain from operation",
+  "lppBuybackAdvCapitalMinusEffort": "Capital - Net effort",
+  "lppBuybackAdvFundRateLabel": "LPP rate applied",
+  "lppBuybackAdvLeverageEffect": "Tax leverage effect",
+  "lppBuybackAdvBonASavoir": "Good to know",
+  "lppBuybackAdvBon1": "LPP buyback is one of the few tax planning tools available to all employees in Switzerland.",
+  "lppBuybackAdvBon2": "Every franc bought back is deductible from your taxable income (LIFD art.\u00a033 al.\u00a01 let.\u00a0d).",
+  "lppBuybackAdvBon3": "Note: any EPL withdrawal is blocked for 3 years after a buyback (LPP art.\u00a079b al.\u00a03).",
+  "lppBuybackAdvDisclaimer": "Simulation including fund interest and smoothed tax savings. The real return is calculated on your actual net effort."
 }

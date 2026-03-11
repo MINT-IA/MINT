@@ -35,6 +35,10 @@ const double lppSalaireMax = 90720.0;
 /// Taux de conversion minimum LPP en % (LPP art. 14 al. 2).
 const double lppTauxConversionMin = 6.8;
 
+/// Taux de conversion minimum LPP en fraction decimale (0.068 = 6.8%).
+/// Utiliser cette valeur dans les calculs (pas lppTauxConversionMin / 100).
+const double lppTauxConversionMinDecimal = 0.068;
+
 /// Reduction du taux de conversion par annee de retraite anticipee.
 /// Pratique standard des caisses suisses: ~0.2 points de % par annee
 /// avant l'age de reference (LPP art. 13 al. 2).
@@ -123,6 +127,26 @@ const double avsFranchiseRetraiteMensuelle = 1400.0;
 
 /// Facteur rente de survivant (80% de la rente du defunt).
 const double avsSurvivorFactor = 0.80;
+
+// 13eme rente AVS (initiative populaire adoptee en mars 2024)
+// Versement: une fois par an en decembre, a partir de decembre 2026.
+// Montant = 1/12 de la somme annuelle des rentes vieillesse versees.
+// Uniquement rentes de vieillesse (pas AI, pas survivants, pas enfants).
+// Base legale: LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis.
+
+/// 13eme rente AVS active. True des 2026 (premier versement decembre 2026).
+const bool avs13emeRenteActive = true;
+
+/// Annee du premier versement de la 13eme rente AVS.
+const int avs13emeRenteAnneeDebut = 2026;
+
+/// Nombre de rentes mensuelles par an (12 standard + 1 treizieme).
+const int avsNombreRentesParAn = 13;
+
+/// Facteur multiplicateur pour convertir la rente annuelle 12 mois en 13 mois.
+/// Rente annuelle effective = rente mensuelle x 12 x avs13emeRenteFactor
+///                          = rente mensuelle x 13.
+const double avs13emeRenteFactor = 13.0 / 12.0;
 
 /// Cotisation annuelle minimale AVS volontaire (expatries).
 const double avsVolontaireCotisationMin = 514.0;
@@ -282,6 +306,43 @@ const List<String> sortedCantonCodes = [
   'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
   'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
 ];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EPL — Encouragement a la propriete du logement
+// Base legale: LPP art. 30c, OPP2 art. 5
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Montant minimum pour un retrait EPL (OPP2 art. 5).
+const double eplMontantMinimum = 20000.0;
+
+/// Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3).
+const int eplBlocageRachatAnnees = 3;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Hypotheque — Pratique bancaire suisse (ASB / FINMA)
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Taux d'interet theorique pour le calcul de capacite (Tragbarkeitsrechnung).
+const double hypothequeTauxTheorique = 0.05;
+
+/// Taux d'amortissement annuel minimum (pratique standard).
+const double hypothequeTauxAmortissement = 0.01;
+
+/// Taux de frais accessoires annuels (entretien, assurance).
+const double hypothequeTauxFraisAccessoires = 0.01;
+
+/// Taux de charges theoriques combines (interet + amortissement + frais).
+/// 5% + 1% + 1% = 7%.
+const double hypothequeTauxChargesTotal = 0.07;
+
+/// Ratio maximal des charges par rapport au revenu brut (regle du 1/3).
+const double hypothequeRatioChargesMax = 1.0 / 3.0;
+
+/// Part minimale de fonds propres (20% du prix d'achat).
+const double hypothequeFondsPropresMin = 0.20;
+
+/// Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat).
+const double hypothequePart2ePilierMax = 0.10;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // LAMal — Assurance-maladie obligatoire

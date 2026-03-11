@@ -504,10 +504,10 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
                   borderRadius: BorderRadius.circular(12),
                   gradient: const LinearGradient(
                     colors: [
-                      Color(0xFF4CAF50),
-                      Color(0xFFFFEB3B),
-                      Color(0xFFFF9800),
-                      Color(0xFFF44336),
+                      MintColors.centralScenario,
+                      MintColors.yellowLight,
+                      MintColors.orangeFF,
+                      MintColors.redMaterial,
                     ],
                   ),
                 ),

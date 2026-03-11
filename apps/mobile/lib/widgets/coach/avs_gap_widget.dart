@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -58,7 +59,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
 
   double get _renteLoss => _renteWithoutAbroad - _renteWithAbroad;
   double get _perYearAbroad => _yearsAbroad > 0 ? _renteLoss / _yearsAbroad : 0;
-  double get _lifetimeLoss => _renteLoss * 12 * 20; // avg 20 years retirement
+  double get _lifetimeLoss => AvsCalculator.annualRente(_renteLoss) * 20; // avg 20 years retirement
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +100,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFFFEBEE),
+        color: MintColors.urgentBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

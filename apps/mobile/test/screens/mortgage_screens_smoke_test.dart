@@ -10,8 +10,6 @@ import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
-import '../test_helpers.dart';
-
 // =============================================================================
 // SMOKE TESTS — Mortgage Module Screens (5 screens)
 // =============================================================================

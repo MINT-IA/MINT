@@ -4023,5 +4023,143 @@
   "confidencePromptFreshnessConfirm": "Bestätige, dass dieser Wert noch aktuell ist",
   "confidencePromptAccuracyPrefix": "Bestätige: ",
   "confidencePromptAccuracyEstimated": "Gib deinen tatsächlichen Wert ein",
-  "confidencePromptAccuracyCertificate": "Scanne dein Zertifikat zur Bestätigung"
+  "confidencePromptAccuracyCertificate": "Scanne dein Zertifikat zur Bestätigung",
+
+  "pulseTitle": "Pulse",
+  "pulseGreeting": "Hallo {name}",
+  "@pulseGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "pulseGreetingCouple": "Hallo {name1} und {name2}",
+  "@pulseGreetingCouple": {
+    "placeholders": {
+      "name1": {"type": "String"},
+      "name2": {"type": "String"}
+    }
+  },
+  "pulseWelcome": "Willkommen bei MINT",
+  "pulseEmptyTitle": "Fülle zuerst dein Profil aus!",
+  "pulseEmptySubtitle": "Ein paar Fragen reichen für deine erste finanzielle Sichtbarkeitsschätzung.",
+  "pulseEmptyCtaStart": "Starten",
+  "pulseVisibilityTitle": "Finanzielle Sichtbarkeit",
+  "pulsePrioritiesTitle": "Deine Prioritäten",
+  "pulsePrioritiesSubtitle": "Personalisierte Aktionen basierend auf deinem Profil",
+  "pulseComprendreTitle": "Verstehen",
+  "pulseComprendreSubtitle": "Entdecke deine Simulatoren",
+  "pulseComprendreRenteCapital": "Rente oder Kapital?",
+  "pulseComprendreRenteCapitalSub": "Vergleiche beide Bezugsoptionen",
+  "pulseComprendreRachatLpp": "BVG-Einkauf simulieren",
+  "pulseComprendreRachatLppSub": "Entdecke die steuerliche Wirkung eines Einkaufs",
+  "pulseComprendre3a": "Meine Säule 3a entdecken",
+  "pulseComprendre3aSub": "Entdecke deine jährliche Steuerersparnis",
+  "pulseComprendre_budget": "Mein monatliches Budget",
+  "pulseComprendre_budgetSub": "Visualisiere deine Einnahmen und Ausgaben",
+  "pulseComprendreAchat": "Immobilie kaufen?",
+  "pulseComprendreAchatSub": "Schätze deine Kreditkapazität",
+  "pulseDisclaimer": "Bildungstool. Stellt keine persönliche Finanzberatung dar. FIDLEG Art.\u00a03",
+  "pulseKeyFigRetraite": "Geschätzte Rente",
+  "pulseKeyFigRetraitePct": "{pct}\u00a0% des Einkommens",
+  "@pulseKeyFigRetraitePct": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "pulseKeyFigBudgetLibre": "Freies Budget",
+  "pulseKeyFigPatrimoine": "Vermögen",
+  "pulseCoupleRetraite": "Rente als Paar: {montant}",
+  "@pulseCoupleRetraite": {
+    "placeholders": {
+      "montant": {"type": "String"}
+    }
+  },
+  "pulseCoupleAlertWeak": "Das Profil von {name} liegt bei {score}\u00a0% Sichtbarkeit",
+  "@pulseCoupleAlertWeak": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "score": {"type": "String"}
+    }
+  },
+  "pulseAxisLiquidite": "Liquidität",
+  "pulseAxisFiscalite": "Steuern",
+  "pulseAxisRetraite": "Vorsorge",
+  "pulseAxisSecurite": "Sicherheit",
+  "pulseHintAddSalary": "Gib dein Gehalt ein, um zu starten",
+  "pulseHintAddSavings": "Erfasse deine Ersparnisse und Anlagen",
+  "pulseHintLiquiditeComplete": "Deine Liquiditätsdaten sind vollständig",
+  "pulseHintAddAgeCanton": "Gib dein Alter und deinen Wohnkanton an",
+  "pulseHintScanTax": "Scanne deine Steuererklärung",
+  "pulseHintFiscaliteComplete": "Deine Steuerdaten sind vollständig",
+  "pulseHintAddLpp": "Füge deinen BVG-Ausweis hinzu",
+  "pulseHintExtractAvs": "Bestelle deinen AHV-Auszug",
+  "pulseHintAdd3a": "Erfasse deine 3a-Konten",
+  "pulseHintRetraiteComplete": "Deine Vorsorgedaten sind vollständig",
+  "pulseHintAddFamily": "Gib deine Familiensituation an",
+  "pulseHintAddStatus": "Vervollständige deinen Berufsstatus",
+  "pulseHintSecuriteComplete": "Deine Sicherheitsdaten sind vollständig",
+  "pulseNarrativeExcellent": "Du hast einen klaren Überblick über deine Situation. Halte deine Daten aktuell.",
+  "pulseNarrativeGood": "Gute Sichtbarkeit! Verfeinere deine {axis}, um weiterzukommen.",
+  "@pulseNarrativeGood": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeModerate": "Du beginnst, klarer zu sehen. Konzentriere dich auf deine {axis}.",
+  "@pulseNarrativeModerate": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeWeak": "Jede Information zählt. Beginne mit {hint}.",
+  "@pulseNarrativeWeak": {
+    "placeholders": {
+      "hint": {"type": "String"}
+    }
+  },
+  "pulseNoCheckinMsg": "Kein Check-in diesen Monat. Erfasse deine Zahlungen, um deinen Fortschritt zu verfolgen.",
+  "pulseCheckinBtn": "Check-in",
+  "pulseBriefingTitle": "Monatsbilanz \u2014 {trend}",
+  "@pulseBriefingTitle": {
+    "placeholders": {
+      "trend": {"type": "String"}
+    }
+  },
+  "pulseFriLiquidite": "Liquidität",
+  "pulseFriFiscalite": "Steueroptimierung",
+  "pulseFriRetraite": "Vorsorge",
+  "pulseFriRisque": "Strukturelle Risiken",
+  "pulseFriTitle": "Finanzielle Solidität",
+  "pulseFriWeakest": "Schwächster Punkt: {axis}",
+  "@pulseFriWeakest": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+
+  "lppBuybackAdvTitle": "BVG-Einkauf-Optimierung",
+  "lppBuybackAdvSubtitle": "Steuerlicher Hebel + Kapitalisierungseffekt",
+  "lppBuybackAdvPotential": "Einkaufspotenzial",
+  "lppBuybackAdvYears": "Jahre bis zur Pensionierung",
+  "lppBuybackAdvStaggering": "Staffelung",
+  "lppBuybackAdvFundRate": "BVG-Kassenzins",
+  "lppBuybackAdvIncome": "Steuerbares Einkommen",
+  "lppBuybackAdvFinalCapital": "Endkapital (kapitalisiert)",
+  "lppBuybackAdvRealReturn": "Reale Rendite: {pct}\u00a0% / Jahr",
+  "@lppBuybackAdvRealReturn": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "lppBuybackAdvTaxSaving": "Steuerersparnis",
+  "lppBuybackAdvNetEffort": "Nettoaufwand",
+  "lppBuybackAdvTotalGain": "Gesamtgewinn der Operation",
+  "lppBuybackAdvCapitalMinusEffort": "Kapital - Nettoaufwand",
+  "lppBuybackAdvFundRateLabel": "BVG-Zinssatz angewandt",
+  "lppBuybackAdvLeverageEffect": "Steuerlicher Hebeleffekt",
+  "lppBuybackAdvBonASavoir": "Gut zu wissen",
+  "lppBuybackAdvBon1": "Der BVG-Einkauf ist eines der wenigen Steuerplanungsinstrumente, die allen Arbeitnehmenden in der Schweiz zur Verfügung stehen.",
+  "lppBuybackAdvBon2": "Jeder eingekaufte Franken ist vom steuerbaren Einkommen abziehbar (DBG Art.\u00a033 Abs.\u00a01 Bst.\u00a0d).",
+  "lppBuybackAdvBon3": "Achtung: Jeder WEF-Bezug ist während 3 Jahren nach einem Einkauf gesperrt (BVG Art.\u00a079b Abs.\u00a03).",
+  "lppBuybackAdvDisclaimer": "Simulation einschliesslich Kassenzins und geglätteter Steuerersparnis. Die reale Rendite wird auf deinem tatsächlichen Nettoaufwand berechnet."
 }

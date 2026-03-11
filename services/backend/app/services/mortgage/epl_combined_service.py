@@ -25,6 +25,8 @@ from typing import List, Optional
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
     RETRAIT_CAPITAL_TRANCHES,
+    HYPOTHEQUE_FONDS_PROPRES_MIN,
+    HYPOTHEQUE_PART_2E_PILIER_MAX,
     calculate_progressive_capital_tax,
 )
 from app.services.lpp_deep.epl_service import (
@@ -214,7 +216,7 @@ class EplCombinedService:
 
         # ---- CHIFFRE CHOC ----
         if prix_cible > 0:
-            fonds_propres_requis = prix_cible * 0.20
+            fonds_propres_requis = prix_cible * HYPOTHEQUE_FONDS_PROPRES_MIN
             if total_net >= fonds_propres_requis:
                 surplus = round(total_net - fonds_propres_requis, 2)
                 chiffre_choc = ChiffreChoc(
@@ -353,8 +355,8 @@ class EplCombinedService:
             )
 
         if prix_cible > 0:
-            fonds_propres_requis = prix_cible * 0.20
-            part_2e_pilier_max = prix_cible * 0.10
+            fonds_propres_requis = prix_cible * HYPOTHEQUE_FONDS_PROPRES_MIN
+            part_2e_pilier_max = prix_cible * HYPOTHEQUE_PART_2E_PILIER_MAX
             if retrait_lpp > part_2e_pilier_max:
                 alertes.append(
                     f"Attention : seuls {part_2e_pilier_max:,.0f} CHF du 2e pilier "

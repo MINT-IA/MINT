@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
@@ -617,9 +618,9 @@ class ApiService {
     required double capitalSurobligatoire,
     required double renteAnnuelleProposee,
     required String canton,
-    double tauxConversionObligatoire = 0.068,
+    double tauxConversionObligatoire = lppTauxConversionMinDecimal,
     double tauxConversionSurobligatoire = 0.05,
-    int ageRetraite = 65,
+    int ageRetraite = avsAgeReferenceHomme,
     double tauxRetrait = 0.04,
     double rendementCapital = 0.03,
     double inflation = 0.02,

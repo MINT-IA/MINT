@@ -608,7 +608,7 @@ class _AmortizationChartPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: const TextStyle(fontSize: 10, color: Color(0xFF86868B)),
+          style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -623,7 +623,7 @@ class _AmortizationChartPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '${i + 1}',
-            style: const TextStyle(fontSize: 10, color: Color(0xFF86868B)),
+            style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -633,13 +633,13 @@ class _AmortizationChartPainter extends CustomPainter {
 
     // Draw debt curves
     _drawCurve(canvas, directPlan.map((p) => p.detteRestante).toList(),
-        const Color(0xFF007AFF), maxVal, chartWidth, chartHeight, leftPadding, topPadding);
+        MintColors.info, maxVal, chartWidth, chartHeight, leftPadding, topPadding);
     _drawCurve(canvas, indirectPlan.map((p) => p.detteRestante).toList(),
-        const Color(0xFF1D1D1F), maxVal, chartWidth, chartHeight, leftPadding, topPadding);
+        MintColors.primary, maxVal, chartWidth, chartHeight, leftPadding, topPadding);
 
     // Draw 3a capital curve
     _drawCurve(canvas, indirectPlan.map((p) => p.capital3a).toList(),
-        const Color(0xFF24B14D), maxVal, chartWidth, chartHeight, leftPadding, topPadding);
+        MintColors.success, maxVal, chartWidth, chartHeight, leftPadding, topPadding);
   }
 
   void _drawCurve(

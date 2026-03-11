@@ -18,7 +18,7 @@ class RealReturnScreen extends StatefulWidget {
 }
 
 class _RealReturnScreenState extends State<RealReturnScreen> {
-  double _versementAnnuel = 7258;
+  double _versementAnnuel = pilier3aPlafondAvecLpp;
   double _tauxMarginal = 0.32;
   double _rendementBrut = 0.045;
   double _fraisGestion = 0.005;

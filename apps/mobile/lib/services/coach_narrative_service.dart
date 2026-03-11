@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -14,6 +15,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/streak_service.dart';
@@ -80,6 +82,13 @@ class CoachNarrative {
   /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
   final String? retirementCountdown;
 
+  /// Monthly briefing comparison N vs N-1 (Coach Vivant Track A).
+  /// Example: "Tes versements sont en hausse de 12% vs le mois dernier."
+  final String? monthlyComparison;
+
+  /// Versements trend label ("en hausse", "stable", "en baisse").
+  final String? versementsTrend;
+
   /// Source (llm ou static) pour debug
   final bool isLlmGenerated;
 
@@ -96,6 +105,8 @@ class CoachNarrative {
     this.scenarioNarrations,
     this.chiffreChocNarration,
     this.retirementCountdown,
+    this.monthlyComparison,
+    this.versementsTrend,
     required this.isLlmGenerated,
     required this.generatedAt,
   });
@@ -111,6 +122,8 @@ class CoachNarrative {
         'scenarioNarrations': scenarioNarrations,
         'chiffreChocNarration': chiffreChocNarration,
         'retirementCountdown': retirementCountdown,
+        'monthlyComparison': monthlyComparison,
+        'versementsTrend': versementsTrend,
         'isLlmGenerated': isLlmGenerated,
         'generatedAt': generatedAt.toIso8601String(),
       };
@@ -129,6 +142,8 @@ class CoachNarrative {
           .toList(),
       chiffreChocNarration: json['chiffreChocNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
+      monthlyComparison: json['monthlyComparison'] as String?,
+      versementsTrend: json['versementsTrend'] as String?,
       isLlmGenerated: json['isLlmGenerated'] as bool? ?? false,
       generatedAt: json['generatedAt'] != null
           ? DateTime.parse(json['generatedAt'] as String)
@@ -190,7 +205,7 @@ class CoachNarrativeService {
 
     // Tax saving potential (3a margin × estimated marginal rate)
     final plafond3a =
-        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
     final taxSaving = marge3a * 0.30; // ~30% marginal estimate
@@ -468,7 +483,7 @@ class CoachNarrativeService {
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
-          profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+          profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -510,6 +525,21 @@ class CoachNarrativeService {
           'a $retAge ans.';
     }
 
+    // ── Monthly briefing N vs N-1 (Coach Vivant Track A) ──
+    String? monthlyComparison;
+    String? versementsTrend;
+    try {
+      final briefing = MonthlyBriefingService.fromProfile(profile);
+      if (briefing != null) {
+        versementsTrend = briefing.trendLabel;
+        if (briefing.insights.isNotEmpty) {
+          monthlyComparison = briefing.insights.first;
+        }
+      }
+    } catch (_) {
+      // Non-critical: skip if check-in data is incomplete
+    }
+
     return CoachNarrative(
       greeting: greeting,
       scoreSummary: scoreSummary,
@@ -521,6 +551,8 @@ class CoachNarrativeService {
       scenarioNarrations: scenarioNarrations,
       chiffreChocNarration: chiffreChocNarration,
       retirementCountdown: retirementCountdown,
+      monthlyComparison: monthlyComparison,
+      versementsTrend: versementsTrend,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),
     );
@@ -635,6 +667,10 @@ class CoachNarrativeService {
         urgentAlert: narrative.urgentAlert,
         milestoneMessage: narrative.milestoneMessage,
         scenarioNarrations: narrative.scenarioNarrations,
+        chiffreChocNarration: narrative.chiffreChocNarration,
+        retirementCountdown: narrative.retirementCountdown,
+        monthlyComparison: narrative.monthlyComparison,
+        versementsTrend: narrative.versementsTrend,
         isLlmGenerated: true, // SLM is a local LLM
         generatedAt: DateTime.now(),
       );
@@ -720,7 +756,7 @@ class CoachNarrativeService {
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
     final plafond3a =
-        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -894,8 +930,8 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    if (cotisation3a < 7258 && profile.prevoyance.canContribute3a) {
-      final marge = 7258 - cotisation3a;
+    if (cotisation3a < pilier3aPlafondAvecLpp && profile.prevoyance.canContribute3a) {
+      final marge = pilier3aPlafondAvecLpp - cotisation3a;
       snippets.add(
           'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
           'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
@@ -949,7 +985,7 @@ class CoachNarrativeService {
   /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
   /// Pure compound interest: annual 7258 CHF at 2% average return.
   static String? _buildTimeMachineInsight(CoachProfile profile) {
-    const plafond = 7258.0;
+    const plafond = pilier3aPlafondAvecLpp;
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;
@@ -1159,6 +1195,8 @@ class CoachNarrativeService {
           .toList(),
       chiffreChocNarration: json['chiffreChocNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
+      monthlyComparison: json['monthlyComparison'] as String?,
+      versementsTrend: json['versementsTrend'] as String?,
       isLlmGenerated: true,
       generatedAt: DateTime.now(),
     );
@@ -1190,6 +1228,10 @@ class CoachNarrativeService {
       retirementCountdown: narrative.retirementCountdown != null
           ? _filterBannedTerms(narrative.retirementCountdown!)
           : null,
+      monthlyComparison: narrative.monthlyComparison != null
+          ? _filterBannedTerms(narrative.monthlyComparison!)
+          : null,
+      versementsTrend: narrative.versementsTrend,
       isLlmGenerated: narrative.isLlmGenerated,
       generatedAt: narrative.generatedAt,
     );

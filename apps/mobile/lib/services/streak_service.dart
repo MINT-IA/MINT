@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 
 /// Badge earned by consistent check-in behavior.
@@ -218,8 +219,8 @@ class StreakService {
         label: '3a au max',
         description: 'Versement 3a au plafond (7\'258 CHF)',
         icon: Icons.savings,
-        threshold: 7258,
-        isReached: annual3a >= 7258,
+        threshold: pilier3aPlafondAvecLpp,
+        isReached: annual3a >= pilier3aPlafondAvecLpp,
       ),
       MintMilestone(
         id: 'emergency_fund',

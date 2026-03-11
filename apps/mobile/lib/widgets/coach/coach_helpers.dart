@@ -55,9 +55,9 @@ IconData iconForCategory(String category) {
 Color colorForCategory(String category) {
   switch (category) {
     case '3a':
-      return const Color(0xFF4F46E5); // Indigo
+      return MintColors.indigo; // Indigo
     case 'lpp_buyback':
-      return const Color(0xFF0891B2); // Teal
+      return MintColors.cyan; // Teal
     case 'investissement':
       return MintColors.success;
     case 'epargne_libre':

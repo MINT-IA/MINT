@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -14,6 +15,8 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/response_card_service.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
@@ -136,19 +139,33 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           'le budget ou la retraite en Suisse.$scoreSuffix';
     }
 
-    final tips = CoachingService.generateTips(
-      profile: p.toCoachingProfile(),
+    // Phase 1: personalized suggestions based on age/archetype
+    final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
+    final List<String> suggestions;
+    if (personalizedPrompts.isNotEmpty) {
+      suggestions = personalizedPrompts;
+    } else {
+      final tips = CoachingService.generateTips(
+        profile: p.toCoachingProfile(),
+      );
+      final topTipActions = tips.take(3).map((t) => t.title).toList();
+      suggestions = topTipActions.isNotEmpty
+          ? topTipActions
+          : CoachLlmService.initialSuggestions;
+    }
+
+    // Response cards contextuelles pour le greeting
+    final greetingCards = ResponseCardService.generateForPulse(
+      p,
+      limit: 2,
     );
-    final topTipActions = tips.take(3).map((t) => t.title).toList();
-    final suggestions = topTipActions.isNotEmpty
-        ? topTipActions
-        : CoachLlmService.initialSuggestions;
 
     _messages.add(ChatMessage(
       role: 'assistant',
       content: greeting,
       timestamp: DateTime.now(),
       suggestedActions: suggestions,
+      responseCards: greetingCards,
       tier: tier,
     ));
   }
@@ -305,12 +322,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ? null
         : _inferSuggestedActions(userMessage);
 
+    // Phase 1: generate inline response cards from user message
+    final cards = _profile != null
+        ? ResponseCardService.generateForChat(_profile!, userMessage)
+        : <ResponseCard>[];
+
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: finalText,
         timestamp: DateTime.now(),
         suggestedActions: suggestedActions,
+        responseCards: cards,
         tier: ChatTier.slm,
       );
       _isStreaming = false;
@@ -331,6 +354,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
 
+      // Phase 1: generate inline response cards from user message context
+      final cards = _profile != null
+          ? ResponseCardService.generateForChat(_profile!, text)
+          : <ResponseCard>[];
+
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
@@ -339,6 +367,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           suggestedActions: response.suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
+          responseCards: cards,
           tier: tier,
         ));
         _isLoading = false;
@@ -823,6 +852,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 48),
               child: _buildDisclaimersSection(msg.disclaimers),
+            ),
+          ],
+          // Response Cards (Phase 1 — inline strip)
+          if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 40),
+              child: ResponseCardStrip(cards: msg.responseCards),
             ),
           ],
           // Suggested actions

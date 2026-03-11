@@ -43,7 +43,7 @@ class _DisabilitySelfEmployedScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF1F1), // fond rouge très pale
+      backgroundColor: MintColors.redBgLight, // fond rouge très pale
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -93,14 +93,14 @@ class _DisabilitySelfEmployedScreenState
       expandedHeight: 150,
       floating: false,
       pinned: true,
-      backgroundColor: const Color(0xFFB71C1C),
+      backgroundColor: MintColors.critical,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFB71C1C), Color(0xFF7B0000)],
+              colors: [MintColors.critical, MintColors.deepRed],
             ),
           ),
           child: SafeArea(
@@ -158,7 +158,7 @@ class _DisabilitySelfEmployedScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFCDD2)),
+        border: Border.all(color: MintColors.redBg),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -194,7 +194,7 @@ class _DisabilitySelfEmployedScreenState
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFFB71C1C),
+                  color: MintColors.critical,
                 ),
               ),
             ],
@@ -203,9 +203,9 @@ class _DisabilitySelfEmployedScreenState
             data: SliderTheme.of(context).copyWith(
               trackHeight: 3,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-              activeTrackColor: const Color(0xFFB71C1C),
+              activeTrackColor: MintColors.critical,
               inactiveTrackColor: MintColors.border,
-              thumbColor: const Color(0xFFB71C1C),
+              thumbColor: MintColors.critical,
             ),
             child: Slider(
               value: _monthlyRevenue,
@@ -251,7 +251,7 @@ class _DisabilitySelfEmployedScreenState
               Expanded(
                 child: _buildToggleChip('Non / Je ne sais pas', !_hasPerteDegain,
                     () => setState(() => _hasPerteDegain = false),
-                    color: const Color(0xFFB71C1C)),
+                    color: MintColors.critical),
               ),
             ],
           ),
@@ -260,7 +260,7 @@ class _DisabilitySelfEmployedScreenState
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3CD),
+                color: MintColors.warningBgLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -274,7 +274,7 @@ class _DisabilitySelfEmployedScreenState
                       'C\'est le filet le plus efficace pour un·e indépendant·e.',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: const Color(0xFF856404),
+                        color: MintColors.amberDark,
                         height: 1.4,
                       ),
                     ),

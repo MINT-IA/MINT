@@ -90,7 +90,7 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFE8EAF6),
+        color: MintColors.indigoBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(

@@ -100,7 +100,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFFFECB3),
+        color: MintColors.amberWarm,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

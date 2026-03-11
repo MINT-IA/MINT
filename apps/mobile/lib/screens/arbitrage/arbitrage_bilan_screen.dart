@@ -36,7 +36,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.balance_outlined,
+                const Icon(Icons.balance_outlined,
                     size: 48, color: MintColors.textMuted),
                 const SizedBox(height: 16),
                 Text(
@@ -190,7 +190,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.info_outline, size: 16, color: MintColors.warning),
+            const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -244,7 +244,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.link, size: 16, color: MintColors.info),
+                const Icon(Icons.link, size: 16, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
                   'Liens entre ces pistes',
@@ -458,7 +458,7 @@ class _LockedItemCard extends StatelessWidget {
                 color: MintColors.border.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.lock_outline,
+              child: const Icon(Icons.lock_outline,
                   size: 18, color: MintColors.textMuted),
             ),
             const SizedBox(width: 12),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -9,7 +12,9 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/coach/rent_vs_buy_scoreboard_widget.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Location vs Propriete arbitrage screen — compare renting + investing
 /// surplus vs buying property with mortgage.
@@ -34,6 +39,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   final _prixBienCtrl = TextEditingController(text: '800000');
   String _canton = 'VD';
   bool _isMarried = false;
+  bool _hasEstimatedValues = false;
 
   // ── Hypothesis sliders ──
   Map<String, double> _hypotheses = {
@@ -45,9 +51,48 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   ArbitrageResult? _result;
 
+  // ── CoachProfile auto-fill (P8 Phase 4) ──
+  bool _didAutoFill = false;
+  Map<String, ProfileDataSource> _dataSources = {};
+
   @override
   void initState() {
     super.initState();
+    _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didAutoFill) {
+      _didAutoFill = true;
+      _autoFillFromProfile();
+    }
+  }
+
+  void _autoFillFromProfile() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile == null) return;
+
+    final canton = profile.canton.isNotEmpty ? profile.canton : 'VD';
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
+    final patrimoine = profile.patrimoine;
+    final capital = patrimoine.epargneLiquide;
+
+    setState(() {
+      _canton = canton;
+      _isMarried = isMarried;
+      if (capital > 0) {
+        _capitalCtrl.text = capital.round().toString();
+        _hasEstimatedValues = true;
+      }
+      // Loyer mensuel from profile
+      if (profile.depenses.loyer > 0) {
+        _loyerCtrl.text = profile.depenses.loyer.round().toString();
+        _hasEstimatedValues = true;
+      }
+      _dataSources = profile.dataSources;
+    });
     _recalculate();
   }
 
@@ -78,6 +123,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       tauxHypotheque: (_hypotheses['taux_hypo'] ?? 2.0) / 100,
       tauxEntretien: 0.01,
       isMarried: _isMarried,
+      dataSources: _dataSources.isNotEmpty ? _dataSources : null,
     );
 
     setState(() => _result = result);
@@ -126,6 +172,19 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: 'patrimoine',
+                  ),
+                  if (_hasEstimatedValues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   Text(
                     'Trajectoires comparees',
                     style: GoogleFonts.montserrat(

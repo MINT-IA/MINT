@@ -3899,5 +3899,143 @@
   "confidencePromptFreshnessConfirm": "Confirme que cette valeur est toujours actuelle",
   "confidencePromptAccuracyPrefix": "Confirme\u00a0: ",
   "confidencePromptAccuracyEstimated": "Saisis ta valeur réelle",
-  "confidencePromptAccuracyCertificate": "Scanne ton certificat pour confirmer"
+  "confidencePromptAccuracyCertificate": "Scanne ton certificat pour confirmer",
+
+  "pulseTitle": "Pulse",
+  "pulseGreeting": "Bonjour {name}",
+  "@pulseGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "pulseGreetingCouple": "Bonjour {name1} et {name2}",
+  "@pulseGreetingCouple": {
+    "placeholders": {
+      "name1": {"type": "String"},
+      "name2": {"type": "String"}
+    }
+  },
+  "pulseWelcome": "Bienvenue sur MINT",
+  "pulseEmptyTitle": "Commence par remplir ton profil\u00a0!",
+  "pulseEmptySubtitle": "Quelques questions suffisent pour obtenir ta première estimation de visibilité financière.",
+  "pulseEmptyCtaStart": "Démarrer",
+  "pulseVisibilityTitle": "Visibilité financière",
+  "pulsePrioritiesTitle": "Tes priorités",
+  "pulsePrioritiesSubtitle": "Actions personnalisées selon ton profil",
+  "pulseComprendreTitle": "Comprendre",
+  "pulseComprendreSubtitle": "Explore tes simulateurs",
+  "pulseComprendreRenteCapital": "Rente ou capital\u00a0?",
+  "pulseComprendreRenteCapitalSub": "Compare les deux options de retrait",
+  "pulseComprendreRachatLpp": "Simuler un rachat LPP",
+  "pulseComprendreRachatLppSub": "Découvre l'impact fiscal d'un rachat",
+  "pulseComprendre3a": "Explorer mon 3a",
+  "pulseComprendre3aSub": "Découvre l'économie d'impôt annuelle",
+  "pulseComprendre_budget": "Mon budget mensuel",
+  "pulseComprendre_budgetSub": "Visualise tes revenus et dépenses",
+  "pulseComprendreAchat": "Acheter un bien\u00a0?",
+  "pulseComprendreAchatSub": "Estime ta capacité d'emprunt",
+  "pulseDisclaimer": "Outil éducatif. Ne constitue pas un conseil financier personnalisé. LSFin art.\u00a03",
+  "pulseKeyFigRetraite": "Retraite estimée",
+  "pulseKeyFigRetraitePct": "{pct}\u00a0% du revenu",
+  "@pulseKeyFigRetraitePct": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "pulseKeyFigBudgetLibre": "Budget libre",
+  "pulseKeyFigPatrimoine": "Patrimoine",
+  "pulseCoupleRetraite": "Retraite couple\u00a0: {montant}",
+  "@pulseCoupleRetraite": {
+    "placeholders": {
+      "montant": {"type": "String"}
+    }
+  },
+  "pulseCoupleAlertWeak": "Le profil de {name} est à {score}\u00a0% de visibilité",
+  "@pulseCoupleAlertWeak": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "score": {"type": "String"}
+    }
+  },
+  "pulseAxisLiquidite": "Liquidité",
+  "pulseAxisFiscalite": "Fiscalité",
+  "pulseAxisRetraite": "Retraite",
+  "pulseAxisSecurite": "Sécurité",
+  "pulseHintAddSalary": "Ajoute ton salaire pour commencer",
+  "pulseHintAddSavings": "Renseigne ton épargne et investissements",
+  "pulseHintLiquiditeComplete": "Tes données de liquidité sont complètes",
+  "pulseHintAddAgeCanton": "Indique ton âge et canton de résidence",
+  "pulseHintScanTax": "Scanne ta déclaration fiscale",
+  "pulseHintFiscaliteComplete": "Tes données fiscales sont complètes",
+  "pulseHintAddLpp": "Ajoute ton certificat LPP",
+  "pulseHintExtractAvs": "Commande ton extrait AVS",
+  "pulseHintAdd3a": "Renseigne tes comptes 3a",
+  "pulseHintRetraiteComplete": "Tes données retraite sont complètes",
+  "pulseHintAddFamily": "Indique ta situation familiale",
+  "pulseHintAddStatus": "Complète ton statut professionnel",
+  "pulseHintSecuriteComplete": "Tes données de sécurité sont complètes",
+  "pulseNarrativeExcellent": "Tu as une vision claire de ta situation. Continue à maintenir tes données à jour.",
+  "pulseNarrativeGood": "Bonne visibilité\u00a0! Affine ta {axis} pour aller plus loin.",
+  "@pulseNarrativeGood": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeModerate": "Tu commences à y voir plus clair. Concentre-toi sur ta {axis}.",
+  "@pulseNarrativeModerate": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeWeak": "Chaque information compte. Commence par {hint}.",
+  "@pulseNarrativeWeak": {
+    "placeholders": {
+      "hint": {"type": "String"}
+    }
+  },
+  "pulseNoCheckinMsg": "Aucun check-in ce mois. Enregistre tes versements pour suivre ta progression.",
+  "pulseCheckinBtn": "Check-in",
+  "pulseBriefingTitle": "Bilan du mois \u2014 {trend}",
+  "@pulseBriefingTitle": {
+    "placeholders": {
+      "trend": {"type": "String"}
+    }
+  },
+  "pulseFriLiquidite": "Liquidité",
+  "pulseFriFiscalite": "Optimisation fiscale",
+  "pulseFriRetraite": "Retraite",
+  "pulseFriRisque": "Risques structurels",
+  "pulseFriTitle": "Solidité financière",
+  "pulseFriWeakest": "Point le plus fragile\u00a0: {axis}",
+  "@pulseFriWeakest": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+
+  "lppBuybackAdvTitle": "Optimisation de rachat LPP",
+  "lppBuybackAdvSubtitle": "Effet levier fiscal + capitalisation",
+  "lppBuybackAdvPotential": "Potentiel de rachat",
+  "lppBuybackAdvYears": "Années jusqu'à la retraite",
+  "lppBuybackAdvStaggering": "Lissage (staggering)",
+  "lppBuybackAdvFundRate": "Taux de la caisse LPP",
+  "lppBuybackAdvIncome": "Revenu imposable",
+  "lppBuybackAdvFinalCapital": "Valeur finale capitalisée",
+  "lppBuybackAdvRealReturn": "Rendement réel\u00a0: {pct}\u00a0% / an",
+  "@lppBuybackAdvRealReturn": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "lppBuybackAdvTaxSaving": "Économie impôts",
+  "lppBuybackAdvNetEffort": "Effort net",
+  "lppBuybackAdvTotalGain": "Gain total de l'opération",
+  "lppBuybackAdvCapitalMinusEffort": "Capital - Effort net",
+  "lppBuybackAdvFundRateLabel": "Taux LPP servi",
+  "lppBuybackAdvLeverageEffect": "Effet levier fiscal",
+  "lppBuybackAdvBonASavoir": "Bon à savoir",
+  "lppBuybackAdvBon1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
+  "lppBuybackAdvBon2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art.\u00a033 al.\u00a01 let.\u00a0d).",
+  "lppBuybackAdvBon3": "Attention\u00a0: tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art.\u00a079b al.\u00a03).",
+  "lppBuybackAdvDisclaimer": "Simulation incluant l'intérêt de la caisse et l'économie d'impôt lissée. Le rendement réel est calculé sur ton effort net réel."
 }

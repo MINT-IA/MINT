@@ -135,7 +135,7 @@ class OptimisationDecaissementScreen extends StatelessWidget {
                 // ── CTA spécialiste ───────────────────────────
                 EduSpecialistCta(
                   icon: Icons.person_outline,
-                  color: const Color(0xFF00695C),
+                  color: MintColors.withdrawalOptim,
                   title: 'Consulter un·e spécialiste',
                   body: 'Un·e spécialiste en prévoyance peut modéliser ton plan de décaissement précis selon ta situation.',
                 ),
@@ -178,7 +178,7 @@ class _ChiffreChocCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF00695C), Color(0xFF004D40)],
+          colors: [MintColors.withdrawalOptim, MintColors.tealDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -367,7 +367,7 @@ class _WithdrawalTable extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: entry.key == 0
-                            ? const Color(0xFFD32F2F)
+                            ? MintColors.redMedium
                             : MintColors.primary,
                       ),
                       textAlign: TextAlign.right,

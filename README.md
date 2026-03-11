@@ -1,5 +1,7 @@
 # Mint — Money Intelligence for Next-gen & Transition
 
+**Repo**: <https://github.com/MINT-IA/MINT>
+
 Mint est un mentor financier suisse, mobile-first, qui aide à prendre de meilleures décisions d’épargne, de prévoyance et d’investissement.
 
 ## Cercle herméneutique (méthode)

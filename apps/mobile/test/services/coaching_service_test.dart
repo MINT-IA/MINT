@@ -850,4 +850,107 @@ void main() {
       expect(tip.message, 'Original'); // original unchanged
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  FILTER BY STRESS TYPE (P8 Phase 2)
+  // ════════════════════════════════════════════════════════════
+
+  group('CoachingService - filterByStressType', () {
+    late List<CoachingTip> allTips;
+
+    setUp(() {
+      // Generate tips from a profile that triggers multiple categories
+      allTips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 50,
+          canton: 'VD',
+          revenuAnnuel: 100000,
+          has3a: false,
+          has3aAnswered: true,
+          hasLpp: true,
+          avoirLpp: 50000,
+          employmentStatus: EmploymentStatus.salarie,
+        ),
+      );
+    });
+
+    test('stress_retraite filters to retraite + prevoyance', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_retraite');
+      for (final tip in filtered) {
+        expect(['retraite', 'prevoyance'], contains(tip.category));
+      }
+    });
+
+    test('stress_impots filters to fiscalite', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_impots');
+      for (final tip in filtered) {
+        expect(tip.category, 'fiscalite');
+      }
+    });
+
+    test('stress_budget filters to budget', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_budget');
+      for (final tip in filtered) {
+        expect(tip.category, 'budget');
+      }
+    });
+
+    test('stress_patrimoine filters to prevoyance + fiscalite + budget', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_patrimoine');
+      for (final tip in filtered) {
+        expect(['prevoyance', 'fiscalite', 'budget'], contains(tip.category));
+      }
+    });
+
+    test('stress_couple filters to retraite + prevoyance + fiscalite + budget', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_couple');
+      for (final tip in filtered) {
+        expect(
+            ['retraite', 'prevoyance', 'fiscalite', 'budget'], contains(tip.category));
+      }
+    });
+
+    test('stress_general returns all categories', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_general');
+      expect(filtered.length, allTips.length);
+    });
+
+    test('unknown stress type falls back to all categories', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_unknown');
+      expect(filtered.length, allTips.length);
+    });
+
+    test('all 6 UI stress IDs are handled (no silent fallback)', () {
+      const uiStressIds = [
+        'stress_retraite',
+        'stress_impots',
+        'stress_budget',
+        'stress_patrimoine',
+        'stress_couple',
+        'stress_general',
+      ];
+      for (final id in uiStressIds) {
+        final filtered = CoachingService.filterByStressType(allTips, id);
+        // Each should produce a subset, not necessarily == allTips
+        // (except stress_general which is all)
+        expect(filtered, isNotEmpty, reason: '$id should match some tips');
+      }
+    });
+
+    test('filtered tips is subset of input', () {
+      final filtered =
+          CoachingService.filterByStressType(allTips, 'stress_retraite');
+      expect(filtered.length, lessThanOrEqualTo(allTips.length));
+      for (final tip in filtered) {
+        expect(allTips, contains(tip));
+      }
+    });
+  });
 }

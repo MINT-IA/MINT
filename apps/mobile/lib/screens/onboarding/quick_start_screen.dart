@@ -67,7 +67,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       retirementAge: 65,
       grossAnnualSalary: _salary,
       caisseReturn: 0.01,
-      conversionRate: 0.068,
+      conversionRate: lppTauxConversionMinDecimal,
     );
     final lppMonthly = lppAnnual / 12;
     final total = avs + lppMonthly;

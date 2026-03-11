@@ -8,8 +8,6 @@ import 'package:mint_mobile/screens/pillar_3a_deep/provider_comparator_screen.da
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
-import '../test_helpers.dart';
-
 // =============================================================================
 // SMOKE TESTS — Pillar 3a Deep Module Screens (3 screens)
 // =============================================================================

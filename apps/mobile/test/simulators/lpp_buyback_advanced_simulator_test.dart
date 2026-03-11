@@ -249,7 +249,7 @@ void main() {
         annualInterestRate: 0.02,
         taxableIncome: 200000,
       );
-      // Max marginal rate is 42%, so savings < 42% of buyback
+      // Max marginal rate ~38% (via RetirementTaxCalculator), so savings < 45% of buyback
       expect(result.totalTaxSavings, lessThan(result.totalInvestedBrut * 0.45));
     });
   });
@@ -307,7 +307,7 @@ void main() {
       }
     });
 
-    test('very low income (below 15k) generates near-zero tax savings', () {
+    test('very low income (10k) generates minimal tax savings', () {
       final result = LppBuybackAdvancedSimulator.simulate(
         totalBuybackPotential: 50000,
         yearsUntilRetirement: 10,
@@ -315,20 +315,23 @@ void main() {
         annualInterestRate: 0.02,
         taxableIncome: 10000,
       );
-      // Rate at income < 15000 is 0%, so no tax saving
-      expect(result.totalTaxSavings, closeTo(0, 0.01));
+      // At 10k income, base rate = 0.22 via RetirementTaxCalculator
+      // 10k/year deduction × 22% × 5 years ≈ 11'000 — low but not zero
+      expect(result.totalTaxSavings, greaterThan(0));
+      expect(result.totalTaxSavings, lessThan(15000));
     });
   });
 
   group('LppBuybackAdvancedSimulator - scenario Julien', () {
     test('300k buyback over 5 years, 13 years horizon, 2% interest', () {
-      // Based on the demo profile: Julien, 300k buyback potential
+      // Based on the demo profile: Julien, 300k buyback potential, canton VS
       final result = LppBuybackAdvancedSimulator.simulate(
         totalBuybackPotential: 300000,
         yearsUntilRetirement: 13,
         staggeringYears: 5,
         annualInterestRate: 0.02,
         taxableIncome: 120000,
+        canton: 'VS',
       );
 
       // Buyback per year = 60k
@@ -337,7 +340,7 @@ void main() {
       // Final capital should be substantially above 300k due to compounding
       expect(result.finalCapital, greaterThan(300000));
 
-      // Tax savings should be meaningful (at 120k income, ~27% marginal rate)
+      // Tax savings should be meaningful (at 120k income, VS high-tax canton)
       expect(result.totalTaxSavings, greaterThan(50000));
 
       // Real annual return should be reasonable (> 2% due to tax boost)
@@ -345,6 +348,65 @@ void main() {
 
       // Net effort should be less than 300k
       expect(result.netEffort, lessThan(300000));
+    });
+  });
+
+  group('LppBuybackAdvancedSimulator - canton-aware tax (financial_core)', () {
+    test('high-tax canton (GE) produces higher tax savings than low-tax (ZG)', () {
+      final resultGE = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 10,
+        staggeringYears: 5,
+        annualInterestRate: 0.02,
+        taxableIncome: 120000,
+        canton: 'GE',
+      );
+      final resultZG = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 10,
+        staggeringYears: 5,
+        annualInterestRate: 0.02,
+        taxableIncome: 120000,
+        canton: 'ZG',
+      );
+      expect(resultGE.totalTaxSavings, greaterThan(resultZG.totalTaxSavings),
+          reason: 'GE (high-tax) should produce higher tax savings than ZG (low-tax)');
+    });
+
+    test('default canton is ZH (mid-range)', () {
+      final resultDefault = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 10,
+        staggeringYears: 5,
+        annualInterestRate: 0.02,
+        taxableIncome: 120000,
+      );
+      final resultZH = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 10,
+        staggeringYears: 5,
+        annualInterestRate: 0.02,
+        taxableIncome: 120000,
+        canton: 'ZH',
+      );
+      expect(resultDefault.totalTaxSavings,
+          closeTo(resultZH.totalTaxSavings, 0.01));
+    });
+
+    test('uses RetirementTaxCalculator.estimateMarginalRate for VS at 120k', () {
+      // VS is a high-tax canton. At 120k, base rate = 0.28, VS multiplier = 1.1
+      // So marginal rate ~ 0.308. For a 20k deduction, saving ~ 20000 * 0.308 = ~6160
+      final result = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 10,
+        staggeringYears: 5,
+        annualInterestRate: 0.02,
+        taxableIncome: 120000,
+        canton: 'VS',
+      );
+      // Each year: 20k deduction at ~30.8% → ~6160 saving per year × 5 years ≈ 30800
+      expect(result.totalTaxSavings, greaterThan(25000));
+      expect(result.totalTaxSavings, lessThan(40000));
     });
   });
 }

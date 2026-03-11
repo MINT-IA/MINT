@@ -17,6 +17,8 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
+import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -36,6 +38,7 @@ import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
 import 'package:mint_mobile/widgets/coach/horizon_line_widget.dart';
 import 'package:mint_mobile/widgets/coach/financial_weather_widget.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
 import 'package:mint_mobile/widgets/coach/progressive_dashboard_widget.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -75,6 +78,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
   Map<String, BlockScore> _confidenceBlocs = const {};
+  FriBreakdown? _friBreakdown;
 
   // ── Coach narrative state (P3) ──────────────────────────
   CoachNarrative? _narrative;
@@ -112,6 +116,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _confidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
+      _friBreakdown = null;
       _scoreHistorySignature = null;
       // Invalidate any in-flight narrative generation to prevent
       // stale personal content from overwriting null after profile loss.
@@ -144,6 +149,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
       _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
+
+      // ── P5: FRI radar breakdown (State A only) ─────────
+      try {
+        _friBreakdown = FriComputationService.compute(
+          profile: _profile!,
+          projection: _projection!,
+          confidenceScore: _confidenceScore,
+        );
+      } catch (_) {
+        _friBreakdown = null;
+      }
 
       // ── P3: Compute tips once, share across curation + narrative ──
       final tips = _buildCoachingTips(_profile!);
@@ -460,6 +476,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   immobilier: profile.patrimoine.immobilier ?? 0,
                 ),
                 const SizedBox(height: 16),
+
+                // ── P5: FRI Radar Chart (State A, >= 70% confiance) ──
+                if (_friBreakdown != null) ...[
+                  FriRadarChart(
+                    liquidity: _friBreakdown!.liquidite,
+                    fiscal: _friBreakdown!.fiscalite,
+                    retirement: _friBreakdown!.retraite,
+                    structural: _friBreakdown!.risque,
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // ── Trajectory Chart (3-scenario fan chart) ──
                 MintTrajectoryChart(
@@ -980,102 +1007,6 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   // ────────────────────────────────────────────────────────────
-  //  EDUCATIONAL SECTION (STATE C)
-  // ────────────────────────────────────────────────────────────
-
-  Widget _buildEducationalSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.of(context)!.dashboardEduTitle,
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildEducationalPoint(
-            icon: Icons.shield_outlined,
-            color: MintColors.retirementAvs,
-            title: S.of(context)!.dashboardEduAvs,
-            text: S.of(context)!.dashboardEduAvsDesc,
-          ),
-          const SizedBox(height: 8),
-          _buildEducationalPoint(
-            icon: Icons.account_balance_outlined,
-            color: MintColors.retirementLpp,
-            title: S.of(context)!.dashboardEduLpp,
-            text: S.of(context)!.dashboardEduLppDesc,
-          ),
-          const SizedBox(height: 8),
-          _buildEducationalPoint(
-            icon: Icons.savings_outlined,
-            color: MintColors.retirement3a,
-            title: S.of(context)!.dashboardEdu3a,
-            text: S.of(context)!.dashboardEdu3aDesc,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEducationalPoint({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String text,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 16, color: color),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                text,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ────────────────────────────────────────────────────────────
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
@@ -1317,7 +1248,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandYoungSubtitle,
           cta: S.of(context)!.dashboardAgeBandYoungCta,
           route: '/simulator/3a',
-          color: const Color(0xFF2E7D5E),
+          color: MintColors.greenForestMid,
         );
       case AgeBand.stabilization:
         return _AgeBandCard(
@@ -1326,7 +1257,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandStabSubtitle,
           cta: S.of(context)!.dashboardAgeBandStabCta,
           route: '/simulator/3a',
-          color: const Color(0xFF1565C0),
+          color: MintColors.blueDark,
         );
       case AgeBand.peakEarnings:
         return _AgeBandCard(
@@ -1335,7 +1266,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandPeakSubtitle,
           cta: S.of(context)!.dashboardAgeBandPeakCta,
           route: '/lpp-deep/rachat',
-          color: const Color(0xFF6A1B9A),
+          color: MintColors.purpleDark,
         );
       case AgeBand.preRetirement:
         return _AgeBandCard(
@@ -1344,7 +1275,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandPreRetSubtitle,
           cta: S.of(context)!.dashboardAgeBandPreRetCta,
           route: '/arbitrage/rente-vs-capital',
-          color: const Color(0xFFE65100),
+          color: MintColors.urgentOrange,
         );
       case AgeBand.retirement:
         return Column(
@@ -1355,7 +1286,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               subtitle: S.of(context)!.dashboardAgeBandRetWithdrawSubtitle,
               cta: S.of(context)!.dashboardAgeBandRetWithdrawCta,
               route: '/coach/decaissement',
-              color: const Color(0xFF00695C),
+              color: MintColors.withdrawalOptim,
             ),
             const SizedBox(height: 12),
             _AgeBandCard(
@@ -1364,7 +1295,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               subtitle: S.of(context)!.dashboardAgeBandRetSuccessionSubtitle,
               cta: S.of(context)!.dashboardAgeBandRetSuccessionCta,
               route: '/coach/succession',
-              color: const Color(0xFF37474F),
+              color: MintColors.successionDark,
             ),
           ],
         );

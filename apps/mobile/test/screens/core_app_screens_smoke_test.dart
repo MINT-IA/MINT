@@ -455,8 +455,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Tab labels appear in the bottom nav (Sprint C10: 4-tab coach layout)
-      expect(find.text('Dashboard'), findsOneWidget);
+      // Tab labels appear in the bottom nav (S48: 4-tab coach layout)
+      expect(find.text('Pulse'), findsOneWidget);
       expect(find.text('Agir'), findsOneWidget);
       expect(find.text('Apprendre'), findsOneWidget);
       expect(find.text('Profil'), findsOneWidget);
@@ -466,8 +466,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // Active tab shows filled icon (Dashboard = home), others show outlined
-      expect(find.byIcon(Icons.home), findsOneWidget); // Active (Dashboard)
+      // Active tab shows filled icon (Pulse = show_chart), others show outlined
+      expect(find.byIcon(Icons.show_chart), findsOneWidget); // Active (Pulse)
       expect(find.byIcon(Icons.flash_on_outlined), findsOneWidget);
       expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
       expect(find.byIcon(Icons.person_outline), findsOneWidget);

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 
@@ -242,7 +243,7 @@ class ConfidenceScorer {
       total += _wTauxConversion; // Not applicable
     } else {
       final tauxConv = profile.prevoyance.tauxConversion;
-      if (tauxConv != 0.068) {
+      if (tauxConv != lppTauxConversionMinDecimal) {
         total += _wTauxConversion;
       } else {
         total += 1;
@@ -352,7 +353,7 @@ class ConfidenceScorer {
         total -= 5; // AVS extrait missing: extra -5
       }
       if (!isIndepSansLpp &&
-          profile.prevoyance.tauxConversion == 0.068) {
+          profile.prevoyance.tauxConversion == lppTauxConversionMinDecimal) {
         total -= 3; // Default taux: extra -3
       }
 
@@ -509,7 +510,7 @@ class ConfidenceScorer {
     if (isIndepSansLpp) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
-    } else if (profile.prevoyance.tauxConversion != 0.068) {
+    } else if (profile.prevoyance.tauxConversion != lppTauxConversionMinDecimal) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
     } else {
@@ -610,7 +611,7 @@ class ConfidenceScorer {
         );
       }
       if (!isIndepSansLpp &&
-          profile.prevoyance.tauxConversion == 0.068) {
+          profile.prevoyance.tauxConversion == lppTauxConversionMinDecimal) {
         final taux = blocs['taux_conversion']!;
         blocs['taux_conversion'] = BlockScore(
           score: (taux.score - 3).clamp(0, taux.maxScore),
@@ -621,6 +622,15 @@ class ConfidenceScorer {
     }
 
     return blocs;
+  }
+
+  /// Combined call: returns both bloc scores AND projection confidence
+  /// in a single profile traversal (avoids double scoring).
+  static ({Map<String, BlockScore> blocs, ProjectionConfidence confidence}) scoreWithBlocs(CoachProfile profile) {
+    return (
+      blocs: scoreAsBlocs(profile),
+      confidence: score(profile),
+    );
   }
 
   /// Check if profile has enough data to determine archetype.

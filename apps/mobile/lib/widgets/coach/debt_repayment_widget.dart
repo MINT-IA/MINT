@@ -166,7 +166,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFFFEBEE),
+        color: MintColors.urgentBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(

@@ -8,10 +8,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ── Disclaimer palette (amber/brown — intentionally distinct from MintColors) ──
-const _kDisclaimerBg = Color(0xFFFFF8E1);
-const _kDisclaimerBorder = Color(0xFFFFE082);
-const _kDisclaimerIcon = Color(0xFFF57F17);
-const _kDisclaimerText = Color(0xFF5D4037);
+const _kDisclaimerBg = MintColors.disclaimerBg;
+const _kDisclaimerBorder = MintColors.yellowGold;
+const _kDisclaimerIcon = MintColors.warningText;
+const _kDisclaimerText = MintColors.brownWarm;
 
 /// Section title — Montserrat 15 bold.
 class EduSectionTitle extends StatelessWidget {

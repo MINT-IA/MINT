@@ -366,17 +366,17 @@ class _ForfaitBarPainter extends CustomPainter {
 
   // Segment colors for stacked bars
   static const _ordinaryColors = [
-    Color(0xFFFF6B6B), // federal — coral red
-    Color(0xFFEE5A24), // cantonal — darker orange-red
-    Color(0xFFFF9F43), // communal — warm orange
-    Color(0xFFFFBE76), // other — light orange
+    MintColors.coralLight, // federal — coral red
+    MintColors.orangeNeon, // cantonal — darker orange-red
+    MintColors.orangeRetroWarm, // communal — warm orange
+    MintColors.orangeSpice, // other — light orange
   ];
 
   static const _forfaitColors = [
-    Color(0xFF2ECC71), // federal — green
-    Color(0xFF27AE60), // cantonal — darker green
-    Color(0xFF55E6C1), // communal — teal-green
-    Color(0xFF7BED9F), // other — light green
+    MintColors.greenNeon, // federal — green
+    MintColors.greenClassic, // cantonal — darker green
+    MintColors.mintLight, // communal — teal-green
+    MintColors.greenBright, // other — light green
   ];
 
   _ForfaitBarPainter({

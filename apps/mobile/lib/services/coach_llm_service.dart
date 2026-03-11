@@ -1,4 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -108,6 +109,10 @@ class ChatMessage {
   final List<String> disclaimers;
   final ChatTier tier;
 
+  /// Response cards contextuelles (Phase 1).
+  /// Affichees en strip horizontale scrollable dans le chat.
+  final List<ResponseCard> responseCards;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -116,6 +121,7 @@ class ChatMessage {
     this.sources = const [],
     this.disclaimers = const [],
     this.tier = ChatTier.none,
+    this.responseCards = const [],
   });
 
   bool get isUser => role == 'user';
@@ -530,120 +536,6 @@ class CoachLlmService {
     }
 
     return buffer.toString();
-  }
-
-  /// Reponses mock basees sur des mots-cles
-  static _MockResult _getMockResponse({
-    required String userMessage,
-    required CoachProfile profile,
-  }) {
-    final lower = userMessage.toLowerCase();
-
-    // Calculer la projection pour enrichir les reponses
-    String tauxRemplacement = '—';
-    try {
-      final projection = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
-    } catch (_) {
-      // Incomplete profile or missing targetDate — degrade gracefully.
-    }
-
-    if (lower.contains('3a')) {
-      return _MockResult(
-        message:
-            'Ton plafond 3a est de 7\'258 CHF/an (OPP3 art. 7). Tu as encore de la marge pour optimiser. Pense a verser avant fin decembre !',
-        suggestedActions: [
-          'Simuler un versement 3a',
-          'Voir mes comptes 3a',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Pilier 3a', file: 'opp3', section: 'OPP3 art. 7'),
-        ],
-      );
-    }
-
-    if (lower.contains('lpp') || lower.contains('rachat')) {
-      return _MockResult(
-        message:
-            'Avec ta lacune LPP actuelle, un rachat pourrait te faire economiser sur tes impots (LPP art. 79b). Simule l\'impact avec le simulateur rachat LPP.',
-        suggestedActions: [
-          'Simuler un rachat LPP',
-          'Comprendre le rachat LPP',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Prevoyance professionnelle',
-              file: 'lpp',
-              section: 'LPP art. 79b'),
-        ],
-      );
-    }
-
-    if (lower.contains('retraite')) {
-      return _MockResult(
-        message:
-            'D\'apres ta trajectoire actuelle, ton taux de remplacement estime est de $tauxRemplacement%. La cible generalement recommandee est entre 60% et 80% (LAVS art. 21).',
-        suggestedActions: [
-          'Voir ma trajectoire',
-          'Explorer les scenarios',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Prevoyance vieillesse',
-              file: 'lavs_lpp',
-              section: 'LAVS art. 21 / LPP art. 13'),
-        ],
-      );
-    }
-
-    if (lower.contains('impot') || lower.contains('fiscal')) {
-      return _MockResult(
-        message:
-            'La declaration d\'impots dans le canton ${profile.canton} — n\'oublie pas de deduire tes versements 3a et tes rachats LPP (LIFD art. 33) !',
-        suggestedActions: [
-          'Deductions fiscales possibles',
-          'Simuler l\'impact fiscal',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Fiscalite',
-              file: 'lifd',
-              section: 'LIFD art. 33 / LHID'),
-        ],
-      );
-    }
-
-    if (lower.contains('lauren') || lower.contains('conjoint')) {
-      return _MockResult(
-        message:
-            'Lauren a un profil particulier en tant que citoyenne americaine (FATCA). Certains produits 3a ne sont pas accessibles. Consulte un·e specialiste pour evaluer les alternatives.',
-        suggestedActions: [
-          'En savoir plus sur FATCA',
-          'Trouver un·e specialiste',
-        ],
-        sources: const [
-          RagSource(
-              title: 'FATCA',
-              file: 'fatca',
-              section: 'Foreign Account Tax Compliance Act'),
-        ],
-      );
-    }
-
-    // Reponse par defaut
-    return _MockResult(
-      message:
-          'Je suis la pour t\'aider a comprendre ta situation financiere. Tu peux me poser des questions sur ton 3a, ta LPP, tes impots, ou ta trajectoire retraite.',
-      suggestedActions: [
-        'Mon score Fitness',
-        'Ma trajectoire retraite',
-        'Mes deductions fiscales',
-      ],
-    );
   }
 
   /// Build a [CoachContext] from profile data for compliance validation.

@@ -12,15 +12,15 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 const _phaseColors = {
   'revenu': MintColors.success,
   'phase1': MintColors.success,
-  'phase2': Color(0xFFF59E0B), // amber
+  'phase2': MintColors.amber, // amber
   'phase3': MintColors.error,
 };
 
 /// Risk level colors
 const _riskColors = {
   'critical': MintColors.error,
-  'high': Color(0xFFEA580C), // orange
-  'medium': Color(0xFFF59E0B), // amber
+  'high': MintColors.deepOrange, // orange
+  'medium': MintColors.amber, // amber
   'low': MintColors.success,
 };
 
@@ -62,7 +62,7 @@ class _SimulatorDisabilityGapScreenState
         final annualGross = _revenuMensuel * 12 / 0.78; // rough net→gross
         if (annualGross >= lppSeuilEntree) {
           final coordinated = (annualGross - lppDeductionCoordination)
-              .clamp(lppSalaireCoordMin.toDouble(), 64260.0);
+              .clamp(lppSalaireCoordMin.toDouble(), lppSalaireCoordMax);
           // ~40% of coordinated salary as disability rente (LPP art. 24)
           estimatedLppDisability = coordinated * 0.40 / 12;
         }
@@ -752,7 +752,7 @@ class _SimulatorDisabilityGapScreenState
             icon: Icons.health_and_safety,
             title: S.of(context)!.disabilityGapActionCheckHr,
             subtitle: S.of(context)!.disabilityGapActionCheckHrSub,
-            color: const Color(0xFFEA580C),
+            color: MintColors.deepOrange,
           ),
         ] else if (_statut == EmploymentStatusType.employee && _hasIjm) ...[
           _buildActionCard(

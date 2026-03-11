@@ -750,30 +750,38 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Tag data sources as certificate-confirmed
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-    if (avoirTotal != null)
+    if (avoirTotal != null) {
       updatedSources['prevoyance.avoirLppTotal'] =
           ProfileDataSource.certificate;
-    if (avoirOblig != null)
+    }
+    if (avoirOblig != null) {
       updatedSources['prevoyance.avoirLppObligatoire'] =
           ProfileDataSource.certificate;
-    if (avoirSuroblig != null)
+    }
+    if (avoirSuroblig != null) {
       updatedSources['prevoyance.avoirLppSurobligatoire'] =
           ProfileDataSource.certificate;
-    if (tauxConvOblig != null)
+    }
+    if (tauxConvOblig != null) {
       updatedSources['prevoyance.tauxConversion'] =
           ProfileDataSource.certificate;
-    if (tauxConvSuroblig != null)
+    }
+    if (tauxConvSuroblig != null) {
       updatedSources['prevoyance.tauxConversionSuroblig'] =
           ProfileDataSource.certificate;
-    if (lacuneRachat != null)
+    }
+    if (lacuneRachat != null) {
       updatedSources['prevoyance.rachatMaximum'] =
           ProfileDataSource.certificate;
-    if (salaireAssure != null)
+    }
+    if (salaireAssure != null) {
       updatedSources['prevoyance.salaireAssure'] =
           ProfileDataSource.certificate;
-    if (rendementCaisseVal != null)
+    }
+    if (rendementCaisseVal != null) {
       updatedSources['prevoyance.rendementCaisse'] =
           ProfileDataSource.certificate;
+    }
 
     // S47: Stamp timestamps for all fields touched by this extraction
     final touchedFields = <String>[];
@@ -798,12 +806,15 @@ class CoachProfileProvider extends ChangeNotifier {
     final answers = await ReportPersistenceService.loadAnswers();
     if (avoirTotal != null) answers['_coach_avoir_lpp'] = avoirTotal;
     if (avoirOblig != null) answers['_coach_avoir_lpp_oblig'] = avoirOblig;
-    if (avoirSuroblig != null)
+    if (avoirSuroblig != null) {
       answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
-    if (tauxConvOblig != null)
+    }
+    if (tauxConvOblig != null) {
       answers['_coach_taux_conversion'] = tauxConvOblig;
-    if (tauxConvSuroblig != null)
+    }
+    if (tauxConvSuroblig != null) {
       answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
+    }
     if (lacuneRachat != null) answers['_coach_rachat_maximum'] = lacuneRachat;
     if (salaireAssure != null) answers['_coach_salaire_assure'] = salaireAssure;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
@@ -879,16 +890,20 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Tag data sources as certificate-confirmed
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-    if (anneesContrib != null)
+    if (anneesContrib != null) {
       updatedSources['prevoyance.anneesContribuees'] =
           ProfileDataSource.certificate;
-    if (lacunesCotisation != null)
+    }
+    if (lacunesCotisation != null) {
       updatedSources['prevoyance.lacunesAVS'] = ProfileDataSource.certificate;
-    if (renteEstimee != null)
+    }
+    if (renteEstimee != null) {
       updatedSources['prevoyance.renteAVSEstimeeMensuelle'] =
           ProfileDataSource.certificate;
-    if (ramd != null)
+    }
+    if (ramd != null) {
       updatedSources['prevoyance.ramd'] = ProfileDataSource.certificate;
+    }
 
     // S47: Stamp timestamps for all fields touched by this extraction
     final touchedFields = <String>[];
@@ -907,12 +922,15 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Persist to wizard answers
     final answers = await ReportPersistenceService.loadAnswers();
-    if (anneesContrib != null)
+    if (anneesContrib != null) {
       answers['q_avs_contribution_years'] = anneesContrib;
-    if (lacunesCotisation != null)
+    }
+    if (lacunesCotisation != null) {
       answers['_coach_avs_lacunes'] = lacunesCotisation;
-    if (renteEstimee != null)
+    }
+    if (renteEstimee != null) {
       answers['_coach_avs_rente_estimee'] = renteEstimee;
+    }
     if (ramd != null) answers['_coach_avs_ramd'] = ramd;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
     if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
@@ -1050,6 +1068,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? creditConsommation,
     double? leasing,
     double? autresDettes,
+    double? rendementCaisse,
   }) async {
     if (_profile == null) return;
     final p = _profile!;
@@ -1057,7 +1076,10 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
 
     PrevoyanceProfile? updatedPrev;
-    if (avoirLppTotal != null || totalEpargne3a != null || nombre3a != null) {
+    if (avoirLppTotal != null ||
+        totalEpargne3a != null ||
+        nombre3a != null ||
+        rendementCaisse != null) {
       updatedPrev = PrevoyanceProfile(
         anneesContribuees: p.prevoyance.anneesContribuees,
         lacunesAVS: p.prevoyance.lacunesAVS,
@@ -1070,7 +1092,7 @@ class CoachProfileProvider extends ChangeNotifier {
         rachatEffectue: p.prevoyance.rachatEffectue,
         tauxConversion: p.prevoyance.tauxConversion,
         tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
-        rendementCaisse: p.prevoyance.rendementCaisse,
+        rendementCaisse: rendementCaisse ?? p.prevoyance.rendementCaisse,
         salaireAssure: p.prevoyance.salaireAssure,
         ramd: p.prevoyance.ramd,
         nombre3a: nombre3a ?? p.prevoyance.nombre3a,
@@ -1085,6 +1107,10 @@ class CoachProfileProvider extends ChangeNotifier {
       }
       if (totalEpargne3a != null) {
         updatedSources['prevoyance.totalEpargne3a'] =
+            ProfileDataSource.userInput;
+      }
+      if (rendementCaisse != null) {
+        updatedSources['prevoyance.rendementCaisse'] =
             ProfileDataSource.userInput;
       }
     }
@@ -1182,6 +1208,7 @@ class CoachProfileProvider extends ChangeNotifier {
       if (salaireBrutMensuel != null) 'salaireBrutMensuel',
       if (avoirLppTotal != null) 'prevoyance.avoirLppTotal',
       if (totalEpargne3a != null) 'prevoyance.totalEpargne3a',
+      if (rendementCaisse != null) 'prevoyance.rendementCaisse',
       if (rachatLppMensuel != null) 'prevoyance.rachatLppMensuel',
       if (epargneLiquide != null) 'patrimoine.epargneLiquide',
       if (investissements != null) 'patrimoine.investissements',
@@ -1250,6 +1277,9 @@ class CoachProfileProvider extends ChangeNotifier {
         answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
       }
       if (avoirLppTotal != null) answers['_coach_avoir_lpp'] = avoirLppTotal;
+      if (rendementCaisse != null) {
+        answers['_coach_rendement_caisse'] = rendementCaisse;
+      }
       if (totalEpargne3a != null) answers['_coach_total_3a'] = totalEpargne3a;
       if (rachatLppMensuel != null) {
         answers['_coach_rachat_lpp_mensuel'] = rachatLppMensuel;

@@ -49,6 +49,18 @@ void main() {
     );
   }
 
+  /// Sets the test viewport to a phone-sized surface (1080x1920 at 1x)
+  /// to avoid RenderFlex overflow from ResponseCardStrip in the
+  /// default 800x600 test viewport.
+  void usePhoneViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  }
+
   group('CoachChatScreen', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestWidget());
@@ -57,12 +69,14 @@ void main() {
     });
 
     testWidgets('shows Coach MINT title', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text('Coach MINT'), findsOneWidget);
     });
 
     testWidgets('shows tier subtitle in app bar', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // Without SLM or BYOK, the fallback tier shows "Mode hors-ligne"
@@ -70,6 +84,7 @@ void main() {
     });
 
     testWidgets('shows disclaimer text', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(
@@ -79,18 +94,21 @@ void main() {
     });
 
     testWidgets('shows initial greeting with name', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.textContaining('Salut Julien'), findsOneWidget);
     });
 
     testWidgets('shows initial greeting with coach identity', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.textContaining('coach MINT'), findsOneWidget);
     });
 
     testWidgets('shows input field with placeholder', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
@@ -98,12 +116,14 @@ void main() {
     });
 
     testWidgets('shows send button', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byIcon(Icons.send), findsOneWidget);
     });
 
     testWidgets('shows settings icon in app bar', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // Settings gear icon is always shown for IA configuration
@@ -111,12 +131,14 @@ void main() {
     });
 
     testWidgets('shows back button', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     });
 
     testWidgets('shows suggested action chips', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // The initial greeting should have suggested actions
@@ -124,6 +146,7 @@ void main() {
     });
 
     testWidgets('can type in input field', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -132,6 +155,7 @@ void main() {
     });
 
     testWidgets('sends message when pressing send button', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -148,6 +172,7 @@ void main() {
     });
 
     testWidgets('shows coach response after sending message', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -164,6 +189,7 @@ void main() {
     });
 
     testWidgets('shows coach avatar icon', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       // Coach avatar uses the psychology icon
@@ -171,12 +197,14 @@ void main() {
     });
 
     testWidgets('disclaimer mentions LSFin', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.textContaining('LSFin'), findsOneWidget);
     });
 
     testWidgets('shows fallback response with exploration options', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -191,6 +219,7 @@ void main() {
     });
 
     testWidgets('shows fallback response with educational content', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -207,6 +236,12 @@ void main() {
 
   group('CoachChatScreen — settings access', () {
     testWidgets('settings icon navigates to BYOK config', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -215,6 +250,12 @@ void main() {
     });
 
     testWidgets('wifi_off icon shown for fallback tier', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -223,6 +264,12 @@ void main() {
     });
 
     testWidgets('no BYOK CTA card in chat area', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -235,6 +282,12 @@ void main() {
   group('CoachChatScreen — export', () {
     testWidgets('export button not shown initially (no user messages)',
         (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -244,6 +297,12 @@ void main() {
 
     testWidgets('export button appears after sending a message',
         (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
 

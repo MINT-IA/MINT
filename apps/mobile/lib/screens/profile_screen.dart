@@ -258,7 +258,7 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF1D1D1F), Color(0xFF2C2C2E)],
+            colors: [MintColors.primary, MintColors.darkSurface],
           ),
           borderRadius: BorderRadius.circular(16),
         ),

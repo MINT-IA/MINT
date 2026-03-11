@@ -264,6 +264,33 @@ class RetirementTaxCalculator {
     return baseRate;
   }
 
+  /// Estimate tax saving from a deduction using numerical integration
+  /// over canton-aware marginal rates.
+  ///
+  /// Slices the deduction into 10 steps and sums marginal tax saved at each
+  /// income level. Used by buyback simulators to estimate fiscal benefit.
+  static double estimateTaxSaving({
+    required double income,
+    required double deduction,
+    required String canton,
+    int steps = 10,
+  }) {
+    if (deduction <= 0) return 0.0;
+
+    final double stepSize = deduction / steps;
+    double currentIncome = income;
+    double totallySaved = 0.0;
+
+    for (int i = 0; i < steps; i++) {
+      final double midPoint = currentIncome - (stepSize / 2);
+      final double rate = estimateMarginalRate(midPoint, canton);
+      totallySaved += stepSize * rate;
+      currentIncome -= stepSize;
+    }
+
+    return totallySaved;
+  }
+
   /// Estimate retirement income tax (annual → monthly).
   ///
   /// CRITICAL: revenuAnnuelImposable must EXCLUDE capital SWR withdrawals.

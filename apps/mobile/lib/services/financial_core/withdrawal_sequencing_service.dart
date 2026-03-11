@@ -1,3 +1,4 @@
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -280,7 +281,7 @@ class WithdrawalSequencingService {
         final effectiveConversion = LppCalculator.adjustedConversionRate(
           baseRate: profile.prevoyance.tauxConversion > 0
               ? profile.prevoyance.tauxConversion
-              : 0.068,
+              : lppTauxConversionMinDecimal,
           retirementAge: retirementAge,
         );
         final projectedBalance = projectedLppRente / effectiveConversion;

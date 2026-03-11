@@ -361,7 +361,7 @@ class _TrajectoryPainter extends CustomPainter {
   void _drawGrid(Canvas canvas, Size size, double left, double right,
       double top, double bottom, double yMin, double yMax) {
     final gridPaint = Paint()
-      ..color = const Color(0xFFE5E5E7)
+      ..color = MintColors.lightBorder
       ..strokeWidth = 0.5;
 
     const gridLines = 5;
@@ -377,7 +377,7 @@ class _TrajectoryPainter extends CustomPainter {
           text: label,
           style: const TextStyle(
             fontSize: 10,
-            color: Color(0xFF86868B),
+            color: MintColors.textMuted,
             fontFamily: 'Inter',
           ),
         ),
@@ -400,7 +400,7 @@ class _TrajectoryPainter extends CustomPainter {
           text: '$year',
           style: const TextStyle(
             fontSize: 10,
-            color: Color(0xFF86868B),
+            color: MintColors.textMuted,
             fontFamily: 'Inter',
           ),
         ),

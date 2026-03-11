@@ -122,7 +122,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFFFF3E0),
+        color: MintColors.warningBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(

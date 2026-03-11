@@ -63,7 +63,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     double lppInvalidity = 0.0;
     if (annualGross >= lppSeuilEntree) {
       final coordinated = (annualGross - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, 64260.0);
+          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
       lppInvalidity = coordinated * 0.40 / 12;
     }
     final act3Income = aiRenteEntiere + lppInvalidity;
@@ -76,7 +76,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         monthlyIncome: act1Income,
         emoji: '🟢',
         color: MintColors.success,
-        detail: '80% de ton salaire garanti par ton employeur',
+        detail: '80\u00a0% de ton salaire versé par ton employeur',
       ),
       DisabilityAct(
         label: _hasIjm ? 'ACTE 2 · IJM (assurance maladie)' : 'ACTE 2 · Pas d\'IJM',
@@ -86,7 +86,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         durationLabel: 'Jusqu\'à 24 mois',
         monthlyIncome: act2Income,
         emoji: _hasIjm ? '🟡' : '🔴',
-        color: _hasIjm ? const Color(0xFFF59E0B) : MintColors.error,
+        color: _hasIjm ? MintColors.amber : MintColors.error,
         detail: _hasIjm
             ? '80% du salaire assuré'
             : 'Aucune couverture — délai AI en cours',
@@ -110,7 +110,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final annualGross = _grossMonthly * 12;
     if (annualGross < lppSeuilEntree) return 0;
     final coordinated = (annualGross - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin, 64260.0);
+        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
     final rate = getLppBonificationRate(_age);
     final annualContrib = coordinated * rate;
     // Simplified: flat contributions, 1% employer return
@@ -123,7 +123,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final yearsToRetirement = (65 - _age).clamp(0, 40);
     if (reducedGross < lppSeuilEntree) return 0;
     final coordinated = (reducedGross - lppDeductionCoordination)
-        .clamp(0.0, 64260.0);
+        .clamp(0.0, lppSalaireCoordMax);
     if (coordinated <= 0) return 0;
     final rate = getLppBonificationRate(_age);
     final annualContrib = coordinated * rate;
@@ -133,7 +133,6 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   // ── Calcul Bulletin scolaire ─────────────────────────────
 
   List<CoverageItem> get _scorecardItems {
-    final act3Income = _acts.last.monthlyIncome;
     // APG/IJM grade
     final ijmGrade = _hasIjm ? 'B+' : 'F';
     final ijmDetail = _hasIjm
@@ -301,7 +300,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFCC3333), Color(0xFF991111)],
+              colors: [MintColors.redWine, MintColors.darkRed],
             ),
           ),
           child: SafeArea(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +19,8 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/widgets/coach/streak_badge.dart';
+import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
+import 'package:mint_mobile/services/micro_action_engine.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH AGIR SCREEN — Sprint C7 / MINT Coach
@@ -402,7 +405,30 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
                     monthLabel: currentMonthLabel,
                   ),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 24),
+
+                // ── Section: Micro-actions (Coach Vivant) ────
+                Builder(builder: (context) {
+                  final currentMonthCheckIn = hasCurrentCheckIn
+                      ? profile.checkIns.cast<MonthlyCheckIn?>().firstWhere(
+                            (ci) =>
+                                ci!.month.year == now.year &&
+                                ci.month.month == now.month,
+                            orElse: () => null,
+                          )
+                      : null;
+                  final actions = MicroActionEngine.suggest(
+                    profile: profile,
+                    currentCheckIn: currentMonthCheckIn,
+                  );
+                  if (actions.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: MicroActionSection(actions: actions),
+                  );
+                }),
+
+                const SizedBox(height: 12),
 
                 // ── Section: Timeline ────────────────────────
                 _buildSectionHeader(
@@ -462,10 +488,10 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     CoachNarrativeMode narrativeMode,
   ) {
     final groupMeta = <String, ({String label, Color color})>{
-      'immediate': (label: S.of(context)!.agirPriorityImmediate, color: const Color(0xFFFF453A)),
-      'trimestre': (label: S.of(context)!.agirPriorityTrimestre, color: const Color(0xFFFF9F0A)),
-      'annee': (label: S.of(context)!.agirPriorityAnnee, color: const Color(0xFF007AFF)),
-      'long_terme': (label: S.of(context)!.agirPriorityLongTerme, color: const Color(0xFF24B14D)),
+      'immediate': (label: S.of(context)!.agirPriorityImmediate, color: MintColors.error),
+      'trimestre': (label: S.of(context)!.agirPriorityTrimestre, color: MintColors.warning),
+      'annee': (label: S.of(context)!.agirPriorityAnnee, color: MintColors.info),
+      'long_terme': (label: S.of(context)!.agirPriorityLongTerme, color: MintColors.success),
     };
 
     final widgets = <Widget>[];
@@ -876,7 +902,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
         title: S.of(context)!.agirProgressTitle,
         subtitle: S.of(context)!.agirProgressSubtitle(currentYear.toString()),
         icon: Icons.bar_chart,
-        color: const Color(0xFF6366F1),
+        color: MintColors.pillarLpp,
       ),
       const SizedBox(height: 16),
     ];
@@ -884,8 +910,8 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
     for (final contribution in profile.plannedContributions) {
       final annualTarget = contribution.amount * 12;
       // Special case for 3a: cap at pillar 3a ceiling
-      final target = contribution.category == '3a' && annualTarget > 7258
-          ? 7258.0
+      final target = contribution.category == '3a' && annualTarget > pilier3aPlafondAvecLpp
+          ? pilier3aPlafondAvecLpp
           : annualTarget;
 
       // Sum actual from matching check-in keys
@@ -1044,7 +1070,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           'Vérifie que ton plafond est atteint avant fin décembre.',
       icon: Icons.savings,
       color:
-          isImminent(dec31) ? const Color(0xFFF59E0B) : const Color(0xFF4F46E5),
+          isImminent(dec31) ? MintColors.amber : MintColors.indigo,
       cta: s?.agirTimeline3aCta ?? 'Vérifier mon 3a',
       isPast: isPastDate(dec31),
       isCompleted: false, // would need 3a max check
@@ -1061,7 +1087,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           'Pense à rassembler tes attestations 3a et LPP.',
       icon: Icons.description,
       color: isImminent(taxDeadline)
-          ? const Color(0xFFF59E0B)
+          ? MintColors.amber
           : MintColors.warning,
       cta: s?.agirTimelineTaxCta ?? 'Préparer mes documents',
       isPast: isPastDate(taxDeadline),
@@ -1077,7 +1103,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           'Évalue si ta franchise actuelle est toujours adaptée.',
       icon: Icons.health_and_safety,
       color: isImminent(lamalDeadline)
-          ? const Color(0xFFF59E0B)
+          ? MintColors.amber
           : MintColors.error,
       cta: s?.agirTimelineLamalCta ?? 'Simuler les franchises',
       isPast: isPastDate(lamalDeadline),
@@ -1098,7 +1124,7 @@ class _CoachAgirScreenState extends State<CoachAgirScreen> {
           ? Icons.check_circle
           : Icons.calendar_today_outlined,
       color:
-          hasCurrentCheckIn ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+          hasCurrentCheckIn ? MintColors.positive : MintColors.amber,
       cta: hasCurrentCheckIn ? null : S.of(context)!.agirTimelineCheckinCta,
       isCompleted: hasCurrentCheckIn,
     ));
@@ -1462,7 +1488,7 @@ class _MonthlyContributionRow extends StatelessWidget {
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+            color: MintColors.primary.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1629,7 +1655,7 @@ class _TimelineItem extends StatelessWidget {
                   border: Border.all(color: MintColors.lightBorder),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+                      color: MintColors.primary.withValues(alpha: 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -1685,7 +1711,7 @@ class _TimelineItem extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: event.isCompleted
-                            ? const Color(0xFF10B981)
+                            ? MintColors.positive
                             : event.isPast
                                 ? MintColors.textMuted
                                 : MintColors.textPrimary,
@@ -1768,14 +1794,14 @@ class _TimelineItem extends StatelessWidget {
 
     if (event.isCompleted) {
       // Completed: green with checkmark
-      dotColor = const Color(0xFF10B981);
+      dotColor = MintColors.positive;
       dotChild = const Icon(Icons.check, size: 10, color: Colors.white);
     } else if (event.isPast) {
       // Past but not completed: grey
-      dotColor = const Color(0xFF9CA3AF);
+      dotColor = MintColors.greyNeutral;
     } else if (daysUntil <= 30 && daysUntil >= 0) {
       // Imminent: orange
-      dotColor = const Color(0xFFF59E0B);
+      dotColor = MintColors.amber;
     } else {
       // Upcoming: use event color
       dotColor = event.color;
@@ -1957,7 +1983,7 @@ class _CoachingTipCard extends StatelessWidget {
               border: Border.all(color: MintColors.lightBorder),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1D1D1F).withValues(alpha: 0.04),
+                  color: MintColors.primary.withValues(alpha: 0.04),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -2132,9 +2158,9 @@ class _CoachingTipCard extends StatelessWidget {
   Color _colorForTipCategory(String category) {
     switch (category) {
       case 'fiscalite':
-        return const Color(0xFF4F46E5); // Indigo
+        return MintColors.indigo; // Indigo
       case 'prevoyance':
-        return const Color(0xFF0891B2); // Teal
+        return MintColors.cyan; // Teal
       case 'budget':
         return MintColors.warning;
       case 'retraite':
@@ -2181,7 +2207,7 @@ class _ContributionProgressCard extends StatelessWidget {
         border: Border.all(color: MintColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withValues(alpha: 0.03),
+            color: MintColors.primary.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -2218,7 +2244,7 @@ class _ContributionProgressCard extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
+                    color: MintColors.warningBgWarm,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -2226,7 +2252,7 @@ class _ContributionProgressCard extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFFF59E0B),
+                      color: MintColors.amber,
                     ),
                   ),
                 )
@@ -2237,8 +2263,8 @@ class _ContributionProgressCard extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: isOnTrack
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFFF59E0B),
+                        ? MintColors.positive
+                        : MintColors.amber,
                   ),
                 ),
             ],
@@ -2251,7 +2277,7 @@ class _ContributionProgressCard extends StatelessWidget {
               value: progress,
               backgroundColor: MintColors.lightBorder,
               valueColor: AlwaysStoppedAnimation<Color>(
-                isOnTrack ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                isOnTrack ? MintColors.positive : MintColors.amber,
               ),
               minHeight: 6,
             ),

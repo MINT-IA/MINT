@@ -266,17 +266,17 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 colors: [
                   Color.lerp(
                     Colors.white,
-                    const Color(0xFF0A0A0F),
+                    MintColors.nearBlack,
                     _backgroundOpacity.value,
                   )!,
                   Color.lerp(
                     Colors.white,
-                    const Color(0xFF1A1A2E),
+                    MintColors.darkNight,
                     _backgroundOpacity.value,
                   )!,
                   Color.lerp(
                     Colors.white,
-                    const Color(0xFF0D1117),
+                    MintColors.darkDeep,
                     _backgroundOpacity.value,
                   )!,
                 ],
@@ -831,7 +831,7 @@ class _RevealGaugePainter extends CustomPainter {
             scoreColor,
           ],
           stops: const [0.0, 0.5, 1.0],
-          transform: GradientRotation(startAngle),
+          transform: const GradientRotation(startAngle),
         ).createShader(arcRect);
 
       canvas.drawArc(arcRect, startAngle, valueSweep, false, fillPaint);

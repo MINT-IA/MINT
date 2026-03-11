@@ -422,7 +422,7 @@ class CoachingEngine:
         taux = self._get_marginal_rate(profile.canton)
         # Estimate: suggest buying back up to the full gap,
         # but show impact for a reasonable yearly amount
-        montant_rachat_sugere = min(profile.lacune_lpp, 20000.0)
+        montant_rachat_sugere = min(profile.lacune_lpp, 20_000.0)
         economie_fiscale = montant_rachat_sugere * taux
 
         tips.append(CoachingTip(

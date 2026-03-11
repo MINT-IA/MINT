@@ -180,9 +180,6 @@ class LppRescueWidget extends StatelessWidget {
   }
 
   Widget _buildOptionCard(LppTransferOption option, int index) {
-    final best = options.isNotEmpty
-        ? options.reduce((a, b) => a.fiveYearGain > b.fiveYearGain ? a : b)
-        : null;
     // isWorst: seule la première option avec le gain minimum est marquée "pire".
     // Garde : options.length > 1 pour éviter de marquer l'unique option comme pire.
     final worstOption = options.length > 1

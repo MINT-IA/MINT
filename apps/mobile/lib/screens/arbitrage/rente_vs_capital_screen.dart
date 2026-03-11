@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/precision/field_help_tooltip.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rente vs Capital arbitrage screen — the "a-ha" moment.
@@ -415,8 +416,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
                 if (_result != null) ...[
                   // ── Confidence banner ──
-                  if (_result!.confidenceScore < 70)
-                    _buildConfidenceBanner(),
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: 'lpp',
+                  ),
 
                   if (_hasEstimatedValues && _inputMode == _InputMode.estimate)
                     Padding(
@@ -528,7 +531,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
+              const Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
               Text(
                 term,
                 style: GoogleFonts.inter(
@@ -753,7 +756,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle_outline,
+                      const Icon(Icons.check_circle_outline,
                           size: 20, color: MintColors.success),
                       const SizedBox(width: 10),
                       Expanded(
@@ -954,7 +957,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
+          const Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1130,7 +1133,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
+                  const Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: RichText(
@@ -1336,7 +1339,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         // Card 1: Fiscalite
         _educationalCard(
           icon: Icons.receipt_long,
-          iconColor: const Color(0xFF6366F1),
+          iconColor: MintColors.pillarLpp,
           title: 'Fiscalité',
           leftTitle: 'Rente',
           leftSubtitle: 'Imposée chaque année',
@@ -1689,7 +1692,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: lowDelta < 0
-                      ? const Color(0xFFEF4444)
+                      ? MintColors.danger
                       : MintColors.success,
                 ),
               ),
@@ -1699,7 +1702,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   fontSize: 11,
                   color: highDelta >= 0
                       ? MintColors.success
-                      : const Color(0xFFEF4444),
+                      : MintColors.danger,
                 ),
               ),
             ],
@@ -1712,31 +1715,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
   //  CONFIDENCE BANNER
   // ═══════════════════════════════════════════════════════════════
-
-  Widget _buildConfidenceBanner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withAlpha(20),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MintColors.warning.withAlpha(60)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, size: 18, color: MintColors.warning),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Résultat indicatif — précise tes données pour un résultat plus fiable.',
-              style: GoogleFonts.inter(fontSize: 12, color: MintColors.warning),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════
   //  HYPOTHESES EXPANDABLE
@@ -1868,7 +1846,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             suffixIcon: Tooltip(
               message: 'Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
-              child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
             ),
           ),
           onChanged: (_) => _recalculate(),
@@ -1916,7 +1894,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
               suffixIcon: Tooltip(
                 message: "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-                child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+                child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
               ),
             ),
             onChanged: (_) => _recalculate(),

@@ -172,7 +172,7 @@ class DocumentDetailScreen extends StatelessWidget {
           s,
           label: s?.documentsCategoryTaux ?? 'Taux de conversion',
           icon: Icons.percent,
-          color: const Color(0xFF4F46E5),
+          color: MintColors.indigo,
           fields: [
             _fieldPercent(
               s?.documentsFieldTauxObligatoire ??
@@ -201,7 +201,7 @@ class DocumentDetailScreen extends StatelessWidget {
           s,
           label: s?.documentsCategoryRisque ?? 'Couverture risque',
           icon: Icons.shield_outlined,
-          color: const Color(0xFFEA580C),
+          color: MintColors.deepOrange,
           fields: [
             _fieldYearly(
               s?.documentsFieldRenteInvalidite ??
