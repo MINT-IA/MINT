@@ -191,6 +191,109 @@ class FallbackTemplates {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // FATCA Guidance — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about FATCA obligations for US
+  /// citizens/residents in Switzerland. Falls back to a generic
+  /// nationality-awareness message for non-US archetypes.
+  static String fatcaGuidance(CoachContext ctx) {
+    if (ctx.archetype != 'expat_us') {
+      return '${ctx.firstName}, certaines règles de prévoyance '
+          'dépendent de ta nationalité et de ton parcours. '
+          'Vérifie les conventions bilatérales qui pourraient '
+          's\'appliquer à ta situation auprès d\'un·e spécialiste.';
+    }
+
+    return '${ctx.firstName}, en tant que contribuable US en Suisse, '
+        'quelques points éducatifs à connaître. '
+        'Le FATCA (Foreign Account Tax Compliance Act) impose '
+        'une déclaration annuelle de tes comptes suisses à l\'IRS. '
+        'Tes investissements en fonds suisses pourraient être '
+        'classés PFIC, avec un traitement fiscal US spécifique. '
+        'La convention de double imposition CH-US prévoit des '
+        'mécanismes pour éviter une double taxation sur tes '
+        'versements 3a et prestations LPP. '
+        'Il serait utile de consulter un·e spécialiste '
+        'en fiscalité transfrontalière CH-US. '
+        'Réf. : Convention de double imposition CH-US, FATCA.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Succession Planning — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about Swiss succession law,
+  /// pillar beneficiary rules, and cantonal tax implications.
+  static String successionPlanning(CoachContext ctx) {
+    final cantonNote = ctx.canton.isNotEmpty
+        ? 'Dans le canton de ${ctx.canton}, les droits de succession '
+            'varient selon le lien de parenté. '
+        : '';
+
+    return '${ctx.firstName}, le droit successoral suisse '
+        '(CC art. 457 ss.) prévoit des réserves héréditaires '
+        'pour le conjoint et les descendants. '
+        'La quotité disponible dépend de ta situation familiale '
+        'et de ton régime matrimonial (participation aux acquêts '
+        'ou séparation de biens). '
+        '$cantonNote'
+        'En prévoyance, ton 2e pilier (LPP art. 20a) désigne '
+        'un ordre de bénéficiaires : conjoint·e, puis enfants, '
+        'puis parents. Le 3a suit un ordre similaire. '
+        'Il serait utile d\'envisager une vérification '
+        'de tes clauses bénéficiaires. '
+        'Réf. : CC art. 457 ss., LPP art. 20a.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Libre Passage Guide — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about libre passage accounts
+  /// after job change or unemployment.
+  static String librePassageGuide(CoachContext ctx) {
+    return '${ctx.firstName}, lors d\'un changement d\'emploi '
+        'ou d\'une période sans activité, ton avoir LPP est '
+        'transféré sur un compte de libre passage (LFLP art. 4). '
+        'Tu peux choisir entre une fondation de libre passage '
+        '(capital garanti) ou un compte bancaire avec options '
+        'de placement. '
+        'Un retrait anticipé (EPL) pourrait être possible pour '
+        'l\'achat d\'un logement, le passage à l\'indépendance '
+        'ou le départ définitif de Suisse (LPP art. 30c-30f). '
+        'Attention : après un EPL, un rachat LPP n\'est possible '
+        'qu\'une fois le retrait remboursé (blocage 3 ans). '
+        'Réf. : LFLP art. 4, OLP art. 10, LPP art. 30c-30f.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Disability Bridge — max 120 words (ComponentType.tip)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates educational content about disability insurance (AI),
+  /// LPP disability benefits, and prevoyance gaps.
+  static String disabilityBridge(CoachContext ctx) {
+    final ageNote = ctx.age < 55
+        ? 'À ${ctx.age} ans, une lacune de prévoyance en cas '
+            'd\'invalidité pourrait être significative. '
+        : '';
+
+    return '${ctx.firstName}, l\'assurance invalidité (AI) prévoit '
+        'une rente après un délai de carence d\'environ 1 an '
+        '(LAI art. 28-28a). Le degré d\'invalidité détermine '
+        'le montant : dès 40% pour une rente partielle. '
+        'Ta caisse LPP verse aussi une rente d\'invalidité '
+        '(LPP art. 23-26), coordonnée avec l\'AI. '
+        '$ageNote'
+        'Côté 3a, une invalidité pourrait donner droit à une '
+        'libération des primes si ton contrat le prévoit. '
+        'Il serait utile de vérifier ta couverture actuelle '
+        'et d\'identifier d\'éventuelles lacunes. '
+        'Réf. : LAI art. 28-28a, LPP art. 23-26.';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // Helpers
   // ═══════════════════════════════════════════════════════════════
 
