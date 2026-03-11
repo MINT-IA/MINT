@@ -222,7 +222,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+              colors: [MintColors.blueDark, Color(0xFF0D47A1)],
             ),
           ),
           child: SafeArea(

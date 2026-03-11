@@ -574,7 +574,7 @@ class _PieChartPainter extends CustomPainter {
 
     // Background ring
     final bgPaint = Paint()
-      ..color = const Color(0xFFF0F0F2)
+      ..color = MintColors.surfaceCool
       ..style = PaintingStyle.stroke
       ..strokeWidth = donutWidth;
     canvas.drawCircle(center, innerRadius + donutWidth / 2, bgPaint);

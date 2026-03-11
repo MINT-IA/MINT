@@ -260,7 +260,7 @@ class _DisabilitySelfEmployedScreenState
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3CD),
+                color: MintColors.warningBgLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -274,7 +274,7 @@ class _DisabilitySelfEmployedScreenState
                       'C\'est le filet le plus efficace pour un·e indépendant·e.',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: const Color(0xFF856404),
+                        color: MintColors.amberDark,
                         height: 1.4,
                       ),
                     ),

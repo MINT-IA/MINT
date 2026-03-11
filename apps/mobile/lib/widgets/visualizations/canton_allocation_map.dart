@@ -128,7 +128,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
         : 0.5;
     return Color.lerp(
       MintColors.greenLight, // light emerald
-      const Color(0xFF1B5E20), // dark emerald
+      MintColors.greenForest, // dark emerald
       t,
     )!;
   }
@@ -386,7 +386,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                     MintColors.greenLight,
                     MintColors.greenPastel,
                     MintColors.greenDark,
-                    const Color(0xFF1B5E20),
+                    MintColors.greenForest,
                   ],
                 ),
               ),
