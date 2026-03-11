@@ -531,7 +531,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
+              const Text('  \u2022  ', style: TextStyle(color: MintColors.info)),
               Text(
                 term,
                 style: GoogleFonts.inter(
@@ -1846,7 +1846,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             suffixIcon: Tooltip(
               message: 'Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).',
-              child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
             ),
           ),
           onChanged: (_) => _recalculate(),
@@ -1894,7 +1894,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
               suffixIcon: Tooltip(
                 message: "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
-                child: Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+                child: const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
               ),
             ),
             onChanged: (_) => _recalculate(),
