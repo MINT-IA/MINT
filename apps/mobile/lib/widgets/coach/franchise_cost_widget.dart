@@ -39,7 +39,6 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
   static const double _consultationCost = 150.0;
   // Wire to social_insurance.dart (LAMal art. 64 al. 2)
   static const double _quotePartMax = lamalQuotePartMax;
-  static const double _longIllnessDuration = 2.0; // years
 
   @override
   void initState() {

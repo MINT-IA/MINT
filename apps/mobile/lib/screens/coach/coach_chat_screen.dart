@@ -155,8 +155,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     // Response cards contextuelles pour le greeting
-    final greetingCards = ResponseCardService.generate(
-      profile: p,
+    final greetingCards = ResponseCardService.generateForPulse(
+      p,
       limit: 2,
     );
 

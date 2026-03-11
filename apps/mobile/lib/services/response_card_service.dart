@@ -303,7 +303,7 @@ class ResponseCardService {
     final lacunes = (profile.arrivalAge! - 20).clamp(0, 44);
     if (lacunes <= 0) return null;
 
-    final fullRenteMonthly = renteAvsMaxAnnuelle / 12;
+    final fullRenteMonthly = avsRenteMaxAnnuelle / 12;
     final reductionPerYear = fullRenteMonthly / 44;
     final monthlyLoss = reductionPerYear * lacunes;
 

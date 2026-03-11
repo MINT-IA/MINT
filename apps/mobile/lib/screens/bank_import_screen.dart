@@ -480,7 +480,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
               _localizeCategory(s, entry.key),
               entry.value,
               totalExpenses,
-              _categoryColors[entry.key] ?? const MintColors.categoryMisc,
+              _categoryColors[entry.key] ?? MintColors.categoryMisc,
             ),
             const SizedBox(height: 10),
           ],
@@ -687,7 +687,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     final amountStr =
         '${isCredit ? '+' : '-'}${_formatChf(tx.amount.abs())}';
     final color =
-        _categoryColors[tx.category] ?? const MintColors.categoryMisc;
+        _categoryColors[tx.category] ?? MintColors.categoryMisc;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

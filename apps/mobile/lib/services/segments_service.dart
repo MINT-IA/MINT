@@ -133,9 +133,6 @@ class GenderGapService {
     final salaireCoordonneActuel =
         LppCalculator.computeSalaireCoordonne(input.revenuAnnuel);
 
-    // Get contribution rate for current age (LPP art. 16)
-    final tauxCotis = getLppBonificationRate(input.age);
-
     // Project LPP capital at retirement for 100% activity
     // Delegates to LppCalculator.projectToRetirement() with conversionRate=1.0
     // to get raw capital (not rente), using salaireAssureOverride for pre-computed

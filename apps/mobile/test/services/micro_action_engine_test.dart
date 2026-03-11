@@ -15,13 +15,12 @@ void main() {
     int birthYear = 1977,
     double salaire = 10000,
     String canton = 'VS',
-    String etatCivil = 'celibataire',
+    CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
     double? avoirLpp,
     double? rachatMax,
     double? totalEpargne3a,
     double epargneLiquide = 20000,
     double investissements = 0,
-    bool isCouple = false,
     ConjointProfile? conjoint,
     List<MonthlyCheckIn> checkIns = const [],
   }) {
@@ -33,14 +32,13 @@ void main() {
       etatCivil: etatCivil,
       prevoyance: PrevoyanceProfile(
         avoirLppTotal: avoirLpp,
-        rachatMaxLpp: rachatMax,
-        totalEpargne3a: totalEpargne3a,
+        rachatMaximum: rachatMax,
+        totalEpargne3a: totalEpargne3a ?? 0,
       ),
       patrimoine: PatrimoineProfile(
         epargneLiquide: epargneLiquide,
         investissements: investissements,
       ),
-      isCouple: isCouple,
       conjoint: conjoint,
       checkIns: checkIns,
       goalA: GoalA(
@@ -150,8 +148,7 @@ void main() {
   group('Couple actions', () {
     test('couple with incomplete conjoint triggers coordination', () {
       final profile = _makeProfile(
-        isCouple: true,
-        etatCivil: 'marie',
+        etatCivil: CoachCivilStatus.marie,
         conjoint: const ConjointProfile(
           firstName: 'Lauren',
           // Missing most data

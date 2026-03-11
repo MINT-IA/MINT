@@ -1,6 +1,4 @@
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
-import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -242,7 +240,7 @@ class MonthlyBriefingService {
     }
 
     // ── Per-category versement changes ────────────
-    if (previous != null && insights.length < 3) {
+    if (insights.length < 3) {
       final categoriesUp = <String>[];
       for (final entry in current.versements.entries) {
         final prevVal = previous.versements[entry.key] ?? 0;

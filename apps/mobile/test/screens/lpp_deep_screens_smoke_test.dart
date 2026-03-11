@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';

@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';

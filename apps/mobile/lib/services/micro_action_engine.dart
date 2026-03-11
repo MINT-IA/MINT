@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -306,7 +305,7 @@ class MicroActionEngine {
     }
 
     // Missing 3a data
-    if ((profile.prevoyance.totalEpargne3a ?? 0) <= 0) {
+    if (profile.prevoyance.totalEpargne3a <= 0) {
       actions.add(const MicroAction(
         id: 'add_3a_balance',
         title: 'Ajoute ton solde 3a',

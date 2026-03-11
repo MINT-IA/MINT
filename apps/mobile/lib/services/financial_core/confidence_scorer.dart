@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
 
