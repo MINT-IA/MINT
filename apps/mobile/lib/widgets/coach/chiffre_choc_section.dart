@@ -63,7 +63,7 @@ class ChiffreChocSection extends StatelessWidget {
           ctaLabel: 'Simuler mon 3a',
           ctaRoute: '/simulator/3a',
           icon: Icons.savings,
-          color: const Color(0xFF4F46E5),
+          color: MintColors.indigo,
         ));
       }
     }

@@ -73,7 +73,7 @@ class HorizonLineWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFF3E5F5),
+        color: MintColors.successionBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -324,7 +324,7 @@ class _HorizonPainter extends CustomPainter {
 
     // Consumed (grey)
     if (consumedWidth > 0) {
-      final consumed = Paint()..color = const Color(0xFFBDBDBD);
+      final consumed = Paint()..color = MintColors.greyBorderLight;
       canvas.drawRRect(
         RRect.fromLTRBAndCorners(
           0, top, consumedWidth, top + barHeight,

@@ -86,7 +86,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         durationLabel: 'Jusqu\'à 24 mois',
         monthlyIncome: act2Income,
         emoji: _hasIjm ? '🟡' : '🔴',
-        color: _hasIjm ? const Color(0xFFF59E0B) : MintColors.error,
+        color: _hasIjm ? MintColors.amber : MintColors.error,
         detail: _hasIjm
             ? '80% du salaire assuré'
             : 'Aucune couverture — délai AI en cours',
@@ -301,7 +301,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFCC3333), Color(0xFF991111)],
+              colors: [MintColors.redWine, MintColors.darkRed],
             ),
           ),
           child: SafeArea(

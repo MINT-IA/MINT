@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/theme/colors.dart';
 
 /// Modèle de progression de clarté (pas gamification)
 /// Respecte les invariants : rapport central, neutralité, simplicité
@@ -111,9 +112,9 @@ class ClarityState {
 
   Color get precisionColor {
     if (precisionIndex < 40) return Colors.orange;
-    if (precisionIndex < 70) return const Color(0xFF81C784); // Vert clair
-    if (precisionIndex < 90) return const Color(0xFF4CAF50); // Vert
-    return const Color(0xFF2D6A4F); // Vert foncé (MintColors.primary)
+    if (precisionIndex < 70) return MintColors.centralScenarioLight; // Vert clair
+    if (precisionIndex < 90) return MintColors.centralScenario; // Vert
+    return MintColors.stressScenario; // Vert foncé
   }
 
   int get actionsReady =>
@@ -485,15 +486,15 @@ class ClarityProgressHeader extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0F9F4),
+                color: MintColors.greenBgLight,
                 borderRadius: BorderRadius.circular(8),
                 border:
-                    Border.all(color: const Color(0xFF2D6A4F).withOpacity(0.3)),
+                    Border.all(color: MintColors.stressScenario.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.lightbulb_outline,
-                      size: 16, color: Color(0xFF2D6A4F)),
+                      size: 16, color: MintColors.stressScenario),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -501,7 +502,7 @@ class ClarityProgressHeader extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2D6A4F),
+                        color: MintColors.stressScenario,
                       ),
                     ),
                   ),

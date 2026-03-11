@@ -76,7 +76,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFFCE4EC),
+        color: MintColors.pinkBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

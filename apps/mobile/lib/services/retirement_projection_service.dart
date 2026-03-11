@@ -336,7 +336,7 @@ class RetirementProjectionService {
           id: 'avs_conjoint',
           label: 'AVS $conjName',
           monthlyAmount: couple.conjoint,
-          color: const Color(0xFF4DA6FF),
+          color: MintColors.pillarAvsConjoint,
           isIndexed: true,
         ));
       }
@@ -354,7 +354,7 @@ class RetirementProjectionService {
           id: 'avs_conjoint',
           label: 'AVS $conjName',
           monthlyAmount: avsConj,
-          color: const Color(0xFF4DA6FF),
+          color: MintColors.pillarAvsConjoint,
           isIndexed: true,
         ));
       }
@@ -443,7 +443,7 @@ class RetirementProjectionService {
           id: 'lpp_conjoint',
           label: 'LPP $conjName$lppSuffix',
           monthlyAmount: lppConjMonthly,
-          color: const Color(0xFF4CAF50),
+          color: MintColors.centralScenario,
           isCapitalWithdrawal: lppCapitalPct > 0,
         ));
       }
@@ -773,7 +773,7 @@ class RetirementProjectionService {
         id: 'avs_conjoint',
         label: 'AVS $conjName',
         monthlyAmount: avsConj,
-        color: const Color(0xFF4DA6FF),
+        color: MintColors.pillarAvsConjoint,
         isIndexed: true,
       ));
 
@@ -813,7 +813,7 @@ class RetirementProjectionService {
           id: 'lpp_conjoint',
           label: 'LPP $conjName$lppSuffix',
           monthlyAmount: lppConjMonthly,
-          color: const Color(0xFF4CAF50),
+          color: MintColors.centralScenario,
           isCapitalWithdrawal: lppCapitalPct > 0,
         ));
       }

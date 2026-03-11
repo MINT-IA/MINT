@@ -138,7 +138,7 @@ class StreakBadgeWidget extends StatelessWidget {
 
   Color get _streakColor {
     if (streak.currentStreak >= 12) return MintColors.warning;
-    if (streak.currentStreak >= 6) return const Color(0xFFEA580C);
+    if (streak.currentStreak >= 6) return MintColors.deepOrange;
     if (streak.currentStreak >= 3) return MintColors.success;
     return MintColors.coachAccent;
   }

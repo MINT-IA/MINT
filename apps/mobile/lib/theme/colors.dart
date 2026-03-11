@@ -67,4 +67,128 @@ class MintColors {
   static const Color retirementLpp = success;
   static const Color retirement3a = purple;
   static const Color retirementLibre = teal;
+
+  // Sentiment / risk indicators
+  static const Color danger = Color(0xFFEF4444); // Negative delta, expenses
+  static const Color positive = Color(0xFF10B981); // Positive delta, on-track
+  static const Color critical = Color(0xFFB71C1C); // Severe status (disability)
+  static const Color crisisRed = Color(0xFFDC2626); // Debt/crisis context
+  static const Color successDeep = Color(0xFF2E7D32); // High confidence
+
+  // Pillar & projection chart colors
+  static const Color pillarLpp = Color(0xFF6366F1); // 2nd pillar (indigo-400)
+  static const Color pillarAvsConjoint = Color(0xFF4DA6FF); // AVS spouse
+  static const Color spouseSegment = Color(0xFF7C4DFF); // Regime matrimonial
+  static const Color centralScenario = Color(0xFF4CAF50); // Central projection
+  static const Color centralScenarioLight = Color(0xFF81C784); // Central light
+  static const Color stressScenario = Color(0xFF2D6A4F); // Stress/prudent dark
+
+  // Tool library category accents
+  static const Color categoryGreen = Color(0xFF059669); // Savings, legal, tax
+  static const Color categoryBlue = Color(0xFF2563EB); // Emploi, banque, hypothèque
+  static const Color categoryAmber = Color(0xFFD97706); // Budget, dettes
+  static const Color categoryPurple = Color(0xFF7C3AED); // 3a advanced, marriage
+  static const Color categoryMagenta = Color(0xFFDB2777); // Family/marriage
+  static const Color categoryMisc = Color(0xFFA2845E); // Default/miscellaneous
+
+  // Urgency & pastel backgrounds
+  static const Color urgentBg = Color(0xFFFFEBEE); // High urgency (light red)
+  static const Color neutralBg = Color(0xFFE3F2FD); // Medium urgency (light blue)
+  static const Color successBg = Color(0xFFE8F5E9); // Positive (light green)
+  static const Color warningBg = Color(0xFFFFF3E0); // Caution (light amber)
+  static const Color disclaimerBg = Color(0xFFFFF8E1); // Disclaimer (pale amber)
+  static const Color successionBg = Color(0xFFF3E5F5); // Succession (light purple)
+  static const Color pinkBg = Color(0xFFFCE4EC); // Family (light pink)
+
+  // Contextual accents
+  static const Color urgentOrange = Color(0xFFE65100); // Succession/retirement
+  static const Color successionDark = Color(0xFF37474F); // Legal/succession header
+  static const Color withdrawalOptim = Color(0xFF00695C); // Decaissement teal
+  static const Color charcoal = Color(0xFF2D2D30); // Premium dark gradients
+  static const Color darkSurface = Color(0xFF2C2C2E); // Dark UI variant
+
+  // Additional chart & visualization colors
+  static const Color emeraldDark = Color(0xFF059669); // alias categoryGreen
+  static const Color greenMaterial = Color(0xFF4CAF50); // alias centralScenario
+  static const Color greenLight = Color(0xFFA5D6A7); // Light green segments
+  static const Color blueDark = Color(0xFF1565C0); // Dark blue charts
+  static const Color blueLight = Color(0xFF0EA5E9); // Sky blue
+  static const Color violetDeep = Color(0xFF9333EA); // Deep purple
+  static const Color purpleDark = Color(0xFF6A1B9A); // Dark purple
+  static const Color indigoDeep = Color(0xFF4338CA); // Deep indigo
+  static const Color indigoDark = Color(0xFF312E81); // Darkest indigo
+  static const Color roseDeep = Color(0xFFE91E63); // Rose/pink
+  static const Color orangeMaterial = Color(0xFFF97316); // Orange-400
+  static const Color amberLight = Color(0xFFFBBF24); // Amber-400
+  static const Color redMaterial = Color(0xFFF44336); // Material red
+  static const Color redDark = Color(0xFFC62828); // Dark red
+  static const Color redDeep = Color(0xFFE53935); // Deep red
+  static const Color greenApple = Color(0xFF34C759); // iOS green
+  static const Color blueGoogle = Color(0xFF1A73E8); // Google blue
+  static const Color slateDark = Color(0xFF263238); // Blue-grey 900
+
+  // Misc single-use (bank import, open banking, etc.)
+  static const Color greyMedium = Color(0xFF9E9E9E); // Grey-500
+  static const Color greyDark = Color(0xFF616161); // Grey-700
+  static const Color greyWarm = Color(0xFF6B7280); // Grey-500 warm
+  static const Color greyBorder = Color(0xFFE0E0E0); // Grey-300 border
+  static const Color greyBorderLight = Color(0xFFBDBDBD); // Grey-400
+  static const Color ecruBg = Color(0xFFECEFF1); // Blue-grey 50
+  static const Color indigoBg = Color(0xFFE8EAF6); // Indigo-50
+  static const Color redBg = Color(0xFFFFCDD2); // Red-100
+  static const Color yellowLight = Color(0xFFFFEB3B); // Yellow-400
+  static const Color yellowGold = Color(0xFFFFE082); // Amber-200
+  static const Color amberWarm = Color(0xFFFFECB3); // Amber-100
+  static const Color amberDark = Color(0xFF856404); // Dark amber text
+  static const Color orangeWarm = Color(0xFFFFA726); // Orange-400
+  static const Color salmonLight = Color(0xFFFF7043); // Deep-orange 400
+  static const Color coralLight = Color(0xFFFF6B6B); // Coral
+  static const Color mintLight = Color(0xFF55E6C1); // Mint/teal light
+  static const Color greenBright = Color(0xFF7BED9F); // Bright green
+  static const Color greenNeon = Color(0xFF2ECC71); // Emerald (flat-ui)
+  static const Color tealLight = Color(0xFF16A085); // Teal (flat-ui)
+  static const Color greenIos = Color(0xFF30D158); // iOS system green
+  static const Color greenForest = Color(0xFF1B5E20); // Green-900
+  static const Color brownWarm = Color(0xFF5D4037); // Brown-700
+  static const Color blueSteel = Color(0xFF78909C); // Blue-grey 400
+  static const Color indigoMuted = Color(0xFF5C6BC0); // Indigo-400
+  static const Color purpleApple = Color(0xFFAF52DE); // Apple purple
+  static const Color blueApple = Color(0xFF5AC8FA); // Apple light blue
+  static const Color purpleIos = Color(0xFF5856D6); // iOS purple
+  static const Color darkNight = Color(0xFF1A1A2E); // Night dark
+  static const Color darkDeep = Color(0xFF0D1117); // GitHub dark
+  static const Color darkApple = Color(0xFF1C1C1E); // Apple dark
+  static const Color orangeFlat = Color(0xFFE67E22); // Orange flat-ui
+  static const Color orangeNeon = Color(0xFFEE5A24); // Neon orange
+  static const Color orangeRetro = Color(0xFFFF6B35); // Retro orange
+  static const Color pinkHot = Color(0xFFFF6482); // Hot pink
+  static const Color redApple = Color(0xFFFF2D55); // Apple red
+  static const Color greenDirect = Color(0xFF22C55E); // Green-500
+  static const Color greenDark = Color(0xFF388E3C); // Green-700
+  static const Color greenBright2 = Color(0xFF34D058); // GitHub green
+  static const Color greenMint = Color(0xFF32D74B); // iOS green mint
+  static const Color greenClassic = Color(0xFF27AE60); // Flat green
+  static const Color greenForestMid = Color(0xFF2E7D5E); // Forest mid
+  static const Color blueClassic = Color(0xFF2196F3); // Blue-500
+  static const Color blueBright = Color(0xFF3B82F6); // Blue-500 tailwind
+  static const Color tealDark = Color(0xFF004D40); // Teal-900
+  static const Color orangeDarkDeep = Color(0xFFF57C00); // Orange-800
+  static const Color orangeGold = Color(0xFFFF9500); // iOS orange
+  static const Color orangeRetroWarm = Color(0xFFFF9F43); // Retro warm
+  static const Color orangeSpice = Color(0xFFFFBE76); // Spice orange
+  static const Color warningText = Color(0xFFF57F17); // Amber-900
+  static const Color greyApple = Color(0xFF8E8E93); // Apple grey
+  static const Color greyNeutral = Color(0xFF9CA3AF); // Grey-400 cool
+  static const Color redBgLight = Color(0xFFFFF1F1); // Very light red bg
+  static const Color warningBgLight = Color(0xFFFFF3CD); // Warning banner bg
+  static const Color warningBgWarm = Color(0xFFFEF3C7); // Warm warning bg
+  static const Color greenBgLight = Color(0xFFF0F9F4); // Very light green bg
+  static const Color surfaceLight = Color(0xFFF5F5F5); // Near-white surface
+  static const Color surfaceCool = Color(0xFFF0F0F2); // Cool surface
+  static const Color darkRed = Color(0xFF991111); // Very dark red
+  static const Color deepRed = Color(0xFF7B0000); // Deepest red
+  static const Color redWine = Color(0xFFCC3333); // Wine red
+  static const Color redMedium = Color(0xFFD32F2F); // Material red-700
+  static const Color greenPastel = Color(0xFF66BB6A); // Green-400
+  static const Color orangeFF = Color(0xFFFF9800); // Orange-500
 }

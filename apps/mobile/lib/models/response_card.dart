@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RESPONSE CARD MODEL — Phase 1 / Pulse Dynamic Cards
@@ -226,11 +227,11 @@ class ResponseCard {
   Color get borderColor {
     switch (urgency) {
       case CardUrgency.high:
-        return const Color(0xFFE53935);
+        return MintColors.redDeep;
       case CardUrgency.medium:
-        return const Color(0xFF1A73E8);
+        return MintColors.info;
       case CardUrgency.low:
-        return const Color(0xFF9E9E9E);
+        return MintColors.greyMedium;
     }
   }
 
@@ -238,11 +239,11 @@ class ResponseCard {
   Color get badgeColor {
     switch (urgency) {
       case CardUrgency.high:
-        return const Color(0xFFFFEBEE);
+        return MintColors.urgentBg;
       case CardUrgency.medium:
-        return const Color(0xFFE3F2FD);
+        return MintColors.neutralBg;
       case CardUrgency.low:
-        return const Color(0xFFF5F5F5);
+        return MintColors.surfaceLight;
     }
   }
 

@@ -300,7 +300,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [MintColors.primary, Color(0xFF2D2D30)],
+              colors: [MintColors.primary, MintColors.charcoal],
             ),
           ),
         ),

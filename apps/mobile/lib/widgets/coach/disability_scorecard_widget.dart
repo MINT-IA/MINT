@@ -41,7 +41,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
       'A+' || 'A' || 'A-' => MintColors.scoreExcellent,
       'B+' || 'B' || 'B-' => MintColors.scoreBon,
       'C+' || 'C' || 'C-' => MintColors.scoreAttention,
-      'D' => const Color(0xFFFF7043),
+      'D' => MintColors.salmonLight,
       _ => MintColors.scoreCritique,
     };
   }
@@ -109,7 +109,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFF3E5F5),
+        color: MintColors.successionBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(

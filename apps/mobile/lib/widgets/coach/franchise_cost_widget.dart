@@ -113,7 +113,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFE8F5E9),
+        color: MintColors.successBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

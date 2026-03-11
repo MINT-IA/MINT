@@ -49,7 +49,7 @@ class CoachBriefingCard extends StatelessWidget {
         color: MintColors.coachBubble, // subtle blue, clearly visible
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF2196F3).withValues(alpha: 0.20), // blue accent
+          color: MintColors.blueClassic.withValues(alpha: 0.20), // blue accent
           width: 1.5,
         ),
       ),

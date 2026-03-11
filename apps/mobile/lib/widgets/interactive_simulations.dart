@@ -226,7 +226,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           _buildProjection('Prudence (1%)', prudenceValue, Colors.orange),
           const SizedBox(height: 8),
           _buildProjection(
-              'Central (3%)', centralValue, const Color(0xFF81C784)),
+              'Central (3%)', centralValue, MintColors.centralScenarioLight),
           const SizedBox(height: 8),
           _buildProjection('Stress (5%)', stressValue, MintColors.primary),
 
@@ -486,7 +486,7 @@ class _InteractiveLppBuybackSimulationState
           _buildPensionProjection(
             'Central (taux ${_conversionRateCentral.toStringAsFixed(1)}%)',
             _annualPensionCentral,
-            const Color(0xFF81C784),
+            MintColors.centralScenarioLight,
           ),
           const SizedBox(height: 8),
           _buildPensionProjection(

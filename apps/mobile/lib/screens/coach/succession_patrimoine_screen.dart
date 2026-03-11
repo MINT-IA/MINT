@@ -49,7 +49,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF37474F), Color(0xFF263238)],
+                    colors: [MintColors.successionDark, MintColors.slateDark],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -68,7 +68,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   title: 'Sans testament, ton concubin·e hérite de RIEN',
                   body:
                       'Le droit successoral suisse (CC art. 457 ss) protège d\'abord les descendants, puis les parents et le conjoint·e légal·e. Sans lien légal et sans testament, un·e concubin·e est exclu·e de la succession — quelle que soit la durée de la vie commune.',
-                  color: const Color(0xFFE65100),
+                  color: MintColors.urgentOrange,
                 ),
                 const SizedBox(height: 24),
 
@@ -101,7 +101,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   subtitle: 'CC art. 470–471',
                   body:
                       'Une part de ta succession est réservée par la loi à tes descendants (1/2 de leur part légale) et à ton conjoint·e (1/2 de sa part légale). Cette part ne peut pas être écartée par testament, sauf révocation pour cause ingratitude.',
-                  color: const Color(0xFF1565C0),
+                  color: MintColors.blueDark,
                 ),
                 const SizedBox(height: 10),
 
@@ -111,7 +111,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   subtitle: 'CC art. 470 al. 2',
                   body:
                       'Ce qui reste après les réserves héréditaires est ta "quotité disponible" — la part que tu peux léguer librement à qui tu veux : conjoint·e non marié·e, amis, associations. Si tu as des enfants, ta quotité disponible est 1/2 de ta succession.',
-                  color: const Color(0xFF6A1B9A),
+                  color: MintColors.purpleDark,
                 ),
                 const SizedBox(height: 10),
 
@@ -121,7 +121,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   subtitle: 'CC art. 498–504',
                   body:
                       'Deux formes valides :\n• Olographe : entièrement manuscrit, daté et signé — pas de témoin requis.\n• Notarié : devant notaire avec 2 témoins — recommandé pour les situations complexes.\nPas de testament = succession légale par défaut.',
-                  color: const Color(0xFF00695C),
+                  color: MintColors.withdrawalOptim,
                 ),
                 const SizedBox(height: 10),
 
@@ -131,7 +131,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   subtitle: 'CO art. 239 ss',
                   body:
                       'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral (variable par canton). Attention : les donations sont rapportables à la succession si tu as des héritiers réservataires. Les 5 années précédant le décès sont particulièrement scrutées.',
-                  color: const Color(0xFF37474F),
+                  color: MintColors.successionDark,
                 ),
                 const SizedBox(height: 10),
 
@@ -141,7 +141,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   subtitle: 'LPP art. 20 · OPP3 art. 2',
                   body:
                       'Le capital LPP non converti en rente et le solde 3a ne font PAS partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés. Si tu ne désignes personne, l\'ordre légal s\'applique : conjoint·e marié·e ou partenaire enregistré·e, puis descendants, puis parents. Un·e concubin·e doit être explicitement désigné·e.',
-                  color: const Color(0xFFE65100),
+                  color: MintColors.urgentOrange,
                 ),
                 const SizedBox(height: 24),
 
@@ -154,7 +154,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       timeframe: 'J+1 à J+7',
                       emoji: '🆘',
                       title: 'Urgence immédiate',
-                      color: const Color(0xFFE65100),
+                      color: MintColors.urgentOrange,
                       actions: [
                         'Déclarer le décès à l\'état civil dans les 2 jours',
                         'Informer l\'employeur et les assurances (LAMal, LPP)',
@@ -166,7 +166,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       timeframe: 'J+8 à J+30',
                       emoji: '📋',
                       title: 'Démarches administratives',
-                      color: const Color(0xFFF57C00),
+                      color: MintColors.orangeDarkDeep,
                       actions: [
                         'Demander les rentes de survivants AVS (LAVS art. 23)',
                         'Contacter la caisse LPP pour le capital décès',
@@ -179,7 +179,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       timeframe: 'J+31 à J+365',
                       emoji: '⚖️',
                       title: 'Succession légale',
-                      color: const Color(0xFF2E7D32),
+                      color: MintColors.successDeep,
                       actions: [
                         'Ouvrir la procédure de succession avec le notaire',
                         'Partager les biens selon le testament ou la loi (CC art. 537)',
@@ -208,7 +208,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 // ── CTA spécialiste ───────────────────────────
                 EduSpecialistCta(
                   icon: Icons.gavel_outlined,
-                  color: const Color(0xFF37474F),
+                  color: MintColors.successionDark,
                   title: 'Consulter un·e notaire ou spécialiste',
                   body: 'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament et t\'orienter sur l\'organisation successorale adaptée à ta situation.',
                 ),

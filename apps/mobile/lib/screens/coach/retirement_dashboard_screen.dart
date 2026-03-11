@@ -1344,7 +1344,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandYoungSubtitle,
           cta: S.of(context)!.dashboardAgeBandYoungCta,
           route: '/simulator/3a',
-          color: const Color(0xFF2E7D5E),
+          color: MintColors.greenForestMid,
         );
       case AgeBand.stabilization:
         return _AgeBandCard(
@@ -1353,7 +1353,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandStabSubtitle,
           cta: S.of(context)!.dashboardAgeBandStabCta,
           route: '/simulator/3a',
-          color: const Color(0xFF1565C0),
+          color: MintColors.blueDark,
         );
       case AgeBand.peakEarnings:
         return _AgeBandCard(
@@ -1362,7 +1362,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandPeakSubtitle,
           cta: S.of(context)!.dashboardAgeBandPeakCta,
           route: '/lpp-deep/rachat',
-          color: const Color(0xFF6A1B9A),
+          color: MintColors.purpleDark,
         );
       case AgeBand.preRetirement:
         return _AgeBandCard(
@@ -1371,7 +1371,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: S.of(context)!.dashboardAgeBandPreRetSubtitle,
           cta: S.of(context)!.dashboardAgeBandPreRetCta,
           route: '/arbitrage/rente-vs-capital',
-          color: const Color(0xFFE65100),
+          color: MintColors.urgentOrange,
         );
       case AgeBand.retirement:
         return Column(
@@ -1382,7 +1382,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               subtitle: S.of(context)!.dashboardAgeBandRetWithdrawSubtitle,
               cta: S.of(context)!.dashboardAgeBandRetWithdrawCta,
               route: '/coach/decaissement',
-              color: const Color(0xFF00695C),
+              color: MintColors.withdrawalOptim,
             ),
             const SizedBox(height: 12),
             _AgeBandCard(
@@ -1391,7 +1391,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               subtitle: S.of(context)!.dashboardAgeBandRetSuccessionSubtitle,
               cta: S.of(context)!.dashboardAgeBandRetSuccessionCta,
               route: '/coach/succession',
-              color: const Color(0xFF37474F),
+              color: MintColors.successionDark,
             ),
           ],
         );

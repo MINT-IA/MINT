@@ -90,17 +90,17 @@ class _LandingScreenState extends State<LandingScreen> {
           Positioned(
             top: -100,
             left: -50,
-            child: _buildBlurBlob(const Color(0xFFE5E5E7), 300),
+            child: _buildBlurBlob(MintColors.lightBorder, 300),
           ),
           Positioned(
             top: 200,
             right: -100,
-            child: _buildBlurBlob(const Color(0xFF4F46E5), 350),
+            child: _buildBlurBlob(MintColors.indigo, 350),
           ),
           Positioned(
             bottom: -100,
             left: 50,
-            child: _buildBlurBlob(const Color(0xFF0EA5E9), 300),
+            child: _buildBlurBlob(MintColors.blueLight, 300),
           ),
 
           // Content
@@ -315,7 +315,7 @@ class _LandingScreenState extends State<LandingScreen> {
         const SizedBox(height: 4),
         ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
-            colors: [MintColors.primary, Color(0xFF6E6E73)],
+            colors: [MintColors.primary, MintColors.textSecondary],
           ).createShader(bounds),
           child: Text(
             line2,
@@ -666,7 +666,7 @@ class _LandingScreenState extends State<LandingScreen> {
         const SizedBox(height: 12),
         _buildFeatureRow(
           icon: Icons.account_balance_outlined,
-          color: const Color(0xFF4F46E5),
+          color: MintColors.indigo,
           title: S.of(context)!.landingFeaturePillarsTitle,
           subtitle: S.of(context)!.landingFeaturePillarsSubtitle,
         ),
@@ -680,7 +680,7 @@ class _LandingScreenState extends State<LandingScreen> {
         const SizedBox(height: 10),
         _buildFeatureRow(
           icon: Icons.smartphone_outlined,
-          color: const Color(0xFF0EA5E9),
+          color: MintColors.blueLight,
           title: S.of(context)!.landingFeaturePrivacyTitle,
           subtitle: S.of(context)!.landingFeaturePrivacySubtitle,
         ),

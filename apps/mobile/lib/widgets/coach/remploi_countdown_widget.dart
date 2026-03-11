@@ -89,7 +89,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
       decoration: BoxDecoration(
         color: isExpired
             ? MintColors.scoreCritique.withValues(alpha: 0.1)
-            : const Color(0xFFFFF3E0),
+            : MintColors.warningBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(

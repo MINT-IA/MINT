@@ -169,7 +169,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(const Color(0xFF1D1D1F), 'Fixe'),
+              _buildLegendItem(MintColors.primary, 'Fixe'),
               const SizedBox(width: 16),
               _buildLegendItem(MintColors.success, 'SARON stable'),
               const SizedBox(width: 16),
@@ -538,7 +538,7 @@ class _MortgageChartPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: const TextStyle(fontSize: 10, color: Color(0xFF86868B)),
+          style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -552,7 +552,7 @@ class _MortgageChartPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '${i + 1}',
-            style: const TextStyle(fontSize: 10, color: Color(0xFF86868B)),
+            style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -561,11 +561,11 @@ class _MortgageChartPainter extends CustomPainter {
     }
 
     // Draw curves
-    _drawCurve(canvas, fixeData, const Color(0xFF1D1D1F), maxVal, chartWidth,
+    _drawCurve(canvas, fixeData, MintColors.primary, maxVal, chartWidth,
         chartHeight, leftPadding, topPadding);
-    _drawCurve(canvas, saronStableData, const Color(0xFF24B14D), maxVal,
+    _drawCurve(canvas, saronStableData, MintColors.success, maxVal,
         chartWidth, chartHeight, leftPadding, topPadding);
-    _drawCurve(canvas, saronHausseData, const Color(0xFFFF453A), maxVal,
+    _drawCurve(canvas, saronHausseData, MintColors.error, maxVal,
         chartWidth, chartHeight, leftPadding, topPadding);
   }
 

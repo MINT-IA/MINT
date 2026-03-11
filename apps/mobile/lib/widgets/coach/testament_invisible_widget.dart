@@ -109,7 +109,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3E5F5),
+        color: MintColors.successionBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

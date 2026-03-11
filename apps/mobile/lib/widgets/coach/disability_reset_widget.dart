@@ -86,7 +86,7 @@ class DisabilityResetWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: Color(0xFFFFF8E1),
+        color: MintColors.disclaimerBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Row(

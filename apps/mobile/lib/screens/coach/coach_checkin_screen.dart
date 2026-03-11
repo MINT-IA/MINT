@@ -694,13 +694,13 @@ Reponds uniquement avec le texte final.
         '3a',
         s?.checkinCat3a ?? 'Pilier 3a',
         Icons.savings,
-        const Color(0xFF4F46E5)
+        MintColors.indigo
       ),
       (
         'lpp_buyback',
         s?.checkinCatLpp ?? 'Rachat LPP',
         Icons.account_balance,
-        const Color(0xFF0891B2)
+        MintColors.cyan
       ),
       (
         'investissement',
@@ -1645,7 +1645,7 @@ class _ContributionRow extends StatelessWidget {
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1D1D1F).withValues(alpha: 0.04),
+                color: MintColors.primary.withValues(alpha: 0.04),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
