@@ -449,7 +449,7 @@ class _ToolsLibraryScreenState extends State<ToolsLibraryScreen> {
           title: s?.toolsConsent ?? 'Consentements',
           subtitle: s?.toolsConsentDesc ?? 'Gère tes autorisations de données',
           route: '/profile/consent',
-          color: const Color(0xFF6B7280),
+          color: MintColors.greyWarm,
         ),
       ],
     ),

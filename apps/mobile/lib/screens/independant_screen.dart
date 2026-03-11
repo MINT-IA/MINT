@@ -451,7 +451,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
@@ -783,7 +783,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
@@ -817,7 +817,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
           if (!_hasLaa)
             _buildCostRow(S.of(context)!.independantCostLaa, cost.laaMensuel, MintColors.warning),
           if (!_hasLaa) const SizedBox(height: 10),
-          _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel, const Color(0xFF4F46E5)),
+          _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel, MintColors.indigo),
           const SizedBox(height: 16),
 
           Divider(color: MintColors.border.withOpacity(0.5)),
@@ -953,7 +953,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF4F46E5).withOpacity(0.05),
+        color: MintColors.indigo.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -961,14 +961,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.savings_outlined, color: Color(0xFF4F46E5), size: 20),
+              const Icon(Icons.savings_outlined, color: MintColors.indigo, size: 20),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.independant3aTitle,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF312E81),
+                  color: MintColors.indigoDark,
                 ),
               ),
             ],
@@ -980,14 +980,14 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 : S.of(context)!.independant3aWithoutLpp(IndependantService.formatChf(result.plafond3a)),
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: const Color(0xFF4338CA),
+              color: MintColors.indigoDeep,
               height: 1.5,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             S.of(context)!.independant3aSource,
-            style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6366F1)),
+            style: GoogleFonts.inter(fontSize: 11, color: MintColors.pillarLpp),
           ),
         ],
       ),

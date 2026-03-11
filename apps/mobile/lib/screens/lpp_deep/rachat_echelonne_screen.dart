@@ -1480,7 +1480,7 @@ class _WaterfallPainter extends CustomPainter {
 
     // Background grid and bracket labels
     final gridPaint = Paint()
-      ..color = const Color(0xFFE5E5E7)
+      ..color = MintColors.lightBorder
       ..strokeWidth = 1;
 
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
@@ -1498,7 +1498,7 @@ class _WaterfallPainter extends CustomPainter {
         text: '${_brackets[_brackets.length - 1 - i].label}\n${_brackets[_brackets.length - 1 - i].rate}%',
         style: const TextStyle(
           fontSize: 10,
-          color: Color(0xFF86868B),
+          color: MintColors.textMuted,
           height: 1.3,
         ),
       );
@@ -1541,7 +1541,7 @@ class _WaterfallPainter extends CustomPainter {
       deduction: echelonneDeduction,
       chartTop: chartTop,
       chartBottom: chartBottom,
-      color: const Color(0xFF24B14D),
+      color: MintColors.success,
     );
 
     // Labels below bars
@@ -1550,7 +1550,7 @@ class _WaterfallPainter extends CustomPainter {
       style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF6E6E73),
+        color: MintColors.textSecondary,
       ),
     );
     textPainter.layout();
@@ -1565,7 +1565,7 @@ class _WaterfallPainter extends CustomPainter {
       style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF6E6E73),
+        color: MintColors.textSecondary,
       ),
     );
     textPainter.layout();
@@ -1581,7 +1581,7 @@ class _WaterfallPainter extends CustomPainter {
       style: const TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF1D1D1F),
+        color: MintColors.primary,
       ),
     );
     textPainter.layout();
@@ -1600,7 +1600,7 @@ class _WaterfallPainter extends CustomPainter {
       style: const TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF1D1D1F),
+        color: MintColors.primary,
       ),
     );
     textPainter.layout();

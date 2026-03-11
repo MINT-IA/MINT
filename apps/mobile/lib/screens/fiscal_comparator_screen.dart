@@ -725,20 +725,20 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           _buildBreakdownRow(
             S.of(context)!.fiscalFederalTax,
             tax['impotFederal'] as double,
-            const Color(0xFF3B82F6),
+            MintColors.blueBright,
           ),
           const SizedBox(height: 10),
           _buildBreakdownRow(
             S.of(context)!.fiscalCantonalCommunalTax,
             tax['impotCantonalCommunal'] as double,
-            const Color(0xFF8B5CF6),
+            MintColors.purple,
           ),
           if (_fortune > 0) ...[
             const SizedBox(height: 10),
             _buildBreakdownRow(
               S.of(context)!.fiscalWealthTax,
               wealthTax,
-              const Color(0xFFE67E22),
+              MintColors.orangeFlat,
             ),
           ],
           if (_isChurchMember && churchTax > 0) ...[
@@ -746,7 +746,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             _buildBreakdownRow(
               S.of(context)!.fiscalChurchTax,
               churchTax,
-              const Color(0xFF16A085),
+              MintColors.tealLight,
             ),
           ],
           const SizedBox(height: 16),

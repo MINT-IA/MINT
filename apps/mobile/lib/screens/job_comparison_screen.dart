@@ -206,7 +206,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   setState(() => _newRachatMax = v),
               hasIjm: _newHasIjm,
               onIjmChanged: (v) => setState(() => _newHasIjm = v),
-              accentColor: const Color(0xFFEA580C), // orange accent
+              accentColor: MintColors.deepOrange, // orange accent
               icon: Icons.work_outline,
             ),
             const SizedBox(height: 24),
@@ -295,11 +295,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFEA580C).withOpacity(0.1),
+              color: MintColors.deepOrange.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.swap_horiz,
-                color: Color(0xFFEA580C), size: 24),
+                color: MintColors.deepOrange, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -335,17 +335,17 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFEA580C).withOpacity(0.06),
+        color: MintColors.deepOrange.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFEA580C).withOpacity(0.15),
+          color: MintColors.deepOrange.withOpacity(0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: const Color(0xFFEA580C).withOpacity(0.8)),
+              size: 20, color: MintColors.deepOrange.withOpacity(0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

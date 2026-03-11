@@ -629,8 +629,8 @@ class _LandingScreenState extends State<LandingScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: filled < 60
-                            ? [MintColors.warning, const Color(0xFFFF6B35)]
-                            : [MintColors.success, const Color(0xFF34D058)],
+                            ? [MintColors.warning, MintColors.orangeRetro]
+                            : [MintColors.success, MintColors.greenBright2],
                       ),
                     ),
                   ),

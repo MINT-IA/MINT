@@ -43,7 +43,7 @@ class _DisabilitySelfEmployedScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF1F1), // fond rouge très pale
+      backgroundColor: MintColors.redBgLight, // fond rouge très pale
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -93,7 +93,7 @@ class _DisabilitySelfEmployedScreenState
       expandedHeight: 150,
       floating: false,
       pinned: true,
-      backgroundColor: const Color(0xFFB71C1C),
+      backgroundColor: MintColors.critical,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(
