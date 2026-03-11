@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SEGMENTS SOCIOLOGIQUES SERVICE — Sprint S12 / Chantier 6
@@ -93,7 +94,7 @@ class GenderGapService {
   static const double deductionCoordination = 26460;
 
   /// Maximum coordinated salary (LPP).
-  static const double maxSalaireCoordonne = 64260;
+  static const double maxSalaireCoordonne = lppSalaireCoordMax;
 
   /// Minimum coordinated salary (LPP).
   static const double minSalaireCoordonne = 3780;
@@ -117,7 +118,7 @@ class GenderGapService {
 
   /// Analyse the pension gap between current activity rate and 100%.
   static GenderGapResult analyse({required GenderGapInput input}) {
-    final anneesRestantes = (ageRetraite - input.age).clamp(0, 40);
+    final anneesRestantes = (avsAgeReferenceHomme - input.age).clamp(0, 40);
 
     // Salary at 100% (extrapolated from current taux)
     final salaire100 = input.tauxActivite > 0
@@ -126,36 +127,40 @@ class GenderGapService {
 
     // Coordinated salary at 100%
     final salaireCoordonne100 =
-        _computeSalaireCoordonne(salaire100);
+        LppCalculator.computeSalaireCoordonne(salaire100);
 
     // Coordinated salary at current taux
     final salaireCoordonneActuel =
-        _computeSalaireCoordonne(input.revenuAnnuel);
-
-    // Get contribution rate for current age
-    final tauxCotis = _getTauxCotisation(input.age);
+        LppCalculator.computeSalaireCoordonne(input.revenuAnnuel);
 
     // Project LPP capital at retirement for 100% activity
-    final capital100 = _projectCapital(
-      avoirActuel: input.avoirLpp,
-      salaireCoordonne: salaireCoordonne100,
-      tauxCotisation: tauxCotis,
-      anneesRestantes: anneesRestantes,
-      age: input.age,
+    // Delegates to LppCalculator.projectToRetirement() with conversionRate=1.0
+    // to get raw capital (not rente), using salaireAssureOverride for pre-computed
+    // coordinated salary.
+    final capital100 = LppCalculator.projectToRetirement(
+      currentBalance: input.avoirLpp,
+      currentAge: input.age,
+      retirementAge: ageRetraite,
+      grossAnnualSalary: salaire100,
+      caisseReturn: projectedReturn,
+      conversionRate: 1.0, // Return raw capital, not rente
+      salaireAssureOverride: salaireCoordonne100,
     );
 
     // Project LPP capital at retirement for current taux
-    final capitalActuel = _projectCapital(
-      avoirActuel: input.avoirLpp,
-      salaireCoordonne: salaireCoordonneActuel,
-      tauxCotisation: tauxCotis,
-      anneesRestantes: anneesRestantes,
-      age: input.age,
+    final capitalActuel = LppCalculator.projectToRetirement(
+      currentBalance: input.avoirLpp,
+      currentAge: input.age,
+      retirementAge: ageRetraite,
+      grossAnnualSalary: input.revenuAnnuel,
+      caisseReturn: projectedReturn,
+      conversionRate: 1.0, // Return raw capital, not rente
+      salaireAssureOverride: salaireCoordonneActuel,
     );
 
     // Convert capital to annual pension
-    final renteAt100 = capital100 * tauxConversion;
-    final renteAtCurrentTaux = capitalActuel * tauxConversion;
+    final renteAt100 = capital100 * lppTauxConversionMinDecimal;
+    final renteAtCurrentTaux = capitalActuel * lppTauxConversionMinDecimal;
     final lacuneAnnuelle = renteAt100 - renteAtCurrentTaux;
     final lacuneTotale = lacuneAnnuelle * 20; // approx 20 years of retirement
 
@@ -173,7 +178,7 @@ class GenderGapService {
       lacuneTotale: lacuneTotale,
       salaireCoordonne100: salaireCoordonne100,
       salaireCoordonneActuel: salaireCoordonneActuel,
-      deductionCoordination: deductionCoordination,
+      deductionCoordination: lppDeductionCoordination,
       anneesRestantes: anneesRestantes,
       recommendations: recommendations,
       statistiqueOfs: statistiqueOfs,
@@ -182,38 +187,8 @@ class GenderGapService {
 
   // ── Private helpers ────────────────────────────────────────
 
-  /// Compute the coordinated salary (salaire coordonne).
-  static double _computeSalaireCoordonne(double salaireBrut) {
-    final coordonne = salaireBrut - deductionCoordination;
-    if (coordonne < minSalaireCoordonne) {
-      return salaireBrut > deductionCoordination ? minSalaireCoordonne : 0;
-    }
-    return coordonne.clamp(0.0, maxSalaireCoordonne);
-  }
-
-  /// Get the LPP contribution rate for a given age.
-  static double _getTauxCotisation(int age) => getLppBonificationRate(age);
-
   /// Projected annual return on LPP capital (conservative estimate).
   static const double projectedReturn = 0.015;
-
-  /// Project LPP capital at retirement using age-varying contribution rates.
-  /// Includes 1.5% projected annual return (aligned with backend).
-  static double _projectCapital({
-    required double avoirActuel,
-    required double salaireCoordonne,
-    required double tauxCotisation,
-    required int anneesRestantes,
-    required int age,
-  }) {
-    double capital = avoirActuel;
-    for (int i = 0; i < anneesRestantes; i++) {
-      final ageYear = age + i;
-      final taux = _getTauxCotisation(ageYear);
-      capital = capital * (1 + projectedReturn) + salaireCoordonne * taux;
-    }
-    return capital;
-  }
 
   /// Build personalised recommendations.
   static List<GenderGapRecommendation> _buildRecommendations({
@@ -250,7 +225,7 @@ class GenderGapService {
     ));
 
     // 3. Proratisation coordination
-    if (input.tauxActivite < 100 && salaireCoordonneActuel < maxSalaireCoordonne * 0.5) {
+    if (input.tauxActivite < 100 && salaireCoordonneActuel < lppSalaireCoordMax * 0.5) {
       recs.add(const GenderGapRecommendation(
         title: 'Vérifier la proratisation de la coordination',
         description:
@@ -731,19 +706,7 @@ class IndependantResult {
 /// Key risks: no mandatory LPP, no mandatory IJM (CRITICAL),
 /// no mandatory LAA.
 class IndependantService {
-  // ── Constants ──────────────────────────────────────────────
-
-  /// 3a ceiling for self-employed without LPP (20% of net income, OPP3 art. 7).
-  static const double plafond3aMax = 36288;
-
-  /// 3a ceiling for self-employed WITH voluntary LPP (OPP3 art. 7, 2025/2026).
-  static const double plafond3aAvecLpp = 7258;
-
-  /// AVS rate for self-employed (full rate at income > 58'800).
-  static const double tauxAvsPlein = 0.106;
-
-  /// Swiss legal retirement age.
-  static const int ageRetraite = 65;
+  // ── Constants (delegated to social_insurance.dart) ─────────
 
   /// Simplified degressive AVS rates for low incomes.
   /// Key: income threshold, Value: effective rate.
@@ -776,8 +739,8 @@ class IndependantService {
     // 3a ceiling: 20% of net income if no LPP, max 35'280
     // If voluntary LPP: standard 7'258
     final plafond3a = input.hasLpp
-        ? plafond3aAvecLpp
-        : min(input.revenuNet * 0.20, plafond3aMax);
+        ? pilier3aPlafondAvecLpp
+        : min(input.revenuNet * 0.20, pilier3aPlafondSansLpp);
 
     // Protection cost simulation
     final protectionCost = _computeProtectionCost(
@@ -866,9 +829,9 @@ class IndependantService {
         urgency: input.has3a ? 'basse' : 'haute',
         recommendation: input.has3a
             ? 'Vérifie que tu verses le plafond '
-                '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}).'
+                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}).'
             : 'Ouvrez un 3e pilier et versez le maximum '
-                '(${formatChf(input.hasLpp ? plafond3aAvecLpp : plafond3aMax)}). '
+                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}). '
                 'Sans LPP, le 3a est ton principal outil de prévoyance.',
         source: 'OPP3 art. 7',
       ),
@@ -878,7 +841,7 @@ class IndependantService {
   /// Compute AVS contribution for self-employed (degressive scale).
   static double _computeAvsContribution(double revenuNet) {
     if (revenuNet <= 0) return 0;
-    if (revenuNet >= 58800) return revenuNet * tauxAvsPlein;
+    if (revenuNet >= 58800) return revenuNet * avsCotisationTotal;
 
     // Find applicable bracket
     for (int i = _avsDegressifBrackets.length - 1; i >= 0; i--) {

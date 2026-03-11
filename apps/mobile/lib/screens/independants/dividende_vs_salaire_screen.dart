@@ -146,7 +146,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               'Si tu possèdes une SA ou Sàrl, tu peux te verser une '
               'combinaison de salaire et de dividendes. Le dividende '
               'est imposé à 50% (participation qualifiante) et échappe '
-              'aux cotisations AVS. Trouve le split optimal.',
+              'aux cotisations AVS. Trouve le split le plus adapte.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -528,7 +528,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             children: [
               _buildChartLegend(MintColors.primary, 'Charge totale'),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.success, 'Split optimal'),
+              _buildChartLegend(MintColors.success, 'Split adapte'),
               const SizedBox(width: 16),
               _buildChartLegend(MintColors.info, 'Position actuelle'),
             ],

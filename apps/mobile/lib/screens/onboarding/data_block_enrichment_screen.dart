@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -14,7 +16,7 @@ import 'package:mint_mobile/theme/colors.dart';
 ///
 /// Supported block types: revenu, lpp, avs, 3a, patrimoine,
 /// objectifRetraite, compositionMenage.
-class DataBlockEnrichmentScreen extends StatelessWidget {
+class DataBlockEnrichmentScreen extends StatefulWidget {
   final String blockType;
   static const Set<String> _supportedBlockTypes = {
     'revenu',
@@ -22,6 +24,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
     'avs',
     '3a',
     'patrimoine',
+    'fiscalite',
     'objectifRetraite',
     'compositionMenage',
   };
@@ -32,16 +35,44 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
   });
 
   @override
+  State<DataBlockEnrichmentScreen> createState() =>
+      _DataBlockEnrichmentScreenState();
+}
+
+class _DataBlockEnrichmentScreenState
+    extends State<DataBlockEnrichmentScreen> {
+  bool _showCoachMode = false;
+
+  /// Cached cross-validation alerts to avoid recomputing on every build.
+  List<ValidationAlert>? _cachedAlerts;
+  CoachProfile? _cachedAlertsProfile;
+
+  List<ValidationAlert> _getAlertsForBlock(
+      CoachProfile profile, String blockType) {
+    // Recompute only when the profile object changes (Provider identity).
+    if (!identical(profile, _cachedAlertsProfile)) {
+      _cachedAlerts = CrossValidationService.validate(profile);
+      _cachedAlertsProfile = profile;
+    }
+    return _cachedAlerts!.where((a) => a.block == blockType).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final profile = context.watch<CoachProfileProvider>().profile;
-    final canonicalBlockType = _canonicalBlockType(blockType);
-    final isKnownBlock = _supportedBlockTypes.contains(canonicalBlockType);
+    final canonicalBlockType = _canonicalBlockType(widget.blockType);
+    final isKnownBlock =
+        DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
     final blocs = profile != null
         ? ConfidenceScorer.scoreAsBlocs(profile)
         : <String, BlockScore>{};
     final bloc = isKnownBlock ? blocs[canonicalBlockType] : null;
 
     final meta = _blockMeta(isKnownBlock ? canonicalBlockType : 'unknown');
+
+    // Check if SLM or BYOK is available for coach mode
+    final slmProvider = context.watch<SlmProvider>();
+    final coachAvailable = slmProvider.isEngineAvailable;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -62,7 +93,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -73,23 +104,46 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
               if (bloc != null) _BlockScoreBar(bloc: bloc),
               const SizedBox(height: 24),
 
-              // ── Description ──────────────────────────────────────
-              Text(
-                meta.description,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                  height: 1.5,
-                ),
+              // ── Coach mode toggle ───────────────────────────────
+              _CoachModeToggle(
+                isCoachMode: _showCoachMode,
+                coachAvailable: coachAvailable,
+                onToggle: (value) {
+                  if (value) {
+                    // Navigate to coach chat with contextual prompt
+                    final prompt = _coachPromptForBlock(canonicalBlockType);
+                    context.push('/coach/chat?prompt=${Uri.encodeComponent(prompt)}');
+                  } else {
+                    setState(() => _showCoachMode = false);
+                  }
+                },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // ── Description ─────────────────────────────────────
+              ...[
+                Text(
+                  meta.description,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: MintColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // ── Enrichment prompts for this block ────────────────
               if (profile != null) ...[
                 _buildPrompts(profile, canonicalBlockType, bloc),
               ],
 
-              const Spacer(),
+              // ── Cross-validation alerts ────────────────────────────
+              if (profile != null) ...[
+                _buildValidationAlerts(profile, canonicalBlockType),
+              ],
+
+              const SizedBox(height: 32),
 
               // ── CTA ──────────────────────────────────────────────
               SizedBox(
@@ -266,6 +320,78 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildValidationAlerts(CoachProfile profile, String blockType) {
+    final relevant = _getAlertsForBlock(profile, blockType);
+
+    if (relevant.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        ...relevant.map((alert) {
+          final color = switch (alert.severity) {
+            AlertSeverity.error => MintColors.error,
+            AlertSeverity.warning => MintColors.warning,
+            AlertSeverity.info => MintColors.primary,
+          };
+          final icon = switch (alert.severity) {
+            AlertSeverity.error => Icons.error_outline,
+            AlertSeverity.warning => Icons.warning_amber_rounded,
+            AlertSeverity.info => Icons.lightbulb_outline,
+          };
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withAlpha(12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withAlpha(48)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(icon, color: color, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          alert.message,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MintColors.textPrimary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (alert.suggestion != null) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: Text(
+                        alert.suggestion!,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
   bool _categoryMatchesBlock(String category, String blockType) {
     const mapping = {
       'revenu': ['income'],
@@ -273,6 +399,7 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
       'avs': ['avs'],
       '3a': ['3a'],
       'patrimoine': ['patrimoine'],
+      'fiscalite': ['fiscalite', 'tax', 'commune'],
       'objectifRetraite': ['objectif_retraite', 'retirement_urgency'],
       'compositionMenage': ['menage'],
       'foreign_pension': ['foreign_pension'],
@@ -281,13 +408,28 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
     return categories.contains(category);
   }
 
+  String _coachPromptForBlock(String type) {
+    return switch (type) {
+      '3a' => 'Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.',
+      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour ameliorer ma situation.',
+      'avs' => 'Parle-moi de ma rente AVS : est-ce que j\'ai des lacunes de cotisation et comment les combler ?',
+      'patrimoine' => 'Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.',
+      'fiscalite' => 'Aide-moi a comprendre ma situation fiscale et les leviers d\'optimisation possibles.',
+      'revenu' => 'Je veux comprendre l\'impact de mon revenu sur ma prevoyance et mes impots.',
+      'objectifRetraite' => 'Quel serait l\'impact si je partais a la retraite plus tot ou plus tard ?',
+      'compositionMenage' => 'Comment la situation de couple influence mes projections de retraite ?',
+      _ => 'Aide-moi a completer mon profil financier.',
+    };
+  }
+
   String? _enrichmentRoute(String type) {
     const routes = {
       'revenu': '/profile/bilan',
       'lpp': '/document-scan',
       'avs': '/document-scan/avs-guide',
-      '3a': '/3a-deep/comparator',
+      '3a': '/profile/bilan',
       'patrimoine': '/profile/bilan',
+      'fiscalite': '/document-scan?type=taxDeclaration',
       'objectifRetraite': '/profile/bilan',
       'compositionMenage': '/profile/bilan',
     };
@@ -335,6 +477,13 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
       'assets' =>
         'patrimoine',
       '3a' || 'pilier_3a' || 'epargne_3a' => '3a',
+      'fiscalite' ||
+      'fiscal' ||
+      'tax' ||
+      'impot' ||
+      'impots' ||
+      'tax_declaration' =>
+        'fiscalite',
       _ => rawType.trim(),
     };
   }
@@ -409,6 +558,15 @@ class DataBlockEnrichmentScreen extends StatelessWidget {
               'complètent ta projection et permettent de calculer ton '
               'Financial Resilience Index.',
           ctaLabel: 'Renseigner mon patrimoine',
+        ),
+      'fiscalite' => const _BlockMeta(
+          title: 'Fiscalite',
+          description:
+              'Ta commune, ton revenu imposable et ta fortune determinent '
+              'ton taux marginal d\'imposition. Une declaration fiscale '
+              'ou un avis de taxation donne un taux reel plutot qu\'estime '
+              '(coefficient communal 60%-130%).',
+          ctaLabel: 'Scanner ma declaration fiscale',
         ),
       'objectifRetraite' => const _BlockMeta(
           title: 'Objectif retraite',
@@ -517,3 +675,111 @@ class _BlockScoreBar extends StatelessWidget {
     );
   }
 }
+
+// ═══════════════════════════════════════════════════════════════
+// Coach Mode Toggle
+// ═══════════════════════════════════════════════════════════════
+
+class _CoachModeToggle extends StatelessWidget {
+  final bool isCoachMode;
+  final bool coachAvailable;
+  final ValueChanged<bool> onToggle;
+
+  const _CoachModeToggle({
+    required this.isCoachMode,
+    required this.coachAvailable,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _ModeChip(
+            label: 'Formulaire',
+            icon: Icons.edit_note,
+            isSelected: !isCoachMode,
+            onTap: () => onToggle(false),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ModeChip(
+            label: 'Parle au coach',
+            icon: Icons.smart_toy_outlined,
+            isSelected: isCoachMode,
+            isDisabled: !coachAvailable,
+            onTap: coachAvailable ? () => onToggle(true) : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ModeChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final bool isDisabled;
+  final VoidCallback? onTap;
+
+  const _ModeChip({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    this.isDisabled = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDisabled
+        ? MintColors.textMuted
+        : isSelected
+            ? MintColors.primary
+            : MintColors.textSecondary;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? MintColors.primary.withAlpha(15)
+              : MintColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? MintColors.primary.withAlpha(60)
+                : MintColors.lightBorder,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Coach Bubble — conversational enrichment guide
+// ═══════════════════════════════════════════════════════════════
+
+// _CoachBubble removed — "Parle au coach" now navigates to /coach/chat
+// with a contextual prompt for the block type.

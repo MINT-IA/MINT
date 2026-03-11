@@ -137,11 +137,13 @@ class TestAvsEstimation:
         result = avs_service.estimate(current_age=50, retirement_age=65)
         assert result.rente_mensuelle == 2520.0
 
-    def test_rente_annuelle_30240(self, avs_service):
-        """Annual rente at normal retirement with full contributions = 30240."""
+    def test_rente_annuelle_with_13th(self, avs_service):
+        """Annual rente at normal retirement with full contributions includes 13th rente."""
         result = avs_service.estimate(current_age=50, retirement_age=65)
-        assert result.rente_annuelle == 30240.0
-        assert result.rente_annuelle == result.rente_mensuelle * 12
+        # 13ème rente active (LAVS art. 34 nouveau): 2520 × 13 = 32760
+        assert result.rente_annuelle == 32760.0
+        assert result.nombre_rentes_par_an == 13
+        assert result.rente_annuelle == result.rente_mensuelle * 13
 
     def test_breakeven_anticipation(self, avs_service):
         """Anticipation breakeven: normal should catch up at some age."""

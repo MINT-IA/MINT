@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
+import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
+import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
+import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
+import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -132,7 +139,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          'Expatriation',
+          S.of(context)!.expatTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -166,10 +173,10 @@ class _ExpatScreenState extends State<ExpatScreen>
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        tabs: const [
-          Tab(text: 'Forfait'),
-          Tab(text: 'Depart'),
-          Tab(text: 'AVS'),
+        tabs: [
+          Tab(text: S.of(context)!.expatTabForfait),
+          Tab(text: S.of(context)!.expatTabDeparture),
+          Tab(text: S.of(context)!.expatTabAvs),
         ],
       ),
     );
@@ -192,13 +199,64 @@ class _ExpatScreenState extends State<ExpatScreen>
         _buildAbolishedWarning(),
         const SizedBox(height: 20),
         _buildEducationalInsert(
-          'Le forfait fiscal (imposition d\'apres la depense) permet aux '
-          'personnes de nationalite etrangere de ne pas etre imposees sur '
-          'leur revenu mondial, mais sur la base de leurs depenses de vie. '
-          'Environ 5\'000 personnes en beneficient en Suisse.',
+          S.of(context)!.expatForfaitEducation,
         ),
         const SizedBox(height: 20),
+        _buildTopCantonSection(),
+        const SizedBox(height: 24),
         _buildDisclaimer(),
+      ],
+    );
+  }
+
+  Widget _buildTopCantonSection() {
+    // Scale tax savings relative to user income (base = 100k reference)
+    final scale = (_actualIncome / 100000).clamp(0.3, 10.0);
+    return TopCantonWidget(
+      currentCanton: _departCanton,
+      rankings: [
+        CantonRanking(
+          rank: 1,
+          canton: 'Schwyz',
+          shortCode: 'SZ',
+          annualTaxSaving: (8500 * scale).roundToDouble(),
+          monthlyLamal: 310,
+          monthlyRent: 1800,
+          highlight: S.of(context)!.expatHighlightSchwyz,
+        ),
+        CantonRanking(
+          rank: 2,
+          canton: 'Zoug',
+          shortCode: 'ZG',
+          annualTaxSaving: (7200 * scale).roundToDouble(),
+          monthlyLamal: 295,
+          monthlyRent: 2200,
+          highlight: S.of(context)!.expatHighlightZug,
+        ),
+        CantonRanking(
+          rank: 3,
+          canton: 'Nidwald',
+          shortCode: 'NW',
+          annualTaxSaving: (5800 * scale).roundToDouble(),
+          monthlyLamal: 288,
+          monthlyRent: 1600,
+        ),
+        CantonRanking(
+          rank: 4,
+          canton: 'Uri',
+          shortCode: 'UR',
+          annualTaxSaving: (5100 * scale).roundToDouble(),
+          monthlyLamal: 280,
+          monthlyRent: 1400,
+        ),
+        CantonRanking(
+          rank: 5,
+          canton: 'Appenzell Rh.-Int.',
+          shortCode: 'AI',
+          annualTaxSaving: (4600 * scale).roundToDouble(),
+          monthlyLamal: 285,
+          monthlyRent: 1500,
+        ),
       ],
     );
   }
@@ -227,7 +285,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Canton',
+                  S.of(context)!.expatCanton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -270,7 +328,7 @@ class _ExpatScreenState extends State<ExpatScreen>
 
           // Living expenses slider
           _buildSlider(
-            label: 'Depenses de vie annuelles',
+            label: S.of(context)!.expatLivingExpenses,
             value: _livingExpenses,
             min: 250000,
             max: 5000000,
@@ -284,7 +342,7 @@ class _ExpatScreenState extends State<ExpatScreen>
 
           // Actual income slider
           _buildSlider(
-            label: 'Revenu reel annuel',
+            label: S.of(context)!.expatActualIncome,
             value: _actualIncome,
             min: 500000,
             max: 20000000,
@@ -360,7 +418,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.compare_arrows, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'COMPARAISON FISCALE',
+                S.of(context)!.expatTaxComparison,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -388,7 +446,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                           size: 24, color: MintColors.textSecondary),
                       const SizedBox(height: 8),
                       Text(
-                        'Forfait fiscal',
+                        S.of(context)!.expatForfaitFiscal,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -433,7 +491,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                           size: 24, color: MintColors.textSecondary),
                       const SizedBox(height: 8),
                       Text(
-                        'Imposition ordinaire',
+                        S.of(context)!.expatOrdinaryTaxation,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -453,7 +511,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Sur revenu reel',
+                        S.of(context)!.expatOnActualIncome,
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           color: MintColors.textMuted,
@@ -495,8 +553,8 @@ class _ExpatScreenState extends State<ExpatScreen>
                 Flexible(
                   child: Text(
                     isFavorable
-                        ? 'Economie: ${ExpatService.formatChf(savings.abs())} (-${savingsPercent.toStringAsFixed(0)}%)'
-                        : 'Forfait plus couteux: +${ExpatService.formatChf(savings.abs())}',
+                        ? 'Économie: ${ExpatService.formatChf(savings.abs())} (-${savingsPercent.toStringAsFixed(0)}%)'
+                        : 'Forfait plus coûteux: +${ExpatService.formatChf(savings.abs())}',
                     style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -537,7 +595,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cantons ayant aboli le forfait',
+                  S.of(context)!.expatAbolishedCantons,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -546,7 +604,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$names — le forfait fiscal n\'est plus disponible dans ces cantons.',
+                  S.of(context)!.expatAbolishedNote(names),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -573,6 +631,35 @@ class _ExpatScreenState extends State<ExpatScreen>
         const SizedBox(height: 20),
         _buildNoExitTaxBadge(),
         const SizedBox(height: 20),
+        ExpatCountdownWidget(
+          departureDate: _departureDate,
+          deadlines: const [
+            ExpatDeadline(
+              label: '3ème pilier 3a — clôture ou gel',
+              emoji: '🏦',
+              daysFromDeparture: -90,
+              action: 'Contacte ta banque pour planifier la clôture ou le transfert du 3a.',
+              legalRef: 'OPP3 art. 1',
+              consequence: 'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.',
+            ),
+            ExpatDeadline(
+              label: 'LPP — libre passage',
+              emoji: '💼',
+              daysFromDeparture: -60,
+              action: 'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.',
+              legalRef: 'LPP art. 5 + LFLP art. 4',
+            ),
+            ExpatDeadline(
+              label: 'AVS — cotisation volontaire',
+              emoji: '🛡️',
+              daysFromDeparture: 0,
+              action: 'Si tu t\'installes hors EU/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.',
+              legalRef: 'LAVS art. 2',
+              isEuOnly: false,
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
         if (_departResult != null) ...[
           _buildDepartTimeline(),
           const SizedBox(height: 20),
@@ -580,10 +667,69 @@ class _ExpatScreenState extends State<ExpatScreen>
           const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'La Suisse ne preleve pas de taxe de sortie (exit tax) — '
-          'contrairement aux Etats-Unis ou a la France. '
-          'Tes gains en capital latents ne sont pas imposes au moment du depart. '
-          'C\'est un avantage majeur pour les expatries.',
+          'La Suisse ne prélève pas de taxe de sortie (exit tax) — '
+          'contrairement aux États-Unis ou à la France. '
+          'Tes gains en capital latents ne sont pas imposés au moment du départ. '
+          'C\'est un avantage majeur pour les expatriés.',
+        ),
+        const SizedBox(height: 20),
+        // ── P13-A : 5 choses que tu perds en partant ───────────
+        ExpatRightsLossWidget(
+          destination: 'l\'étranger',
+          isEuDestination: false,
+          rights: const [
+            ExpatRight(
+              label: 'AVS — cotisation obligatoire',
+              emoji: '🛡️',
+              before: 'Cotisation automatique via employeur',
+              after: 'Lacunes AVS → rente réduite',
+              legalRef: 'LAVS art. 1a',
+              impact:
+                  'Chaque année manquante réduit ta rente AVS de ~2.3%. '
+                  '10 ans = −23% à vie.',
+              isIrreversible: true,
+            ),
+            ExpatRight(
+              label: 'LPP — 2e pilier',
+              emoji: '🏦',
+              before: 'Épargne retraite obligatoire',
+              after: 'Capital bloqué ou retiré sans rendement',
+              legalRef: 'LPP art. 5',
+              impact:
+                  'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt '
+                  'sur le capital retiré. La reconstitution est impossible à l\'étranger.',
+            ),
+            ExpatRight(
+              label: 'Pilier 3a',
+              emoji: '🏛️',
+              before: 'Déductions fiscales annuelles',
+              after: 'Compte bloqué — aucun nouveau versement possible',
+              legalRef: 'OPP3 art. 1',
+              impact:
+                  'Tu perds le droit de verser dans le 3a dès que tu n\'as '
+                  'plus de revenu soumis à l\'AVS suisse.',
+            ),
+            ExpatRight(
+              label: 'LAMal — assurance maladie',
+              emoji: '🏥',
+              before: 'Couverture universelle en Suisse',
+              after: 'Tu dois t\'assurer dans le pays de résidence',
+              legalRef: 'LAMal art. 3',
+              impact:
+                  'La couverture internationale est souvent partielle et '
+                  'coûteuse. Vérifie les conventions bilatérales.',
+            ),
+            ExpatRight(
+              label: 'Chômage AC',
+              emoji: '💼',
+              before: 'Indemnités AC jusqu\'à 520 jours',
+              after: 'Aucun droit AC suisse si tu travailles à l\'étranger',
+              legalRef: 'LACI art. 8',
+              impact:
+                  'Si tu perds ton emploi à l\'étranger, seul le régime '
+                  'local s\'applique — souvent moins généreux.',
+            ),
+          ],
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -610,7 +756,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Date de depart',
+                  S.of(context)!.expatDepartureDate,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -677,7 +823,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Canton actuel',
+                  S.of(context)!.expatCurrentCanton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -720,7 +866,7 @@ class _ExpatScreenState extends State<ExpatScreen>
 
           // Pillar 3a balance
           _buildSlider(
-            label: 'Solde pilier 3a',
+            label: S.of(context)!.expatPillar3aBalance,
             value: _pillar3aBalance,
             min: 0,
             max: 500000,
@@ -734,7 +880,7 @@ class _ExpatScreenState extends State<ExpatScreen>
 
           // LPP balance
           _buildSlider(
-            label: 'Solde LPP (avoir de vieillesse)',
+            label: S.of(context)!.expatLppBalance,
             value: _lppBalance,
             min: 0,
             max: 1000000,
@@ -764,7 +910,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           const SizedBox(width: 8),
           Flexible(
             child: Text(
-              'Pas de taxe de sortie en Suisse',
+              S.of(context)!.expatNoExitTax,
               style: GoogleFonts.montserrat(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -785,34 +931,34 @@ class _ExpatScreenState extends State<ExpatScreen>
     final items = <Map<String, String>>[
       {
         'label': 'Aujourd\'hui',
-        'desc': 'Commence a planifier',
+        'desc': 'Commence à planifier',
         'timing': 'Maintenant',
       },
       {
         'label': '2-3 mois avant',
-        'desc': 'Annoncer a la commune, resilier LAMal',
+        'desc': 'Annoncer à la commune, résilier LAMal',
         'timing': daysUntil > 90
             ? 'Dans ~${((daysUntil - 90) / 30).round()} mois'
             : 'Urgent !',
       },
       {
         'label': '1 mois avant',
-        'desc': 'Retirer 3a, transferer LPP',
+        'desc': 'Retirer 3a, transférer LPP',
         'timing': daysUntil > 30
             ? 'Dans ~${((daysUntil - 30) / 30).round()} mois'
             : 'Urgent !',
       },
       {
         'label': 'Jour J',
-        'desc': 'Depart effectif',
+        'desc': 'Départ effectif',
         'timing': daysUntil > 0
             ? 'Dans $daysUntil jours'
-            : 'Passe',
+            : 'Passé',
       },
       {
-        'label': '30 jours apres',
-        'desc': 'Declarer impots prorata temporis',
-        'timing': 'Apres le depart',
+        'label': '30 jours après',
+        'desc': 'Déclarer impôts prorata temporis',
+        'timing': 'Après le départ',
       },
     ];
 
@@ -831,7 +977,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHRONOLOGIE OPTIMALE',
+                S.of(context)!.expatRecommendedTimeline,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -947,7 +1093,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHECKLIST DE DEPART',
+                S.of(context)!.expatDepartureChecklist,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1106,12 +1252,19 @@ class _ExpatScreenState extends State<ExpatScreen>
           _buildAvsRecommendation(),
           const SizedBox(height: 20),
         ],
+        Builder(builder: (context) {
+          final provider = context.read<CoachProfileProvider>();
+          final profileAge = (provider.hasProfile && provider.profile!.age > 0)
+              ? provider.profile!.age
+              : 40;
+          return AvsGapWidget(
+            currentContributionYears: _yearsInCh,
+            currentAge: profileAge,
+          );
+        }),
+        const SizedBox(height: 20),
         _buildEducationalInsert(
-          'Pour toucher une rente AVS complete (max CHF 2\'520/mois), '
-          'il faut 44 annees de cotisation sans lacune. '
-          'Chaque annee manquante reduit ta rente d\'environ 2.3%. '
-          'Si tu vis a l\'etranger, tu peux cotiser volontairement a l\'AVS '
-          'pour eviter les lacunes.',
+          S.of(context)!.expatAvsEducation,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -1132,7 +1285,7 @@ class _ExpatScreenState extends State<ExpatScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSlider(
-            label: 'Annees en Suisse',
+            label: S.of(context)!.expatYearsInSwitzerland,
             value: _yearsInCh.toDouble(),
             min: 0,
             max: 44,
@@ -1146,7 +1299,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           ),
           const SizedBox(height: 20),
           _buildSlider(
-            label: 'Annees a l\'etranger',
+            label: S.of(context)!.expatYearsAbroad,
             value: _yearsAbroad.toDouble(),
             min: 0,
             max: 44,
@@ -1199,7 +1352,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.donut_large, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'COMPLETUDE AVS',
+                S.of(context)!.expatAvsCompleteness,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1241,7 +1394,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                       ),
                     ),
                     Text(
-                      'de rente',
+                      S.of(context)!.expatOfPension,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textMuted,
@@ -1265,7 +1418,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Rente estimee',
+                  S.of(context)!.expatEstimatedPension,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -1309,8 +1462,7 @@ class _ExpatScreenState extends State<ExpatScreen>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Felicitations ! Tu as tes 44 annees completes de cotisation. '
-                'Ta rente AVS ne devrait pas etre reduite.',
+                S.of(context)!.expatAvsComplete,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textPrimary,
@@ -1338,7 +1490,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.trending_down, size: 16, color: MintColors.error),
               const SizedBox(width: 8),
               Text(
-                'IMPACT SUR TA RENTE',
+                S.of(context)!.expatPensionImpact,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1350,24 +1502,24 @@ class _ExpatScreenState extends State<ExpatScreen>
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Annees manquantes',
+            S.of(context)!.expatMissingYears,
             '$missingYears ans',
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Reduction estimee',
+            S.of(context)!.expatEstimatedReduction,
             '-${reductionPercent.toStringAsFixed(1)}%',
             color: MintColors.error,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Perte mensuelle',
+            S.of(context)!.expatMonthlyLoss,
             '-${ExpatService.formatChf(monthlyLoss)}',
             color: MintColors.error,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Perte annuelle',
+            S.of(context)!.expatAnnualLoss,
             '-${ExpatService.formatChf(annualLoss)}',
             color: MintColors.error,
             bold: true,
@@ -1380,9 +1532,9 @@ class _ExpatScreenState extends State<ExpatScreen>
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Chaque annee manquante reduit ta rente d\'environ '
+              'Chaque année manquante réduit ta rente d\'environ '
               '${(ExpatService.reductionPerMissingYear * 100).toStringAsFixed(1)}%. '
-              'La reduction est definitive et s\'applique a vie.',
+              'La réduction est définitive et s\'applique à vie.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
@@ -1411,7 +1563,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.savings_outlined, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'COTISATION VOLONTAIRE',
+                S.of(context)!.expatVoluntaryContribution,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1432,7 +1584,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AVS facultative depuis l\'etranger',
+                  S.of(context)!.expatVoluntaryAvsTitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1441,19 +1593,17 @@ class _ExpatScreenState extends State<ExpatScreen>
                 ),
                 const SizedBox(height: 8),
                 _buildResultRow(
-                  'Cotisation minimum',
+                  S.of(context)!.expatMinContribution,
                   '${ExpatService.formatChf(ExpatService.avsVoluntaryMin)}/an',
                 ),
                 const SizedBox(height: 6),
                 _buildResultRow(
-                  'Cotisation maximum',
+                  S.of(context)!.expatMaxContribution,
                   '${ExpatService.formatChf(ExpatService.avsVoluntaryMax)}/an',
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Tu peux cotiser volontairement a l\'AVS si tu vis a l\'etranger. '
-                  'Delai d\'inscription : 1 an apres le depart de Suisse. '
-                  'Conditions : avoir cotise au moins 5 ans consecutifs avant le depart.',
+                  S.of(context)!.expatVoluntaryAvsBody,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1487,7 +1637,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               const Icon(Icons.tips_and_updates, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'RECOMMANDATION',
+                S.of(context)!.expatRecommendation,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1637,7 +1787,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le savais-tu ?',
+                  S.of(context)!.expatDidYouKnow,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

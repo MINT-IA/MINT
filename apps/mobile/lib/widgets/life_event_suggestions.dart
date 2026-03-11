@@ -120,7 +120,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (employmentStatus == 'independent') {
     suggestions.add(const LifeEventSuggestion(
-      title: 'Outils independant',
+      title: 'Outils indépendant',
       reason: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
       icon: Icons.storefront_outlined,
       route: '/segments/independant',
@@ -156,7 +156,7 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   const highTaxCantons = ['GE', 'VD', 'NE', 'JU', 'BE', 'BS'];
   if (highTaxCantons.contains(canton.toUpperCase())) {
     suggestions.add(const LifeEventSuggestion(
-      title: 'Demenagement cantonal',
+      title: 'Déménagement cantonal',
       reason: 'Ton canton est parmi les plus imposés — compare les 26',
       icon: Icons.map_outlined,
       route: '/fiscal',
@@ -168,8 +168,8 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 
   if (childrenCount > 0 || monthlyNetIncome > 6000) {
     suggestions.add(const LifeEventSuggestion(
-      title: 'Invalidite',
-      reason: 'Verifie ta couverture AI + LPP en cas d\'accident',
+      title: 'Invalidité',
+      reason: 'Vérifie ta couverture AI + LPP en cas d\'accident',
       icon: Icons.accessible,
       route: '/simulator/disability-gap',
       color: MintColors.error,

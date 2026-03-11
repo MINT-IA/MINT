@@ -12,6 +12,8 @@ import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // ── Helpers ──────────────────────────────────────────────────
@@ -22,7 +24,15 @@ void main() {
         ChangeNotifierProvider(create: (_) => ByokProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
-      child: MaterialApp(home: child),
+      child: MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,home: child),
     );
   }
 
@@ -52,7 +62,15 @@ void main() {
         ChangeNotifierProvider(create: (_) => ByokProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
-      child: MaterialApp(home: child),
+      child: MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,home: child),
     );
   }
 
@@ -114,6 +132,16 @@ void main() {
   //  COACH CHAT SCREEN SMOKE TESTS
   // ═══════════════════════════════════════════════════════════════
 
+  /// Helper: use phone viewport for chat tests with ResponseCardStrip.
+  void usePhoneViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  }
+
   group('CoachChatScreen', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
@@ -127,6 +155,7 @@ void main() {
     });
 
     testWidgets('renders with full profile', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -136,6 +165,7 @@ void main() {
     });
 
     testWidgets('shows greeting message', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -149,6 +179,7 @@ void main() {
     });
 
     testWidgets('shows input bar with hint text', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -162,6 +193,7 @@ void main() {
     });
 
     testWidgets('shows send button', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -171,6 +203,7 @@ void main() {
     });
 
     testWidgets('shows Coach MINT app bar title', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -180,13 +213,16 @@ void main() {
         find.text('Coach MINT'),
         findsOneWidget,
       );
+      // Subtitle now shows tier-based text (e.g. "Mode hors-ligne",
+      // "IA on-device", or "IA cloud (BYOK)") instead of static text.
       expect(
-        find.text('Conversation éducative'),
+        find.textContaining('Mode hors-ligne'),
         findsOneWidget,
       );
     });
 
     testWidgets('shows disclaimer banner', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -198,20 +234,23 @@ void main() {
       );
     });
 
-    testWidgets('shows BYOK CTA when key not configured', (tester) async {
+    testWidgets('shows settings icon when BYOK not configured', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
-      // BYOK CTA should appear since no key is configured
+      // BYOK configuration is now accessible via the gear icon in the app bar
+      // (no inline CTA). Verify the settings icon is present.
       expect(
-        find.textContaining('Configure ton coach IA'),
+        find.byIcon(Icons.settings_outlined),
         findsOneWidget,
       );
     });
 
     testWidgets('shows suggested action chips in greeting', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );

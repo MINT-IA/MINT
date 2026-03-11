@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Widget tests for CoachPaywallSheet (P6 — Multi-tier Paywall).
 ///
@@ -29,6 +31,14 @@ void main() {
 
   Widget buildTestWidget() {
     return MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
       home: ChangeNotifierProvider(
         create: (_) => SubscriptionProvider(),
         child: Scaffold(

@@ -31,18 +31,18 @@ class _BankImportScreenState extends State<BankImportScreen> {
 
   // Category color mapping
   static const Map<String, Color> _categoryColors = {
-    'Logement': Color(0xFF007AFF),
-    'Alimentation': Color(0xFF34C759),
-    'Transport': Color(0xFF5856D6),
-    'Assurance': Color(0xFFFF9500),
-    'Telecom': Color(0xFFFF2D55),
-    'Impots': Color(0xFF8E8E93),
-    'Sante': Color(0xFFAF52DE),
-    'Loisirs': Color(0xFF5AC8FA),
-    'Epargne': Color(0xFF30D158),
-    'Salaire': Color(0xFF32D74B),
-    'Restaurant': Color(0xFFFF6482),
-    'Divers': Color(0xFFA2845E),
+    'Logement': MintColors.info,
+    'Alimentation': MintColors.greenApple,
+    'Transport': MintColors.purpleIos,
+    'Assurance': MintColors.orangeGold,
+    'Telecom': MintColors.redApple,
+    'Impots': MintColors.greyApple,
+    'Sante': MintColors.purpleApple,
+    'Loisirs': MintColors.blueApple,
+    'Epargne': MintColors.greenIos,
+    'Salaire': MintColors.greenMint,
+    'Restaurant': MintColors.pinkHot,
+    'Divers': MintColors.categoryMisc,
   };
 
   @override
@@ -480,7 +480,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
               _localizeCategory(s, entry.key),
               entry.value,
               totalExpenses,
-              _categoryColors[entry.key] ?? const Color(0xFFA2845E),
+              _categoryColors[entry.key] ?? MintColors.categoryMisc,
             ),
             const SizedBox(height: 10),
           ],
@@ -687,7 +687,7 @@ class _BankImportScreenState extends State<BankImportScreen> {
     final amountStr =
         '${isCredit ? '+' : '-'}${_formatChf(tx.amount.abs())}';
     final color =
-        _categoryColors[tx.category] ?? const Color(0xFFA2845E);
+        _categoryColors[tx.category] ?? MintColors.categoryMisc;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

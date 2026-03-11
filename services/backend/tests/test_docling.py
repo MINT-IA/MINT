@@ -11,9 +11,6 @@ import os
 import tempfile
 
 import pytest
-from fastapi.testclient import TestClient
-
-from app.main import app
 
 _chromadb_available = importlib.util.find_spec("chromadb") is not None
 requires_chromadb = pytest.mark.skipif(
@@ -216,16 +213,12 @@ Rente d'invalidité | CHF 30'000 | CHF 12'000 | CHF 42'000
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-@pytest.fixture
-def client():
-    """Test client for FastAPI app."""
-    # Clear the in-memory document store between tests
+@pytest.fixture(autouse=True)
+def _clear_document_store():
+    """Clear the in-memory document store between tests."""
     from app.api.v1.endpoints.documents import _document_store
     _document_store.clear()
-
-    with TestClient(app) as c:
-        yield c
-
+    yield
     _document_store.clear()
 
 
@@ -800,6 +793,7 @@ class TestDocumentTypeDetection:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@requires_pdfplumber
 @requires_chromadb
 class TestDoclingRAGIntegration:
     """Tests for RAG indexation of extracted document data."""

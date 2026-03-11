@@ -22,41 +22,45 @@ class FallbackTemplates {
   /// - Fiscal season
   /// - FRI score delta
   static String greeting(CoachContext ctx) {
+    final hasName = ctx.firstName.isNotEmpty;
+    final salut = hasName ? 'Salut ${ctx.firstName}.' : 'Bonjour.';
+
     // Same-day return
     if (ctx.daysSinceLastVisit == 0) {
-      return 'Bon retour, ${ctx.firstName}.';
+      return hasName ? 'Bon retour, ${ctx.firstName}.' : 'Bon retour.';
     }
 
     // Recent visit (< 7 days)
     if (ctx.daysSinceLastVisit < 7) {
-      return 'Content de te revoir, ${ctx.firstName}.';
+      return hasName ? 'Content de te revoir, ${ctx.firstName}.' : 'Content de te revoir.';
     }
 
     // Fiscal season: 3a deadline (Oct-Dec)
     if (ctx.fiscalSeason == '3a_deadline') {
-      return '${ctx.firstName}, pense à ton 3a avant la fin de l\'année.';
+      return hasName
+          ? '${ctx.firstName}, pense à ton 3a avant la fin de l\'année.'
+          : 'Pense à ton 3a avant la fin de l\'année.';
     }
 
     // Fiscal season: tax declaration (Feb-Mar)
     if (ctx.fiscalSeason == 'tax_declaration') {
-      return '${ctx.firstName}, c\'est la saison de la déclaration fiscale.';
+      return hasName
+          ? '${ctx.firstName}, c\'est la saison de la déclaration fiscale.'
+          : 'C\'est la saison de la déclaration fiscale.';
     }
 
     // Positive delta since last visit
     if (ctx.friDelta > 0) {
-      return 'Salut ${ctx.firstName}. '
-          '+${ctx.friDelta.toStringAsFixed(0)} points depuis ta dernière visite.';
+      return '$salut +${ctx.friDelta.toStringAsFixed(0)} points depuis ta dernière visite.';
     }
 
     // Negative delta
     if (ctx.friDelta < 0) {
-      return 'Salut ${ctx.firstName}. '
-          'Ton score a bougé de ${ctx.friDelta.toStringAsFixed(0)} points.';
+      return '$salut Ton score a bougé de ${ctx.friDelta.toStringAsFixed(0)} points.';
     }
 
     // Default: show current score
-    return 'Salut ${ctx.firstName}. '
-        'Ton score de solidité : ${ctx.friTotal.toStringAsFixed(0)}/100.';
+    return '$salut Ton score de solidité : ${ctx.friTotal.toStringAsFixed(0)}/100.';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -136,6 +140,54 @@ class FallbackTemplates {
     return 'Ce chiffre est basé sur '
         '${confidence.toStringAsFixed(0)}% de données concrètes. '
         '${enrichment ?? 'Plus tu précises ton profil, plus l\'estimation s\'affine.'}';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Enrichment Guide — max 150 words (ComponentType.enrichmentGuide)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Generates a conversational enrichment prompt for a data block.
+  /// Used in DataBlockEnrichmentScreen "coach mode".
+  static String enrichmentGuide(CoachContext ctx, String blockType) {
+    final name = ctx.firstName;
+    return switch (blockType) {
+      'lpp' =>
+        '$name, connais-tu ton avoir LPP actuel? '
+        'Ton certificat de prevoyance (2e pilier) indique le montant exact. '
+        'Avec ton salaire et ton age, l\'estimation pourrait varier '
+        'significativement du reel. Un scan du certificat affinerait '
+        'tes projections de +18 points de confiance.',
+      'avs' =>
+        '$name, as-tu deja demande ton extrait de compte AVS? '
+        'Il confirme tes annees de cotisation effectives. '
+        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrie, des lacunes sont probables. ' : ''}'
+        'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
+      '3a' =>
+        '$name, combien de comptes 3a as-tu et chez quel provider? '
+        'Connaitre les soldes exacts permet de calculer ton avantage fiscal '
+        'et de projeter ta prevoyance complete.',
+      'patrimoine' =>
+        '$name, as-tu de l\'epargne en dehors de la prevoyance? '
+        'Comptes courants, investissements, immobilier — ces donnees '
+        'completent ton Financial Resilience Index.',
+      'fiscalite' =>
+        '$name, dans quelle commune habites-tu? '
+        'Le coefficient communal varie de 60% a 130% et impacte '
+        'directement ton taux d\'imposition reel. '
+        'Une declaration fiscale ou un avis de taxation donnerait un calcul precis.',
+      'objectifRetraite' =>
+        '$name, a quel age souhaiterais-tu arreter de travailler? '
+        'Entre 58 et 70 ans, chaque annee change la donne : '
+        'rente reduite avant 65 ans, majoree apres.',
+      'compositionMenage' =>
+        '$name, es-tu en couple? '
+        'Si oui, les projections changent significativement : '
+        'AVS plafonnee pour les maries, rente de survivant LPP, '
+        'et possibilites d\'optimisation fiscale a deux.',
+      _ =>
+        '$name, continue a enrichir ton profil. '
+        'Chaque donnee ajoutee ameliore la precision de tes projections.',
+    };
   }
 
   // ═══════════════════════════════════════════════════════════════

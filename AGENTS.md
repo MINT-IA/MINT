@@ -369,12 +369,37 @@ Le pattern éprouvé depuis S10 :
    - Flutter agent (general-purpose, bypassPermissions)
 3. Vérifier le baseline (tests + analyze) pendant que les agents bossent
 4. Senior audit : cross-check backend vs Flutter (10-20 points de contrôle)
-5. Fixer toutes les divergences CRIT
+   - Constants must match exactly (rates, limits, brackets)
+   - Formulas must produce identical results
+   - Conventions must align (rounding, edge cases)
+5. Fixer toutes les divergences CRIT (backend = source of truth)
 6. Lancer les tests + flutter analyze
 7. Commit chirurgical (seulement les fichiers du sprint)
 ```
 
 **Résultat typique** : 10-15 fichiers, 50-70 tests, 5-10 CRIT fixés par sprint
+
+### Financial Core (shared calculation engine)
+
+> **ADR**: `decisions/ADR-20260223-unified-financial-engine.md` — READ THIS before touching any calculator.
+
+All financial calculations MUST use the shared core in `lib/services/financial_core/`:
+- `AvsCalculator` — AVS rente (LAVS art. 21-29, 34, 35, 40)
+- `LppCalculator` — LPP projection + bonifications (LPP art. 15-16)
+- `TaxCalculator` — Capital withdrawal + income tax (LIFD art. 38)
+- `ThreeACalculator` — 3a projection (OPP3 art. 7)
+- `ConfidenceScorer` — Projection confidence score
+
+**NEVER duplicate formulas** in RetirementProjectionService or ForecasterService.
+
+### Agent specs template (for spawning)
+
+When launching agents, always specify:
+- Swiss law sources and article references
+- Exact constants and formulas (baremes, taux, plafonds)
+- Compliance rules (disclaimer, sources, chiffre_choc, banned terms)
+- Design system rules (fonts, colors, navigation, state)
+- Test requirements (minimum count, edge cases, compliance checks)
 
 ---
 

@@ -10,8 +10,9 @@ enum ComponentType {
   scoreSummary,  // max 80 words
   tip,           // max 120 words
   chiffreChoc,   // max 100 words
-  scenario,      // max 150 words
-  general,       // max 200 words
+  scenario,          // max 150 words
+  enrichmentGuide,   // max 150 words — data block conversational guide
+  general,           // max 200 words
 }
 
 /// Word limits per component type.
@@ -21,6 +22,7 @@ const Map<ComponentType, int> componentWordLimits = {
   ComponentType.tip: 120,
   ComponentType.chiffreChoc: 100,
   ComponentType.scenario: 150,
+  ComponentType.enrichmentGuide: 150,
   ComponentType.general: 200,
 };
 
@@ -92,6 +94,29 @@ class CoachContext {
     this.knownValues = const {},
     this.dataReliability = const {},
   });
+
+  CoachContext copyWith({String? fiscalSeason}) {
+    return CoachContext(
+      firstName: firstName,
+      archetype: archetype,
+      age: age,
+      canton: canton,
+      friTotal: friTotal,
+      friDelta: friDelta,
+      primaryFocus: primaryFocus,
+      replacementRatio: replacementRatio,
+      monthsLiquidity: monthsLiquidity,
+      taxSavingPotential: taxSavingPotential,
+      confidenceScore: confidenceScore,
+      daysSinceLastVisit: daysSinceLastVisit,
+      fiscalSeason: fiscalSeason ?? this.fiscalSeason,
+      upcomingEvent: upcomingEvent,
+      checkInStreak: checkInStreak,
+      lastMilestone: lastMilestone,
+      knownValues: knownValues,
+      dataReliability: dataReliability,
+    );
+  }
 }
 
 /// A number found in LLM output that doesn't match known values.

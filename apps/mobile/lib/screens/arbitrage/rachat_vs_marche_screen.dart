@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/breakeven_indicator_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
+import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 
 /// Rachat LPP vs Investissement libre arbitrage screen.
 ///
@@ -24,7 +29,8 @@ class RachatVsMarcheScreen extends StatefulWidget {
   State<RachatVsMarcheScreen> createState() => _RachatVsMarcheScreenState();
 }
 
-class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
+class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen>
+    with ProfileAutoFillMixin {
   // ── Input controllers ──
   final _montantCtrl = TextEditingController(text: '30000');
   double _tauxMarginal = 30.0; // percentage
@@ -39,11 +45,35 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
   };
 
   ArbitrageResult? _result;
+  bool _hasEstimatedValues = false;
 
   @override
   void initState() {
     super.initState();
     _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    autoFillFromProfile(context, (p) {
+      _hasEstimatedValues = true;
+      final revenu = p.revenuBrutAnnuel;
+      final canton = p.canton.isNotEmpty ? p.canton : 'VD';
+      // Use financial_core TaxCalculator — canton-aware marginal rate.
+      final taux = revenu > 0
+          ? (RetirementTaxCalculator.estimateMarginalRate(revenu, canton) * 100)
+          : 30.0;
+      final annees = p.anneesAvantRetraite.clamp(1, 40);
+      final isMarried = p.etatCivil == CoachCivilStatus.marie;
+      setState(() {
+        _tauxMarginal = taux;
+        _canton = canton;
+        _anneesAvantRetraite = annees;
+        _isMarried = isMarried;
+      });
+      _recalculate();
+    });
   }
 
   @override
@@ -113,6 +143,19 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
 
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
+                  // ── Indicatif banner (P8 Phase 4) ──
+                  IndicatifBanner(
+                    confidenceScore: _result!.confidenceScore,
+                    topEnrichmentCategory: 'lpp',
+                  ),
+                  if (_hasEstimatedValues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SmartDefaultIndicator(
+                        source: 'Valeurs pre-remplies depuis ton profil',
+                        confidence: _result!.confidenceScore / 100,
+                      ),
+                    ),
                   Text(
                     'Trajectoires comparees',
                     style: GoogleFonts.montserrat(
@@ -444,6 +487,7 @@ class _RachatVsMarcheScreenState extends State<RachatVsMarcheScreen> {
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: GoogleFonts.inter(
             fontSize: 15,

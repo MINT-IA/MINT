@@ -9,14 +9,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
+import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -272,9 +274,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           height: 56,
           child: FilledButton.icon(
             onPressed: _isProcessing ? null : _onCameraPressed,
-            icon: const Icon(Icons.camera_alt_outlined, size: 22),
+            icon: Icon(
+              kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
+              size: 22,
+            ),
             label: Text(
-              _isProcessing ? 'Extraction en cours...' : 'Prendre une photo',
+              _isProcessing
+                  ? 'Extraction en cours...'
+                  : kIsWeb
+                      ? 'Importer un fichier'
+                      : 'Prendre une photo',
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -379,7 +388,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "L'image n'est jamais stockée ni envoyée. "
+              "L'image est analysée localement (OCR sur l'appareil). "
+              "Si tu utilises l'analyse Vision IA, l'image est envoyée "
+              "à ton fournisseur IA via ta propre clé API. "
               'Seules les valeurs confirmées sont conservées dans ton profil.',
               style: GoogleFonts.inter(
                 fontSize: 12,
@@ -414,14 +425,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onGalleryPressed() async {
     try {
-      final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
       final allowedExtensions = <String>[
         'jpg',
         'jpeg',
         'png',
         'heic',
         'txt',
-        if (isLoggedIn) 'pdf',
+        'pdf',
       ];
       final picked = await FilePicker.platform.pickFiles(
         allowMultiple: false,
@@ -501,6 +511,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           title: 'Texte non détecté',
           message:
               "Nous n'avons pas pu lire suffisamment de texte sur la photo.",
+          imageFile: file,
         );
         return;
       }
@@ -512,6 +523,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         title: 'Analyse de la photo indisponible',
         message: "Nous n'avons pas pu extraire le texte automatiquement. "
             'Réessaie avec une photo plus nette ou colle le texte OCR.',
+        imageFile: file,
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -634,12 +646,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     PlatformFile file, {
     required String ext,
   }) async {
-    final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
-    if (!isLoggedIn) {
-      await _showPdfAuthRequiredSheet();
-      return;
-    }
-
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
       await _showPdfImportFallback(
@@ -815,8 +821,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Future<void> _showOcrRecoverySheet({
     required String title,
     required String message,
+    XFile? imageFile,
   }) async {
     if (!mounted) return;
+    final showVision = imageFile != null && _isVisionAvailable(context);
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.white,
@@ -847,10 +855,43 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 14),
+              if (showVision) ...[
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      _processImageViaVision(imageFile);
+                    },
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Analyser via Vision IA'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    'L\'image sera envoyée à ton fournisseur IA via ta clé API.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: MintColors.textMuted,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+              SizedBox(height: showVision ? 8 : 14),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
+                child: OutlinedButton.icon(
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     _onCameraPressed();
@@ -893,6 +934,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ? context.read<CoachProfileProvider>().profile!.age
             : null;
         return AvsExtractParser.parseAvsExtract(text, userAge: age);
+      case DocumentType.salaryCertificate:
+        return SalaryCertificateParser.parse(text);
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
         throw UnsupportedError(
@@ -909,6 +952,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         return TaxDeclarationParser.sampleOcrText;
       case DocumentType.avsExtract:
         return AvsExtractParser.sampleOcrText;
+      case DocumentType.salaryCertificate:
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
         return LppCertificateParser.sampleOcrText;
@@ -1094,6 +1138,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       value: lpp.salaireAssure,
       profileField: 'lppInsuredSalary',
     );
+    addField(
+      fieldName: 'remuneration_rate',
+      label: 'Taux de rémunération',
+      value: lpp.remunerationRate,
+      profileField: 'rendementCaisse',
+    );
 
     return ExtractionResult(
       documentType: DocumentType.lppCertificate,
@@ -1105,6 +1155,112 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           "Vérifie les montants avant confirmation. Outil éducatif (LSFin).",
       sources: const ['Extraction backend Docling (LPP)'],
     );
+  }
+
+  /// Whether the user has a BYOK key for a vision-capable provider.
+  bool _isVisionAvailable(BuildContext ctx) {
+    final byok = ctx.read<ByokProvider>();
+    if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
+      return false;
+    }
+    const visionProviders = {'claude', 'openai', 'anthropic'};
+    return visionProviders.contains(byok.provider!.toLowerCase());
+  }
+
+  /// Map DocumentType to backend vision document_type string.
+  String _documentTypeToVisionKey(DocumentType type) {
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return 'lpp_certificate';
+      case DocumentType.taxDeclaration:
+        return 'tax_declaration';
+      case DocumentType.avsExtract:
+        return 'avs_extract';
+      default:
+        return 'generic';
+    }
+  }
+
+  /// Process image via BYOK Vision LLM (Claude/GPT-4o).
+  Future<void> _processImageViaVision(XFile file) async {
+    final byok = context.read<ByokProvider>();
+    if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
+      _showErrorSnack('Configure une cle API dans les parametres Coach.');
+      return;
+    }
+
+    setState(() => _isProcessing = true);
+    try {
+      final bytes = await file.readAsBytes();
+      final base64Image = base64Encode(bytes);
+
+      final ext = file.path.split('.').last.toLowerCase();
+      final mediaType = switch (ext) {
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+        _ => 'image/jpeg',
+      };
+
+      // Map provider name (anthropic → claude for backend)
+      final provider = byok.provider!.toLowerCase() == 'anthropic'
+          ? 'claude'
+          : byok.provider!.toLowerCase();
+
+      final ragService = RagService();
+      final visionResponse = await ragService.extractFromImage(
+        imageBase64: base64Image,
+        mediaType: mediaType,
+        documentType: _documentTypeToVisionKey(_selectedType),
+        apiKey: byok.apiKey!,
+        provider: provider,
+      );
+
+      if (!mounted) return;
+
+      final fields = visionResponse.extractedFields.map((f) {
+        return ExtractedField(
+          fieldName: f.fieldName,
+          label: f.label,
+          value: f.value,
+          confidence: f.confidence,
+          sourceText: f.sourceText,
+          needsReview: f.confidence < 0.80,
+        );
+      }).toList();
+
+      if (fields.isEmpty) {
+        _showErrorSnack(
+          "L'IA n'a pas pu extraire de champs de ce document.",
+        );
+        return;
+      }
+
+      final result = ExtractionResult(
+        documentType: _selectedType,
+        fields: fields,
+        overallConfidence: fields.fold<double>(0, (sum, f) => sum + f.confidence) /
+            fields.length,
+        confidenceDelta: visionResponse.confidenceDelta.toDouble(),
+        warnings: const [],
+        disclaimer: visionResponse.disclaimers.isNotEmpty
+            ? visionResponse.disclaimers.first
+            : "Donnees extraites par IA : verifie chaque valeur. "
+                "Outil educatif, ne constitue pas un conseil (LSFin).",
+        sources: const ['Extraction Vision IA (BYOK)'],
+      );
+
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ExtractionReviewScreen(result: result),
+        ),
+      );
+    } on RagApiException catch (e) {
+      _showErrorSnack(e.message);
+    } catch (e) {
+      _showErrorSnack("Erreur Vision IA : $e");
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 
   void _showErrorSnack(String message) {

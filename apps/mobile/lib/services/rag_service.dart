@@ -53,6 +53,73 @@ class RagSource {
   }
 }
 
+/// A single field extracted from a document image via vision LLM.
+class RagExtractedField {
+  final String fieldName;
+  final String label;
+  final double? value;
+  final String? textValue;
+  final double confidence;
+  final String sourceText;
+
+  const RagExtractedField({
+    required this.fieldName,
+    required this.label,
+    this.value,
+    this.textValue,
+    this.confidence = 0.85,
+    this.sourceText = '',
+  });
+
+  factory RagExtractedField.fromJson(Map<String, dynamic> json) {
+    return RagExtractedField(
+      fieldName: json['field_name'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      value: (json['value'] as num?)?.toDouble(),
+      textValue: json['text_value'] as String?,
+      confidence: (json['confidence'] as num?)?.toDouble() ?? 0.85,
+      sourceText: json['source_text'] as String? ?? '',
+    );
+  }
+}
+
+/// Response from the RAG vision extraction endpoint.
+class RagVisionResponse {
+  final List<RagExtractedField> extractedFields;
+  final String documentTypeDetected;
+  final String rawAnalysis;
+  final int confidenceDelta;
+  final List<String> disclaimers;
+  final int tokensUsed;
+
+  const RagVisionResponse({
+    required this.extractedFields,
+    required this.documentTypeDetected,
+    required this.rawAnalysis,
+    required this.confidenceDelta,
+    required this.disclaimers,
+    required this.tokensUsed,
+  });
+
+  factory RagVisionResponse.fromJson(Map<String, dynamic> json) {
+    return RagVisionResponse(
+      extractedFields: (json['extracted_fields'] as List<dynamic>?)
+              ?.map((f) => RagExtractedField.fromJson(f as Map<String, dynamic>))
+              .toList() ??
+          [],
+      documentTypeDetected:
+          json['document_type_detected'] as String? ?? '',
+      rawAnalysis: json['raw_analysis'] as String? ?? '',
+      confidenceDelta: json['confidence_delta'] as int? ?? 0,
+      disclaimers: (json['disclaimers'] as List<dynamic>?)
+              ?.map((d) => d as String)
+              .toList() ??
+          [],
+      tokensUsed: json['tokens_used'] as int? ?? 0,
+    );
+  }
+}
+
 /// Status of the RAG vector store
 class RagStatus {
   final bool vectorStoreReady;
@@ -133,6 +200,69 @@ class RagService {
       throw RagApiException(
         code: 'server_error',
         message: errorBody ?? 'Erreur serveur (${response.statusCode}).',
+      );
+    }
+  }
+
+  /// Extract structured fields from a document image via BYOK vision LLM.
+  ///
+  /// [imageBase64] - Base64-encoded document image (JPEG/PNG/WEBP).
+  /// [mediaType] - MIME type of the image.
+  /// [documentType] - Target document type for extraction.
+  /// [apiKey] - The user's own LLM API key (BYOK).
+  /// [provider] - One of "claude", "openai" (must support vision).
+  /// [language] - Response language (defaults to "fr").
+  Future<RagVisionResponse> extractFromImage({
+    required String imageBase64,
+    required String mediaType,
+    required String documentType,
+    required String apiKey,
+    required String provider,
+    String? model,
+    Map<String, dynamic>? profileContext,
+    String language = 'fr',
+  }) async {
+    final uri = Uri.parse('$baseUrl/rag/vision');
+
+    final body = <String, dynamic>{
+      'image_base64': imageBase64,
+      'media_type': mediaType,
+      'document_type': documentType,
+      'api_key': apiKey,
+      'provider': provider,
+      'language': language,
+    };
+
+    if (model != null) body['model'] = model;
+    if (profileContext != null) body['profile_context'] = profileContext;
+
+    final response = await http
+        .post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 120));
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return RagVisionResponse.fromJson(json);
+    } else if (response.statusCode == 400) {
+      final errorBody = _tryDecodeError(response.body);
+      throw RagApiException(
+        code: 'vision_bad_request',
+        message: errorBody ?? 'Requete vision invalide.',
+      );
+    } else if (response.statusCode == 413) {
+      throw RagApiException(
+        code: 'image_too_large',
+        message: 'L\'image depasse la taille limite de 20 MB.',
+      );
+    } else {
+      final errorBody = _tryDecodeError(response.body);
+      throw RagApiException(
+        code: 'vision_error',
+        message: errorBody ?? 'Erreur d\'extraction vision (${response.statusCode}).',
       );
     }
   }

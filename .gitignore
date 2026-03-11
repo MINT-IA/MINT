@@ -41,3 +41,9 @@ tools/tax_fetch.log
 # Fastlane generated
 apps/mobile/ios/fastlane/report.xml
 apps/mobile/ios/fastlane/README.md
+
+# Golden test data (local only — personal documents)
+test/golden/
+
+# Claude Code worktrees
+.claude/worktrees/

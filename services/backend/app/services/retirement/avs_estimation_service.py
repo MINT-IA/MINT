@@ -21,6 +21,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from app.constants.social_insurance import (
+    AVS_13EME_RENTE_ACTIVE,
+    AVS_NOMBRE_RENTES_PAR_AN,
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_COUPLE_MAX_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
@@ -63,7 +65,8 @@ class AvsEstimation:
     scenario: str                     # "anticipation", "normal", "ajournement"
     age_depart: int                   # Retirement age chosen
     rente_mensuelle: float            # Monthly pension (CHF)
-    rente_annuelle: float             # Annual pension (CHF)
+    rente_annuelle: float             # Annual pension (CHF) — includes 13th rente if active
+    nombre_rentes_par_an: int         # 13 (with 13th rente) or 12 (without)
     facteur_ajustement: float         # 1.0, <1.0 (penalty), >1.0 (bonus)
     penalite_ou_bonus_pct: float      # % adjustment (negative = penalty)
     rente_couple_mensuelle: Optional[float]  # Couple pension if applicable
@@ -130,7 +133,9 @@ class AvsEstimationService:
         # 3. Calculate rente
         base_rente = AVS_MAX_RENTE_MENSUELLE * gap_factor
         rente_mensuelle = round(base_rente * factor, 2)
-        rente_annuelle = round(rente_mensuelle * 12, 2)
+        # Annual rente includes 13th rente if active (13 × monthly instead of 12)
+        nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
+        rente_annuelle = round(rente_mensuelle * nb_rentes, 2)
 
         # 4. Couple plafonnement
         rente_couple = None
@@ -155,7 +160,7 @@ class AvsEstimationService:
         # 7. Chiffre choc
         if scenario == "anticipation":
             perte_totale = round(
-                (AVS_MAX_RENTE_MENSUELLE * gap_factor - rente_mensuelle) * 12 * duree, 0
+                (AVS_MAX_RENTE_MENSUELLE * gap_factor - rente_mensuelle) * nb_rentes * duree, 0
             )
             chiffre_choc = (
                 f"Anticiper de {AVS_RETIREMENT_AGE - retirement_age} an(s) = "
@@ -164,7 +169,7 @@ class AvsEstimationService:
             )
         elif scenario == "ajournement":
             gain_total = round(
-                (rente_mensuelle - AVS_MAX_RENTE_MENSUELLE * gap_factor) * 12 * duree, 0
+                (rente_mensuelle - AVS_MAX_RENTE_MENSUELLE * gap_factor) * nb_rentes * duree, 0
             )
             chiffre_choc = (
                 f"Ajourner de {retirement_age - AVS_RETIREMENT_AGE} an(s) = "
@@ -174,13 +179,14 @@ class AvsEstimationService:
         else:
             chiffre_choc = (
                 f"Ta rente AVS estimee : CHF {rente_mensuelle:,.0f}/mois "
-                f"soit CHF {rente_annuelle:,.0f}/an"
+                f"soit CHF {rente_annuelle:,.0f}/an (13 rentes)"
             )
 
         sources = [
             "LAVS art. 21bis (anticipation de la rente)",
             "LAVS art. 21ter (ajournement de la rente)",
             "LAVS art. 29 (rente maximale, echelle 44)",
+            "LAVS art. 34 nouveau (13eme rente, des decembre 2026)",
         ]
 
         return AvsEstimation(
@@ -188,6 +194,7 @@ class AvsEstimationService:
             age_depart=retirement_age,
             rente_mensuelle=rente_mensuelle,
             rente_annuelle=rente_annuelle,
+            nombre_rentes_par_an=nb_rentes,
             facteur_ajustement=round(factor, 4),
             penalite_ou_bonus_pct=round(penalty_pct, 1),
             rente_couple_mensuelle=rente_couple,

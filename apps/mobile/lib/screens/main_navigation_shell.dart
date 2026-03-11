@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
@@ -15,8 +15,8 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 /// Shell principal de navigation MINT Coach
 ///
-/// Architecture 4 tabs — Sprint C10 :
-/// - DASHBOARD : Tableau de bord coach (RetirementDashboardScreen)
+/// Architecture 4 tabs — S48 Phase 0 :
+/// - PULSE : Score visibilite + actions + comprendre (PulseScreen)
 /// - AGIR : Timeline d'actions et check-in (CoachAgirScreen)
 /// - APPRENDRE : Simulateurs, evenements de vie, education (ExploreTab)
 /// - PROFIL : Profil utilisateur (ProfileScreen)
@@ -110,15 +110,15 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     }
   }
 
-  List<Widget> get _tabs => [
-    const RetirementDashboardScreen(),
-    const CoachAgirScreen(),
-    const ExploreTab(),
-    const ProfileScreen(),
+  static const List<Widget> _tabs = [
+    PulseScreen(),
+    CoachAgirScreen(),
+    ExploreTab(),
+    ProfileScreen(),
   ];
 
   final List<String> _tabNames = const [
-    'dashboard',
+    'pulse',
     'agir',
     'apprendre',
     'profil',
@@ -171,9 +171,9 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             children: [
               _buildNavItem(
                 index: 0,
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home,
-                label: 'Dashboard',
+                icon: Icons.show_chart_outlined,
+                activeIcon: Icons.show_chart,
+                label: 'Pulse',
                 isCompact: isCompact,
               ),
               _buildNavItem(

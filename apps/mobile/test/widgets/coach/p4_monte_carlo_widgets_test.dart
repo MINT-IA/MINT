@@ -4,6 +4,8 @@ import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
 import 'package:mint_mobile/widgets/coach/monte_carlo_toggle_section.dart';
 import 'package:mint_mobile/widgets/coach/sensitivity_snippet.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   group('MonteCarloToggleSection', () {
@@ -20,6 +22,14 @@ void main() {
 
     testWidgets('shows scenarios child by default', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: null,
@@ -35,6 +45,14 @@ void main() {
 
     testWidgets('toggle disabled when MC unavailable', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: null,
@@ -51,6 +69,14 @@ void main() {
     testWidgets('resets toggle when MC becomes unavailable', (tester) async {
       // Start with MC available
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: _buildMockResult(),
@@ -62,6 +88,14 @@ void main() {
 
       // Rebuild with MC unavailable — should reset to scenarios
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: MonteCarloToggleSection(
             monteCarloResult: null,
@@ -89,6 +123,14 @@ void main() {
     testWidgets('displays educational message + CTA + disclaimer',
         (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: const Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
@@ -112,6 +154,14 @@ void main() {
 
     testWidgets('chips show max 3 categories', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: const Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
@@ -131,6 +181,14 @@ void main() {
 
     testWidgets('no chips when missingCategories is empty', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: const Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(missingCategories: []),
@@ -145,6 +203,14 @@ void main() {
 
     testWidgets('internal categories are not leaked to UI', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: const Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
@@ -163,6 +229,14 @@ void main() {
     testWidgets('mixed internal + valid categories only show valid ones',
         (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: const Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
@@ -181,6 +255,14 @@ void main() {
 
     testWidgets('no banned terms in rendered text', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: const Scaffold(
           body: SingleChildScrollView(
             child: MonteCarloTeaser(
@@ -243,6 +325,14 @@ void main() {
       ];
 
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SensitivitySnippet(variables: variables),
         ),
@@ -261,6 +351,14 @@ void main() {
 
     testWidgets('returns empty when no variables', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SensitivitySnippet(variables: const []),
         ),

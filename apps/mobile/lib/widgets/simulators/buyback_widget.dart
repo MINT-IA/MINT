@@ -46,10 +46,10 @@ class _BuybackWidgetState extends State<BuybackWidget> {
 
     return SafeModeGate(
       hasDebt: hasDebt,
-      lockedTitle: 'Rachat LPP bloque',
+      lockedTitle: 'Rachat LPP bloqué',
       lockedMessage:
-          'Le rachat LPP est desactive en mode protection. '
-          'Un rachat bloque ta liquidite pendant 3 ans (LPP art. 79b al. 3). '
+          'Le rachat LPP est désactivé en mode protection. '
+          'Un rachat bloque ta liquidité pendant 3 ans (LPP art. 79b al. 3). '
           'Rembourse d\'abord tes dettes avant d\'immobiliser du capital.',
       child: SimulatorCard(
       title: "Stratégie Rachat LPP",

@@ -137,10 +137,10 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Retraite a ${earliest.retirementAge} ans vs 65 ans : '
-              'difference cumulee de ${RetirementProjectionService.formatChf(diff.abs())} '
-              'sur l\'esperance de vie. '
-              '${isNeg ? "Tu recois moins longtemps mais tu pars plus tot." : "Tu recois plus longtemps."}',
+              'Retraite à ${earliest.retirementAge} ans vs 65 ans : '
+              'différence cumulée de ${RetirementProjectionService.formatChf(diff.abs())} '
+              'sur l\'espérance de vie. '
+              '${isNeg ? "Tu reçois moins longtemps mais tu pars plus tôt." : "Tu reçois plus longtemps."}',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: MintColors.textSecondary,
@@ -167,7 +167,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Retraite a ${scenario.retirementAge} ans — '
+            'Retraite à ${scenario.retirementAge} ans — '
             '${RetirementProjectionService.formatChf(scenario.totalMonthly)}/mois',
             style: GoogleFonts.montserrat(
               fontSize: 13,

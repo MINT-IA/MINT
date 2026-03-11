@@ -1,12 +1,21 @@
 import 'dart:convert';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/coach_context_builder.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/fri_computation_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/streak_service.dart';
@@ -73,6 +82,13 @@ class CoachNarrative {
   /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
   final String? retirementCountdown;
 
+  /// Monthly briefing comparison N vs N-1 (Coach Vivant Track A).
+  /// Example: "Tes versements sont en hausse de 12% vs le mois dernier."
+  final String? monthlyComparison;
+
+  /// Versements trend label ("en hausse", "stable", "en baisse").
+  final String? versementsTrend;
+
   /// Source (llm ou static) pour debug
   final bool isLlmGenerated;
 
@@ -89,6 +105,8 @@ class CoachNarrative {
     this.scenarioNarrations,
     this.chiffreChocNarration,
     this.retirementCountdown,
+    this.monthlyComparison,
+    this.versementsTrend,
     required this.isLlmGenerated,
     required this.generatedAt,
   });
@@ -104,6 +122,8 @@ class CoachNarrative {
         'scenarioNarrations': scenarioNarrations,
         'chiffreChocNarration': chiffreChocNarration,
         'retirementCountdown': retirementCountdown,
+        'monthlyComparison': monthlyComparison,
+        'versementsTrend': versementsTrend,
         'isLlmGenerated': isLlmGenerated,
         'generatedAt': generatedAt.toIso8601String(),
       };
@@ -122,6 +142,8 @@ class CoachNarrative {
           .toList(),
       chiffreChocNarration: json['chiffreChocNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
+      monthlyComparison: json['monthlyComparison'] as String?,
+      versementsTrend: json['versementsTrend'] as String?,
       isLlmGenerated: json['isLlmGenerated'] as bool? ?? false,
       generatedAt: json['generatedAt'] != null
           ? DateTime.parse(json['generatedAt'] as String)
@@ -163,6 +185,119 @@ class CoachNarrativeService {
 
   /// Termes bannis — delegue a ComplianceGuard (source unique).
   static List<String> get _bannedTerms => ComplianceGuard.bannedTerms;
+
+  /// Build a [CoachContext] from a [CoachProfile] for use by
+  /// [FallbackTemplates] and hallucination grounding.
+  static CoachContext _buildCoachContext(CoachProfile profile) {
+    FinancialFitnessScore? score;
+    try {
+      score = FinancialFitnessService.calculate(profile: profile);
+    } catch (_) {}
+
+    // FRI delta: not available from check-in history (no score field).
+    // The delta is computed dynamically in the dashboard from scoreHistory.
+    const double friDelta = 0;
+
+    // Months of liquidity
+    final depenses = profile.totalDepensesMensuelles;
+    final liquide = profile.patrimoine.epargneLiquide;
+    final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
+
+    // Tax saving potential (3a margin × estimated marginal rate)
+    final plafond3a =
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+    final verse3a = profile.total3aMensuel * 12;
+    final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
+    final taxSaving = marge3a * 0.30; // ~30% marginal estimate
+
+    // Confidence score
+    double confidence = 0;
+    try {
+      final cs = ConfidenceScorer.score(profile);
+      confidence = cs.score;
+    } catch (_) {}
+
+    // Fiscal season
+    final now = DateTime.now();
+    String fiscalSeason = '';
+    if (now.month >= 10 && now.month <= 12) {
+      fiscalSeason = '3a_deadline';
+    } else if (now.month >= 2 && now.month <= 3) {
+      fiscalSeason = 'tax_declaration';
+    }
+
+    // Days since last check-in (proxy for last visit)
+    int daysSinceLastVisit = 30; // default: assume a month
+    if (profile.checkIns.isNotEmpty) {
+      final lastCheckIn = profile.checkIns.last;
+      final lastDate = DateTime(lastCheckIn.month.year, lastCheckIn.month.month);
+      daysSinceLastVisit = now.difference(lastDate).inDays;
+    }
+
+    // Streak
+    int checkInStreak = 0;
+    try {
+      checkInStreak = StreakService.compute(profile).currentStreak;
+    } catch (_) {}
+
+    // Data sources → string map for CoachContextBuilder
+    final dataSources = <String, String>{};
+    for (final entry in profile.dataSources.entries) {
+      dataSources[entry.key] = entry.value.name;
+    }
+
+    // Replacement ratio — quick approximation using financial_core
+    // (AVS + LPP rente) / current gross monthly. Same approach as landing page.
+    double replacementRatio = 0;
+    try {
+      final salary = profile.revenuBrutAnnuel;
+      if (salary > 0 && profile.age < 65) {
+        final avsMonthly = AvsCalculator.renteFromRAMD(salary);
+        final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
+        final lppAnnual = LppCalculator.projectToRetirement(
+          currentBalance: lppBalance,
+          currentAge: profile.age,
+          retirementAge: 65,
+          grossAnnualSalary: salary,
+          caisseReturn: 0.01,
+          conversionRate: profile.prevoyance.tauxConversion,
+        );
+        final totalMonthly = avsMonthly + lppAnnual / 12;
+        replacementRatio = totalMonthly / (salary / 12);
+      }
+    } catch (_) {}
+
+    // Archetype detection (Correction 5: all 8 archetypes)
+    final archetype = FriComputationService.detectArchetype(profile);
+
+    // Primary focus from goal type
+    final primaryFocus = profile.goalA.type.name;
+
+    // Upcoming event from family change or empty
+    final upcomingEvent = profile.familyChange ?? '';
+
+    return CoachContextBuilder.build(
+      firstName: profile.firstName?.trim().isNotEmpty == true ? profile.firstName! : '',
+      age: profile.age,
+      canton: profile.canton,
+      archetype: archetype,
+      primaryFocus: primaryFocus,
+      friTotal: score?.global.toDouble() ?? 0,
+      friDelta: friDelta,
+      replacementRatio: replacementRatio,
+      monthsLiquidity: monthsLiquidity,
+      taxSavingPotential: taxSaving,
+      confidenceScore: confidence,
+      epargne3a: profile.prevoyance.totalEpargne3a,
+      avoirLpp: (profile.prevoyance.avoirLppTotal ?? 0).toDouble(),
+      salaireBrut: profile.revenuBrutAnnuel,
+      daysSinceLastVisit: daysSinceLastVisit,
+      fiscalSeason: fiscalSeason,
+      upcomingEvent: upcomingEvent,
+      checkInStreak: checkInStreak,
+      dataSources: dataSources,
+    );
+  }
 
   /// Applique un mode de rendu a un texte narratif.
   /// - detailed: texte complet
@@ -302,39 +437,30 @@ class CoachNarrativeService {
     required List<Map<String, dynamic>>? scoreHistory,
     required List<CoachingTip> tips,
   }) {
-    final firstName =
-        (profile.firstName != null && profile.firstName!.isNotEmpty)
-            ? profile.firstName!
-            : 'toi';
+    // Build CoachContext for personalized FallbackTemplates.
+    // Clear fiscalSeason if coaching tips already cover tax_deadline —
+    // avoids triple repetition (greeting + urgentAlert + curated card).
+    final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');
+    final rawCtx = _buildCoachContext(profile);
+    final ctx = hasTaxTip && rawCtx.fiscalSeason == 'tax_declaration'
+        ? rawCtx.copyWith(fiscalSeason: '')
+        : rawCtx;
 
-    // Score calculation
-    FinancialFitnessScore? score;
-    try {
-      score = FinancialFitnessService.calculate(profile: profile);
-    } catch (_) {
-      // Graceful fallback if score calculation fails
-    }
+    // Greeting — context-aware (fiscal season, FRI delta, days since visit)
+    final greeting = FallbackTemplates.greeting(ctx);
 
-    // Greeting — reproduit le texte exact du SliverAppBar
-    final greeting = 'Bonjour $firstName';
-
-    // Score summary — reproduit le format "{score}/100 — {level.label}"
-    final String scoreSummary;
-    if (score != null) {
-      scoreSummary = '${score.global}/100 — ${score.level.label}';
-    } else {
-      scoreSummary = 'Score en cours de calcul...';
-    }
+    // Score summary — includes trend direction
+    final scoreSummary = FallbackTemplates.scoreSummary(ctx);
 
     // Trend message — reproduit la logique exacte de _buildScoreTrendText()
     final trendMessage = _computeStaticTrendMessage(scoreHistory);
 
-    // Top tip narrative — premier tip si disponible
+    // Top tip narrative — personalized via FallbackTemplates if no coaching tips
     final String? topTipNarrative;
     if (tips.isNotEmpty) {
       topTipNarrative = tips.first.message;
     } else {
-      topTipNarrative = null;
+      topTipNarrative = FallbackTemplates.tipNarrative(ctx);
     }
 
     // Scenario narrations — fallback statique (T7 sans BYOK)
@@ -357,7 +483,7 @@ class CoachNarrativeService {
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
-          profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+          profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -375,8 +501,10 @@ class CoachNarrativeService {
     }
 
     // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID).
-    // Keep this alert in narrative to maintain explicit urgency in briefing.
-    if (urgentAlert == null && now.month >= 2 && now.month <= 3) {
+    // Suppressed if coaching tips already contain a 'tax_deadline' card
+    // (avoids triple repetition: greeting + urgentAlert + curated card).
+    final hasTaxDeadlineTip = tips.any((t) => t.id == 'tax_deadline');
+    if (urgentAlert == null && now.month >= 2 && now.month <= 3 && !hasTaxDeadlineTip) {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
       if (joursRestants >= 0) {
@@ -387,18 +515,29 @@ class CoachNarrativeService {
     }
 
     // ── chiffreChocNarration + retirementCountdown (static fallback) ──
-    String? chiffreChocNarration;
+    // Chiffre choc — confidence-aware via FallbackTemplates
+    final chiffreChocNarration = FallbackTemplates.chiffreChocReframe(ctx);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
       final retAge = profile.effectiveRetirementAge;
       retirementCountdown = 'Plus que ${yearsLeft * 12} mois avant ta retraite '
           'a $retAge ans.';
+    }
 
-      if (yearsLeft <= 10) {
-        chiffreChocNarration = 'A ${profile.age} ans, tu as encore $yearsLeft '
-            'ans pour optimiser ta prevoyance.';
+    // ── Monthly briefing N vs N-1 (Coach Vivant Track A) ──
+    String? monthlyComparison;
+    String? versementsTrend;
+    try {
+      final briefing = MonthlyBriefingService.fromProfile(profile);
+      if (briefing != null) {
+        versementsTrend = briefing.trendLabel;
+        if (briefing.insights.isNotEmpty) {
+          monthlyComparison = briefing.insights.first;
+        }
       }
+    } catch (_) {
+      // Non-critical: skip if check-in data is incomplete
     }
 
     return CoachNarrative(
@@ -412,6 +551,8 @@ class CoachNarrativeService {
       scenarioNarrations: scenarioNarrations,
       chiffreChocNarration: chiffreChocNarration,
       retirementCountdown: retirementCountdown,
+      monthlyComparison: monthlyComparison,
+      versementsTrend: versementsTrend,
       isLlmGenerated: false,
       generatedAt: DateTime.now(),
     );
@@ -526,6 +667,10 @@ class CoachNarrativeService {
         urgentAlert: narrative.urgentAlert,
         milestoneMessage: narrative.milestoneMessage,
         scenarioNarrations: narrative.scenarioNarrations,
+        chiffreChocNarration: narrative.chiffreChocNarration,
+        retirementCountdown: narrative.retirementCountdown,
+        monthlyComparison: narrative.monthlyComparison,
+        versementsTrend: narrative.versementsTrend,
         isLlmGenerated: true, // SLM is a local LLM
         generatedAt: DateTime.now(),
       );
@@ -611,7 +756,7 @@ class CoachNarrativeService {
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
     final plafond3a =
-        profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -681,6 +826,17 @@ class CoachNarrativeService {
     buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
     buffer.writeln();
 
+    // Grounding values for hallucination detection (CoachContext)
+    final ctx = _buildCoachContext(profile);
+    if (ctx.knownValues.isNotEmpty) {
+      buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
+      for (final entry in ctx.knownValues.entries) {
+        buffer.writeln('- ${entry.key}: ${entry.value.toStringAsFixed(0)}');
+      }
+      buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
+      buffer.writeln();
+    }
+
     buffer.writeln('TIPS ACTIFS (par priorite) :');
     buffer.writeln(tipsFormatted);
     buffer.writeln();
@@ -703,6 +859,8 @@ class CoachNarrativeService {
     buffer.writeln(
         '9. Ton educatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
     buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
+    buffer.writeln(
+        '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
 
     return buffer.toString();
   }
@@ -725,19 +883,25 @@ class CoachNarrativeService {
             ? 'IMPORTANT'
             : 'NORMAL';
 
-    // Quick replacement rate estimate (AVS + LPP rente / gross salary)
+    // Replacement rate via centralized calculators (LAVS art. 34, LPP art. 16)
     double replacementRate = 0;
-    if (profile.revenuBrutAnnuel > 0) {
-      // AVS: ~roughly estimated monthly
-      final avsEstimate = profile.revenuBrutAnnuel > 88200
-          ? 2520.0
-          : (profile.revenuBrutAnnuel / 88200 * 2520).clamp(1260.0, 2520.0);
-      // LPP: rough estimate from existing balance + remaining bonifications
-      final lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
-      final lppMonthlyEstimate = lppBalance * 0.068 / 12;
-      final totalRetirement = avsEstimate + lppMonthlyEstimate;
-      replacementRate = totalRetirement / (profile.revenuBrutAnnuel / 12);
-    }
+    try {
+      final salary = profile.revenuBrutAnnuel;
+      if (salary > 0 && profile.age < 65) {
+        final avsMonthly = AvsCalculator.renteFromRAMD(salary);
+        final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
+        final lppAnnual = LppCalculator.projectToRetirement(
+          currentBalance: lppBalance,
+          currentAge: profile.age,
+          retirementAge: 65,
+          grossAnnualSalary: salary,
+          caisseReturn: 0.01,
+          conversionRate: profile.prevoyance.tauxConversion,
+        );
+        final totalMonthly = avsMonthly + lppAnnual / 12;
+        replacementRate = totalMonthly / (salary / 12);
+      }
+    } catch (_) {}
 
     buffer.writeln('CONTEXTE RETRAITE :');
     buffer.writeln('- Age de retraite cible : $retirementAge ans');
@@ -766,8 +930,8 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    if (cotisation3a < 7258 && profile.prevoyance.canContribute3a) {
-      final marge = 7258 - cotisation3a;
+    if (cotisation3a < pilier3aPlafondAvecLpp && profile.prevoyance.canContribute3a) {
+      final marge = pilier3aPlafondAvecLpp - cotisation3a;
       snippets.add(
           'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
           'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
@@ -821,7 +985,7 @@ class CoachNarrativeService {
   /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
   /// Pure compound interest: annual 7258 CHF at 2% average return.
   static String? _buildTimeMachineInsight(CoachProfile profile) {
-    const plafond = 7258.0;
+    const plafond = pilier3aPlafondAvecLpp;
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;
@@ -904,8 +1068,10 @@ class CoachNarrativeService {
       final label = fieldLabels[entry.key] ?? entry.key;
       switch (entry.value) {
         case ProfileDataSource.certificate:
+        case ProfileDataSource.openBanking:
           certified.add(label);
         case ProfileDataSource.userInput:
+        case ProfileDataSource.crossValidated:
           userInput.add(label);
         case ProfileDataSource.estimated:
           estimated.add(label);
@@ -1029,6 +1195,8 @@ class CoachNarrativeService {
           .toList(),
       chiffreChocNarration: json['chiffreChocNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
+      monthlyComparison: json['monthlyComparison'] as String?,
+      versementsTrend: json['versementsTrend'] as String?,
       isLlmGenerated: true,
       generatedAt: DateTime.now(),
     );
@@ -1060,6 +1228,10 @@ class CoachNarrativeService {
       retirementCountdown: narrative.retirementCountdown != null
           ? _filterBannedTerms(narrative.retirementCountdown!)
           : null,
+      monthlyComparison: narrative.monthlyComparison != null
+          ? _filterBannedTerms(narrative.monthlyComparison!)
+          : null,
+      versementsTrend: narrative.versementsTrend,
       isLlmGenerated: narrative.isLlmGenerated,
       generatedAt: narrative.generatedAt,
     );

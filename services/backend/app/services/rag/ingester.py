@@ -111,8 +111,18 @@ class MarkdownIngester:
         # Extract title from first heading
         title = self._extract_title(content)
 
-        # Parse sections into chunks
+        # Parse sections into chunks (includes Niveau 0/1 sections)
         sections = self._extract_sections(content)
+
+        # Detect bi-niveau structure: look for "Niveau 0" and "Niveau 1" section headings.
+        # If bi-niveau sections exist, each gets its own level tag.
+        # Otherwise the whole document defaults to level 1.
+        has_niveau_0 = "Niveau 0" in sections
+        has_niveau_1 = "Niveau 1" in sections
+        has_bi_niveau = has_niveau_0 or has_niveau_1
+
+        # Default document-level literacy level (used when no bi-niveau sections exist)
+        default_level = 1
 
         documents = []
 
@@ -131,6 +141,7 @@ class MarkdownIngester:
                 "section": "full",
                 "phase": metadata.get("phase", ""),
                 "status": metadata.get("status", ""),
+                "level": default_level,
             },
         })
 
@@ -138,6 +149,18 @@ class MarkdownIngester:
         for section_name, section_text in sections.items():
             if not section_text.strip():
                 continue
+
+            # Determine the literacy level for this section chunk.
+            # Bi-niveau section headings set their own level; all others inherit default.
+            if section_name == "Niveau 0":
+                section_level = 0
+            elif section_name == "Niveau 1":
+                section_level = 1
+            elif has_bi_niveau:
+                # Non-niveau sections in a bi-niveau doc: use default level
+                section_level = default_level
+            else:
+                section_level = default_level
 
             doc_id = self._make_id(filepath, section_name)
             documents.append({
@@ -153,6 +176,7 @@ class MarkdownIngester:
                     "section": section_name,
                     "phase": metadata.get("phase", ""),
                     "status": metadata.get("status", ""),
+                    "level": section_level,
                 },
             })
 

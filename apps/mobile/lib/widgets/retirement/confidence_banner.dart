@@ -132,7 +132,7 @@ class ConfidenceBanner extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFE0E0E0)),
+            border: Border.all(color: MintColors.greyBorder),
           ),
           child: Row(
             children: [
@@ -203,7 +203,7 @@ class ConfidenceBanner extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFE0E0E0)),
+            border: Border.all(color: MintColors.greyBorder),
           ),
           child: Row(
             children: [
@@ -262,11 +262,11 @@ class ConfidenceBanner extends StatelessWidget {
   Color _levelColor(String level) {
     switch (level) {
       case 'high':
-        return const Color(0xFF2E7D32); // Green
+        return MintColors.successDeep; // Green
       case 'medium':
-        return const Color(0xFFF57F17); // Amber
+        return MintColors.warningText; // Amber
       default:
-        return const Color(0xFFC62828); // Red
+        return MintColors.redDark; // Red
     }
   }
 

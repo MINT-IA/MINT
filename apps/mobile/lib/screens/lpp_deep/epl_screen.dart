@@ -123,7 +123,7 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Retrait EPL — Propriete du logement',
+            'Retrait EPL — Propriété du logement',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -132,8 +132,8 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 8),
           const Text(
             'L\'EPL permet d\'utiliser ton avoir LPP pour financer '
-            'l\'achat d\'un logement en propriete, amortir une hypotheque '
-            'ou financer des renovations. Montant minimum : CHF 20\'000. '
+            'l\'achat d\'un logement en propriété, amortir une hypothèque '
+            'ou financer des rénovations. Montant minimum : CHF 20\'000. '
             'Ce retrait a un impact direct sur tes prestations de risque.',
             style: TextStyle(
               fontSize: 13,
@@ -158,7 +158,7 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            'PARAMÈTRES',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -182,7 +182,7 @@ class _EplScreenState extends State<EplScreen> {
 
           // Age
           _buildSliderRow(
-            label: 'Age',
+            label: 'Âge',
             value: _age.toDouble(),
             min: 25,
             max: 65,
@@ -194,7 +194,7 @@ class _EplScreenState extends State<EplScreen> {
 
           // Montant souhaite
           _buildSliderRow(
-            label: 'Montant souhaite',
+            label: 'Montant souhaité',
             value: _montantSouhaite,
             min: 20000,
             max: 500000,
@@ -247,7 +247,7 @@ class _EplScreenState extends State<EplScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Text(
-                      'Rachats LPP recents',
+                      'Rachats LPP récents',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -255,7 +255,7 @@ class _EplScreenState extends State<EplScreen> {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'As-tu effectue un rachat LPP ces 3 dernieres annees ?',
+                      'As-tu effectué un rachat LPP ces 3 dernières années ?',
                       style: TextStyle(
                         fontSize: 11,
                         color: MintColors.textSecondary,
@@ -278,7 +278,7 @@ class _EplScreenState extends State<EplScreen> {
           if (_aRachete) ...[
             const SizedBox(height: 12),
             _buildSliderRow(
-              label: 'Annees depuis le rachat',
+              label: 'Années depuis le rachat',
               value: _anneesSDepuisRachat.toDouble(),
               min: 0,
               max: 5,
@@ -350,7 +350,7 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RESULTAT',
+            'RÉSULTAT',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -441,20 +441,20 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 16),
           _buildImpactRow(
             icon: Icons.accessible,
-            label: 'Reduction rente invalidite (estimation annuelle)',
+            label: 'Réduction rente invalidité (estimation annuelle)',
             amount: '-CHF ${formatChf(result.reductionRenteInvalidite)}',
           ),
           const SizedBox(height: 12),
           _buildImpactRow(
             icon: Icons.heart_broken_outlined,
-            label: 'Reduction capital-deces (estimation)',
+            label: 'Réduction capital-décès (estimation)',
             amount: '-CHF ${formatChf(result.reductionCapitalDeces)}',
           ),
           const SizedBox(height: 12),
           Text(
-            'Le retrait EPL reduit proportionnellement tes prestations '
-            'de risque. Verifie aupres de ta caisse de pension les '
-            'montants exacts et les possibilites d\'assurance complementaire.',
+            'Le retrait EPL réduit proportionnellement tes prestations '
+            'de risque. Vérifie auprès de ta caisse de pension les '
+            'montants exacts et les possibilités d\'assurance complémentaire.',
             style: TextStyle(
               fontSize: 11,
               color: Colors.red.shade600,
@@ -515,25 +515,25 @@ class _EplScreenState extends State<EplScreen> {
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Montant retire',
+            'Montant retiré',
             'CHF ${formatChf(result.montantSouhaiteApplicable)}',
           ),
           _buildResultRow(
-            'Impot estime sur le retrait',
+            'Impôt estimé sur le retrait',
             'CHF ${formatChf(result.impotEstime)}',
             color: Colors.red.shade600,
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Montant net apres impot',
+            'Montant net après impôt',
             'CHF ${formatChf(result.montantSouhaiteApplicable - result.impotEstime)}',
             isBold: true,
             color: MintColors.success,
           ),
           const SizedBox(height: 8),
           Text(
-            'Le retrait en capital est impose a un taux reduit '
-            '(environ 1/5 du bareme ordinaire). Le taux exact depend '
+            'Le retrait en capital est imposé à un taux réduit '
+            '(environ 1/5 du barème ordinaire). Le taux exact dépend '
             'du canton, de la commune et de la situation personnelle.',
             style: TextStyle(
               fontSize: 11,

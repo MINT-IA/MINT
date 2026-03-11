@@ -33,11 +33,11 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     {'id': 'logement', 'label': 'Logement'},
     {'id': 'telecom', 'label': 'Telecom'},
     {'id': 'assurances', 'label': 'Assurances'},
-    {'id': 'sante', 'label': 'Sante'},
+    {'id': 'sante', 'label': 'Santé'},
     {'id': 'loisirs', 'label': 'Loisirs'},
-    {'id': 'impots', 'label': 'Impots'},
-    {'id': 'energie', 'label': 'Energie'},
-    {'id': 'epargne', 'label': 'Epargne'},
+    {'id': 'impots', 'label': 'Impôts'},
+    {'id': 'energie', 'label': 'Énergie'},
+    {'id': 'epargne', 'label': 'Épargne'},
     {'id': 'revenu', 'label': 'Revenu'},
     {'id': 'divers', 'label': 'Divers'},
   ];
@@ -177,8 +177,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultation reglementaire FINMA en cours. '
-                  'Les donnees affichees sont des exemples de demonstration.',
+                  'Consultation réglementaire FINMA en cours. '
+                  'Les données affichées sont des exemples de démonstration.',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.amber.shade800,
@@ -455,7 +455,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
@@ -491,7 +491,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const Divider(height: 1),
           const SizedBox(height: 10),
           _buildSummaryRow(
-            'Epargne nette',
+            'Épargne nette',
             OpenBankingService.formatChf(summary['net'] ?? 0),
             (summary['net'] ?? 0) >= 0
                 ? MintColors.success
@@ -548,10 +548,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Cette fonctionnalite est en cours de developpement. '
-              'Les donnees affichees sont des exemples. '
+              'Cette fonctionnalité est en cours de développement. '
+              'Les données affichées sont des exemples. '
               'L\'activation du service Open Banking est soumise '
-              'a une consultation reglementaire prealable.',
+              'à une consultation réglementaire préalable.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,
@@ -591,15 +591,15 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       case 'assurances':
         return 'Assurances';
       case 'energie':
-        return 'Energie';
+        return 'Énergie';
       case 'sante':
-        return 'Sante';
+        return 'Santé';
       case 'loisirs':
         return 'Loisirs';
       case 'impots':
-        return 'Impots';
+        return 'Impôts';
       case 'epargne':
-        return 'Epargne';
+        return 'Épargne';
       case 'revenu':
         return 'Revenu';
       default:

@@ -16,6 +16,8 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -23,12 +25,28 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 
 /// Simple wrapper for screens without provider dependencies.
 Widget buildTestable(Widget child) {
-  return MaterialApp(home: child);
+  return MaterialApp(
+locale: const Locale('fr'),
+localizationsDelegates: const [
+  S.delegate,
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+],
+supportedLocales: S.supportedLocales,home: child);
 }
 
 /// Wrapper that provides ProfileProvider + ByokProvider (needed by ExploreTab).
 Widget buildWithExploreProviders(Widget child) {
   return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
     home: MultiProvider(
       providers: [
         ChangeNotifierProvider<ProfileProvider>(
@@ -52,6 +70,14 @@ Widget buildWithExploreProviders(Widget child) {
 /// Wrapper that provides BudgetProvider (needed by BudgetContainerScreen).
 Widget buildWithBudgetProvider(Widget child) {
   return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
     home: ChangeNotifierProvider<BudgetProvider>(
       create: (_) => BudgetProvider(),
       child: child,
@@ -343,7 +369,7 @@ void main() {
       FlutterError.onError = handler;
 
       expect(
-        find.textContaining('Ta vie financiere'),
+        find.textContaining('Ta vie financière'),
         findsOneWidget,
       );
     });
@@ -371,7 +397,7 @@ void main() {
       FlutterError.onError = handler;
 
       expect(
-        find.textContaining('EVENEMENTS DE VIE'),
+        find.textContaining('ÉVÉNEMENTS DE VIE'),
         findsOneWidget,
       );
     });
@@ -409,7 +435,7 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Budget'), findsOneWidget);
+      expect(find.textContaining('Budget'), findsOneWidget);
       expect(
         find.textContaining('se construit automatiquement'),
         findsOneWidget,

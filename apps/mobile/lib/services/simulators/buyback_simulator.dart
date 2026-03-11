@@ -1,3 +1,5 @@
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
+
 class BuybackStaggeringResult {
   final double singleShotTaxSaving;
   final double staggeredTotalTaxSaving;
@@ -49,12 +51,13 @@ class BuybackSimulator {
     // Saving = Integral of Marginal Rate from (Income - Deduction) to Income.
 
     double singleShotSaving =
-        _estimateTaxSaving(taxableIncome, totalBuybackAmount);
+        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: totalBuybackAmount, canton: canton);
 
     // 2. Estimation "Staggered"
     // Deduction par an = Total / Years
     double yearlyDeduction = totalBuybackAmount / years;
-    double yearlySaving = _estimateTaxSaving(taxableIncome, yearlyDeduction);
+    double yearlySaving =
+        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: yearlyDeduction, canton: canton);
 
     double staggeredTotalSaving = yearlySaving * years;
 
@@ -67,39 +70,4 @@ class BuybackSimulator {
     );
   }
 
-  /// Estime l'économie d'impôt d'une déduction donnée sur le revenu donné.
-  /// Utilise un modèle simple de progressivité si pas de données exactes.
-  static double _estimateTaxSaving(double income, double deduction) {
-    if (deduction <= 0) return 0.0;
-
-    // Modèle simple : Taux marginal affine.
-    // Taux = base + k * income (plafonné).
-    // Disons base=5%, max=40% à 200k.
-
-    double rateAt(double inc) {
-      if (inc < 15000) return 0.0;
-      double r = 0.05 + (inc / 200000) * 0.35;
-      if (r > 0.40) return 0.40; // Cap at 40%
-      return r;
-    }
-
-    // Calcul précis par tranches (intégration numérique simple)
-    // On découpe la déduction en N tranches pour voir le taux moyen sur cette tranche.
-    double steps = 10;
-    double stepSize = deduction / steps;
-    double currentIncome = income;
-    double totallySaved = 0.0;
-
-    for (int i = 0; i < steps; i++) {
-      // On déduit à partir du haut
-      // Le taux économisé est le taux marginal de la tranche COURANTE (avant déduction).
-      // Ou plus précisément : le taux moyen entre current et current-step.
-      double midPoint = currentIncome - (stepSize / 2);
-      double rate = rateAt(midPoint);
-      totallySaved += stepSize * rate;
-      currentIncome -= stepSize;
-    }
-
-    return totallySaved;
-  }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   late ProjectionResult result;
@@ -17,6 +19,14 @@ void main() {
 
   Widget buildTestWidget({ProjectionResult? projResult, String? goalALabel}) {
     return MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
       home: Scaffold(
         body: SingleChildScrollView(
           child: MintTrajectoryChart(
@@ -55,8 +65,17 @@ void main() {
     });
 
     testWidgets('handles tap without crash', (tester) async {
+      // ignore: unused_local_variable
       var tapped = false;
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: MintTrajectoryChart(

@@ -469,6 +469,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               controller: controller,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
                 labelText: 'Nouvelle valeur',
                 labelStyle: GoogleFonts.inter(fontSize: 14),
@@ -561,8 +562,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         await coachProvider.updateFromLppExtraction(_fields);
       case DocumentType.avsExtract:
         await coachProvider.updateFromAvsExtraction(_fields);
+      case DocumentType.taxDeclaration:
+        await coachProvider.updateFromTaxExtraction(_fields);
       default:
-        // Other document types: not yet wired
         break;
     }
 

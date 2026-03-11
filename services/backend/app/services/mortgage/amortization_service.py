@@ -22,6 +22,11 @@ Sprint S17 — Mortgage & Real Estate.
 from dataclasses import dataclass, field
 from typing import List
 
+from app.constants.social_insurance import (
+    HYPOTHEQUE_TAUX_AMORTISSEMENT,
+    PILIER_3A_PLAFOND_AVEC_LPP,
+)
+
 
 DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
@@ -30,8 +35,8 @@ DISCLAIMER = (
     "peut varier). Consultez un ou une specialiste pour une analyse personnalisee."
 )
 
-# 3a annual contribution limit (salarie affilie LPP, 2025/2026)
-PLAFOND_3A_SALARIE = 7_258
+# Alias for backward compatibility
+PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
 
 
 @dataclass
@@ -157,7 +162,7 @@ class AmortizationService:
 
         # Default versement: 1% of mortgage (common practice)
         if versement_annuel_amortissement <= 0:
-            versement_annuel_amortissement = montant_hypothecaire * 0.01
+            versement_annuel_amortissement = montant_hypothecaire * HYPOTHEQUE_TAUX_AMORTISSEMENT
 
         # Cap at 3a limit for indirect comparison
         versement_indirect_3a = min(versement_annuel_amortissement, PLAFOND_3A_SALARIE)

@@ -127,8 +127,8 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
         ? ((amount - _minAllocation) / range).clamp(0.0, 1.0)
         : 0.5;
     return Color.lerp(
-      const Color(0xFFA5D6A7), // light emerald
-      const Color(0xFF1B5E20), // dark emerald
+      MintColors.greenLight, // light emerald
+      MintColors.greenForest, // dark emerald
       t,
     )!;
   }
@@ -197,12 +197,12 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+              color: MintColors.successDeep.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.map_outlined,
-              color: Color(0xFF2E7D32),
+              color: MintColors.successDeep,
               size: 20,
             ),
           ),
@@ -383,10 +383,10 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                 borderRadius: BorderRadius.circular(4),
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFFA5D6A7),
-                    Color(0xFF66BB6A),
-                    Color(0xFF388E3C),
-                    Color(0xFF1B5E20),
+                    MintColors.greenLight,
+                    MintColors.greenPastel,
+                    MintColors.greenDark,
+                    MintColors.greenForest,
                   ],
                 ),
               ),

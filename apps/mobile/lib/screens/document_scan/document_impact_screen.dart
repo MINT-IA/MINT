@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 
@@ -181,7 +182,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Column(
         children: [
           Text(
-            'Ton profil est plus precis',
+            'Ton profil est plus précis',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 24,
@@ -313,7 +314,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: Column(
           children: [
             Text(
-              'Chiffre choc recalcule',
+              'Chiffre choc recalculé',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -342,7 +343,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       final obligVal = oblig.value as double;
       final surobligVal =
           suroblig != null ? suroblig.value as double : total - obligVal;
-      final rentableAt68 = obligVal * 0.068;
+      final rentableAt68 = obligVal * lppTauxConversionMinDecimal;
       final surobligRate = convRate != null ? convRate.value as double : null;
       final renteSuroblig = surobligRate != null
           ? surobligVal * (surobligRate / 100)
@@ -447,7 +448,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Champs mis a jour',
+              'Champs mis à jour',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -538,8 +539,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return Opacity(
       opacity: _ctaFadeIn.value,
       child: Text(
-        'Outil educatif — ne constitue pas un conseil en prevoyance. '
-        'Verifie toujours avec ton certificat original (LSFin).',
+        'Outil éducatif — ne constitue pas un conseil en prévoyance. '
+        'Vérifie toujours avec ton certificat original (LSFin).',
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: 11,

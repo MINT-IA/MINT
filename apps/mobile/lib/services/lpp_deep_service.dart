@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 // ============================================================================
 // LPP Deep Service — Sprint S15 (Chantier 4)
@@ -52,49 +54,97 @@ class RachatEchelonneResult {
 class RachatEchelonneSimulator {
   /// Compare le rachat en bloc (1 an) vs echelonne sur [horizon] annees.
   ///
-  /// [avoirActuel]         — avoir actuel LPP (CHF)
-  /// [rachatMax]           — montant total du rachat possible (CHF)
-  /// [revenuImposable]     — revenu imposable annuel (CHF)
-  /// [tauxMarginalEstime]  — taux marginal estime (0.25 – 0.45)
-  /// [horizon]             — nombre d'annees d'echelonnement (1 – 15)
+  /// Utilise TaxEstimatorService.estimateAnnualTax() pour un calcul réel :
+  ///   économie = impôt(revenu) - impôt(revenu - déduction)
+  ///
+  /// [avoirActuel]     — avoir actuel LPP (CHF)
+  /// [rachatMax]       — montant total du rachat possible (CHF)
+  /// [revenuImposable] — revenu imposable annuel brut (CHF)
+  /// [canton]          — code canton (ex: 'VS')
+  /// [civilStatus]     — 'single' ou 'married'
+  /// [horizon]         — nombre d'annees d'echelonnement (1 – 15)
   ///
   /// Regle : Pas d'EPL dans les 3 ans suivant un rachat (LPP art. 79b al. 3).
   static RachatEchelonneResult compare({
     required double avoirActuel,
     required double rachatMax,
     required double revenuImposable,
-    required double tauxMarginalEstime,
+    required String canton,
+    required String civilStatus,
     required int horizon,
+    // Legacy param kept for backwards compatibility, ignored if canton provided
+    double tauxMarginalEstime = 0.30,
   }) {
-    // Clamp inputs
-    final clampedTaux = tauxMarginalEstime.clamp(0.10, 0.50);
     final clampedHorizon = horizon.clamp(1, 15);
-    final clampedRachat = rachatMax.clamp(0.0, 500000.0);
+    // No arbitrary 500k cap — use actual rachat max from profile/slider
+    final clampedRachat = rachatMax.clamp(0.0, double.infinity);
+
+    // --- Impôt de base (sans rachat) ---
+    // Use NetIncomeBreakdown to convert gross → net (replaces hardcoded * 0.87)
+    final baseBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: revenuImposable,
+      canton: canton,
+      age: 50,
+    );
+    final netMensuel = baseBreakdown.monthlyNetPayslip;
+    final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: netMensuel,
+      cantonCode: canton,
+      civilStatus: civilStatus,
+      childrenCount: 0,
+      age: 50,
+    );
 
     // --- Bloc (1 an) ---
-    final economieBlocTotal = _estimateTaxSaving(
-      revenuImposable,
-      clampedRachat,
-      clampedTaux,
+    // On ne peut déduire que min(rachat, revenu) en 1 an (LIFD art. 33).
+    final blocDeductible = clampedRachat.clamp(0.0, revenuImposable);
+    final blocBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: revenuImposable - blocDeductible,
+      canton: canton,
+      age: 50,
     );
+    final netMensuelApresBloc = blocBreakdown.monthlyNetPayslip;
+    final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: netMensuelApresBloc,
+      cantonCode: canton,
+      civilStatus: civilStatus,
+      childrenCount: 0,
+      age: 50,
+    );
+    final economieBlocTotal =
+        (impotSansRachat - impotApresBloc).clamp(0.0, impotSansRachat);
 
     // --- Echelonne ---
     final rachatAnnuel = clampedRachat / clampedHorizon;
+    // Cap annuel : on ne peut pas déduire plus que le revenu
+    final rachatAnnuelEffectif =
+        rachatAnnuel.clamp(0.0, revenuImposable);
     final List<RachatYearPlan> plan = [];
     double totalEconomieEchelonne = 0;
 
+    final echelonBreakdown = NetIncomeBreakdown.compute(
+      grossSalary: revenuImposable - rachatAnnuelEffectif,
+      canton: canton,
+      age: 50,
+    );
+    final netMensuelApresEchelon = echelonBreakdown.monthlyNetPayslip;
+    final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
+      netMonthlyIncome: netMensuelApresEchelon,
+      cantonCode: canton,
+      civilStatus: civilStatus,
+      childrenCount: 0,
+      age: 50,
+    );
+    final economieAnnuelle =
+        (impotSansRachat - impotApresEchelon).clamp(0.0, impotSansRachat);
+
     for (int i = 0; i < clampedHorizon; i++) {
-      final eco = _estimateTaxSaving(
-        revenuImposable,
-        rachatAnnuel,
-        clampedTaux,
-      );
-      totalEconomieEchelonne += eco;
+      totalEconomieEchelonne += economieAnnuelle;
       plan.add(RachatYearPlan(
         annee: i + 1,
-        montantRachat: rachatAnnuel,
-        economieFiscale: eco,
-        coutNet: rachatAnnuel - eco,
+        montantRachat: rachatAnnuelEffectif,
+        economieFiscale: economieAnnuelle,
+        coutNet: rachatAnnuelEffectif - economieAnnuelle,
       ));
     }
 
@@ -103,43 +153,13 @@ class RachatEchelonneSimulator {
       economieEchelonneTotal: totalEconomieEchelonne,
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
-      disclaimer: 'Simulation pédagogique basée sur une progressivité estimée. '
+      disclaimer: 'Simulation pédagogique basée sur les barèmes cantonaux estimés. '
           'Le rachat LPP est soumis à acceptation par la caisse de pension. '
+          'La déduction annuelle est plafonnée au revenu imposable. '
           'Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). '
-          'Consulte ta caisse de pension et un ou une spécialiste '
+          'Consulte ta caisse de pension et un·e spécialiste '
           'en prévoyance avant toute décision.',
     );
-  }
-
-  /// Estimation de l'economie fiscale via un modele de taux moyen lineaire.
-  ///
-  /// Aligne sur le backend (source de verite) qui utilise :
-  ///   taux_effectif = (taux_avant + taux_apres) / 2
-  /// Ici on approxime taux_apres par interpolation lineaire, car on n'a pas
-  /// les bareme cantonaux dans cette fonction.
-  ///
-  /// LIFD art. 33 al. 1 let. d — deduction fiscale du rachat.
-  static double _estimateTaxSaving(
-    double income,
-    double deduction,
-    double marginalRate,
-  ) {
-    if (deduction <= 0 || income <= 0) return 0.0;
-
-    // Une deduction ne peut pas reduire la base imposable en dessous de 0.
-    final taxableDeduction = deduction.clamp(0.0, income);
-    if (taxableDeduction <= 0) return 0.0;
-
-    // Backend model: taux_effectif = (taux_avant + taux_apres) / 2
-    // taux_avant = marginalRate (given).
-    // taux_apres ≈ marginalRate × (income - deduction) / income
-    //   (linear approximation of progressive bracket descent).
-    final incomeAfter = income - taxableDeduction;
-    final rateAfter =
-        (marginalRate * incomeAfter / income).clamp(0.0, marginalRate);
-    final effectiveRate = (marginalRate + rateAfter) / 2;
-
-    return taxableDeduction * effectiveRate;
   }
 }
 

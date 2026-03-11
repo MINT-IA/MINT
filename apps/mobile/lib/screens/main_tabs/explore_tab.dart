@@ -340,7 +340,7 @@ class _ExploreTabState extends State<ExploreTab>
       _LifeEventData(id: 'disability', icon: Icons.health_and_safety_outlined,
         title: 'Invalidité',
         subtitle: 'Lacune de prévoyance',
-        color: MintColors.error, route: '/simulator/disability-gap'),
+        color: MintColors.error, route: '/disability/gap'),
       _LifeEventData(id: 'canton_move', icon: Icons.map_outlined,
         title: 'Déménagement cantonal',
         subtitle: 'Comparer la fiscalité',

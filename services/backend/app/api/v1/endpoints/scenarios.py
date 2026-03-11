@@ -6,7 +6,9 @@ MVP: In-memory storage (no persistence).
 import uuid
 from datetime import datetime, timezone
 from typing import Dict, List
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+
+from app.core.rate_limit import limiter
 from pydantic import UUID4
 from app.schemas.scenario import Scenario, ScenarioCreate, ScenarioKind
 from app.services.rules_engine import (
@@ -59,7 +61,8 @@ def _compute_scenario_outputs(kind: ScenarioKind, inputs: dict) -> dict:
 
 
 @router.post("", response_model=Scenario)
-def create_scenario(scenario_create: ScenarioCreate) -> Scenario:
+@limiter.limit("10/minute")
+def create_scenario(request: Request, scenario_create: ScenarioCreate) -> Scenario:
     """Create a new scenario with computed outputs."""
     scenario_id = uuid.uuid4()
     now = datetime.now(timezone.utc)

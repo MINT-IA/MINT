@@ -1,11 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 
 /// Ecran de capacite d'achat immobilier.
 ///
@@ -62,7 +64,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'CAPACITE D\'ACHAT',
+                S.of(context)!.affordabilityTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -94,11 +96,15 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
+                const SizedBox(height: 24),
+
+                // ── P3-E : Parcours achat immobilier ────────────
+                const MortgageJourneyWidget(),
                 const SizedBox(height: 12),
 
                 // Source legale
                 Text(
-                  'Source : directive ASB sur le credit hypothecaire, pratique bancaire suisse.',
+                  S.of(context)!.affordabilitySource,
                   style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -173,7 +179,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'INDICATEURS',
+            S.of(context)!.affordabilityIndicators,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -185,7 +191,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Ratio charges
           _buildGaugeRow(
-            label: 'Ratio charges / revenus',
+            label: S.of(context)!.affordabilityChargesRatio,
             value: result.ratioCharges,
             maxValue: 0.50,
             threshold: 0.33,
@@ -197,7 +203,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Fonds propres
           _buildGaugeRow(
-            label: 'Fonds propres / prix',
+            label: S.of(context)!.affordabilityEquityRatio,
             value: result.fondsPropresTotal / max(result.fondsPropresRequis, 1),
             maxValue: 1.5,
             threshold: 1.0,
@@ -245,7 +251,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                isOk ? 'OK' : 'DEPASSE',
+                isOk ? S.of(context)!.affordabilityOk : S.of(context)!.affordabilityExceeded,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -327,7 +333,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.affordabilityParameters,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -341,8 +347,8 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Canton',
+              Text(
+                S.of(context)!.affordabilityCanton,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -377,7 +383,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Revenu brut annuel
           _buildSliderRow(
-            label: 'Revenu brut annuel',
+            label: S.of(context)!.affordabilityGrossIncome,
             value: _revenuBrut,
             min: 50000,
             max: 300000,
@@ -389,7 +395,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Prix d'achat
           _buildSliderRow(
-            label: 'Prix d\'achat vise',
+            label: S.of(context)!.affordabilityTargetPrice,
             value: _prixAchat,
             min: 200000,
             max: 3000000,
@@ -401,7 +407,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Epargne disponible
           _buildSliderRow(
-            label: 'Epargne disponible',
+            label: S.of(context)!.affordabilityAvailableSavings,
             value: _epargneDispo,
             min: 0,
             max: 500000,
@@ -413,7 +419,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Avoir 3a
           _buildSliderRow(
-            label: 'Avoir 3a',
+            label: S.of(context)!.affordabilityPillar3a,
             value: _avoir3a,
             min: 0,
             max: 300000,
@@ -425,7 +431,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
 
           // Avoir LPP
           _buildSliderRow(
-            label: 'Avoir LPP',
+            label: S.of(context)!.affordabilityPillarLpp,
             value: _avoirLpp,
             min: 0,
             max: 500000,
@@ -507,7 +513,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'DETAIL DU CALCUL',
+            S.of(context)!.affordabilityCalculationDetail,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -516,19 +522,19 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildInfoRow('Prix d\'achat vise',
+          _buildInfoRow(S.of(context)!.affordabilityTargetPrice,
               'CHF ${formatChf(_prixAchat)}'),
-          _buildInfoRow('Fonds propres requis (20%)',
+          _buildInfoRow(S.of(context)!.affordabilityEquityRequired,
               'CHF ${formatChf(result.fondsPropresRequis)}'),
           const Divider(height: 20),
-          _buildInfoRow('Epargne',
+          _buildInfoRow(S.of(context)!.affordabilitySavingsLabel,
               'CHF ${formatChf(_epargneDispo)}'),
-          _buildInfoRow('Avoir 3a',
+          _buildInfoRow(S.of(context)!.affordabilityPillar3a,
               'CHF ${formatChf(_avoir3a)}'),
           _buildInfoRow(
-              'Avoir LPP (max 10% du prix)',
+              S.of(context)!.affordabilityLppMax10,
               'CHF ${formatChf(min(_avoirLpp, _prixAchat * 0.10))}'),
-          _buildInfoRow('Total fonds propres',
+          _buildInfoRow(S.of(context)!.affordabilityTotalEquity,
               'CHF ${formatChf(result.fondsPropresTotal)}',
               isBold: true,
               color: result.fondsPropresOk
@@ -539,14 +545,14 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             final hypothequeReelle = max(0.0, _prixAchat - result.fondsPropresTotal);
             final ltvPct = _prixAchat > 0 ? (hypothequeReelle / _prixAchat * 100).toStringAsFixed(0) : '0';
             return _buildInfoRow(
-              'Hypotheque ($ltvPct%)',
+              S.of(context)!.affordabilityMortgagePercent(ltvPct),
               'CHF ${formatChf(hypothequeReelle)}',
             );
           }(),
-          _buildInfoRow('Charges mensuelles theoriques',
+          _buildInfoRow(S.of(context)!.affordabilityMonthlyCharges,
               'CHF ${formatChf(result.chargesTheoriquesMensuelles)}'),
           _buildInfoRow(
-            'Ratio charges / revenus',
+            S.of(context)!.affordabilityChargesRatio,
             '${(result.ratioCharges * 100).toStringAsFixed(1)}%',
             isBold: true,
             color: result.capaciteOk
@@ -555,7 +561,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Calcul theorique : hypotheque x (5% interet impute + 1% amortissement) + prix x 1% frais accessoires. Max 33% du revenu brut.',
+            S.of(context)!.affordabilityCalculationNote,
             style: TextStyle(
               fontSize: 11,
               color: MintColors.textMuted,

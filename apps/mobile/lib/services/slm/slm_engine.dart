@@ -115,7 +115,8 @@ class SlmEngine {
   static const String modelDisplayName = 'Gemma 3n 4B (on-device)';
 
   /// Maximum context window (tokens).
-  static const int maxContextTokens = 8192;
+  /// Set to 2048 for compatibility with 4 GB RAM devices (iPhone 13 mini).
+  static const int maxContextTokens = 2048;
 
   /// Default max output tokens per generation.
   static const int defaultMaxTokens = 256;

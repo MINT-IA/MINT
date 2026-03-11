@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
@@ -52,8 +54,16 @@ void main() {
         ChangeNotifierProvider(create: (_) => buildCoachProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
-      child: const MaterialApp(
-        home: CoachAgirScreen(),
+      child: MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: const CoachAgirScreen(),
       ),
     );
   }
@@ -65,8 +75,16 @@ void main() {
         ChangeNotifierProvider(create: (_) => buildMiniCoachProvider()),
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
       ],
-      child: const MaterialApp(
-        home: CoachAgirScreen(),
+      child: MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: const CoachAgirScreen(),
       ),
     );
   }
@@ -93,7 +111,7 @@ void main() {
     testWidgets('shows scenario brief card', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Scenarios de retraite en bref'), findsOneWidget);
+      expect(find.text('Scénarios de retraite en bref'), findsOneWidget);
     });
 
     testWidgets('shows "Ce mois" section', (tester) async {
@@ -176,13 +194,16 @@ void main() {
       expect(find.textContaining('Deuxieme phrase a masquer.'), findsNothing);
     });
 
-    testWidgets('shows partial profile guidance state for mini onboarding',
+    testWidgets('shows real action plan for mini onboarding profile',
         (tester) async {
+      // Since 76edc85, partial profiles see the real action plan
+      // instead of the "Plan en construction" gate.
       await tester.pumpWidget(buildMiniTestWidget());
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.textContaining('Plan en construction'), findsOneWidget);
-      expect(find.textContaining('Completer'), findsWidgets);
+      // Mini profile renders the full Agir screen (Coach Pulse, timeline, etc.)
+      expect(find.byType(CoachAgirScreen), findsOneWidget);
+      expect(find.text('Coach Pulse'), findsOneWidget);
     });
   });
 }

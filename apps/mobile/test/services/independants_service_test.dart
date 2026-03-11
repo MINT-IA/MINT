@@ -409,13 +409,13 @@ void main() {
       expect(result.projectionAvecLpp, greaterThan(result.projectionSansLpp));
     });
 
-    test('salaire coordonne plafonne a 63540 CHF', () {
+    test('salaire coordonne plafonne a 64260 CHF', () {
       final result = IndependantsService.calculateLppVolontaire(
-        200000, // 200000 - 26460 = 173540 > 63540
+        200000, // 200000 - 26460 = 173540 > 64260
         40,
         0.30,
       );
-      expect(result.salaireCoordonne, closeTo(63540, 0.01));
+      expect(result.salaireCoordonne, closeTo(64260, 0.01));
     });
   });
 

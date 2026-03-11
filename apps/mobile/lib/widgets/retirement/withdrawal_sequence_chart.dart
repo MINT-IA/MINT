@@ -24,9 +24,9 @@ class WithdrawalSequenceChart extends StatelessWidget {
   });
 
   // ── Source colors ───────────────────────────────────────────────
-  static const _color3a = Color(0xFF10B981); // emerald
-  static const _colorLpp = Color(0xFF6366F1); // indigo
-  static const _colorLibre = Color(0xFF8B5CF6); // purple
+  static const _color3a = MintColors.positive; // emerald
+  static const _colorLpp = MintColors.pillarLpp; // indigo
+  static const _colorLibre = MintColors.purple; // purple
 
   /// Slight shade variation for multiple 3a accounts.
   static Color _colorForSource(String source) {
@@ -61,7 +61,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       children: [
         // ── Titre ─────────────────────────────────────────────
         Text(
-          'Sequence de retrait optimale',
+          'Sequence de retrait suggeree',
           style: GoogleFonts.montserrat(
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -499,7 +499,7 @@ class WithdrawalSequenceChart extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sequence optimale',
+          'Sequence suggeree',
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,

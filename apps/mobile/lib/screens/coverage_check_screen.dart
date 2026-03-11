@@ -154,7 +154,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           border: Border.all(color: Colors.blue.shade200),
         ),
         child: Text(
-          'MODE DEMO',
+          'MODE DÉMO',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -221,7 +221,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
@@ -252,11 +252,11 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
           const SizedBox(height: 16),
 
           // Toggles
-          _buildProfileSwitch('Hypotheque en cours', _aHypotheque, (v) {
+          _buildProfileSwitch('Hypothèque en cours', _aHypotheque, (v) {
             _aHypotheque = v;
             _compute();
           }),
-          _buildProfileSwitch('Personnes a charge', _aFamille, (v) {
+          _buildProfileSwitch('Personnes à charge', _aFamille, (v) {
             _aFamille = v;
             _compute();
           }),
@@ -264,7 +264,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             _estLocataire = v;
             _compute();
           }),
-          _buildProfileSwitch('Voyages frequents', _voyagesFrequents, (v) {
+          _buildProfileSwitch('Voyages fréquents', _voyagesFrequents, (v) {
             _voyagesFrequents = v;
             _compute();
           }),
@@ -349,7 +349,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
@@ -377,11 +377,11 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             _aLaa = v;
             _compute();
           }),
-          _buildCoverageSwitch('RC privee', _aRcPrivee, (v) {
+          _buildCoverageSwitch('RC privée', _aRcPrivee, (v) {
             _aRcPrivee = v;
             _compute();
           }),
-          _buildCoverageSwitch('Assurance menage', _aMenage, (v) {
+          _buildCoverageSwitch('Assurance ménage', _aMenage, (v) {
             _aMenage = v;
             _compute();
           }),
@@ -393,7 +393,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             _aAssuranceVoyage = v;
             _compute();
           }),
-          _buildCoverageSwitch('Assurance deces', _aAssuranceDeces, (v) {
+          _buildCoverageSwitch('Assurance décès', _aAssuranceDeces, (v) {
             _aAssuranceDeces = v;
             _compute();
           }),
@@ -442,7 +442,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,
@@ -561,7 +561,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'ANALYSE DETAILLEE',
+              'ANALYSE DÉTAILLÉE',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -693,7 +693,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
     final (icon, label, color) = switch (status) {
       'couvert' => (Icons.check_circle, 'Couvert', MintColors.success),
       'non_couvert' => (Icons.cancel, 'Non couvert', MintColors.error),
-      _ => (Icons.help_outline, 'A verifier', MintColors.warning),
+      _ => (Icons.help_outline, 'À vérifier', MintColors.warning),
     };
 
     return Row(
@@ -811,8 +811,8 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         Text(
           'CO art. 41 (RC) / CO art. 324a (IJM employeur) / '
           'LAA art. 4 (assurance accident) / '
-          'LAMal art. 34 (couverture a l\'etranger) / '
-          'LCA (assurance deces) / Droit cantonal (menage)',
+          'LAMal art. 34 (couverture à l\'étranger) / '
+          'LCA (assurance décès) / Droit cantonal (ménage)',
           style: GoogleFonts.inter(
             fontSize: 11,
             color: MintColors.textMuted,

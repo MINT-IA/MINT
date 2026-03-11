@@ -154,13 +154,40 @@
   "advisorMiniPrefillEstimates": "Precompila stime",
   "advisorMiniPrefillHint": "Stimato in base al tuo cantone — modifica se diverso.",
   "advisorMiniPrefillTaxCouple": "Precompilato dal tuo reddito sopra (cantone {canton}, coppia)",
-  "@advisorMiniPrefillTaxCouple": { "placeholders": { "canton": { "type": "String" } } },
+  "@advisorMiniPrefillTaxCouple": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
   "advisorMiniPrefillTaxSingle": "Precompilato dal tuo reddito sopra (cantone {canton})",
-  "@advisorMiniPrefillTaxSingle": { "placeholders": { "canton": { "type": "String" } } },
+  "@advisorMiniPrefillTaxSingle": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
   "advisorMiniPrefillLamalFamily": "LAMal stimata per {adults} adulto/i + {children} bambino/i",
-  "@advisorMiniPrefillLamalFamily": { "placeholders": { "adults": { "type": "String" }, "children": { "type": "String" } } },
+  "@advisorMiniPrefillLamalFamily": {
+    "placeholders": {
+      "adults": {
+        "type": "String"
+      },
+      "children": {
+        "type": "String"
+      }
+    }
+  },
   "advisorMiniPrefillLamalCouple": "LAMal stimata per {adults} adulti",
-  "@advisorMiniPrefillLamalCouple": { "placeholders": { "adults": { "type": "String" } } },
+  "@advisorMiniPrefillLamalCouple": {
+    "placeholders": {
+      "adults": {
+        "type": "String"
+      }
+    }
+  },
   "advisorMiniPrefillLamalSingle": "LAMal stimata per 1 adulto",
   "advisorMiniPrefillAdjust": "Modifica se diverso.",
   "advisorMiniTaxProvisionLabel": "Accantonamento imposte / mese",
@@ -168,9 +195,24 @@
   "advisorMiniOtherFixedLabel": "Altri costi fissi / mese",
   "advisorMiniStep2AhaTitle": "Il tuo cantone in breve",
   "advisorMiniStep2AhaHorizon": "Orizzonte pensione: ~{years} anni",
-  "@advisorMiniStep2AhaHorizon": { "placeholders": { "years": { "type": "String" } } },
+  "@advisorMiniStep2AhaHorizon": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
   "advisorMiniStep2AhaTaxQualitative": "Fiscalita in {canton}: {pressure} rispetto alla media svizzera",
-  "@advisorMiniStep2AhaTaxQualitative": { "placeholders": { "canton": { "type": "String" }, "pressure": { "type": "String" } } },
+  "@advisorMiniStep2AhaTaxQualitative": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      },
+      "pressure": {
+        "type": "String"
+      }
+    }
+  },
   "advisorMiniStep2AhaPressureLow": "bassa",
   "advisorMiniStep2AhaPressureMedium": "moderata",
   "advisorMiniStep2AhaPressureHigh": "elevata",
@@ -198,7 +240,9 @@
   "advisorMiniEtaLabel": "Tempo stimato rimanente: {seconds}s",
   "@advisorMiniEtaLabel": {
     "placeholders": {
-      "seconds": { "type": "String" }
+      "seconds": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniEtaConfidenceHigh": "Confidenza alta",
@@ -214,33 +258,47 @@
   "advisorMiniReadyStress": "Priorita: {label}",
   "@advisorMiniReadyStress": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniReadyProfile": "Profilo: {employment} · {household}",
   "@advisorMiniReadyProfile": {
     "placeholders": {
-      "employment": { "type": "String" },
-      "household": { "type": "String" }
+      "employment": {
+        "type": "String"
+      },
+      "household": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniReadyLocation": "Base fiscale: {canton} · {horizon}",
   "@advisorMiniReadyLocation": {
     "placeholders": {
-      "canton": { "type": "String" },
-      "horizon": { "type": "String" }
+      "canton": {
+        "type": "String"
+      },
+      "horizon": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniReadyIncome": "Reddito netto: CHF {income}/mese",
   "@advisorMiniReadyIncome": {
     "placeholders": {
-      "income": { "type": "String" }
+      "income": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniReadyFixed": "Costi fissi acquisiti: {count}/3",
   "@advisorMiniReadyFixed": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniEmploymentEmployee": "Dipendente",
@@ -352,7 +410,7 @@
   "rentVsCapitalTauxConversionExpl": "Il tasso di conversione determina l'importo della vostra rendita annuale in base al vostro avere di vecchiaia. Il tasso legale minimo è del 6,8% per la parte obbligatoria (LPP art. 14). Per la parte sovraobbligatoria, ogni cassa pensioni fissa il proprio tasso, generalmente tra il 3% e il 6%.",
   "rentVsCapitalChoixExpl": "La rendita offre un reddito regolare a vita, ma si interrompe alla morte (con eventualmente una rendita per superstiti ridotta). Il capitale offre più flessibilità, ma comporta un rischio di esaurimento se i rendimenti sono bassi o la longevità elevata.",
   "rentVsCapitalDisclaimer": "I risultati presentati sono stime a titolo indicativo. Non costituiscono una consulenza finanziaria personalizzata. Consultate la vostra cassa pensioni e un consulente qualificato prima di qualsiasi decisione.",
-  "disabilityGapTitle": "La mia Rete di Sicurezza",
+  "disabilityGapTitle": "La mia rete di sicurezza",
   "disabilityGapSubtitle": "Cosa succede se non posso più lavorare?",
   "disabilityGapRevenu": "Reddito mensile netto",
   "disabilityGapCanton": "Cantone",
@@ -371,7 +429,7 @@
   "disabilityGapRiskHigh": "Rischio elevato",
   "disabilityGapRiskMedium": "Rischio moderato",
   "disabilityGapRiskLow": "Rischio basso",
-  "disabilityGapDisclaimer": "Questi risultati sono stime indicative basate sui barèmes legali. La vostra copertura reale dipende dal vostro contratto di lavoro, dalla vostra cassa pensioni e dalle vostre assicurazioni individuali. Consultate il vostro datore di lavoro e un consulente qualificato.",
+  "disabilityGapDisclaimer": "Questi risultati sono stime indicative basate su baremi legali. La tua copertura reale dipende dal tuo contratto di lavoro, dalla tua cassa pensioni e dalle tue assicurazioni individuali. Consulta il tuo datore di lavoro e uno·a specialista qualificato·a.",
   "disabilityGapIjmExpl": "L'indennità giornaliera malattia è un'assicurazione che copre l'80% del vostro stipendio per un massimo di 720 giorni in caso di malattia. Il datore di lavoro non è obbligato a sottoscriverla, ma molti lo fanno tramite un'assicurazione collettiva. Senza indennità giornaliera, dopo il periodo legale di mantenimento dello stipendio, non ricevete più nulla fino all'eventuale rendita AI.",
   "disabilityGapCo324aExpl": "Secondo l'art. 324a CO, il datore di lavoro deve versare lo stipendio per una durata limitata in caso di malattia. Questa durata dipende dagli anni di servizio e dalla scala cantonale applicabile (bernese, zurighese o basilese). Dopo questo periodo, solo l'indennità giornaliera (se esistente) prende il sopravvento.",
   "authLogin": "Accedi",
@@ -395,26 +453,24 @@
   "analyticsConsentMessage": "MINT utilizza statistiche anonime per migliorare l'esperienza. Nessun dato personale viene raccolto.",
   "analyticsAccept": "Accetta",
   "analyticsRefuse": "Rifiuta",
-
   "askMintTitle": "Ask MINT",
   "askMintSubtitle": "Fai le tue domande sulla finanza svizzera",
   "askMintConfigureTitle": "Configura la tua IA",
-  "askMintConfigureBody": "Per fare domande sulla finanza svizzera, collega la tua chiave API (Claude, OpenAI o Mistral). La tua chiave \u00e8 crittografata localmente e mai conservata sui nostri server.",
+  "askMintConfigureBody": "Per fare domande sulla finanza svizzera, collega la tua chiave API (Claude, OpenAI o Mistral). La tua chiave è crittografata localmente e mai conservata sui nostri server.",
   "askMintConfigureButton": "Configura la mia chiave API",
   "askMintEmptyTitle": "Fammi una domanda",
-  "askMintEmptySubtitle": "Posso aiutarti sulla finanza svizzera: 3\u00b0 pilastro, LPP, imposte, budget...",
+  "askMintEmptySubtitle": "Posso aiutarti sulla finanza svizzera: 3° pilastro, LPP, imposte, budget...",
   "askMintSuggestedTitle": "SUGGERIMENTI",
   "askMintSuggestion1": "Comment fonctionne le 3e pilier en Suisse ?",
   "askMintSuggestion2": "Dois-je choisir la rente ou le capital LPP ?",
   "askMintSuggestion3": "Come posso ottimizzare le mie imposte?",
-  "askMintSuggestion4": "Cos'\u00e8 il riscatto LPP?",
+  "askMintSuggestion4": "Cos'è il riscatto LPP?",
   "askMintInputHint": "Fai la tua domanda sulla finanza svizzera...",
   "askMintSourcesTitle": "Fonti",
   "askMintErrorInvalidKey": "La tua chiave API sembra non valida o scaduta. Verificala nelle impostazioni.",
   "askMintErrorRateLimit": "Limite di richieste raggiunto. Attendi un momento prima di riprovare.",
-  "askMintErrorGeneric": "Si \u00e8 verificato un errore. Verifica la tua connessione e riprova.",
+  "askMintErrorGeneric": "Si è verificato un errore. Verifica la tua connessione e riprova.",
   "askMintDisclaimer": "Le risposte sono generate dall'IA e non costituiscono consulenza finanziaria personalizzata.",
-
   "byokTitle": "Intelligenza Artificiale",
   "byokSubtitle": "Collega il tuo LLM per risposte personalizzate",
   "byokProviderLabel": "Fornitore",
@@ -423,31 +479,29 @@
   "byokTesting": "Test in corso...",
   "byokSaveButton": "Salvare",
   "byokSaved": "Chiave salvata con successo",
-  "byokTestSuccess": "Connessione riuscita! La tua IA \u00e8 pronta.",
+  "byokTestSuccess": "Connessione riuscita! La tua IA è pronta.",
   "byokPrivacyTitle": "La tua chiave, i tuoi dati",
-  "byokPrivacyBody": "La tua chiave API \u00e8 conservata crittografata sul tuo dispositivo. Viene trasmessa in modo sicuro (HTTPS) al nostro server per comunicare con il fornitore IA, poi immediatamente eliminata \u2014 mai conservata lato server.",
+  "byokPrivacyBody": "La tua chiave API è conservata crittografata sul tuo dispositivo. Viene trasmessa in modo sicuro (HTTPS) al nostro server per comunicare con il fornitore IA, poi immediatamente eliminata — mai conservata lato server.",
   "byokPrivacyShort": "Chiave crittografata localmente, mai conservata sui nostri server",
   "byokClearButton": "Eliminare la chiave salvata",
   "byokClearTitle": "Eliminare la chiave?",
-  "byokClearMessage": "Questo eliminer\u00e0 la tua chiave API memorizzata localmente. Potrai configurarne una nuova in qualsiasi momento.",
+  "byokClearMessage": "Questo eliminerà la tua chiave API memorizzata localmente. Potrai configurarne una nuova in qualsiasi momento.",
   "byokClearCancel": "Annullare",
   "byokClearConfirm": "Eliminare",
   "byokLearnTitle": "Informazioni su BYOK",
-  "byokLearnHeading": "Cos'\u00e8 il BYOK (Bring Your Own Key)?",
-  "byokLearnBody": "Il BYOK ti permette di utilizzare la tua chiave API di un fornitore IA (Claude, OpenAI, Mistral) per ottenere risposte personalizzate sulla finanza svizzera.\n\nVantaggi:\n\u2022 Controllo totale sui tuoi dati\n\u2022 Nessun costo nascosto da parte di MINT\n\u2022 Paghi solo quello che consumi\n\u2022 Chiave crittografata sul tuo dispositivo",
-
+  "byokLearnHeading": "Cos'è il BYOK (Bring Your Own Key)?",
+  "byokLearnBody": "Il BYOK ti permette di utilizzare la tua chiave API di un fornitore IA (Claude, OpenAI, Mistral) per ottenere risposte personalizzate sulla finanza svizzera.\n\nVantaggi:\n• Controllo totale sui tuoi dati\n• Nessun costo nascosto da parte di MINT\n• Paghi solo quello che consumi\n• Chiave crittografata sul tuo dispositivo",
   "profileAiTitle": "Intelligenza Artificiale",
   "profileAiByok": "Ask MINT (BYOK)",
   "profileAiConfigured": "Configurato",
   "profileAiNotConfigured": "Non configurato",
-
   "documentsTitle": "I miei documenti",
   "documentsSubtitle": "Upload e analisi dei tuoi documenti finanziari",
   "documentsUploadTitle": "Carica il tuo certificato LPP",
   "documentsUploadBody": "MINT estrae automaticamente i tuoi dati previdenziali",
   "documentsUploadButton": "Scegli un file PDF",
   "documentsAnalyzing": "Analisi in corso...",
-  "documentsConfidence": "Affidabilit\u00e0: {confidence}%",
+  "documentsConfidence": "Affidabilità: {confidence}%",
   "@documentsConfidence": {
     "placeholders": {
       "confidence": {
@@ -469,7 +523,7 @@
   "documentsConfirmButton": "Conferma e aggiorna il mio profilo",
   "documentsDeleteButton": "Eliminare questo documento",
   "documentsDeleteTitle": "Eliminare il documento?",
-  "documentsDeleteMessage": "Questa azione \u00e8 irreversibile.",
+  "documentsDeleteMessage": "Questa azione è irreversibile.",
   "documentsPrivacy": "I tuoi documenti vengono analizzati localmente e non sono mai condivisi con terzi. Puoi eliminarli in qualsiasi momento.",
   "documentsEmpty": "Nessun documento",
   "documentsLppCertificate": "Certificato LPP",
@@ -489,7 +543,7 @@
   "documentsFieldTauxObligatoire": "Tasso di conversione obbligatorio",
   "documentsFieldTauxSurobligatoire": "Tasso di conversione sovraobbligatorio",
   "documentsFieldTauxEnveloppe": "Tasso di conversione involucro",
-  "documentsFieldRenteInvalidite": "Rendita annuale d'invalidit\u00e0",
+  "documentsFieldRenteInvalidite": "Rendita annuale d'invalidità",
   "documentsFieldCapitalDeces": "Capitale di decesso",
   "documentsFieldRenteConjoint": "Rendita annuale del coniuge",
   "documentsFieldRenteEnfant": "Rendita annuale per figlio",
@@ -506,11 +560,10 @@
       }
     }
   },
-
   "bankImportTitle": "Importare i miei estratti conto",
   "bankImportSubtitle": "Analisi automatica delle tue transazioni",
   "bankImportUploadTitle": "Importa il tuo estratto conto",
-  "bankImportUploadBody": "CSV o PDF \u2014 UBS, PostFinance, Raiffeisen, ZKB e altre banche svizzere",
+  "bankImportUploadBody": "CSV o PDF — UBS, PostFinance, Raiffeisen, ZKB e altre banche svizzere",
   "bankImportUploadButton": "Scegli un file",
   "bankImportAnalyzing": "Analisi delle transazioni...",
   "bankImportBankDetected": "{bank} rilevata",
@@ -572,21 +625,20 @@
   "bankImportCategorySalaire": "Salario",
   "bankImportCategoryRestaurant": "Ristorante",
   "bankImportCategoryDivers": "Varie",
-
   "jobCompareTitle": "Confrontare due impieghi",
   "jobCompareSubtitle": "Scopri lo stipendio invisibile",
-  "jobCompareIntro": "Lo stipendio lordo non dice tutto. Confronta la previdenza, le assicurazioni e i vantaggi tra due posizioni.",
-  "jobCompareCurrentJob": "Impiego attuale",
-  "jobCompareNewJob": "Nuovo impiego",
+  "jobCompareIntro": "Lo stipendio lordo non dice tutto. Confronta lo stipendio invisibile (previdenza, assicurazioni) tra due posizioni.",
+  "jobCompareCurrentJob": "IMPIEGO ATTUALE",
+  "jobCompareNewJob": "IMPIEGO PREVISTO",
   "jobCompareSalaireBrut": "Stipendio lordo annuale",
-  "jobCompareAge": "La tua et\u00e0",
+  "jobCompareAge": "La tua età",
   "jobComparePartEmployeur": "Quota datore di lavoro LPP",
   "jobCompareTauxConversion": "Tasso di conversione",
   "jobCompareAvoirVieillesse": "Avere di vecchiaia attuale",
-  "jobCompareCouvertureInvalidite": "Copertura invalidit\u00e0",
+  "jobCompareCouvertureInvalidite": "Copertura invalidità",
   "jobCompareCapitalDeces": "Capitale di decesso",
   "jobCompareRachatMax": "Riscatto massimo",
-  "jobCompareIjm": "Indennit\u00e0 giornaliera collettiva inclusa",
+  "jobCompareIjm": "IGM collettiva inclusa",
   "jobCompareButton": "Confrontare",
   "jobCompareResults": "Risultati",
   "jobCompareAxis": "Asse",
@@ -598,7 +650,7 @@
   "jobCompareCapitalRetraite": "Capitale pensionistico",
   "jobCompareRenteMois": "Rendita/mese",
   "jobCompareCouvertureDeces": "Copertura decesso",
-  "jobCompareInvalidite": "Copertura invalidit\u00e0",
+  "jobCompareInvalidite": "Copertura invalidità",
   "jobCompareRachat": "Riscatto max",
   "jobCompareLifetimeImpact": "Impatto sull'intera pensione",
   "jobCompareAlerts": "Punti di attenzione",
@@ -607,26 +659,25 @@
   "jobCompareChecklistTaux": "Verificare il tasso di conversione sovraobbligatorio",
   "jobCompareChecklistPart": "Confrontare la quota del datore di lavoro",
   "jobCompareChecklistCoordination": "Verificare la deduzione di coordinamento",
-  "jobCompareChecklistIjm": "Chiedere se l'indennit\u00e0 giornaliera collettiva \u00e8 inclusa",
+  "jobCompareChecklistIjm": "Chiedere se l'indennità giornaliera collettiva è inclusa",
   "jobCompareChecklistRachat": "Verificare il periodo di attesa per il riscatto",
   "jobCompareChecklistRisque": "Calcolare l'impatto sulle prestazioni di rischio",
   "jobCompareChecklistLibrePassage": "Verificare il libero passaggio: trasferimento entro 30 giorni max",
   "jobCompareEducational": "Lo stipendio invisibile rappresenta il 10-30% della tua remunerazione totale.",
-  "jobCompareVerdictBetter": "La nuova posizione \u00e8 complessivamente migliore",
+  "jobCompareVerdictBetter": "La nuova posizione è complessivamente migliore",
   "jobCompareVerdictWorse": "La posizione attuale offre una protezione migliore",
   "jobCompareVerdictComparable": "Le due posizioni sono comparabili",
   "jobCompareDetailedComparison": "Confronto dettagliato",
   "jobCompareDetailedSubtitle": "7 assi previdenziali",
-  "jobCompareReduce": "Ridurre",
-  "jobCompareShowDetails": "Mostra dettagli",
+  "jobCompareReduce": "Riduci",
+  "jobCompareShowDetails": "Vedi dettagli",
   "jobCompareChecklistSubtitle": "Checklist di verifica",
   "jobCompareLifetimeTitle": "Impatto sull'intera pensione",
-  "jobCompareDisclaimer": "I risultati presentati sono stime a titolo indicativo. Non costituiscono una consulenza finanziaria personalizzata. Consultate la vostra cassa pensioni e un consulente qualificato prima di qualsiasi decisione.",
-
+  "jobCompareDisclaimer": "I risultati presentati sono stime indicative. Non costituiscono consulenza finanziaria personalizzata. Consulta la tua cassa pensioni e uno·a specialista qualificato·a prima di qualsiasi decisione.",
   "divorceTitle": "Impatto finanziario di un divorzio",
   "divorceSubtitle": "Anticipare le conseguenze finanziarie",
   "divorceIntro": "Un divorzio ha conseguenze finanziarie spesso sottovalutate: divisione del patrimonio, della previdenza (LPP/3a), impatto fiscale e assegno alimentare.",
-  "divorceSituationFamiliale": "Situazione familiare",
+  "divorceSituationFamiliale": "SITUAZIONE FAMILIARE",
   "divorceSituationSubtitle": "Durata del matrimonio, figli, regime",
   "divorceDureeMariage": "Durata del matrimonio",
   "divorceNombreEnfants": "Numero di figli",
@@ -634,48 +685,47 @@
   "divorceRegimeAcquets": "Partecipazione agli acquisti (predefinito)",
   "divorceRegimeCommunaute": "Comunione dei beni",
   "divorceRegimeSeparation": "Separazione dei beni",
-  "divorceRevenus": "Redditi",
+  "divorceRevenus": "REDDITI",
   "divorceRevenusSubtitle": "Reddito annuale di ciascun coniuge",
-  "divorceConjoint1Revenu": "Coniuge 1 \u2014 reddito annuale",
-  "divorceConjoint2Revenu": "Coniuge 2 \u2014 reddito annuale",
-  "divorcePrevoyance": "Previdenza",
+  "divorceConjoint1Revenu": "Coniuge 1 — reddito annuale",
+  "divorceConjoint2Revenu": "Coniuge 2 — reddito annuale",
+  "divorcePrevoyance": "PREVIDENZA",
   "divorcePrevoyanceSubtitle": "LPP e 3a accumulati durante il matrimonio",
   "divorceLppConjoint1": "LPP Coniuge 1 (durante il matrimonio)",
   "divorceLppConjoint2": "LPP Coniuge 2 (durante il matrimonio)",
   "divorce3aConjoint1": "3a Coniuge 1",
   "divorce3aConjoint2": "3a Coniuge 2",
-  "divorcePatrimoine": "Patrimonio",
+  "divorcePatrimoine": "PATRIMONIO",
   "divorcePatrimoineSubtitle": "Patrimonio e debiti comuni",
   "divorceFortuneCommune": "Patrimonio comune",
   "divorceDettesCommunes": "Debiti comuni",
   "divorceSimuler": "Simulare",
-  "divorcePartageLpp": "Divisione LPP",
-  "divorceTotalLpp": "LPP totale (durante il matrimonio)",
+  "divorcePartageLpp": "DIVISIONE LPP",
+  "divorceTotalLpp": "Totale LPP (durante il matrimonio)",
   "divorcePartConjoint1": "Quota Coniuge 1",
   "divorcePartConjoint2": "Quota Coniuge 2",
   "divorceTransfert": "Trasferimento",
-  "divorceImpactFiscal": "Impatto fiscale",
+  "divorceImpactFiscal": "IMPATTO FISCALE",
   "divorceImpotMarie": "Imposta stimata (sposato)",
   "divorceImpotConjoint1": "Imposta Coniuge 1 (individuale)",
   "divorceImpotConjoint2": "Imposta Coniuge 2 (individuale)",
   "divorceTotalApresDivorce": "Totale dopo il divorzio",
   "divorceDifference": "Differenza",
-  "divorcePartagePatrimoine": "Divisione del patrimonio",
+  "divorcePartagePatrimoine": "DIVISIONE DEL PATRIMONIO",
   "divorceFortuneNette": "Patrimonio netto",
-  "divorcePensionAlimentaire": "Assegno alimentare (stima)",
+  "divorcePensionAlimentaire": "ALIMENTI (STIMA)",
   "divorcePensionAlimentaireNote": "Stima basata sulla differenza di reddito e sul numero di figli.",
-  "divorcePointsAttention": "Punti di attenzione",
+  "divorcePointsAttention": "PUNTI DI ATTENZIONE",
   "divorceActions": "Azioni da intraprendere",
   "divorceActionsSubtitle": "Checklist di preparazione",
-  "divorceEduAcquets": "Cos'\u00e8 la partecipazione agli acquisti?",
-  "divorceEduAcquetsBody": "La partecipazione agli acquisti \u00e8 il regime matrimoniale predefinito in Svizzera (CC art. 181 ss). Gli acquisti vengono divisi equamente in caso di divorzio.",
+  "divorceEduAcquets": "Cos'è la partecipazione agli acquisti?",
+  "divorceEduAcquetsBody": "La partecipazione agli acquisti è il regime matrimoniale predefinito in Svizzera (CC art. 181 ss). Gli acquisti vengono divisi equamente in caso di divorzio.",
   "divorceEduLpp": "Come funziona la divisione LPP?",
   "divorceEduLppBody": "Gli averi LPP accumulati durante il matrimonio vengono divisi equamente (CC art. 122).",
-  "divorceDisclaimer": "I risultati sono stime a titolo indicativo e non costituiscono consulenza legale o finanziaria personalizzata. Consultate un avvocato specializzato.",
-
-  "successionTitle": "Pianificare la mia successione",
+  "divorceDisclaimer": "I risultati presentati sono stime indicative e non costituiscono consulenza legale o finanziaria personalizzata. Ogni situazione è unica. Consulta un(a) avvocato(a) specializzato(a) in diritto di famiglia e un·a specialista in finanza prima di qualsiasi decisione.",
+  "successionTitle": "Successione — Pianificazione",
   "successionSubtitle": "Nuovo diritto successorio 2023",
-  "successionIntro": "Il nuovo diritto successorio (2023) ha ampliato la quota disponibile. Avete pi\u00f9 libert\u00e0 per favorire determinati eredi.",
+  "successionIntro": "Il nuovo diritto successorio (2023) ha ampliato la quota disponibile. Avete più libertà per favorire determinati eredi.",
   "successionSituationPersonnelle": "Situazione personale",
   "successionSituationSubtitle": "Stato civile, eredi",
   "successionStatutCivil": "Stato civile",
@@ -691,11 +741,11 @@
   "successionFortune": "Patrimonio",
   "successionFortuneSubtitle": "Patrimonio totale, 3a, LPP",
   "successionFortuneTotale": "Patrimonio totale",
-  "successionAvoirs3a": "Averi 3\u00b0 pilastro",
+  "successionAvoirs3a": "Averi 3° pilastro",
   "successionCapitalDecesLpp": "Capitale di decesso LPP",
   "successionCanton": "Cantone",
   "successionTestament": "Testamento",
-  "successionTestamentSubtitle": "Volont\u00e0 testamentarie",
+  "successionTestamentSubtitle": "Volontà testamentarie",
   "successionHasTestament": "Ho un testamento",
   "successionQuotiteBeneficiaire": "Chi riceve la quota disponibile?",
   "successionBeneficiaireConjoint": "Coniuge",
@@ -708,37 +758,35 @@
   "successionReservesHereditaires": "Riserve ereditarie (2023)",
   "successionReservesNote": "Importi protetti dalla legge (intoccabili)",
   "successionQuotiteDisponible": "Quota disponibile",
-  "successionQuotiteNote": "Questo importo pu\u00f2 essere liberamente assegnato per testamento.",
-  "successionFiscalite": "Fiscalit\u00e0 successoria",
+  "successionQuotiteNote": "Questo importo può essere liberamente assegnato per testamento.",
+  "successionFiscalite": "Fiscalità successoria",
   "successionExonere": "Esente",
   "successionTotalImpot": "Imposta successoria totale",
   "succession3aOpp3": "Beneficiari 3a (OPP3 art. 2)",
-  "succession3aNote": "Il 3\u00b0 pilastro NON segue il vostro testamento. L'ordine dei beneficiari \u00e8 fissato dalla legge.",
+  "succession3aNote": "Il 3° pilastro NON segue il vostro testamento. L'ordine dei beneficiari è fissato dalla legge.",
   "successionPointsAttention": "Punti di attenzione",
   "successionChecklist": "Protezione dei miei cari",
   "successionChecklistSubtitle": "Azioni da intraprendere",
-  "successionEduQuotite": "Cos'\u00e8 la quota disponibile?",
-  "successionEduQuotiteBody": "La quota disponibile \u00e8 la parte della vostra successione che potete assegnare liberamente per testamento. Dal 2023, la riserva dei discendenti \u00e8 di 1/2.",
+  "successionEduQuotite": "Cos'è la quota disponibile?",
+  "successionEduQuotiteBody": "La quota disponibile è la parte della vostra successione che potete assegnare liberamente per testamento. Dal 2023, la riserva dei discendenti è di 1/2.",
   "successionEdu3a": "3a e successione: attenzione!",
-  "successionEdu3aBody": "Il 3\u00b0 pilastro viene versato direttamente secondo l'OPP3, non secondo il vostro testamento.",
+  "successionEdu3aBody": "Il 3° pilastro viene versato direttamente secondo l'OPP3, non secondo il vostro testamento.",
   "successionEduConcubin": "I concubini e la successione",
   "successionEduConcubinBody": "I concubini non hanno diritti successori legali. Senza testamento, non ricevono nulla.",
-  "successionDisclaimer": "I risultati sono stime a titolo indicativo e non costituiscono consulenza legale o notarile personalizzata. Consultate un notaio o un avvocato specializzato.",
-
+  "successionDisclaimer": "I risultati presentati sono stime indicative e non costituiscono consulenza legale o notarile personalizzata. Il diritto successorio ha molte sfumature. Consulta un notaio o un avvocato specializzato prima di qualsiasi decisione.",
   "lifeEventsSection": "Eventi della vita",
   "lifeEventDivorce": "Divorzio",
   "lifeEventSuccession": "Successione",
-
   "coachingTitle": "Coaching proattivo",
   "coachingSubtitle": "I vostri suggerimenti personalizzati",
-  "coachingIntro": "Suggerimenti personalizzati basati sul vostro profilo. Pi\u00f9 il profilo \u00e8 completo, pi\u00f9 i consigli sono pertinenti.",
+  "coachingIntro": "Suggerimenti personalizzati basati sul vostro profilo. Più il profilo è completo, più i consigli sono pertinenti.",
   "coachingFilterAll": "Tutti",
-  "coachingFilterHigh": "Alta priorit\u00e0",
-  "coachingFilterFiscal": "Fiscalit\u00e0",
+  "coachingFilterHigh": "Alta priorità",
+  "coachingFilterFiscal": "Fiscalità",
   "coachingFilterPrevoyance": "Previdenza",
   "coachingFilterBudget": "Budget",
   "coachingFilterRetraite": "Pensione",
-  "coachingNoTips": "Il vostro profilo \u00e8 completo e ben gestito. Bravo!",
+  "coachingNoTips": "Il vostro profilo è completo e ben gestito. Bravo!",
   "coachingImpact": "Impatto stimato: {amount}",
   "@coachingImpact": {
     "placeholders": {
@@ -756,37 +804,57 @@
       }
     }
   },
-  "coachingPriorityHigh": "Alta priorit\u00e0",
-  "coachingPriorityMedium": "Priorit\u00e0 media",
+  "coachingPriorityHigh": "Alta priorità",
+  "coachingPriorityMedium": "Priorità media",
   "coachingPriorityLow": "Informazione",
-  "coaching3aDeadlineTitle": "Versamento 3\u00b0 pilastro entro il 31 dicembre",
+  "coaching3aDeadlineTitle": "Versamento 3° pilastro entro il 31 dicembre",
   "coaching3aDeadlineMessage": "Vi restano {remaining} di margine sul vostro plafond 3a ({plafond}). Un versamento entro il 31 dicembre potrebbe ridurre il vostro carico fiscale di circa {impact}.",
   "@coaching3aDeadlineMessage": {
     "placeholders": {
-      "remaining": { "type": "String" },
-      "plafond": { "type": "String" },
-      "impact": { "type": "String" }
+      "remaining": {
+        "type": "String"
+      },
+      "plafond": {
+        "type": "String"
+      },
+      "impact": {
+        "type": "String"
+      }
     }
   },
   "coaching3aDeadlineAction": "Simulare il mio 3a",
-  "coaching3aMissingTitle": "Non avete un 3\u00b0 pilastro",
-  "coaching3aMissingMessage": "Aprire un 3\u00b0 pilastro vi permetterebbe di dedurre fino a {plafond} dal vostro reddito imponibile ogni anno. Il risparmio fiscale stimato \u00e8 di {impact} all'anno nel cantone di {canton}.",
+  "coaching3aMissingTitle": "Non avete un 3° pilastro",
+  "coaching3aMissingMessage": "Aprire un 3° pilastro vi permetterebbe di dedurre fino a {plafond} dal vostro reddito imponibile ogni anno. Il risparmio fiscale stimato è di {impact} all'anno nel cantone di {canton}.",
   "@coaching3aMissingMessage": {
     "placeholders": {
-      "plafond": { "type": "String" },
-      "impact": { "type": "String" },
-      "canton": { "type": "String" }
+      "plafond": {
+        "type": "String"
+      },
+      "impact": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
     }
   },
-  "coaching3aMissingAction": "Scoprire il 3\u00b0 pilastro",
+  "coaching3aMissingAction": "Scoprire il 3° pilastro",
   "coaching3aNotMaxedTitle": "Plafond 3a non raggiunto",
-  "coaching3aNotMaxedMessage": "Il vostro versamento 3a attuale \u00e8 di {current} su un plafond di {plafond}. Versare il saldo di {remaining} potrebbe rappresentare un risparmio fiscale di circa {impact}.",
+  "coaching3aNotMaxedMessage": "Il vostro versamento 3a attuale è di {current} su un plafond di {plafond}. Versare il saldo di {remaining} potrebbe rappresentare un risparmio fiscale di circa {impact}.",
   "@coaching3aNotMaxedMessage": {
     "placeholders": {
-      "current": { "type": "String" },
-      "plafond": { "type": "String" },
-      "remaining": { "type": "String" },
-      "impact": { "type": "String" }
+      "current": {
+        "type": "String"
+      },
+      "plafond": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      },
+      "impact": {
+        "type": "String"
+      }
     }
   },
   "coaching3aNotMaxedAction": "Simulare il mio 3a",
@@ -794,30 +862,42 @@
   "coachingLppBuybackMessage": "Avete una lacuna previdenziale di {gap}. Un riscatto volontario potrebbe farvi risparmiare circa {impact} di imposte migliorando la vostra pensione.",
   "@coachingLppBuybackMessage": {
     "placeholders": {
-      "gap": { "type": "String" },
-      "impact": { "type": "String" }
+      "gap": {
+        "type": "String"
+      },
+      "impact": {
+        "type": "String"
+      }
     }
   },
   "coachingLppBuybackAction": "Simulare un riscatto LPP",
   "coachingTaxDeadlineTitle": "Dichiarazione fiscale da presentare",
-  "coachingTaxDeadlineMessage": "Il termine per la vostra dichiarazione fiscale nel cantone di {canton} \u00e8 il 31 marzo. Restano {days} giorni.",
+  "coachingTaxDeadlineMessage": "Il termine per la vostra dichiarazione fiscale nel cantone di {canton} è il 31 marzo. Restano {days} giorni.",
   "@coachingTaxDeadlineMessage": {
     "placeholders": {
-      "canton": { "type": "String" },
-      "days": { "type": "String" }
+      "canton": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
     }
   },
   "coachingTaxDeadlineAction": "Vedere la mia checklist fiscale",
   "coachingRetirementTitle": "Pensione tra {years} anni",
   "@coachingRetirementTitle": {
     "placeholders": {
-      "years": { "type": "String" }
+      "years": {
+        "type": "String"
+      }
     }
   },
-  "coachingRetirementMessage": "A {years} anni dalla pensione, \u00e8 importante verificare la vostra strategia previdenziale. Avete ottimizzato i riscatti LPP? I vostri conti 3a sono diversificati?",
+  "coachingRetirementMessage": "A {years} anni dalla pensione, è importante verificare la vostra strategia previdenziale. Avete ottimizzato i riscatti LPP? I vostri conti 3a sono diversificati?",
   "@coachingRetirementMessage": {
     "placeholders": {
-      "years": { "type": "String" }
+      "years": {
+        "type": "String"
+      }
     }
   },
   "coachingRetirementAction": "Pianificare la mia pensione",
@@ -825,61 +905,70 @@
   "coachingEmergencyMessage": "I vostri risparmi disponibili coprono {months} mesi di costi fissi. Gli esperti raccomandano almeno 3 mesi. Vi mancano circa {deficit}.",
   "@coachingEmergencyMessage": {
     "placeholders": {
-      "months": { "type": "String" },
-      "deficit": { "type": "String" }
+      "months": {
+        "type": "String"
+      },
+      "deficit": {
+        "type": "String"
+      }
     }
   },
   "coachingEmergencyAction": "Vedere il mio budget",
   "coachingDebtTitle": "Tasso d'indebitamento elevato ({ratio}%)",
   "@coachingDebtTitle": {
     "placeholders": {
-      "ratio": { "type": "String" }
+      "ratio": {
+        "type": "String"
+      }
     }
   },
-  "coachingDebtMessage": "Il vostro tasso d'indebitamento stimato \u00e8 del {ratio}%, al di sopra della soglia del 33% raccomandata dalle banche svizzere.",
+  "coachingDebtMessage": "Il vostro tasso d'indebitamento stimato è del {ratio}%, al di sopra della soglia del 33% raccomandata dalle banche svizzere.",
   "@coachingDebtMessage": {
     "placeholders": {
-      "ratio": { "type": "String" }
+      "ratio": {
+        "type": "String"
+      }
     }
   },
   "coachingDebtAction": "Analizzare i miei debiti",
   "coachingPartTimeTitle": "Tempo parziale: lacuna previdenziale",
-  "coachingPartTimeMessage": "Al {rate}% di attivit\u00e0, la vostra previdenza professionale \u00e8 ridotta. La deduzione di coordinamento penalizza ulteriormente i lavoratori a tempo parziale.",
+  "coachingPartTimeMessage": "Al {rate}% di attività, la vostra previdenza professionale è ridotta. La deduzione di coordinamento penalizza ulteriormente i lavoratori a tempo parziale.",
   "@coachingPartTimeMessage": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "coachingPartTimeAction": "Simulare la mia previdenza",
   "coachingIndependantTitle": "Indipendente: nessun LPP obbligatorio",
-  "coachingIndependantMessage": "Come indipendente, non siete soggetti al LPP obbligatorio. La vostra previdenza si basa su AVS e 3\u00b0 pilastro. Massimizzate i vostri versamenti 3a.",
+  "coachingIndependantMessage": "Come indipendente, non siete soggetti al LPP obbligatorio. La vostra previdenza si basa su AVS e 3° pilastro. Massimizzate i vostri versamenti 3a.",
   "coachingIndependantAction": "Esplorare le mie opzioni",
   "coachingBudgetMissingTitle": "Nessun budget ancora",
-  "coachingBudgetMissingMessage": "Un budget strutturato \u00e8 la base di qualsiasi strategia finanziaria. Permette di identificare la vostra reale capacit\u00e0 di risparmio.",
+  "coachingBudgetMissingMessage": "Un budget strutturato è la base di qualsiasi strategia finanziaria. Permette di identificare la vostra reale capacità di risparmio.",
   "coachingBudgetMissingAction": "Creare il mio budget",
-  "coachingAge25Title": "25 anni: aprire il 3\u00b0 pilastro",
-  "coachingAge25Message": "A 25 anni \u00e8 il momento ideale per aprire un 3\u00b0 pilastro. Grazie all'interesse composto, ogni anno conta.",
+  "coachingAge25Title": "25 anni: aprire il 3° pilastro",
+  "coachingAge25Message": "A 25 anni è il momento ideale per aprire un 3° pilastro. Grazie all'interesse composto, ogni anno conta.",
   "coachingAge35Title": "35 anni: verifica previdenziale",
-  "coachingAge35Message": "A 35 anni, verificate che la vostra previdenza sia sulla buona strada. Avete un 3a? Il vostro LPP \u00e8 sufficiente?",
+  "coachingAge35Message": "A 35 anni, verificate che la vostra previdenza sia sulla buona strada. Avete un 3a? Il vostro LPP è sufficiente?",
   "coachingAge45Title": "45 anni: ottimizzare la strategia",
-  "coachingAge45Message": "A 45 anni restano 20 anni alla pensione. \u00c8 il momento di ottimizzare: massimizzare il 3a, considerare i riscatti LPP.",
+  "coachingAge45Message": "A 45 anni restano 20 anni alla pensione. È il momento di ottimizzare: massimizzare il 3a, considerare i riscatti LPP.",
   "coachingAge50Title": "50 anni: preparare la pensione",
   "coachingAge50Message": "A 50 anni la pensione si avvicina. Verificate il vostro avere LPP e pianificate gli ultimi riscatti.",
   "coachingAge55Title": "55 anni: ultimo tratto",
-  "coachingAge55Message": "A 55 anni la pianificazione fiscale del prelievo diventa cruciale. Scaglionare i prelievi 3a pu\u00f2 significare un risparmio significativo.",
+  "coachingAge55Message": "A 55 anni la pianificazione fiscale del prelievo diventa cruciale. Scaglionare i prelievi 3a può significare un risparmio significativo.",
   "coachingAge58Title": "58 anni: pensionamento anticipato possibile",
-  "coachingAge58Message": "Dai 58 anni, un prelievo anticipato del 2\u00b0 pilastro \u00e8 possibile. Attenzione: la rendita sar\u00e0 ridotta.",
+  "coachingAge58Message": "Dai 58 anni, un prelievo anticipato del 2° pilastro è possibile. Attenzione: la rendita sarà ridotta.",
   "coachingAge63Title": "63 anni: ultimi aggiustamenti",
   "coachingAge63Message": "A 2 anni dalla pensione legale: finalizzare la strategia. Ultimo riscatto LPP, scelta rendita/capitale.",
   "coachingDisclaimer": "I suggerimenti presentati sono spunti di riflessione basati su stime semplificate. Non costituiscono consulenza finanziaria personalizzata. Consultate un professionista qualificato prima di qualsiasi decisione.",
-  "coachingDemoMode": "Modalit\u00e0 demo: profilo esempio (35 anni, VD, CHF 85'000). Completate la diagnosi per consigli personalizzati.",
+  "coachingDemoMode": "Modalità demo: profilo esempio (35 anni, VD, CHF 85'000). Completate la diagnosi per consigli personalizzati.",
   "coachingNowCardTitle": "Coaching proattivo",
   "coachingNowCardSubtitle": "Consigli personalizzati basati sul vostro profilo",
-  "coachingCategoryFiscalite": "Fiscalit\u00e0",
+  "coachingCategoryFiscalite": "Fiscalità",
   "coachingCategoryPrevoyance": "Previdenza",
   "coachingCategoryBudget": "Budget",
   "coachingCategoryRetraite": "Pensione",
-
   "segmentsSection": "Segmenti",
   "segmentsGenderGapTitle": "Gender gap previdenziale",
   "segmentsGenderGapSubtitle": "Impatto del tempo parziale sulla pensione",
@@ -898,14 +987,18 @@
   "segmentsGenderGapRenteSub": "Proiezione a {years} anni (eta 65)",
   "@segmentsGenderGapRenteSub": {
     "placeholders": {
-      "years": { "type": "String" }
+      "years": {
+        "type": "String"
+      }
     }
   },
   "segmentsGenderGapAt100": "Al 100%",
   "segmentsGenderGapAtCurrent": "Al {rate}%",
   "@segmentsGenderGapAtCurrent": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "segmentsGenderGapLacuneAnnuelle": "Lacuna annuale",
@@ -917,13 +1010,17 @@
   "segmentsGenderGapSalaireBrutCurrent": "Salario lordo al {rate}%",
   "@segmentsGenderGapSalaireBrutCurrent": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "segmentsGenderGapSalaireCoordCurrent": "Salario coordinato al {rate}%",
   "@segmentsGenderGapSalaireCoordCurrent": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "segmentsGenderGapDeductionFixe": "Deduzione di coordinamento (fissa)",
@@ -940,7 +1037,6 @@
   "segmentsGenderGapRecTauxDesc": "Anche un aumento di 10-20 punti percentuali puo ridurre significativamente la lacuna.",
   "segmentsGenderGapDisclaimer": "I risultati presentati sono stime semplificate a titolo indicativo. Non costituiscono consulenza finanziaria personalizzata. Consultate la vostra cassa pensioni e un professionista qualificato.",
   "segmentsGenderGapSources": "Fonti",
-
   "segmentsFrontalierTitle": "Frontaliero",
   "segmentsFrontalierSubtitle": "Diritti e obblighi per paese",
   "segmentsFrontalierAppBar": "PERCORSO FRONTALIERO",
@@ -966,7 +1062,6 @@
   "segmentsFrontalierAttention": "Attenzione",
   "segmentsFrontalierDisclaimer": "Le informazioni presentate sono generali e possono variare a seconda della vostra situazione personale. Consultate un fiduciario specializzato in situazioni transfrontaliere.",
   "segmentsFrontalierSources": "Fonti",
-
   "segmentsIndependantTitle": "Indipendente",
   "segmentsIndependantSubtitle": "Copertura e protezione sociale",
   "segmentsIndependantAppBar": "PERCORSO INDIPENDENTE",
@@ -994,7 +1089,9 @@
   "segmentsIndependantAvsDesc": "Il vostro contributo AVS stimato: {amount}/anno (tasso degressivo per redditi inferiori a CHF 58'800).",
   "@segmentsIndependantAvsDesc": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "segmentsIndependant3aTitle": "3o pilastro — plafond indipendente",
@@ -1008,7 +1105,6 @@
   "segmentsIndependantAlertLpp": "La vostra previdenza si basa unicamente su AVS e 3o pilastro.",
   "segmentsIndependantAlert3a": "Non sfruttate il 3o pilastro. Plafond indipendente: CHF 36'288/anno.",
   "segmentsDemoMode": "Modalita demo: profilo esempio. Completate la diagnosi per risultati personalizzati.",
-
   "assurancesLamalTitle": "Ottimizzatore franchigia LAMal",
   "assurancesLamalSubtitle": "Trovate la franchigia ideale in base alle vostre spese sanitarie",
   "assurancesLamalPrimeMensuelle": "Premio mensile (franchigia 300)",
@@ -1056,7 +1152,6 @@
   "assurancesLamalTileSub": "Trovate la franchigia ideale",
   "assurancesCoverageTile": "Check-up copertura",
   "assurancesCoverageTileSub": "Valutate la vostra protezione assicurativa",
-
   "openBankingTitle": "Open Banking",
   "openBankingSubtitle": "Collegate i vostri conti bancari",
   "openBankingFinmaGate": "Funzionalita in preparazione — consultazione regolamentare FINMA in corso",
@@ -1130,7 +1225,6 @@
   "openBankingSection": "Open Banking",
   "openBankingTile": "Open Banking",
   "openBankingTileSub": "Collegate i vostri conti bancari",
-
   "lppDeepSection": "LPP APPROFONDITO",
   "lppDeepRachatTitle": "Riscatto scaglionato",
   "lppDeepRachatSubtitle": "Ottimizzate i vostri riscatti LPP su piu anni",
@@ -1149,7 +1243,9 @@
   "lppDeepRachatEchelonne": "SCAGLIONATO SU {years} ANNI",
   "@lppDeepRachatEchelonne": {
     "placeholders": {
-      "years": { "type": "String" }
+      "years": {
+        "type": "String"
+      }
     }
   },
   "lppDeepRachatEchelonneSub": "Riscatto ripartito",
@@ -1157,7 +1253,9 @@
   "lppDeepRachatEconomieDelta": "Scaglionando, risparmiate CHF {amount} in piu di imposte.",
   "@lppDeepRachatEconomieDelta": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "lppDeepRachatPlanAnnuel": "Piano annuale",
@@ -1169,7 +1267,6 @@
   "lppDeepRachatBlocageEpl": "LPP art. 79b al. 3 — Blocco EPL",
   "lppDeepRachatBlocageEplBody": "Dopo ogni riscatto, qualsiasi prelievo EPL (promozione della proprieta abitativa) e bloccato per 3 anni. Pianificate di conseguenza se un acquisto immobiliare e previsto.",
   "lppDeepRachatDisclaimer": "Simulazione pedagogica basata su una progressivita stimata. Il riscatto LPP e soggetto ad accettazione della cassa pensioni. Consultate la vostra cassa pensioni e uno o una specialista in previdenza prima di qualsiasi decisione.",
-
   "lppDeepLibrePassageTitle": "Libero passaggio",
   "lppDeepLibrePassageSubtitle": "Checklist in caso di cambio d'impiego o partenza",
   "lppDeepLibrePassageAppBar": "LIBERO PASSAGGIO",
@@ -1189,7 +1286,6 @@
   "lppDeepLibrePassageCentraleSub": "Cercate averi di libero passaggio dimenticati",
   "lppDeepLibrePassagePrivacy": "I vostri dati restano sul vostro dispositivo. Nessuna informazione viene trasmessa a terzi. Conforme alla nLPD.",
   "lppDeepLibrePassageDisclaimer": "Queste informazioni sono pedagogiche e non costituiscono consulenza giuridica o finanziaria personalizzata. Le regole dipendono dalla vostra cassa pensioni e dalla vostra situazione. Base legale: LFLP, OLP.",
-
   "lppDeepEplTitle": "Prelievo EPL",
   "lppDeepEplSubtitle": "Finanziare un'abitazione con il vostro 2o pilastro",
   "lppDeepEplAppBar": "PRELIEVO EPL",
@@ -1217,7 +1313,6 @@
   "lppDeepEplTaxNote": "Il prelievo in capitale e tassato ad aliquota ridotta (circa 1/5 del barema ordinario). L'aliquota esatta dipende dal cantone e dalla situazione personale.",
   "lppDeepEplPointsAttention": "Punti di attenzione",
   "lppDeepEplDisclaimer": "Simulazione pedagogica a titolo indicativo. L'importo prelevabile esatto dipende dal regolamento della vostra cassa pensioni. L'imposta varia in base al cantone e alla situazione personale. Base legale: art. 30c LPP, OEPL.",
-
   "exploreTitle": "ESPLORARE",
   "explorePillarComprendreTitle": "Voglio capire",
   "explorePillarComprendreSub": "L'essenziale della finanza svizzera, senza gergo. Quiz incluso.",
@@ -1259,12 +1354,13 @@
   "exploreLearn3a": "Cos'e il pilastro 3a?",
   "exploreLearnLpp": "LPP: Come funziona",
   "exploreLearnFiscal": "Fiscalita svizzera 101",
-
   "coachWelcome": "Bienvenue sur MINT",
   "coachHello": "Bonjour {firstName}",
   "@coachHello": {
     "placeholders": {
-      "firstName": { "type": "String" }
+      "firstName": {
+        "type": "String"
+      }
     }
   },
   "coachFitnessTitle": "Ton Fitness Financier",
@@ -1293,7 +1389,6 @@
   "coachSimBuyback": "Simuler\nrachat",
   "coachExplore": "Explorer",
   "coachDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
-
   "eduTheme3aTitle": "Le 3e pilier (3a)",
   "eduTheme3aQuestion": "C'est quoi le 3a et pourquoi tout le monde en parle ?",
   "eduTheme3aAction": "Estimer mon économie fiscale",
@@ -1332,166 +1427,191 @@
   "eduThemeFiscalReminder": "Deadline déclaration fiscale : 31 mars (extensible)",
   "eduHubTitle": "J'Y COMPRENDS RIEN",
   "eduHubSubtitle": "Pas de panique. Choisis un sujet, on t'explique l'essentiel et on te donne une action simple.",
-  "eduHubReadQuiz": "Lire + quiz \u2022 2 min",
-
-  "askMintSuggestDebt": "J'ai des dettes \u2014 par o\u00f9 commencer pour m'en sortir ?",
-  "askMintSuggestAge3a": "J'ai {age} ans, est-ce que je devrais d\u00e9j\u00e0 cotiser au 3e pilier ?",
+  "eduHubReadQuiz": "Lire + quiz • 2 min",
+  "askMintSuggestDebt": "J'ai des dettes — par où commencer pour m'en sortir ?",
+  "askMintSuggestAge3a": "J'ai {age} ans, est-ce que je devrais déjà cotiser au 3e pilier ?",
   "@askMintSuggestAge3a": {
     "placeholders": {
-      "age": { "type": "String" }
+      "age": {
+        "type": "String"
+      }
     }
   },
   "askMintSuggestAgeLpp": "J'ai {age} ans, est-ce que je devrais racheter du LPP ?",
   "@askMintSuggestAgeLpp": {
     "placeholders": {
-      "age": { "type": "String" }
+      "age": {
+        "type": "String"
+      }
     }
   },
-  "askMintSuggestAgeRetirement": "J'ai {age} ans, comment pr\u00e9parer ma retraite au mieux ?",
+  "askMintSuggestAgeRetirement": "J'ai {age} ans, comment préparer ma retraite au mieux ?",
   "@askMintSuggestAgeRetirement": {
     "placeholders": {
-      "age": { "type": "String" }
+      "age": {
+        "type": "String"
+      }
     }
   },
-  "askMintSuggestSelfEmployed": "Je suis ind\u00e9pendant\u00b7e \u2014 comment me prot\u00e9ger sans LPP ?",
-  "askMintSuggestUnemployed": "Je suis au ch\u00f4mage \u2014 quel impact sur ma pr\u00e9voyance ?",
-  "askMintSuggestCanton": "Quelles d\u00e9ductions fiscales sont possibles dans le canton de {canton} ?",
+  "askMintSuggestSelfEmployed": "Je suis indépendant·e — comment me protéger sans LPP ?",
+  "askMintSuggestUnemployed": "Je suis au chômage — quel impact sur ma prévoyance ?",
+  "askMintSuggestCanton": "Quelles déductions fiscales sont possibles dans le canton de {canton} ?",
   "@askMintSuggestCanton": {
     "placeholders": {
-      "canton": { "type": "String" }
+      "canton": {
+        "type": "String"
+      }
     }
   },
-  "askMintSuggestIncome": "Avec mon revenu, combien je peux d\u00e9duire fiscalement par an ?",
-  "askMintSuggestGeneric1": "Rente ou capital LPP \u2014 quelle est la diff\u00e9rence ?",
-  "askMintSuggestGeneric2": "Comment optimiser mes imp\u00f4ts cette ann\u00e9e ?",
-  "askMintSuggestGeneric3": "Qu'est-ce que le rachat LPP et est-ce que \u00e7a vaut le coup ?",
+  "askMintSuggestIncome": "Avec mon revenu, combien je peux déduire fiscalement par an ?",
+  "askMintSuggestGeneric1": "Rente ou capital LPP — quelle est la différence ?",
+  "askMintSuggestGeneric2": "Comment optimiser mes impôts cette année ?",
+  "askMintSuggestGeneric3": "Qu'est-ce que le rachat LPP et est-ce que ça vaut le coup ?",
   "askMintSuggestGeneric4": "Comment fonctionne la franchise LAMal ?",
-  "askMintEmptyBody": "Finance suisse, d\u00e9cryptage des lois, simulateurs \u2014 je t'explique tout, sources \u00e0 l'appui.",
-  "askMintPrivacyBadge": "Tes donn\u00e9es restent sur ton appareil",
+  "askMintEmptyBody": "Finance suisse, décryptage des lois, simulateurs — je t'explique tout, sources à l'appui.",
+  "askMintPrivacyBadge": "Tes données restent sur ton appareil",
   "askMintForYou": "POUR TOI",
-
-  "byokRecommended": "Recommand\u00e9",
-  "byokGetKeyOn": "Obtenir une cl\u00e9 sur {provider}",
+  "byokRecommended": "Recommandé",
+  "byokGetKeyOn": "Obtenir une clé sur {provider}",
   "@byokGetKeyOn": {
     "placeholders": {
-      "provider": { "type": "String" }
+      "provider": {
+        "type": "String"
+      }
     }
   },
-  "byokCopilotActivated": "Ton copilote financier est activ\u00e9",
-  "byokCopilotBody": "Pose ta premi\u00e8re question sur la finance suisse \u2014 3e pilier, imp\u00f4ts, LPP, budget...",
+  "byokCopilotActivated": "Ton copilote financier est activé",
+  "byokCopilotBody": "Pose ta première question sur la finance suisse — 3e pilier, impôts, LPP, budget...",
   "byokTryNow": "Essayer maintenant",
-
   "trajectoryTitle": "Ta trajectoire",
-  "trajectorySubtitle": "3 sc\u00e9narios \u00b7 {years} ans",
+  "trajectorySubtitle": "3 scénarios · {years} ans",
   "@trajectorySubtitle": {
     "placeholders": {
-      "years": { "type": "String" }
+      "years": {
+        "type": "String"
+      }
     }
   },
   "trajectoryOptimiste": "Optimiste",
   "trajectoryBase": "Base",
   "trajectoryPrudent": "Prudent",
-  "trajectoryTauxRemplacement": "Taux de remplacement estim\u00e9 : ",
+  "trajectoryTauxRemplacement": "Taux de remplacement estimé : ",
   "trajectoryEmpty": "Pas encore de projection disponible",
-  "trajectoryEmptySub": "Compl\u00e8te ton profil pour voir ta trajectoire",
-  "trajectoryDisclaimer": "Stime educative \u2014 non costituisce consulenza finanziaria.",
+  "trajectoryEmptySub": "Complète ton profil pour voir ta trajectoire",
+  "trajectoryDisclaimer": "Stime educative — non costituisce consulenza finanziaria.",
   "trajectoryDragHint": "Glisse pour explorer",
   "trajectoryGoalLabel": "Cible",
-
   "agirTitle": "AGIR",
   "agirThisMonth": "Ce mois",
   "agirTimeline": "Timeline",
-  "agirTimelineSub": "Tes prochaines \u00e9ch\u00e9ances",
+  "agirTimelineSub": "Tes prochaines échéances",
   "agirHistory": "Historique",
-  "agirHistorySub": "Tes check-ins pass\u00e9s",
-  "agirCheckinDone": "Check-in {month} effectu\u00e9",
+  "agirHistorySub": "Tes check-ins passés",
+  "agirCheckinDone": "Check-in {month} effectué",
   "@agirCheckinDone": {
     "placeholders": {
-      "month": { "type": "String" }
+      "month": {
+        "type": "String"
+      }
     }
   },
   "agirDone": "Fait",
   "agirCheckinCta": "Faire mon check-in {month}",
   "@agirCheckinCta": {
     "placeholders": {
-      "month": { "type": "String" }
+      "month": {
+        "type": "String"
+      }
     }
   },
   "agirNoCheckin": "Pas encore de check-in",
-  "agirNoCheckinSub": "Fais ton premier check-in pour commencer \u00e0 suivre ta progression.",
+  "agirNoCheckinSub": "Fais ton premier check-in pour commencer à suivre ta progression.",
   "agirTimeline3a": "Dernier jour versement 3a",
-  "agirTimeline3aSub": "V\u00e9rifie que ton plafond est atteint avant fin d\u00e9cembre.",
-  "agirTimeline3aCta": "V\u00e9rifier mon 3a",
-  "agirTimelineTax": "D\u00e9claration imp\u00f4ts {canton}",
+  "agirTimeline3aSub": "Vérifie que ton plafond est atteint avant fin décembre.",
+  "agirTimeline3aCta": "Vérifier mon 3a",
+  "agirTimelineTax": "Déclaration impôts {canton}",
   "@agirTimelineTax": {
     "placeholders": {
-      "canton": { "type": "String" }
+      "canton": {
+        "type": "String"
+      }
     }
   },
-  "agirTimelineTaxSub": "Pense \u00e0 rassembler tes attestations 3a et LPP.",
-  "agirTimelineTaxCta": "Pr\u00e9parer mes documents",
+  "agirTimelineTaxSub": "Pense à rassembler tes attestations 3a et LPP.",
+  "agirTimelineTaxCta": "Préparer mes documents",
   "agirTimelineLamal": "Franchise LAMal (changer ?)",
-  "agirTimelineLamalSub": "\u00c9value si ta franchise actuelle est toujours adapt\u00e9e.",
+  "agirTimelineLamalSub": "Évalue si ta franchise actuelle est toujours adaptée.",
   "agirTimelineLamalCta": "Simuler les franchises",
   "agirTimelineRetireSub": "Ton objectif principal.",
   "agirAuto": "Auto",
   "agirManuel": "Manuel",
-  "agirDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier personnalis\u00e9. Les \u00e9ch\u00e9ances et projections sont indicatives. Consulte un\u00b7e sp\u00e9cialiste pour un accompagnement adapt\u00e9. LSFin.",
-
+  "agirDisclaimer": "Outil éducatif — ne constitue pas un conseil financier personnalisé. Les échéances et projections sont indicatives. Consulte un·e spécialiste pour un accompagnement adapté. LSFin.",
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {
-      "month": { "type": "String" }
+      "month": {
+        "type": "String"
+      }
     }
   },
   "checkinHeader": "Check-in {month}",
   "@checkinHeader": {
     "placeholders": {
-      "month": { "type": "String" }
+      "month": {
+        "type": "String"
+      }
     }
   },
   "checkinSubtitle": "Confirme tes versements du mois",
-  "checkinPlannedSection": "Versements planifi\u00e9s",
-  "checkinEventsSection": "\u00c9v\u00e9nements du mois",
-  "checkinExpenses": "D\u00e9penses exceptionnelles ?",
-  "checkinExpensesHint": "Ex: 2000 (r\u00e9paration voiture)",
+  "checkinPlannedSection": "Versements planifiés",
+  "checkinEventsSection": "Événements du mois",
+  "checkinExpenses": "Dépenses exceptionnelles ?",
+  "checkinExpensesHint": "Ex: 2000 (réparation voiture)",
   "checkinRevenues": "Revenus exceptionnels ?",
   "checkinRevenuesHint": "Ex: 5000 (bonus annuel)",
   "checkinNoteSection": "Note du mois (optionnel)",
-  "checkinNoteHint": "Ex: Mois compliqu\u00e9, d\u00e9pense impr\u00e9vue pour la voiture...",
+  "checkinNoteHint": "Ex: Mois compliqué, dépense imprévue pour la voiture...",
   "checkinSubmit": "Valider le check-in",
   "checkinInvalidAmount": "Montant invalide",
-  "checkinSuccessTitle": "Bravo ! Check-in {month} compl\u00e9t\u00e9",
+  "checkinSuccessTitle": "Bravo ! Check-in {month} complété",
   "@checkinSuccessTitle": {
     "placeholders": {
-      "month": { "type": "String" }
+      "month": {
+        "type": "String"
+      }
     }
   },
-  "checkinSeeTrajectory": "Voir ma trajectoire mise \u00e0 jour",
+  "checkinSeeTrajectory": "Voir ma trajectoire mise à jour",
   "checkinImpactLabel": "Impact sur ta trajectoire",
-  "checkinImpactCapital": "Capital projet\u00e9 +{amount} ce mois",
+  "checkinImpactCapital": "Capital projeté +{amount} ce mois",
   "@checkinImpactCapital": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "checkinImpactTotal": "Total versements : {amount}",
   "@checkinImpactTotal": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  "checkinStreakLabel": "S\u00e9rie en cours",
-  "checkinStreakCount": "{count} mois cons\u00e9cutifs on-track !",
+  "checkinStreakLabel": "Série en cours",
+  "checkinStreakCount": "{count} mois consécutifs on-track !",
   "@checkinStreakCount": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "checkinCoachTip": "Tip du coach",
   "checkinAuto": "Auto",
   "checkinManuel": "Manuel",
-  "checkinDisclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier personnalis\u00e9. Les projections sont bas\u00e9es sur des hypoth\u00e8ses et peuvent varier. Consulte un\u00b7e sp\u00e9cialiste pour un accompagnement adapt\u00e9. LSFin.",
+  "checkinDisclaimer": "Outil éducatif — ne constitue pas un conseil financier personnalisé. Les projections sont basées sur des hypothèses et peuvent varier. Consulte un·e spécialiste pour un accompagnement adapté. LSFin.",
   "checkinAddContribution": "Aggiungere un versamento",
   "checkinCategoryLabel": "Categoria",
   "checkinCat3a": "Pilastro 3a",
@@ -1503,14 +1623,15 @@
   "checkinAmountField": "Importo mensile",
   "checkinAutoToggle": "Ordine permanente (automatico)",
   "checkinAddConfirm": "Aggiungere",
-
   "vaultTitle": "Coffre-fort",
   "vaultHeaderTitle": "Ton coffre-fort financier",
   "vaultHeaderSubtitle": "Centralise, comprends et agis sur tes documents",
   "vaultDocCount": "{count} documents",
   "@vaultDocCount": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "vaultCategoryLpp": "Prévoyance LPP",
@@ -1523,7 +1644,9 @@
   "vaultCategoryCount": "{count}",
   "@vaultCategoryCount": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "vaultCategoryNone": "Aucun",
@@ -1551,7 +1674,9 @@
   "vaultConfidence": "Confiance : {confidence}%",
   "@vaultConfidence": {
     "placeholders": {
-      "confidence": { "type": "String" }
+      "confidence": {
+        "type": "String"
+      }
     }
   },
   "vaultAnalyzing": "Analyse en cours...",
@@ -1583,17 +1708,53 @@
   "soaLppRent": "Rente LPP mensuelle",
   "soaTotalMonthly": "TOTAL mensuel",
   "soaAvsGapWarning": "Attention : Lacunes AVS détectées ({gap} ans)",
-  "@soaAvsGapWarning": { "placeholders": { "gap": { "type": "String" } } },
+  "@soaAvsGapWarning": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "soaBuybackYear": "Année {year}",
-  "@soaBuybackYear": { "placeholders": { "year": { "type": "String" } } },
+  "@soaBuybackYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "soaBuybackAmount": "Rachat: CHF {amount}",
-  "@soaBuybackAmount": { "placeholders": { "amount": { "type": "String" } } },
+  "@soaBuybackAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "soaBuybackSaving": "Économie: CHF {amount}",
-  "@soaBuybackSaving": { "placeholders": { "amount": { "type": "String" } } },
+  "@soaBuybackSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "soaTotalSaving": "Économie fiscale totale : CHF {amount}",
-  "@soaTotalSaving": { "placeholders": { "amount": { "type": "String" } } },
+  "@soaTotalSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "soaNature": "Nature : {nature}",
-  "@soaNature": { "placeholders": { "nature": { "type": "String" } } },
+  "@soaNature": {
+    "placeholders": {
+      "nature": {
+        "type": "String"
+      }
+    }
+  },
   "soaAssumptions": "Hypothèses de Travail",
   "soaConflicts": "Conflits d'intérêts & Commissions",
   "soaNoConflict": "Aucun conflit d'intérêt identifié pour ce rapport.",
@@ -1641,17 +1802,27 @@
   "agirCoachPulseWhyNow": "Pourquoi maintenant: {reason}",
   "@agirCoachPulseWhyNow": {
     "placeholders": {
-      "reason": { "type": "String" }
+      "reason": {
+        "type": "String"
+      }
     }
   },
   "agirScenarioBriefTitle": "Scénarios de retraite en bref",
   "agirScenarioBriefSummary": "Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}% de remplacement). L'écart Prudent vs Optimiste est {gapCapital}.",
   "@agirScenarioBriefSummary": {
     "placeholders": {
-      "years": { "type": "String" },
-      "baseCapital": { "type": "String" },
-      "replacement": { "type": "String" },
-      "gapCapital": { "type": "String" }
+      "years": {
+        "type": "String"
+      },
+      "baseCapital": {
+        "type": "String"
+      },
+      "replacement": {
+        "type": "String"
+      },
+      "gapCapital": {
+        "type": "String"
+      }
     }
   },
   "agirScenarioBriefCta": "Ouvrir la simulation complète",
@@ -1662,7 +1833,9 @@
   "checkinScoreReasonPositiveContrib": "Hausse principale: versements confirmés ({amount}) ce mois.",
   "@checkinScoreReasonPositiveContrib": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "checkinScoreReasonPositiveIncome": "Hausse principale: revenu exceptionnel ajouté ce mois.",
@@ -1670,13 +1843,17 @@
   "checkinScoreReasonNegativeExpense": "Baisse principale: dépenses exceptionnelles ce mois ({amount}).",
   "@checkinScoreReasonNegativeExpense": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "checkinScoreReasonNegativeContrib": "Baisse principale: réduction de tes versements planifiés ({amount}/mois).",
   "@checkinScoreReasonNegativeContrib": {
     "placeholders": {
-      "amount": { "type": "String" }
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "checkinScoreReasonNegativeGeneral": "Baisse temporaire ce mois. On ajuste le plan au prochain check-in.",
@@ -1685,8 +1862,12 @@
   "coachDataQualityBody": "Calcul actuel: {dataPoints} donnees saisies ({percentage}%). Les postes non renseignes restent en estimation jusqu au diagnostic complet.",
   "@coachDataQualityBody": {
     "placeholders": {
-      "dataPoints": { "type": "String" },
-      "percentage": { "type": "String" }
+      "dataPoints": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "String"
+      }
     }
   },
   "coachShockTitle": "Tes chiffres-chocs",
@@ -1702,10 +1883,18 @@
   "profileCoachKnowledgeSummary": "{profileState} • Precision {precision}% • Check-ins: {checkins}{scorePart}",
   "@profileCoachKnowledgeSummary": {
     "placeholders": {
-      "profileState": { "type": "String" },
-      "precision": { "type": "String" },
-      "checkins": { "type": "String" },
-      "scorePart": { "type": "String" }
+      "profileState": {
+        "type": "String"
+      },
+      "precision": {
+        "type": "String"
+      },
+      "checkins": {
+        "type": "String"
+      },
+      "scorePart": {
+        "type": "String"
+      }
     }
   },
   "profileChipEntered": "saisi",
@@ -1722,20 +1911,26 @@
   "profileCoachMonthlyTrendUp": "+{delta} punti questo mese, buona dinamica.",
   "@profileCoachMonthlyTrendUp": {
     "placeholders": {
-      "delta": { "type": "String" }
+      "delta": {
+        "type": "String"
+      }
     }
   },
   "profileCoachMonthlyTrendDown": "-{delta} punti questo mese, ricalibriamo le tue priorita.",
   "@profileCoachMonthlyTrendDown": {
     "placeholders": {
-      "delta": { "type": "String" }
+      "delta": {
+        "type": "String"
+      }
     }
   },
   "profileCoachMonthlyTrendFlat": "Punteggio stabile questo mese, continua cosi.",
   "profileCoachMonthlyByokPrefix": "Lettura coach IA: {trend}",
   "@profileCoachMonthlyByokPrefix": {
     "placeholders": {
-      "trend": { "type": "String" }
+      "trend": {
+        "type": "String"
+      }
     }
   },
   "profileCoachMonthlyActionComplete": "Prossimo passo: completa la diagnosi per rendere piu precise le raccomandazioni.",
@@ -1745,13 +1940,17 @@
   "profileGuidanceBody": "Completa ora {section} per rendere il tuo piano piu affidabile.",
   "@profileGuidanceBody": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "profileGuidanceCta": "Completa {section}",
   "@profileGuidanceCta": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "advisorMiniMetricsLiveTitle": "Qualita onboarding live",
@@ -1769,26 +1968,36 @@
   "coachPersonaGuidanceCouple": "Per rendere solide le proiezioni del nucleo, completa ora {section}.",
   "@coachPersonaGuidanceCouple": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "coachPersonaGuidanceSingleParent": "Il tuo piano dipende dalla protezione del nucleo. Completa ora {section}.",
   "@coachPersonaGuidanceSingleParent": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "coachPersonaGuidanceSingle": "Per personalizzare il tuo piano coach, completa ora {section}.",
   "@coachPersonaGuidanceSingle": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "coachEnrichTargetTitle": "Passa da {current}% a {target}% di precisione",
   "@coachEnrichTargetTitle": {
     "placeholders": {
-      "current": { "type": "String" },
-      "target": { "type": "String" }
+      "current": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
     }
   },
   "coachEnrichBodyIdentity": "Aggiungi basi identita/nucleo per attivare calcoli affidabili fin da oggi.",
@@ -1804,19 +2013,25 @@
   "coachAgirPartialTitle": "Piano in costruzione ({quality}%)",
   "@coachAgirPartialTitle": {
     "placeholders": {
-      "quality": { "type": "String" }
+      "quality": {
+        "type": "String"
+      }
     }
   },
   "coachAgirPartialBody": "Per attivare le tue azioni prioritarie, completa ora {section}.",
   "@coachAgirPartialBody": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "coachAgirPartialAction": "Completa {section}",
   "@coachAgirPartialAction": {
     "placeholders": {
-      "section": { "type": "String" }
+      "section": {
+        "type": "String"
+      }
     }
   },
   "authForgotTitle": "Reimposta password",
@@ -1843,5 +2058,2108 @@
   "adminObsExportFailed": "Esportazione non riuscita",
   "adminObsWindowLabel": "Finestra",
   "commonRetry": "Riprova",
-  "commonDays": "giorni"
+  "commonDays": "giorni",
+  "landingTagline": "Il tuo coach finanziario svizzero",
+  "landingRegister": "Registrati",
+  "landingHeroRetirementNow1": "Il tuo pensionamento,",
+  "landingHeroRetirementNow2": "è adesso.",
+  "landingHeroCountdown1": "Tra {years} anni,",
+  "@landingHeroCountdown1": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "landingHeroCountdown1Single": "Tra 1 anno,",
+  "landingHeroCountdown2": "inizia il tuo pensionamento.",
+  "landingHeroSubtitle": "La maggior parte degli svizzeri scopre il proprio divario pensionistico troppo tardi.",
+  "landingSliderAge": "La tua età",
+  "landingSliderAgeSuffix": "{age} anni",
+  "@landingSliderAgeSuffix": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "landingSliderSalary": "Il tuo salario lordo",
+  "landingSliderSalarySuffix": "{amount} CHF/anno",
+  "@landingSliderSalarySuffix": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "landingToday": "Oggi",
+  "landingChfPerMonth": "CHF/mese",
+  "landingAtRetirement": "Al pensionamento*",
+  "landingDropPurchasingPower": "-{percent}% di potere d'acquisto",
+  "@landingDropPurchasingPower": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "landingLppCapNotice": "Oltre {amount} CHF/anno, la rendita obbligatoria è limitata.",
+  "@landingLppCapNotice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "landingHookHigh": "Un divario di {amount}/mese è significativo. MINT ti aiuta a capire dove agire.",
+  "@landingHookHigh": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "landingHookMedium": "Il tuo divario è gestibile. MINT ti mostra le leve concrete (riscatto LPP, 3a, pensionamento anticipato).",
+  "landingHookLow": "Sei in buona posizione. MINT ti mostra come mantenere la rotta e ottimizzare i tuoi pilastri.",
+  "landingWhyMint": "Perché MINT?",
+  "landingFeaturePillarsTitle": "Tutti i tuoi pilastri, un'unica dashboard",
+  "landingFeaturePillarsSubtitle": "AVS, LPP e 3a calcolati per la tua situazione reale — non medie svizzere.",
+  "landingFeatureCoachTitle": "Coach adattato alla tua fase di vita",
+  "landingFeatureCoachSubtitle": "25 o 60 anni, frontaliere o indipendente — i consigli cambiano in base a chi sei.",
+  "landingFeaturePrivacyTitle": "100% privato, dati sul tuo dispositivo",
+  "landingFeaturePrivacySubtitle": "Nessuna condivisione, nessuna pubblicità. Il tuo profilo resta locale a meno che tu non crei un account.",
+  "landingTrustSwiss": "Made in Switzerland",
+  "landingTrustPrivate": "100% privato",
+  "landingTrustNoCommitment": "Senza impegno",
+  "landingCtaTitle": "Il tuo piano in 30 secondi",
+  "landingCtaSubtitle": "3 domande • Gratuito • Senza impegno",
+  "landingLegalFooter": "*Stima indicativa (1° + 2° pilastro), basata sullo stipendio attuale come proxy di carriera. Non costituisce consulenza finanziaria ai sensi della LSFin. I tuoi dati restano sul tuo dispositivo.",
+  "onboardingConsentTitle": "Salvataggio locale delle risposte",
+  "onboardingConsentBody": "Le tue risposte possono essere salvate localmente sul tuo dispositivo per riprendere più tardi. Nessun dato viene inviato senza il tuo consenso.",
+  "onboardingConsentAllow": "Autorizza",
+  "onboardingConsentContinueWithout": "Continua senza salvare",
+  "profileBilanTitle": "Il mio riepilogo finanziario",
+  "profileBilanSubtitleComplete": "Redditi, previdenza, patrimonio, debiti",
+  "profileBilanSubtitleIncomplete": "Completa il tuo profilo per vedere i tuoi numeri",
+  "profileFamilyTitle": "Famiglia",
+  "profileHouseholdTitle": "Il nostro nucleo",
+  "profileHouseholdStatus": "Coppia+",
+  "profileAiSlmTitle": "IA on-device (SLM)",
+  "profileAiSlmReady": "Modello pronto",
+  "profileAiSlmNotInstalled": "Modello non installato",
+  "profileLanguageTitle": "Lingua / Langue / Sprache",
+  "profileAdminObservability": "Admin observability",
+  "profileAdminAnalytics": "Analytics beta tester",
+  "profileDeleteCloudAccount": "Elimina il mio account cloud",
+  "profileDeleteCloudTitle": "Eliminare l'account?",
+  "profileDeleteCloudBody": "Questa azione elimina il tuo account cloud e i dati associati. I tuoi dati locali restano su questo dispositivo.",
+  "profileDeleteCloudConfirm": "Elimina",
+  "profileDeleteCloudSuccess": "Account eliminato con successo.",
+  "profileDeleteCloudError": "Eliminazione non possibile al momento. Riprova più tardi.",
+  "dashboardDefaultUserName": "Tu",
+  "dashboardDefaultConjointName": "Partner",
+  "dashboardGoalRetirement": "Pensionamento",
+  "dashboardAppBarWithName": "Pensionamento · {firstName}",
+  "@dashboardAppBarWithName": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAppBarDefault": "La mia dashboard",
+  "dashboardMyData": "I miei dati",
+  "dashboardQuickStartTitle": "Scopri la tua proiezione in 30 secondi",
+  "dashboardQuickStartBody": "4 informazioni bastano per stimare il tuo reddito alla pensione. Puoi affinare con documenti e dettagli.",
+  "dashboardQuickStartCta": "Iniziare",
+  "dashboardEnrichScanTitle": "Scansiona il tuo certificato LPP",
+  "dashboardEnrichScanImpact": "+20 punti di precisione",
+  "dashboardEnrichCoachTitle": "Parla con il Coach",
+  "dashboardEnrichCoachImpact": "Rispondi alle tue domande",
+  "dashboardEnrichSimTitle": "Simula uno scenario",
+  "dashboardEnrichSimImpact": "3a, LPP, ipoteca...",
+  "dashboardNextSteps": "Prossimi passi",
+  "dashboardEduTitle": "Il sistema pensionistico svizzero",
+  "dashboardEduAvs": "1° pilastro — AVS",
+  "dashboardEduAvsDesc": "Base obbligatoria per tutti. Finanziato dai tuoi contributi (LAVS art. 21).",
+  "dashboardEduLpp": "2° pilastro — LPP",
+  "dashboardEduLppDesc": "Previdenza professionale tramite la tua cassa pensione (LPP art. 14).",
+  "dashboardEdu3a": "3° pilastro — 3a",
+  "dashboardEdu3aDesc": "Risparmio volontario con deduzione fiscale (OPP3 art. 7).",
+  "dashboardDisclaimer": "Strumento educativo semplificato. Non costituisce consulenza finanziaria (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.",
+  "dashboardCockpitLink": "Cockpit dettagliato",
+  "dashboardImpactEstimate": "Impatto stimato: CHF {amount}",
+  "@dashboardImpactEstimate": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardMetricMonthlyIncome": "Reddito mensile",
+  "dashboardMetricChfMonth": "CHF/mese",
+  "dashboardMetricReplacementRate": "Tasso di sostituzione",
+  "dashboardMetricRetirementDuration": "Durata pensionamento stimata",
+  "dashboardMetricYears": "anni",
+  "dashboardMetricLifeExpectancy": "Aspettativa di vita stimata: 85 anni",
+  "dashboardMetricMonthlyGap": "Divario mensile",
+  "dashboardMetricVsTarget": "Vs obiettivo 70% del salario lordo",
+  "dashboardNextActionLabel": "Migliora la tua precisione",
+  "dashboardNextActionDetail": "Scansiona il tuo certificato LPP per affinare le tue proiezioni.",
+  "dashboardWeatherSunny": "Mercati favorevoli, risparmio massimizzato.",
+  "dashboardWeatherPartlyCloudy": "Traiettoria attuale, qualche aggiustamento.",
+  "dashboardWeatherRainy": "Shock di mercato o lacune AVS/LPP.",
+  "dashboardAgeBandYoungTitle": "La tua leva principale: il 3a",
+  "dashboardAgeBandYoungSubtitle": "Ogni franco investito ora lavora per 40 anni. Aprire il tuo 3a richiede 15 minuti.",
+  "dashboardAgeBandYoungCta": "Simulare il mio 3a",
+  "dashboardAgeBandStabTitle": "3a + protezione familiare",
+  "dashboardAgeBandStabSubtitle": "Abitazione, copertura decesso/invalidità: ora è il momento di costruire l'architettura.",
+  "dashboardAgeBandStabCta": "Vedere i simulatori",
+  "dashboardAgeBandPeakTitle": "Riscatto LPP + ottimizzazione fiscale",
+  "dashboardAgeBandPeakSubtitle": "Il tuo reddito è al massimo — è la finestra per ridurre il divario pensionistico.",
+  "dashboardAgeBandPeakCta": "Simulare un riscatto",
+  "dashboardAgeBandPreRetTitle": "Il tuo divario pensionistico in CHF/mese",
+  "dashboardAgeBandPreRetSubtitle": "Rendita vs capitale, pensionamento anticipato, riscatto scaglionato: le decisioni si avvicinano.",
+  "dashboardAgeBandPreRetCta": "Rendita vs Capitale",
+  "dashboardAgeBandRetWithdrawTitle": "Ordine di prelievo 3a",
+  "dashboardAgeBandRetWithdrawSubtitle": "Scaglionare i tuoi prelievi 3a su 3–5 anni riduce significativamente l'imposta secondo il cantone.",
+  "dashboardAgeBandRetWithdrawCta": "Pianificare i miei prelievi",
+  "dashboardAgeBandRetSuccessionTitle": "Successione e trasmissione",
+  "dashboardAgeBandRetSuccessionSubtitle": "Testamento, donazione in vita, beneficiari LPP: proteggere chi ami.",
+  "dashboardAgeBandRetSuccessionCta": "Esplorare",
+  "agirResetTooltip": "Ripristinare",
+  "agirResetHistoryLabel": "Ripristina la mia cronologia coach",
+  "agirResetDiagnosticLabel": "Ricomincia la mia diagnosi",
+  "agirResetHistoryTitle": "Ripristinare la tua cronologia coach?",
+  "agirResetHistoryMessage": "Questo elimina i tuoi check-in, la cronologia del punteggio e i progressi dei simulatori.",
+  "agirResetHistoryCta": "Ripristinare",
+  "agirResetDiagnosticTitle": "Ricominciare la tua diagnosi?",
+  "agirResetDiagnosticMessage": "Questo elimina la tua diagnosi attuale e le risposte del mini-onboarding.",
+  "agirResetDiagnosticCta": "Ricominciare",
+  "agirHistoryResetSnackbar": "Cronologia coach ripristinata.",
+  "agirSwipeDone": "Fatto",
+  "agirSwipeSnooze": "Posticipa 30g",
+  "agirSwipeDoneSnackbar": "{title} — segnato come fatto",
+  "@agirSwipeDoneSnackbar": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "agirSwipeSnoozeSnackbar": "{title} — posticipato di 30 giorni",
+  "@agirSwipeSnoozeSnackbar": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "agirDependencyDebt": "Dopo: rimborso debito",
+  "agirEmptyTitle": "Il tuo piano d'azione ti aspetta",
+  "agirEmptyBody": "Completa la tua diagnosi per ottenere un piano mensile personalizzato basato sulla tua situazione reale.",
+  "agirEmptyLaunchCta": "Avvia la mia diagnosi — 10 min",
+  "agirNoContribTitle": "Nessun contributo pianificato",
+  "agirNoContribBody": "Fai il tuo primo check-in per configurare i tuoi contributi mensili.",
+  "agirNoContribCta": "Configurare i miei contributi",
+  "agirProgressTitle": "Progresso annuale",
+  "agirProgressSubtitle": "Pianificato vs pagato nel {year}",
+  "@agirProgressSubtitle": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "agirConfirmLabel": "Da confermare",
+  "agirVersesLabel": "{amount} pagati",
+  "@agirVersesLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "agirObjectifLabel": "Obiettivo: {amount}",
+  "@agirObjectifLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "agirPriorityImmediate": "Priorità immediata",
+  "agirPriorityTrimestre": "Questo trimestre",
+  "agirPriorityAnnee": "Quest'anno",
+  "agirPriorityLongTerme": "Lungo termine",
+  "agirTimelineCheckinTitle": "Check-in mensile",
+  "agirTimelineCheckinDone": "Fatto — contributi confermati per questo mese.",
+  "agirTimelineCheckinPending": "Conferma i tuoi contributi del mese in 2 min.",
+  "agirTimelineCheckinCta": "Fare il mio check-in",
+  "agirTimelineRetirementTitle": "Pensionamento {name} (65 anni)",
+  "@agirTimelineRetirementTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "agirTimelineThisMonth": "Questo mese",
+  "agirTimelineInMonths": "tra {months} mesi",
+  "@agirTimelineInMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "agirTimelineInYears": "tra {years} anni",
+  "@agirTimelineInYears": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "agirTimelineInOneYear": "tra 1 anno",
+  "agirPerYear": "/anno",
+  "agirCoachPulseWhyDefault": "Inizia con un'azione semplice per attivare la tua dinamica.",
+  "checkinScoreTitle": "Il tuo punteggio finanziario",
+  "checkinScorePositive": "+{delta} pts — le tue azioni danno i loro frutti!",
+  "@checkinScorePositive": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinScoreNegative": "{delta} pts — continua, ogni mese conta",
+  "@checkinScoreNegative": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetEmptyTitle": "Il tuo budget si costruisce automaticamente",
+  "budgetEmptyBody": "Completa la tua diagnosi per sbloccare il tuo piano mensile con i tuoi veri redditi e spese.",
+  "budgetEmptyAction": "Fare la mia diagnosi",
+  "budgetMonthlyTitle": "Budget mensile",
+  "budgetAvailableThisMonth": "Disponibile questo mese",
+  "budgetNetIncome": "Reddito netto",
+  "budgetHousing": "Alloggio",
+  "budgetDebtRepayment": "Rimborso debiti",
+  "budgetDebts": "Debiti",
+  "budgetTaxProvision": "Accantonamento imposte",
+  "budgetHealthInsurance": "Assicurazione malattia (LAMal)",
+  "budgetOtherFixed": "Altre spese fisse",
+  "budgetNotProvided": "(non indicato)",
+  "budgetQualityEstimated": "stimato",
+  "budgetQualityEntered": "inserito",
+  "budgetQualityMissing": "mancante",
+  "budgetAvailable": "Disponibile",
+  "budgetMissingDataBanner": "Alcune spese mancano ancora. Completa la tua diagnosi per rendere questo budget più affidabile.",
+  "budgetEstimatedDataBanner": "Questo budget include stime (imposte/LAMal). Inserisci i tuoi importi reali per una proiezione più affidabile.",
+  "budgetCompleteData": "Completare i miei dati →",
+  "budgetEnvelopeFuture": "Futuro (Risparmio, Progetti)",
+  "budgetEnvelopeVariables": "Variabili (Vivere)",
+  "budgetNeeds": "Bisogni",
+  "budgetLife": "Vita",
+  "budgetFuture": "Futuro",
+  "budgetVariables": "Variabili",
+  "budgetExampleRent": "Affitto",
+  "budgetExampleLamal": "LAMal",
+  "budgetExampleTaxes": "imposte",
+  "budgetExampleDebts": "debiti",
+  "budgetExampleFood": "Alimentazione",
+  "budgetExampleTransport": "trasporti",
+  "budgetExampleLeisure": "svago",
+  "budgetExampleSavings": "Risparmio",
+  "budgetExampleProjects": "progetti",
+  "budgetChiffreChoc503020": "Risparmiando CHF {monthly}/mese, accumuli CHF {total} in 10 anni.",
+  "@budgetChiffreChoc503020": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetEmergencyFund": "Fondo di emergenza",
+  "budgetEmergencyGoalReached": "Obiettivo raggiunto",
+  "budgetEmergencyOnTrack": "Sulla buona strada",
+  "budgetEmergencyToReinforce": "Da rafforzare",
+  "budgetEmergencyMonthsCovered": "{months} mesi coperti",
+  "@budgetEmergencyMonthsCovered": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetEmergencyTarget": "Obiettivo: {target} mesi",
+  "@budgetEmergencyTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetEmergencyComplete": "Sei protetto contro gli imprevisti. Continua così.",
+  "budgetEmergencyIncomplete": "Risparmia almeno {target} mesi di spese per proteggerti dagli imprevisti (perdita di lavoro, riparazioni...).",
+  "@budgetEmergencyIncomplete": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetDisclaimerTitle": "IMPORTANTE:",
+  "budgetDisclaimerEducational": "• Questo è uno strumento educativo, non costituisce consulenza finanziaria (LSFin).",
+  "budgetDisclaimerDeclarative": "• Gli importi si basano sulle informazioni dichiarate.",
+  "budgetDisclaimerFormula": "• 'Disponibile' = Entrate - Alloggio - Debiti - Imposte - LAMal - Spese fisse.",
+  "toolsAllTools": "Tutti gli strumenti",
+  "toolsSearchHint": "Cerca uno strumento...",
+  "toolsToolCount": "{count} strumenti",
+  "@toolsToolCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "toolsCategoryCount": "{count} categorie",
+  "@toolsCategoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "toolsClear": "Cancella",
+  "toolsNoResults": "Nessuno strumento trovato",
+  "toolsNoResultsHint": "Prova con altre parole chiave",
+  "toolsCatPrevoyance": "Previdenza",
+  "toolsRetirementPlanner": "Pianificatore pensione",
+  "toolsRetirementPlannerDesc": "Simula la tua pensione AVS + LPP + 3a",
+  "toolsSimulator3a": "Simulatore 3a",
+  "toolsSimulator3aDesc": "Calcola il tuo risparmio fiscale annuale",
+  "toolsComparator3a": "Comparatore 3a",
+  "toolsComparator3aDesc": "Confronta i provider (banca vs assicurazione)",
+  "toolsRealReturn3a": "Rendimento reale 3a",
+  "toolsRealReturn3aDesc": "Rendimento netto al netto di commissioni e inflazione",
+  "toolsStaggeredWithdrawal3a": "Prelievo scaglionato 3a",
+  "toolsStaggeredWithdrawal3aDesc": "Ottimizza il prelievo su più anni",
+  "toolsRenteVsCapital": "Rendita vs Capitale",
+  "toolsRenteVsCapitalDesc": "Confronta rendita LPP e prelievo di capitale",
+  "toolsRachatLpp": "Riscatto scaglionato LPP",
+  "toolsRachatLppDesc": "Ottimizza i tuoi riscatti LPP su più anni",
+  "toolsLibrePassage": "Libero passaggio",
+  "toolsLibrePassageDesc": "Checklist cambio lavoro o uscita",
+  "toolsDisabilityGap": "Rete di sicurezza",
+  "toolsDisabilityGapDesc": "Simula il tuo gap invalidità/decesso",
+  "toolsGenderGap": "Gender gap previdenza",
+  "toolsGenderGapDesc": "Impatto del tempo parziale sulla tua pensione",
+  "toolsCatFamily": "Famiglia",
+  "toolsMarriage": "Matrimonio & fiscalità",
+  "toolsMarriageDesc": "Penalità/bonus del matrimonio + regimi + superstite",
+  "toolsBirth": "Nascita & famiglia",
+  "toolsBirthDesc": "Congedo parentale, assegni, impatto fiscale",
+  "toolsConcubinage": "Matrimonio vs Concubinato",
+  "toolsConcubinageDesc": "Comparatore + checklist di protezione",
+  "toolsDivorce": "Simulatore divorzio",
+  "toolsDivorceDesc": "Impatto finanziario del divorzio sulla LPP",
+  "toolsSuccession": "Simulatore successione",
+  "toolsSuccessionDesc": "Calcola le quote legali e le imposte",
+  "toolsCatEmployment": "Impiego",
+  "toolsFirstJob": "Primo impiego",
+  "toolsFirstJobDesc": "Comprendi la tua busta paga e i tuoi diritti",
+  "toolsUnemployment": "Simulatore disoccupazione",
+  "toolsUnemploymentDesc": "Calcola le tue indennità e durata",
+  "toolsJobComparison": "Comparatore impiego",
+  "toolsJobComparisonDesc": "Confronta due offerte (netto + LPP + vantaggi)",
+  "toolsSelfEmployed": "Indipendente",
+  "toolsSelfEmployedDesc": "Copertura sociale e protezione",
+  "toolsAvsContributions": "Contributi AVS indip.",
+  "toolsAvsContributionsDesc": "Calcola i tuoi contributi AVS/AI/APG",
+  "toolsIjm": "Assicurazione IJM",
+  "toolsIjmDesc": "Indennità giornaliera di malattia",
+  "tools3aSelfEmployed": "3a indipendente",
+  "tools3aSelfEmployedDesc": "Tetto maggiorato per indipendenti",
+  "toolsDividendVsSalary": "Dividendo vs Salario",
+  "toolsDividendVsSalaryDesc": "Ottimizza la tua remunerazione in SA/Sagl",
+  "toolsLppVoluntary": "LPP volontaria",
+  "toolsLppVoluntaryDesc": "Previdenza facoltativa per indipendenti",
+  "toolsCrossBorder": "Frontaliere",
+  "toolsCrossBorderDesc": "Imposta alla fonte, 90 giorni, oneri sociali",
+  "toolsExpatriation": "Espatrio",
+  "toolsExpatriationDesc": "Forfait fiscale, partenza, lacune AVS",
+  "toolsCatRealEstate": "Immobiliare",
+  "toolsAffordability": "Capacità d'acquisto",
+  "toolsAffordabilityDesc": "Calcola il prezzo massimo che puoi permetterti",
+  "toolsAmortization": "Piano di ammortamento",
+  "toolsAmortizationDesc": "Scadenzario del rimborso ipotecario",
+  "toolsSaronVsFixed": "SARON vs Fisso",
+  "toolsSaronVsFixedDesc": "Confronta i tipi di ipoteca",
+  "toolsImputedRental": "Valore locativo",
+  "toolsImputedRentalDesc": "Stima il valore locativo imputato",
+  "toolsEplCombined": "EPL combinato",
+  "toolsEplCombinedDesc": "Prelievo anticipato LPP + 3a per l'alloggio",
+  "toolsEplLpp": "Prelievo EPL (LPP)",
+  "toolsEplLppDesc": "Finanziare l'alloggio con il tuo 2° pilastro",
+  "toolsCatTax": "Fiscalità",
+  "toolsFiscalComparator": "Comparatore fiscale",
+  "toolsFiscalComparatorDesc": "Confronta il tuo carico fiscale tra cantoni",
+  "toolsCompoundInterest": "Interesse composto",
+  "toolsCompoundInterestDesc": "Visualizza la crescita dei tuoi risparmi",
+  "toolsCatHealth": "Salute",
+  "toolsLamalDeductible": "Franchigia LAMal",
+  "toolsLamalDeductibleDesc": "Trova la franchigia ideale per te",
+  "toolsCoverageCheckup": "Check-up copertura",
+  "toolsCoverageCheckupDesc": "Valuta la tua protezione assicurativa",
+  "toolsCatBudgetDebt": "Budget & Debiti",
+  "toolsBudget": "Budget",
+  "toolsBudgetDesc": "Pianifica e segui le tue spese mensili",
+  "toolsDebtCheck": "Check debiti",
+  "toolsDebtCheckDesc": "Valuta il tuo rischio di sovraindebitamento",
+  "toolsDebtRatio": "Rapporto di indebitamento",
+  "toolsDebtRatioDesc": "Diagnosi visuale della tua situazione",
+  "toolsRepaymentPlan": "Piano di rimborso",
+  "toolsRepaymentPlanDesc": "Strategia adattata per rimborsare",
+  "toolsDebtHelp": "Aiuto e risorse",
+  "toolsDebtHelpDesc": "Contatti e organismi di sostegno",
+  "toolsConsumerCredit": "Credito al consumo",
+  "toolsConsumerCreditDesc": "Simula il costo reale di un credito",
+  "toolsLeasing": "Calcolatore leasing",
+  "toolsLeasingDesc": "Costo reale e alternative al leasing",
+  "toolsCatBankDocs": "Banca & Documenti",
+  "toolsOpenBanking": "Open Banking",
+  "toolsOpenBankingDesc": "Connetti i tuoi conti bancari",
+  "toolsBankImport": "Importazione bancaria",
+  "toolsBankImportDesc": "Importa i tuoi estratti CSV/PDF",
+  "toolsDocuments": "I miei documenti",
+  "toolsDocumentsDesc": "Certificati LPP e documenti importanti",
+  "toolsPortfolio": "Portfolio",
+  "toolsPortfolioDesc": "Panoramica della tua situazione",
+  "toolsTimeline": "Timeline",
+  "toolsTimelineDesc": "Le tue scadenze e promemoria importanti",
+  "toolsConsent": "Consensi",
+  "toolsConsentDesc": "Gestisci le tue autorizzazioni dati",
+  "vaultPremiumBadge": "Premium",
+  "vaultExtractedFields": "Campi estratti",
+  "vaultCancelButton": "Annulla",
+  "vaultOkButton": "OK",
+  "naissanceTitle": "Nascita e famiglia",
+  "naissanceTabConge": "Congedo",
+  "naissanceTabAllocations": "Assegni",
+  "naissanceTabImpact": "Impatto",
+  "naissanceTabChecklist": "Checklist",
+  "naissanceLeaveType": "Tipo di congedo",
+  "naissanceMother": "Madre",
+  "naissanceFather": "Padre",
+  "naissanceMonthlySalary": "Salario mensile lordo",
+  "naissanceCongeLabel": "CONGEDO {type}",
+  "@naissanceCongeLabel": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceWeeks": "{count} settimane",
+  "@naissanceWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "naissanceApgPerDay": "IPG al giorno",
+  "naissanceTotalApg": "Totale IPG",
+  "naissanceCappedAt": "Limitato a CHF {amount}/giorno",
+  "@naissanceCappedAt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceDailyDetail": "DETTAGLIO GIORNALIERO",
+  "naissanceSalaryPerDay": "Salario/giorno",
+  "naissanceApgDay": "IPG/giorno",
+  "naissanceDiffPerDay": "Differenza/giorno",
+  "naissanceNoLoss": "Nessuna perdita",
+  "naissanceTotalLossEstimated": "Perdita totale stimata durante il congedo: {amount}",
+  "@naissanceTotalLossEstimated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceChiffreChocText": "Il tuo congedo di {type} rappresenta {amount} di IPG su {weeks} settimane",
+  "@naissanceChiffreChocText": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "naissanceMaternite": "maternità",
+  "naissancePaternite": "paternità",
+  "naissanceCongeEducational": "La Svizzera ha introdotto il congedo di paternità solo nel 2021. Con 2 settimane, resta uno dei più brevi d'Europa. Il congedo di maternità (14 settimane) esiste dal 2005.",
+  "naissanceCanton": "Cantone",
+  "naissanceNbEnfants": "Numero di figli",
+  "naissanceRanking26": "CLASSIFICA 26 CANTONI",
+  "naissanceBestCanton": "{canton} offre tra gli assegni familiari più vantaggiosi della Svizzera!",
+  "@naissanceBestCanton": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceAllocDiff": "Abitando a {bestCanton} invece di {canton}, riceveresti {amount} in più all'anno di assegni familiari.",
+  "@naissanceAllocDiff": {
+    "placeholders": {
+      "bestCanton": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "naissanceRevenuAnnuel": "Reddito annuo lordo",
+  "naissanceFraisGarde": "Costi di custodia mensili/figlio",
+  "naissanceTaxSavings": "Risparmi fiscali",
+  "naissanceDeductionPerChild": "Deduzione per figlio",
+  "naissanceDeductionChildcare": "Deduzione costi di custodia",
+  "naissanceEstimatedTaxSaving": "Risparmio fiscale stimato",
+  "naissanceAllowanceIncome": "Reddito assegni",
+  "naissanceAnnualAllowances": "Assegni annuali",
+  "naissanceCareerImpact": "Impatto carriera (LPP)",
+  "naissanceEstimatedInterruption": "Interruzione stimata",
+  "naissanceMonths": "{count} mesi",
+  "@naissanceMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "naissanceLppLossEstimated": "Perdita LPP stimata",
+  "naissanceLppLessContributions": "Meno contributi LPP = meno capitale alla pensione",
+  "naissanceNetAnnualImpact": "Impatto netto annuale stimato",
+  "naissanceNetFormula": "Risparmi fiscali + assegni - costo stimato",
+  "naissanceWaterfallRevenu": "Reddito lordo annuale",
+  "naissanceWaterfallAlloc": "Assegni familiari",
+  "naissanceWaterfallCosts": "Costi base (stima)",
+  "naissanceWaterfallChildcare": "Costi di custodia annuali",
+  "naissanceWaterfallAfter": "Dopo figlio/i",
+  "naissanceChildCostEducational": "Un figlio costa in media CHF 1'500/mese in Svizzera (alimentazione, vestiti, attività, assicurazione). Ma gli assegni e le deduzioni fiscali riducono significativamente l'impatto netto.",
+  "naissanceChecklistIntro": "L'arrivo di un figlio comporta numerose pratiche amministrative e finanziarie. Ecco i passaggi da non dimenticare.",
+  "naissanceStepsCompleted": "{done}/{total} pratiche completate",
+  "@naissanceStepsCompleted": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "naissanceDidYouKnow": "Lo sapevi?",
+  "naissanceDisclaimer": "Stime semplificate a scopo educativo — non costituisce consulenza previdenziale o fiscale. Gli importi dipendono da molti fattori (cantone, comune, situazione familiare, ecc.). Consulta un·a specialista per un calcolo personalizzato.",
+  "mariageTitle": "Matrimonio e fiscalità",
+  "mariageTabImpots": "Imposte",
+  "mariageTabRegime": "Regime",
+  "mariageTabProtection": "Protezione",
+  "mariageRevenu1": "Reddito 1",
+  "mariageRevenu2": "Reddito 2",
+  "mariageCanton": "Cantone",
+  "mariageEnfants": "Figli",
+  "mariageFiscalComparison": "CONFRONTO FISCALE",
+  "mariageTwoCelibataires": "2 celibi",
+  "mariageMaries": "Sposati",
+  "mariagePenaltyAmount": "Penalità +{amount}/anno",
+  "@mariagePenaltyAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mariageBonusAmount": "Bonus -{amount}/anno",
+  "@mariageBonusAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mariageDeductions": "DEDUZIONI MATRIMONIO",
+  "mariageDeductionCouple": "Deduzione coppia sposata",
+  "mariageDeductionInsurance": "Deduzione assicurazione (sposata)",
+  "mariageDeductionDualIncome": "Deduzione doppio reddito",
+  "mariageDeductionChildren": "Deduzione figli",
+  "mariageTotalDeductions": "Totale deduzioni",
+  "mariageEducationalPenalty": "Sapevi che la penalità del matrimonio colpisce ~700'000 coppie in Svizzera? Il Tribunale federale ha giudicato questa situazione incostituzionale nel 1984, ma non è ancora stata corretta.",
+  "mariageRegimeMatrimonial": "REGIME MATRIMONIALE",
+  "mariageParticipation": "Partecipazione agli acquisti",
+  "mariageParticipationSub": "Regime predefinito (CC art. 181)",
+  "mariageParticipationDesc": "Ciascuno tiene i propri beni. Gli acquisti (guadagni durante il matrimonio) sono divisi 50/50 in caso di scioglimento.",
+  "mariageSeparation": "Separazione dei beni",
+  "mariageSeparationSub": "CC art. 247",
+  "mariageSeparationDesc": "Ciascuno conserva la totalità dei propri beni e redditi. Nessuna condivisione automatica.",
+  "mariageCommunaute": "Comunione dei beni",
+  "mariageCommunauteSub": "CC art. 221",
+  "mariageCommunauteDesc": "Tutto è messo in comune: beni propri e acquisti. Divisione egualitaria totale in caso di scioglimento.",
+  "mariagePatrimoine1": "Patrimonio Persona 1",
+  "mariagePatrimoine2": "Patrimonio Persona 2",
+  "mariageChiffreChocDefault": "Nel regime predefinito, questa parte dei tuoi acquisti andrebbe al tuo coniuge in caso di scioglimento",
+  "mariageChiffreChocCommunaute": "In comunione dei beni, questo importo sarebbe condiviso con il tuo coniuge",
+  "mariageProtectionIntro": "Cosa succede se uno di voi muore? Confronta la protezione legale tra sposati e concubini.",
+  "mariageLppRenteLabel": "Rendita LPP mensile del defunto",
+  "mariageAvsSurvivor": "Rendita AVS superstiti",
+  "mariageAvsSurvivorSub": "80% della rendita massima del defunto",
+  "mariageAvsSurvivorFootnote": "LAVS art. 35 — solo per gli sposati",
+  "mariageLppSurvivor": "Rendita LPP superstiti",
+  "mariageLppSurvivorSub": "60% della rendita assicurata del defunto",
+  "mariageLppSurvivorFootnote": "LPP art. 19 — sposati (concubini: clausola necessaria)",
+  "mariageSurvivorMonthly": "Reddito mensile del superstite sposato",
+  "mariageVsConcubin": "SPOSATO VS CONCUBINO",
+  "mariageRenteAvsSurvivor": "Rendita AVS superstiti",
+  "mariageRenteLppSurvivor": "Rendita LPP superstiti",
+  "mariageHeritageExonere": "Eredità esente",
+  "mariagePensionAlimentaire": "Alimenti",
+  "mariageConcubinWarning": "In concubinato, il partner superstite non ha diritti per default — nessuna rendita AVS, nessuna eredità esente. Tutto deve essere previsto per contratto.",
+  "mariageProtectionsEssentielles": "PROTEZIONI ESSENZIALI",
+  "mariageChecklistIntro": "Il matrimonio ha conseguenze finanziarie e giuridiche. Ecco i passi essenziali da anticipare per prepararti bene.",
+  "mariageDisclaimer": "Stime semplificate a scopo educativo — non costituisce consulenza fiscale o giuridica. Gli importi dipendono da molti fattori (deduzioni, comune, patrimonio, ecc.). Consulta un·a specialista fiscale per un calcolo personalizzato.",
+  "divorceAppBarTitle": "Divorzio — Impatto finanziario",
+  "divorceHeaderTitle": "Impatto finanziario di un divorzio",
+  "divorceHeaderSubtitle": "Anticipa le conseguenze finanziarie",
+  "divorceIntroText": "Un divorzio ha conseguenze finanziarie spesso sottovalutate: divisione del patrimonio, della previdenza (LPP/3a), impatto fiscale e alimenti. Questo strumento ti aiuta a vederci più chiaro.",
+  "divorceYears": "{count} anni",
+  "@divorceYears": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "divorceNbEnfants": "Numero di figli",
+  "divorceParticipationDefault": "Partecipazione agli acquisti (predefinito)",
+  "divorceCommunaute": "Comunione dei beni",
+  "divorceSeparation": "Separazione dei beni",
+  "divorceFortune": "Patrimonio comune",
+  "divorceDettes": "Debiti comuni",
+  "divorcePensionDescription": "Stima basata sulla differenza di reddito e il numero di figli. L'importo reale dipende da molti fattori (custodia, bisogni, tenore di vita).",
+  "divorceActionsTitle": "Azioni da intraprendere",
+  "divorceComprendre": "COMPRENDERE",
+  "divorceEduParticipationTitle": "Cos'è la partecipazione agli acquisti?",
+  "divorceEduParticipationContent": "La partecipazione agli acquisti è il regime matrimoniale predefinito in Svizzera (CC art. 181 ss). Ciascun coniuge conserva i propri beni (acquisiti prima del matrimonio o per successione/donazione). Gli acquisti (beni acquisiti durante il matrimonio) sono divisi in parti uguali in caso di divorzio. È il regime più comune in Svizzera.",
+  "divorceEduLppTitle": "Come funziona la divisione LPP?",
+  "divorceEduLppContent": "Dal 1° gennaio 2017 (CC art. 122), i capitali di previdenza professionale (2° pilastro) accumulati durante il matrimonio vengono divisi in parti uguali in caso di divorzio. La divisione avviene direttamente tra le due casse pensioni, senza passare dai conti personali dei coniugi. È un diritto imperativo a cui i coniugi possono rinunciare solo a condizioni rigorose.",
+  "successionAppBarTitle": "Successione — Pianificazione",
+  "successionHeaderTitle": "Pianificare la mia successione",
+  "successionHeaderSubtitle": "Nuovo diritto successorio 2023",
+  "successionIntroText": "Il nuovo diritto successorio (2023) ha ampliato la quota disponibile. Ora hai più libertà per favorire certi eredi. Questo strumento ti mostra la distribuzione legale e l'impatto di un testamento.",
+  "donationAppBarTitle": "Donazione — Simulatore",
+  "donationHeaderTitle": "Simulare una donazione",
+  "donationHeaderSubtitle": "Fiscalità, riserva ereditaria, impatto",
+  "housingSaleAppBarTitle": "Vendita immobiliare",
+  "housingSaleHeaderTitle": "Simula la tua vendita immobiliare",
+  "housingSaleHeaderSubtitle": "Imposta sugli utili, EPL, prodotto netto",
+  "housingSaleCalculer": "Calcolare",
+  "lifeEventComprendre": "COMPRENDERE",
+  "lifeEventPointsAttention": "PUNTI DI ATTENZIONE",
+  "lifeEventActionsTitle": "Azioni da intraprendere",
+  "lifeEventChecklistSubtitle": "Checklist di preparazione",
+  "lifeEventDidYouKnow": "Lo sapevi?",
+  "unemploymentTitle": "Perdita del lavoro",
+  "unemploymentHeaderDesc": "Stima i tuoi diritti alla disoccupazione (LADI). Il calcolo dipende dal tuo guadagno assicurato, dalla tua età e dalla durata di contribuzione negli ultimi 2 anni.",
+  "unemploymentGainSliderTitle": "Guadagno assicurato mensile",
+  "unemploymentAgeSliderTitle": "La tua età",
+  "unemploymentAgeValue": "{age} anni",
+  "@unemploymentAgeValue": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentAgeMin": "18 anni",
+  "unemploymentAgeMax": "65 anni",
+  "unemploymentContribTitle": "Mesi di contribuzione (ultimi 2 anni)",
+  "unemploymentContribValue": "{months} mesi",
+  "@unemploymentContribValue": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentContribMax": "24 mesi",
+  "unemploymentSituationTitle": "Situazione personale",
+  "unemploymentSituationSubtitle": "Influenza il tasso di indennità (70% o 80%)",
+  "unemploymentChildrenToggle": "Obbligo di mantenimento (figli)",
+  "unemploymentDisabilityToggle": "Handicap riconosciuto",
+  "unemploymentNotEligible": "Non idoneo",
+  "unemploymentCompensationRate": "Tasso di indennità",
+  "unemploymentRateEnhanced": "Tasso maggiorato (80%): obbligo di mantenimento, handicap o salario < CHF 3'797",
+  "unemploymentRateStandard": "Tasso standard (70%): applicabile nelle altre situazioni",
+  "unemploymentDailyBenefit": "Indennità /giorno",
+  "unemploymentMonthlyBenefit": "Indennità /mese",
+  "unemploymentInsuredEarnings": "Guadagno assicurato considerato",
+  "unemploymentWaitingPeriod": "Periodo di attesa",
+  "unemploymentWaitingDays": "{days} giorni",
+  "@unemploymentWaitingDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentDurationHeader": "DURATA DELLE PRESTAZIONI",
+  "unemploymentDailyBenefits": "indennità giornaliere",
+  "unemploymentCoverageMonths": "mesi di copertura",
+  "unemploymentYouTag": "TU",
+  "unemploymentChecklistHeader": "CHECKLIST",
+  "unemploymentCheckItem1": "Iscriversi all'URC dal 1° giorno senza lavoro",
+  "unemploymentCheckItem2": "Depositare il dossier alla cassa di disoccupazione",
+  "unemploymentCheckItem3": "Adattare il budget al nuovo reddito",
+  "unemploymentCheckItem4": "Trasferire l'avere LPP su un conto di libero passaggio",
+  "unemploymentCheckItem5": "Verificare i diritti a una riduzione del premio LAMal",
+  "unemploymentCheckItem6": "Aggiornare il budget MINT con il nuovo reddito",
+  "unemploymentGoodToKnow": "DA SAPERE",
+  "unemploymentEduFastTitle": "Iscrizione rapida",
+  "unemploymentEduFastBody": "Iscriviti all'URC il prima possibile. Ogni giorno di ritardo può comportare una sospensione delle tue indennità.",
+  "unemploymentEdu3aTitle": "3° pilastro in pausa",
+  "unemploymentEdu3aBody": "Senza reddito da attività lucrativa, non puoi più versare al 3a. Le indennità di disoccupazione non sono considerate reddito da attività lucrativa ai fini del 3° pilastro.",
+  "unemploymentEduLppTitle": "LPP e disoccupazione",
+  "unemploymentEduLppBody": "Durante la disoccupazione, solo i rischi di decesso e invalidità sono coperti dalla LPP. Il risparmio per la vecchiaia si ferma. Trasferisci il tuo avere su un conto di libero passaggio.",
+  "unemploymentEduLamalTitle": "Riduzione del premio LAMal",
+  "unemploymentEduLamalBody": "Con un reddito più basso, potresti avere diritto a sussidi LAMal. Fai domanda presso il tuo cantone.",
+  "unemploymentTsunamiTitle": "Il tuo tsunami finanziario in 3 ondate",
+  "unemploymentDisclaimer": "Stime educative — non costituisce consulenza ai sensi della LSFin — LADI/LPP/OPP3. Gli importi presentati sono approssimativi e dipendono dalla tua situazione personale. Consulta uno·a specialista o l'URC del tuo cantone.",
+  "firstJobTitle": "Primo impiego",
+  "firstJobHeaderDesc": "Comprendi la tua busta paga! Ti mostriamo dove vanno i tuoi contributi, cosa paga il tuo datore di lavoro in più e i primi riflessi finanziari da adottare.",
+  "firstJobSalaryTitle": "Salario lordo mensile",
+  "firstJobActivityRate": "Tasso di attività",
+  "firstJob3aHeader": "PILASTRO 3A — DA APRIRE ORA",
+  "firstJob3aAnnualCap": "Tetto annuale",
+  "firstJob3aMonthlySuggestion": "Suggerimento /mese",
+  "firstJob3aWarningTitle": "ATTENZIONE — ASSICURAZIONE VITA 3A",
+  "firstJobLamalHeader": "CONFRONTO FRANCHIGIE LAMAL",
+  "firstJobChecklistHeader": "PRIMI PASSI",
+  "firstJobEduLppTitle": "LPP dai 25 anni",
+  "firstJobEduLppBody": "I contributi LPP (2° pilastro) iniziano a 25 anni per il risparmio di vecchiaia. Prima dei 25 anni, solo i rischi di decesso e invalidità sono coperti.",
+  "firstJobEdu13Title": "13ª mensilità",
+  "firstJobEdu13Body": "Se il tuo contratto prevede una 13ª mensilità, anche questa è soggetta alle deduzioni sociali. Il tuo salario mensile lordo è quindi lo stipendio annuale diviso per 13.",
+  "firstJobEduBudgetTitle": "Regola del 50/30/20",
+  "firstJobEduBudgetBody": "Un buon riflesso per il tuo primo stipendio: 50% per le spese fisse, 30% per lo svago, 20% per il risparmio e la previdenza (3a incluso).",
+  "firstJobEduTaxTitle": "Dichiarazione fiscale",
+  "firstJobEduTaxBody": "Dal tuo primo impiego, dovrai compilare una dichiarazione fiscale. Conserva tutti i tuoi attestati (salario, 3a, spese professionali).",
+  "firstJobAnalysisHeader": "Analisi MINT — Il film del tuo salario",
+  "firstJobProfileBadge": "Il tuo profilo",
+  "firstJobIllustrativeBadge": "Illustrativo",
+  "firstJobDisclaimer": "Stime educative — non costituisce consulenza — LADI/LPP/OPP3. Gli importi sono approssimativi e non tengono conto di tutte le specificità cantonali. Consulta priminfo.admin.ch per i premi LAMal esatti. Consulta uno·a specialista in previdenza.",
+  "independantAppBarTitle": "PERCORSO INDIPENDENTE",
+  "independantTitle": "Indipendente",
+  "independantSubtitle": "Analisi di copertura e protezione",
+  "independantIntroDesc": "Come indipendente, non hai LPP obbligatoria, né IGM, né LAINF. La tua protezione sociale dipende interamente dalle tue azioni personali. Identifica le tue lacune.",
+  "independantRevenueTitle": "Reddito netto annuale",
+  "independantAgeLabel": "Età: {age} anni",
+  "@independantAgeLabel": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "independantCoverageTitle": "La mia copertura attuale",
+  "independantToggleLpp": "LPP (affiliazione volontaria)",
+  "independantToggleIjm": "IGM (indennità giornaliera di malattia)",
+  "independantToggleLaa": "LAINF (assicurazione infortuni)",
+  "independantToggle3a": "3° pilastro (3a)",
+  "independantCoverageAnalysis": "ANALISI DI COPERTURA",
+  "independantProtectionCostTitle": "Costo della mia protezione completa",
+  "independantProtectionCostSubtitle": "Stima mensile",
+  "independantTotalMonthly": "Totale mensile",
+  "independantAvsTitle": "Contributo AVS indipendente",
+  "independant3aTitle": "3° pilastro — tetto indipendente",
+  "independantRecommendationsHeader": "RACCOMANDAZIONI",
+  "independantAnalysisHeader": "Analisi MINT — Il tuo kit da indipendente",
+  "independantSourcesTitle": "Fonti",
+  "independantSourcesBody": "LPP art. 4 (nessun obbligo per indipendenti) / LPP art. 44 (affiliazione volontaria) / OPP3 art. 7 (3a grande: 20% del reddito netto, max 36'288) / LAVS art. 8 (contributi indipendenti) / LAINF art. 4 / LAMal",
+  "independantDisclaimer": "Gli importi presentati sono stime indicative. I contributi reali dipendono dalla tua situazione personale e dalle offerte assicurative disponibili. Consulta un fiduciario o un assicuratore prima di qualsiasi decisione.",
+  "jobCompareAgeTitle": "La tua età",
+  "jobCompareAgeSubtitle": "Utilizzato per proiettare il capitale pensionistico",
+  "jobCompareSalaryLabel": "Salario lordo annuale",
+  "jobCompareEmployerShare": "Quota datore di lavoro LPP",
+  "jobCompareConversionRate": "Tasso di conversione",
+  "jobCompareRetirementAssets": "Avere di vecchiaia attuale",
+  "jobCompareDisabilityCoverage": "Copertura invalidità",
+  "jobCompareDeathCapital": "Capitale di decesso",
+  "jobCompareMaxBuyback": "Riscatto massimo",
+  "jobCompareVerdictLabel": "VERDETTO",
+  "jobCompareDetailedTitle": "Confronto dettagliato",
+  "jobCompareRetirementImpact": "IMPATTO SU TUTTA LA PENSIONE",
+  "jobCompareAttentionPoints": "PUNTI DI ATTENZIONE",
+  "jobCompareChecklistTitle": "Prima di firmare",
+  "jobCompareUnderstandHeader": "COMPRENDERE",
+  "jobCompareEduInvisibleTitle": "Cos'è lo stipendio invisibile?",
+  "jobCompareEduInvisibleBody": "Lo \"stipendio invisibile\" rappresenta il 10-30% della tua retribuzione totale. Include il contributo del datore di lavoro alla cassa pensioni (LPP), le assicurazioni (IGM, infortuni) e talvolta vantaggi complementari. Due posizioni con lo stesso stipendio lordo possono offrire protezioni molto diverse.",
+  "jobCompareEduCertTitle": "Come leggere il mio certificato di previdenza?",
+  "jobCompareEduCertBody": "Il tuo certificato di previdenza (LPP) contiene tutte le informazioni necessarie: salario assicurato, deduzione di coordinamento, tasso di contribuzione, avere di vecchiaia, tasso di conversione, prestazioni di rischio (invalidità e decesso) e possibile riscatto. Richiedilo alle risorse umane o alla tua cassa pensioni.",
+  "jobCompareAxisLabel": "Asse",
+  "jobCompareCurrentLabel": "Attuale",
+  "jobCompareNewLabel": "Nuovo",
+  "disabilityGapParamsTitle": "I tuoi parametri",
+  "disabilityGapParamsSubtitle": "Adatta alla tua situazione",
+  "disabilityGapIncomeLabel": "Reddito mensile netto",
+  "disabilityGapCantonLabel": "Cantone",
+  "disabilityGapStatusLabel": "Stato professionale",
+  "disabilityGapEmployee": "Salariato",
+  "disabilityGapSelfEmployed": "Indip.",
+  "disabilityGapSeniorityLabel": "Anni di anzianità",
+  "disabilityGapIjmLabel": "IGM collettiva tramite il mio datore di lavoro",
+  "disabilityGapDegreeLabel": "Grado di invalidità",
+  "disabilityGapChartTitle": "Evoluzione della tua copertura",
+  "disabilityGapChartSubtitle": "Le 3 fasi di protezione",
+  "disabilityGapCurrentIncome": "Reddito attuale",
+  "disabilityGapMaxGap": "GAP MENSILE MASSIMO",
+  "disabilityGapPhaseDetail": "DETTAGLIO DELLE FASI",
+  "disabilityGapPhase1Title": "Fase 1: Datore di lavoro",
+  "disabilityGapPhase2Title": "Fase 2: IGM",
+  "disabilityGapPhase3Title": "Fase 3: AI + LPP",
+  "disabilityGapDurationLabel": "Durata:",
+  "disabilityGapCoverageLabel": "Copertura:",
+  "disabilityGapLegalLabel": "Fonte legale:",
+  "disabilityGapIfYouAre": "SE SEI...",
+  "disabilityGapEduTitle": "COMPRENDERE",
+  "disabilityGapEduIjmTitle": "IGM vs AI: che differenza c'è?",
+  "disabilityGapEduIjmBody": "L'IGM (indennità giornaliera di malattia) è un'assicurazione che copre l'80% del tuo salario per max. 720 giorni in caso di malattia. Il datore di lavoro non è obbligato a sottoscriverla, ma molti lo fanno tramite un'assicurazione collettiva. Senza IGM, dopo il periodo legale di mantenimento del salario, non ricevi più nulla fino all'eventuale rendita AI.",
+  "disabilityGapEduCoTitle": "L'obbligo del tuo datore di lavoro (CO art. 324a)",
+  "disabilityGapEduCoBody": "Secondo l'art. 324a CO, il datore di lavoro deve versare il salario per una durata limitata in caso di malattia. Questa durata dipende dagli anni di servizio e dalla scala cantonale applicabile (bernese, zurighese o basilese). Dopo questo periodo, solo l'IGM (se esistente) subentra.",
+  "successionIntroDesc": "Il nuovo diritto successorio (2023) ha ampliato la quota disponibile. Ora hai più libertà per favorire certi eredi. Questo strumento ti mostra la distribuzione legale e l'impatto di un testamento.",
+  "successionSimulateButton": "Simulare",
+  "successionLegalDistribution": "DISTRIBUZIONE LEGALE",
+  "successionTestamentDistribution": "DISTRIBUZIONE CON TESTAMENTO",
+  "successionReservesTitle": "RISERVE EREDITARIE (2023)",
+  "successionReservesSubtitle": "Importi protetti dalla legge (intoccabili)",
+  "successionQuotiteTitle": "QUOTA DISPONIBILE",
+  "successionQuotiteDesc": "Questo importo può essere liberamente attribuito per testamento alla persona di tua scelta.",
+  "successionBeneficiaries3aTitle": "BENEFICIARI 3a (OPP3 ART. 2)",
+  "successionBeneficiaries3aDesc": "Il 3° pilastro NON segue il tuo testamento. L'ordine dei beneficiari è fissato dalla legge:",
+  "successionChecklistTitle": "Protezione dei miei cari",
+  "successionTotalTax": "Totale imposta successoria",
+  "successionTestamentSwitch": "Ho un testamento",
+  "successionBeneficiaryQuestion": "Chi riceve la quota disponibile?",
+  "successionCivilStatusLabel": "Stato civile",
+  "successionFortuneLabel": "Patrimonio totale",
+  "successionAvoirs3aLabel": "Averi 3a",
+  "successionDeathCapitalLabel": "Capitale di decesso LPP",
+  "successionChildrenLabel": "Numero di figli",
+  "successionParentsAlive": "Genitori viventi",
+  "successionSiblings": "Fratelli (fratelli/sorelle)",
+  "mariageProtectionItem1": "Redigere un testamento (clausola di usufrutto)",
+  "mariageProtectionItem2": "Clausola beneficiari LPP (chiedi alla tua cassa pensione)",
+  "mariageProtectionItem3": "Assicurazione vita incrociata (protezione del partner)",
+  "mariageProtectionItem4": "Mandato precauzionale in caso di incapacità",
+  "mariageProtectionItem5": "Direttive anticipate del paziente",
+  "mariageChecklistItem1Title": "Simulare l'impatto fiscale del matrimonio",
+  "mariageChecklistItem1Desc": "Prima di sposarti, confronta il carico fiscale in coppia (sposati vs celibi). Se i redditi sono simili e alti, la penalità matrimoniale può raggiungere diverse migliaia di franchi all'anno.",
+  "mariageChecklistItem2Title": "Scegliere il regime matrimoniale",
+  "mariageChecklistItem2Desc": "Per impostazione predefinita, è la partecipazione agli acquisti (CC art. 181). Per un altro regime (separazione dei beni, comunione dei beni), occorre firmare un contratto matrimoniale dal notaio PRIMA o durante il matrimonio.",
+  "mariageChecklistItem3Title": "Aggiornare le clausole beneficiari LPP e 3a",
+  "mariageChecklistItem3Desc": "Il matrimonio cambia l'ordine dei beneficiari. Il coniuge diventa automaticamente beneficiario della rendita superstite LPP (LPP art. 19). Verifica anche i beneficiari del tuo 3° pilastro.",
+  "mariageChecklistItem4Title": "Informare il datore di lavoro e la cassa malati",
+  "mariageChecklistItem4Desc": "Il datore di lavoro deve aggiornare i tuoi dati (stato civile, deduzioni). La cassa malati deve essere informata — i premi non cambiano, ma eventuali sussidi vengono ricalcolati in base al reddito familiare.",
+  "mariageChecklistItem5Title": "Preparare la prima dichiarazione congiunta",
+  "mariageChecklistItem5Desc": "Dall'anno del matrimonio, si presenta una sola dichiarazione fiscale congiunta. Raccogli i giustificativi di entrambi (certificati di salario, 3a, LPP, ecc.). Il passaggio alla dichiarazione congiunta può cambiare il tuo scaglione fiscale.",
+  "mariageChecklistItem6Title": "Verificare le rendite AVS di coppia",
+  "mariageChecklistItem6Desc": "La rendita AVS massima per una coppia è limitata al 150% della rendita individuale massima (LAVS art. 35). Se hai diritto alla rendita massima con il coniuge, il tetto può ridurre il totale.",
+  "mariageChecklistItem7Title": "Adattare il testamento",
+  "mariageChecklistItem7Desc": "Il matrimonio modifica l'ordine di successione. Il coniuge diventa erede legale con diritti importanti (CC art. 462). Se avevi un testamento a favore di terzi, potrebbe essere da rivedere.",
+  "mariageChecklistProgress": "{done}/{total} passaggi completati",
+  "@mariageChecklistProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mariageRepartitionDissolution": "RIPARTIZIONE IN CASO DI SCIOGLIMENTO",
+  "mariagePersonne1Recoit": "Persona 1 riceve",
+  "mariagePersonne2Recoit": "Persona 2 riceve",
+  "mariagePersonne1Garde": "Persona 1 mantiene",
+  "mariagePersonne2Garde": "Persona 2 mantiene",
+  "successionSituationTitle": "SITUAZIONE PERSONALE",
+  "successionSituationSubtitle2": "Stato civile, eredi",
+  "successionFortuneTitle": "PATRIMONIO",
+  "successionFortuneSubtitle2": "Patrimonio totale, 3a, LPP",
+  "successionTestamentTitle": "TESTAMENTO",
+  "successionTestamentSubtitle2": "Volontà testamentarie",
+  "successionQuotitePct": "ovvero il {pct}% della successione",
+  "@successionQuotitePct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "successionExonereLabel": "Esente",
+  "successionFiscaliteCanton": "FISCALITÀ SUCCESSORIA ({canton})",
+  "@successionFiscaliteCanton": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "successionEduQuotiteBody2": "La quota disponibile è la parte della tua successione che puoi assegnare liberamente per testamento. Dal 1° gennaio 2023, la riserva dei discendenti è stata ridotta da 3/4 a 1/2 della loro quota legale. I genitori non hanno più riserva. Questo ti dà più libertà.",
+  "successionEdu3aBody2": "Il 3° pilastro (3a) NON entra nella massa ereditaria ordinaria. Viene versato direttamente ai beneficiari secondo l'ordine fissato dall'OPP3 (art. 2): coniuge/partner registrato, poi discendenti, genitori, fratelli. Il concubino può essere designato beneficiario, ma solo con una clausola esplicita presso la fondazione.",
+  "successionEduConcubinBody2": "Nel diritto svizzero, i concubini NON hanno diritti ereditari legali. Senza testamento, un concubino non riceve nulla. Inoltre, l'imposta di successione per i concubini è generalmente molto più alta che per i coniugi (spesso 20-25% invece di 0%). Per proteggere il/la tuo/a partner, è essenziale redigere un testamento, verificare le clausole beneficiari 3a/LPP e considerare assicurazioni sulla vita.",
+  "successionDisclaimerText": "I risultati presentati sono stime indicative e non costituiscono consulenza legale o notarile personalizzata. Il diritto successorio ha molte sfumature. Consultate un notaio o un avvocato specializzato prima di prendere qualsiasi decisione.",
+  "donationIntroText": "Le donazioni in Svizzera sono soggette a un'imposta cantonale che varia in base al grado di parentela e al cantone. Dal 2023, la riserva ereditaria è stata ridotta, dandoti più libertà. Questo strumento ti aiuta a stimare l'imposta e a verificare la compatibilità con i diritti degli eredi.",
+  "donationSectionTitle": "DONAZIONE",
+  "donationSectionSubtitle": "Importo, beneficiario, tipo",
+  "donationMontantLabel": "Importo della donazione",
+  "donationLienParente": "Grado di parentela",
+  "donationTypeDonation": "Tipo di donazione",
+  "donationValeurImmobiliere": "Valore immobiliare",
+  "donationAvancementHoirie": "Anticipo d'eredità",
+  "donationContexteSuccessoral": "CONTESTO SUCCESSORIO",
+  "donationContexteSubtitle": "Famiglia, patrimonio, regime matrimoniale",
+  "donationAgeLabel": "Età del donatore",
+  "donationNbEnfants": "Numero di figli",
+  "donationFortuneTotale": "Patrimonio totale del donatore",
+  "donationRegimeMatrimonial": "Regime matrimoniale",
+  "donationCalculer": "Calcolare",
+  "donationImpotTitle": "IMPOSTA SULLA DONAZIONE",
+  "donationExoneree": "Esente",
+  "donationTauxCanton": "Aliquota: {taux}% (cantone {canton})",
+  "@donationTauxCanton": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "donationMontantRow": "Importo della donazione",
+  "donationLienRow": "Grado di parentela",
+  "donationReserveTitle": "RISERVA EREDITARIA (2023)",
+  "donationReserveProtege": "importo protetto dalla legge (intoccabile)",
+  "donationReserveNote": "Dal 2023, i genitori non hanno più riserva. La riserva dei discendenti è del 50% della loro quota legale (CC art. 471).",
+  "donationQuotiteTitle": "QUOTA DISPONIBILE",
+  "donationQuotiteDesc": "importo che puoi donare liberamente",
+  "donationDepassement": "Superamento di {amount} — rischio di azione di riduzione",
+  "@donationDepassement": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "donationImpactTitle": "IMPATTO SULLA SUCCESSIONE",
+  "donationAvancementNote": "Anticipo d'eredità: la donazione sarà rapportata alla massa ereditaria.",
+  "donationHorsPartNote": "Donazione fuori quota: viene imputata solo alla quota disponibile.",
+  "donationEduQuotiteTitle": "Cos'è la quota disponibile?",
+  "donationEduQuotiteBody": "La quota disponibile è la parte del tuo patrimonio che puoi donare o legare liberamente senza intaccare le riserve ereditarie. Dal 1° gennaio 2023, la riserva dei discendenti è stata ridotta da 3/4 a 1/2 della loro quota legale, e i genitori non hanno più riserva. Questo ti dà più libertà per fare donazioni.",
+  "donationEduAvancementTitle": "Anticipo d'eredità vs donazione fuori quota",
+  "donationEduAvancementBody": "Un anticipo d'eredità è un anticipo sulla quota ereditaria del beneficiario. Sarà rapportato alla massa ereditaria al decesso. Una donazione fuori quota (o preciput) viene imputata solo alla quota disponibile e non viene rapportata. La scelta tra le due ha un impatto importante sull'equilibrio tra gli eredi.",
+  "donationEduConcubinTitle": "Donazioni e concubini",
+  "donationEduConcubinBody": "I concubini non hanno diritti ereditari legali in Svizzera. Una donazione è il modo più diretto per avvantaggiarli. Tuttavia, l'imposta cantonale sulle donazioni tra concubini è generalmente elevata (18-25% a seconda del cantone). Svitto fa eccezione: nessuna imposta sulle donazioni. Considerare un testamento complementare per una protezione completa.",
+  "donationDisclaimer": "Questo strumento educativo fornisce stime indicative e non costituisce consulenza legale, fiscale o notarile personalizzata ai sensi della LSerFi. Consulta uno specialista (notaio) per la tua situazione.",
+  "donationCanton": "Cantone",
+  "housingSaleIntroText": "Vendere un immobile in Svizzera comporta un'imposta sugli utili immobiliari (LAID art. 12), l'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.",
+  "housingSaleBienTitle": "IMMOBILE",
+  "housingSaleBienSubtitle": "Prezzo d'acquisto, vendita, investimenti",
+  "housingSalePrixAchat": "Prezzo d'acquisto",
+  "housingSalePrixVente": "Prezzo di vendita",
+  "housingSaleAnneeAchat": "Anno d'acquisto",
+  "housingSaleInvestissements": "Investimenti valorizzanti",
+  "housingSaleFraisAcquisition": "Spese di acquisizione (notaio, ecc.)",
+  "housingSaleResidencePrincipale": "Residenza principale",
+  "housingSaleFinancementTitle": "FINANZIAMENTO",
+  "housingSaleFinancementSubtitle": "Ipoteca rimanente",
+  "housingSaleHypotheque": "Ipoteca rimanente",
+  "housingSaleEplTitle": "EPL — PREVIDENZA UTILIZZATA",
+  "housingSaleEplSubtitle": "LPP e 3a utilizzati per l'acquisto",
+  "housingSaleEplLpp": "EPL LPP utilizzato",
+  "housingSaleEpl3a": "EPL 3a utilizzato",
+  "housingSaleRemploiTitle": "REINVESTIMENTO",
+  "housingSaleRemploiSubtitle": "Progetto di acquisto di un nuovo immobile",
+  "housingSaleProjetRemploi": "Progetto di reinvestimento (riacquisto)",
+  "housingSalePrixNouveauBien": "Prezzo del nuovo immobile",
+  "housingSalePlusValueTitle": "PLUSVALORE IMMOBILIARE",
+  "housingSalePlusValueBrute": "Plusvalore lordo",
+  "housingSalePlusValueImposable": "Plusvalore imponibile",
+  "housingSaleDureeDetention": "Durata di detenzione",
+  "housingSaleYearsCount": "{count} anni",
+  "@housingSaleYearsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "housingSaleImpotGainsCanton": "IMPOSTA SUGLI UTILI ({canton})",
+  "@housingSaleImpotGainsCanton": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "housingSaleTauxImposition": "Aliquota fiscale",
+  "housingSaleImpotGains": "Imposta sugli utili",
+  "housingSaleReportRemploi": "Differimento (reinvestimento)",
+  "housingSaleImpotEffectif": "Imposta effettiva",
+  "housingSaleReportTitle": "DIFFERIMENTO FISCALE (REINVESTIMENTO)",
+  "housingSaleReportDesc": "di plusvalore differito (non tassato ora)",
+  "housingSaleReportNote": "Il differimento sarà integrato alla rivendita del nuovo immobile (LAID art. 12 cpv. 3).",
+  "housingSaleEplRepaymentTitle": "RIMBORSO EPL",
+  "housingSaleRemboursementLpp": "Rimborso LPP",
+  "housingSaleRemboursement3a": "Rimborso 3a",
+  "housingSaleEplNote": "Obbligo legale: i fondi previdenziali utilizzati per l'acquisto devono essere rimborsati alla vendita della residenza principale (LPP art. 30d).",
+  "housingSaleProduitNetTitle": "RICAVO NETTO DELLA VENDITA",
+  "housingSaleImpotPlusValue": "Imposta plusvalore",
+  "housingSaleRemboursementEplLpp": "Rimborso EPL LPP",
+  "housingSaleRemboursementEpl3a": "Rimborso EPL 3a",
+  "housingSaleEduImpotTitle": "Come funziona l'imposta sugli utili immobiliari?",
+  "housingSaleEduImpotBody": "In Svizzera, ogni guadagno dalla vendita di un immobile è soggetto a un'imposta cantonale specifica (LAID art. 12). L'aliquota diminuisce con la durata di detenzione. Dopo 20-25 anni a seconda del cantone, il guadagno può essere totalmente o parzialmente esente. Gli investimenti valorizzanti e le spese di acquisizione sono deducibili.",
+  "housingSaleEduRemploiTitle": "Cos'è il reinvestimento?",
+  "housingSaleEduRemploiBody": "Il reinvestimento permette di differire la tassazione del plusvalore se acquisti una nuova residenza principale entro un termine ragionevole (generalmente 2 anni). Se il nuovo immobile costa quanto o più del vecchio, il differimento è totale. Altrimenti è proporzionale. L'imposta sarà dovuta alla rivendita del nuovo immobile.",
+  "housingSaleEduEplTitle": "EPL: cosa succede alla vendita?",
+  "housingSaleEduEplBody": "Se hai utilizzato fondi previdenziali (EPL) per l'acquisto della tua residenza principale, devi rimborsarli alla vendita (LPP art. 30d). Questo rimborso è obbligatorio e viene effettuato alla tua cassa pensione (LPP) e/o alla tua fondazione 3a. L'importo è iscritto nel registro fondiario e non può essere evitato.",
+  "housingSaleDisclaimer": "Questo strumento educativo fornisce stime indicative e non costituisce consulenza fiscale, legale o immobiliare personalizzata ai sensi della LSerFi. Consulta uno specialista per la tua situazione personale.",
+  "housingSaleCanton": "Cantone",
+  "jobCompareDeltaLabel": "Delta",
+  "jobCompareRetirementBody": "{betterJob} vale {annualDelta}/anno in più di rendita vitalizia, ovvero {monthlyDelta}/mese A VITA dopo il pensionamento.",
+  "@jobCompareRetirementBody": {
+    "placeholders": {
+      "betterJob": {
+        "type": "String"
+      },
+      "annualDelta": {
+        "type": "String"
+      },
+      "monthlyDelta": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareLifetime20Years": "In 20 anni di pensionamento: {amount}",
+  "@jobCompareLifetime20Years": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAxesFavorable": "{favorable} assi favorevoli su {total}",
+  "@jobCompareAxesFavorable": {
+    "placeholders": {
+      "favorable": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareCurrentJobWidget": "Impiego attuale",
+  "jobCompareNewJobWidget": "Impiego previsto",
+  "jobCompareAxisSalary": "Salario lordo",
+  "jobCompareAxisLpp": "Contributo LPP",
+  "jobCompareAxisDistance": "Distanza",
+  "jobCompareAxisVacation": "Vacanze",
+  "jobCompareAxisWeeklyHours": "Ore settimanali",
+  "jobCompareChecklistSub": "Checklist di verifica",
+  "independantJourJTitle": "Il Giorno X — Il grande salto",
+  "independantJourJSubtitle": "Cosa cambia in 1 giorno quando diventi indipendente",
+  "independantJourJEmployee": "Dipendente",
+  "independantJourJSelfEmployed": "Indipendente",
+  "independantJourJChiffreChoc": "Perdi ~{amount}/mese di protezione invisibile.\nNon hai lasciato un lavoro. Hai lasciato un sistema di protezione.",
+  "@independantJourJChiffreChoc": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "independantAvsBody": "Il tuo contributo AVS stimato: {amount}/anno (aliquota decrescente per redditi inferiori a CHF 58’800, poi ~10.6% sopra).",
+  "@independantAvsBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "independantAvsSource": "Fonte: LAVS art. 8 / Tabelle dei contributi AVS",
+  "independant3aWithLpp": "Con LPP volontaria: tetto 3a standard di CHF 7’258/anno.",
+  "independant3aWithoutLpp": "Senza LPP: tetto 3a \"grande\" del 20% del reddito netto, max {amount}/anno (tetto legale CHF 36’288).",
+  "@independant3aWithoutLpp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "independant3aSource": "Fonte: OPP3 art. 7",
+  "independantPerMonth": "/mese",
+  "independantPerYear": "/ anno",
+  "independantCostAvs": "AVS / AI / IPG",
+  "independantCostIjm": "IJM (stima)",
+  "independantCostLaa": "LAA (stima)",
+  "independantCost3a": "Pilastro 3a (max.)",
+  "disabilityGapSeniorityYears": "{years} anni",
+  "@disabilityGapSeniorityYears": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityGapPhase1Duration": "{weeks} settimane",
+  "@disabilityGapPhase1Duration": {
+    "placeholders": {
+      "weeks": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityGapPhase1Full": "100% dello stipendio",
+  "disabilityGapNoCoverage": "Nessuna copertura",
+  "disabilityGapNone": "Nessuna",
+  "disabilityGapPhase2Duration": "Fino a 24 mesi",
+  "disabilityGapPhase2Coverage": "80% dello stipendio ({amount} CHF/mese)",
+  "@disabilityGapPhase2Coverage": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityGapCollectiveInsurance": "Assicurazione collettiva",
+  "disabilityGapNotSubscribed": "Non sottoscritta",
+  "disabilityGapPhase3Duration": "Dopo 24 mesi",
+  "disabilityGapActionSelfIjm": "Sottoscrivi un'IJM individuale",
+  "disabilityGapActionSelfIjmSub": "Priorità assoluta per gli indipendenti",
+  "disabilityGapActionCheckHr": "Verifica con le risorse umane la tua copertura malattia",
+  "disabilityGapActionCheckHrSub": "Chiedi se esiste un'IJM collettiva",
+  "disabilityGapActionConditions": "Chiedi le condizioni esatte della tua IJM",
+  "disabilityGapActionConditionsSub": "Periodo di attesa, durata, tasso di copertura",
+  "successionMarried": "Sposato/a",
+  "successionSingle": "Celibe/Nubile",
+  "successionDivorced": "Divorziato/a",
+  "successionWidowed": "Vedovo/a",
+  "successionConcubinage": "Concubinato",
+  "successionConjoint": "Coniuge",
+  "successionChildren": "Figli",
+  "successionThirdParty": "Terzi / Opera",
+  "successionQuotiteFreedom": "Questo importo può essere liberamente attribuito per testamento alla persona di tua scelta.",
+  "successionFiscalTitle": "FISCALITÀ SUCCESSORIA",
+  "successionExempt": "Esente",
+  "successionEduQuotiteTitle": "Cos'è la quota disponibile?",
+  "successionEdu3aTitle": "Il 3a e la successione: attenzione!",
+  "successionEduConcubinTitle": "I concubini e la successione",
+  "successionCantonLabel": "Cantone",
+  "debtCheckTitle": "Check-up Salute Finanziaria",
+  "debtCheckExportTooltip": "Esporta il mio bilancio",
+  "debtCheckSectionDaily": "Gestione quotidiana",
+  "debtCheckOverdraftQuestion": "Sei regolarmente in scoperto?",
+  "debtCheckOverdraftSub": "Il tuo conto va in negativo prima della fine del mese.",
+  "debtCheckMultipleCreditsQuestion": "Hai più crediti in corso?",
+  "debtCheckMultipleCreditsSub": "Leasing, prestiti, piccoli crediti, carte di credito...",
+  "debtCheckSectionObligations": "Obblighi",
+  "debtCheckLatePaymentsQuestion": "Hai ritardi nei pagamenti?",
+  "debtCheckLatePaymentsSub": "Fatture, tasse o affitti pagati in ritardo.",
+  "debtCheckCollectionQuestion": "Hai ricevuto esecuzioni?",
+  "debtCheckCollectionSub": "Precetti esecutivi o pignoramenti.",
+  "debtCheckSectionBehaviors": "Comportamenti",
+  "debtCheckImpulsiveQuestion": "Acquisti impulsivi frequenti?",
+  "debtCheckImpulsiveSub": "Spese non pianificate di cui ti penti.",
+  "debtCheckGamblingQuestion": "Giochi d'azzardo regolarmente?",
+  "debtCheckGamblingSub": "Casinò, scommesse sportive o lotterie frequenti.",
+  "debtCheckAnalyzeButton": "Analizza la mia situazione",
+  "debtCheckMentorTitle": "Parola del Mentore",
+  "debtCheckMentorBody": "Questo check-up di 60 secondi ci permette di rilevare i segnali d'allarme prima che diventino critici.",
+  "debtCheckYes": "SÌ",
+  "debtCheckNo": "NO",
+  "debtCheckRiskLow": "Rischio Controllato",
+  "debtCheckRiskMedium": "Punti di Attenzione",
+  "debtCheckRiskHigh": "Allerta Critica",
+  "debtCheckRiskUnknown": "Indeterminato",
+  "debtCheckFactorsDetected": "{count} fattore/i rilevato/i",
+  "@debtCheckFactorsDetected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debtCheckRecommendationsTitle": "RACCOMANDAZIONI DEL MENTORE",
+  "debtCheckValidateButton": "Valida il mio check-up",
+  "debtCheckRedoButton": "Rifare il check-up",
+  "debtCheckHonestyQuote": "L'onestà con se stessi è il primo passo verso la serenità.",
+  "debtCheckGamblingSupportTitle": "Supporto Gioco d'Azzardo",
+  "debtCheckGamblingSupportBody": "Un supporto professionale e anonimo è disponibile gratuitamente.",
+  "debtCheckGamblingSupportCta": "SOS Gioco - Aiuto online",
+  "debtCheckPrivacyNote": "Mint rispetta la tua privacy. Nessun dato viene memorizzato o trasmesso.",
+  "scoreRevealGreeting": "Bravo {name},",
+  "@scoreRevealGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreRevealTitle": "La tua diagnosi\nè pronta.",
+  "scoreRevealBudget": "Budget",
+  "scoreRevealPrevoyance": "Previdenza",
+  "scoreRevealPatrimoine": "Patrimonio",
+  "scoreRevealLevelExcellent": "Eccellente",
+  "scoreRevealLevelGood": "Buono",
+  "scoreRevealLevelWarning": "Attenzione",
+  "scoreRevealLevelCritical": "Critico",
+  "scoreRevealCoachLabel": "IL TUO COACH",
+  "scoreRevealCtaDashboard": "Vedi il mio dashboard",
+  "scoreRevealCtaReport": "Vedi rapporto dettagliato",
+  "scoreRevealDisclaimer": "Strumento educativo — non costituisce consulenza finanziaria (LSFin).",
+  "affordabilityTitle": "CAPACITÀ D'ACQUISTO",
+  "affordabilitySource": "Fonte: direttiva ASB sul credito ipotecario, pratica bancaria svizzera.",
+  "affordabilityIndicators": "INDICATORI",
+  "affordabilityChargesRatio": "Rapporto oneri / reddito",
+  "affordabilityEquityRatio": "Mezzi propri / prezzo",
+  "affordabilityOk": "OK",
+  "affordabilityExceeded": "SUPERATO",
+  "affordabilityParameters": "PARAMETRI",
+  "affordabilityCanton": "Cantone",
+  "affordabilityGrossIncome": "Reddito lordo annuo",
+  "affordabilityTargetPrice": "Prezzo d'acquisto obiettivo",
+  "affordabilityAvailableSavings": "Risparmio disponibile",
+  "affordabilityPillar3a": "Averi pilastro 3a",
+  "affordabilityPillarLpp": "Averi LPP",
+  "affordabilityCalculationDetail": "DETTAGLIO DEL CALCOLO",
+  "affordabilityEquityRequired": "Mezzi propri richiesti (20%)",
+  "affordabilitySavingsLabel": "Risparmio",
+  "affordabilityLppMax10": "Averi LPP (max 10% del prezzo)",
+  "affordabilityTotalEquity": "Totale mezzi propri",
+  "affordabilityMortgagePercent": "Ipoteca ({percent}%)",
+  "@affordabilityMortgagePercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "affordabilityMonthlyCharges": "Oneri mensili teorici",
+  "affordabilityCalculationNote": "Calcolo teorico: ipoteca x (5% tasso imputato + 1% ammortamento) + prezzo x 1% spese accessorie. Max 33% del reddito lordo.",
+  "amortizationSource": "Fonte: OPP3 (pilastro 3a), pratica ipotecaria svizzera. Tetto 3a dipendenti 2026: CHF 7'258.",
+  "amortizationIntroTitle": "Ammortamento: diretto o indiretto?",
+  "amortizationIntroBody": "In Svizzera, l'ammortamento indiretto è una particolarità unica: invece di rimborsare direttamente il debito, versi in un pilastro 3a costituito in pegno. Benefici di una doppia deduzione fiscale (interessi + versamento 3a) e il tuo capitale resta investito.",
+  "amortizationDirect": "Diretto",
+  "amortizationDirectDesc": "Rimborsi il debito ogni anno. Gli interessi diminuiscono progressivamente.",
+  "amortizationIndirect": "Indiretto",
+  "amortizationIndirectDesc": "Versi in un 3a costituito in pegno. Doppia deduzione fiscale.",
+  "amortizationEvolutionTitle": "EVOLUZIONE SU {years} ANNI",
+  "@amortizationEvolutionTitle": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "amortizationLegendDebtDirect": "Debito (diretto)",
+  "amortizationLegendDebtIndirect": "Debito (indiretto)",
+  "amortizationLegendCapital3a": "Capitale 3a",
+  "amortizationParameters": "PARAMETRI",
+  "amortizationMortgageAmount": "Importo ipotecario",
+  "amortizationInterestRate": "Tasso d'interesse",
+  "amortizationDuration": "Durata",
+  "amortizationMarginalRate": "Aliquota marginale stimata",
+  "amortizationDetailedComparison": "CONFRONTO DETTAGLIATO",
+  "amortizationDirectTitle": "Ammortamento diretto",
+  "amortizationTotalInterest": "Totale interessi pagati",
+  "amortizationNetCost": "Costo netto totale",
+  "amortizationIndirectTitle": "Ammortamento indiretto",
+  "amortizationCapital3aAccumulated": "Capitale 3a accumulato",
+  "fiscalComparatorTitle": "Comparatore fiscale",
+  "fiscalTabMyTax": "La mia imposta",
+  "fiscalTab26Cantons": "26 cantoni",
+  "fiscalTabMove": "Trasloco",
+  "fiscalGrossAnnualIncome": "Reddito lordo annuo",
+  "fiscalCanton": "Cantone",
+  "fiscalCivilStatus": "Stato civile",
+  "fiscalSingle": "Celibe/nubile",
+  "fiscalMarried": "Coniugato/a",
+  "fiscalChildren": "Figli",
+  "fiscalNetWealth": "Patrimonio netto",
+  "fiscalChurchMember": "Membro di una chiesa",
+  "fiscalChurchTax": "Imposta ecclesiastica",
+  "fiscalEffectiveRate": "Aliquota effettiva stimata",
+  "fiscalBelowAverage": "Inferiore alla media svizzera (~{rate}%)",
+  "@fiscalBelowAverage": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalAboveAverage": "Superiore alla media svizzera (~{rate}%)",
+  "@fiscalAboveAverage": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalBreakdownTitle": "SCOMPOSIZIONE FISCALE",
+  "fiscalFederalTax": "Imposta federale",
+  "fiscalCantonalCommunalTax": "Imposta cantonale + comunale",
+  "fiscalWealthTax": "Imposta sulla sostanza",
+  "fiscalTotalBurden": "Onere fiscale totale",
+  "fiscalNationalPosition": "POSIZIONE NAZIONALE",
+  "fiscalRanks": "si classifica",
+  "fiscalCantons": "cantoni",
+  "fiscalCheapest": "Il più economico",
+  "fiscalMostExpensive": "Il più caro",
+  "fiscalGapBetweenCantons": "divario tra il cantone più economico e il più caro",
+  "fiscalMoveIntro": "Simula l'impatto fiscale di un trasloco tra due cantoni. I parametri di reddito e situazione familiare sono condivisi con la scheda \"La mia imposta\".",
+  "fiscalCurrentCanton": "Cantone attuale",
+  "fiscalDestinationCanton": "Cantone di destinazione",
+  "fiscalIncomeTaxLabel": "Imposta sul reddito",
+  "fiscalEstimateNote": "Stima secondo aliquota cantonale",
+  "fiscalEstimatedRent": "Affitto stimato",
+  "fiscalRentNote": "Varia in base al comune e alla superficie",
+  "fiscalMovingCosts": "Costi di trasloco",
+  "fiscalMovingCostsNote": "Ammortizzati in 24 mesi",
+  "fiscalWealthTaxTitle": "IMPOSTA SULLA SOSTANZA",
+  "fiscalNetWealthAmount": "Patrimonio netto: {amount}",
+  "@fiscalNetWealthAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalWealthSaving": "Risparmio sostanza: {amount}/anno",
+  "@fiscalWealthSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalWealthSurcharge": "Sovrapprezzo sostanza: {amount}/anno",
+  "@fiscalWealthSurcharge": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "fiscalWealthEquivalent": "Imposta sulla sostanza equivalente",
+  "fiscalChecklist1": "Dichiarare la partenza al comune attuale",
+  "fiscalChecklist2": "Registrarsi al nuovo comune entro 14 giorni",
+  "fiscalChecklist3": "Aggiornare l'indirizzo presso la cassa malati",
+  "fiscalChecklist4": "Adattare la dichiarazione fiscale (prorata temporis)",
+  "fiscalChecklist5": "Verificare i sussidi LAMal nel nuovo cantone",
+  "fiscalChecklist6": "Trasferire le iscrizioni (veicolo, scuole, ecc.)",
+  "fiscalChecklistTitle": "CHECKLIST TRASLOCO",
+  "fiscalGoodToKnow": "BUONO A SAPERSI",
+  "fiscalEduDateTitle": "Data di riferimento: 31 dicembre",
+  "fiscalEduDateBody": "Sei tassato nel cantone in cui risiedevi il 31 dicembre dell'anno fiscale. Un trasloco il 30 dicembre conta per tutto l'anno!",
+  "fiscalEduProrataTitle": "Prorata temporis",
+  "fiscalEduProrataBody": "L'imposta federale è sempre la stessa. Solo le imposte cantonali e comunali cambiano. Il prorata si applica nell'anno del trasloco.",
+  "fiscalEduRentTitle": "Affitti e costo della vita",
+  "fiscalEduRentBody": "Non dimenticare che i risparmi fiscali possono essere compensati da differenze di affitto e costo della vita. Confronta il budget complessivo, non solo le imposte.",
+  "fiscalCommune": "Comune",
+  "fiscalCapitalDefault": "Capoluogo (predefinito)",
+  "fiscalDisclaimer": "Stime semplificate a scopo educativo — non costituisce consulenza fiscale. Le aliquote effettive dipendono da molti fattori (deduzioni, sostanza, comune, ecc.). Consulta uno specialista fiscale per un calcolo personalizzato.",
+  "expatTitle": "Espatrio",
+  "expatTabForfait": "Forfait",
+  "expatTabDeparture": "Partenza",
+  "expatTabAvs": "AVS",
+  "expatForfaitEducation": "Il forfait fiscale (imposizione secondo il dispendio) permette alle persone di nazionalità straniera di non essere tassate sul reddito mondiale, ma sulla base delle spese di vita. Circa 5'000 persone ne beneficiano in Svizzera.",
+  "expatHighlightSchwyz": "Fiscalità più vantaggiosa della Svizzera",
+  "expatHighlightZug": "Hub internazionale, accesso a Zurigo",
+  "expatCanton": "Cantone",
+  "expatLivingExpenses": "Spese di vita annuali",
+  "expatActualIncome": "Reddito reale annuo",
+  "expatTaxComparison": "CONFRONTO FISCALE",
+  "expatForfaitFiscal": "Forfait fiscale",
+  "expatOrdinaryTaxation": "Imposizione ordinaria",
+  "expatOnActualIncome": "Sul reddito reale",
+  "expatAbolishedCantons": "Cantoni che hanno abolito il forfait",
+  "expatAbolishedNote": "{names} — il forfait fiscale non è più disponibile in questi cantoni.",
+  "@expatAbolishedNote": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "expatDepartureDate": "Data di partenza",
+  "expatCurrentCanton": "Cantone attuale",
+  "expatPillar3aBalance": "Saldo pilastro 3a",
+  "expatLppBalance": "Saldo LPP (averi di vecchiaia)",
+  "expatNoExitTax": "Nessuna tassa di uscita in Svizzera",
+  "expatRecommendedTimeline": "CRONOLOGIA RACCOMANDATA",
+  "expatDepartureChecklist": "CHECKLIST DI PARTENZA",
+  "expatAvsEducation": "Per ricevere una rendita AVS completa (max CHF 2'520/mese), servono 44 anni di contribuzione senza lacune. Ogni anno mancante riduce la rendita di circa il 2.3%. Se vivi all'estero, puoi contribuire volontariamente all'AVS per evitare lacune.",
+  "expatYearsInSwitzerland": "Anni in Svizzera",
+  "expatYearsAbroad": "Anni all'estero",
+  "expatAvsCompleteness": "COMPLETEZZA AVS",
+  "expatOfPension": "della rendita",
+  "expatEstimatedPension": "Rendita stimata",
+  "expatAvsComplete": "Complimenti! Hai i tuoi 44 anni completi di contribuzione. La tua rendita AVS non dovrebbe essere ridotta.",
+  "expatPensionImpact": "IMPATTO SULLA TUA RENDITA",
+  "expatMissingYears": "Anni mancanti",
+  "expatEstimatedReduction": "Riduzione stimata",
+  "expatMonthlyLoss": "Perdita mensile",
+  "expatAnnualLoss": "Perdita annuale",
+  "expatVoluntaryContribution": "CONTRIBUZIONE VOLONTARIA",
+  "expatVoluntaryAvsTitle": "AVS facoltativa dall'estero",
+  "expatMinContribution": "Contribuzione minima",
+  "expatMaxContribution": "Contribuzione massima",
+  "expatVoluntaryAvsBody": "Puoi contribuire volontariamente all'AVS se vivi all'estero. Termine d'iscrizione: 1 anno dopo la partenza dalla Svizzera. Condizione: aver contribuito almeno 5 anni consecutivi prima della partenza.",
+  "expatRecommendation": "RACCOMANDATA",
+  "expatDidYouKnow": "Lo sapevi?",
+  "mariageTimelinePartner1": "Persona 1",
+  "mariageTimelinePartner2": "Persona 2",
+  "mariageTimelineCoachTip": "Ogni fase della vita richiede di adattare il contratto matrimoniale e la previdenza.",
+  "mariageTimelineAct1Title": "Lavorate entrambi",
+  "mariageTimelineAct1Period": "0-10 anni di vita comune",
+  "mariageTimelineAct1Insight": "Fase di costruzione: 3a, LPP, risparmio comune. Approfittate di due redditi.",
+  "mariageTimelineAct2Title": "Fase di risparmio intensivo",
+  "mariageTimelineAct2Period": "10-25 anni",
+  "mariageTimelineAct2Insight": "Riscatto LPP, 3a massimo, preparazione pensione. Il vostro capitale raddoppia.",
+  "mariageTimelineAct3Title": "Pensione di coppia",
+  "mariageTimelineAct3Period": "25+ anni",
+  "mariageTimelineAct3Insight": "Attenzione: tetto AVS coppia (150% rendita massima). Pianificare rendita vs capitale.",
+  "naissanceChecklistItem1Title": "Iscrivere il bebè all'assicurazione malattia (3 mesi)",
+  "naissanceChecklistItem1Desc": "Hai 3 mesi dalla nascita per iscrivere il tuo bambino presso una cassa malati. Se lo fai entro questo termine, la copertura è retroattiva dalla nascita. Dopo questo termine, c'è rischio di interruzione della copertura. Confronta i premi bambini tra le casse — le differenze possono essere significative.",
+  "naissanceChecklistItem2Title": "Richiedere gli assegni familiari",
+  "naissanceChecklistItem2Desc": "Fai la richiesta tramite il tuo datore di lavoro (o la tua cassa assegni se sei indipendente). Gli assegni vengono versati dal mese di nascita. L'importo dipende dal cantone (CHF 200 a CHF 305/mese per figlio).",
+  "naissanceChecklistItem3Title": "Annunciare la nascita all'ufficio di stato civile",
+  "naissanceChecklistItem3Desc": "L'ospedale trasmette generalmente l'annuncio all'ufficio di stato civile. Verifica che l'atto di nascita sia stato correttamente emesso. Ne avrai bisogno per tutte le pratiche amministrative.",
+  "naissanceChecklistItem4Title": "Organizzare il congedo parentale (IPG)",
+  "naissanceChecklistItem4Desc": "Congedo maternità: 14 settimane all'80% dello stipendio (max CHF 220/giorno). Congedo paternità: 2 settimane (10 giorni), da prendere entro 6 mesi. L'iscrizione IPG si fa tramite il datore di lavoro o direttamente presso la cassa di compensazione.",
+  "naissanceChecklistItem5Title": "Aggiornare la dichiarazione fiscale",
+  "naissanceChecklistItem5Desc": "Un figlio in più ti dà diritto a una deduzione fiscale di CHF 6'700/anno (LIFD art. 35). Se hai spese di custodia, puoi dedurre fino a CHF 25'500/anno. Ricorda di adattare i tuoi acconti fiscali per l'anno in corso.",
+  "naissanceChecklistItem6Title": "Adattare il budget familiare",
+  "naissanceChecklistItem6Desc": "Un figlio costa in media CHF 1'200 a CHF 1'500/mese in Svizzera (alimentazione, vestiti, attività, assicurazione, pannolini, ecc.). Rivaluta il tuo budget con il modulo Budget di MINT.",
+  "naissanceChecklistItem7Title": "Verificare la previdenza (LPP e 3a)",
+  "naissanceChecklistItem7Desc": "Se riduci il tuo grado di occupazione, i tuoi contributi LPP diminuiscono. Ogni anno a tempo parziale significa meno capitale alla pensione. Considera di compensare versando il massimo al 3° pilastro (CHF 7'258/anno).",
+  "naissanceChecklistItem8Title": "Redigere o aggiornare il testamento",
+  "naissanceChecklistItem8Desc": "L'arrivo di un figlio modifica l'ordine successorio. I figli sono eredi legittimari (CC art. 471). Se hai un testamento, verifica che rispetti le riserve legali.",
+  "naissanceChecklistItem9Title": "Sottoscrivere un'assicurazione rischio decesso/invalidità",
+  "naissanceChecklistItem9Desc": "Con un figlio a carico, la protezione finanziaria in caso di decesso o invalidità diventa ancora più importante. Verifica la tua copertura attuale (LPP, assicurazione vita) e integra se necessario.",
+  "naissanceBabyCostCreche": "Asilo nido / custodia",
+  "naissanceBabyCostCrecheNote": "Tariffa media sovvenzionata — varia molto a seconda del cantone",
+  "naissanceBabyCostAlimentation": "Alimentazione",
+  "naissanceBabyCostVetements": "Abbigliamento e attrezzatura",
+  "naissanceBabyCostLamal": "LAMal bambino",
+  "naissanceBabyCostLamalNote": "Premio medio bambino — senza franchigia fino a 18 anni",
+  "naissanceBabyCostActivites": "Attività e tempo libero",
+  "naissanceBabyCostDivers": "Vari (giocattoli, igiene…)",
+  "waterfallBrutMensuel": "Brut mensuel",
+  "waterfallAvsAc": "AVS / AC",
+  "waterfallLppEmploye": "LPP employé",
+  "waterfallNetFicheDePaie": "Net fiche de paie",
+  "waterfallImpots": "Impôts",
+  "waterfallDisponible": "Disponible",
+  "waterfallLoyer": "Loyer",
+  "waterfallLamal": "LAMal",
+  "waterfallLeasing": "Leasing",
+  "waterfallAutresFixes": "Autres fixes",
+  "waterfallResteAVivre": "Reste à vivre",
+  "waterfallPillar3a": "3a",
+  "waterfallInvestissement": "Investissement",
+  "waterfallMargeLibre": "Marge libre",
+  "waterfallTitle": "Cascade budgétaire",
+  "narrativeDefaultName": "Tu",
+  "narrativeCouplePositiveMargin": "Ensemble, vous avez une marge de {margin} CHF/mois.",
+  "@narrativeCouplePositiveMargin": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeCoupleTightBudget": "Ensemble, votre budget est serré de {margin} CHF/mois.",
+  "@narrativeCoupleTightBudget": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeCoupleHighPatrimoine": "Avec un patrimoine de {patrimoine} CHF, vous avez des leviers.",
+  "@narrativeCoupleHighPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeHighHealth": "{name}, tu es en bonne santé financière. Continue.",
+  "@narrativeHighHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeHighHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF te donne une belle marge de manœuvre.",
+  "@narrativeHighHealthPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeLowHealth": "{name}, concentre-toi sur l'essentiel. On va stabiliser ensemble.",
+  "@narrativeLowHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeLowHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF est un atout à protéger.",
+  "@narrativeLowHealthPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeMediumHealth": "{name}, tu as de bonnes bases. Quelques actions peuvent faire la différence.",
+  "@narrativeMediumHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeMediumHealthPatrimoine": "Ton patrimoine de {patrimoine} CHF est un bon point de départ.",
+  "@narrativeMediumHealthPatrimoine": {
+    "placeholders": {
+      "patrimoine": {
+        "type": "String"
+      }
+    }
+  },
+  "narrativeConfidenceLabel": "Confiance profil : {score}%",
+  "@narrativeConfidenceLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "patrimoineCoupleTitleCouple": "Patrimoine — {firstName} & {conjointName}",
+  "@patrimoineCoupleTitleCouple": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      },
+      "conjointName": {
+        "type": "String"
+      }
+    }
+  },
+  "patrimoineCoupleTitleSolo": "Patrimoine — {firstName}",
+  "@patrimoineCoupleTitleSolo": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "patrimoineLiquide": "LIQUIDE",
+  "patrimoineImmobilier": "IMMOBILIER",
+  "patrimoinePrevoyance": "PRÉVOYANCE",
+  "patrimoineEpargne": "Épargne",
+  "patrimoineInvest": "Invest.",
+  "patrimoineAucunBien": "Aucun bien",
+  "patrimoineValeur": "Valeur",
+  "patrimoineHypo": "−Hypo.",
+  "patrimoineNet": "Net",
+  "patrimoineLtvSaine": "LTV saine",
+  "patrimoineLtvAmortissement": "Amortissement recommandé",
+  "patrimoineLtvElevee": "LTV élevée — amortir",
+  "patrimoineLtvDisplay": "LTV {percent}%",
+  "@patrimoineLtvDisplay": { "placeholders": { "percent": { "type": "String" } } },
+  "patrimoineLpp": "LPP",
+  "patrimoine3a": "3a",
+  "patrimoineLibrePassage": "Libre pass.",
+  "patrimoineTotal": "Total",
+  "patrimoineBrut": "Patrimoine brut",
+  "patrimoineDettes": "−Dettes",
+  "patrimoineNetLabel": "Patrimoine net",
+  "patrimoineDont": "dont {name} ~CHF {amount}",
+  "@patrimoineDont": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointProfilsLies": "Profils liés",
+  "conjointProfilConjoint": "Profil conjoint·e",
+  "conjointDeclaredStatus": "{name} n'a pas de compte MINT. Ses données sont estimées (🟡).",
+  "@conjointDeclaredStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointInvitedStatus": "Invitation envoyée à {name}. En attente de réponse.",
+  "@conjointInvitedStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointLinkedStatus": "✅ Profils liés ! Les données de {name} sont synchronisées.",
+  "@conjointLinkedStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointInviteLabel": "Inviter {name} (5 questions, sans compte)",
+  "@conjointInviteLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conjointLierProfils": "Lier nos profils",
+  "conjointRenvoyerInvitation": "Renvoyer l'invitation",
+  "conjointRegimeLabel": "Régime matrimonial : ",
+  "conjointRegimeParticipation": "Participation aux acquêts",
+  "conjointRegimeSeparation": "Séparation de biens",
+  "conjointRegimeCommunaute": "Communauté de biens",
+  "conjointRegimeDefault": "(défaut CC art. 196)",
+  "conjointModifier": "modifier",
+  "futurHorizonTitle": "Horizon Retraite",
+  "futurCoupleLabel": "Couple",
+  "futurTauxRemplacement": "Taux de remplacement",
+  "futurAgeRetraite": "Age retraite",
+  "futurConfiance": "Confiance",
+  "futurRevenuMensuelProjection": "Revenu mensuel projeté à la retraite",
+  "futurRenteAvs": "Rente AVS",
+  "futurRenteLpp": "Rente LPP estimée",
+  "futurPilier3aSwr": "Pilier 3a (SWR 4%)",
+  "futurCapitalLabel": "Capital {amount}",
+  "@futurCapitalLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "futurLibrePassageSwr": "Libre passage (SWR 4%)",
+  "futurInvestissementsSwr": "Investissements (SWR 4%)",
+  "futurTotalCoupleProjecte": "Total couple projeté",
+  "futurTotalMensuelProjecte": "Total mensuel projeté",
+  "futurCapitalRetraite": "Capital à la retraite",
+  "futurCapitalTotal": "Capital total (3a + LP + investissements)",
+  "futurCapitalTaxHint": "Le retrait en capital est taxé séparément (LIFD art. 38). Le SWR n'est pas un revenu imposable.",
+  "futurMargeIncertitude": "Marge d'incertitude (± {pct}%)",
+  "@futurMargeIncertitude": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "futurFourchette": "Fourchette : CHF {low} – {high}/mois",
+  "@futurFourchette": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
+  "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4% = règle des 4%, non garanti. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
+  "futurExplorerDetails": "Explorer les détails",
+
+  "financialSummaryTitle": "PANORAMICA FINANZIARIA",
+  "financialSummaryNoProfile": "Nessun profilo inserito",
+  "financialSummaryStartDiagnostic": "Iniziare la diagnosi",
+  "financialSummaryRestartDiagnostic": "Ricominciare la diagnosi",
+  "financialSummaryNarrativeFiscalite": "L'ottimizzazione fiscale è la tua prima leva: 3a, riscatto LPP, deduzioni.",
+  "financialSummaryNarrativePrevoyance": "La tua previdenza determina il tuo comfort in pensione. Ogni anno conta.",
+  "financialSummaryNarrativeAvs": "L'AVS è la base della tua pensione. Verifica le tue lacune contributive.",
+  "financialSummaryLegendSaisi": "Inserito",
+  "financialSummaryLegendEstime": "Stimato",
+  "financialSummaryLegendCertifie": "Certificato",
+  "financialSummarySalaireBrutMensuel": "Stipendio lordo mensile",
+  "financialSummary13emeSalaire": "13ª mensilità",
+  "financialSummaryNemeMois": "{n}ª mensilità",
+  "@financialSummaryNemeMois": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryBonusEstime": "Bonus stimato ({pct}%)",
+  "@financialSummaryBonusEstime": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryConjointBrutMensuel": "{name} — lordo mensile",
+  "@financialSummaryConjointBrutMensuel": { "placeholders": { "name": { "type": "String" } } },
+  "financialSummaryDefaultConjoint": "Coniuge",
+  "financialSummaryRevenuBrutAnnuel": "Reddito lordo annuale",
+  "financialSummaryRevenuBrutAnnuelCouple": "Reddito lordo annuale (coppia)",
+  "financialSummarySoitLisseSur12Mois": "distribuito su 12 mesi",
+  "financialSummaryDeductionsSalariales": "Deduzioni salariali",
+  "financialSummaryChargesSociales": "Oneri sociali (AVS/AI/AC)",
+  "financialSummaryCotisationLpp": "Contributo LPP dipendente",
+  "financialSummaryNetFicheDePaie": "Netto busta paga",
+  "financialSummaryNetFicheDePaieHint": "Quello che arriva sul tuo conto ogni mese",
+  "financialSummaryFiscalite": "Fiscalità",
+  "financialSummaryImpotEstime": "Imposta stimata (ICC + IFD)",
+  "financialSummaryTauxMarginalEstime": "Aliquota marginale stimata",
+  "financialSummary13emeEtBonusHint": "{label}: ~{montant} netto/anno (non incluso nel mensile)",
+  "@financialSummary13emeEtBonusHint": { "placeholders": { "label": { "type": "String" }, "montant": { "type": "String" } } },
+  "financialSummaryRevenusEtFiscalite": "Redditi e Fiscalità",
+  "financialSummaryDisponibleApresImpot": "Disponibile dopo le tasse",
+  "financialSummaryFootnoteRevenus": "Stima semplificata. L'AANP e l'IJM variano a seconda del datore di lavoro e non sono inclusi. Il contributo LPP dipendente riflette il minimo legale (50/50) — la tua cassa può applicare una diversa ripartizione.",
+  "financialSummaryScanFicheSalaire": "Scansiona la mia busta paga",
+  "financialSummaryModifierRevenu": "Modificare reddito",
+  "financialSummaryEditSalaireBrut": "Stipendio lordo mensile (CHF)",
+  "financialSummaryAvs1erPilier": "AVS (1° pilastro)",
+  "financialSummaryAnneesCotisees": "Anni di contribuzione",
+  "financialSummaryAnneesUnit": "{n} anni",
+  "@financialSummaryAnneesUnit": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryLacunes": "Lacune",
+  "financialSummaryRenteEstimee": "Rendita stimata",
+  "financialSummaryLpp2ePilier": "LPP (2° pilastro)",
+  "financialSummaryAvoirTotal": "Averi totali",
+  "financialSummaryObligatoire": "Obbligatorio",
+  "financialSummarySurobligatoire": "Sovraobbligatorio",
+  "financialSummaryTauxConversion": "Tasso di conversione",
+  "financialSummaryRachatPossible": "Riscatto possibile",
+  "financialSummaryRachatPlanifie": "Riscatto pianificato",
+  "financialSummaryCaisse": "Cassa",
+  "financialSummary3a3ePilier": "3a (3° pilastro)",
+  "financialSummaryNComptes": "{n} conto/i",
+  "@financialSummaryNComptes": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryLibrePassage": "Libero passaggio",
+  "financialSummaryCompteN": "Conto {n}",
+  "@financialSummaryCompteN": { "placeholders": { "n": { "type": "String" } } },
+  "financialSummaryConjointLpp": "{name} — LPP",
+  "@financialSummaryConjointLpp": { "placeholders": { "name": { "type": "String" } } },
+  "financialSummaryConjoint3a": "{name} — 3a",
+  "@financialSummaryConjoint3a": { "placeholders": { "name": { "type": "String" } } },
+  "financialSummaryFatcaWarning": "\u26a0\ufe0f FATCA — Solo una minoranza di fornitori accetta (es. Raiffeisen)",
+  "financialSummaryPrevoyanceTitle": "Previdenza",
+  "financialSummaryScanCertificatLpp": "Scansiona certificato LPP / AVS",
+  "financialSummaryModifierPrevoyance": "Modificare previdenza",
+  "financialSummaryEditAvoirLpp": "Averi LPP totali (CHF)",
+  "financialSummaryEditNombre3a": "Numero di conti 3a",
+  "financialSummaryEditTotal3a": "Risparmio totale 3a (CHF)",
+  "financialSummaryEditRachatLpp": "Riscatto LPP mensile previsto (CHF/mese)",
+  "financialSummaryLiquidites": "Liquidità",
+  "financialSummaryEpargneLiquide": "Risparmio liquido",
+  "financialSummaryInvestissements": "Investimenti",
+  "financialSummaryImmobilier": "Immobiliare",
+  "financialSummaryValeurEstimee": "Valore stimato",
+  "financialSummaryHypothequeRestante": "Ipoteca rimanente",
+  "financialSummaryValeurNetteImmobiliere": "Valore netto immobiliare",
+  "financialSummaryLtvAmortissement": "Rapporto LTV: {pct}% — ammortamento 2° rango obbligatorio",
+  "@financialSummaryLtvAmortissement": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryLtvBonneVoie": "Rapporto LTV: {pct}% — buona strada",
+  "@financialSummaryLtvBonneVoie": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryLtvExcellent": "Rapporto LTV: {pct}% — eccellente",
+  "@financialSummaryLtvExcellent": { "placeholders": { "pct": { "type": "String" } } },
+  "financialSummaryPrevoyanceCapital": "Previdenza (capitale)",
+  "financialSummaryAvoirLppTotal": "Averi LPP totali",
+  "financialSummaryCapital3a": "Capitale 3a ({n} conto{s})",
+  "@financialSummaryCapital3a": { "placeholders": { "n": { "type": "String" }, "s": { "type": "String" } } },
+  "financialSummaryPatrimoineBrut": "Patrimonio lordo",
+  "financialSummaryDettesTotales": "Debiti totali",
+  "financialSummaryPatrimoine": "Patrimonio",
+  "financialSummaryPatrimoineTotalBloque": "Patrimonio totale (incl. previdenza bloccata)",
+  "financialSummaryModifierPatrimoine": "Modificare patrimonio",
+  "financialSummaryEditEpargneLiquide": "Risparmio liquido (CHF)",
+  "financialSummaryEditInvestissements": "Investimenti (CHF)",
+  "financialSummaryEditValeurImmobiliere": "Valore immobiliare (CHF)",
+  "financialSummaryLoyerCharges": "Affitto / spese",
+  "financialSummaryAssuranceMaladie": "Assicurazione malattia",
+  "financialSummaryElectriciteEnergie": "Elettricità / energia",
+  "financialSummaryTransport": "Trasporto",
+  "financialSummaryTelecom": "Telecomunicazioni",
+  "financialSummaryFraisMedicaux": "Spese mediche",
+  "financialSummaryAutresFraisFixes": "Altre spese fisse",
+  "financialSummaryAucuneDepense": "Nessuna spesa registrata",
+  "financialSummaryDepensesFixes": "Spese fisse",
+  "financialSummaryTotalMensuel": "Totale mensile",
+  "financialSummaryModifierDepenses": "Modificare spese",
+  "financialSummaryEditLoyerCharges": "Affitto / spese (CHF/mese)",
+  "financialSummaryEditAssuranceMaladie": "Assicurazione malattia (CHF/mese)",
+  "financialSummaryEditElectricite": "Elettricità / energia (CHF/mese)",
+  "financialSummaryEditTransport": "Trasporto (CHF/mese)",
+  "financialSummaryEditTelecom": "Telecomunicazioni (CHF/mese)",
+  "financialSummaryEditFraisMedicaux": "Spese mediche (CHF/mese)",
+  "financialSummaryEditAutresFraisFixes": "Altre spese fisse (CHF/mese)",
+  "financialSummaryModifierDettes": "Modificare debiti",
+  "financialSummaryEditHypotheque": "Ipoteca (CHF)",
+  "financialSummaryEditCreditConsommation": "Credito al consumo (CHF)",
+  "financialSummaryEditLeasing": "Leasing (CHF)",
+  "financialSummaryEditAutresDettes": "Altri debiti (CHF)",
+  "financialSummaryDettes": "Debiti",
+  "financialSummaryAucuneDetteDeclaree": "Nessun debito dichiarato — ",
+  "financialSummaryDetteStructurelle": "Debito strutturale",
+  "financialSummaryHypotheque1erRang": "Ipoteca 1° rango",
+  "financialSummaryHypotheque2emeRang": "Ipoteca 2° rango",
+  "financialSummaryHypotheque": "Ipoteca",
+  "financialSummaryChargeMensuelle": "Carico mensile",
+  "financialSummaryEcheance": "Scadenza: {date} (~{years} anni)",
+  "@financialSummaryEcheance": { "placeholders": { "date": { "type": "String" }, "years": { "type": "String" } } },
+  "financialSummaryInteretsDeductibles": "Interessi deducibili (LIFD art. 33): {montant}/anno",
+  "@financialSummaryInteretsDeductibles": { "placeholders": { "montant": { "type": "String" } } },
+  "financialSummaryDetteConsommation": "Debito al consumo",
+  "financialSummaryCreditConsommation": "Credito al consumo",
+  "financialSummaryMensualite": "Rata mensile",
+  "financialSummaryLeasing": "Leasing",
+  "financialSummaryAutresDettes": "Altri debiti",
+  "financialSummaryConseilRemboursement": "Paga prima il debito al {taux}% prima di investire. Ogni CHF rimborsato = {taux}% di rendimento effettivo.",
+  "@financialSummaryConseilRemboursement": { "placeholders": { "taux": { "type": "String" } } },
+  "financialSummaryTotalDettes": "Debiti totali",
+  "financialSummaryScannerDocument": "Scansiona un documento",
+  "financialSummaryCascadeBudgetaire": "Cascata di bilancio",
+  "financialSummaryToi": "Tu",
+  "financialSummaryConjointeDefault": "Coniuge",
+  "financialSummaryDisclaimer": "Strumento educativo — non costituisce consulenza finanziaria (LSFin, LAVS, LPP, LIFD). I valori stimati (~) sono calcolati sulla base di medie svizzere. Scansiona i tuoi certificati per migliorare la precisione.",
+  "financialSummaryEnregistrer": "Salva",
+  "financialSummaryCheckSalaireBrut": "Stipendio lordo",
+  "financialSummaryCheckCanton": "Cantone",
+  "financialSummaryCheckAvoirLpp": "Averi LPP",
+  "financialSummaryCheckEpargne3a": "Risparmio 3a",
+  "financialSummaryCheckEpargneLiquide": "Risparmio liquido",
+  "financialSummaryCheckLoyerHypotheque": "Affitto / ipoteca",
+  "financialSummaryCheckAssuranceMaladie": "Assicurazione malattia",
+  "financialSummaryWhatIf3aQuestion": "E se massimizzassi il tuo 3a ogni anno?",
+  "financialSummaryWhatIf3aExplanation": "Alla tua aliquota marginale, ogni franco versato in 3a ti fa risparmiare ~30% di tasse.",
+  "financialSummaryWhatIf3aAction": "Simulare",
+  "financialSummaryWhatIfLppQuestion": "E se la tua cassa LPP passasse dall'1% al 3%?",
+  "financialSummaryWhatIfLppExplanation": "Un miglior rendimento LPP aumenta il tuo capitale pensionistico senza sforzo.",
+  "financialSummaryWhatIfLppAction": "Confrontare",
+  "financialSummaryWhatIfAchatQuestion": "E se comprassi invece di affittare?",
+  "financialSummaryWhatIfAchatExplanation": "L'ammortamento indiretto tramite il 2° pilastro può ridurre le tasse e costruire patrimonio.",
+  "financialSummaryWhatIfAchatAction": "Esplorare",
+  "dataQualityTitle": "Qualità dei dati",
+  "dataQualityMissingCount": "{count} informazione/i da aggiungere",
+  "@dataQualityMissingCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "dataQualityComplete": "Profilo completo",
+  "dataQualityKnownSection": "Dati conosciuti",
+  "dataQualityMissingSection": "Dati mancanti",
+  "dataQualityCompleteness": "Completezza",
+  "dataQualityAccuracy": "Accuratezza",
+  "dataQualityFreshness": "Freschezza",
+  "dataQualityCombined": "Punteggio combinato",
+  "dataQualityEnrich": "Arricchire il mio profilo",
+  "dataQualityEnrichWithImpact": "Arricchire il mio profilo ({impact})",
+  "@dataQualityEnrichWithImpact": {
+    "placeholders": {
+      "impact": {"type": "String"}
+    }
+  },
+  "confidenceLabelSalaire": "Salario lordo",
+  "confidenceLabelAgeCanton": "Età / Cantone",
+  "confidenceLabelAge": "Età",
+  "confidenceLabelCanton": "Cantone",
+  "confidenceLabelMenage": "Situazione familiare",
+  "confidenceLabelAvoirLpp": "Avere LPP",
+  "confidenceLabelTauxConversion": "Tasso di conversione",
+  "confidenceLabelAnneesAvs": "Anni AVS",
+  "confidenceLabelEpargne3a": "Risparmio 3a",
+  "confidenceLabelPatrimoine": "Patrimonio",
+  "confidencePromptFreshnessPrefix": "Aggiorna: ",
+  "confidencePromptFreshnessStale": "Dato di {months} mesi fa — riscansiona il tuo certificato",
+  "@confidencePromptFreshnessStale": {
+    "placeholders": {
+      "months": {"type": "String"}
+    }
+  },
+  "confidencePromptFreshnessConfirm": "Conferma che questo valore è ancora attuale",
+  "confidencePromptAccuracyPrefix": "Conferma: ",
+  "confidencePromptAccuracyEstimated": "Inserisci il tuo valore reale",
+  "confidencePromptAccuracyCertificate": "Scansiona il tuo certificato per confermare",
+
+  "pulseTitle": "Pulse",
+  "pulseGreeting": "Ciao {name}",
+  "@pulseGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "pulseGreetingCouple": "Ciao {name1} e {name2}",
+  "@pulseGreetingCouple": {
+    "placeholders": {
+      "name1": {"type": "String"},
+      "name2": {"type": "String"}
+    }
+  },
+  "pulseWelcome": "Benvenuto su MINT",
+  "pulseEmptyTitle": "Inizia compilando il tuo profilo!",
+  "pulseEmptySubtitle": "Poche domande bastano per ottenere la tua prima stima di visibilità finanziaria.",
+  "pulseEmptyCtaStart": "Inizia",
+  "pulseVisibilityTitle": "Visibilità finanziaria",
+  "pulsePrioritiesTitle": "Le tue priorità",
+  "pulsePrioritiesSubtitle": "Azioni personalizzate in base al tuo profilo",
+  "pulseComprendreTitle": "Capire",
+  "pulseComprendreSubtitle": "Esplora i tuoi simulatori",
+  "pulseComprendreRenteCapital": "Rendita o capitale?",
+  "pulseComprendreRenteCapitalSub": "Confronta le due opzioni di prelievo",
+  "pulseComprendreRachatLpp": "Simula un riscatto LPP",
+  "pulseComprendreRachatLppSub": "Scopri l'impatto fiscale di un riscatto",
+  "pulseComprendre3a": "Esplora il mio 3a",
+  "pulseComprendre3aSub": "Scopri il tuo risparmio fiscale annuale",
+  "pulseComprendre_budget": "Il mio budget mensile",
+  "pulseComprendre_budgetSub": "Visualizza le tue entrate e uscite",
+  "pulseComprendreAchat": "Comprare un immobile?",
+  "pulseComprendreAchatSub": "Stima la tua capacità di prestito",
+  "pulseDisclaimer": "Strumento educativo. Non costituisce consulenza finanziaria personalizzata. LSFin art.\u00a03",
+  "pulseKeyFigRetraite": "Pensione stimata",
+  "pulseKeyFigRetraitePct": "{pct}\u00a0% del reddito",
+  "@pulseKeyFigRetraitePct": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "pulseKeyFigBudgetLibre": "Budget libero",
+  "pulseKeyFigPatrimoine": "Patrimonio",
+  "pulseCoupleRetraite": "Pensione coppia: {montant}",
+  "@pulseCoupleRetraite": {
+    "placeholders": {
+      "montant": {"type": "String"}
+    }
+  },
+  "pulseCoupleAlertWeak": "Il profilo di {name} è al {score}\u00a0% di visibilità",
+  "@pulseCoupleAlertWeak": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "score": {"type": "String"}
+    }
+  },
+  "pulseAxisLiquidite": "Liquidità",
+  "pulseAxisFiscalite": "Fiscalità",
+  "pulseAxisRetraite": "Pensione",
+  "pulseAxisSecurite": "Sicurezza",
+  "pulseHintAddSalary": "Aggiungi il tuo stipendio per iniziare",
+  "pulseHintAddSavings": "Inserisci i tuoi risparmi e investimenti",
+  "pulseHintLiquiditeComplete": "I tuoi dati di liquidità sono completi",
+  "pulseHintAddAgeCanton": "Indica la tua età e il cantone di residenza",
+  "pulseHintScanTax": "Scansiona la tua dichiarazione fiscale",
+  "pulseHintFiscaliteComplete": "I tuoi dati fiscali sono completi",
+  "pulseHintAddLpp": "Aggiungi il tuo certificato LPP",
+  "pulseHintExtractAvs": "Richiedi il tuo estratto AVS",
+  "pulseHintAdd3a": "Inserisci i tuoi conti 3a",
+  "pulseHintRetraiteComplete": "I tuoi dati pensionistici sono completi",
+  "pulseHintAddFamily": "Indica la tua situazione familiare",
+  "pulseHintAddStatus": "Completa il tuo stato professionale",
+  "pulseHintSecuriteComplete": "I tuoi dati di sicurezza sono completi",
+  "pulseNarrativeExcellent": "Hai una visione chiara della tua situazione. Continua a mantenere i dati aggiornati.",
+  "pulseNarrativeGood": "Buona visibilità! Affina la tua {axis} per andare oltre.",
+  "@pulseNarrativeGood": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeModerate": "Inizi a vederci più chiaro. Concentrati sulla tua {axis}.",
+  "@pulseNarrativeModerate": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeWeak": "Ogni informazione conta. Inizia con {hint}.",
+  "@pulseNarrativeWeak": {
+    "placeholders": {
+      "hint": {"type": "String"}
+    }
+  },
+  "pulseNoCheckinMsg": "Nessun check-in questo mese. Registra i tuoi versamenti per seguire i tuoi progressi.",
+  "pulseCheckinBtn": "Check-in",
+  "pulseBriefingTitle": "Bilancio del mese \u2014 {trend}",
+  "@pulseBriefingTitle": {
+    "placeholders": {
+      "trend": {"type": "String"}
+    }
+  },
+  "pulseFriLiquidite": "Liquidità",
+  "pulseFriFiscalite": "Ottimizzazione fiscale",
+  "pulseFriRetraite": "Pensione",
+  "pulseFriRisque": "Rischi strutturali",
+  "pulseFriTitle": "Solidità finanziaria",
+  "pulseFriWeakest": "Punto più fragile: {axis}",
+  "@pulseFriWeakest": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+
+  "lppBuybackAdvTitle": "Ottimizzazione riscatto LPP",
+  "lppBuybackAdvSubtitle": "Leva fiscale + effetto capitalizzazione",
+  "lppBuybackAdvPotential": "Potenziale di riscatto",
+  "lppBuybackAdvYears": "Anni fino al pensionamento",
+  "lppBuybackAdvStaggering": "Scaglionamento",
+  "lppBuybackAdvFundRate": "Tasso della cassa LPP",
+  "lppBuybackAdvIncome": "Reddito imponibile",
+  "lppBuybackAdvFinalCapital": "Valore finale capitalizzato",
+  "lppBuybackAdvRealReturn": "Rendimento reale: {pct}\u00a0% / anno",
+  "@lppBuybackAdvRealReturn": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "lppBuybackAdvTaxSaving": "Risparmio fiscale",
+  "lppBuybackAdvNetEffort": "Sforzo netto",
+  "lppBuybackAdvTotalGain": "Guadagno totale dell'operazione",
+  "lppBuybackAdvCapitalMinusEffort": "Capitale - Sforzo netto",
+  "lppBuybackAdvFundRateLabel": "Tasso LPP applicato",
+  "lppBuybackAdvLeverageEffect": "Effetto leva fiscale",
+  "lppBuybackAdvBonASavoir": "Buono a sapersi",
+  "lppBuybackAdvBon1": "Il riscatto LPP è uno dei pochi strumenti di pianificazione fiscale accessibili a tutti i dipendenti in Svizzera.",
+  "lppBuybackAdvBon2": "Ogni franco riscattato è deducibile dal reddito imponibile (LIFD art.\u00a033 cpv.\u00a01 lett.\u00a0d).",
+  "lppBuybackAdvBon3": "Attenzione: ogni prelievo EPL è bloccato per 3 anni dopo un riscatto (LPP art.\u00a079b cpv.\u00a03).",
+  "lppBuybackAdvDisclaimer": "Simulazione che include gli interessi della cassa e il risparmio fiscale livellato. Il rendimento reale è calcolato sul tuo sforzo netto effettivo."
 }

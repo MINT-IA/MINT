@@ -129,10 +129,10 @@ class CircleScoringService {
     String accountDetail;
     if (nb3aAccounts >= 2) {
       accountStatus = ItemStatus.perfect;
-      accountDetail = '$nb3aAccounts comptes (optimal)';
+      accountDetail = '$nb3aAccounts comptes (adapte)';
     } else if (nb3aAccounts == 1) {
       accountStatus = ItemStatus.warning;
-      accountDetail = '1 seul compte (sous-optimal)';
+      accountDetail = '1 seul compte (a diversifier)';
     } else {
       accountStatus = ItemStatus.critical;
       accountDetail = 'Aucun 3a';

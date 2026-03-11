@@ -40,6 +40,9 @@ class HeroRetirementCard extends StatelessWidget {
   final double? rangeMin;
   final double? rangeMax;
 
+  /// Current gross monthly salary (for before/after comparison — P1-A).
+  final double? currentMonthlySalary;
+
   // Mode educational
   final VoidCallback? onCompleteProfil;
 
@@ -50,6 +53,7 @@ class HeroRetirementCard extends StatelessWidget {
     this.replacementRatio,
     this.rangeMin,
     this.rangeMax,
+    this.currentMonthlySalary,
     this.onCompleteProfil,
   });
 
@@ -109,7 +113,7 @@ class HeroRetirementCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Projection retraite',
+                _headerTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -131,10 +135,21 @@ class HeroRetirementCard extends StatelessWidget {
     );
   }
 
+  String get _headerTitle {
+    switch (mode) {
+      case HeroCardMode.full:
+        return 'Ton salaire apr\u00e8s 65 ans';
+      case HeroCardMode.range:
+        return 'Ton salaire apr\u00e8s 65 ans';
+      case HeroCardMode.educational:
+        return 'Projection retraite';
+    }
+  }
+
   String get _headerSubtitle {
     switch (mode) {
       case HeroCardMode.full:
-        return 'Scenario de base (revenus 3 piliers)';
+        return 'AVS + LPP + \u00e9pargne';
       case HeroCardMode.range:
         return 'Estimation avec incertitude';
       case HeroCardMode.educational:
@@ -210,30 +225,63 @@ class HeroRetirementCard extends StatelessWidget {
     }
   }
 
-  /// Mode full : montant precis + taux de remplacement + fourchette.
+  /// Mode full : montant precis + avant/apres + taux de remplacement.
   Widget _buildFullMode() {
     final income = monthlyIncome ?? 0;
     final ratio = replacementRatio ?? 0;
+    final hasSalary = currentMonthlySalary != null && currentMonthlySalary! > 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          formatChfWithPrefix(income),
-          style: GoogleFonts.montserrat(
-            fontSize: 36,
-            fontWeight: FontWeight.w800,
-            color: MintColors.textPrimary,
-            height: 1.0,
+        // ── Before/After comparison (P1-A) ──
+        if (hasSalary) ...[
+          Row(
+            children: [
+              Expanded(
+                child: _buildSalaryColumn(
+                  label: "Aujourd'hui",
+                  amount: currentMonthlySalary!,
+                  isHighlighted: false,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: MintColors.textMuted,
+                  size: 20,
+                ),
+              ),
+              Expanded(
+                child: _buildSalaryColumn(
+                  label: '\u00c0 la retraite',
+                  amount: income,
+                  isHighlighted: true,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'par mois \u00e0 la retraite',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: MintColors.textSecondary,
+        ] else ...[
+          // Fallback without current salary
+          Text(
+            formatChfWithPrefix(income),
+            style: GoogleFonts.montserrat(
+              fontSize: 36,
+              fontWeight: FontWeight.w800,
+              color: MintColors.textPrimary,
+              height: 1.0,
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            'par mois \u00e0 la retraite',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ],
         if (ratio > 0) ...[
           const SizedBox(height: 12),
           _buildReplacementRatioBar(ratio),
@@ -246,12 +294,58 @@ class HeroRetirementCard extends StatelessWidget {
     );
   }
 
+  Widget _buildSalaryColumn({
+    required String label,
+    required double amount,
+    required bool isHighlighted,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: MintColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          formatChfWithPrefix(amount),
+          style: GoogleFonts.montserrat(
+            fontSize: isHighlighted ? 28 : 22,
+            fontWeight: FontWeight.w800,
+            color: isHighlighted ? MintColors.primary : MintColors.textPrimary,
+            height: 1.0,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '/mois',
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            color: MintColors.textMuted,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildReplacementRatioBar(double ratio) {
     final color = ratio >= 70
         ? MintColors.scoreExcellent
         : ratio >= 50
             ? MintColors.scoreAttention
             : MintColors.scoreCritique;
+
+    // P1-A: Human explanation of replacement ratio
+    final explanation = ratio >= 70
+        ? 'Confortable \u2014 tu gardes ton train de vie'
+        : ratio >= 60
+            ? 'Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)'
+            : ratio >= 50
+                ? 'Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires'
+                : 'Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation';
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -260,40 +354,45 @@ class HeroRetirementCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Taux de remplacement',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: MintColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tu garderas ${ratio.toStringAsFixed(0)}% de ton train de vie',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '${ratio.toStringAsFixed(0)}% de ton revenu actuel',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Icon(
+                ratio >= 70
+                    ? Icons.check_circle_outline
+                    : ratio >= 50
+                        ? Icons.info_outline
+                        : Icons.warning_amber_outlined,
+                color: color,
+                size: 20,
+              ),
+            ],
           ),
-          Icon(
-            ratio >= 70
-                ? Icons.check_circle_outline
-                : ratio >= 50
-                    ? Icons.info_outline
-                    : Icons.warning_amber_outlined,
-            color: color,
-            size: 20,
+          const SizedBox(height: 4),
+          Text(
+            explanation,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
           ),
         ],
       ),
@@ -449,7 +548,7 @@ class HeroRetirementCard extends StatelessWidget {
           width: double.infinity,
           child: FilledButton.icon(
             onPressed: onCompleteProfil ??
-                () => context.push('/onboarding/smart'),
+                () => context.push('/document-scan'),
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: Text(
               'Compl\u00e9ter mon profil',

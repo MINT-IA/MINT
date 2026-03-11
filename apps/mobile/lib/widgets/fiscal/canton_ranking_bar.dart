@@ -39,22 +39,22 @@ class CantonRankingBar extends StatelessWidget {
     if (t < 0.33) {
       // Green zone
       return Color.lerp(
-        const Color(0xFF22C55E),
-        const Color(0xFFFBBF24),
+        MintColors.greenDirect,
+        MintColors.amberLight,
         t / 0.33,
       )!;
     } else if (t < 0.66) {
       // Yellow zone
       return Color.lerp(
-        const Color(0xFFFBBF24),
-        const Color(0xFFF97316),
+        MintColors.amberLight,
+        MintColors.orangeMaterial,
         (t - 0.33) / 0.33,
       )!;
     } else {
       // Red zone
       return Color.lerp(
-        const Color(0xFFF97316),
-        const Color(0xFFEF4444),
+        MintColors.orangeMaterial,
+        MintColors.danger,
         (t - 0.66) / 0.34,
       )!;
     }

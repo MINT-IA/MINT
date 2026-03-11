@@ -257,11 +257,11 @@ class SensitivitySnippet extends StatelessWidget {
   static Color _categoryColor(String category) {
     return switch (category) {
       'strategy' => MintColors.primary,
-      'lpp' => const Color(0xFF6366F1),
-      'avs' => const Color(0xFFF59E0B),
-      '3a' => const Color(0xFF10B981),
-      'libre' => const Color(0xFF8B5CF6),
-      'depenses' => const Color(0xFFEF4444),
+      'lpp' => MintColors.pillarLpp,
+      'avs' => MintColors.amber,
+      '3a' => MintColors.positive,
+      'libre' => MintColors.purple,
+      'depenses' => MintColors.danger,
       _ => MintColors.textSecondary,
     };
   }

@@ -225,9 +225,9 @@ class AvsExtractParser {
       final maxPossibleYears = userAge - 20; // AVS cotisation starts at 20
       if (maxPossibleYears > 0 && annees > maxPossibleYears) {
         warnings.add(
-          "Le nombre d'annees de cotisation ($annees) depasse le maximum "
-          "possible pour ton age ($userAge ans = $maxPossibleYears annees max). "
-          "Verifie sur ton extrait de compte AVS.",
+          "Le nombre d'années de cotisation ($annees) dépasse le maximum "
+          "possible pour ton âge ($userAge ans = $maxPossibleYears années max). "
+          "Vérifie sur ton extrait de compte AVS.",
         );
       }
 
@@ -235,9 +235,9 @@ class AvsExtractParser {
         final totalYears = annees + lacunes;
         if (maxPossibleYears > 0 && totalYears > maxPossibleYears) {
           warnings.add(
-            "La somme annees ($annees) + lacunes ($lacunes) = $totalYears "
-            "depasse le maximum possible pour ton age ($maxPossibleYears). "
-            "Verifie les chiffres sur ton extrait.",
+            "La somme années ($annees) + lacunes ($lacunes) = $totalYears "
+            "dépasse le maximum possible pour ton âge ($maxPossibleYears). "
+            "Vérifie les chiffres sur ton extrait.",
           );
         }
       }
@@ -249,15 +249,15 @@ class AvsExtractParser {
       // AVS rente max = 30'240 CHF/an -> RAMD max ~ 88'200 (2x plafond)
       if (ramd > 100000) {
         warnings.add(
-          "Le RAMD (${ramd.toStringAsFixed(0)} CHF) semble eleve. "
-          "Le RAMD est plafonnel a environ 88'200 CHF (2x rente max AVS). "
-          "Verifie sur ton extrait de compte.",
+          "Le RAMD (${ramd.toStringAsFixed(0)} CHF) semble élevé. "
+          "Le RAMD est plafonné à environ 88'200 CHF (2x rente max AVS). "
+          "Vérifie sur ton extrait de compte.",
         );
       }
       if (ramd < 1000 && ramd > 0) {
         warnings.add(
-          "Le RAMD (${ramd.toStringAsFixed(0)} CHF) semble tres bas. "
-          "Verifie s'il s'agit bien du revenu annuel moyen et non d'un autre montant.",
+          "Le RAMD (${ramd.toStringAsFixed(0)} CHF) semble très bas. "
+          "Vérifie s'il s'agit bien du revenu annuel moyen et non d'un autre montant.",
         );
       }
     }
@@ -268,9 +268,9 @@ class AvsExtractParser {
     if (bonifications != null && bonifications > 16) {
       // Max educative credits: 16 years per child
       warnings.add(
-        "Les bonifications educatives ($bonifications annees) semblent elevees. "
+        "Les bonifications éducatives ($bonifications années) semblent élevées. "
         "Le maximum usuel est de 16 ans par enfant (LAVS art. 29sexies). "
-        "Verifie sur ton extrait.",
+        "Vérifie sur ton extrait.",
       );
     }
 
@@ -287,14 +287,14 @@ class AvsExtractParser {
       confidenceDelta: _estimateConfidenceDeltaFromFields(fields),
       warnings: warnings,
       disclaimer:
-          "Outil educatif \u2014 ne constitue pas un conseil en prevoyance. "
-          "Verifie toujours les valeurs avec ton extrait de compte AVS original. "
+          "Outil éducatif \u2014 ne constitue pas un conseil en prévoyance. "
+          "Vérifie toujours les valeurs avec ton extrait de compte AVS original. "
           "MINT ne stocke jamais l'image du document (LSFin).",
       sources: [
-        "LAVS art. 29ter-30 (RAMD, annees de cotisation)",
-        "LAVS art. 29sexies (bonifications educatives)",
+        "LAVS art. 29ter-30 (RAMD, années de cotisation)",
+        "LAVS art. 29sexies (bonifications éducatives)",
         "LAVS art. 34-35 (calcul de la rente)",
-        "LAVS art. 40 (rente anticipee / differee)",
+        "LAVS art. 40 (rente anticipée / différée)",
       ],
     );
   }

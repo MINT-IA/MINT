@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/age_band_policy.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
@@ -14,6 +17,8 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
+import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -30,6 +35,12 @@ import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
 import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
+import 'package:mint_mobile/widgets/coach/horizon_line_widget.dart';
+import 'package:mint_mobile/widgets/coach/financial_weather_widget.dart';
+import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
+import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
+import 'package:mint_mobile/widgets/coach/progressive_dashboard_widget.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT DASHBOARD SCREEN — P5 / Dashboard Assembly
@@ -61,11 +72,13 @@ class RetirementDashboardScreen extends StatefulWidget {
 class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ── Core state ──────────────────────────────────────────
   CoachProfile? _profile;
+  AgeBand? _ageBand;
   FinancialFitnessScore? _score;
   ProjectionResult? _projection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
   Map<String, BlockScore> _confidenceBlocs = const {};
+  FriBreakdown? _friBreakdown;
 
   // ── Coach narrative state (P3) ──────────────────────────
   CoachNarrative? _narrative;
@@ -103,6 +116,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _confidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
+      _friBreakdown = null;
       _scoreHistorySignature = null;
       // Invalidate any in-flight narrative generation to prevent
       // stale personal content from overwriting null after profile loss.
@@ -135,6 +149,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
       _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
+
+      // ── P5: FRI radar breakdown (State A only) ─────────
+      try {
+        _friBreakdown = FriComputationService.compute(
+          profile: _profile!,
+          projection: _projection!,
+          confidenceScore: _confidenceScore,
+        );
+      } catch (_) {
+        _friBreakdown = null;
+      }
 
       // ── P3: Compute tips once, share across curation + narrative ──
       final tips = _buildCoachingTips(_profile!);
@@ -178,11 +203,31 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     }
 
     try {
+      // Read BYOK config from provider (opt-in cloud LLM)
+      LlmConfig? byokConfig;
+      if (mounted) {
+        final byok = context.read<ByokProvider>();
+        if (byok.isConfigured && byok.apiKey != null && byok.provider != null) {
+          final provider = switch (byok.provider) {
+            'claude' => LlmProvider.anthropic,
+            'mistral' => LlmProvider.mistral,
+            'openai' => LlmProvider.openai,
+            _ => null, // Unknown provider — skip BYOK
+          };
+          if (provider != null) {
+            byokConfig = LlmConfig(
+              apiKey: byok.apiKey!,
+              provider: provider,
+            );
+          }
+        }
+      }
+
       final narrative = await CoachNarrativeService.generate(
         profile: profile,
         scoreHistory: scoreHistory,
         tips: tips,
-        byokConfig: null,
+        byokConfig: byokConfig,
       );
 
       // Only update if this is still the latest generation
@@ -229,6 +274,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   void _curateDashboardContent(List<CoachingTip> tips) {
     final profile = _profile;
     if (profile == null) return;
+
+    // Compute AgeBand from profile age — drives primary signal selection.
+    _ageBand = AgeBandPolicy.forAge(profile.age).band;
 
     // Reengagement messages
     final taxSaving3a = profile.salaireBrutMensuel > 0
@@ -320,8 +368,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     // CoupleActionPlan). This is consistent with the forecaster
     // model where 3a withdrawal is modelled as user's income.
     return HeroCoupleCard(
-      userName: profile.firstName ?? 'Toi',
-      conjointName: conj.firstName ?? 'Conjoint\u00b7e',
+      userName: profile.firstName ?? S.of(context)!.dashboardDefaultUserName,
+      conjointName: conj.firstName ?? S.of(context)!.dashboardDefaultConjointName,
       userMonthlyIncome: avsUserMonthly +
           (decoBase['lpp_user'] ?? 0) / 12 +
           (decoBase['3a'] ?? 0) / 12 +
@@ -343,17 +391,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
+    // State C only when there is NO profile at all (never post-onboarding).
     if (!provider.hasProfile || _projection == null) {
       return _buildStateC();
     }
 
-    if (_confidenceScore >= 70 && _score != null) {
+    if (_confidenceScore >= 80 && _score != null) {
       return _buildStateA();
     }
-    if (_confidenceScore >= 40 && _score != null) {
-      return _buildStateB();
-    }
-    return _buildStateC();
+    // Any user with a projection sees State B (range + uncertainty bands),
+    // even with confidence < 40%. State C is reserved for zero-profile users.
+    return _buildStateB();
   }
 
   // ────────────────────────────────────────────────────────────
@@ -415,6 +463,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
 
+                // ── AgeBand signal primaire ───────────────
+                _buildAgeBandSection(),
+                const SizedBox(height: 16),
+
                 // ── P5: Patrimoine Snapshot ──────────────
                 PatrimoineSnapshotCard(
                   lppCapital: profile.prevoyance.avoirLppTotal ?? 0,
@@ -422,6 +474,24 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   threeACapital: profile.prevoyance.totalEpargne3a,
                   epargne: profile.patrimoine.epargneLiquide + profile.patrimoine.investissements + profile.prevoyance.totalLibrePassage,
                   immobilier: profile.patrimoine.immobilier ?? 0,
+                ),
+                const SizedBox(height: 16),
+
+                // ── P5: FRI Radar Chart (State A, >= 70% confiance) ──
+                if (_friBreakdown != null) ...[
+                  FriRadarChart(
+                    liquidity: _friBreakdown!.liquidite,
+                    fiscal: _friBreakdown!.fiscalite,
+                    retirement: _friBreakdown!.retraite,
+                    structural: _friBreakdown!.risque,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // ── Trajectory Chart (3-scenario fan chart) ──
+                MintTrajectoryChart(
+                  result: proj,
+                  goalALabel: S.of(context)!.dashboardGoalRetirement,
                 ),
                 const SizedBox(height: 16),
 
@@ -520,6 +590,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ConfidenceBar(score: _confidenceScore),
                 const SizedBox(height: 16),
 
+                // ── AgeBand signal primaire ───────────────
+                _buildAgeBandSection(),
+                const SizedBox(height: 16),
+
                 // ── Hero card: couple or single ──
                 if (isCouple) ...[
                   _buildCoupleHeroCard(profile, decoBase, proj),
@@ -530,6 +604,39 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     rangeMax: monthlyOptimiste,
                   ),
                 ],
+                const SizedBox(height: 16),
+
+                // ── P1-D : Météo financière ───────────────────────
+                FinancialWeatherWidget(
+                  currentOutlook: monthlyPrudent >= 3000
+                      ? FinancialWeather.sunny
+                      : monthlyPrudent >= 2000
+                          ? FinancialWeather.partlyCloudy
+                          : FinancialWeather.rainy,
+                  scenarios: [
+                    WeatherScenario(
+                      weather: FinancialWeather.sunny,
+                      probabilityPercent: 35,
+                      monthlyIncomeMin: monthlyOptimiste * 0.9,
+                      monthlyIncomeMax: monthlyOptimiste,
+                      description: S.of(context)!.dashboardWeatherSunny,
+                    ),
+                    WeatherScenario(
+                      weather: FinancialWeather.partlyCloudy,
+                      probabilityPercent: 45,
+                      monthlyIncomeMin: monthlyPrudent,
+                      monthlyIncomeMax: monthlyOptimiste * 0.9,
+                      description: S.of(context)!.dashboardWeatherPartlyCloudy,
+                    ),
+                    WeatherScenario(
+                      weather: FinancialWeather.rainy,
+                      probabilityPercent: 20,
+                      monthlyIncomeMin: monthlyPrudent * 0.8,
+                      monthlyIncomeMax: monthlyPrudent,
+                      description: S.of(context)!.dashboardWeatherRainy,
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
 
                 // ── Confidence Blocks Bar (per-category progress) ──
@@ -542,6 +649,51 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 DocumentScanCta(
                   currentConfidence: _confidenceScore,
                   estimatedConfidenceAfterScan: estimatedAfterScan,
+                ),
+                const SizedBox(height: 16),
+
+                // ── Progressive Dashboard (3 niveaux selon confiance) ──
+                ProgressiveDashboardWidget(
+                  confidenceScore: _confidenceScore.round(),
+                  heroMonthlyRente: proj.base.revenuAnnuelRetraite / 12,
+                  metrics: [
+                    DashboardMetric(
+                      label: S.of(context)!.dashboardMetricMonthlyIncome,
+                      emoji: '💰',
+                      value: (proj.base.revenuAnnuelRetraite / 12).toStringAsFixed(0),
+                      unit: S.of(context)!.dashboardMetricChfMonth,
+                      minLevel: 1,
+                      color: MintColors.primary,
+                    ),
+                    DashboardMetric(
+                      label: S.of(context)!.dashboardMetricReplacementRate,
+                      emoji: '📊',
+                      value: (proj.tauxRemplacementBase * 100).toStringAsFixed(0),
+                      unit: '%',
+                      minLevel: 1,
+                      color: MintColors.scoreExcellent,
+                    ),
+                    DashboardMetric(
+                      label: S.of(context)!.dashboardMetricRetirementDuration,
+                      emoji: '⏳',
+                      value: (85 - profile.effectiveRetirementAge).clamp(0, 40).toStringAsFixed(0),
+                      unit: S.of(context)!.dashboardMetricYears,
+                      minLevel: 2,
+                      color: MintColors.info,
+                      note: S.of(context)!.dashboardMetricLifeExpectancy,
+                    ),
+                    DashboardMetric(
+                      label: S.of(context)!.dashboardMetricMonthlyGap,
+                      emoji: '⚡',
+                      value: ((proj.base.revenuAnnuelRetraite / 12) - (profile.salaireBrutMensuel * 0.70)).abs().toStringAsFixed(0),
+                      unit: S.of(context)!.dashboardMetricChfMonth,
+                      minLevel: 3,
+                      color: MintColors.scoreAttention,
+                      note: S.of(context)!.dashboardMetricVsTarget,
+                    ),
+                  ],
+                  nextActionLabel: S.of(context)!.dashboardNextActionLabel,
+                  nextActionDetail: S.of(context)!.dashboardNextActionDetail,
                 ),
                 const SizedBox(height: 16),
 
@@ -574,6 +726,16 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 _buildProfileLink(),
                 const SizedBox(height: 16),
 
+                // ── P7-F : Ligne d'horizon — si tu perdais ton emploi ──
+                if (_profile != null) ...[
+                  HorizonLineWidget(
+                    monthlyBenefit: (_profile!.salaireBrutMensuel * 0.80)
+                        .clamp(0, 12350 / 21.7 * 21.7),
+                    totalDays: _profile!.age >= 55 ? 520 : 400,
+                    daysConsumed: 0,
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildDisclaimer(),
@@ -600,21 +762,25 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── P3: Coach Briefing Card (State C) ──
-                CoachBriefingCard(
-                  narrative: _narrative,
-                  confidenceScore: _confidenceScore,
-                  onEnrich: () => context.push('/onboarding/smart'),
-                ),
+                // ── Welcome + Quick Start CTA ──
+                _buildQuickStartPrompt(),
                 const SizedBox(height: 16),
 
                 HeroRetirementCard(
                   mode: HeroCardMode.educational,
-                  onCompleteProfil: () => context.push('/onboarding/smart'),
+                  onCompleteProfil: () => context.push('/onboarding/quick'),
                 ),
                 const SizedBox(height: 16),
-                _buildEducationalSection(),
+
+                // ── Enrichment prompt cards ──
+                _buildEnrichmentPrompts(),
                 const SizedBox(height: 16),
+
+                // ── AgeBand signal primaire (State C — 65+ voit décaissement/succession) ───
+                if (_ageBand != null) ...[
+                  _buildAgeBandSection(),
+                  const SizedBox(height: 16),
+                ],
                 const ExploreHub(),
                 const SizedBox(height: 24),
                 _buildDisclaimer(),
@@ -627,16 +793,188 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     );
   }
 
+  Widget _buildQuickStartPrompt() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            MintColors.primary.withValues(alpha: 0.06),
+            MintColors.coachAccent.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: MintColors.primary.withValues(alpha: 0.12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.rocket_launch_outlined,
+                    color: MintColors.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  S.of(context)!.dashboardQuickStartTitle,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            S.of(context)!.dashboardQuickStartBody,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => context.push('/onboarding/quick'),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                S.of(context)!.dashboardQuickStartCta,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnrichmentPrompts() {
+    final prompts = <_EnrichmentPrompt>[
+      _EnrichmentPrompt(
+        icon: Icons.document_scanner_outlined,
+        title: S.of(context)!.dashboardEnrichScanTitle,
+        impact: S.of(context)!.dashboardEnrichScanImpact,
+        color: MintColors.primary,
+        route: '/document-scan',
+      ),
+      _EnrichmentPrompt(
+        icon: Icons.chat_bubble_outline,
+        title: S.of(context)!.dashboardEnrichCoachTitle,
+        impact: S.of(context)!.dashboardEnrichCoachImpact,
+        color: MintColors.coachAccent,
+        route: '/coach/chat',
+      ),
+      _EnrichmentPrompt(
+        icon: Icons.calculate_outlined,
+        title: S.of(context)!.dashboardEnrichSimTitle,
+        impact: S.of(context)!.dashboardEnrichSimImpact,
+        color: Colors.orange,
+        route: '/tools',
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.of(context)!.dashboardNextSteps,
+          style: GoogleFonts.montserrat(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: MintColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ...prompts.map((p) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: InkWell(
+                onTap: () => context.push(p.route),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                        color: MintColors.border.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: p.color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(p.icon, color: p.color, size: 18),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              p.title,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: MintColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              p.impact,
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: MintColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios,
+                          size: 14,
+                          color: p.color.withValues(alpha: 0.5)),
+                    ],
+                  ),
+                ),
+              ),
+            )),
+      ],
+    );
+  }
+
   // ────────────────────────────────────────────────────────────
   //  APPBAR
   // ────────────────────────────────────────────────────────────
 
   SliverAppBar _buildAppBar(String? firstName) {
-    // Use narrative greeting for AppBar title when available
-    final greeting = _narrative?.greeting ??
-        (firstName != null && firstName.isNotEmpty
-            ? 'Retraite \u00b7 $firstName'
-            : 'Ma retraite');
+    // AppBar shows a short stable title — narrative greeting lives in CoachBriefingCard only.
+    final title = firstName != null && firstName.isNotEmpty
+        ? S.of(context)!.dashboardAppBarWithName(firstName)
+        : S.of(context)!.dashboardAppBarDefault;
 
     return SliverAppBar(
       expandedHeight: 80,
@@ -647,7 +985,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          greeting,
+          title,
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -661,108 +999,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           icon: const Icon(Icons.edit_note_outlined,
               color: MintColors.textSecondary),
           onPressed: () => context.push('/profile/bilan'),
-          tooltip: 'Mes donn\u00e9es',
+          tooltip: S.of(context)!.dashboardMyData,
         ),
         const SizedBox(width: 4),
-      ],
-    );
-  }
-
-  // ────────────────────────────────────────────────────────────
-  //  EDUCATIONAL SECTION (STATE C)
-  // ────────────────────────────────────────────────────────────
-
-  Widget _buildEducationalSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Le syst\u00e8me de retraite suisse',
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildEducationalPoint(
-            icon: Icons.shield_outlined,
-            color: MintColors.retirementAvs,
-            title: '1er pilier \u2014 AVS',
-            text:
-                'Base obligatoire pour tous. Financ\u00e9 par tes cotisations (LAVS art. 21).',
-          ),
-          const SizedBox(height: 8),
-          _buildEducationalPoint(
-            icon: Icons.account_balance_outlined,
-            color: MintColors.retirementLpp,
-            title: '2\u00e8me pilier \u2014 LPP',
-            text:
-                'Pr\u00e9voyance professionnelle via ta caisse de pension (LPP art. 14).',
-          ),
-          const SizedBox(height: 8),
-          _buildEducationalPoint(
-            icon: Icons.savings_outlined,
-            color: MintColors.retirement3a,
-            title: '3\u00e8me pilier \u2014 3a',
-            text:
-                '\u00c9pargne volontaire avec d\u00e9duction fiscale (OPP3 art. 7).',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEducationalPoint({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String text,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 16, color: color),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                text,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -773,8 +1012,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   Widget _buildDisclaimer() {
     return Text(
-      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
-      'Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.',
+      S.of(context)!.dashboardDisclaimer,
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,
@@ -812,7 +1050,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             Icon(Icons.dashboard_outlined, size: 18, color: MintColors.primary),
             const SizedBox(width: 8),
             Text(
-              'Cockpit d\u00e9taill\u00e9',
+              S.of(context)!.dashboardCockpitLink,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -846,7 +1084,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             Icon(Icons.edit_note_outlined, size: 18, color: MintColors.textSecondary),
             const SizedBox(width: 8),
             Text(
-              'Mes donn\u00e9es',
+              S.of(context)!.dashboardMyData,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -970,7 +1208,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       if (card.impactChf != null && card.impactChf! > 0) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Impact estim\u00e9\u00a0: CHF\u00a0${formatChf(card.impactChf!)}',
+                          S.of(context)!.dashboardImpactEstimate(formatChf(card.impactChf!)),
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -994,4 +1232,181 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
     return widgets;
   }
+
+  // ────────────────────────────────────────────────────────────
+  //  AgeBand section — signal primaire adapté au stade de vie
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildAgeBandSection() {
+    if (_ageBand == null) return const SizedBox.shrink();
+    final band = _ageBand!;
+    switch (band) {
+      case AgeBand.youngProfessional:
+        return _AgeBandCard(
+          icon: Icons.savings_outlined,
+          title: S.of(context)!.dashboardAgeBandYoungTitle,
+          subtitle: S.of(context)!.dashboardAgeBandYoungSubtitle,
+          cta: S.of(context)!.dashboardAgeBandYoungCta,
+          route: '/simulator/3a',
+          color: MintColors.greenForestMid,
+        );
+      case AgeBand.stabilization:
+        return _AgeBandCard(
+          icon: Icons.home_outlined,
+          title: S.of(context)!.dashboardAgeBandStabTitle,
+          subtitle: S.of(context)!.dashboardAgeBandStabSubtitle,
+          cta: S.of(context)!.dashboardAgeBandStabCta,
+          route: '/simulator/3a',
+          color: MintColors.blueDark,
+        );
+      case AgeBand.peakEarnings:
+        return _AgeBandCard(
+          icon: Icons.trending_up,
+          title: S.of(context)!.dashboardAgeBandPeakTitle,
+          subtitle: S.of(context)!.dashboardAgeBandPeakSubtitle,
+          cta: S.of(context)!.dashboardAgeBandPeakCta,
+          route: '/lpp-deep/rachat',
+          color: MintColors.purpleDark,
+        );
+      case AgeBand.preRetirement:
+        return _AgeBandCard(
+          icon: Icons.timeline,
+          title: S.of(context)!.dashboardAgeBandPreRetTitle,
+          subtitle: S.of(context)!.dashboardAgeBandPreRetSubtitle,
+          cta: S.of(context)!.dashboardAgeBandPreRetCta,
+          route: '/arbitrage/rente-vs-capital',
+          color: MintColors.urgentOrange,
+        );
+      case AgeBand.retirement:
+        return Column(
+          children: [
+            _AgeBandCard(
+              icon: Icons.account_balance_wallet_outlined,
+              title: S.of(context)!.dashboardAgeBandRetWithdrawTitle,
+              subtitle: S.of(context)!.dashboardAgeBandRetWithdrawSubtitle,
+              cta: S.of(context)!.dashboardAgeBandRetWithdrawCta,
+              route: '/coach/decaissement',
+              color: MintColors.withdrawalOptim,
+            ),
+            const SizedBox(height: 12),
+            _AgeBandCard(
+              icon: Icons.family_restroom,
+              title: S.of(context)!.dashboardAgeBandRetSuccessionTitle,
+              subtitle: S.of(context)!.dashboardAgeBandRetSuccessionSubtitle,
+              cta: S.of(context)!.dashboardAgeBandRetSuccessionCta,
+              route: '/coach/succession',
+              color: MintColors.successionDark,
+            ),
+          ],
+        );
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  _AgeBandCard — carte signal primaire par stade de vie
+// ────────────────────────────────────────────────────────────
+
+class _AgeBandCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String cta;
+  final String route;
+  final Color color;
+
+  const _AgeBandCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.cta,
+    required this.route,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withAlpha(15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withAlpha(50)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withAlpha(30),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: MintColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () => context.push(route),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        cta,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: color,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward, size: 14, color: color),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EnrichmentPrompt {
+  const _EnrichmentPrompt({
+    required this.icon,
+    required this.title,
+    required this.impact,
+    required this.color,
+    required this.route,
+  });
+
+  final IconData icon;
+  final String title;
+  final String impact;
+  final Color color;
+  final String route;
 }

@@ -412,8 +412,8 @@ class BayesianProfileEnricher {
     }
 
     // If user provided a non-default taux, treat as declared
-    // Default in PrevoyanceProfile is 0.068 (minimum legal)
-    final isNonDefault = (declared - 0.068).abs() > 0.001;
+    // Default in PrevoyanceProfile is lppTauxConversionMinDecimal (minimum legal)
+    final isNonDefault = (declared - lppTauxConversionMinDecimal).abs() > 0.001;
     if (isNonDefault) {
       return _collapseToDeclared(
         field: 'tauxConversion',
@@ -872,7 +872,7 @@ class BayesianProfileEnricher {
         label: 'Detaille tes depenses mensuelles',
         action:
             'Ajoute ton loyer, assurance maladie et depenses fixes. '
-            'Plus c\'est precis, meilleure sera la projection.',
+            'Plus c\'est precis, plus precise sera la projection.',
         category: 'depenses',
       ),
       'anneesContribuees': _PromptDef(

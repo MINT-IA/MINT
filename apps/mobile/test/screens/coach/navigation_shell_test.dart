@@ -14,14 +14,14 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NAVIGATION SHELL TESTS — Phase 5 / Quality hardening
 //
-//  MainNavigationShell embeds CoachDashboardScreen as tab 0,
-//  which has _pulseController..repeat(reverse: true) (infinite
-//  animation). We MUST use pump(Duration) not pumpAndSettle().
+//  MainNavigationShell embeds PulseScreen as tab 0 (S48 Phase 0).
+//  PulseScreen async narrative may run. Use pump(Duration) not pumpAndSettle().
 // ────────────────────────────────────────────────────────────
 
 void main() {
@@ -70,6 +70,7 @@ void main() {
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<UserActivityProvider>(
             create: (_) => UserActivityProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -98,7 +99,7 @@ void main() {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.text('Pulse'), findsOneWidget);
       expect(find.text('Agir'), findsOneWidget);
       expect(find.text('Apprendre'), findsOneWidget);
       expect(find.text('Profil'), findsOneWidget);
@@ -108,7 +109,7 @@ void main() {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      final expectedLabels = ['Dashboard', 'Agir', 'Apprendre', 'Profil'];
+      final expectedLabels = ['Pulse', 'Agir', 'Apprendre', 'Profil'];
       for (final label in expectedLabels) {
         expect(find.text(label), findsOneWidget,
             reason: 'Tab label "$label" should appear exactly once');
@@ -124,12 +125,12 @@ void main() {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      // Tab 0 (Dashboard) is active by default
-      // RetirementDashboardScreen shows "Retraite · {name}" or "Ma retraite"
+      // Tab 0 (Pulse) is active by default
+      // PulseScreen shows greeting or visibility score
       expect(
-        find.textContaining('etraite', findRichText: true),
+        find.textContaining('onjour', findRichText: true),
         findsWidgets,
-        reason: 'Dashboard tab shows retirement content',
+        reason: 'Pulse tab shows greeting content',
       );
 
       // Tap Tab 1 (Agir)

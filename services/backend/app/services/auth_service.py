@@ -69,9 +69,9 @@ def create_refresh_token(user_id: str) -> str:
         user_id: User's unique identifier
 
     Returns:
-        JWT refresh token string (valid for 30 days)
+        JWT refresh token string (valid for 7 days)
     """
-    expire = datetime.now(timezone.utc) + timedelta(days=30)
+    expire = datetime.now(timezone.utc) + timedelta(days=7)
     payload = {
         "user_id": user_id,
         "type": "refresh",

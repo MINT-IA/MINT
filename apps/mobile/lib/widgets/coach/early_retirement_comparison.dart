@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
@@ -88,7 +89,7 @@ class EarlyRetirementComparison extends StatelessWidget {
               retirementAge: retAge.clamp(conjAge + 1, 70),
               grossAnnualSalary: (conj.salaireBrutMensuel ?? 0) * 12,
               caisseReturn: conj.prevoyance?.rendementCaisse ?? 0.02,
-              conversionRate: conj.prevoyance?.tauxConversion ?? 0.068,
+              conversionRate: conj.prevoyance?.tauxConversion ?? lppTauxConversionMinDecimal,
             );
             lppConjMonthly = conjLppRente / 12;
           }

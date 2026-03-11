@@ -11,7 +11,7 @@ import 'package:mint_mobile/models/profile.dart';
 /// - L'état actuel (dettes, épargne, LPP)
 /// - Les opportunités fiscales (3a, LPP, etc.)
 ///
-/// Utilisé dans CoachDashboardScreen pour afficher les actions recommandées
+/// Utilisé dans CoachAgirScreen pour afficher les actions recommandées
 class RecommendationsService {
   RecommendationsService._();
 
@@ -217,7 +217,7 @@ class RecommendationsService {
         'Versements réguliers CHF ${monthlySavings.toStringAsFixed(0)}/mois',
       ],
       impact: Impact(amountCHF: interestGained, period: Period.oneoff),
-      risks: ['Volatilité du marché', 'Rendement non garanti'],
+      risks: ['Volatilité du marché', 'Rendement variable selon les marchés'],
       alternatives: ['Compte épargne', 'Pilier 3a', 'ETF'],
       evidenceLinks: [],
       nextActions: [

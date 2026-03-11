@@ -60,8 +60,8 @@ void main() {
     await tester.tap(targetFinder);
     await _pumpFrames(tester, frames: 20);
 
-    // --- DASHBOARD (CoachDashboardScreen) ---
-    // We look for "Bonjour" header (from CoachDashboardScreen)
+    // --- DASHBOARD (RetirementDashboardScreen) ---
+    // We look for "Bonjour" header (from RetirementDashboardScreen)
     expect(find.textContaining('Bonjour'), findsWidgets,
         reason: "Dashboard loaded");
     expect(find.text('Apprendre'), findsOneWidget, reason: "Bottom Nav visible");

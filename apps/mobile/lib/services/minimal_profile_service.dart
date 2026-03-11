@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
-import 'package:mint_mobile/services/fiscal_service.dart';
 
 /// Minimal profile computation service (Sprint S31 — Onboarding Redesign).
 ///
@@ -23,6 +22,8 @@ class MinimalProfileService {
     required int age,
     required double grossSalary,
     required String canton,
+    String? employmentStatus,
+    String? nationalityGroup,
     String? householdType,
     double? currentSavings,
     bool? isPropertyOwner,
@@ -50,33 +51,52 @@ class MinimalProfileService {
     final effective3a = existing3a ?? 0.0;
     if (existing3a == null) estimatedFields.add('existing3a');
 
+    // --- Employment status impact ---
+    // Independant sans LPP: LPP = 0, 3a max = 36'288 CHF (OPP3 art. 7)
+    // Sans emploi: reduced AVS, no LPP contributions
+    final effectiveEmployment = employmentStatus ?? 'salarie';
+    final isIndependantNoLpp = effectiveEmployment == 'independant';
+    final isSansEmploi = effectiveEmployment == 'sans_emploi';
+
     // Estimate LPP balance from age-weighted bonifications since age 25
-    final effectiveLpp = existingLpp ?? _estimateLppBalance(age, grossSalary);
+    // Independent without LPP declaration → 0 balance
+    final effectiveLpp = existingLpp
+        ?? (isIndependantNoLpp ? 0.0 : _estimateLppBalance(age, grossSalary));
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
     final effectiveRetAge = targetRetirementAge ?? 65;
 
     // --- AVS monthly rente (financial_core) ---
+    // Sans emploi: use minimum AVS contribution salary
+    final avsGrossSalary = isSansEmploi
+        ? lppSeuilEntree.toDouble() // minimum contribution base
+        : grossSalary;
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
       retirementAge: effectiveRetAge,
-      grossAnnualSalary: grossSalary,
+      grossAnnualSalary: avsGrossSalary,
     );
 
     // --- LPP projection (financial_core) ---
-    // Caisse complémentaire uses a blended conversion rate (~5.8%)
-    // vs standard minimum 6.8% (LPP art. 14 al. 2).
-    final effectiveConversionRate = lppCaisseType == 'complementaire'
-        ? 0.058
-        : lppTauxConversionMin / 100;
-    final lppAnnualRente = LppCalculator.projectToRetirement(
-      currentBalance: effectiveLpp,
-      currentAge: age,
-      retirementAge: effectiveRetAge,
-      grossAnnualSalary: grossSalary,
-      caisseReturn: lppTauxInteretMin / 100,
-      conversionRate: effectiveConversionRate,
-    );
+    double lppAnnualRente;
+    if (isIndependantNoLpp || isSansEmploi) {
+      // No LPP for independants without caisse or unemployed
+      lppAnnualRente = 0.0;
+    } else {
+      // Caisse complémentaire uses a blended conversion rate (~5.8%)
+      // vs standard minimum 6.8% (LPP art. 14 al. 2).
+      final effectiveConversionRate = lppCaisseType == 'complementaire'
+          ? 0.058
+          : lppTauxConversionMin / 100;
+      lppAnnualRente = LppCalculator.projectToRetirement(
+        currentBalance: effectiveLpp,
+        currentAge: age,
+        retirementAge: effectiveRetAge,
+        grossAnnualSalary: grossSalary,
+        caisseReturn: lppTauxInteretMin / 100,
+        conversionRate: effectiveConversionRate,
+      );
+    }
     final lppMonthly = lppAnnualRente / 12;
 
     // --- Debt service impact (anti-double-counting: subtract from income, not expenses) ---
@@ -91,8 +111,13 @@ class MinimalProfileService {
     final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core via FiscalService for marginal rate) ---
+    // Indépendant sans LPP: plafond 3a = 20% du revenu net, max 36'288 CHF (OPP3 art. 7)
+    // Salarié avec LPP: plafond 3a = 7'258 CHF
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(grossSalary, canton);
-    final taxSaving3a = marginalRate * pilier3aPlafondAvecLpp;
+    final plafond3a = isIndependantNoLpp
+        ? min(grossSalary * 0.20, pilier3aPlafondSansLpp)
+        : pilier3aPlafondAvecLpp;
+    final taxSaving3a = marginalRate * plafond3a;
 
     // --- Liquidity analysis ---
     final estimatedMonthlyExpenses = _estimateMonthlyExpenses(
@@ -124,6 +149,9 @@ class MinimalProfileService {
       isPropertyOwner: effectivePropertyOwner,
       existing3a: effective3a,
       existingLpp: effectiveLpp,
+      employmentStatus: effectiveEmployment,
+      nationalityGroup: nationalityGroup ?? 'CH',
+      plafond3a: plafond3a,
       estimatedFields: estimatedFields,
     );
   }

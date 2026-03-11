@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
@@ -85,8 +86,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
                 // Source legale
                 Text(
-                  'Source : OPP3 (pilier 3a), pratique hypothecaire suisse. '
-                  'Plafond 3a salarie 2026 : CHF 7\'258.',
+                  S.of(context)!.amortizationSource,
                   style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -114,7 +114,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Amortissement : direct ou indirect ?',
+            S.of(context)!.amortizationIntroTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -122,10 +122,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'En Suisse, l\'amortissement indirect est une specificite unique : '
-            'au lieu de rembourser directement la dette, tu verses dans un '
-            'pilier 3a nanti. Tu beneficies d\'une double deduction fiscale '
-            '(interets + versement 3a) et ton capital reste investi.',
+            S.of(context)!.amortizationIntroBody,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -137,9 +134,8 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             children: [
               Expanded(
                 child: _buildMethodCard(
-                  title: 'Direct',
-                  description: 'Tu rembourses la dette chaque annee. '
-                      'Les interets diminuent progressivement.',
+                  title: S.of(context)!.amortizationDirect,
+                  description: S.of(context)!.amortizationDirectDesc,
                   icon: Icons.trending_down,
                   color: MintColors.info,
                 ),
@@ -147,9 +143,8 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildMethodCard(
-                  title: 'Indirect',
-                  description: 'Tu verses dans un 3a nanti. '
-                      'Double deduction fiscale.',
+                  title: S.of(context)!.amortizationIndirect,
+                  description: S.of(context)!.amortizationIndirectDesc,
                   icon: Icons.savings_outlined,
                   color: MintColors.success,
                 ),
@@ -251,7 +246,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'EVOLUTION SUR $_dureeAns ANS',
+            S.of(context)!.amortizationEvolutionTitle(_dureeAns),
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -277,11 +272,11 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(MintColors.info, 'Dette (direct)'),
+              _buildLegendItem(MintColors.info, S.of(context)!.amortizationLegendDebtDirect),
               const SizedBox(width: 12),
-              _buildLegendItem(MintColors.textPrimary, 'Dette (indirect)'),
+              _buildLegendItem(MintColors.textPrimary, S.of(context)!.amortizationLegendDebtIndirect),
               const SizedBox(width: 12),
-              _buildLegendItem(MintColors.success, 'Capital 3a'),
+              _buildLegendItem(MintColors.success, S.of(context)!.amortizationLegendCapital3a),
             ],
           ),
         ],
@@ -321,7 +316,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            S.of(context)!.amortizationParameters,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -333,7 +328,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
           // Montant hypothecaire
           _buildSliderRow(
-            label: 'Montant hypothecaire',
+            label: S.of(context)!.amortizationMortgageAmount,
             value: _montantHypothecaire,
             min: 200000,
             max: 2000000,
@@ -345,7 +340,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
           // Taux d'interet
           _buildSliderRow(
-            label: 'Taux d\'interet',
+            label: S.of(context)!.amortizationInterestRate,
             value: _tauxInteret,
             min: 0.01,
             max: 0.05,
@@ -357,7 +352,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
           // Duree
           _buildSliderRow(
-            label: 'Duree',
+            label: S.of(context)!.amortizationDuration,
             value: _dureeAns.toDouble(),
             min: 5,
             max: 30,
@@ -369,7 +364,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
           // Taux marginal
           _buildSliderRow(
-            label: 'Taux marginal estime',
+            label: S.of(context)!.amortizationMarginalRate,
             value: _tauxMarginal,
             min: 0.15,
             max: 0.45,
@@ -441,7 +436,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'COMPARAISON DETAILLEE',
+            S.of(context)!.amortizationDetailedComparison,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -453,12 +448,12 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
           // Direct
           _buildComparisonCard(
-            title: 'Amortissement direct',
+            title: S.of(context)!.amortizationDirectTitle,
             color: MintColors.info,
             rows: [
-              _compRow('Total interets payes',
+              _compRow(S.of(context)!.amortizationTotalInterest,
                   'CHF ${formatChf(result.totalInteretsDirect)}'),
-              _compRow('Cout net total',
+              _compRow(S.of(context)!.amortizationNetCost,
                   'CHF ${formatChf(result.coutNetDirect)}'),
             ],
           ),
@@ -466,14 +461,14 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
           // Indirect
           _buildComparisonCard(
-            title: 'Amortissement indirect',
+            title: S.of(context)!.amortizationIndirectTitle,
             color: MintColors.success,
             rows: [
-              _compRow('Total interets payes',
+              _compRow(S.of(context)!.amortizationTotalInterest,
                   'CHF ${formatChf(result.totalInteretsIndirect)}'),
-              _compRow('Capital 3a accumule',
+              _compRow(S.of(context)!.amortizationCapital3aAccumulated,
                   'CHF ${formatChf(result.capital3aFinal)}'),
-              _compRow('Cout net total',
+              _compRow(S.of(context)!.amortizationNetCost,
                   'CHF ${formatChf(result.coutNetIndirect)}'),
             ],
           ),
@@ -613,7 +608,7 @@ class _AmortizationChartPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: const TextStyle(fontSize: 10, color: Color(0xFF86868B)),
+          style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -628,7 +623,7 @@ class _AmortizationChartPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '${i + 1}',
-            style: const TextStyle(fontSize: 10, color: Color(0xFF86868B)),
+            style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -638,13 +633,13 @@ class _AmortizationChartPainter extends CustomPainter {
 
     // Draw debt curves
     _drawCurve(canvas, directPlan.map((p) => p.detteRestante).toList(),
-        const Color(0xFF007AFF), maxVal, chartWidth, chartHeight, leftPadding, topPadding);
+        MintColors.info, maxVal, chartWidth, chartHeight, leftPadding, topPadding);
     _drawCurve(canvas, indirectPlan.map((p) => p.detteRestante).toList(),
-        const Color(0xFF1D1D1F), maxVal, chartWidth, chartHeight, leftPadding, topPadding);
+        MintColors.primary, maxVal, chartWidth, chartHeight, leftPadding, topPadding);
 
     // Draw 3a capital curve
     _drawCurve(canvas, indirectPlan.map((p) => p.capital3a).toList(),
-        const Color(0xFF24B14D), maxVal, chartWidth, chartHeight, leftPadding, topPadding);
+        MintColors.success, maxVal, chartWidth, chartHeight, leftPadding, topPadding);
   }
 
   void _drawCurve(

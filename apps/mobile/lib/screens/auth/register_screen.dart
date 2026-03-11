@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _displayNameController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  int? _birthYear;
 
   @override
   void dispose() {
@@ -44,6 +46,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (mounted && success) {
+      // Persist registration data to profile answers so smart onboarding
+      // can pre-fill and CoachProfile gets the firstName + birthYear.
+      final firstName = _displayNameController.text.trim();
+      if (firstName.isNotEmpty || _birthYear != null) {
+        final answers = await ReportPersistenceService.loadAnswers();
+        if (firstName.isNotEmpty) answers['q_firstname'] = firstName;
+        if (_birthYear != null) answers['q_birth_year'] = _birthYear;
+        await ReportPersistenceService.saveAnswers(answers);
+      }
+
       if (authProvider.requiresEmailVerification) {
         context.go('/auth/verify-email');
       } else {
@@ -133,13 +145,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
                       const _RegisterBenefitRow(
-                        text: 'Sauvegarde cloud chiffrée (en plus du mode local)',
+                        text: 'Projections AVS/LPP alignees a ta situation',
                       ),
                       const _RegisterBenefitRow(
-                        text: 'Synchronisation sur plusieurs appareils',
+                        text: 'Coach personnalise avec ton prenom',
                       ),
                       const _RegisterBenefitRow(
-                        text: 'Récupération de l’accès en cas de changement de téléphone',
+                        text: 'Sauvegarde cloud + synchronisation multi-appareils',
                       ),
                     ],
                   ),
@@ -167,15 +179,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // Display name field (optional)
+                // First name field (required for coach personalization)
                 TextFormField(
                   controller: _displayNameController,
-                  autofillHints: const [AutofillHints.name],
-                  decoration: InputDecoration(
-                    labelText: S.of(context)?.authDisplayName ??
-                        'Nom d\'affichage (optionnel)',
-                    prefixIcon: const Icon(Icons.person_outline),
+                  autofillHints: const [AutofillHints.givenName],
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    labelText: 'Prenom',
+                    prefixIcon: Icon(Icons.person_outline),
                   ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Le prenom est necessaire pour personnaliser ton coach';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Birth year dropdown (LPD minimisation: only year needed for AVS/LPP)
+                DropdownButtonFormField<int>(
+                  value: _birthYear,
+                  decoration: const InputDecoration(
+                    labelText: 'Annee de naissance',
+                    prefixIcon: Icon(Icons.cake_outlined),
+                  ),
+                  items: List.generate(
+                    DateTime.now().year - 1940 + 1,
+                    (i) {
+                      final year = DateTime.now().year - i;
+                      return DropdownMenuItem(
+                        value: year,
+                        child: Text('$year'),
+                      );
+                    },
+                  ),
+                  onChanged: (value) => setState(() => _birthYear = value),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Necessaire pour les projections AVS/LPP';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 // Password field

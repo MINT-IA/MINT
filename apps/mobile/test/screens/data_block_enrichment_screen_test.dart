@@ -2,12 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 Widget _wrap(Widget child) {
-  return ChangeNotifierProvider(
-    create: (_) => CoachProfileProvider(),
-    child: MaterialApp(home: child),
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+      ChangeNotifierProvider(create: (_) => SlmProvider()),
+    ],
+    child: MaterialApp(
+  locale: const Locale('fr'),
+  localizationsDelegates: const [
+    S.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  supportedLocales: S.supportedLocales,home: child),
   );
 }
 

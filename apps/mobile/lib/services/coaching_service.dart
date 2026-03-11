@@ -55,11 +55,27 @@ class CoachingProfile {
   /// Depenses exceptionnelles du dernier check-in (null si aucun check-in).
   final double? lastCheckInDepensesExceptionnelles;
 
+  /// Whether the user has explicitly answered the 3a question.
+  ///
+  /// `false` (default) means we don't know yet — we must NOT assume the user
+  /// has no 3a. Only fire "missing 3a" coaching tip when this is `true` and
+  /// `has3a == false`.
+  final bool has3aAnswered;
+
+  /// Whether the user has explicitly answered a question about their savings.
+  ///
+  /// `false` (default) means we don't know yet — we must NOT assume the user
+  /// has no emergency fund. Only fire "insufficient emergency fund" tip when
+  /// this is `true` and `epargneDispo` is actually low.
+  final bool hasSavingsAnswered;
+
   const CoachingProfile({
     required this.age,
     required this.canton,
     required this.revenuAnnuel,
     this.has3a = false,
+    this.has3aAnswered = false,
+    this.hasSavingsAnswered = false,
     this.montant3a = 0,
     this.hasLpp = false,
     this.avoirLpp = 0,
@@ -112,10 +128,10 @@ class CoachingService {
   // ──────────────────────────────────────────────────────────
 
   /// 3a ceiling for salaried employees (2025/2026, OPP3 art. 7).
-  static const double _plafond3aSalarie = 7258;
+  static const double _plafond3aSalarie = pilier3aPlafondAvecLpp;
 
   /// 3a ceiling for self-employed without LPP (2025/2026, OPP3 art. 7).
-  static const double _plafond3aIndependant = 36288;
+  static const double _plafond3aIndependant = pilier3aPlafondSansLpp;
 
   /// Swiss legal retirement age (post-AVS21 reform, unified at 65).
   static const int _ageRetraite = 65;
@@ -390,6 +406,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     List<CoachingTip> tips,
   ) {
     if (profile.has3a) return;
+    // Don't assume the user has no 3a when we simply don't know yet.
+    // has3aAnswered is false for brand-new profiles (only age/salary/canton).
+    if (!profile.has3aAnswered) return;
     if (profile.revenuAnnuel <= 0) return;
 
     final plafond = profile.employmentStatus == EmploymentStatus.independant
@@ -518,6 +537,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     CoachingProfile profile,
     List<CoachingTip> tips,
   ) {
+    // Guard: only fire if the user explicitly answered the savings question.
+    // Without that answer, epargneDispo = 0 by default — never assume "no savings".
+    if (!profile.hasSavingsAnswered) return;
     if (profile.chargesFixesMensuelles <= 0) return;
     final monthsCovered = profile.epargneDispo / profile.chargesFixesMensuelles;
     if (monthsCovered >= 3) return;
@@ -873,7 +895,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     const stressToCategories = {
       'stress_retraite': ['retraite', 'prevoyance'],
       'stress_fiscal': ['fiscalite'],
+      'stress_impots': ['fiscalite'], // alias (StepStressSelector uses this ID)
       'stress_budget': ['budget'],
+      'stress_patrimoine': ['prevoyance', 'fiscalite', 'budget'],
+      'stress_couple': ['retraite', 'prevoyance', 'fiscalite', 'budget'],
       'stress_general': ['retraite', 'fiscalite', 'budget', 'prevoyance'],
     };
     final categories = stressToCategories[stressType] ??

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -126,10 +127,10 @@ class MilestoneDetectionService {
   static const _achievedKey = 'achieved_milestones_v1';
 
   /// Plafond 3a salarie (OPP3 art. 7, 2025/2026).
-  static const _plafond3aSalarie = 7258.0;
+  static const _plafond3aSalarie = pilier3aPlafondAvecLpp;
 
   /// Plafond 3a independant sans LPP (20% revenu net, max OPP3 art. 7).
-  static const _plafond3aIndependant = 36288.0;
+  static const _plafond3aIndependant = pilier3aPlafondSansLpp;
 
   /// Detecte les nouveaux milestones (pas encore celebres).
   ///
@@ -266,7 +267,7 @@ class MilestoneDetectionService {
         id: '3a_max_reached',
         title: '3a au plafond',
         description:
-            'Tu as atteint le plafond de CHF $plafondFormatted pour ton 3e pilier. C\'est la meilleure facon de combiner prevoyance et economie fiscale (OPP3 art. 7).',
+            'Tu as atteint le plafond de CHF $plafondFormatted pour ton 3e pilier. C\'est une facon efficace de combiner prevoyance et economie fiscale (OPP3 art. 7).',
         icon: Icons.savings,
         color: MintColors.indigo,
       ));

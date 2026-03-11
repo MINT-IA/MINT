@@ -15,7 +15,7 @@ class ArbitrageTornadoSection extends StatelessWidget {
     super.key,
     required this.result,
     this.subtitle =
-        'Impact de chaque hypothese sur l\'ecart entre les options comparees.',
+        'Impact de chaque hypothèse sur l\'écart entre les options comparées.',
   });
 
   @override
@@ -41,11 +41,11 @@ class ArbitrageTornadoSection extends StatelessWidget {
       baseCase: base,
       variables: chartVariables,
       maxVariables: 8,
-      title: 'Sensibilites cle',
+      title: 'Sensibilités clé',
       subtitle: subtitle,
       baseCaseSuffix: '',
       disclaimerText:
-          'Simulation pedagogique — transparence sur les hypotheses, sans recommandation.',
+          'Simulation pédagogique — transparence sur les hypothèses, sans recommandation.',
     );
   }
 }

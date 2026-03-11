@@ -13,6 +13,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -200,7 +201,7 @@ class NotificationService {
     if (!has3a) return;
 
     // Check if 3a is already maxed for the year
-    final plafond3a = profile.employmentStatus == 'independant' ? 36288.0 : 7258.0;
+    final plafond3a = profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
     final montant3aAnnuel = profile.total3aMensuel * 12;
     if (montant3aAnnuel >= plafond3a) return;
 

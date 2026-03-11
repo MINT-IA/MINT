@@ -16,7 +16,10 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
+import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
+import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/fri_computation_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHECK-IN SCREEN — Sprint C6 / MINT Coach
@@ -59,6 +62,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
   String _scoreDeltaReason = '';
   int _scoreBefore = 0;
   int _scoreAfter = 0;
+  MonthlyBriefingDelta? _briefing;
 
   bool _profileInitialized = false;
 
@@ -95,7 +99,7 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
           goalA: GoalA(
             type: GoalAType.retraite,
             targetDate: DateTime(2055, 12, 31),
-            label: 'Retraite',
+            label: S.of(context)!.dashboardGoalRetirement,
           ),
         );
       }
@@ -156,7 +160,31 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
     // Calculate totals
     _totalVersements = versements.values.fold(0.0, (s, v) => s + v);
 
-    // Create the check-in
+    // Compute FRI score at check-in time for historical tracking
+    double? friScoreAtCheckIn;
+    try {
+      final projForFri = ForecasterService.project(
+        profile: _profile,
+        targetDate: _profile.goalA.targetDate,
+      );
+      final fri = FriComputationService.compute(
+        profile: _profile,
+        projection: projForFri,
+      );
+      friScoreAtCheckIn = fri.total;
+    } catch (_) {
+      // FRI computation is best-effort — don't block check-in
+    }
+
+    // ── Score before (needed for check-in snapshot) ─────────
+    final scoreBefore = FinancialFitnessService.calculate(
+      profile: _profile,
+      previousScore: coachProvider.previousScore,
+    );
+    _scoreBefore = scoreBefore.global;
+    _coachTip = scoreBefore.coachMessage;
+
+    // Create the check-in with FRI + fitness score snapshots
     final checkIn = MonthlyCheckIn(
       month: DateTime(DateTime.now().year, DateTime.now().month),
       versements: versements,
@@ -164,19 +192,13 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
       revenusExceptionnels: double.tryParse(_revenusController.text),
       note: _noteController.text.isNotEmpty ? _noteController.text : null,
       completedAt: DateTime.now(),
+      friScore: friScoreAtCheckIn,
+      fitnessScore: _scoreBefore,
     );
 
     // Simulate updated profile with the new check-in for streak calc
     final updatedCheckIns = [..._profile.checkIns, checkIn];
     _streak = _calculateStreak(updatedCheckIns);
-
-    // ── Score before / after ────────────────────────────────
-    final scoreBefore = FinancialFitnessService.calculate(
-      profile: _profile,
-      previousScore: coachProvider.previousScore,
-    );
-    _scoreBefore = scoreBefore.global;
-    _coachTip = scoreBefore.coachMessage;
 
     // Build updated profile with new check-in + potentially updated contributions
     final updatedProfile =
@@ -240,6 +262,18 @@ class _CoachCheckinScreenState extends State<CoachCheckinScreen>
 
     // Re-schedule notifications with updated profile (new check-in resets reminders)
     NotificationService().scheduleCoachingReminders(profile: updatedProfile);
+
+    // ── Monthly briefing N vs N-1 (Coach Vivant) ──
+    final previousCheckIn = _profile.checkIns.isNotEmpty
+        ? (List<MonthlyCheckIn>.from(_profile.checkIns)
+              ..sort((a, b) => b.month.compareTo(a.month)))
+            .first
+        : null;
+    _briefing = MonthlyBriefingService.compare(
+      profile: updatedProfile,
+      current: checkIn,
+      previous: previousCheckIn,
+    );
 
     setState(() {
       _isSubmitted = true;
@@ -660,13 +694,13 @@ Reponds uniquement avec le texte final.
         '3a',
         s?.checkinCat3a ?? 'Pilier 3a',
         Icons.savings,
-        const Color(0xFF4F46E5)
+        MintColors.indigo
       ),
       (
         'lpp_buyback',
         s?.checkinCatLpp ?? 'Rachat LPP',
         Icons.account_balance,
-        const Color(0xFF0891B2)
+        MintColors.cyan
       ),
       (
         'investissement',
@@ -842,6 +876,7 @@ Reponds uniquement avec le texte final.
                     controller: amountController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
                     style: GoogleFonts.inter(
                         fontSize: 14, color: MintColors.textPrimary),
                     decoration: InputDecoration(
@@ -992,6 +1027,7 @@ Reponds uniquement avec le texte final.
           TextFormField(
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             style: GoogleFonts.inter(
               fontSize: 16,
               color: MintColors.textPrimary,
@@ -1161,7 +1197,21 @@ Reponds uniquement avec le texte final.
 
       // Coach tip card
       _buildCoachTipCard(),
-      const SizedBox(height: 32),
+      const SizedBox(height: 16),
+
+      // ── Monthly briefing insights (Coach Vivant) ──
+      if (_briefing != null && _briefing!.insights.isNotEmpty)
+        _buildBriefingInsightsCard(),
+      if (_briefing != null && _briefing!.insights.isNotEmpty)
+        const SizedBox(height: 16),
+
+      // ── Micro-actions (Coach Vivant) ──
+      if (_briefing != null && _briefing!.microActions.isNotEmpty)
+        MicroActionSection(actions: _briefing!.microActions),
+      if (_briefing != null && _briefing!.microActions.isNotEmpty)
+        const SizedBox(height: 16),
+
+      const SizedBox(height: 16),
 
       // CTA: see trajectory
       SizedBox(
@@ -1228,7 +1278,7 @@ Reponds uniquement avec le texte final.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ton score financier',
+                  S.of(context)!.checkinScoreTitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1247,8 +1297,8 @@ Reponds uniquement avec le texte final.
                 const SizedBox(height: 2),
                 Text(
                   isPositive
-                      ? '+$delta pts — tes actions portent leurs fruits !'
-                      : '$delta pts — continue, chaque mois compte',
+                      ? S.of(context)!.checkinScorePositive(delta.toString())
+                      : S.of(context)!.checkinScoreNegative(delta.toString()),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1453,6 +1503,79 @@ Reponds uniquement avec le texte final.
     );
   }
 
+  // ── Monthly briefing insights card (Coach Vivant) ──────────
+  Widget _buildBriefingInsightsCard() {
+    final briefing = _briefing!;
+    final trendIcon = switch (briefing.trend) {
+      BriefingTrend.enHausse => Icons.trending_up,
+      BriefingTrend.enBaisse => Icons.trending_down,
+      BriefingTrend.stable => Icons.trending_flat,
+    };
+    final trendColor = switch (briefing.trend) {
+      BriefingTrend.enHausse => MintColors.success,
+      BriefingTrend.enBaisse => MintColors.warning,
+      BriefingTrend.stable => MintColors.textSecondary,
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: trendColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: trendColor.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(trendIcon, size: 18, color: trendColor),
+              const SizedBox(width: 8),
+              Text(
+                'Ton evolution',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: trendColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  briefing.trendLabel,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: trendColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          for (final insight in briefing.insights)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                insight,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: MintColors.textPrimary,
+                  height: 1.4,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   // ── Disclaimer ─────────────────────────────────────────────
   Widget _buildDisclaimer() {
     final s = S.of(context);
@@ -1522,7 +1645,7 @@ class _ContributionRow extends StatelessWidget {
             border: Border.all(color: MintColors.lightBorder),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1D1D1F).withValues(alpha: 0.04),
+                color: MintColors.primary.withValues(alpha: 0.04),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -1590,6 +1713,7 @@ class _ContributionRow extends StatelessWidget {
                   controller: controller,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   textAlign: TextAlign.right,
                   style: GoogleFonts.inter(
                     fontSize: 16,

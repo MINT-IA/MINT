@@ -68,7 +68,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 _buildNationalResourceCard(
                   nom: 'Dettes Conseils Suisse',
                   description:
-                      'Federation faitiere des services de conseil en dettes '
+                      'Fédération faîtière des services de conseil en dettes '
                       'en Suisse. Conseil gratuit, confidentiel et professionnel. '
                       'Plus de 30 services membres dans toute la Suisse.',
                   url: 'https://www.dettes.ch',
@@ -83,9 +83,9 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   nom: 'Caritas — Conseil en dettes',
                   description:
                       'Service d\'aide de Caritas Suisse pour les personnes '
-                      'en situation d\'endettement. Aide au desendettement, '
-                      'negociation avec les creanciers, accompagnement '
-                      'budgetaire personnalise.',
+                      'en situation d\'endettement. Aide au désendettement, '
+                      'négociation avec les créanciers, accompagnement '
+                      'budgétaire personnalisé.',
                   url: 'https://www.caritas.ch/dettes',
                   telephone: '0800 708 708',
                   icon: Icons.favorite_outline,
@@ -129,7 +129,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                   color: MintColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
-                'Vous n\'etes pas seul',
+                'Vous n\'êtes pas seul',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -141,7 +141,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           const Text(
             'En Suisse, de nombreux services professionnels offrent un '
             'accompagnement gratuit et confidentiel pour les personnes '
-            'confrontees a des difficultes financieres. Demander de l\'aide '
+            'confrontées à des difficultés financières. Demander de l\'aide '
             'est un acte de courage, pas un signe de faiblesse.',
             style: TextStyle(
               fontSize: 13,
@@ -151,8 +151,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Tous les liens ci-dessous menent vers des sites externes. '
-            'MINT ne transmet aucune donnee a ces services.',
+            'Tous les liens ci-dessous mènent vers des sites externes. '
+            'MINT ne transmet aucune donnée à ces services.',
             style: TextStyle(
               fontSize: 12,
               color: MintColors.textMuted,
@@ -383,8 +383,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Aucun service cantonal reference pour ce canton. '
-                'Contactez Dettes Conseils Suisse pour etre oriente.',
+                'Aucun service cantonal référencé pour ce canton. '
+                'Contactez Dettes Conseils Suisse pour être orienté.',
                 style: TextStyle(
                   fontSize: 13,
                   color: MintColors.textMuted,
@@ -414,7 +414,7 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Protection des donnees (nLPD)',
+                  'Protection des données (nLPD)',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -423,10 +423,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'MINT ne transmet aucune donnee personnelle aux services '
-                  'references ci-dessus. Les liens externes ouvrent votre '
-                  'navigateur. Votre utilisation de cet ecran reste strictement '
-                  'confidentielle et n\'est ni enregistree ni partagee.',
+                  'MINT ne transmet aucune donnée personnelle aux services '
+                  'référencés ci-dessus. Les liens externes ouvrent votre '
+                  'navigateur. Votre utilisation de cet écran reste strictement '
+                  'confidentielle et n\'est ni enregistrée ni partagée.',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.blue.shade700,
@@ -456,10 +456,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'MINT fournit ces liens a titre informatif et pedagogique. '
-              'Ces services sont independants de MINT. MINT ne fournit '
-              'pas de conseil juridique ou financier. En cas de difficulte '
-              'financiere, contactez directement les services specialises.',
+              'MINT fournit ces liens à titre informatif et pédagogique. '
+              'Ces services sont indépendants de MINT. MINT ne fournit '
+              'pas de conseil juridique ou financier. En cas de difficulté '
+              'financière, contactez directement les services spécialisés.',
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.orange.shade800,

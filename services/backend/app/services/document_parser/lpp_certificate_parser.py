@@ -297,6 +297,15 @@ KNOWN_FIELD_PATTERNS: dict[str, dict] = {
             r"koordinierter?\s+lohn",
         ],
     },
+    "taux_remuneration": {
+        "type": "percentage",
+        "patterns": [
+            r"(?:int[ée]r[êe]ts?|r[ée]mun[ée]r[ée])\s*[\(:]?\s*(?:taux\s+(?:de\s+)?)?",
+            r"taux\s+(?:de\s+)?r[ée]mun[ée]ration",
+            r"(?:Verzinsung|Zinssatz)",
+            r"tasso\s+(?:di\s+)?remunerazione",
+        ],
+    },
 }
 
 # Fields with the highest impact on projection precision
@@ -315,6 +324,7 @@ HIGH_IMPACT_FIELDS = [
     "cotisation_employeur",
     "prestation_invalidite",
     "prestation_deces",
+    "taux_remuneration",
 ]
 
 # Impact weight per field for confidence delta calculation
@@ -413,7 +423,7 @@ def parse_lpp_certificate(text: str) -> ExtractionResult:
                                 source_text=source_text,
                                 needs_review=conf < 0.7,
                             )
-                elif field_type == "rate":
+                elif field_type in ("rate", "percentage"):
                     extraction = _extract_rate_near(text, start)
                     if extraction:
                         value, source_text = extraction

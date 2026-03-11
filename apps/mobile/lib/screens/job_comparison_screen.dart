@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -130,7 +132,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: const Text('Comparer deux emplois'),
+        title: Text(S.of(context)!.jobCompareTitle),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -145,7 +147,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             _buildAgeSlider(),
             const SizedBox(height: 24),
             _buildJobSection(
-              title: 'EMPLOI ACTUEL',
+              title: S.of(context)!.jobCompareCurrentJob,
               expanded: _currentJobExpanded,
               onToggle: () =>
                   setState(() => _currentJobExpanded = !_currentJobExpanded),
@@ -177,7 +179,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ),
             const SizedBox(height: 24),
             _buildJobSection(
-              title: 'EMPLOI ENVISAGE',
+              title: S.of(context)!.jobCompareNewJob,
               expanded: _newJobExpanded,
               onToggle: () =>
                   setState(() => _newJobExpanded = !_newJobExpanded),
@@ -204,7 +206,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   setState(() => _newRachatMax = v),
               hasIjm: _newHasIjm,
               onIjmChanged: (v) => setState(() => _newHasIjm = v),
-              accentColor: const Color(0xFFEA580C), // orange accent
+              accentColor: MintColors.deepOrange, // orange accent
               icon: Icons.work_outline,
             ),
             const SizedBox(height: 24),
@@ -227,6 +229,51 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ],
             _buildEducationalFooter(),
             const SizedBox(height: 24),
+            // ── P11-A : Le prix du changement ────────────────────
+            JobChangeComparisonWidget(
+              currentJobLabel: S.of(context)!.jobCompareCurrentJobWidget,
+              newJobLabel: S.of(context)!.jobCompareNewJobWidget,
+              axes: [
+                JobAxis(
+                  label: S.of(context)!.jobCompareAxisSalary,
+                  emoji: '💰',
+                  currentValue: _currentSalaireBrut / 12,
+                  newValue: _newSalaireBrut / 12,
+                  unit: 'CHF/mois',
+                ),
+                JobAxis(
+                  label: S.of(context)!.jobCompareAxisLpp,
+                  emoji: '🏦',
+                  currentValue: _currentSalaireBrut * 0.18 / 12,
+                  newValue: _newSalaireBrut * 0.18 / 12,
+                  unit: 'CHF/mois',
+                ),
+                JobAxis(
+                  label: S.of(context)!.jobCompareAxisDistance,
+                  emoji: '🚆',
+                  currentValue: 15,
+                  newValue: 30,
+                  unit: 'km',
+                  higherIsBetter: false,
+                ),
+                JobAxis(
+                  label: S.of(context)!.jobCompareAxisVacation,
+                  emoji: '🏖️',
+                  currentValue: 20,
+                  newValue: 25,
+                  unit: 'jours',
+                ),
+                JobAxis(
+                  label: S.of(context)!.jobCompareAxisWeeklyHours,
+                  emoji: '⏰',
+                  currentValue: 42,
+                  newValue: 40,
+                  unit: 'h',
+                  higherIsBetter: false,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             _buildDisclaimer(),
             const SizedBox(height: 40),
           ],
@@ -248,11 +295,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFEA580C).withOpacity(0.1),
+              color: MintColors.deepOrange.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.swap_horiz,
-                color: Color(0xFFEA580C), size: 24),
+                color: MintColors.deepOrange, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -260,7 +307,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Comparer deux emplois',
+                  S.of(context)!.jobCompareTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -269,7 +316,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Découvre le salaire invisible',
+                  S.of(context)!.jobCompareSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -288,22 +335,21 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFEA580C).withOpacity(0.06),
+        color: MintColors.deepOrange.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFEA580C).withOpacity(0.15),
+          color: MintColors.deepOrange.withOpacity(0.15),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.lightbulb_outline,
-              size: 20, color: const Color(0xFFEA580C).withOpacity(0.8)),
+              size: 20, color: MintColors.deepOrange.withOpacity(0.8)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le salaire brut ne dit pas tout. Compare le salaire invisible '
-              '(prevoyance, assurances) entre deux postes.',
+              S.of(context)!.jobCompareIntro,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -319,8 +365,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // --- Age Slider ---
   Widget _buildAgeSlider() {
     return SimulatorCard(
-      title: 'Ton age',
-      subtitle: 'Utilise pour projeter le capital retraite',
+      title: S.of(context)!.jobCompareAgeTitle,
+      subtitle: S.of(context)!.jobCompareAgeSubtitle,
       icon: Icons.person_outline,
       child: _buildSlider(
         label: 'Age',
@@ -372,7 +418,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  expanded ? 'Reduire' : 'Voir les details',
+                  expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -393,7 +439,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           if (expanded) ...[
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Salaire brut annuel',
+              label: S.of(context)!.jobCompareSalaryLabel,
               value: salaireBrut,
               min: 40000,
               max: 250000,
@@ -409,7 +455,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Taux de conversion',
+              label: S.of(context)!.jobCompareConversionRate,
               value: tauxConversion,
               min: 4.0,
               max: 6.8,
@@ -419,7 +465,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Avoir de vieillesse actuel',
+              label: S.of(context)!.jobCompareRetirementAssets,
               value: avoirVieillesse,
               min: 0,
               max: 1000000,
@@ -429,7 +475,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Couverture invalidite',
+              label: S.of(context)!.jobCompareDisabilityCoverage,
               value: couvertureInvalidite,
               min: 0,
               max: 80,
@@ -439,7 +485,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Capital-deces',
+              label: S.of(context)!.jobCompareDeathCapital,
               value: capitalDeces,
               min: 0,
               max: 500000,
@@ -449,7 +495,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Rachat maximum',
+              label: S.of(context)!.jobCompareMaxBuyback,
               value: rachatMax,
               min: 0,
               max: 500000,
@@ -482,7 +528,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Part employeur LPP',
+              S.of(context)!.jobCompareEmployerShare,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textPrimary,
@@ -557,7 +603,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       children: [
         Flexible(
           child: Text(
-            'IJM collective incluse',
+            S.of(context)!.jobCompareIjm,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textPrimary,
@@ -581,7 +627,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         onPressed: _compare,
         icon: const Icon(Icons.compare_arrows, size: 20),
         label: Text(
-          'Comparer',
+          S.of(context)!.jobCompareButton,
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -649,7 +695,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     Icon(verdictIcon, color: Colors.white, size: 14),
                     const SizedBox(width: 6),
                     Text(
-                      'VERDICT',
+                      S.of(context)!.jobCompareVerdictLabel,
                       style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -673,8 +719,10 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '${r.axes.where((a) => a.isPositive).length} axes favorables '
-            'sur ${r.axes.length}',
+            S.of(context)!.jobCompareAxesFavorable(
+              '${r.axes.where((a) => a.isPositive).length}',
+              '${r.axes.length}',
+            ),
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -689,8 +737,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   Widget _buildComparisonTable() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Comparaison detaillee',
-      subtitle: '7 axes de prevoyance',
+      title: S.of(context)!.jobCompareDetailedTitle,
+      subtitle: S.of(context)!.jobCompareDetailedSubtitle,
       icon: Icons.table_chart_outlined,
       child: Column(
         children: [
@@ -706,7 +754,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    'Axe',
+                    S.of(context)!.jobCompareAxisLabel,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -717,7 +765,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Actuel',
+                    S.of(context)!.jobCompareCurrentLabel,
                     textAlign: TextAlign.right,
                     style: GoogleFonts.inter(
                       fontSize: 11,
@@ -729,7 +777,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Nouveau',
+                    S.of(context)!.jobCompareNewLabel,
                     textAlign: TextAlign.right,
                     style: GoogleFonts.inter(
                       fontSize: 11,
@@ -741,7 +789,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Delta',
+                    S.of(context)!.jobCompareDeltaLabel,
                     textAlign: TextAlign.right,
                     style: GoogleFonts.inter(
                       fontSize: 11,
@@ -846,8 +894,6 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     final annualDelta = r.annualPensionDelta;
     final monthlyDelta = annualDelta / 12;
     final isPositive = annualDelta >= 0;
-    final betterJob = isPositive ? 'Le nouveau poste' : 'Le poste actuel';
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -863,7 +909,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               Icon(Icons.timeline, color: MintColors.info, size: 18),
               const SizedBox(width: 8),
               Text(
-                'IMPACT SUR TOUTE LA RETRAITE',
+                S.of(context)!.jobCompareRetirementImpact,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -875,9 +921,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            '$betterJob vaut ${_chfFmt(annualDelta.abs())}/an de plus '
-            'en rente viagere, soit ${_chfFmt(monthlyDelta.abs())}/mois '
-            'A VIE apres la retraite.',
+            S.of(context)!.jobCompareRetirementBody(
+              isPositive ? S.of(context)!.jobCompareNewJob : S.of(context)!.jobCompareCurrentJob,
+              _chfFmt(annualDelta.abs()),
+              _chfFmt(monthlyDelta.abs()),
+            ),
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MintColors.textPrimary,
@@ -886,7 +934,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Sur 20 ans de retraite : ${_chfFmt(r.lifetimePensionDelta.abs())}',
+            S.of(context)!.jobCompareLifetime20Years(_chfFmt(r.lifetimePensionDelta.abs())),
             style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -905,7 +953,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'POINTS D\'ATTENTION',
+          S.of(context)!.jobCompareAttentionPoints,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -953,8 +1001,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   Widget _buildChecklistSection() {
     final r = _result!;
     return SimulatorCard(
-      title: 'Avant de signer',
-      subtitle: 'Checklist de verification',
+      title: S.of(context)!.jobCompareChecklistTitle,
+      subtitle: S.of(context)!.jobCompareChecklistSub,
       icon: Icons.checklist,
       accentColor: MintColors.primary,
       child: Column(
@@ -1027,7 +1075,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMPRENDRE',
+          S.of(context)!.jobCompareUnderstandHeader,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -1037,20 +1085,13 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         ),
         const SizedBox(height: 12),
         _buildExpandableTile(
-          'Qu\'est-ce que le salaire invisible ?',
-          'Le "salaire invisible" represente 10-30% de ta remuneration totale. '
-              'Il inclut la part employeur a la caisse de pension (LPP), les assurances '
-              '(IJM, accident), et parfois des avantages complementaires. Deux postes '
-              'au meme salaire brut peuvent offrir des protections tres differentes.',
+          S.of(context)!.jobCompareEduInvisibleTitle,
+          S.of(context)!.jobCompareEduInvisibleBody,
         ),
         const SizedBox(height: 8),
         _buildExpandableTile(
-          'Comment lire mon certificat de prevoyance ?',
-          'Ton certificat de prevoyance (LPP) contient toutes les informations '
-              'necessaires : salaire assure, deduction de coordination, taux de '
-              'cotisation, avoir de vieillesse, taux de conversion, prestations '
-              'de risque (invalidite et deces), et rachat possible. Demande-le '
-              'a ton RH ou a ta caisse de pension.',
+          S.of(context)!.jobCompareEduCertTitle,
+          S.of(context)!.jobCompareEduCertBody,
         ),
       ],
     );
@@ -1108,10 +1149,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les resultats presentes sont des estimations a titre indicatif. '
-              'Ils ne constituent pas un conseil financier personnalise. '
-              'Consulte ta caisse de pension et un·e spécialiste qualifié·e '
-              'avant toute decision.',
+              S.of(context)!.jobCompareDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.orange.shade800,

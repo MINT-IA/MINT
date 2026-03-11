@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,7 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/widgets/language_selector_widget.dart';
 import 'package:mint_mobile/l10n/locale_helper.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -196,6 +197,18 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildAiSection(context),
                   const SizedBox(height: 32),
+                  const Text('Famille',
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  _buildFactFindSection(
+                    title: 'Notre menage',
+                    status: 'Couple+',
+                    isComplete: false,
+                    icon: Icons.people_outline,
+                    onTap: () => context.push('/household'),
+                  ),
+                  const SizedBox(height: 32),
                   Text(S.of(context)?.profileDocuments ?? 'Mes documents',
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
@@ -245,7 +258,7 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF1D1D1F), Color(0xFF2C2C2E)],
+            colors: [MintColors.primary, MintColors.darkSurface],
           ),
           borderRadius: BorderRadius.circular(16),
         ),
@@ -289,7 +302,7 @@ class ProfileScreen extends StatelessWidget {
     final s = S.of(context);
     final coachProfile = context.watch<CoachProfileProvider>();
     final hasFullWizard = coachProfile.hasFullProfile;
-    final hasMini = coachProfile.isPartialProfile;
+    final hasMini = coachProfile.hasProfile && !hasFullWizard;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -373,7 +386,7 @@ class ProfileScreen extends StatelessWidget {
     final scorePart = score != null ? ' • Score estime: $score/100' : '';
     final profileState = coachProvider.hasFullProfile
         ? (s?.profileStateFull ?? 'Profil complet')
-        : coachProvider.isPartialProfile
+        : coachProvider.hasProfile
             ? (s?.profileStatePartial ?? 'Profil partiel')
             : (s?.profileStateMissing ?? 'Profil non renseigne');
 
@@ -944,15 +957,18 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => context.push('/profile/byok'),
         ),
         const SizedBox(height: 12),
-        _buildFactFindSection(
-          title: 'IA on-device (SLM)',
-          status: SlmEngine.instance.isAvailable
-              ? 'Mod\u00e8le pr\u00eat'
-              : 'Mod\u00e8le non install\u00e9',
-          isComplete: SlmEngine.instance.isAvailable,
-          icon: Icons.smartphone,
-          onTap: () => context.push('/profile/slm'),
-        ),
+        Builder(builder: (context) {
+          final slm = context.watch<SlmProvider>();
+          return _buildFactFindSection(
+            title: 'IA on-device (SLM)',
+            status: slm.isEngineAvailable
+                ? 'Mod\u00e8le pr\u00eat'
+                : 'Mod\u00e8le non install\u00e9',
+            isComplete: slm.isEngineAvailable,
+            icon: Icons.smartphone,
+            onTap: () => context.push('/profile/slm'),
+          );
+        }),
       ],
     );
   }
@@ -1186,6 +1202,12 @@ class ProfileScreen extends StatelessWidget {
             await context.read<BudgetProvider>().clear();
             await AnalyticsService().clearLocalQueue();
 
+            // Force re-read from SharedPreferences (now empty) to confirm
+            // _profile = null in memory. Without this, _isLoaded = false
+            // can cause stale data to reappear on re-render.
+            if (!context.mounted) return;
+            await context.read<CoachProfileProvider>().loadFromWizard();
+
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -1195,7 +1217,14 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             );
-            context.go('/');
+            if (!context.mounted) return;
+            if (kIsWeb) {
+              // On web, navigate to onboarding so the user sees a clean slate.
+              // loadFromWizard() above already confirmed _profile = null.
+              context.go('/onboarding/smart');
+            } else {
+              context.go('/');
+            }
           },
           style: TextButton.styleFrom(foregroundColor: Colors.red),
           child: Text(

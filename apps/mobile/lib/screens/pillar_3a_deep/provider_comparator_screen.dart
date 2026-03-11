@@ -19,7 +19,7 @@ class ProviderComparatorScreen extends StatefulWidget {
 
 class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   int _age = 30;
-  double _versementAnnuel = 7258;
+  double _versementAnnuel = pilier3aPlafondAvecLpp;
   int _duree = 35;
   ProfilRisque _profilRisque = ProfilRisque.dynamique;
 
@@ -129,7 +129,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'entre le meilleur et le pire provider',
+            'entre le provider le plus et le moins performant',
             style: TextStyle(
               fontSize: 12,
               color: Colors.green.shade600,
@@ -340,7 +340,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   Widget _buildProviderCard(ProviderResult result, double maxCapital) {
     final isWarning = result.hasWarning;
     final isBest = result.badge != null &&
-        result.badge!.contains('Meilleur rendement');
+        result.badge!.contains('Rendement le plus eleve');
 
     Color bgColor = Colors.white;
     Color borderColor = MintColors.border;
@@ -494,7 +494,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs meilleur',
+                '-CHF ${formatChf(maxCapital - result.capitalFinal)} vs premier',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
