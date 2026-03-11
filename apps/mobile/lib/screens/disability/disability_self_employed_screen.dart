@@ -100,7 +100,7 @@ class _DisabilitySelfEmployedScreenState
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFB71C1C), Color(0xFF7B0000)],
+              colors: [MintColors.critical, MintColors.deepRed],
             ),
           ),
           child: SafeArea(
@@ -158,7 +158,7 @@ class _DisabilitySelfEmployedScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFCDD2)),
+        border: Border.all(color: MintColors.redBg),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -194,7 +194,7 @@ class _DisabilitySelfEmployedScreenState
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFFB71C1C),
+                  color: MintColors.critical,
                 ),
               ),
             ],
@@ -203,9 +203,9 @@ class _DisabilitySelfEmployedScreenState
             data: SliderTheme.of(context).copyWith(
               trackHeight: 3,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-              activeTrackColor: const Color(0xFFB71C1C),
+              activeTrackColor: MintColors.critical,
               inactiveTrackColor: MintColors.border,
-              thumbColor: const Color(0xFFB71C1C),
+              thumbColor: MintColors.critical,
             ),
             child: Slider(
               value: _monthlyRevenue,
@@ -251,7 +251,7 @@ class _DisabilitySelfEmployedScreenState
               Expanded(
                 child: _buildToggleChip('Non / Je ne sais pas', !_hasPerteDegain,
                     () => setState(() => _hasPerteDegain = false),
-                    color: const Color(0xFFB71C1C)),
+                    color: MintColors.critical),
               ),
             ],
           ),
