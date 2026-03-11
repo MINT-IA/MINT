@@ -12,7 +12,7 @@ class WizardQuestionsV2 {
         // and already captured by mini-onboarding flow.
         // ═══════════════════════════════════════════════════════════
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_firstname',
           title: 'Comment t\'appelles-tu ?',
           subtitle: 'Optionnel - Pour personnaliser ton expérience',
@@ -20,7 +20,7 @@ class WizardQuestionsV2 {
           tags: ['profil'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_birth_year',
           title: 'Ton année de naissance',
           subtitle: 'Pour calculer ton horizon retraite et tes options',
@@ -43,7 +43,7 @@ class WizardQuestionsV2 {
           tags: ['profil'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_residence_permit',
           title: 'Quel est ton permis de séjour ?',
           subtitle:
@@ -51,19 +51,19 @@ class WizardQuestionsV2 {
               'Permis C/Suisse = déclaration ordinaire.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Nationalité suisse', value: 'swiss', icon: 'flag'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Permis C (établissement)', value: 'permit_c', icon: 'verified'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Permis B (séjour)', value: 'permit_b', icon: 'badge'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Permis G (frontalier)', value: 'permit_g', icon: 'commute'),
           ],
           tags: ['profil'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_civil_status',
           title: 'Quelle est ta situation familiale ?',
           subtitle:
@@ -71,56 +71,56 @@ class WizardQuestionsV2 {
               'Concubinage = ZERO avantage legal (pas de solidarite, pas de succession, pas de rente survivant).',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Célibataire', value: 'single', icon: 'person'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Concubinage', value: 'cohabiting', icon: 'group'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Marié(e)', value: 'married', icon: 'favorite'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Divorcé(e)', value: 'divorced', icon: 'person_remove'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Veuf/Veuve', value: 'widowed', icon: 'sentiment_very_dissatisfied'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Partenariat enregistré', value: 'registered_partner', icon: 'diversity_1'),
           ],
           tags: ['profil'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_children',
           title: 'Combien d\'enfants à charge as-tu ?',
           subtitle: 'Chaque enfant = déduction fiscale ~6\'500-9\'000 CHF',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Aucun', value: '0'),
-            QuestionOption(label: '1 enfant', value: '1'),
-            QuestionOption(label: '2 enfants', value: '2'),
-            QuestionOption(label: '3 enfants ou plus', value: '3'),
+            const QuestionOption(label: 'Aucun', value: '0'),
+            const QuestionOption(label: '1 enfant', value: '1'),
+            const QuestionOption(label: '2 enfants', value: '2'),
+            const QuestionOption(label: '3 enfants ou plus', value: '3'),
           ],
           tags: ['profil'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_employment_status',
           title: 'Quelle est ta situation professionnelle ?',
           subtitle:
               'Salarié = LPP obligatoire + 3a max 7\'258 CHF\nIndépendant = Pas de LPP + 3a max 36\'288 CHF',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Salarié(e)', value: 'employee', icon: 'work'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Indépendant(e)',
                 value: 'self_employed',
                 icon: 'business'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Étudiant(e)',
                 value: 'student',
                 icon: 'school'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Sans emploi', value: 'unemployed', icon: 'person_off'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Retraité(e)', value: 'retired', icon: 'elderly'),
           ],
           tags: ['profil'],
@@ -134,10 +134,10 @@ class WizardQuestionsV2 {
               'À 80%, ta couverture LPP est réduite proportionnellement.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: '100%', value: '100'),
-            QuestionOption(label: '80%', value: '80'),
-            QuestionOption(label: '60%', value: '60'),
-            QuestionOption(label: 'Moins de 60%', value: 'other'),
+            const QuestionOption(label: '100%', value: '100'),
+            const QuestionOption(label: '80%', value: '80'),
+            const QuestionOption(label: '60%', value: '60'),
+            const QuestionOption(label: 'Moins de 60%', value: 'other'),
           ],
           tags: ['profil'],
           condition: (answers) => answers['q_employment_status'] == 'employee',
@@ -148,7 +148,7 @@ class WizardQuestionsV2 {
         // Objectif : Calculer la capacité d'épargne AVANT de parler d'investissement
         // ═══════════════════════════════════════════════════════════
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_net_income_period_chf',
           title: 'Ton revenu net mensuel ?',
           subtitle:
@@ -170,16 +170,16 @@ class WizardQuestionsV2 {
           condition: (answers) => answers['q_employment_status'] == 'employee',
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_housing_status',
           title: 'Quel est ton statut de logement ?',
           subtitle: 'Ton type de logement',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Locataire', value: 'renter', icon: 'home'),
-            QuestionOption(
+            const QuestionOption(label: 'Locataire', value: 'renter', icon: 'home'),
+            const QuestionOption(
                 label: 'Propriétaire', value: 'owner', icon: 'house'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Chez famille/parents',
                 value: 'family',
                 icon: 'family_restroom'),
@@ -187,7 +187,7 @@ class WizardQuestionsV2 {
           tags: ['budget', 'housing'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_housing_cost_period_chf',
           title: 'Coût logement par mois ?',
           subtitle: 'Loyer ou hypothèque + charges.',
@@ -196,15 +196,15 @@ class WizardQuestionsV2 {
           minValue: 0,
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_consumer_debt',
           title: 'As-tu des dettes de consommation ?',
           subtitle:
               'Crédit, leasing voiture/meubles (hors hypothèque)\n⚠️ Priorité : Rembourser avant d\'investir !',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Non', value: 'no', icon: 'check_circle'),
-            QuestionOption(label: 'Oui', value: 'yes', icon: 'warning'),
+            const QuestionOption(label: 'Non', value: 'no', icon: 'check_circle'),
+            const QuestionOption(label: 'Oui', value: 'yes', icon: 'warning'),
           ],
           tags: ['budget', 'debt'],
         ),
@@ -233,7 +233,7 @@ class WizardQuestionsV2 {
           condition: (answers) => answers['q_has_consumer_debt'] == 'yes',
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_lamal_franchise',
           title: 'Quelle est ta franchise LAMal ?',
           subtitle:
@@ -241,12 +241,12 @@ class WizardQuestionsV2 {
               'Franchise basse (300 CHF) = primes hautes mais protection maximale.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'CHF 300 (minimum)', value: '300'),
-            QuestionOption(label: 'CHF 500', value: '500'),
-            QuestionOption(label: 'CHF 1\'000', value: '1000'),
-            QuestionOption(label: 'CHF 1\'500', value: '1500'),
-            QuestionOption(label: 'CHF 2\'000', value: '2000'),
-            QuestionOption(label: 'CHF 2\'500 (maximum)', value: '2500'),
+            const QuestionOption(label: 'CHF 300 (minimum)', value: '300'),
+            const QuestionOption(label: 'CHF 500', value: '500'),
+            const QuestionOption(label: 'CHF 1\'000', value: '1000'),
+            const QuestionOption(label: 'CHF 1\'500', value: '1500'),
+            const QuestionOption(label: 'CHF 2\'000', value: '2000'),
+            const QuestionOption(label: 'CHF 2\'500 (maximum)', value: '2500'),
           ],
           tags: ['budget', 'lamal'],
         ),
@@ -262,19 +262,19 @@ class WizardQuestionsV2 {
               'Tu pourras ajuster les montants ensuite.',
           type: QuestionType.multiChoice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: '💰 Pilier 3a',
                 value: '3a',
                 icon: 'savings'),
-            QuestionOption(
+            const QuestionOption(
                 label: '🏛️ Rachat LPP',
                 value: 'lpp_buyback',
                 icon: 'account_balance'),
-            QuestionOption(
+            const QuestionOption(
                 label: '📈 Investissements (ETF, actions...)',
                 value: 'investissement',
                 icon: 'trending_up'),
-            QuestionOption(
+            const QuestionOption(
                 label: '🏦 Épargne libre (compte épargne)',
                 value: 'epargne_libre',
                 icon: 'wallet'),
@@ -299,21 +299,21 @@ class WizardQuestionsV2 {
         // Objectif : Optimiser la prévoyance MAINTENANT qu'on connaît le budget
         // ═══════════════════════════════════════════════════════════
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_pension_fund',
           title: 'Es-tu affilié à une caisse de pension (LPP) ?',
           subtitle: 'Si salarié avec salaire >22k CHF = Oui automatiquement',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
-            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
-            QuestionOption(
+            const QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
+            const QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            const QuestionOption(
                 label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
           ],
           tags: ['prevoyance', 'lpp'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_lpp_buyback_available',
           title: 'Peux-tu racheter ta LPP ?',
           subtitle:
@@ -323,7 +323,7 @@ class WizardQuestionsV2 {
           tags: ['prevoyance', 'lpp'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_lpp_current_capital',
           title: 'Quel est ton avoir de vieillesse LPP actuel ?',
           subtitle:
@@ -334,36 +334,36 @@ class WizardQuestionsV2 {
           minValue: 0,
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_3a',
           title: 'As-tu déjà ouvert un compte 3e pilier (3a) ?',
           subtitle: 'C\'est l\'un des outils fiscaux les plus avantageux en Suisse.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
-            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            const QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
+            const QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
           ],
           tags: ['prevoyance', '3a'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_3a_accounts_count',
           title: 'Combien de comptes 3a as-tu ?',
           subtitle:
               '💡 Recommandé : 2-3 comptes pour répartir la fiscalité au retrait',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Aucun', value: '0'),
-            QuestionOption(label: '1 compte', value: '1'),
-            QuestionOption(label: '2 comptes', value: '2'),
-            QuestionOption(label: '3 comptes ou plus', value: '3'),
+            const QuestionOption(label: 'Aucun', value: '0'),
+            const QuestionOption(label: '1 compte', value: '1'),
+            const QuestionOption(label: '2 comptes', value: '2'),
+            const QuestionOption(label: '3 comptes ou plus', value: '3'),
           ],
           tags: ['prevoyance', '3a'],
         ),
 
         // q_3a_providers REMOVED — low value, zero calculation impact
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_3a_annual_contribution',
           title: 'Combien verses-tu par an dans ton/tes 3a ?',
           subtitle:
@@ -376,7 +376,7 @@ class WizardQuestionsV2 {
         // AVS — Détection intelligente des lacunes de cotisation
         // L'échelle complète = 44 ans (LAVS art. 29ter) dès 21 ans.
         // On déduit les années théoriques depuis q_birth_year, puis on demande les lacunes.
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_avs_lacunes_status',
           title: 'As-tu des lacunes de cotisation AVS ?',
           subtitle:
@@ -384,19 +384,19 @@ class WizardQuestionsV2 {
               'Chaque année manquante = −2.3% de rente à vie.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Non, j\'ai toujours cotisé en Suisse',
                 value: 'no_gaps',
                 icon: 'verified'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Arrivé·e en Suisse après 20 ans',
                 value: 'arrived_late',
                 icon: 'flight_land'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Période(s) à l\'étranger',
                 value: 'lived_abroad',
                 icon: 'public'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Je ne sais pas',
                 value: 'unknown',
                 icon: 'help'),
@@ -404,7 +404,7 @@ class WizardQuestionsV2 {
           tags: ['prevoyance', 'avs'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_avs_arrival_year',
           title: 'En quelle année es-tu arrivé·e en Suisse ?',
           subtitle:
@@ -416,7 +416,7 @@ class WizardQuestionsV2 {
           tags: ['prevoyance', 'avs'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_avs_years_abroad',
           title: 'Combien d\'années as-tu passé hors de Suisse (après 20 ans) ?',
           subtitle:
@@ -437,19 +437,19 @@ class WizardQuestionsV2 {
           subtitle: 'Impact direct sur la rente AVS de couple (plafond 150%, LAVS art. 35).',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Non, toujours cotisé en Suisse',
                 value: 'no_gaps',
                 icon: 'verified'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Arrivé·e après 20 ans',
                 value: 'arrived_late',
                 icon: 'flight_land'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Période(s) à l\'étranger',
                 value: 'lived_abroad',
                 icon: 'public'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Je ne sais pas',
                 value: 'unknown',
                 icon: 'help'),
@@ -494,19 +494,19 @@ class WizardQuestionsV2 {
         // Objectif : Investissements et patrimoine (uniquement si cercles 1-2 OK)
         // ═══════════════════════════════════════════════════════════
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_investments',
           title: 'As-tu des investissements hors-pilier ?',
           subtitle: 'Actions, ETF, Crypto, Fonds... (hors 3a et LPP)',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Non', value: 'no'),
-            QuestionOption(label: 'Oui', value: 'yes'),
+            const QuestionOption(label: 'Non', value: 'no'),
+            const QuestionOption(label: 'Oui', value: 'yes'),
           ],
           tags: ['patrimoine', 'investments'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_life_insurance',
           title: 'As-tu une assurance vie ou décès ?',
           subtitle:
@@ -514,25 +514,25 @@ class WizardQuestionsV2 {
               'Essentiel pour protéger tes proches, surtout en concubinage.',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
-            QuestionOption(label: 'Oui, risque pur (décès)', value: 'yes_risk', icon: 'shield'),
-            QuestionOption(label: 'Oui, mixte (3b)', value: 'yes_3b', icon: 'savings'),
-            QuestionOption(label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
+            const QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            const QuestionOption(label: 'Oui, risque pur (décès)', value: 'yes_risk', icon: 'shield'),
+            const QuestionOption(label: 'Oui, mixte (3b)', value: 'yes_3b', icon: 'savings'),
+            const QuestionOption(label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
           ],
           tags: ['patrimoine', 'insurance'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_real_estate_project',
           title: 'Projet immobilier dans les 3 ans ?',
           subtitle:
               '⚠️ Important : Si rachat LPP + achat immo proche = Incompatible légalement',
           type: QuestionType.choice,
           options: [
-            QuestionOption(label: 'Non', value: 'no'),
-            QuestionOption(
+            const QuestionOption(label: 'Non', value: 'no'),
+            const QuestionOption(
                 label: 'Oui, achat résidence principale', value: 'yes_main'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Oui, investissement locatif', value: 'yes_rental'),
           ],
           tags: ['patrimoine', 'real_estate'],
@@ -550,7 +550,7 @@ class WizardQuestionsV2 {
           condition: (answers) => answers['q_housing_status'] == 'owner',
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_mortgage_balance',
           title: 'Solde hypothécaire restant ?',
           subtitle:
@@ -562,31 +562,31 @@ class WizardQuestionsV2 {
           condition: (answers) => answers['q_housing_status'] == 'owner',
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_main_goal',
           title: 'Ton objectif financier principal ?',
           subtitle: 'Ce qui te motive à optimiser ta situation',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Retraite confortable',
                 value: 'retirement',
                 icon: 'beach_access'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Achat immobilier', value: 'real_estate', icon: 'house'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Indépendance financière',
                 value: 'independence',
                 icon: 'flight_takeoff'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Sortir de l\'endettement',
                 value: 'debt_free',
                 icon: 'money_off'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Transmettre un héritage',
                 value: 'inheritance',
                 icon: 'family_restroom'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Voyage/Projet personnel',
                 value: 'project',
                 icon: 'luggage'),
@@ -594,19 +594,19 @@ class WizardQuestionsV2 {
           tags: ['patrimoine', 'goals'],
         ),
 
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_risk_tolerance',
           title: 'Face aux fluctuations de marché, tu es plutôt :',
           subtitle: 'Ton niveau de confort avec le risque',
           type: QuestionType.choice,
           options: [
-            QuestionOption(
+            const QuestionOption(
                 label: 'Prudent - Je dors mal si ça baisse de 10%',
                 value: 'conservative'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Équilibré - J\'accepte du risque mesuré',
                 value: 'balanced'),
-            QuestionOption(
+            const QuestionOption(
                 label: 'Dynamique - Je vise le long terme',
                 value: 'aggressive'),
           ],
