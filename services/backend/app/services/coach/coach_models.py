@@ -17,6 +17,7 @@ class ComponentType(str, Enum):
     tip = "tip"                          # max 120 words
     chiffre_choc = "chiffre_choc"        # max 100 words
     scenario = "scenario"                # max 150 words
+    enrichment_guide = "enrichmentGuide" # max 150 words — data block conversational guide
     general = "general"                  # max 200 words
 
 
@@ -27,6 +28,7 @@ COMPONENT_WORD_LIMITS = {
     ComponentType.tip: 120,
     ComponentType.chiffre_choc: 100,
     ComponentType.scenario: 150,
+    ComponentType.enrichment_guide: 150,
     ComponentType.general: 200,
 }
 

@@ -220,6 +220,46 @@ class CoachOrchestrator {
         !FeatureFlags.safeModeDegraded;
   }
 
+  /// Cached init future — prevents concurrent [_ensureInitialized] calls
+  /// from spawning multiple init sequences. If init is already in flight,
+  /// subsequent callers share the same future.
+  static Future<bool>? _initFuture;
+
+  /// Ensure the SLM engine is initialized before inference.
+  ///
+  /// Handles re-initialization after [SlmEngine.dispose] — when the user
+  /// leaves the coach screen and returns, the engine is disposed to free
+  /// ~2 GB of RAM. This method transparently re-initializes it.
+  ///
+  /// Uses a cached future to deduplicate concurrent calls: if init is
+  /// already in progress, all callers await the same future.
+  ///
+  /// Returns true if the engine is ready for inference, false otherwise.
+  static Future<bool> _ensureInitialized() {
+    return _initFuture ??=
+        _doEnsureInitialized().whenComplete(() => _initFuture = null);
+  }
+
+  /// Internal init logic, called only via [_ensureInitialized].
+  static Future<bool> _doEnsureInitialized() async {
+    final engine = SlmEngine.instance;
+
+    // Already running — nothing to do.
+    if (engine.isAvailable) return true;
+
+    // Re-initialize (handles both first-init and post-dispose cases).
+    try {
+      final ok = await engine.initialize().timeout(_slmTimeout);
+      if (!ok) {
+        debugPrint('[Orchestrator] SLM (re-)init returned false');
+      }
+      return ok;
+    } catch (e) {
+      debugPrint('[Orchestrator] SLM (re-)init failed: $e');
+      return false;
+    }
+  }
+
   /// Attempt SLM generation with [_slmTimeout].
   ///
   /// Returns null if:
@@ -233,19 +273,10 @@ class CoachOrchestrator {
     required CoachContext ctx,
     required ComponentType componentType,
   }) async {
-    final engine = SlmEngine.instance;
+    // Ensure SLM is initialized (handles first-init and post-dispose re-init).
+    if (!await _ensureInitialized()) return null;
 
-    // Initialize if not already running (checks model download internally).
-    if (!engine.isAvailable) {
-      bool initialized;
-      try {
-        initialized = await engine.initialize().timeout(_slmTimeout);
-      } catch (e) {
-        debugPrint('[Orchestrator] SLM init failed: $e');
-        return null;
-      }
-      if (!initialized) return null;
-    }
+    final engine = SlmEngine.instance;
 
     // Truncate prompt to context window.
     final truncatedPrompt = _truncateToContextWindow(userPrompt);
@@ -501,6 +532,9 @@ class CoachOrchestrator {
   ///
   /// Returns null if SLM is not eligible or not available.
   /// Caller should fall back to [generateChat] for BYOK / fallback.
+  ///
+  /// Handles re-initialization after dispose — when the user leaves the
+  /// coach screen and returns, the engine is transparently re-initialized.
   static Stream<String>? streamChat({
     required String userMessage,
     required List<ChatMessage> history,
@@ -509,13 +543,44 @@ class CoachOrchestrator {
     if (!_slmEligible()) return null;
 
     final engine = SlmEngine.instance;
-    if (!engine.isAvailable) return null;
+
+    // If engine was disposed (user left coach screen), we need async re-init.
+    // Wrap the entire flow in an async* generator that ensures init first.
+    if (!engine.isAvailable) {
+      return _streamChatWithReInit(
+        userMessage: userMessage,
+        history: history,
+        ctx: ctx,
+      );
+    }
 
     final systemPrompt = PromptRegistry.baseSystemPrompt;
     final conversationCtx = _buildConversationContext(history, userMessage);
     final truncated = _truncateToContextWindow(conversationCtx);
 
     return engine.generateStream(
+      systemPrompt: systemPrompt,
+      userPrompt: truncated,
+    );
+  }
+
+  /// Internal: stream chat with async re-initialization before streaming.
+  ///
+  /// Used when [SlmEngine] was disposed and needs re-init before generating.
+  static Stream<String> _streamChatWithReInit({
+    required String userMessage,
+    required List<ChatMessage> history,
+    required CoachContext ctx,
+  }) async* {
+    final ok = await _ensureInitialized();
+    if (!ok) return;
+
+    final engine = SlmEngine.instance;
+    final systemPrompt = PromptRegistry.baseSystemPrompt;
+    final conversationCtx = _buildConversationContext(history, userMessage);
+    final truncated = _truncateToContextWindow(conversationCtx);
+
+    yield* engine.generateStream(
       systemPrompt: systemPrompt,
       userPrompt: truncated,
     );
