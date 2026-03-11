@@ -126,8 +126,6 @@ void main() {
     test('missing LPP data triggers scan_lpp action', () {
       final profile = _makeProfile(avoirLpp: null);
       final actions = MicroActionEngine.suggest(profile: profile);
-      final lppAction = actions.where(
-          (a) => a.id.contains('lpp') || a.category == 'lpp');
       // Should suggest scanning/enriching LPP data
       expect(actions, isNotEmpty);
     });
@@ -135,8 +133,6 @@ void main() {
     test('missing 3a triggers verse_3a action', () {
       final profile = _makeProfile(totalEpargne3a: null);
       final actions = MicroActionEngine.suggest(profile: profile);
-      final threeAAction = actions.where(
-          (a) => a.id.contains('3a') || a.category == '3a');
       expect(actions, isNotEmpty);
     });
   });
@@ -156,8 +152,6 @@ void main() {
       );
       final actions = MicroActionEngine.suggest(profile: profile);
       // Should have at least one couple-related action
-      final coupleActions =
-          actions.where((a) => a.category == 'couple');
       expect(actions, isNotEmpty);
     });
   });

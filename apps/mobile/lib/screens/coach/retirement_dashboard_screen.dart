@@ -35,7 +35,6 @@ import 'package:mint_mobile/widgets/coach/hero_couple_card.dart';
 import 'package:mint_mobile/widgets/dashboard/document_scan_cta.dart';
 import 'package:mint_mobile/services/slm/slm_auto_prompt_service.dart';
 import 'package:mint_mobile/widgets/coach/patrimoine_snapshot_card.dart';
-import 'package:mint_mobile/widgets/coach/fri_radar_chart.dart';
 import 'package:mint_mobile/widgets/coach/horizon_line_widget.dart';
 import 'package:mint_mobile/widgets/coach/financial_weather_widget.dart';
 import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
@@ -1003,102 +1002,6 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           tooltip: S.of(context)!.dashboardMyData,
         ),
         const SizedBox(width: 4),
-      ],
-    );
-  }
-
-  // ────────────────────────────────────────────────────────────
-  //  EDUCATIONAL SECTION (STATE C)
-  // ────────────────────────────────────────────────────────────
-
-  Widget _buildEducationalSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.of(context)!.dashboardEduTitle,
-            style: GoogleFonts.montserrat(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildEducationalPoint(
-            icon: Icons.shield_outlined,
-            color: MintColors.retirementAvs,
-            title: S.of(context)!.dashboardEduAvs,
-            text: S.of(context)!.dashboardEduAvsDesc,
-          ),
-          const SizedBox(height: 8),
-          _buildEducationalPoint(
-            icon: Icons.account_balance_outlined,
-            color: MintColors.retirementLpp,
-            title: S.of(context)!.dashboardEduLpp,
-            text: S.of(context)!.dashboardEduLppDesc,
-          ),
-          const SizedBox(height: 8),
-          _buildEducationalPoint(
-            icon: Icons.savings_outlined,
-            color: MintColors.retirement3a,
-            title: S.of(context)!.dashboardEdu3a,
-            text: S.of(context)!.dashboardEdu3aDesc,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEducationalPoint({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String text,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 16, color: color),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                text,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

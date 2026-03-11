@@ -133,7 +133,6 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   // ── Calcul Bulletin scolaire ─────────────────────────────
 
   List<CoverageItem> get _scorecardItems {
-    final act3Income = _acts.last.monthlyIncome;
     // APG/IJM grade
     final ijmGrade = _hasIjm ? 'B+' : 'F';
     final ijmDetail = _hasIjm

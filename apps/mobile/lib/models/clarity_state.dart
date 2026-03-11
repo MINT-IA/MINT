@@ -222,14 +222,15 @@ class ClarityState {
           (answers['q_net_income_period_chf'] as num?)?.toDouble();
       if (periodIncome != null) {
         final freq = answers['q_pay_frequency'];
-        if (freq == 'monthly')
+        if (freq == 'monthly') {
           income = periodIncome;
-        else if (freq == 'weekly')
+        } else if (freq == 'weekly') {
           income = periodIncome * 4.33;
-        else if (freq == 'biweekly')
+        } else if (freq == 'biweekly') {
           income = periodIncome * 2.16;
-        else
+        } else {
           income = periodIncome;
+        }
       }
     }
 
@@ -489,7 +490,7 @@ class ClarityProgressHeader extends StatelessWidget {
                 color: MintColors.greenBgLight,
                 borderRadius: BorderRadius.circular(8),
                 border:
-                    Border.all(color: MintColors.stressScenario.withOpacity(0.3)),
+                    Border.all(color: MintColors.stressScenario.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [

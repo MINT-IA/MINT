@@ -2148,8 +2148,8 @@ class CoachProfile {
         'prevoyance.anneesContribuees': baseTimestamp,
       if (prevoyance.renteAVSEstimeeMensuelle != null)
         'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
-      if (prevoyance.tauxConversion != null)
-        'prevoyance.tauxConversion': baseTimestamp,
+      // tauxConversion is always set (non-null double with default)
+      'prevoyance.tauxConversion': baseTimestamp,
       'patrimoine.epargneLiquide': baseTimestamp,
       if (patrimoine.investissements > 0)
         'patrimoine.investissements': baseTimestamp,

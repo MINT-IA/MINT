@@ -391,7 +391,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     // 13ème salaire (si > 12 mois)
     if (p.nombreDeMois > 12) {
-      final treizieme = (p.salaireBrutMensuel ?? 0) * (p.nombreDeMois - 12);
+      final treizieme = p.salaireBrutMensuel * (p.nombreDeMois - 12);
       lines.add(FinancialLine(
         label: p.nombreDeMois == 13
             ? l10n.financialSummary13emeSalaire
@@ -402,7 +402,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     // Bonus (si déclaré)
     if (p.bonusPourcentage != null && p.bonusPourcentage! > 0) {
-      final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
+      final base = p.salaireBrutMensuel * p.nombreDeMois;
       final bonus = base * p.bonusPourcentage! / 100;
       lines.add(FinancialLine(
         label: l10n.financialSummaryBonusEstime(formatPct(p.bonusPourcentage!)),
@@ -492,9 +492,9 @@ class FinancialSummaryScreen extends StatelessWidget {
     // 13ème / bonus info
     if (p.nombreDeMois > 12 || (p.bonusPourcentage ?? 0) > 0) {
       final treizieme = p.nombreDeMois > 12
-          ? (p.salaireBrutMensuel ?? 0) * (p.nombreDeMois - 12)
+          ? p.salaireBrutMensuel * (p.nombreDeMois - 12)
           : 0.0;
-      final base = (p.salaireBrutMensuel ?? 0) * p.nombreDeMois;
+      final base = p.salaireBrutMensuel * p.nombreDeMois;
       final bonus = (p.bonusPourcentage ?? 0) > 0
           ? base * p.bonusPourcentage! / 100
           : 0.0;

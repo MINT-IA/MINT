@@ -111,8 +111,8 @@ class _PulseScreenState extends State<PulseScreen> {
     _computeTemporalItems(profile);
 
     // ── Generate response cards (synchronous) ─────────────
-    _responseCards = ResponseCardService.generate(
-      profile: profile,
+    _responseCards = ResponseCardService.generateForPulse(
+      profile,
       limit: 4,
     );
 
@@ -397,7 +397,7 @@ class _PulseScreenState extends State<PulseScreen> {
     // Patrimoine total
     final patrimoine = profile.patrimoine.totalPatrimoine +
         (profile.prevoyance.avoirLppTotal ?? 0) +
-        (profile.prevoyance.totalEpargne3a ?? 0);
+        profile.prevoyance.totalEpargne3a;
 
     return Row(
       children: [
@@ -504,7 +504,7 @@ class _PulseScreenState extends State<PulseScreen> {
                   if (coupleRevenu != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      l.pulseCoupleRetraite(coupleRevenu!),
+                      l.pulseCoupleRetraite(coupleRevenu),
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: MintColors.textSecondary,

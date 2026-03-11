@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Unit tests for _SparklinePainter logic and _ScoreSparkline widget.
@@ -51,7 +50,6 @@ void main() {
     });
 
     test('Y coordinate normalization', () {
-      final scores = [40.0, 60.0, 80.0];
       final minScore = 40.0;
       final range = 40.0;
       const height = 28.0;

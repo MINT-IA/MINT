@@ -77,7 +77,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
     final canton = profile.canton.isNotEmpty ? profile.canton : 'VD';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final patrimoine = profile.patrimoine;
-    final capital = patrimoine?.epargneLiquide ?? 0;
+    final capital = patrimoine.epargneLiquide;
 
     setState(() {
       _canton = canton;

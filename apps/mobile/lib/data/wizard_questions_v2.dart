@@ -51,13 +51,13 @@ class WizardQuestionsV2 {
               'Permis C/Suisse = déclaration ordinaire.',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(
+            QuestionOption(
                 label: 'Nationalité suisse', value: 'swiss', icon: 'flag'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Permis C (établissement)', value: 'permit_c', icon: 'verified'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Permis B (séjour)', value: 'permit_b', icon: 'badge'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Permis G (frontalier)', value: 'permit_g', icon: 'commute'),
           ],
           tags: ['profil'],
@@ -71,17 +71,17 @@ class WizardQuestionsV2 {
               'Concubinage = ZERO avantage legal (pas de solidarite, pas de succession, pas de rente survivant).',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(
+            QuestionOption(
                 label: 'Célibataire', value: 'single', icon: 'person'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Concubinage', value: 'cohabiting', icon: 'group'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Marié(e)', value: 'married', icon: 'favorite'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Divorcé(e)', value: 'divorced', icon: 'person_remove'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Veuf/Veuve', value: 'widowed', icon: 'sentiment_very_dissatisfied'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Partenariat enregistré', value: 'registered_partner', icon: 'diversity_1'),
           ],
           tags: ['profil'],
@@ -93,10 +93,10 @@ class WizardQuestionsV2 {
           subtitle: 'Chaque enfant = déduction fiscale ~6\'500-9\'000 CHF',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Aucun', value: '0'),
-            const QuestionOption(label: '1 enfant', value: '1'),
-            const QuestionOption(label: '2 enfants', value: '2'),
-            const QuestionOption(label: '3 enfants ou plus', value: '3'),
+            QuestionOption(label: 'Aucun', value: '0'),
+            QuestionOption(label: '1 enfant', value: '1'),
+            QuestionOption(label: '2 enfants', value: '2'),
+            QuestionOption(label: '3 enfants ou plus', value: '3'),
           ],
           tags: ['profil'],
         ),
@@ -108,19 +108,19 @@ class WizardQuestionsV2 {
               'Salarié = LPP obligatoire + 3a max 7\'258 CHF\nIndépendant = Pas de LPP + 3a max 36\'288 CHF',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(
+            QuestionOption(
                 label: 'Salarié(e)', value: 'employee', icon: 'work'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Indépendant(e)',
                 value: 'self_employed',
                 icon: 'business'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Étudiant(e)',
                 value: 'student',
                 icon: 'school'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Sans emploi', value: 'unemployed', icon: 'person_off'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Retraité(e)', value: 'retired', icon: 'elderly'),
           ],
           tags: ['profil'],
@@ -176,10 +176,10 @@ class WizardQuestionsV2 {
           subtitle: 'Ton type de logement',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Locataire', value: 'renter', icon: 'home'),
-            const QuestionOption(
+            QuestionOption(label: 'Locataire', value: 'renter', icon: 'home'),
+            QuestionOption(
                 label: 'Propriétaire', value: 'owner', icon: 'house'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Chez famille/parents',
                 value: 'family',
                 icon: 'family_restroom'),
@@ -203,8 +203,8 @@ class WizardQuestionsV2 {
               'Crédit, leasing voiture/meubles (hors hypothèque)\n⚠️ Priorité : Rembourser avant d\'investir !',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Non', value: 'no', icon: 'check_circle'),
-            const QuestionOption(label: 'Oui', value: 'yes', icon: 'warning'),
+            QuestionOption(label: 'Non', value: 'no', icon: 'check_circle'),
+            QuestionOption(label: 'Oui', value: 'yes', icon: 'warning'),
           ],
           tags: ['budget', 'debt'],
         ),
@@ -241,12 +241,12 @@ class WizardQuestionsV2 {
               'Franchise basse (300 CHF) = primes hautes mais protection maximale.',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'CHF 300 (minimum)', value: '300'),
-            const QuestionOption(label: 'CHF 500', value: '500'),
-            const QuestionOption(label: 'CHF 1\'000', value: '1000'),
-            const QuestionOption(label: 'CHF 1\'500', value: '1500'),
-            const QuestionOption(label: 'CHF 2\'000', value: '2000'),
-            const QuestionOption(label: 'CHF 2\'500 (maximum)', value: '2500'),
+            QuestionOption(label: 'CHF 300 (minimum)', value: '300'),
+            QuestionOption(label: 'CHF 500', value: '500'),
+            QuestionOption(label: 'CHF 1\'000', value: '1000'),
+            QuestionOption(label: 'CHF 1\'500', value: '1500'),
+            QuestionOption(label: 'CHF 2\'000', value: '2000'),
+            QuestionOption(label: 'CHF 2\'500 (maximum)', value: '2500'),
           ],
           tags: ['budget', 'lamal'],
         ),

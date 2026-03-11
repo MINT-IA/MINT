@@ -1,4 +1,3 @@
-import 'dart:math' show min, sqrt, pow;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
 
@@ -336,8 +335,6 @@ void main() {
         'R': result.retraite,
         'S': result.risque,
       };
-      final weakest = components.entries
-          .reduce((a, b) => a.value <= b.value ? a : b);
       // F should be low because no 3a contributions
       expect(result.fiscalite, lessThan(result.liquidite));
     });
