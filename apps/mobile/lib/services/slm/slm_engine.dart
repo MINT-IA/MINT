@@ -217,6 +217,13 @@ class SlmEngine {
       return false;
     }
 
+    // Guard: if dispose() was called concurrently during the capability check,
+    // abort init to avoid leaving the engine in an inconsistent state.
+    if (_disposed) {
+      debugPrint('[SLM] Init aborted — dispose() called concurrently');
+      return false;
+    }
+
     // Use flutter_gemma's native check instead of SharedPreferences path.
     bool isInstalled;
     try {
@@ -226,6 +233,14 @@ class SlmEngine {
       // Don't persist error — allow retry on next call.
       return false;
     }
+
+    // Guard again after async gap — dispose() could have been called while
+    // we awaited the model check above.
+    if (_disposed) {
+      debugPrint('[SLM] Init aborted — dispose() called during model check');
+      return false;
+    }
+
     if (!isInstalled) {
       _status = SlmStatus.notDownloaded;
       return false;
@@ -241,6 +256,14 @@ class SlmEngine {
         preferredBackend: PreferredBackend.gpu,
       );
 
+      // Final disposed check after async model creation.
+      if (_disposed) {
+        debugPrint('[SLM] Init aborted — dispose() called during model creation');
+        await _model?.close();
+        _model = null;
+        return false;
+      }
+
       _status = SlmStatus.running;
       debugPrint('[SLM] Engine initialized: $modelId (GPU preferred)');
       return true;
@@ -252,6 +275,14 @@ class SlmEngine {
           maxTokens: maxContextTokens,
           preferredBackend: PreferredBackend.cpu,
         );
+
+        if (_disposed) {
+          debugPrint('[SLM] Init aborted — dispose() called during CPU fallback');
+          await _model?.close();
+          _model = null;
+          return false;
+        }
+
         _status = SlmStatus.running;
         debugPrint('[SLM] Engine initialized: $modelId (CPU fallback)');
         return true;

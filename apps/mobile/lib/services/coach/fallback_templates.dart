@@ -152,41 +152,41 @@ class FallbackTemplates {
     final name = ctx.firstName;
     return switch (blockType) {
       'lpp' =>
-        '$name, connais-tu ton avoir LPP actuel? '
-        'Ton certificat de prevoyance (2e pilier) indique le montant exact. '
-        'Avec ton salaire et ton age, l\'estimation pourrait varier '
-        'significativement du reel. Un scan du certificat affinerait '
+        '$name, connais-tu ton avoir LPP actuel ? '
+        'Ton certificat de prévoyance (2e pilier) indique le montant exact. '
+        'Avec ton salaire et ton âge, l\'estimation pourrait varier '
+        'significativement du réel. Un scan du certificat affinerait '
         'tes projections de +18 points de confiance.',
       'avs' =>
-        '$name, as-tu deja demande ton extrait de compte AVS? '
-        'Il confirme tes annees de cotisation effectives. '
-        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrie, des lacunes sont probables. ' : ''}'
+        '$name, as-tu déjà demandé ton extrait de compte AVS ? '
+        'Il confirme tes années de cotisation effectives. '
+        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrié, des lacunes sont probables. ' : ''}'
         'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
       '3a' =>
-        '$name, combien de comptes 3a as-tu et chez quel provider? '
-        'Connaitre les soldes exacts permet de calculer ton avantage fiscal '
-        'et de projeter ta prevoyance complete.',
+        '$name, combien de comptes 3a as-tu et chez quel provider ? '
+        'Connaître les soldes exacts permet de calculer ton avantage fiscal '
+        'et de projeter ta prévoyance complète.',
       'patrimoine' =>
-        '$name, as-tu de l\'epargne en dehors de la prevoyance? '
-        'Comptes courants, investissements, immobilier — ces donnees '
-        'completent ton Financial Resilience Index.',
+        '$name, as-tu de l\'épargne en dehors de la prévoyance ? '
+        'Comptes courants, investissements, immobilier — ces données '
+        'complètent ton Financial Resilience Index.',
       'fiscalite' =>
-        '$name, dans quelle commune habites-tu? '
-        'Le coefficient communal varie de 60% a 130% et impacte '
-        'directement ton taux d\'imposition reel. '
-        'Une declaration fiscale ou un avis de taxation donnerait un calcul precis.',
+        '$name, dans quelle commune habites-tu ? '
+        'Le coefficient communal varie de 60% à 130% et impacte '
+        'directement ton taux d\'imposition réel. '
+        'Une déclaration fiscale ou un avis de taxation donnerait un calcul précis.',
       'objectifRetraite' =>
-        '$name, a quel age souhaiterais-tu arreter de travailler? '
-        'Entre 58 et 70 ans, chaque annee change la donne : '
-        'rente reduite avant 65 ans, majoree apres.',
+        '$name, à quel âge souhaiterais-tu arrêter de travailler ? '
+        'Entre 58 et 70 ans, chaque année change la donne : '
+        'rente réduite avant 65 ans, majorée après.',
       'compositionMenage' =>
-        '$name, es-tu en couple? '
+        '$name, es-tu en couple ? '
         'Si oui, les projections changent significativement : '
-        'AVS plafonnee pour les maries, rente de survivant LPP, '
-        'et possibilites d\'optimisation fiscale a deux.',
+        'AVS plafonnée pour les mariés, rente de survivant LPP, '
+        'et possibilités d\'optimisation fiscale à deux.',
       _ =>
-        '$name, continue a enrichir ton profil. '
-        'Chaque donnee ajoutee ameliore la precision de tes projections.',
+        '$name, continue à enrichir ton profil. '
+        'Chaque donnée ajoutée améliore la précision de tes projections.',
     };
   }
 
@@ -257,7 +257,7 @@ class FallbackTemplates {
         'ou d\'une période sans activité, ton avoir LPP est '
         'transféré sur un compte de libre passage (LFLP art. 4). '
         'Tu peux choisir entre une fondation de libre passage '
-        '(capital garanti) ou un compte bancaire avec options '
+        '(capital préservé) ou un compte bancaire avec options '
         'de placement. '
         'Un retrait anticipé (EPL) pourrait être possible pour '
         'l\'achat d\'un logement, le passage à l\'indépendance '

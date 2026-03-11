@@ -5,7 +5,7 @@
 ///   - Chat responses (BYOK / mock fallback)
 ///
 /// Priority chain (privacy-first):
-///   1. SLM on-device (Gemma 3n) — timeout 10s, zero network, privacy total
+///   1. SLM on-device (Gemma 3n) — timeout 30s, zero network, privacy total
 ///   2. BYOK cloud LLM            — timeout 30s, user opt-in, RAG-grounded
 ///   3. FallbackTemplates         — always available, zero LLM dependency
 ///
@@ -117,7 +117,7 @@ class CoachOrchestrator {
   /// [componentType] selects the prompt template and word limit.
   /// [byokConfig] is optional; if null or has no key, BYOK is skipped.
   ///
-  /// Fallback chain: SLM (10s) → BYOK (30s) → FallbackTemplates.
+  /// Fallback chain: SLM (30s) → BYOK (30s) → FallbackTemplates.
   /// ComplianceGuard applied on each tier's output.
   static Future<OrchestratorOutput> generateNarrativeComponent({
     required ComponentType componentType,
@@ -160,7 +160,7 @@ class CoachOrchestrator {
 
   /// Generate a chat response.
   ///
-  /// Chat surface fallback chain: SLM (10s) → BYOK (30s) → mock template.
+  /// Chat surface fallback chain: SLM (30s) → BYOK (30s) → mock template.
   /// ComplianceGuard applied centrally on all outputs.
   static Future<CoachResponse> generateChat({
     required String userMessage,
@@ -511,6 +511,8 @@ class CoachOrchestrator {
   }
 
   /// Safe chat fallback — honest message when no LLM is available.
+  // TODO(i18n): migrate hardcoded FR strings to S.of(context) — needs
+  // context parameter or a static localisation accessor (Phase 1.3).
   static CoachResponse _chatFallback() {
     return CoachResponse(
       message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'
@@ -634,6 +636,10 @@ class CoachOrchestrator {
   }
 
   /// Get the appropriate FallbackTemplate for a component type.
+  ///
+  /// For [ComponentType.tip], selects a context-aware template based on the
+  /// user's archetype and life situation. Falls back to the generic
+  /// [FallbackTemplates.tipNarrative] when no specialized template matches.
   static String _fallbackForComponent(
     ComponentType type,
     CoachContext ctx,
@@ -644,7 +650,7 @@ class CoachOrchestrator {
       case ComponentType.scoreSummary:
         return FallbackTemplates.scoreSummary(ctx);
       case ComponentType.tip:
-        return FallbackTemplates.tipNarrative(ctx);
+        return _contextualTip(ctx);
       case ComponentType.chiffreChoc:
         return FallbackTemplates.chiffreChocReframe(ctx);
       case ComponentType.enrichmentGuide:
@@ -653,6 +659,42 @@ class CoachOrchestrator {
       case ComponentType.general:
         return FallbackTemplates.scoreSummary(ctx);
     }
+  }
+
+  /// Select the most relevant tip template based on user context.
+  ///
+  /// Priority:
+  ///   1. FATCA guidance for expat_us archetype
+  ///   2. Disability bridge for users < 55 with no disability data
+  ///   3. Libre passage for users in job transition
+  ///   4. Succession planning for users > 50
+  ///   5. Generic tip narrative (default)
+  static String _contextualTip(CoachContext ctx) {
+    // FATCA: highest priority for US taxpayers (complex obligations)
+    if (ctx.archetype == 'expat_us') {
+      return FallbackTemplates.fatcaGuidance(ctx);
+    }
+
+    // Disability: flag coverage gaps for working-age users
+    final hasDisabilityData =
+        ctx.dataReliability.keys.any((k) => k.contains('invalidit'));
+    if (ctx.age < 55 && !hasDisabilityData) {
+      return FallbackTemplates.disabilityBridge(ctx);
+    }
+
+    // Libre passage: relevant during job transitions
+    final lifeEvent = ctx.knownValues['last_life_event']?.toString() ?? '';
+    if (lifeEvent == 'jobLoss' || lifeEvent == 'newJob') {
+      return FallbackTemplates.librePassageGuide(ctx);
+    }
+
+    // Succession: relevant for 50+ (estate planning horizon)
+    if (ctx.age >= 50) {
+      return FallbackTemplates.successionPlanning(ctx);
+    }
+
+    // Default: generic personalized tip
+    return FallbackTemplates.tipNarrative(ctx);
   }
 
   /// Map [LlmProvider] to the string expected by [RagService].

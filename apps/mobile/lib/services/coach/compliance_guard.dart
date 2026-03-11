@@ -119,7 +119,7 @@ class ComplianceGuard {
     RegExp(r'prends?\s+le\s+capital', caseSensitive: false),
     RegExp(r'investis?\s+dans', caseSensitive: false),
     RegExp(r'priorit[ée]\s+absolue', caseSensitive: false),
-    RegExp(r"c[''\u2018\u2019]est\s+plus\s+important\s+que", caseSensitive: false),
+    RegExp("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", caseSensitive: false),
     RegExp(r'souscris\b', caseSensitive: false),
     RegExp(r'rach[eè]te\b', caseSensitive: false),
     RegExp(r'transf[eè]re\b', caseSensitive: false),
