@@ -514,10 +514,10 @@ class WizardQuestionsV2 {
               'Essentiel pour protéger tes proches, surtout en concubinage.',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
-            const QuestionOption(label: 'Oui, risque pur (décès)', value: 'yes_risk', icon: 'shield'),
-            const QuestionOption(label: 'Oui, mixte (3b)', value: 'yes_3b', icon: 'savings'),
-            const QuestionOption(label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
+            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            QuestionOption(label: 'Oui, risque pur (décès)', value: 'yes_risk', icon: 'shield'),
+            QuestionOption(label: 'Oui, mixte (3b)', value: 'yes_3b', icon: 'savings'),
+            QuestionOption(label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
           ],
           tags: ['patrimoine', 'insurance'],
         ),
@@ -529,10 +529,10 @@ class WizardQuestionsV2 {
               '⚠️ Important : Si rachat LPP + achat immo proche = Incompatible légalement',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Non', value: 'no'),
-            const QuestionOption(
+            QuestionOption(label: 'Non', value: 'no'),
+            QuestionOption(
                 label: 'Oui, achat résidence principale', value: 'yes_main'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Oui, investissement locatif', value: 'yes_rental'),
           ],
           tags: ['patrimoine', 'real_estate'],
@@ -568,25 +568,25 @@ class WizardQuestionsV2 {
           subtitle: 'Ce qui te motive à optimiser ta situation',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(
+            QuestionOption(
                 label: 'Retraite confortable',
                 value: 'retirement',
                 icon: 'beach_access'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Achat immobilier', value: 'real_estate', icon: 'house'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Indépendance financière',
                 value: 'independence',
                 icon: 'flight_takeoff'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Sortir de l\'endettement',
                 value: 'debt_free',
                 icon: 'money_off'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Transmettre un héritage',
                 value: 'inheritance',
                 icon: 'family_restroom'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Voyage/Projet personnel',
                 value: 'project',
                 icon: 'luggage'),
@@ -600,13 +600,13 @@ class WizardQuestionsV2 {
           subtitle: 'Ton niveau de confort avec le risque',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(
+            QuestionOption(
                 label: 'Prudent - Je dors mal si ça baisse de 10%',
                 value: 'conservative'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Équilibré - J\'accepte du risque mesuré',
                 value: 'balanced'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Dynamique - Je vise le long terme',
                 value: 'aggressive'),
           ],

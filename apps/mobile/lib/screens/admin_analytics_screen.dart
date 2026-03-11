@@ -126,7 +126,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     return Column(
       children: [
         const SizedBox(height: 40),
-        Icon(Icons.cloud_off_rounded, size: 48, color: MintColors.textMuted),
+        const Icon(Icons.cloud_off_rounded, size: 48, color: MintColors.textMuted),
         const SizedBox(height: 16),
         Text(
           'Impossible de charger les analytics',
@@ -310,7 +310,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             decoration: BoxDecoration(
               border: isLast
                   ? null
-                  : Border(bottom: BorderSide(color: MintColors.lightBorder)),
+                  : const Border(bottom: BorderSide(color: MintColors.lightBorder)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,7 +410,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             decoration: BoxDecoration(
               border: isLast
                   ? null
-                  : Border(bottom: BorderSide(color: MintColors.lightBorder)),
+                  : const Border(bottom: BorderSide(color: MintColors.lightBorder)),
             ),
             child: Row(
               children: [
