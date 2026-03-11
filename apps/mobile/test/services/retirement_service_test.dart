@@ -32,8 +32,8 @@ void main() {
       expect(r['penaliteOuBonusPct'], 0.0);
       // Rente mensuelle = 2520 (max)
       expect(r['renteMensuelle'] as double, closeTo(2520.0, 1));
-      // Rente annuelle = 30240
-      expect(r['renteAnnuelle'] as double, closeTo(30240.0, 1));
+      // Rente annuelle = 2520 * 13 = 32760 (13th rente since Dec 2026)
+      expect(r['renteAnnuelle'] as double, closeTo(32760.0, 1));
     });
 
     test('anticipation 63 ans — penalite 2 x 6.8% = 13.6%', () {
@@ -107,7 +107,8 @@ void main() {
 
       // Duree = 85 - 65 = 20 ans
       expect(r['dureeEstimeeAns'], 20);
-      expect((r['totalCumule'] as double), closeTo(30240.0 * 20, 1));
+      // renteAnnuelle = 2520 * 13 = 32760 (13th rente)
+      expect((r['totalCumule'] as double), closeTo(32760.0 * 20, 1));
     });
 
     test('anticipation 1 an — penalite 6.8%', () {

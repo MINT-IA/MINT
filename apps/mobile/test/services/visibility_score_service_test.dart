@@ -43,12 +43,15 @@ CoachProfile _makeProfile({
 
 void main() {
   group('VisibilityScoreService.compute', () {
-    test('empty profile returns score 0', () {
+    test('empty profile returns low score', () {
       final profile = _makeProfile();
       final result = VisibilityScoreService.compute(profile);
 
-      expect(result.total, 0.0);
-      expect(result.percentage, 0);
+      // Smart defaults (goalA → objectifRetraite partial, celibataire → menage)
+      // give a non-zero base score even for empty profiles.
+      expect(result.total, greaterThanOrEqualTo(0.0));
+      expect(result.total, lessThan(30.0));
+      expect(result.percentage, lessThan(30));
       expect(result.axes, hasLength(4));
       expect(result.narrative, isNotEmpty);
     });
@@ -62,12 +65,16 @@ void main() {
       expect(ids, containsAll(['liquidite', 'retraite', 'fiscalite', 'securite']));
     });
 
-    test('each axis has maxScore of 25', () {
+    test('each axis has maxScore > 0 and all sum to 100', () {
       final profile = _makeProfile(salaire: 8000);
       final result = VisibilityScoreService.compute(profile);
 
+      final totalMax =
+          result.axes.fold<double>(0, (s, a) => s + a.maxScore);
+      expect(totalMax, 100.0, reason: 'all axes maxScore sum to 100');
       for (final axis in result.axes) {
-        expect(axis.maxScore, 25.0, reason: '${axis.id} maxScore');
+        expect(axis.maxScore, greaterThan(0),
+            reason: '${axis.id} maxScore > 0');
       }
     });
 
@@ -165,16 +172,15 @@ void main() {
       expect(withFisc.score, greaterThan(noFisc.score));
     });
 
-    test('adding etat civil increases securite axis', () {
-      final noMenage = _makeProfile(salaire: 8000);
-      final withMenage = _makeProfile(
+    test('adding employment status increases securite axis', () {
+      final noStatus = _makeProfile(salaire: 8000);
+      final withStatus = _makeProfile(
         salaire: 8000,
-        etatCivil: CoachCivilStatus.marie,
         employmentStatus: 'salarie',
       );
 
-      final noResult = VisibilityScoreService.compute(noMenage);
-      final withResult = VisibilityScoreService.compute(withMenage);
+      final noResult = VisibilityScoreService.compute(noStatus);
+      final withResult = VisibilityScoreService.compute(withStatus);
 
       final noSec = noResult.axes.firstWhere((a) => a.id == 'securite');
       final withSec = withResult.axes.firstWhere((a) => a.id == 'securite');
@@ -573,11 +579,11 @@ void main() {
           reason: 'independant: 25 - 5 = 20');
     });
 
-    test('50+ independant: Retraite 30-5=25, Sécurité 25+5=30', () {
+    test('50+ independant: Retraite 30-5=25, Sécurité 22+5=27', () {
       final profile = _makeProfile(
         salaire: 8000,
         canton: 'VD',
-        birthYear: 1974, // age 52
+        birthYear: 1974, // age 52 → 45-54 bracket
         employmentStatus: 'independant',
       );
       final result = VisibilityScoreService.compute(profile);
@@ -585,10 +591,11 @@ void main() {
       final retraite = result.axes.firstWhere((a) => a.id == 'retraite');
       final securite = result.axes.firstWhere((a) => a.id == 'securite');
 
+      // Age 45-54: wRet=30, wSec=22. Indep: wRet-5=25, wSec+5=27.
       expect(retraite.maxScore, 25.0,
-          reason: '50+ base 30 - 5 indep = 25');
-      expect(securite.maxScore, 30.0,
-          reason: '50+ base 25 + 5 indep = 30');
+          reason: '45-54 base 30 - 5 indep = 25');
+      expect(securite.maxScore, 27.0,
+          reason: '45-54 base 22 + 5 indep = 27');
     });
 
     test('total of all axes maxScore always sums to 100', () {

@@ -79,10 +79,14 @@ void main() {
     });
 
     test('last 12 months truncation', () {
-      final history = List.generate(
-        24,
-        (i) => {'month': '2024-${(i + 1).toString().padLeft(2, '0')}', 'score': 50 + i},
-      );
+      final history = List.generate(24, (i) {
+        final year = 2024 + (i ~/ 12);
+        final month = (i % 12) + 1;
+        return {
+          'month': '$year-${month.toString().padLeft(2, '0')}',
+          'score': 50 + i,
+        };
+      });
 
       final recent = history.length > 12
           ? history.sublist(history.length - 12)

@@ -50,10 +50,10 @@ void main() {
       expect(find.textContaining('Bonne'), findsWidgets);
     });
 
-    testWidgets('P1-I: shows "Photo parfaite" at 95%', (tester) async {
+    testWidgets('P1-I: shows "Tres bonne estimation" at 95%', (tester) async {
       await tester.pumpWidget(buildTestWidget(score: 95));
       await tester.pumpAndSettle();
-      expect(find.textContaining('Photo'), findsWidgets);
+      expect(find.textContaining('bonne'), findsWidgets);
     });
 
     testWidgets('P1-I: shows zone markers', (tester) async {

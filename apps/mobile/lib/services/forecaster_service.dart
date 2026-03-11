@@ -612,7 +612,12 @@ class ForecasterService {
     double conjLppBuybackDone = 0;
 
     // --- Monthly rates ---
-    final lppMonthlyRate = assumptions.lppReturn / 12;
+    // Use profile-specific caisse rate if it differs from default (2%),
+    // otherwise fall back to scenario assumption rate.
+    final profileCaisseRate = profile.prevoyance.rendementCaisse;
+    final effectiveLppRate =
+        (profileCaisseRate != 0.02) ? profileCaisseRate : assumptions.lppReturn;
+    final lppMonthlyRate = effectiveLppRate / 12;
     final threeAMonthlyRate = assumptions.threeAReturn / 12;
     final investMonthlyRate = assumptions.investmentReturn / 12;
     final savingsMonthlyRate = assumptions.savingsReturn / 12;

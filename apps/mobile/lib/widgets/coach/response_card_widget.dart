@@ -244,46 +244,54 @@ class ResponseCardWidget extends StatelessWidget {
     return Row(
       children: [
         // CTA button
-        GestureDetector(
-          onTap: () => context.push(card.cta.route),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            decoration: BoxDecoration(
-              color: MintColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (card.cta.icon != null) ...[
-                  Icon(_ctaIcon, size: 14, color: Colors.white),
-                  const SizedBox(width: 6),
-                ],
-                Text(
-                  card.cta.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+        Flexible(
+          child: GestureDetector(
+            onTap: () => context.push(card.cta.route),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: MintColors.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (card.cta.icon != null) ...[
+                    Icon(_ctaIcon, size: 14, color: Colors.white),
+                    const SizedBox(width: 6),
+                  ],
+                  Flexible(
+                    child: Text(
+                      card.cta.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
 
         // Source reference
         if (card.sources.isNotEmpty)
-          Text(
-            card.sources.join(' · '),
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
+          Flexible(
+            child: Text(
+              card.sources.join(' · '),
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                color: MintColors.textMuted,
+                fontStyle: FontStyle.italic,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
       ],
     );
@@ -347,10 +355,10 @@ class ResponseCardStrip extends StatelessWidget {
 
   /// Estime la hauteur du strip selon le contenu le plus riche.
   static double _estimateCardHeight(List<ResponseCard> cards) {
-    double maxHeight = 220; // base
+    double maxHeight = 310; // base (title + subtitle + chiffre + explanation + footer + padding)
     for (final card in cards) {
-      if (card.alertes.isNotEmpty) maxHeight = maxHeight.clamp(260, 300);
-      if (card.sources.isNotEmpty) maxHeight = maxHeight.clamp(240, 300);
+      if (card.alertes.isNotEmpty) maxHeight = maxHeight.clamp(350, 400);
+      if (card.sources.isNotEmpty) maxHeight = maxHeight.clamp(330, 400);
     }
     return maxHeight;
   }

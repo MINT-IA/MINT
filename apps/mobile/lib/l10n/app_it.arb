@@ -4023,5 +4023,143 @@
   "confidencePromptFreshnessConfirm": "Conferma che questo valore è ancora attuale",
   "confidencePromptAccuracyPrefix": "Conferma: ",
   "confidencePromptAccuracyEstimated": "Inserisci il tuo valore reale",
-  "confidencePromptAccuracyCertificate": "Scansiona il tuo certificato per confermare"
+  "confidencePromptAccuracyCertificate": "Scansiona il tuo certificato per confermare",
+
+  "pulseTitle": "Pulse",
+  "pulseGreeting": "Ciao {name}",
+  "@pulseGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "pulseGreetingCouple": "Ciao {name1} e {name2}",
+  "@pulseGreetingCouple": {
+    "placeholders": {
+      "name1": {"type": "String"},
+      "name2": {"type": "String"}
+    }
+  },
+  "pulseWelcome": "Benvenuto su MINT",
+  "pulseEmptyTitle": "Inizia compilando il tuo profilo!",
+  "pulseEmptySubtitle": "Poche domande bastano per ottenere la tua prima stima di visibilità finanziaria.",
+  "pulseEmptyCtaStart": "Inizia",
+  "pulseVisibilityTitle": "Visibilità finanziaria",
+  "pulsePrioritiesTitle": "Le tue priorità",
+  "pulsePrioritiesSubtitle": "Azioni personalizzate in base al tuo profilo",
+  "pulseComprendreTitle": "Capire",
+  "pulseComprendreSubtitle": "Esplora i tuoi simulatori",
+  "pulseComprendreRenteCapital": "Rendita o capitale?",
+  "pulseComprendreRenteCapitalSub": "Confronta le due opzioni di prelievo",
+  "pulseComprendreRachatLpp": "Simula un riscatto LPP",
+  "pulseComprendreRachatLppSub": "Scopri l'impatto fiscale di un riscatto",
+  "pulseComprendre3a": "Esplora il mio 3a",
+  "pulseComprendre3aSub": "Scopri il tuo risparmio fiscale annuale",
+  "pulseComprendre_budget": "Il mio budget mensile",
+  "pulseComprendre_budgetSub": "Visualizza le tue entrate e uscite",
+  "pulseComprendreAchat": "Comprare un immobile?",
+  "pulseComprendreAchatSub": "Stima la tua capacità di prestito",
+  "pulseDisclaimer": "Strumento educativo. Non costituisce consulenza finanziaria personalizzata. LSFin art.\u00a03",
+  "pulseKeyFigRetraite": "Pensione stimata",
+  "pulseKeyFigRetraitePct": "{pct}\u00a0% del reddito",
+  "@pulseKeyFigRetraitePct": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "pulseKeyFigBudgetLibre": "Budget libero",
+  "pulseKeyFigPatrimoine": "Patrimonio",
+  "pulseCoupleRetraite": "Pensione coppia: {montant}",
+  "@pulseCoupleRetraite": {
+    "placeholders": {
+      "montant": {"type": "String"}
+    }
+  },
+  "pulseCoupleAlertWeak": "Il profilo di {name} è al {score}\u00a0% di visibilità",
+  "@pulseCoupleAlertWeak": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "score": {"type": "String"}
+    }
+  },
+  "pulseAxisLiquidite": "Liquidità",
+  "pulseAxisFiscalite": "Fiscalità",
+  "pulseAxisRetraite": "Pensione",
+  "pulseAxisSecurite": "Sicurezza",
+  "pulseHintAddSalary": "Aggiungi il tuo stipendio per iniziare",
+  "pulseHintAddSavings": "Inserisci i tuoi risparmi e investimenti",
+  "pulseHintLiquiditeComplete": "I tuoi dati di liquidità sono completi",
+  "pulseHintAddAgeCanton": "Indica la tua età e il cantone di residenza",
+  "pulseHintScanTax": "Scansiona la tua dichiarazione fiscale",
+  "pulseHintFiscaliteComplete": "I tuoi dati fiscali sono completi",
+  "pulseHintAddLpp": "Aggiungi il tuo certificato LPP",
+  "pulseHintExtractAvs": "Richiedi il tuo estratto AVS",
+  "pulseHintAdd3a": "Inserisci i tuoi conti 3a",
+  "pulseHintRetraiteComplete": "I tuoi dati pensionistici sono completi",
+  "pulseHintAddFamily": "Indica la tua situazione familiare",
+  "pulseHintAddStatus": "Completa il tuo stato professionale",
+  "pulseHintSecuriteComplete": "I tuoi dati di sicurezza sono completi",
+  "pulseNarrativeExcellent": "Hai una visione chiara della tua situazione. Continua a mantenere i dati aggiornati.",
+  "pulseNarrativeGood": "Buona visibilità! Affina la tua {axis} per andare oltre.",
+  "@pulseNarrativeGood": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeModerate": "Inizi a vederci più chiaro. Concentrati sulla tua {axis}.",
+  "@pulseNarrativeModerate": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+  "pulseNarrativeWeak": "Ogni informazione conta. Inizia con {hint}.",
+  "@pulseNarrativeWeak": {
+    "placeholders": {
+      "hint": {"type": "String"}
+    }
+  },
+  "pulseNoCheckinMsg": "Nessun check-in questo mese. Registra i tuoi versamenti per seguire i tuoi progressi.",
+  "pulseCheckinBtn": "Check-in",
+  "pulseBriefingTitle": "Bilancio del mese \u2014 {trend}",
+  "@pulseBriefingTitle": {
+    "placeholders": {
+      "trend": {"type": "String"}
+    }
+  },
+  "pulseFriLiquidite": "Liquidità",
+  "pulseFriFiscalite": "Ottimizzazione fiscale",
+  "pulseFriRetraite": "Pensione",
+  "pulseFriRisque": "Rischi strutturali",
+  "pulseFriTitle": "Solidità finanziaria",
+  "pulseFriWeakest": "Punto più fragile: {axis}",
+  "@pulseFriWeakest": {
+    "placeholders": {
+      "axis": {"type": "String"}
+    }
+  },
+
+  "lppBuybackAdvTitle": "Ottimizzazione riscatto LPP",
+  "lppBuybackAdvSubtitle": "Leva fiscale + effetto capitalizzazione",
+  "lppBuybackAdvPotential": "Potenziale di riscatto",
+  "lppBuybackAdvYears": "Anni fino al pensionamento",
+  "lppBuybackAdvStaggering": "Scaglionamento",
+  "lppBuybackAdvFundRate": "Tasso della cassa LPP",
+  "lppBuybackAdvIncome": "Reddito imponibile",
+  "lppBuybackAdvFinalCapital": "Valore finale capitalizzato",
+  "lppBuybackAdvRealReturn": "Rendimento reale: {pct}\u00a0% / anno",
+  "@lppBuybackAdvRealReturn": {
+    "placeholders": {
+      "pct": {"type": "String"}
+    }
+  },
+  "lppBuybackAdvTaxSaving": "Risparmio fiscale",
+  "lppBuybackAdvNetEffort": "Sforzo netto",
+  "lppBuybackAdvTotalGain": "Guadagno totale dell'operazione",
+  "lppBuybackAdvCapitalMinusEffort": "Capitale - Sforzo netto",
+  "lppBuybackAdvFundRateLabel": "Tasso LPP applicato",
+  "lppBuybackAdvLeverageEffect": "Effetto leva fiscale",
+  "lppBuybackAdvBonASavoir": "Buono a sapersi",
+  "lppBuybackAdvBon1": "Il riscatto LPP è uno dei pochi strumenti di pianificazione fiscale accessibili a tutti i dipendenti in Svizzera.",
+  "lppBuybackAdvBon2": "Ogni franco riscattato è deducibile dal reddito imponibile (LIFD art.\u00a033 cpv.\u00a01 lett.\u00a0d).",
+  "lppBuybackAdvBon3": "Attenzione: ogni prelievo EPL è bloccato per 3 anni dopo un riscatto (LPP art.\u00a079b cpv.\u00a03).",
+  "lppBuybackAdvDisclaimer": "Simulazione che include gli interessi della cassa e il risparmio fiscale livellato. Il rendimento reale è calcolato sul tuo sforzo netto effettivo."
 }

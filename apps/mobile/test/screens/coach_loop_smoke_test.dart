@@ -132,6 +132,16 @@ void main() {
   //  COACH CHAT SCREEN SMOKE TESTS
   // ═══════════════════════════════════════════════════════════════
 
+  /// Helper: use phone viewport for chat tests with ResponseCardStrip.
+  void usePhoneViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  }
+
   group('CoachChatScreen', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
@@ -145,6 +155,7 @@ void main() {
     });
 
     testWidgets('renders with full profile', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -154,6 +165,7 @@ void main() {
     });
 
     testWidgets('shows greeting message', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -167,6 +179,7 @@ void main() {
     });
 
     testWidgets('shows input bar with hint text', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -180,6 +193,7 @@ void main() {
     });
 
     testWidgets('shows send button', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -189,6 +203,7 @@ void main() {
     });
 
     testWidgets('shows Coach MINT app bar title', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -207,6 +222,7 @@ void main() {
     });
 
     testWidgets('shows disclaimer banner', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -219,6 +235,7 @@ void main() {
     });
 
     testWidgets('shows settings icon when BYOK not configured', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );
@@ -233,6 +250,7 @@ void main() {
     });
 
     testWidgets('shows suggested action chips in greeting', (tester) async {
+      usePhoneViewport(tester);
       await tester.pumpWidget(
         buildWithProfile(const CoachChatScreen()),
       );

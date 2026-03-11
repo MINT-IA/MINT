@@ -74,8 +74,8 @@ void main() {
 
     test('AVS rente couple is capped at 150%', () {
       final avs = result.base.decomposition['avs']!;
-      // Max couple annual: 3780 * 12 = 45360
-      expect(avs, lessThanOrEqualTo(45360));
+      // Max couple annual: 3780 * 13 = 49140 (13th rente since Dec 2026)
+      expect(avs, lessThanOrEqualTo(49140));
       expect(avs, greaterThan(0));
     });
 

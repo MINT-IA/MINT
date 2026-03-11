@@ -898,20 +898,20 @@ void main() {
       }
     });
 
-    test('stress_patrimoine filters to prevoyance + budget', () {
+    test('stress_patrimoine filters to prevoyance + fiscalite + budget', () {
       final filtered =
           CoachingService.filterByStressType(allTips, 'stress_patrimoine');
       for (final tip in filtered) {
-        expect(['prevoyance', 'budget'], contains(tip.category));
+        expect(['prevoyance', 'fiscalite', 'budget'], contains(tip.category));
       }
     });
 
-    test('stress_couple filters to retraite + prevoyance + fiscalite', () {
+    test('stress_couple filters to retraite + prevoyance + fiscalite + budget', () {
       final filtered =
           CoachingService.filterByStressType(allTips, 'stress_couple');
       for (final tip in filtered) {
         expect(
-            ['retraite', 'prevoyance', 'fiscalite'], contains(tip.category));
+            ['retraite', 'prevoyance', 'fiscalite', 'budget'], contains(tip.category));
       }
     });
 

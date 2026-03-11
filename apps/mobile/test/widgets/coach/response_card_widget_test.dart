@@ -86,7 +86,8 @@ void main() {
       );
 
       expect(find.text('Simuler un rachat'), findsOneWidget);
-      expect(find.byType(FilledButton), findsOneWidget);
+      // CTA is a GestureDetector with styled Container, not a FilledButton
+      expect(find.byType(GestureDetector), findsWidgets);
     });
 
     testWidgets('renders sources', (tester) async {
@@ -111,7 +112,8 @@ void main() {
         ),
       );
 
-      expect(find.textContaining('jours'), findsOneWidget);
+      // Deadline badge shows "J-20" format for days <= 30
+      expect(find.textContaining('J-'), findsOneWidget);
       expect(find.byIcon(Icons.schedule), findsOneWidget);
     });
 

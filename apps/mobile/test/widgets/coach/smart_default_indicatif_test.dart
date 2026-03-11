@@ -9,6 +9,16 @@ Widget _wrap(Widget child) {
   );
 }
 
+/// Sets test viewport to phone size to avoid bottom sheet overflow.
+void _usePhoneViewport(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1080, 1920);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+}
+
 void main() {
   // ════════════════════════════════════════════════════════════
   //  SMART DEFAULT INDICATOR
@@ -50,6 +60,7 @@ void main() {
 
     testWidgets('Preciser button visible when onPrecise provided',
         (tester) async {
+      _usePhoneViewport(tester);
       bool tapped = false;
       await tester.pumpWidget(_wrap(
         SmartDefaultIndicator(
@@ -64,7 +75,10 @@ void main() {
 
       expect(find.text('Preciser ce chiffre'), findsOneWidget);
       await tester.tap(find.text('Preciser ce chiffre'));
-      await tester.pumpAndSettle();
+      // Use pump() instead of pumpAndSettle() to avoid deactivated widget
+      // ancestor lookup during bottom sheet dismiss animation.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(tapped, isTrue);
     });
 

@@ -430,11 +430,12 @@ void main() {
       ]));
     });
 
-    test('total maxScore sums to 100', () {
+    test('total maxScore sums to 115 (100 core + 15 fiscalite)', () {
       final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
       final blocs = ConfidenceScorer.scoreAsBlocs(profile);
       final totalMax = blocs.values.fold(0.0, (s, b) => s + b.maxScore);
-      expect(totalMax, 100.0);
+      // 100 pts for core blocs + 15 pts for fiscalite virtual bloc
+      expect(totalMax, 115.0);
     });
 
     test('score <= maxScore for all blocs', () {

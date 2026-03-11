@@ -104,7 +104,7 @@ void main() {
       expect(card.daysUntilDeadline, isNull);
     });
 
-    test('deadlineBadge shows days when < 30', () {
+    test('deadlineBadge shows J-N format when < 30', () {
       final card = ResponseCard(
         id: 'test',
         type: ResponseCardType.pillar3a,
@@ -116,8 +116,10 @@ void main() {
         deadline: DateTime.now().add(const Duration(days: 15)),
         disclaimer: 'test',
       );
-      expect(card.deadlineBadge, contains('15'));
-      expect(card.deadlineBadge, contains('jours'));
+      // Format is now "J-N" (e.g., "J-14" or "J-15" depending on time of day)
+      expect(card.deadlineBadge, startsWith('J-'));
+      expect(card.daysUntilDeadline, greaterThanOrEqualTo(14));
+      expect(card.daysUntilDeadline, lessThanOrEqualTo(15));
     });
 
     test('deadlineBadge shows months when > 30 days', () {
@@ -506,11 +508,13 @@ void main() {
     });
 
     test('independant sees prevoyance prompt', () {
+      // Give avoirLppTotal so 'Simuler un rachat LPP' doesn't take a slot
       final profile = _makeProfile(
         salaire: 6000,
         canton: 'VD',
         birthYear: 1986,
         employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 
@@ -518,11 +522,13 @@ void main() {
     });
 
     test('couple sees coordination prompt', () {
+      // Give avoirLppTotal so 'Simuler un rachat LPP' doesn't take a slot
       final profile = _makeProfile(
         salaire: 8000,
         canton: 'VD',
         birthYear: 1980,
         etatCivil: CoachCivilStatus.marie,
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
       final prompts = ResponseCardService.suggestedPrompts(profile);
 

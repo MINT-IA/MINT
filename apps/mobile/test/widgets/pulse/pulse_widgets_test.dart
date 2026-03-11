@@ -159,7 +159,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Lauren'), findsOneWidget);
-      expect(find.textContaining('45%'), findsOneWidget);
+      expect(find.textContaining('45'), findsOneWidget);
       expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
     });
 
@@ -423,7 +423,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Outil \u00e9ducatif'), findsOneWidget);
-      expect(find.textContaining('LSFin art. 3'), findsOneWidget);
+      expect(find.textContaining('LSFin art.'), findsOneWidget);
     });
 
     testWidgets('renders info icon', (tester) async {

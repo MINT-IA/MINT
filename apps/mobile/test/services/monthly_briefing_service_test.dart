@@ -21,14 +21,21 @@ void main() {
     double loyer = 925,
     double epargneLiquide = 15000,
     ConjointProfile? conjoint,
+    CoachCivilStatus? etatCivil,
     List<MonthlyCheckIn> checkIns = const [],
   }) {
+    // Auto-detect couple status when conjoint is provided
+    final effectiveEtatCivil = etatCivil ??
+        (conjoint != null
+            ? CoachCivilStatus.marie
+            : CoachCivilStatus.celibataire);
     return CoachProfile(
       firstName: 'Julien',
       birthYear: birthYear,
       canton: canton,
       salaireBrutMensuel: salaire,
       employmentStatus: employmentStatus,
+      etatCivil: effectiveEtatCivil,
       conjoint: conjoint,
       patrimoine: PatrimoineProfile(
         epargneLiquide: epargneLiquide,

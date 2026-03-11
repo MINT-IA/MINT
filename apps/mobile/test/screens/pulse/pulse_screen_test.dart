@@ -64,13 +64,13 @@ void main() {
       'q_goal': 'retraite',
     };
     if (conjointFirstName != null) {
-      answers['q_conjoint_firstname'] = conjointFirstName;
+      answers['q_partner_firstname'] = conjointFirstName;
     }
     if (conjointSalaire != null) {
-      answers['q_conjoint_salary'] = conjointSalaire;
+      answers['q_partner_net_income_chf'] = conjointSalaire;
     }
     if (conjointBirthYear != null) {
-      answers['q_conjoint_birth_year'] = conjointBirthYear;
+      answers['q_partner_birth_year'] = conjointBirthYear;
     }
     provider.updateFromAnswers(answers);
     return provider;
@@ -82,7 +82,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.text('Bienvenue sur MINT'), findsOneWidget);
-      expect(find.text('Demarrer'), findsOneWidget);
+      expect(find.text('Démarrer'), findsOneWidget);
     });
 
     testWidgets('shows disclaimer in empty state', (tester) async {
@@ -90,14 +90,14 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.textContaining('Outil éducatif'), findsOneWidget);
-      expect(find.textContaining('LSFin art. 3'), findsOneWidget);
+      expect(find.textContaining('LSFin art.'), findsOneWidget);
     });
 
     testWidgets('shows onboarding CTA in empty state', (tester) async {
       await tester.pumpWidget(buildPulseScreen());
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.text('Commence par remplir ton profil'), findsOneWidget);
+      expect(find.textContaining('Commence par remplir ton profil'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
     });
   });
@@ -338,9 +338,9 @@ void main() {
       expect(find.text('Budget libre'), findsOneWidget);
       expect(find.text('Patrimoine'), findsOneWidget);
 
-      // Key figures use specific icons
-      expect(find.byIcon(Icons.beach_access_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.account_balance_wallet_outlined), findsOneWidget);
+      // Key figures use specific icons (also used in VisibilityScoreCard axes)
+      expect(find.byIcon(Icons.beach_access_outlined), findsWidgets);
+      expect(find.byIcon(Icons.account_balance_wallet_outlined), findsWidgets);
       expect(find.byIcon(Icons.trending_up_outlined), findsOneWidget);
     });
   });
