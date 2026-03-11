@@ -455,7 +455,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.06),
+            color: MintColors.primary.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 6),
             spreadRadius: -4,

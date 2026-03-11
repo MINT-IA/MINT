@@ -271,12 +271,12 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   )!,
                   Color.lerp(
                     Colors.white,
-                    const Color(0xFF1A1A2E),
+                    MintColors.darkNight,
                     _backgroundOpacity.value,
                   )!,
                   Color.lerp(
                     Colors.white,
-                    const Color(0xFF0D1117),
+                    MintColors.darkDeep,
                     _backgroundOpacity.value,
                   )!,
                 ],

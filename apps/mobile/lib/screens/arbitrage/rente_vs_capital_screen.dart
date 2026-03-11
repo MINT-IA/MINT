@@ -1339,7 +1339,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         // Card 1: Fiscalite
         _educationalCard(
           icon: Icons.receipt_long,
-          iconColor: const Color(0xFF6366F1),
+          iconColor: MintColors.pillarLpp,
           title: 'Fiscalité',
           leftTitle: 'Rente',
           leftSubtitle: 'Imposée chaque année',
@@ -1692,7 +1692,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: lowDelta < 0
-                      ? const Color(0xFFEF4444)
+                      ? MintColors.danger
                       : MintColors.success,
                 ),
               ),
@@ -1702,7 +1702,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   fontSize: 11,
                   color: highDelta >= 0
                       ? MintColors.success
-                      : const Color(0xFFEF4444),
+                      : MintColors.danger,
                 ),
               ),
             ],

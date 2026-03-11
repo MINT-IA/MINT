@@ -683,7 +683,7 @@ class _GaugePainter extends CustomPainter {
 
     // Green zone (0-15%)
     final greenPaint = Paint()
-      ..color = const Color(0xFF24B14D).withOpacity(0.3)
+      ..color = MintColors.success.withOpacity(0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16
       ..strokeCap = StrokeCap.round;
@@ -698,7 +698,7 @@ class _GaugePainter extends CustomPainter {
 
     // Orange zone (15-30%)
     final orangePaint = Paint()
-      ..color = const Color(0xFFFF9F0A).withOpacity(0.3)
+      ..color = MintColors.warning.withOpacity(0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 
@@ -712,7 +712,7 @@ class _GaugePainter extends CustomPainter {
 
     // Red zone (30%+)
     final redPaint = Paint()
-      ..color = const Color(0xFFFF453A).withOpacity(0.3)
+      ..color = MintColors.error.withOpacity(0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16;
 

@@ -412,8 +412,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF1D1D1F),
-                Color(0xFF2D2D30),
+                MintColors.primary,
+                MintColors.charcoal,
               ],
             ),
             borderRadius: BorderRadius.circular(20),
