@@ -346,7 +346,8 @@ class TestRetrieverUnit:
         mock_store.query.assert_called_once_with(
             query_text="test",
             n_results=5,
-            language="de",
+            language=None,
+            where_filter={"$and": [{"language": "de"}, {"level": {"$in": [0, 1]}}]},
         )
 
     def test_retrieve_with_full_profile_context(self):
