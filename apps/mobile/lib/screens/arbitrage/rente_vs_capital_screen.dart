@@ -756,7 +756,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle_outline,
+                      const Icon(Icons.check_circle_outline,
                           size: 20, color: MintColors.success),
                       const SizedBox(width: 10),
                       Expanded(
@@ -957,7 +957,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
+          const Icon(Icons.bolt_rounded, size: 20, color: MintColors.info),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1133,7 +1133,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
+                  const Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: RichText(
