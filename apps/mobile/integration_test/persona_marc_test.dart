@@ -54,10 +54,11 @@ void main() {
     // Finish Wizard (Skip rest)
     for (int i = 0; i < 15; i++) {
       if (find.text("Ton Plan Mint").evaluate().isNotEmpty) break;
-      if (find.text("Non").evaluate().isNotEmpty)
+      if (find.text("Non").evaluate().isNotEmpty) {
         await tester.tap(find.text("Non").first);
-      else if (find.text("Suivant").evaluate().isNotEmpty)
+      } else if (find.text("Suivant").evaluate().isNotEmpty) {
         await tester.tap(find.text("Suivant"));
+      }
       await tester.pumpAndSettle();
     }
 

@@ -305,9 +305,9 @@ class WizardQuestionsV2 {
           subtitle: 'Si salarié avec salaire >22k CHF = Oui automatiquement',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
-            const QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
-            const QuestionOption(
+            QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
+            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            QuestionOption(
                 label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
           ],
           tags: ['prevoyance', 'lpp'],
@@ -340,8 +340,8 @@ class WizardQuestionsV2 {
           subtitle: 'C\'est l\'un des outils fiscaux les plus avantageux en Suisse.',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
-            const QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
+            QuestionOption(label: 'Oui', value: 'yes', icon: 'verified'),
+            QuestionOption(label: 'Non', value: 'no', icon: 'cancel'),
           ],
           tags: ['prevoyance', '3a'],
         ),
@@ -353,10 +353,10 @@ class WizardQuestionsV2 {
               '💡 Recommandé : 2-3 comptes pour répartir la fiscalité au retrait',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Aucun', value: '0'),
-            const QuestionOption(label: '1 compte', value: '1'),
-            const QuestionOption(label: '2 comptes', value: '2'),
-            const QuestionOption(label: '3 comptes ou plus', value: '3'),
+            QuestionOption(label: 'Aucun', value: '0'),
+            QuestionOption(label: '1 compte', value: '1'),
+            QuestionOption(label: '2 comptes', value: '2'),
+            QuestionOption(label: '3 comptes ou plus', value: '3'),
           ],
           tags: ['prevoyance', '3a'],
         ),
@@ -384,19 +384,19 @@ class WizardQuestionsV2 {
               'Chaque année manquante = −2.3% de rente à vie.',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(
+            QuestionOption(
                 label: 'Non, j\'ai toujours cotisé en Suisse',
                 value: 'no_gaps',
                 icon: 'verified'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Arrivé·e en Suisse après 20 ans',
                 value: 'arrived_late',
                 icon: 'flight_land'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Période(s) à l\'étranger',
                 value: 'lived_abroad',
                 icon: 'public'),
-            const QuestionOption(
+            QuestionOption(
                 label: 'Je ne sais pas',
                 value: 'unknown',
                 icon: 'help'),
@@ -500,8 +500,8 @@ class WizardQuestionsV2 {
           subtitle: 'Actions, ETF, Crypto, Fonds... (hors 3a et LPP)',
           type: QuestionType.choice,
           options: [
-            const QuestionOption(label: 'Non', value: 'no'),
-            const QuestionOption(label: 'Oui', value: 'yes'),
+            QuestionOption(label: 'Non', value: 'no'),
+            QuestionOption(label: 'Oui', value: 'yes'),
           ],
           tags: ['patrimoine', 'investments'],
         ),
