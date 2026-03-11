@@ -1,22 +1,32 @@
-# MINT Backend — Deploy to Railway
-# Two environments: staging (on PR) + production (on push to main)
+# MINT Backend — Deploy to Railway on PR merge
+#
+# Branch strategy:
+#   - PR merged into staging -> deploy Railway STAGING + smoke tests
+#   - PR merged into main    -> deploy Railway PROD
+#   - PR opened/sync/reopen  -> handled by CI workflow only
 #
 # Required secrets:
-#   RAILWAY_TOKEN          — Railway API token
-#   RAILWAY_SERVICE_ID     — Production service ID
-#   RAILWAY_STAGING_SERVICE_ID — Staging service ID (optional)
+#   PROJECT_STAGING_TOKEN
+#   RAILWAY_TOKEN
+#   RAILWAY_STAGING_SERVICE_ID
+#   RAILWAY_SERVICE_ID  (prod)
+#
+# Optional secrets (recommended for explicit project/env targeting):
+#   RAILWAY_PROJECT_ID
+#   RAILWAY_STAGING_ENVIRONMENT_ID
+#   RAILWAY_PROD_ENVIRONMENT_ID
+#   STAGING_API_URL (or vars.STAGING_API_URL)
 
 name: Deploy Backend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "services/backend/**"
   pull_request:
-    branches: [main]
+    branches: [staging, main]
+    types: [closed]
     paths:
       - "services/backend/**"
+      - ".github/workflows/deploy-backend.yml"
+      - "scripts/smoke_staging_api.sh"
   workflow_dispatch:
 
 concurrency:
@@ -27,12 +37,23 @@ jobs:
   # ─── Tests must pass first ──────────────────────────────────
   test:
     name: Pre-deploy tests
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: services/backend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout merged base branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Checkout branch (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -49,86 +70,157 @@ jobs:
           DATABASE_URL: "sqlite:///./test.db"
         run: python -m pytest tests/ -q --tb=short -x
 
-  # ─── Deploy to staging (on PR) ─────────────────────────────
+  # ─── Deploy STAGING (PR merged to staging only) ─────────────
   deploy-staging:
     name: Deploy to Staging
     needs: test
-    if: github.event_name == 'pull_request'
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'staging') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging')
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: ${{ steps.deploy.outputs.url }}
+      url: ${{ vars.STAGING_API_URL }}
     steps:
-      - name: Check Railway config
+      - name: Validate Railway staging secrets
         env:
-          HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
+          HAS_STAGING_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN != '' }}
+          HAS_STAGING_SERVICE: ${{ secrets.RAILWAY_STAGING_SERVICE_ID != '' }}
+          HAS_STAGING_ENV: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID != '' }}
         run: |
-          if [ "$HAS_TOKEN" != "true" ]; then
-            echo "::notice::Railway secrets not configured yet — skipping deploy"
-            echo "SKIP_DEPLOY=true" >> "$GITHUB_ENV"
-          fi
-
-      - uses: actions/checkout@v4
-        if: env.SKIP_DEPLOY != 'true'
-
-      - name: Install Railway CLI
-        if: env.SKIP_DEPLOY != 'true'
-        run: npm install -g @railway/cli
-
-      - name: Deploy to staging
-        if: env.SKIP_DEPLOY != 'true'
-        id: deploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway up --service ${{ secrets.RAILWAY_STAGING_SERVICE_ID }} --detach
-          echo "Deployed to staging"
-
-  # ─── Deploy to production (on push to main) ────────────────
-  deploy-production:
-    name: Deploy to Production
-    needs: test
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://mint-api.up.railway.app
-    steps:
-      - name: Check Railway config
-        env:
-          HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
-          HAS_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID != '' }}
-        run: |
-          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_SERVICE_ID" != "true" ]; then
-            echo "::error::Missing Railway secrets (RAILWAY_TOKEN and/or RAILWAY_SERVICE_ID). Aborting production deploy."
+          if [ "$HAS_STAGING_TOKEN" != "true" ] || [ "$HAS_STAGING_SERVICE" != "true" ] || [ "$HAS_STAGING_ENV" != "true" ]; then
+            echo "::error::Missing Railway staging secrets (PROJECT_STAGING_TOKEN, RAILWAY_STAGING_SERVICE_ID, RAILWAY_STAGING_ENVIRONMENT_ID)."
             exit 1
           fi
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref_name }}
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy to production
+      - name: Deploy to Railway staging
+        env:
+          RAILWAY_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_STAGING_ENVIRONMENT_ID: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID }}
+        run: |
+          cmd=(railway up --service "${{ secrets.RAILWAY_STAGING_SERVICE_ID }}")
+          if [ -n "$RAILWAY_PROJECT_ID" ]; then
+            cmd+=(--project "$RAILWAY_PROJECT_ID")
+          fi
+          cmd+=(--environment "$RAILWAY_STAGING_ENVIRONMENT_ID")
+
+          echo "Deploy command: ${cmd[*]}"
+          "${cmd[@]}"
+          echo "Deployed to staging"
+
+  # ─── Smoke tests STAGING (after deploy-staging) ─────────────
+  smoke-staging:
+    name: Smoke Staging
+    needs: deploy-staging
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'staging') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run smoke tests on staging API
+        env:
+          STAGING_API_URL_VAR: ${{ vars.STAGING_API_URL }}
+          STAGING_API_URL_SECRET: ${{ secrets.STAGING_API_URL }}
+        run: |
+          set -euo pipefail
+          URL="${STAGING_API_URL_VAR:-$STAGING_API_URL_SECRET}"
+          if [ -z "$URL" ]; then
+            echo "::error::Missing staging URL. Set vars.STAGING_API_URL or secrets.STAGING_API_URL."
+            exit 1
+          fi
+
+          chmod +x scripts/smoke_staging_api.sh
+          scripts/smoke_staging_api.sh "$URL"
+
+  # ─── Deploy PROD (PR merged to main only) ───────────────────
+  deploy-production:
+    name: Deploy to Production
+    needs: test
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'main') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PROD_API_URL }}
+    steps:
+      - name: Validate Railway production secrets
+        env:
+          HAS_TOKEN: ${{ secrets.RAILWAY_TOKEN != '' }}
+          HAS_PROD_SERVICE: ${{ secrets.RAILWAY_SERVICE_ID != '' }}
+          HAS_PROD_ENV: ${{ secrets.RAILWAY_PROD_ENVIRONMENT_ID != '' }}
+        run: |
+          if [ "$HAS_TOKEN" != "true" ] || [ "$HAS_PROD_SERVICE" != "true" ] || [ "$HAS_PROD_ENV" != "true" ]; then
+            echo "::error::Missing Railway production secrets (RAILWAY_TOKEN, RAILWAY_SERVICE_ID, RAILWAY_PROD_ENVIRONMENT_ID)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref_name }}
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway production
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_PROD_ENVIRONMENT_ID: ${{ secrets.RAILWAY_PROD_ENVIRONMENT_ID }}
         run: |
-          railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --detach
+          cmd=(railway up --service "${{ secrets.RAILWAY_SERVICE_ID }}")
+          if [ -n "$RAILWAY_PROJECT_ID" ]; then
+            cmd+=(--project "$RAILWAY_PROJECT_ID")
+          fi
+          cmd+=(--environment "$RAILWAY_PROD_ENVIRONMENT_ID")
+
+          echo "Deploy command: ${cmd[*]}"
+          "${cmd[@]}"
           echo "Deployed to production"
 
       - name: Production healthcheck
         env:
-          HEALTHCHECK_URL: ${{ vars.BACKEND_HEALTHCHECK_URL }}
+          PROD_API_URL: ${{ vars.PROD_API_URL }}
+          PROD_API_URL_SECRET: ${{ secrets.PROD_API_URL }}
         run: |
-          url="${HEALTHCHECK_URL:-https://mint-api.up.railway.app/api/v1/health}"
-          echo "Checking backend health on: $url"
+          set -euo pipefail
+          base_url="${PROD_API_URL:-$PROD_API_URL_SECRET}"
+          base_url="${base_url:-https://api.mint.ch/api/v1}"
+          base_url="${base_url%/}"
+          if [[ "$base_url" == */api/v1 ]]; then
+            health_url="${base_url}/health"
+          else
+            health_url="${base_url}/api/v1/health"
+          fi
+
+          echo "Checking backend health on: $health_url"
           for i in 1 2 3 4 5; do
-            if curl -fsS "$url" >/dev/null; then
+            if curl -fsS --connect-timeout 5 --max-time 15 "$health_url" >/dev/null; then
               echo "Backend healthcheck OK"
               exit 0
             fi
             echo "Healthcheck failed (attempt $i/5), retrying in 10s..."
             sleep 10
           done
-          echo "::error::Backend healthcheck failed after deploy: $url"
+
+          echo "::error::Backend healthcheck failed after deploy: $health_url"
           exit 1

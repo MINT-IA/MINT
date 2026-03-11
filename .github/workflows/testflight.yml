@@ -1,9 +1,13 @@
 # MINT iOS — Build + Upload to TestFlight
-# Triggers: merged PR to main (only if Flutter code changed)
-# Also: manual trigger (workflow_dispatch) for on-demand builds
 #
-# NOTE: Direct pushes to main do NOT trigger this workflow.
-# Use feature branches + PR merge, or workflow_dispatch for manual builds.
+# Two tracks:
+#   - staging: builds from staging branch, points to staging API (internal testing)
+#   - production: builds from main branch, points to production API (beta testers)
+#
+# Manual-only (workflow_dispatch) to save macOS minutes (10x multiplier).
+# Usage:
+#   gh workflow run TestFlight -f environment=staging
+#   gh workflow run TestFlight -f environment=production
 #
 # Required GitHub Secrets:
 #   APP_STORE_CONNECT_API_KEY_ID
@@ -11,7 +15,11 @@
 #   APP_STORE_CONNECT_API_KEY_CONTENT  (base64-encoded .p8 file)
 #   MATCH_GIT_URL                      (private repo for certs)
 #   MATCH_PASSWORD                     (decrypt certs)
-#   API_BASE_URL                       (e.g. https://your-api-domain/api/v1)
+#
+# Required GitHub Vars (per environment):
+#   STAGING_API_URL                    (e.g. https://mint-staging.up.railway.app/api/v1)
+#   PROD_API_URL                       (e.g. https://api.mint.ch/api/v1)
+#
 # Optional:
 #   HUGGINGFACE_TOKEN                  (required for gated Gemma 3n download)
 #   SLM_MODEL_URL                      (custom model URL override)
@@ -19,28 +27,60 @@
 name: TestFlight
 
 on:
-  # REMOVED auto-trigger on PR merge to save macOS minutes (10x multiplier).
-  # TestFlight builds are now manual-only via workflow_dispatch.
-  # This saves ~350 min/build × N merges/month.
-  workflow_dispatch:  # Manual trigger from GitHub UI or CLI: gh workflow run TestFlight
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
 
 concurrency:
-  group: testflight-${{ github.ref }}
+  group: testflight-${{ github.event.inputs.environment }}
   cancel-in-progress: true
 
 jobs:
   build-and-upload:
-    name: Build iOS + Upload TestFlight
-    if: github.event_name == 'workflow_dispatch'
+    name: "Build iOS + Upload TestFlight (${{ github.event.inputs.environment }})"
     runs-on: macos-15
     timeout-minutes: 45
+    environment:
+      name: ${{ github.event.inputs.environment }}
 
     defaults:
       run:
         working-directory: apps/mobile
 
     steps:
+      # ── Resolve API URL + branch from environment input ──
+      - name: Resolve environment config
+        id: env-config
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+            echo "branch=staging" >> "$GITHUB_OUTPUT"
+            echo "api_url=${{ vars.STAGING_API_URL }}" >> "$GITHUB_OUTPUT"
+            echo "env_label=STAGING" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=main" >> "$GITHUB_OUTPUT"
+            echo "api_url=${{ vars.PROD_API_URL }}" >> "$GITHUB_OUTPUT"
+            echo "env_label=PRODUCTION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate API URL
+        run: |
+          API_URL="${{ steps.env-config.outputs.api_url }}"
+          if [ -z "$API_URL" ]; then
+            echo "::error::Missing API URL for ${{ steps.env-config.outputs.env_label }}. Set vars.STAGING_API_URL or vars.PROD_API_URL in GitHub environment settings."
+            exit 1
+          fi
+          echo "Target: ${{ steps.env-config.outputs.env_label }} → $API_URL"
+
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.env-config.outputs.branch }}
 
       # ── Xcode / iOS SDK setup (App Store requirement) ──
       - name: Setup latest stable Xcode
@@ -75,22 +115,11 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
-      - name: Validate backend URL secret
-        env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
-        run: |
-          [[ -n "$API_BASE_URL" ]] || { echo "::error::Missing secret: API_BASE_URL"; exit 1; }
-          echo "API_BASE_URL is configured"
-
       - name: Validate SLM download configuration
         env:
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
-          # App default points to a gated HuggingFace Gemma URL.
-          # To keep model download functional in TestFlight, CI must provide:
-          #   - HUGGINGFACE_TOKEN, or
-          #   - a custom SLM_MODEL_URL (typically public CDN-hosted .task).
           if [[ -z "$HUGGINGFACE_TOKEN" && -z "$SLM_MODEL_URL" ]]; then
             echo "::error::Missing SLM download config: set HUGGINGFACE_TOKEN or SLM_MODEL_URL."
             exit 1
@@ -107,12 +136,11 @@ jobs:
           echo "SLM download configuration is valid"
 
       - name: Backend health precheck
-        env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
-          HEALTH_URL="${API_BASE_URL%/}/health"
-          echo "Checking backend health: $HEALTH_URL"
-          curl -fsS "$HEALTH_URL" >/dev/null || {
+          API_URL="${{ steps.env-config.outputs.api_url }}"
+          HEALTH_URL="${API_URL%/}/health"
+          echo "Checking ${{ steps.env-config.outputs.env_label }} backend health: $HEALTH_URL"
+          curl -fsS --connect-timeout 5 --max-time 15 "$HEALTH_URL" >/dev/null || {
             echo "::error::Backend not reachable on $HEALTH_URL"
             exit 1
           }
@@ -121,10 +149,10 @@ jobs:
       # ── Pre-build Flutter iOS (generates Xcode project + runs pod install) ──
       - name: Flutter build iOS (no codesign)
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
+          API_URL="${{ steps.env-config.outputs.api_url }}"
           EXTRA_DEFINES=""
           if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN"
@@ -132,15 +160,15 @@ jobs:
           if [[ -n "$SLM_MODEL_URL" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
           fi
-          flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_BASE_URL $EXTRA_DEFINES
+          flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
-          defines=("API_BASE_URL=$API_BASE_URL")
+          API_URL="${{ steps.env-config.outputs.api_url }}"
+          defines=("API_BASE_URL=$API_URL")
           if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
             defines+=("HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN")
           fi
@@ -191,7 +219,7 @@ jobs:
           echo "App Store secrets precheck: OK"
 
       # ── Fastlane: sign + upload ──
-      - name: Build & Upload to TestFlight
+      - name: "Build & Upload to TestFlight (${{ steps.env-config.outputs.env_label }})"
         working-directory: apps/mobile/ios
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -208,7 +236,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
           DART_DEFINES: ${{ env.DART_DEFINES }}
           CI: "true"
         run: bundle exec fastlane beta
