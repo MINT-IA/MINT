@@ -191,4 +191,6 @@ class MintColors {
   static const Color redMedium = Color(0xFFD32F2F); // Material red-700
   static const Color greenPastel = Color(0xFF66BB6A); // Green-400
   static const Color orangeFF = Color(0xFFFF9800); // Orange-500
+  static const Color nearBlack = Color(0xFF0A0A0F); // Near-black overlay
+  static const Color blueMaterial900 = Color(0xFF0D47A1); // Blue-900
 }

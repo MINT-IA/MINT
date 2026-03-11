@@ -266,7 +266,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 colors: [
                   Color.lerp(
                     Colors.white,
-                    const Color(0xFF0A0A0F),
+                    MintColors.nearBlack,
                     _backgroundOpacity.value,
                   )!,
                   Color.lerp(
