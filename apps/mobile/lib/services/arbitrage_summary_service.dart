@@ -4,6 +4,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -170,6 +171,21 @@ class ArbitrageSummaryService {
         loyer: loyer,
       );
       if (item != null) items.add(item);
+    }
+
+    // ── 6. Échelonnement couple ──
+    if (profile.isCouple && profile.conjoint != null && lppAvoir > 0) {
+      final conjLpp = profile.conjoint!.prevoyance?.avoirLppTotal ?? 0;
+      if (conjLpp > 0) {
+        final item = _computeCoupleSequencing(
+          profile: profile,
+          canton: canton,
+          isMarried: isMarried,
+          userCapital: lppAvoir,
+          conjointCapital: conjLpp,
+        );
+        if (item != null) items.add(item);
+      }
     }
 
     // Sort by absolute impact descending
@@ -429,6 +445,72 @@ class ArbitrageSummaryService {
       confidenceScore: result.confidenceScore,
       route: '/arbitrage/location-vs-propriete',
       fullResult: result,
+    );
+  }
+
+  static ArbitrageSummaryItem? _computeCoupleSequencing({
+    required CoachProfile profile,
+    required String canton,
+    required bool isMarried,
+    required double userCapital,
+    required double conjointCapital,
+  }) {
+    final result = LppCalculator.compareRetirementSequencing(
+      userCapital: userCapital,
+      conjointCapital: conjointCapital,
+      canton: canton,
+      isMarried: isMarried,
+    );
+
+    if (result.taxSaving < 500) return null;
+
+    final monthlyImpact =
+        result.taxSaving / (profile.anneesAvantRetraite * 12).clamp(1, 999);
+
+    // Build a minimal ArbitrageResult to satisfy the fullResult field
+    final fullResult = ArbitrageResult(
+      options: [
+        TrajectoireOption(
+          id: 'same_year',
+          label: 'Retrait simultané',
+          trajectory: const [],
+          terminalValue: 0,
+          cumulativeTaxImpact: result.taxSameYear,
+        ),
+        TrajectoireOption(
+          id: 'staggered',
+          label: 'Retrait échelonné',
+          trajectory: const [],
+          terminalValue: 0,
+          cumulativeTaxImpact: result.taxStaggered,
+        ),
+      ],
+      breakevenYear: null,
+      chiffreChoc:
+          '${formatChfWithPrefix(result.taxSaving)} d\'impot en moins en echelonnant les retraits',
+      displaySummary: result.recommendation,
+      hypotheses: const [
+        'Taux cantonal applique au capital LPP retire',
+        'Retraits en 2 annees fiscales distinctes',
+      ],
+      disclaimer:
+          'Outil educatif — ne constitue pas un conseil financier au sens de la LSFin.',
+      sources: const ['LIFD art. 38', 'LPP art. 37'],
+      confidenceScore: 60.0,
+      sensitivity: const {},
+    );
+
+    return ArbitrageSummaryItem(
+      id: 'couple_sequencing',
+      title: 'Echelonnement couple',
+      verdict: result.recommendation,
+      keyInsight:
+          'Retirer le capital LPP en 2 annees fiscales distinctes '
+          'reduit la progressivite de l\'impot (LIFD art. 38).',
+      monthlyImpactChf: monthlyImpact,
+      confidenceScore: 60.0,
+      route: '/arbitrage/calendrier-retraits',
+      fullResult: fullResult,
     );
   }
 }

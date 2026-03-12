@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
@@ -85,6 +86,12 @@ class _EplScreenState extends State<EplScreen> {
                 // Impact on benefits
                 if (result.montantSouhaiteApplicable > 0) ...[
                   _buildImpactSection(result),
+                  const SizedBox(height: 24),
+                ],
+
+                // Impact on retirement rente
+                if (result.montantSouhaiteApplicable > 0) ...[
+                  _buildRenteImpactSection(result),
                   const SizedBox(height: 24),
                 ],
 
@@ -490,6 +497,77 @@ class _EplScreenState extends State<EplScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRenteImpactSection(EplResult result) {
+    final eplImpact = LppCalculator.computeEplImpact(
+      currentBalance: _avoirTotal,
+      eplAmount: result.montantSouhaiteApplicable,
+      eplRepaid: 0,
+      currentAge: _age,
+      retirementAge: 65,
+      grossAnnualSalary: 100000,
+      caisseReturn: 0.02,
+      conversionRate: 0.068,
+    );
+
+    final renteWithout = eplImpact.renteWithoutEpl / 12;
+    final renteWith = eplImpact.renteWithEplOutstanding / 12;
+    final perteMensuelle = eplImpact.monthlyGapFromEpl;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.orange.shade50, Colors.amber.shade50],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'IMPACT SUR LA RENTE',
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.orange.shade700,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildResultRow(
+            'Rente sans EPL',
+            'CHF ${formatChf(renteWithout)}/mois',
+          ),
+          const Divider(height: 20),
+          _buildResultRow(
+            'Rente avec EPL',
+            'CHF ${formatChf(renteWith)}/mois',
+            color: Colors.orange.shade700,
+          ),
+          const Divider(height: 20),
+          _buildResultRow(
+            'Perte mensuelle',
+            '-CHF ${formatChf(perteMensuelle)}/mois',
+            isBold: true,
+            color: Colors.red.shade700,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Estimation éducative basée sur un salaire de CHF 100\'000, '
+            'rendement caisse 2%, taux de conversion 6.8%. '
+            'Le montant réel dépend de ta situation.',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.orange.shade600,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

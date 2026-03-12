@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -16,15 +17,37 @@ class SurvivorPensionWidget extends StatelessWidget {
     required this.partnerAvsRente,
     required this.partnerLppMonthly,
     this.isConcubin = true,
+    this.numberOfChildren = 0,
+    this.conjointAge,
+    this.marriageDurationYears,
   });
 
   final double partnerAvsRente;
   final double partnerLppMonthly;
   final bool isConcubin;
+  final int numberOfChildren;
+  final int? conjointAge;
+  final int? marriageDurationYears;
 
   double get _avsMarried => partnerAvsRente * avsSurvivorFactor; // 80%
-  double get _lppMarried => partnerLppMonthly * 0.60; // 60% — LPP art. 19 al. 2
-  double get _totalMarried => _avsMarried + _lppMarried;
+
+  ({
+    double conjointMonthly,
+    double conjointLumpSum,
+    double orphanMonthlyPerChild,
+    double orphanMonthlyTotal,
+    double totalMonthly,
+    bool conjointGetsRente,
+  }) get _survivorResult => LppCalculator.computeSurvivorPension(
+        projectedAnnualRente: partnerLppMonthly * 12,
+        isMarried: !isConcubin,
+        numberOfChildren: numberOfChildren,
+        conjointAge: conjointAge,
+        marriageDurationYears: marriageDurationYears,
+      );
+
+  double get _lppMarried => _survivorResult.conjointMonthly;
+  double get _totalMarried => _avsMarried + _survivorResult.totalMonthly;
 
   // Concubin: 0 AVS, LPP only if explicitly named
   double get _avsConcubin => 0;
@@ -216,6 +239,7 @@ class SurvivorPensionWidget extends StatelessWidget {
   }
 
   Widget _buildDetailRows() {
+    final survivor = _survivorResult;
     return Container(
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
@@ -227,6 +251,24 @@ class SurvivorPensionWidget extends StatelessWidget {
           _buildDetailRow('AVS rente veuf/veuve (80%)', _avsMarried, 'LAVS art. 23', true),
           const Divider(height: 1),
           _buildDetailRow('LPP rente partenaire (60%)', _lppMarried, 'LPP art. 19', true),
+          if (!survivor.conjointGetsRente && survivor.conjointLumpSum > 0) ...[
+            const Divider(height: 1),
+            _buildDetailRow(
+              'LPP capital unique (3× rente)',
+              survivor.conjointLumpSum,
+              'LPP art. 19 al. 2 — conditions non remplies',
+              true,
+            ),
+          ],
+          if (numberOfChildren > 0) ...[
+            const Divider(height: 1),
+            _buildDetailRow(
+              'LPP rente orphelin ($numberOfChildren enfant${numberOfChildren > 1 ? 's' : ''}, 20%/enf.)',
+              survivor.orphanMonthlyTotal,
+              'LPP art. 20',
+              true,
+            ),
+          ],
           const Divider(height: 1),
           _buildDetailRow(
             'AVS concubin·e',
