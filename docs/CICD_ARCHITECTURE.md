@@ -1,17 +1,18 @@
-# MINT CI/CD Architecture (GitHub Actions + Railway + TestFlight)
+# MINT CI/CD Architecture (GitHub Actions + Railway + TestFlight + GitHub Pages)
 
 Document de reference du pipeline CI/CD MINT.
-Etat cible: deploiement backend sur Railway staging/prod, build iOS TestFlight sur main.
-Date de reference: 2026-03-06.
+Etat cible: deploiement backend sur Railway staging/prod, build iOS TestFlight sur main, build/deploy Flutter Web sur GitHub Pages.
+Date de reference: 2026-03-10.
 
 ## 1) Vue d'ensemble
 
 MINT utilise:
 
 1. GitHub comme source de verite (branches + PR + protections).
-2. GitHub Actions pour CI (tests/analyse) et CD (deploiement backend + TestFlight).
+2. GitHub Actions pour CI (tests/analyse) et CD (deploiement backend + TestFlight + Web).
 3. Railway pour heberger l'API backend (staging + production).
 4. App Store Connect / TestFlight pour distribuer l'app iOS de preproduction/production.
+5. GitHub Pages pour heberger la web app Flutter en production.
 
 ## 2) Strategie de branches
 
@@ -25,7 +26,7 @@ Role des branches:
 
 1. `dev`: integration continue (validation de code, pas de deploiement backend auto).
 2. `staging`: preproduction (backend deploye sur Railway STAGING apres merge PR).
-3. `main`: production (backend deploye sur Railway PROD apres merge PR, TestFlight pour iOS).
+3. `main`: production (backend deploye sur Railway PROD apres merge PR, TestFlight iOS et web app deployee sur GitHub Pages).
 
 Important:
 
@@ -55,6 +56,9 @@ PR staging -> main (merge)
   -> TestFlight workflow (si changement apps/mobile/**)
       -> Build iOS + Upload TestFlight
       -> App mobile pointe sur API PROD
+  -> Web App workflow (si changement web Flutter)
+      -> Build Flutter Web + Deploy GitHub Pages
+      -> Web app pointe sur API PROD
 ```
 
 ### Schema visuel 
@@ -98,14 +102,16 @@ staging -> main
     v
 main (CI sur PR + push)
     |
-    +------------------------------+
-    |                              |
-    v                              v
-Deploy Backend (prod)         TestFlight workflow
-    |                              |
-    +-- Pre-deploy tests           +-- si apps/mobile/** modifie
-    +-- Deploy to Production       +-- Build iOS + Upload
-    +-- Production healthcheck     +-- App Store Connect -> TestFlight
+    +------------------------------------------------------+
+    |                         |                            |
+    v                         v                            v
+Deploy Backend (prod)   TestFlight workflow         Web App workflow
+    |                         |                            |
+    +-- Pre-deploy tests      +-- si apps/mobile/**       +-- si fichiers web Flutter modifies
+    +-- Deploy to Production      modifie                  +-- Build web (lib/main_web.dart)
+    +-- Production healthcheck +-- Build iOS + Upload     +-- Deploy GitHub Pages
+                               +-- App Store Connect
+                                   -> TestFlight
     v
 Railway PROD (API production)
 
@@ -113,6 +119,8 @@ AU RUNTIME
 ==========
 Build TestFlight (main)
 -> API_BASE_URL = Railway PROD (https://api.mint.ch/api/v1)
+Build Web App (main)
+-> API_BASE_URL = Railway PROD (vars.PROD_API_URL ou fallback https://api.mint.ch/api/v1)
 ```
 
 ## 4) Workflows GitHub Actions
@@ -198,6 +206,53 @@ Garanties runtime:
 2. Check explicite pour eviter un build TestFlight pointe vers staging.
 3. Precheck backend health avant build.
 
+### 4.4 Build + deploy Flutter Web
+
+Fichier: `.github/workflows/web.yml`
+
+Declencheurs:
+
+1. `pull_request` `types: [closed]` vers `main`.
+2. Filtre `paths` web-first: `apps/mobile/lib/**`, `apps/mobile/web/**`, `apps/mobile/assets/**`, `apps/mobile/scripts/patch_google_fonts_const_map.sh`, `apps/mobile/l10n.yaml`, `apps/mobile/pubspec.yaml`, `apps/mobile/pubspec.lock`, `.github/workflows/web.yml`.
+3. `workflow_dispatch` manuel.
+
+Condition d'execution:
+
+1. PR mergee vers `main`, ou
+2. run manuel lance sur la branche `main`.
+
+Concurrency:
+
+1. `web-${{ github.ref }}` avec `cancel-in-progress: true`.
+
+Permissions:
+
+1. `contents: read`, `pages: write`, `id-token: write`.
+
+Jobs:
+
+1. `Build Flutter Web` (ubuntu-latest):
+   - Checkout (merged base ref pour PR, branch courante pour dispatch).
+   - Resolve API URL (`vars.PROD_API_URL` -> fallback `https://api.mint.ch/api/v1`, normalise `/api/v1`).
+   - Flutter 3.27.4 (cache active).
+   - `flutter pub get`.
+   - Patch google_fonts (`bash scripts/patch_google_fonts_const_map.sh`).
+   - `flutter gen-l10n`.
+   - `flutter build web --release -t lib/main_web.dart --dart-define=API_BASE_URL=$PROD_WEB_API_BASE_URL`.
+   - SPA fallback: `cp build/web/index.html build/web/404.html`.
+   - Upload artifact Pages (`actions/upload-pages-artifact@v3`, path: `apps/mobile/build/web`).
+2. `Deploy Web` (ubuntu-latest, needs: build):
+   - Environnement: `github-pages`.
+   - Deploy: `actions/deploy-pages@v4`.
+   - Output: URL Pages.
+
+Garanties runtime:
+
+1. L'URL API est resolue via `vars.PROD_API_URL`.
+2. Fallback automatique: `https://api.mint.ch/api/v1` si variable absente.
+3. Normalisation URL: ajoute `/api/v1` si absent, supprime trailing slash.
+4. Build web Flutter via `lib/main_web.dart`, puis deploiement GitHub Pages.
+
 ## 5) Smoke tests staging
 
 Fichier: `scripts/smoke_staging_api.sh`
@@ -253,7 +308,7 @@ Recommandees:
 Usage:
 
 1. URL d'environnement dans GitHub Deployments.
-2. URL utilisee par smoke tests et healthchecks.
+2. URL utilisee par smoke tests, healthchecks et build web.
 
 ### 6.3 GitHub Secrets - TestFlight
 
@@ -271,6 +326,17 @@ Optionnels selon config modele on-device:
 1. `HUGGINGFACE_TOKEN`
 2. `SLM_MODEL_URL`
 
+### 6.4 GitHub Pages / Web
+
+Minimum:
+
+1. Aucun secret applicatif requis pour le deploy Pages.
+2. Permission workflow necessaire: `pages: write` + `id-token: write`.
+
+Recommande:
+
+1. Definir `vars.PROD_API_URL` pour centraliser l'URL API prod.
+
 ## 7) Branch protections (recommande)
 
 Objectif:
@@ -286,7 +352,7 @@ Minimum recommande:
 
 Note importante:
 
-1. Le workflow `Deploy Backend` est declenche sur `pull_request.closed` (apres merge), donc ses jobs ne peuvent pas etre des checks bloquants de pre-merge.
+1. Les workflows CD (`Deploy Backend`, `TestFlight`, `Web App`) sont declenches sur `pull_request.closed` (apres merge), donc leurs jobs ne peuvent pas etre des checks bloquants de pre-merge.
 2. Pour garantir la qualite avant promotion `staging -> main`, appliquez une regle d'equipe: ne merger vers `main` que si le dernier run staging a `Smoke Staging` vert sur le commit courant.
 3. Option complementaire: activer l'environnement GitHub `production` avec approbation manuelle (required reviewers) avant execution du job de deploiement production.
 
@@ -309,6 +375,7 @@ Script utile present dans le repo:
 11. Merge vers `main`.
 12. Deploy backend production + healthcheck.
 13. TestFlight se lance si code mobile modifie.
+14. Web App se lance si fichiers web Flutter modifies et deploie sur GitHub Pages.
 
 ## 9) Troubleshooting (incidents frequents)
 
@@ -353,6 +420,19 @@ Comportement normal:
 1. Le graphe affiche tous les jobs declares.
 2. Les jobs non concernes sont `skipped` selon les `if`.
 
+### 9.5 "Web App ne se lance pas"
+
+Ca arrive si:
+
+1. La PR vers `main` n'est pas mergee (`pull_request.closed` avec `merged=false`).
+2. Les fichiers modifies ne matchent pas le filtre `paths` du workflow web.
+3. Le run manuel est lance hors branche `main`.
+
+Action:
+
+1. Verifier les fichiers touches dans la PR et les conditions `if` du workflow.
+2. Relancer manuellement depuis `main` via `workflow_dispatch` pour valider la pipeline.
+
 ## 10) Rollback
 
 Backend Railway:
@@ -377,7 +457,8 @@ Le setup est considere operationnel si:
 4. Merge `staging -> main` declenche deploy production vert.
 5. Healthcheck production passe.
 6. Si mobile change, TestFlight se lance depuis `main` et build upload OK.
-7. Secrets non exposes en clair dans le repo.
+7. Si fichiers web Flutter changent, workflow Web App se lance depuis `main` et deploy Pages OK.
+8. Secrets non exposes en clair dans le repo.
 
 ---
 
@@ -386,5 +467,6 @@ Le setup est considere operationnel si:
 1. `.github/workflows/ci.yml`
 2. `.github/workflows/deploy-backend.yml`
 3. `.github/workflows/testflight.yml`
-4. `scripts/smoke_staging_api.sh`
-5. `scripts/setup-branch-protection.sh`
+4. `.github/workflows/web.yml`
+5. `scripts/smoke_staging_api.sh`
+6. `scripts/setup-branch-protection.sh`
