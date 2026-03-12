@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
@@ -28,7 +29,7 @@ class SlmSettingsScreen extends StatelessWidget {
         slivers: [
           SliverAppBar.large(
             title: Text(
-              'IA on-device',
+              S.of(context)!.slmIaOnDevice,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
             ),
             flexibleSpace: Container(
@@ -45,13 +46,13 @@ class SlmSettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildPrivacyBanner(),
+                _buildPrivacyBanner(context),
                 const SizedBox(height: 16),
                 _buildModelCard(context, slm),
                 const SizedBox(height: 16),
                 _buildStatusCard(context, slm),
                 const SizedBox(height: 16),
-                _buildInfoCard(slm),
+                _buildInfoCard(context, slm),
               ]),
             ),
           ),
@@ -60,7 +61,7 @@ class SlmSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrivacyBanner() {
+  Widget _buildPrivacyBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -74,8 +75,7 @@ class SlmSettingsScreen extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le modèle fonctionne 100% sur ton appareil. '
-              'Aucune donnée ne quitte ton téléphone.',
+              S.of(context)!.slmPrivacyMessage,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: MintColors.primary,
@@ -194,7 +194,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Démarrage du téléchargement...',
+                    S.of(context)!.slmStartingDownload,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.primary,
@@ -246,7 +246,7 @@ class SlmSettingsScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: slm.cancelDownload,
                   icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Annuler le téléchargement'),
+                  label: Text(S.of(context)!.slmCancelDownload),
                 ),
               ),
             ],
@@ -331,9 +331,9 @@ class SlmSettingsScreen extends StatelessWidget {
                   onPressed:
                       slm.isProcessing ? null : () => _deleteModel(context, slm),
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  label: const Text(
-                    'Supprimer le modèle',
-                    style: TextStyle(color: Colors.red),
+                  label: Text(
+                    S.of(context)!.slmDeleteModelButton,
+                    style: const TextStyle(color: Colors.red),
                   ),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.red),
@@ -368,7 +368,7 @@ class SlmSettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Télécharger le modèle ?',
+          S.of(context)!.slmDownloadModelTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
@@ -382,11 +382,11 @@ class SlmSettingsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
+            child: Text(S.of(context)!.slmCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Télécharger'),
+            child: Text(S.of(context)!.slmDownload),
           ),
         ],
       ),
@@ -426,23 +426,22 @@ class SlmSettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Supprimer le modèle ?',
+          S.of(context)!.slmDeleteModelTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Cela libérera ${SlmDownloadService.modelSizeFormatted} '
-          'd\'espace. Tu pourras le re-télécharger à tout moment.',
+          S.of(context)!.slmDeleteModelContent(SlmDownloadService.modelSizeFormatted),
           style: GoogleFonts.inter(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
+            child: Text(S.of(context)!.slmCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Supprimer'),
+            child: Text(S.of(context)!.slmDelete),
           ),
         ],
       ),
@@ -511,7 +510,7 @@ class SlmSettingsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Statut du moteur',
+              S.of(context)!.slmEngineStatus,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -577,7 +576,7 @@ class SlmSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(SlmProvider slm) {
+  Widget _buildInfoCard(BuildContext context, SlmProvider slm) {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -587,7 +586,7 @@ class SlmSettingsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Comment ça marche ?',
+              S.of(context)!.slmHowItWorks,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

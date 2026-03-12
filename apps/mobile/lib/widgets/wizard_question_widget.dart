@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/wizard_question.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/interactive_simulations.dart';
@@ -103,7 +104,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                           color: MintColors.primary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Explication',
+                        S.of(context)!.wizardExplanation,
                         style: GoogleFonts.outfit(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -145,7 +146,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               child: TextButton.icon(
                 onPressed: () => setState(() => _showEducationalInsert = false),
                 icon: const Icon(Icons.keyboard_arrow_up, size: 18),
-                label: const Text('Réduire', style: TextStyle(fontSize: 12)),
+                label: Text(S.of(context)!.wizardCollapse, style: const TextStyle(fontSize: 12)),
                 style:
                     TextButton.styleFrom(foregroundColor: MintColors.textMuted),
               ),
@@ -159,7 +160,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               child: OutlinedButton.icon(
                 onPressed: () => setState(() => _showEducationalInsert = true),
                 icon: const Icon(Icons.lightbulb_outline, size: 18),
-                label: const Text('Comprendre ce sujet'),
+                label: Text(S.of(context)!.wizardUnderstandTopic),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: MintColors.primary,
                   side: const BorderSide(color: MintColors.primary),
@@ -180,7 +181,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
             OutlinedButton.icon(
               onPressed: () => setState(() => _showSimulation = true),
               icon: const Icon(Icons.analytics_outlined),
-              label: const Text('Voir simulation interactive'),
+              label: Text(S.of(context)!.wizardSeeSimulation),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,
                 side: const BorderSide(color: MintColors.primary),
@@ -439,7 +440,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
                 ),
               ),
               child: Text(
-                'Valider (${selectedValues.length})',
+                S.of(context)!.wizardValidateCount(selectedValues.length),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -457,16 +458,16 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
     if (isNumber) {
       final parsed = num.tryParse(val);
       if (parsed == null) {
-        setState(() => _inputError = 'Entre un nombre valide');
+        setState(() => _inputError = S.of(context)!.wizardInvalidNumber);
         return;
       }
       // Enforce minValue / maxValue from question model
       if (widget.question.minValue != null && parsed < widget.question.minValue!) {
-        setState(() => _inputError = 'Minimum : ${widget.question.minValue}');
+        setState(() => _inputError = S.of(context)!.wizardMinValue('${widget.question.minValue}'));
         return;
       }
       if (widget.question.maxValue != null && parsed > widget.question.maxValue!) {
-        setState(() => _inputError = 'Maximum : ${widget.question.maxValue}');
+        setState(() => _inputError = S.of(context)!.wizardMaxValue('${widget.question.maxValue}'));
         return;
       }
       setState(() => _inputError = null);
@@ -477,7 +478,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
         setState(() => _inputError = null);
         widget.onAnswer(val);
       } else {
-        setState(() => _inputError = 'Ce champ est requis');
+        setState(() => _inputError = S.of(context)!.wizardFieldRequired);
       }
     }
   }
@@ -515,7 +516,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
           width: double.infinity,
           child: FilledButton(
             onPressed: () => _submitInput(controller.text, isNumberInput),
-            child: const Text('Suivant'),
+            child: Text(S.of(context)!.wizardNext),
           ),
         ),
       ],

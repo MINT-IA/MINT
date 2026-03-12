@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
@@ -81,7 +82,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Budget Mensuel'),
+        title: Text(S.of(context)!.budgetMonthlyTitle),
       ),
       body: Consumer<BudgetProvider>(
         builder: (context, provider, child) {

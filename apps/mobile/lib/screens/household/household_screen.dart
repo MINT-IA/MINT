@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
@@ -47,7 +48,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Notre Famille',
+          S.of(context)!.householdTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
         ),
         backgroundColor: MintColors.primary,
@@ -81,8 +82,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Optimise ta retraite a deux avec un abonnement Couple+. '
-              'Projections partagees, retraits echelonnes, et coaching couple.',
+              S.of(context)!.householdUpsellDescription,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600),
             ),
@@ -92,7 +92,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                 final sub = context.read<SubscriptionProvider>();
                 sub.upgrade(SubscriptionTier.couplePlus);
               },
-              child: const Text('Decouvrir Couple+'),
+              child: Text(S.of(context)!.householdDiscoverCouplePlus),
             ),
           ],
         ),
@@ -110,14 +110,14 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
-              'Connecte-toi pour gerer ton menage',
+              S.of(context)!.householdLoginPrompt,
               style: GoogleFonts.inter(fontSize: 16, color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () => context.push('/auth/login'),
-              child: const Text('Se connecter'),
+              child: Text(S.of(context)!.householdLogin),
             ),
           ],
         ),
@@ -176,7 +176,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                 household.clearError();
                 household.loadHousehold();
               },
-              child: const Text('Reessayer'),
+              child: Text(S.of(context)!.householdRetry),
             ),
           ],
         ),
@@ -201,8 +201,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Optimise ta retraite a deux. Retraits echelonnes, '
-              'projections couple, et calendrier fiscal commun.',
+              S.of(context)!.householdEmptyDescription,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600),
             ),
@@ -210,7 +209,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             FilledButton.icon(
               onPressed: () => setState(() => _showInviteForm = true),
               icon: const Icon(Icons.person_add),
-              label: const Text('Inviter mon/ma partenaire'),
+              label: Text(S.of(context)!.householdInvitePartner),
             ),
             if (_showInviteForm) ...[
               const SizedBox(height: 16),
@@ -240,14 +239,14 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Menage Couple+',
+                    S.of(context)!.householdHeaderTitle,
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),
                   ),
                   Text(
-                    '${household.activeMemberCount} membre${household.activeMemberCount > 1 ? 's' : ''} actif${household.activeMemberCount > 1 ? 's' : ''}',
+                    S.of(context)!.householdMemberCount(household.activeMemberCount),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -259,7 +258,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             if (household.isOwner)
               Chip(
                 label: Text(
-                  'Proprietaire',
+                  S.of(context)!.householdOwnerBadge,
                   style: GoogleFonts.inter(fontSize: 11, color: Colors.white),
                 ),
                 backgroundColor: MintColors.primary,
@@ -283,7 +282,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Membres',
+              S.of(context)!.householdMembersTitle,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -306,7 +305,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     final isPending = member['status'] == 'pending';
     final isPartner = member['role'] == 'partner';
     final displayName =
-        member['displayName'] ?? member['email'] ?? 'Partenaire';
+        member['displayName'] ?? member['email'] ?? S.of(context)!.householdPartnerDefault;
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
@@ -324,7 +323,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         style: GoogleFonts.inter(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
-        isPending ? 'Invitation en attente' : 'Actif',
+        isPending ? S.of(context)!.householdPendingStatus : S.of(context)!.householdActiveStatus,
         style: GoogleFonts.inter(
           fontSize: 12,
           color: isPending ? Colors.orange.shade600 : Colors.green.shade600,
@@ -333,7 +332,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       trailing: household.isOwner && isPartner
           ? IconButton(
               icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-              tooltip: 'Retirer du menage',
+              tooltip: S.of(context)!.householdRemoveTooltip,
               onPressed: () => _confirmRevoke(context, household, member),
             )
           : null,
@@ -348,21 +347,20 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Retirer ce membre ?'),
+        title: Text(S.of(context)!.householdRemoveMemberTitle),
         content: Text(
-          'Cette action est irreversible. Un delai de 30 jours s\'applique '
-          'avant de pouvoir reinviter un nouveau partenaire.',
+          S.of(context)!.householdRemoveMemberContent,
           style: GoogleFonts.inter(fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
+            child: Text(S.of(context)!.householdCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Retirer'),
+            child: Text(S.of(context)!.householdRemove),
           ),
         ],
       ),
@@ -384,7 +382,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Inviter un·e partenaire',
+              S.of(context)!.householdInviteSectionTitle,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -392,7 +390,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ton/ta partenaire recevra un code d\'invitation valable 72 heures.',
+              S.of(context)!.householdInviteInfo,
               style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -411,8 +409,8 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
-            labelText: 'Email du/de la partenaire',
-            hintText: 'partenaire@email.ch',
+            labelText: S.of(context)!.householdEmailLabel,
+            hintText: S.of(context)!.householdEmailHint,
             prefixIcon: const Icon(Icons.email_outlined),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -440,7 +438,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                       color: Colors.white,
                     ),
                   )
-                : const Text('Envoyer l\'invitation'),
+                : Text(S.of(context)!.householdSendInvitation),
           ),
         ),
       ],
@@ -458,7 +456,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             Icon(Icons.check_circle, size: 40, color: Colors.green.shade600),
             const SizedBox(height: 8),
             Text(
-              'Invitation envoyee',
+              S.of(context)!.householdInviteSentTitle,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
@@ -491,32 +489,30 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
                     Clipboard.setData(
                         ClipboardData(text: household.pendingInviteCode!));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Code copie')),
+                      SnackBar(content: Text(S.of(context)!.householdCodeCopied)),
                     );
                   },
                   icon: const Icon(Icons.copy, size: 18),
-                  label: const Text('Copier'),
+                  label: Text(S.of(context)!.householdCopy),
                 ),
                 const SizedBox(width: 12),
                 OutlinedButton.icon(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(
-                      text: 'Rejoins mon menage MINT avec le code : '
-                          '${household.pendingInviteCode!}\n\n'
-                          'Ouvre l\'app MINT > Famille > J\'ai un code',
+                      text: S.of(context)!.householdShareMessage(household.pendingInviteCode!),
                     ));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Message copie')),
+                      SnackBar(content: Text(S.of(context)!.householdMessageCopied)),
                     );
                   },
                   icon: const Icon(Icons.share, size: 18),
-                  label: const Text('Partager'),
+                  label: Text(S.of(context)!.householdShare),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              'Valable 72 heures',
+              S.of(context)!.householdValidFor,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.grey.shade500,
@@ -532,7 +528,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     return OutlinedButton.icon(
       onPressed: () => context.push('/household/accept'),
       icon: const Icon(Icons.qr_code),
-      label: const Text('J\'ai un code d\'invitation'),
+      label: Text(S.of(context)!.householdHaveCode),
     );
   }
 }

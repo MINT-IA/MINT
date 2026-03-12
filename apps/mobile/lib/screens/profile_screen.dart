@@ -197,8 +197,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildAiSection(context),
                   const SizedBox(height: 32),
-                  const Text('Famille',
-                      style: TextStyle(
+                  Text(S.of(context)!.profileFamilySection,
+                      style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildFactFindSection(
@@ -1047,7 +1047,7 @@ class ProfileScreen extends StatelessWidget {
           TextButton.icon(
             onPressed: () => context.push('/profile/admin-observability'),
             icon: const Icon(Icons.analytics_outlined, size: 18),
-            label: const Text('Admin observability'),
+            label: Text(S.of(context)!.profileAdminObservability),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1056,7 +1056,7 @@ class ProfileScreen extends StatelessWidget {
           TextButton.icon(
             onPressed: () => context.push('/profile/admin-analytics'),
             icon: const Icon(Icons.bar_chart_rounded, size: 18),
-            label: const Text('Analytics beta testeurs'),
+            label: Text(S.of(context)!.profileAnalyticsBeta),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1067,7 +1067,7 @@ class ProfileScreen extends StatelessWidget {
                 ? null
                 : () => _confirmDeleteAccount(context, authProvider),
             icon: const Icon(Icons.delete_forever, size: 18),
-            label: const Text('Supprimer mon compte cloud'),
+            label: Text(S.of(context)!.profileDeleteCloudAccount),
             style: TextButton.styleFrom(
               foregroundColor: MintColors.error,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1085,20 +1085,19 @@ class ProfileScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Supprimer le compte ?'),
-        content: const Text(
-          'Cette action supprime ton compte cloud et les données associées. '
-          'Tes données locales restent sur cet appareil.',
+        title: Text(S.of(context)!.profileDeleteAccountTitle),
+        content: Text(
+          S.of(context)!.profileDeleteAccountContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Annuler'),
+            child: Text(S.of(context)!.profileDeleteCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(backgroundColor: MintColors.error),
-            child: const Text('Supprimer'),
+            child: Text(S.of(context)!.profileDeleteConfirm),
           ),
         ],
       ),
@@ -1129,8 +1128,8 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Langue / Sprache / Language',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(S.of(context)!.profileLanguageTitle,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         InkWell(
           borderRadius: BorderRadius.circular(16),
