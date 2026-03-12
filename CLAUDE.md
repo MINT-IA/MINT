@@ -184,6 +184,19 @@ MINT examples:
 - PR staging→main: "Production to v1.3.2" (compliance fix)
 - PR staging→main: "Production to v1.3.2a" (urgent hotfix post-release)
 
+**BEFORE creating any promotion PR:**
+
+```bash
+# Get last production version from merged PRs to main
+gh pr list --state merged --base main --limit 1 --json title -q '.[0].title'
+```
+
+Extract version number (e.g., "Production to v0.0.1f" → v0.0.1f), then:
+- **Patch (Z)**: increment last number (v0.0.1f → v0.0.2)
+- **Minor (Y)**: increment middle, reset patch (v0.0.2 → v0.1.0)
+- **Major (X)**: increment first, reset minor+patch (v0.1.0 → v1.0.0)
+- **Hotfix (suffix)**: add/increment letter (v0.0.2 → v0.0.2a, v0.0.2a → v0.0.2b)
+
 This convention is mandatory for every promotion in the MINT CI/CD pipeline.
 
 ### Before ANY code modification
