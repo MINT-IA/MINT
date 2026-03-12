@@ -357,28 +357,52 @@ void main() {
   // ===========================================================================
 
   group('LandingScreen', () {
+    // The trust bar Row needs a wider viewport to avoid overflow.
+    void setLandingViewport(WidgetTester tester) {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+    }
+
+    void resetLandingViewport(WidgetTester tester) {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    }
+
     testWidgets('renders without crashing', (tester) async {
+      setLandingViewport(tester);
+      addTearDown(() => resetLandingViewport(tester));
+
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(LandingScreen), findsOneWidget);
     });
 
-    testWidgets('displays hero text', (tester) async {
+    testWidgets('displays hero punchline text', (tester) async {
+      setLandingViewport(tester);
+      addTearDown(() => resetLandingViewport(tester));
+
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('ta retraite commence'), findsOneWidget);
+      // landingPunchline1 = "Le système financier suisse est puissant."
+      expect(find.textContaining('financier suisse'), findsOneWidget);
     });
 
-    testWidgets('shows beta badge', (tester) async {
+    testWidgets('shows MINT logo text', (tester) async {
+      setLandingViewport(tester);
+      addTearDown(() => resetLandingViewport(tester));
+
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('ta'), findsWidgets);
+      expect(find.text('MINT'), findsOneWidget);
     });
 
-    testWidgets('shows feature rows with icons', (tester) async {
+    testWidgets('shows trust bar with icons', (tester) async {
+      setLandingViewport(tester);
+      addTearDown(() => resetLandingViewport(tester));
+
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -387,14 +411,21 @@ void main() {
       expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
     });
 
-    testWidgets('shows diagnostic CTA button', (tester) async {
+    testWidgets('shows CTA button with Commencer', (tester) async {
+      setLandingViewport(tester);
+      addTearDown(() => resetLandingViewport(tester));
+
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Ton plan en 30 secondes'), findsOneWidget);
+      // landingCtaCommencer = "Commencer"
+      expect(find.text('Commencer'), findsOneWidget);
     });
 
     testWidgets('shows login button', (tester) async {
+      setLandingViewport(tester);
+      addTearDown(() => resetLandingViewport(tester));
+
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 

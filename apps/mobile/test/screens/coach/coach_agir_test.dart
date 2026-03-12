@@ -102,16 +102,21 @@ void main() {
       expect(find.text('AGIR'), findsOneWidget);
     });
 
-    testWidgets('shows Coach Pulse card', (tester) async {
+    testWidgets('shows Ce mois section', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Coach Pulse'), findsOneWidget);
+      expect(find.textContaining('Ce mois'), findsOneWidget);
     });
 
-    testWidgets('shows scenario brief card', (tester) async {
+    testWidgets('shows timeline section label', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Scénarios de retraite en bref'), findsOneWidget);
+      expect(find.text('Timeline', skipOffstage: false), findsOneWidget);
     });
 
     testWidgets('shows "Ce mois" section', (tester) async {
@@ -120,7 +125,7 @@ void main() {
       expect(find.textContaining('mois'), findsWidgets);
     });
 
-    testWidgets('shows timeline section after scroll', (tester) async {
+    testWidgets('shows timeline events after scroll', (tester) async {
       // Use a tall viewport so SliverList builds all children
       // without requiring scroll offsets.
       tester.view.physicalSize = const Size(1080, 6000);
@@ -130,9 +135,11 @@ void main() {
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
+      // Timeline section uses specific icons (savings, description, etc.)
+      // instead of Icons.timeline. Verify the section label is present.
       expect(
-        find.byIcon(Icons.timeline, skipOffstage: false),
-        findsWidgets,
+        find.text('Timeline', skipOffstage: false),
+        findsOneWidget,
       );
     });
 
@@ -176,22 +183,14 @@ void main() {
       expect(find.byType(CoachAgirScreen), findsOneWidget);
     });
 
-    testWidgets('shows persisted score reason in concise mode', (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'coach_narrative_mode_v1': 'concise',
-        'last_fitness_score_reason_v1':
-            'Hausse principale: versements confirmes. Deuxieme phrase a masquer.',
-        'last_fitness_score_delta_v1': 2,
-      });
-
+    testWidgets('shows action plan with top action', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump(const Duration(seconds: 1));
 
-      expect(
-        find.textContaining('Hausse principale: versements confirmes'),
-        findsWidgets,
-      );
-      expect(find.textContaining('Deuxieme phrase a masquer.'), findsNothing);
+      // V2 Agir screen shows action-based layout with "Ce mois" and timeline
+      // instead of the old Coach Pulse / score reason cards.
+      expect(find.textContaining('Ce mois'), findsOneWidget);
+      expect(find.text('AGIR'), findsOneWidget);
     });
 
     testWidgets('shows real action plan for mini onboarding profile',
@@ -201,9 +200,9 @@ void main() {
       await tester.pumpWidget(buildMiniTestWidget());
       await tester.pump(const Duration(seconds: 1));
 
-      // Mini profile renders the full Agir screen (Coach Pulse, timeline, etc.)
+      // Mini profile renders the full Agir screen (Ce mois, timeline, etc.)
       expect(find.byType(CoachAgirScreen), findsOneWidget);
-      expect(find.text('Coach Pulse'), findsOneWidget);
+      expect(find.text('AGIR'), findsOneWidget);
     });
   });
 }

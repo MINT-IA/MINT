@@ -181,14 +181,14 @@ void main() {
       expect(find.byType(InkWell), findsWidgets);
     });
 
-    testWidgets('Profile shows monthly coach summary card with full profile',
+    testWidgets('Profile shows guidance card with full profile',
         (tester) async {
       final coachProvider = buildFullCoachProvider();
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
-      expect(find.textContaining('Resume coach du mois'), findsOneWidget);
-      expect(find.textContaining('Prochaine etape'), findsWidgets);
+      // Profile guidance card shows recommended section and quality score
+      expect(find.textContaining('Section recommand'), findsOneWidget);
     });
   });
 

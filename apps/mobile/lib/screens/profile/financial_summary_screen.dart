@@ -289,7 +289,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               heroValue: projectedMonthly > 0
                   ? formatChfCompact(projectedMonthly)
                   : '\u2014',
-              heroSuffix: '/m',
+              heroSuffix: s.heroGapPerMonth,
               icon: Icons.trending_up,
               accentColor: MintColors.info,
               onEdit: () => _showEditSheet(
@@ -514,24 +514,19 @@ class FinancialSummaryScreen extends StatelessWidget {
     }
 
     context.read<CoachProfileProvider>().updateInline(
-          salaireBrutMensuel: parseVal('salaireBrutMensuel'),
+          // Tiroir 1 — Patrimoine
+          epargneLiquide: parseVal('epargneLiquide'),
+          investissements: parseVal('investissements'),
           avoirLppTotal: parseVal('avoirLppTotal'),
           nombre3a: parseVal('nombre3a')?.toInt(),
           totalEpargne3a: parseVal('totalEpargne3a'),
-          rachatLppMensuel: parseVal('rachatLppMensuel'),
-          epargneLiquide: parseVal('epargneLiquide'),
-          investissements: parseVal('investissements'),
-          loyer: parseVal('loyer'),
-          assuranceMaladie: parseVal('assuranceMaladie'),
-          electricite: parseVal('electricite'),
-          transport: parseVal('transport'),
-          telecom: parseVal('telecom'),
-          fraisMedicaux: parseVal('fraisMedicaux'),
-          autresDepensesFixes: parseVal('autresDepensesFixes'),
+          // Tiroir 2 — Dettes
           hypotheque: parseVal('hypotheque'),
           creditConsommation: parseVal('creditConsommation'),
           leasing: parseVal('leasing'),
           autresDettes: parseVal('autresDettes'),
+          // Tiroir 3 — Projection
+          rachatLppMensuel: parseVal('rachatLppMensuel'),
         );
   }
 }

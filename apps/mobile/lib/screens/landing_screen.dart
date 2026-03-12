@@ -371,17 +371,21 @@ class _LandingScreenState extends State<LandingScreen>
   // Trust bar
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildTrustBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildTrustChip(Icons.shield_outlined, S.of(context)!.landingTrustSwiss),
-        _trustDot(),
-        _buildTrustChip(
-            Icons.lock_outline_rounded, S.of(context)!.landingTrustPrivate),
-        _trustDot(),
-        _buildTrustChip(Icons.check_circle_outline_rounded,
-            S.of(context)!.landingTrustNoCommitment),
-      ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildTrustChip(
+              Icons.shield_outlined, S.of(context)!.landingTrustSwiss),
+          _trustDot(),
+          _buildTrustChip(
+              Icons.lock_outline_rounded, S.of(context)!.landingTrustPrivate),
+          _trustDot(),
+          _buildTrustChip(Icons.check_circle_outline_rounded,
+              S.of(context)!.landingTrustNoCommitment),
+        ],
+      ),
     );
   }
 
