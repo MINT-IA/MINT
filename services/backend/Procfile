@@ -1,0 +1,1 @@
+web: sh -c 'python scripts/railway_pre_deploy_migrate.py && gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8080} --timeout 120 --access-logfile - --error-logfile -'
