@@ -6,55 +6,43 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/services/financial_core/fri_calculator.dart';
-import 'package:mint_mobile/services/fri_computation_service.dart';
-import 'package:mint_mobile/services/temporal_priority_service.dart';
-import 'package:mint_mobile/services/response_card_service.dart';
-import 'package:mint_mobile/services/micro_action_engine.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
-import 'package:mint_mobile/services/monthly_briefing_service.dart';
+import 'package:mint_mobile/services/micro_action_engine.dart';
+import 'package:mint_mobile/services/temporal_priority_service.dart';
+import 'package:mint_mobile/services/pulse_hero_engine.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/coach/coach_briefing_card.dart';
-import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
-import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
-import 'package:mint_mobile/widgets/coach/temporal_strip.dart';
+import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
-import 'package:mint_mobile/widgets/pulse/comprendre_section.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 
-// ────────────────────────────────────────────────────────────
-//  PULSE SCREEN — S48 / Phase 0
-// ────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────
+//  PULSE SCREEN — Redesign V2 (3-act layout)
+// ────────────────────────────────────────────────────────
 //
-//  Dashboard scannable : l'utilisateur voit sa situation
-//  SANS rien taper. Data-first, pas chat-first.
+//  ACT 1 (above fold): Greeting + Hero/FocusSelector
+//        + 3 key figures + unified visibility score
 //
-//  Contenu :
-//  1. Coach briefing (narrative LLM/templates, async)
-//  2. Score de visibilite financiere (4 axes, 25/25/25/25)
-//  3. Temporal strip (echeances urgentes : 3a, fiscal, etc.)
-//  4. Actions prioritaires (max 3 enrichment prompts)
-//  5. Section "Comprendre" (liens vers simulateurs)
-//  6. Micro-disclaimer inline (toujours visible)
+//  ACT 2 (first scroll): Profile enrichment OR actions
+//        + couple card if applicable
 //
-//  Couple mode : si isCouple + conjoint renseigne,
-//  affiche le score couple + alerte point faible.
+//  ACT 3 (deep scroll): Coach insight (dark card)
+//        + disclaimer
 //
-//  Le score mesure ce que l'utilisateur SAIT de sa situation,
-//  pas la qualite de sa situation. "Visibilite", pas "sante".
-//
-//  Aucun terme banni (garanti, certain, optimal, meilleur...).
-//  CTA educatifs : "Simuler", "Explorer", jamais prescriptif.
-// ────────────────────────────────────────────────────────────
+//  Removed from Pulse (relocated):
+//  - FRI card → merged into visibility score
+//  - Response Cards → Agir tab
+//  - Comprendre section → Apprendre tab
+//  - Sparkline → Profil page
+//  - Duplicate temporal items → 1 urgent item max
+// ────────────────────────────────────────────────────────
 
 class PulseScreen extends StatefulWidget {
   const PulseScreen({super.key});
@@ -67,15 +55,11 @@ class _PulseScreenState extends State<PulseScreen> {
   // ── Async state ───────────────────────────────────────────
   CoachNarrative? _narrative;
   int _narrativeGeneration = 0;
-  List<TemporalItem> _temporalItems = const [];
-  List<ResponseCard> _responseCards = const [];
 
-  // ── Cached projections (avoid 3x ForecasterService calls) ──
+  // ── Cached projections ─────────────────────────────────────
   ProjectionResult? _cachedProjection;
-  MonthlyBriefingDelta? _cachedBriefing;
-  FriBreakdown? _cachedFri;
 
-  // ── Profile tracking (avoid unnecessary recomputation) ───
+  // ── Profile tracking ───────────────────────────────────────
   CoachProfile? _lastProfile;
 
   @override
@@ -88,7 +72,6 @@ class _PulseScreenState extends State<PulseScreen> {
         _lastProfile = null;
         _narrativeGeneration++;
         _narrative = null;
-        _temporalItems = const [];
       }
       return;
     }
@@ -97,52 +80,16 @@ class _PulseScreenState extends State<PulseScreen> {
     if (_lastProfile == profile) return;
     _lastProfile = profile;
 
-    // ── Cache projection (used by key figures + couple + FRI) ──
+    // ── Cache projection ──
     try {
       _cachedProjection = ForecasterService.project(profile: profile);
     } catch (_) {
       _cachedProjection = null;
     }
 
-    // ── Compute FRI (Financial Readiness Index) ──────────
-    _cachedFri = _computeFri(profile);
-
-    // ── Compute temporal items (uses FRI) ───────────────
-    _computeTemporalItems(profile);
-
-    // ── Generate response cards (synchronous) ─────────────
-    _responseCards = ResponseCardService.generateForPulse(
-      profile,
-      limit: 4,
-    );
-
-    // ── Monthly briefing (post-check-in banner) ──────────
-    _cachedBriefing = MonthlyBriefingService.fromProfile(profile);
-
-    // ── Generate narrative (async, non-blocking) ──────────
+    // ── Generate narrative (async, non-blocking) ──
     final tips = _buildCoachingTips(profile);
     unawaited(_generateNarrative(profile, tips, provider.scoreHistory));
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  TEMPORAL ITEMS
-  // ────────────────────────────────────────────────────────
-
-  void _computeTemporalItems(CoachProfile profile) {
-    final taxSaving3a = profile.salaireBrutMensuel > 0
-        ? pilier3aPlafondAvecLpp *
-            RetirementTaxCalculator.estimateMarginalRate(
-                profile.revenuBrutAnnuel, profile.canton)
-        : 0.0;
-
-    final fri = _cachedFri;
-    _temporalItems = TemporalPriorityService.prioritize(
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      taxSaving3a: taxSaving3a,
-      friTotal: fri?.total ?? 0,
-      friDelta: 0,
-      limit: 4,
-    );
   }
 
   // ────────────────────────────────────────────────────────
@@ -171,7 +118,9 @@ class _PulseScreenState extends State<PulseScreen> {
       LlmConfig? byokConfig;
       if (mounted) {
         final byok = context.read<ByokProvider>();
-        if (byok.isConfigured && byok.apiKey != null && byok.provider != null) {
+        if (byok.isConfigured &&
+            byok.apiKey != null &&
+            byok.provider != null) {
           final provider = switch (byok.provider) {
             'claude' => LlmProvider.anthropic,
             'mistral' => LlmProvider.mistral,
@@ -206,7 +155,7 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   // ────────────────────────────────────────────────────────
-  //  BUILD
+  //  BUILD — 3-act layout
   // ────────────────────────────────────────────────────────
 
   @override
@@ -218,12 +167,8 @@ class _PulseScreenState extends State<PulseScreen> {
     }
 
     final profile = coachProvider.profile!;
-
-    // ── Compute visibility score (couple-aware) ──────────
     final visibilityScore = _computeVisibilityScore(profile);
-
-    // ── Response cards (computed once in didChangeDependencies) ────
-    final cards = _responseCards;
+    final hero = PulseHeroEngine.compute(profile);
 
     return CustomScrollView(
       slivers: [
@@ -233,136 +178,98 @@ class _PulseScreenState extends State<PulseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // 1. Coach briefing (narrative)
-              if (_narrative != null)
+              // ═══════════════════════════════════════════
+              //  ACT 1 — ABOVE THE FOLD
+              // ═══════════════════════════════════════════
+
+              // Hero card OR FocusSelector
+              if (hero != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: CoachBriefingCard(
-                    narrative: _narrative,
-                    confidenceScore: visibilityScore.total,
-                    isLlmGenerated: _narrative?.isLlmGenerated ?? false,
-                    onEnrich: () => context.push('/profile/bilan'),
+                  child: _HeroCard(
+                    hero: hero,
+                    onChangeFocus: () => _showFocusPicker(context, profile),
                   ),
-                ),
-              if (_narrative != null) const SizedBox(height: 16),
-
-              // 2. Score de visibilite
-              VisibilityScoreCard(score: visibilityScore),
-
-              // 2b. Score history sparkline
-              if (coachProvider.scoreHistory.length >= 2)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: _ScoreSparkline(
-                    history: coachProvider.scoreHistory,
-                  ),
-                ),
-              const SizedBox(height: 16),
-
-              // 2c. Post-check-in briefing banner
-              if (_cachedBriefing != null)
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20, right: 20, bottom: 16),
-                  child: _buildBriefingBanner(_cachedBriefing!),
+                )
+              else
+                FocusSelector(
+                  profile: profile,
+                  onFocusSelected: (focus) => _setFocus(context, focus),
                 ),
 
-              // 2c-bis. No check-in nudge (coaching loop bridge)
-              if (_cachedBriefing == null &&
-                  !_hasCheckInThisMonth(profile))
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20, right: 20, bottom: 16),
-                  child: _buildNoCheckInBanner(context),
-                ),
+              const SizedBox(height: 20),
 
-              // 2d. FRI — Financial Readiness Index
-              if (_cachedFri != null && visibilityScore.total >= 50)
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20, right: 20, bottom: 16),
-                  child: _buildFriCard(_cachedFri!),
-                ),
-
-              // 3. Key figures (retraite + budget + patrimoine)
+              // 3 key figures
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _buildKeyFigures(profile),
               ),
               const SizedBox(height: 16),
 
-              // 3b. Couple card (first-class, if applicable)
-              if (profile.isCouple && profile.conjoint != null)
+              // Unified visibility score
+              VisibilityScoreCard(score: visibilityScore),
+              const SizedBox(height: 8),
+
+              // ═══════════════════════════════════════════
+              //  ACT 2 — FIRST SCROLL
+              // ═══════════════════════════════════════════
+
+              // Enrichment OR action cards
+              if (visibilityScore.total < 60)
+                _buildEnrichmentSection(profile, visibilityScore.total)
+              else
+                _buildActionSection(profile),
+
+              // Couple card
+              if (profile.isCouple && profile.conjoint != null) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: _buildCoupleCard(profile),
                 ),
-              if (profile.isCouple && profile.conjoint != null)
                 const SizedBox(height: 16),
-
-              // 4. Temporal strip (echeances urgentes)
-              if (_temporalItems.isNotEmpty) ...[
-                TemporalStrip(items: _temporalItems),
-                const SizedBox(height: 20),
               ],
 
-              // 4b. Micro-actions (Coach Vivant)
+              // Single most urgent temporal item
               Builder(builder: (context) {
-                final actions = MicroActionEngine.suggest(profile: profile);
-                if (actions.isEmpty) return const SizedBox.shrink();
+                final items = _getUrgentItems(profile);
+                if (items.isEmpty) return const SizedBox.shrink();
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      MicroActionSection(actions: actions),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                  child: _UrgentDeadlineChip(item: items.first),
                 );
               }),
 
-              // 5. Response Cards dynamiques (Phase 1)
-              if (cards.isNotEmpty) ...[
+              const SizedBox(height: 16),
+
+              // ═══════════════════════════════════════════
+              //  ACT 3 — DEEP SCROLL
+              // ═══════════════════════════════════════════
+
+              // Coach insight (dark card)
+              if (_narrative != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Builder(builder: (context) {
-                    final l = S.of(context)!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l.pulsePrioritiesTitle,
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: MintColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l.pulsePrioritiesSubtitle,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: MintColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
+                  child: _CoachInsightCard(
+                    narrative: _narrative!,
+                    onEnrich: () => context.push('/profile/bilan'),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                ResponseCardStrip(cards: cards),
-                const SizedBox(height: 24),
-              ],
+              if (_narrative != null) const SizedBox(height: 16),
 
-              // 5. Section Comprendre
-              ComprendreSection(),
-              const SizedBox(height: 24),
+              // No-checkin nudge
+              if (!_hasCheckInThisMonth(profile))
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildNoCheckInChip(context),
+                ),
 
-              // 6. Disclaimer (toujours visible)
-              PulseDisclaimer(),
+              const SizedBox(height: 16),
+
+              // Disclaimer
+              const PulseDisclaimer(),
               const SizedBox(height: 32),
             ],
           ),
@@ -372,17 +279,17 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   // ────────────────────────────────────────────────────────
-  //  KEY FIGURES — retraite, budget, patrimoine
+  //  ACT 1 — KEY FIGURES
   // ────────────────────────────────────────────────────────
 
   Widget _buildKeyFigures(CoachProfile profile) {
     final l = S.of(context)!;
-    // Retirement projection (from cache)
+
+    // Retirement projection
     double? retraiteEstimee;
     double? tauxRemplacement;
     if (_cachedProjection != null) {
-      retraiteEstimee =
-          _cachedProjection!.base.revenuAnnuelRetraite / 12;
+      retraiteEstimee = _cachedProjection!.base.revenuAnnuelRetraite / 12;
       final revenuActuel = _computeRevenuNet(profile);
       if (revenuActuel > 0) {
         tauxRemplacement = (retraiteEstimee / revenuActuel * 100);
@@ -423,7 +330,8 @@ class _PulseScreenState extends State<PulseScreen> {
                 ? '+CHF ${budgetLibre.round()}/m'
                 : 'CHF ${budgetLibre.round()}/m',
             icon: Icons.account_balance_wallet_outlined,
-            color: budgetLibre >= 0 ? MintColors.success : MintColors.warning,
+            color:
+                budgetLibre >= 0 ? MintColors.success : MintColors.warning,
             onTap: () => context.push('/budget'),
           ),
         ),
@@ -444,7 +352,246 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   // ────────────────────────────────────────────────────────
-  //  COUPLE CARD — first class
+  //  ACT 2 — ENRICHMENT SECTION (profile < 60%)
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildEnrichmentSection(CoachProfile profile, double score) {
+    final pct = score.round();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: MintColors.primary.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.primary.withValues(alpha: 0.12),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.auto_fix_high_outlined,
+                    size: 18, color: MintColors.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Jumeau numérique : $pct%',
+                  style: GoogleFonts.outfit(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Progress bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: (score / 100).clamp(0.0, 1.0),
+                minHeight: 8,
+                backgroundColor: MintColors.surface,
+                valueColor:
+                    AlwaysStoppedAnimation(MintColors.primary),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Plus ton profil est complet, plus tes projections sont fiables.',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: MintColors.textSecondary,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Max 2 enrichment actions
+            ..._enrichmentActions(profile).take(2).map((action) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  onTap: () => context.push(action.route),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: MintColors.border.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(action.icon,
+                            size: 16, color: MintColors.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            action.label,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: MintColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded,
+                            size: 12, color: MintColors.textMuted),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<_EnrichmentAction> _enrichmentActions(CoachProfile profile) {
+    final actions = <_EnrichmentAction>[];
+
+    if (profile.prevoyance.avoirLppTotal == null ||
+        profile.prevoyance.avoirLppTotal == 0) {
+      actions.add(const _EnrichmentAction(
+        icon: Icons.upload_file_outlined,
+        label: 'Ajoute ton certificat LPP (+15% de précision)',
+        route: '/onboarding/smart',
+      ));
+    }
+    if (profile.prevoyance.totalEpargne3a <= 0) {
+      actions.add(const _EnrichmentAction(
+        icon: Icons.savings_outlined,
+        label: 'Renseigne ton 3e pilier',
+        route: '/profile/bilan',
+      ));
+    }
+    if (profile.patrimoine.totalPatrimoine <= 0) {
+      actions.add(const _EnrichmentAction(
+        icon: Icons.account_balance_wallet_outlined,
+        label: 'Ajoute ton épargne et investissements',
+        route: '/profile/bilan',
+      ));
+    }
+    if (!profile.isCouple &&
+        (profile.etatCivil == CoachCivilStatus.marie || profile.etatCivil == CoachCivilStatus.concubinage)) {
+      actions.add(const _EnrichmentAction(
+        icon: Icons.people_outline,
+        label: 'Invite ton conjoint·e (+20% de précision)',
+        route: '/profile/bilan',
+      ));
+    }
+
+    return actions;
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  ACT 2 — ACTION SECTION (profile >= 60%)
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildActionSection(CoachProfile profile) {
+    final actions = MicroActionEngine.suggest(profile: profile);
+    if (actions.isEmpty) return const SizedBox.shrink();
+
+    // Show max 2 actions
+    final topActions = actions.take(2).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'À faire ce mois',
+            style: GoogleFonts.outfit(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          ...topActions.map((action) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: InkWell(
+                onTap: () => context.push(action.deeplink),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: MintColors.border.withValues(alpha: 0.5),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: MintColors.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          action.icon,
+                          size: 18,
+                          color: MintColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              action.title,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: MintColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              action.description,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: MintColors.textSecondary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded,
+                          size: 12, color: MintColors.textMuted),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  COUPLE CARD
   // ────────────────────────────────────────────────────────
 
   Widget _buildCoupleCard(CoachProfile profile) {
@@ -452,7 +599,6 @@ class _PulseScreenState extends State<PulseScreen> {
     final conjName = profile.conjoint?.firstName ?? 'ton conjoint';
     final firstName = profile.firstName ?? 'Toi';
 
-    // Couple projection (from cache)
     String? coupleRevenu;
     if (_cachedProjection != null) {
       final monthlyCouple =
@@ -465,7 +611,8 @@ class _PulseScreenState extends State<PulseScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.primary.withValues(alpha: 0.15)),
+        border:
+            Border.all(color: MintColors.primary.withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -523,6 +670,26 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   // ────────────────────────────────────────────────────────
+  //  URGENT DEADLINE (single chip — replaces temporal strip)
+  // ────────────────────────────────────────────────────────
+
+  List<TemporalItem> _getUrgentItems(CoachProfile profile) {
+    final taxSaving3a = profile.salaireBrutMensuel > 0
+        ? pilier3aPlafondAvecLpp *
+            RetirementTaxCalculator.estimateMarginalRate(
+                profile.revenuBrutAnnuel, profile.canton)
+        : 0.0;
+
+    return TemporalPriorityService.prioritize(
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      taxSaving3a: taxSaving3a,
+      friTotal: 0,
+      friDelta: 0,
+      limit: 1,
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
   //  HELPERS
   // ────────────────────────────────────────────────────────
 
@@ -534,232 +701,6 @@ class _PulseScreenState extends State<PulseScreen> {
       age: DateTime.now().year - profile.birthYear,
     ).monthlyNetPayslip;
   }
-
-  // ────────────────────────────────────────────────────────
-  //  POST-CHECK-IN BRIEFING BANNER (#2)
-  // ────────────────────────────────────────────────────────
-
-  bool _hasCheckInThisMonth(CoachProfile profile) {
-    final now = DateTime.now();
-    return profile.checkIns.any(
-      (ci) => ci.month.year == now.year && ci.month.month == now.month,
-    );
-  }
-
-  Widget _buildNoCheckInBanner(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today_rounded,
-              size: 16, color: MintColors.info),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              S.of(context)!.pulseNoCheckinMsg,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          TextButton(
-            onPressed: () => context.go('/coach/checkin'),
-            style: TextButton.styleFrom(
-              foregroundColor: MintColors.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              S.of(context)!.pulseCheckinBtn,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBriefingBanner(MonthlyBriefingDelta briefing) {
-    final trendIcon = switch (briefing.trend) {
-      BriefingTrend.enHausse => Icons.trending_up,
-      BriefingTrend.enBaisse => Icons.trending_down,
-      BriefingTrend.stable => Icons.trending_flat,
-    };
-    final trendColor = switch (briefing.trend) {
-      BriefingTrend.enHausse => MintColors.success,
-      BriefingTrend.enBaisse => MintColors.warning,
-      BriefingTrend.stable => MintColors.textSecondary,
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: trendColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: trendColor.withValues(alpha: 0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(trendIcon, size: 16, color: trendColor),
-              const SizedBox(width: 8),
-              Text(
-                S.of(context)!.pulseBriefingTitle(briefing.trendLabel),
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          if (briefing.insights.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              briefing.insights.first,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.textSecondary,
-                height: 1.4,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  FRI — Financial Readiness Index (#3)
-  // ────────────────────────────────────────────────────────
-
-  /// Delegate FRI computation to FriComputationService (financial_core bridge).
-  /// Never duplicate calculation logic — anti-pattern #12.
-  FriBreakdown _computeFri(CoachProfile profile) {
-    if (_cachedProjection == null) {
-      // Without projection, compute with minimal FriInput
-      return FriCalculator.compute(const FriInput());
-    }
-    return FriComputationService.compute(
-      profile: profile,
-      projection: _cachedProjection!,
-    );
-  }
-
-  Widget _buildFriCard(FriBreakdown fri) {
-    final color = fri.total >= 65
-        ? MintColors.success
-        : fri.total >= 40
-            ? MintColors.warning
-            : MintColors.error;
-
-    // Identify weakest component for guidance
-    final l = S.of(context)!;
-    final components = {
-      l.pulseFriLiquidite: fri.liquidite,
-      l.pulseFriFiscalite: fri.fiscalite,
-      l.pulseFriRetraite: fri.retraite,
-      l.pulseFriRisque: fri.risque,
-    };
-    final weakest = components.entries
-        .reduce((a, b) => a.value <= b.value ? a : b);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.shield_outlined, size: 18, color: color),
-              const SizedBox(width: 8),
-              Text(
-                l.pulseFriTitle,
-                style: GoogleFonts.outfit(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${fri.total.round()} / 100',
-                style: GoogleFonts.outfit(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // 4-bar gauge
-          Row(
-            children: [
-              _FriBar(label: 'L', value: fri.liquidite, max: 25),
-              const SizedBox(width: 6),
-              _FriBar(label: 'F', value: fri.fiscalite, max: 25),
-              const SizedBox(width: 6),
-              _FriBar(label: 'R', value: fri.retraite, max: 25),
-              const SizedBox(width: 6),
-              _FriBar(label: 'S', value: fri.risque, max: 25),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // Weakest point + action
-          Row(
-            children: [
-              Icon(Icons.info_outline, size: 14, color: MintColors.textMuted),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  l.pulseFriWeakest(weakest.key),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: MintColors.textSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  //  VISIBILITY SCORE — couple-aware
-  // ────────────────────────────────────────────────────────
 
   VisibilityScore _computeVisibilityScore(CoachProfile profile) {
     if (profile.isCouple &&
@@ -779,7 +720,6 @@ class _PulseScreenState extends State<PulseScreen> {
         conjoint.salaireBrutMensuel! > 0;
   }
 
-  /// Construit un CoachProfile synthetique depuis ConjointProfile.
   CoachProfile _conjointToCoachProfile(CoachProfile mainProfile) {
     final conj = mainProfile.conjoint!;
     final retirementAge = conj.targetRetirementAge ?? 65;
@@ -803,6 +743,103 @@ class _PulseScreenState extends State<PulseScreen> {
         type: GoalAType.retraite,
         targetDate: DateTime(birthYr + retirementAge),
         label: 'Retraite',
+      ),
+    );
+  }
+
+  bool _hasCheckInThisMonth(CoachProfile profile) {
+    final now = DateTime.now();
+    return profile.checkIns.any(
+      (ci) => ci.month.year == now.year && ci.month.month == now.month,
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  FOCUS PICKER (bottom sheet to change focus)
+  // ────────────────────────────────────────────────────────
+
+  void _showFocusPicker(BuildContext context, CoachProfile profile) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.4,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (_, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16, bottom: 32),
+                child: FocusSelector(
+                  profile: profile,
+                  onFocusSelected: (focus) {
+                    Navigator.of(ctx).pop();
+                    _setFocus(context, focus);
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _setFocus(BuildContext context, String focus) {
+    final provider = context.read<CoachProfileProvider>();
+    provider.updatePrimaryFocus(focus);
+  }
+
+  // ────────────────────────────────────────────────────────
+  //  NO CHECK-IN CHIP
+  // ────────────────────────────────────────────────────────
+
+  Widget _buildNoCheckInChip(BuildContext context) {
+    return InkWell(
+      onTap: () => context.go('/coach/checkin'),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: MintColors.info.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_rounded,
+                size: 16, color: MintColors.info),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                S.of(context)!.pulseNoCheckinMsg,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: MintColors.textSecondary,
+                  height: 1.4,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              S.of(context)!.pulseCheckinBtn,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: MintColors.primary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -934,7 +971,7 @@ class _PulseScreenState extends State<PulseScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  PulseDisclaimer(),
+                  const PulseDisclaimer(),
                 ],
               ),
             ),
@@ -945,7 +982,135 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 }
 
-/// Compact card for a single key figure (retraite, budget, patrimoine).
+// ────────────────────────────────────────────────────────
+//  HERO CARD — Adaptive, focus-driven
+// ────────────────────────────────────────────────────────
+
+class _HeroCard extends StatelessWidget {
+  final PulseHero hero;
+  final VoidCallback onChangeFocus;
+
+  const _HeroCard({required this.hero, required this.onChangeFocus});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            hero.color,
+            hero.color.withValues(alpha: 0.85),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: hero.color.withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(hero.icon, size: 22, color: Colors.white.withValues(alpha: 0.9)),
+              const Spacer(),
+              // Change focus button
+              GestureDetector(
+                onTap: onChangeFocus,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.tune_rounded,
+                          size: 14, color: Colors.white.withValues(alpha: 0.9)),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Changer',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            hero.title,
+            style: GoogleFonts.outfit(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            hero.subtitle,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: Colors.white.withValues(alpha: 0.9),
+              height: 1.3,
+            ),
+          ),
+          if (hero.detail != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              hero.detail!,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.white.withValues(alpha: 0.7),
+                height: 1.3,
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () => context.push(hero.ctaRoute),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                hero.ctaLabel,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: hero.color,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────
+//  KEY FIGURE CARD
+// ────────────────────────────────────────────────────────
+
 class _KeyFigureCard extends StatelessWidget {
   final String label;
   final String value;
@@ -1027,117 +1192,175 @@ class _KeyFigureCard extends StatelessWidget {
 }
 
 // ────────────────────────────────────────────────────────
-//  FRI BAR (single component gauge)
+//  URGENT DEADLINE CHIP (single item, replaces strip)
 // ────────────────────────────────────────────────────────
 
-class _FriBar extends StatelessWidget {
-  final String label;
-  final double value;
-  final double max;
+class _UrgentDeadlineChip extends StatelessWidget {
+  final TemporalItem item;
 
-  const _FriBar({
-    required this.label,
-    required this.value,
-    required this.max,
+  const _UrgentDeadlineChip({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.schedule_rounded, size: 16, color: MintColors.warning),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              item.title,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: MintColors.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(
+            item.timeConstraint,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: MintColors.warning,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+
+// ────────────────────────────────────────────────────────
+//  COACH INSIGHT CARD — Dark card (Act 3)
+// ────────────────────────────────────────────────────────
+
+class _CoachInsightCard extends StatelessWidget {
+  final CoachNarrative narrative;
+  final VoidCallback onEnrich;
+
+  const _CoachInsightCard({
+    required this.narrative,
+    required this.onEnrich,
   });
 
   @override
   Widget build(BuildContext context) {
-    final ratio = (value / max).clamp(0.0, 1.0);
-    final color = ratio >= 0.7
-        ? MintColors.success
-        : ratio >= 0.4
-            ? MintColors.warning
-            : MintColors.error;
-
-    return Expanded(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: ratio,
-              minHeight: 6,
-              backgroundColor: MintColors.surface,
-              valueColor: AlwaysStoppedAnimation(color),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${value.round()}',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: MintColors.textMuted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────
-//  SCORE SPARKLINE (#1)
-// ────────────────────────────────────────────────────────
-
-class _ScoreSparkline extends StatelessWidget {
-  final List<Map<String, dynamic>> history;
-
-  const _ScoreSparkline({required this.history});
-
-  @override
-  Widget build(BuildContext context) {
-    if (history.length < 2) return const SizedBox.shrink();
-
-    // Extract scores, keep last 12 months
-    final recent = history.length > 12
-        ? history.sublist(history.length - 12)
-        : history;
-    final scores =
-        recent.map((e) => (e['score'] as num?)?.toDouble() ?? 0).toList();
-    final first = scores.first;
-    final last = scores.last;
-    final delta = last - first;
-    final deltaColor =
-        delta >= 0 ? MintColors.success : MintColors.warning;
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        children: [
-          // Sparkline chart
-          Expanded(
-            child: SizedBox(
-              height: 28,
-              child: CustomPaint(
-                painter: _SparklinePainter(scores: scores),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  narrative.isLlmGenerated
+                      ? Icons.auto_awesome
+                      : Icons.lightbulb_outline,
+                  size: 16,
+                  color: MintColors.primaryLight,
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              Text(
+                'L\'insight du coach',
+                style: GoogleFonts.outfit(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              if (narrative.isLlmGenerated) ...[
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'IA',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(width: 12),
-          // Delta badge
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: deltaColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(8),
+          const SizedBox(height: 14),
+          Text(
+            narrative.scoreSummary,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.9),
+              height: 1.5,
             ),
-            child: Text(
-              '${delta >= 0 ? '+' : ''}${delta.round()} pts',
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (narrative.topTipNarrative != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              narrative.topTipNarrative!,
               style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: deltaColor,
+                fontSize: 13,
+                color: Colors.white.withValues(alpha: 0.6),
+                height: 1.4,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: onEnrich,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: MintColors.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Text(
+                'Affiner mon profil',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: MintColors.primaryLight,
+                ),
               ),
             ),
           ),
@@ -1147,66 +1370,18 @@ class _ScoreSparkline extends StatelessWidget {
   }
 }
 
-class _SparklinePainter extends CustomPainter {
-  final List<double> scores;
+// ────────────────────────────────────────────────────────
+//  ENRICHMENT ACTION (data model)
+// ────────────────────────────────────────────────────────
 
-  _SparklinePainter({required this.scores});
+class _EnrichmentAction {
+  final IconData icon;
+  final String label;
+  final String route;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (scores.length < 2) return;
-
-    final maxScore = scores.reduce((a, b) => a > b ? a : b);
-    final minScore = scores.reduce((a, b) => a < b ? a : b);
-    final range = (maxScore - minScore).clamp(1.0, 100.0);
-
-    final paint = Paint()
-      ..color = MintColors.primary
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    for (var i = 0; i < scores.length; i++) {
-      final x = i / (scores.length - 1) * size.width;
-      final y =
-          size.height - ((scores[i] - minScore) / range * size.height);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    canvas.drawPath(path, paint);
-
-    // Fill gradient under curve
-    final fillPath = Path.from(path)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-
-    final fillPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          MintColors.primary.withValues(alpha: 0.15),
-          MintColors.primary.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawPath(fillPath, fillPaint);
-
-    // Last point dot
-    final dotPaint = Paint()
-      ..color = MintColors.primary
-      ..style = PaintingStyle.fill;
-    final lastX = size.width;
-    final lastY = size.height -
-        ((scores.last - minScore) / range * size.height);
-    canvas.drawCircle(Offset(lastX, lastY), 3, dotPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _SparklinePainter old) =>
-      old.scores != scores;
+  const _EnrichmentAction({
+    required this.icon,
+    required this.label,
+    required this.route,
+  });
 }
