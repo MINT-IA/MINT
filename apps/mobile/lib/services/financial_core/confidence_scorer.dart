@@ -763,14 +763,41 @@ class ConfidenceScorer {
         ? (freshnessWeightedSum / freshnessTotalWeight * 100).clamp(0.0, 100.0)
         : 50.0;
 
-    // ── Combined: geometric mean ──────────────────────────────
-    // Geometric mean of 3 axes ensures no single axis can be ignored.
-    // Adding small epsilon (1.0) to avoid zero-multiplication collapse
-    // when completeness is 0 but other axes are non-zero.
+    // ── Understanding axis ────────────────────────────────────
+    // Measures the user's engagement with financial education.
+    // Sources (normalized to sum = 1.0):
+    //   - financialLiteracyLevel (50%): onboarding calibration (dominant source)
+    //   - coachSessionCount (30%): number of coach interactions
+    //   - educationViewCount (20%): education inserts viewed (future)
+    //
+    // Beginner=30, intermediate=55, advanced=85 (base from calibration).
+    // Each coach session adds ~2 pts (diminishing returns, cap at 40 pts).
+    // Each education view adds ~1.5 pts (cap at 30 pts, placeholder 0 for now).
+    //
+    // Max achievable today (no educationBonus): 85*0.50 + 40*0.30 = 54.5
+    // Max with all 3 sources: 85*0.50 + 40*0.30 + 30*0.20 = 60.5
+    // → understanding is intentionally softer than other axes (education
+    //   is a long-term journey, not a checkbox to max out).
+    final literacyBase = switch (profile.financialLiteracyLevel) {
+      FinancialLiteracyLevel.beginner => 30.0,
+      FinancialLiteracyLevel.intermediate => 55.0,
+      FinancialLiteracyLevel.advanced => 85.0,
+    };
+    final sessionCount = profile.checkIns.length;
+    final sessionBonus = (sessionCount * 2.0).clamp(0.0, 40.0);
+    // educationViewCount not yet tracked — placeholder for future wiring
+    const educationBonus = 0.0;
+    final understanding =
+        (literacyBase * 0.50 + sessionBonus * 0.30 + educationBonus * 0.20)
+        .clamp(0.0, 100.0);
+
+    // ── Combined: geometric mean of 4 axes ──────────────────
+    // Adding small epsilon (1.0) to avoid zero-multiplication collapse.
     final c = (completeness + 1.0) / 101.0;
     final a = (accuracy + 1.0) / 101.0;
     final f = (freshness + 1.0) / 101.0;
-    final geoMean = _pow(c * a * f, 1.0 / 3.0);
+    final u = (understanding + 1.0) / 101.0;
+    final geoMean = _pow(c * a * f * u, 1.0 / 4.0);
     final combined = (geoMean * 101.0 - 1.0).clamp(0.0, 100.0);
 
     // ── Axis-specific enrichment prompts ──────────────────────
@@ -817,6 +844,24 @@ class ConfidenceScorer {
       }
     }
 
+    // Understanding prompts: suggest education engagement
+    if (understanding < 40) {
+      axisPrompts.add(const EnrichmentPrompt(
+        label: 'Explore les fiches \u00e9ducatives',
+        impact: 10,
+        category: 'understanding',
+        action: 'Lis les fiches sur tes th\u00e8mes cl\u00e9s (LPP, AVS, fiscalit\u00e9)',
+      ));
+    }
+    if (sessionCount < 3) {
+      axisPrompts.add(const EnrichmentPrompt(
+        label: 'Pose une question au coach',
+        impact: 5,
+        category: 'understanding',
+        action: 'Chaque interaction affine ta compr\u00e9hension financi\u00e8re',
+      ));
+    }
+
     // Sort by impact descending
     axisPrompts.sort((a, b) => b.impact.compareTo(a.impact));
 
@@ -824,6 +869,7 @@ class ConfidenceScorer {
       completeness: completeness,
       accuracy: accuracy,
       freshness: freshness,
+      understanding: understanding,
       combined: combined,
       level: baseResult.level,
       baseResult: baseResult,
@@ -839,7 +885,15 @@ class ConfidenceScorer {
 
 }
 
-/// Enhanced 3-axis confidence result (S46).
+/// Enhanced 4-axis confidence result (S46 + Phase 2).
+///
+/// Axes: completeness × accuracy × freshness × understanding.
+/// Combined score = geometric mean of all 4 axes (0-100).
+///
+/// Understanding axis measures financial literacy engagement:
+/// beginner(30) / intermediate(55) / advanced(85) base +
+/// coach session bonus (capped 40) + education views (future).
+/// For new users (beginner, no sessions): understanding ≈ 15.
 class EnhancedConfidence {
   /// Completeness axis: 0-100 (how much data is present).
   final double completeness;
@@ -850,7 +904,11 @@ class EnhancedConfidence {
   /// Freshness axis: 0-100 (how recent is the data).
   final double freshness;
 
-  /// Combined score: geometric mean of 3 axes (0-100).
+  /// Understanding axis: 0-100 (financial literacy engagement).
+  /// Combines onboarding calibration + education interactions.
+  final double understanding;
+
+  /// Combined score: geometric mean of 4 axes (0-100).
   final double combined;
 
   /// Level derived from completeness (backward compat): 'low'/'medium'/'high'.
@@ -859,13 +917,14 @@ class EnhancedConfidence {
   /// Full V2 base result (for backward compatibility with existing consumers).
   final ProjectionConfidence baseResult;
 
-  /// Axis-specific enrichment prompts (freshness + accuracy).
+  /// Axis-specific enrichment prompts (freshness + accuracy + understanding).
   final List<EnrichmentPrompt> axisPrompts;
 
   const EnhancedConfidence({
     required this.completeness,
     required this.accuracy,
     required this.freshness,
+    required this.understanding,
     required this.combined,
     required this.level,
     required this.baseResult,

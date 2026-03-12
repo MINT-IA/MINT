@@ -203,7 +203,7 @@ void main() {
       expect(result.freshness, equals(50)); // 0.5 default → 50%
     });
 
-    test('combined = geometric mean of 3 axes', () {
+    test('combined = geometric mean of 4 axes', () {
       final profile = _buildProfile(
         age: 45,
         salary: 8000,
@@ -216,11 +216,10 @@ void main() {
         anneesContribuees: 25,
       );
       final result = ConfidenceScorer.scoreEnhanced(profile);
-      // Combined should be between min and max of the 3 axes
-      final minAxis = [result.completeness, result.accuracy, result.freshness]
-          .reduce((a, b) => a < b ? a : b);
-      final maxAxis = [result.completeness, result.accuracy, result.freshness]
-          .reduce((a, b) => a > b ? a : b);
+      // Combined should be between min and max of the 4 axes
+      final axes = [result.completeness, result.accuracy, result.freshness, result.understanding];
+      final minAxis = axes.reduce((a, b) => a < b ? a : b);
+      final maxAxis = axes.reduce((a, b) => a > b ? a : b);
       expect(result.combined, greaterThanOrEqualTo(minAxis - 1));
       expect(result.combined, lessThanOrEqualTo(maxAxis + 1));
     });
@@ -259,6 +258,120 @@ void main() {
           greaterThanOrEqualTo(result.axisPrompts[i + 1].impact),
         );
       }
+    });
+
+    // ── Phase 2: Understanding axis (V3) ──────────────────────
+
+    test('beginner with no sessions → low understanding', () {
+      final profile = _buildProfile(
+        age: 30,
+        salary: 5000,
+        canton: 'GE',
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      // beginner base=30, 0 sessions → 30*0.50 + 0*0.30 + 0*0.20 = 15
+      expect(result.understanding, closeTo(15, 1));
+    });
+
+    test('advanced with many sessions → high understanding', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+        checkInsCount: 20,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      // advanced base=85, 20 sessions (bonus=40) → 85*0.50 + 40*0.30 + 0
+      // = 42.5 + 12 = 54.5
+      expect(result.understanding, closeTo(54.5, 1));
+    });
+
+    test('intermediate literacy → moderate understanding', () {
+      final profile = _buildProfile(
+        age: 40,
+        salary: 6000,
+        canton: 'BE',
+        financialLiteracyLevel: FinancialLiteracyLevel.intermediate,
+        checkInsCount: 5,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      // intermediate base=55, 5 sessions (bonus=10)
+      // 55*0.50 + 10*0.30 + 0 = 27.5 + 3 = 30.5
+      expect(result.understanding, closeTo(30.5, 1));
+    });
+
+    test('understanding axis included in combined geometric mean', () {
+      // Same profile, different literacy → different combined
+      final beginner = _buildProfile(
+        age: 45, salary: 8000, canton: 'ZH', avoirLpp: 300000,
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+      );
+      final advanced = _buildProfile(
+        age: 45, salary: 8000, canton: 'ZH', avoirLpp: 300000,
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+        checkInsCount: 15,
+      );
+      final rBeg = ConfidenceScorer.scoreEnhanced(beginner);
+      final rAdv = ConfidenceScorer.scoreEnhanced(advanced);
+      expect(rAdv.combined, greaterThan(rBeg.combined));
+    });
+
+    test('low understanding → understanding prompts generated', () {
+      final profile = _buildProfile(
+        age: 30,
+        salary: 5000,
+        canton: 'GE',
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      final uPrompts = result.axisPrompts
+          .where((p) => p.category == 'understanding')
+          .toList();
+      expect(uPrompts, isNotEmpty);
+      // Should have both education and session prompts
+      expect(uPrompts.length, greaterThanOrEqualTo(2));
+    });
+
+    test('high understanding → no understanding prompts', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+        checkInsCount: 20,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      final uPrompts = result.axisPrompts
+          .where((p) => p.category == 'understanding')
+          .toList();
+      // understanding > 40 and sessions >= 3 → no prompts
+      expect(uPrompts, isEmpty);
+    });
+
+    test('session bonus caps at 40 points', () {
+      final profile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+        checkInsCount: 50, // 50*2=100, capped at 40
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      // beginner base=30, capped session bonus=40
+      // 30*0.50 + 40*0.30 + 0 = 15 + 12 = 27
+      expect(result.understanding, closeTo(27, 1));
+      final moreSessionsProfile = _buildProfile(
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        financialLiteracyLevel: FinancialLiteracyLevel.beginner,
+        checkInsCount: 100,
+      );
+      final result2 = ConfidenceScorer.scoreEnhanced(moreSessionsProfile);
+      // Both should be identical (cap reached)
+      expect(result.understanding, closeTo(result2.understanding, 0.01));
     });
 
     test('baseResult preserves backward-compatible V2 scoring', () {
@@ -538,7 +651,18 @@ CoachProfile _buildProfile({
   String? residencePermit,
   Map<String, ProfileDataSource> dataSources = const {},
   Map<String, DateTime> dataTimestamps = const {},
+  FinancialLiteracyLevel financialLiteracyLevel = FinancialLiteracyLevel.beginner,
+  int checkInsCount = 0,
 }) {
+  final checkIns = List.generate(
+    checkInsCount,
+    (i) => MonthlyCheckIn(
+      month: DateTime(2026, 1 + (i % 12), 1),
+      versements: const {'3a': 604.83},
+      completedAt: DateTime(2026, 1 + (i % 12), 15),
+    ),
+  );
+
   return CoachProfile(
     firstName: 'Test',
     birthYear: DateTime.now().year - age,
@@ -550,6 +674,8 @@ CoachProfile _buildProfile({
     residencePermit: residencePermit,
     dataSources: dataSources,
     dataTimestamps: dataTimestamps,
+    financialLiteracyLevel: financialLiteracyLevel,
+    checkIns: checkIns,
     prevoyance: PrevoyanceProfile(
       avoirLppTotal: avoirLpp,
       tauxConversion: tauxConversion,
