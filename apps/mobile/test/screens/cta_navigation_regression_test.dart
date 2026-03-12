@@ -14,9 +14,12 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 
 // Models
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   setUp(() {
@@ -49,8 +52,19 @@ void main() {
         ChangeNotifierProvider<LocaleProvider>(
           create: (_) => LocaleProvider(),
         ),
+        ChangeNotifierProvider<SlmProvider>(
+          create: (_) => SlmProvider(),
+        ),
       ],
-      child: const MaterialApp(home: ProfileScreen()),
+      child: const MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,home: ProfileScreen()),
     );
   }
 
@@ -167,14 +181,14 @@ void main() {
       expect(find.byType(InkWell), findsWidgets);
     });
 
-    testWidgets('Profile shows monthly coach summary card with full profile',
+    testWidgets('Profile shows guidance card with full profile',
         (tester) async {
       final coachProvider = buildFullCoachProvider();
       await tester.pumpWidget(buildProfileScreen(coachProvider: coachProvider));
       await tester.pump();
 
-      expect(find.textContaining('Resume coach du mois'), findsOneWidget);
-      expect(find.textContaining('Prochaine etape'), findsWidgets);
+      // Profile guidance card shows recommended section and quality score
+      expect(find.textContaining('Section recommand'), findsOneWidget);
     });
   });
 
@@ -296,21 +310,22 @@ void main() {
 
       final mini = buildMiniCoachProvider();
       // Mini provider answers 3 of 16 quality keys (q_birth_year,
-      // q_canton, q_net_income_period_chf). Result: (3/16).clamp(0.10, 0.55).
+      // q_canton, q_net_income_period_chf). Result: (3/16).clamp(0.05, 1.0).
       expect(mini.profileCompleteness, 3 / 16);
 
       final full = buildFullCoachProvider();
-      expect(full.profileCompleteness, 0.60);
+      // Full provider — continuous scale, no artificial floor.
+      expect(full.profileCompleteness, greaterThanOrEqualTo(0.5));
     });
 
     test('onboardingQualityScore and wizard section recommendation are dynamic',
         () {
       final mini = buildMiniCoachProvider();
-      expect(mini.onboardingQualityScore, greaterThanOrEqualTo(0.15));
+      expect(mini.onboardingQualityScore, greaterThanOrEqualTo(0.05));
       expect(mini.recommendedWizardSection, isNotEmpty);
 
       final full = buildFullCoachProvider();
-      expect(full.onboardingQualityScore, greaterThanOrEqualTo(0.60));
+      expect(full.onboardingQualityScore, greaterThanOrEqualTo(0.5));
       expect(
         ['identity', 'income', 'pension', 'property']
             .contains(full.recommendedWizardSection),

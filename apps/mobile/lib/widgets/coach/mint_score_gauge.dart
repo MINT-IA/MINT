@@ -40,6 +40,17 @@ class MintScoreGauge extends StatefulWidget {
   /// Callback au tap
   final VoidCallback? onTap;
 
+  /// Peer benchmark: "Mieux que X% des 45-55 ans" (P1-H).
+  final int? peerPercentile;
+
+  /// Recent score gains (P1-H gamification).
+  /// Each entry: {'label': 'description', 'points': int}
+  final List<Map<String, dynamic>>? recentGains;
+
+  /// Next actions to improve score (P1-H).
+  /// Each entry: {'label': 'description', 'points': int}
+  final List<Map<String, dynamic>>? nextActions;
+
   const MintScoreGauge({
     super.key,
     required this.score,
@@ -49,6 +60,9 @@ class MintScoreGauge extends StatefulWidget {
     this.trend = 'stable',
     this.previousScore,
     this.onTap,
+    this.peerPercentile,
+    this.recentGains,
+    this.nextActions,
   });
 
   @override
@@ -140,9 +154,9 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Score de forme financiere. ${ widget.score} sur 100. '
+      label: 'Score de forme financière. ${ widget.score} sur 100. '
           'Niveau $_levelLabel. '
-          'Budget ${widget.budgetScore}, Prevoyance ${widget.prevoyanceScore}, '
+          'Budget ${widget.budgetScore}, Prévoyance ${widget.prevoyanceScore}, '
           'Patrimoine ${widget.patrimoineScore}.',
       child: GestureDetector(
         onTap: widget.onTap,
@@ -169,8 +183,24 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                   _buildHeader(),
                   const SizedBox(height: 20),
                   _buildGauge(constraints.maxWidth),
+                  // P1-H: Peer benchmark
+                  if (widget.peerPercentile != null) ...[
+                    const SizedBox(height: 12),
+                    _buildPeerBenchmark(),
+                  ],
                   const SizedBox(height: 24),
                   _buildSubScores(),
+                  // P1-H: Gamification panels
+                  if (widget.recentGains != null &&
+                      widget.recentGains!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildGainHistory(),
+                  ],
+                  if (widget.nextActions != null &&
+                      widget.nextActions!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildNextActions(),
+                  ],
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -208,7 +238,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Forme financiere',
+                'Forme financière',
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -354,7 +384,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                 ),
                 const SizedBox(height: 12),
                 _buildSubScoreBar(
-                  label: 'Prevoyance',
+                  label: 'Prévoyance',
                   score: widget.prevoyanceScore,
                   icon: Icons.shield_outlined,
                 ),
@@ -436,12 +466,151 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   }
 
   // ────────────────────────────────────────────────────────────
+  //  P1-H: PEER BENCHMARK
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildPeerBenchmark() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: MintColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.people_outline, size: 14, color: MintColors.primary),
+          const SizedBox(width: 6),
+          Text(
+            'Mieux que ${widget.peerPercentile}% des profils similaires',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: MintColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  P1-H: GAIN HISTORY
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildGainHistory() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.scoreExcellent.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Ce qui t\u2019a fait monter',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: MintColors.scoreExcellent,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...widget.recentGains!.take(3).map((gain) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle,
+                        size: 14, color: MintColors.scoreExcellent),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        gain['label'] as String? ?? '',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '+${gain['points'] ?? 0} pts',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.scoreExcellent,
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  P1-H: NEXT ACTIONS
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildNextActions() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Pour monter encore',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: MintColors.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...widget.nextActions!.take(3).map((action) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.assignment_outlined,
+                        size: 14, color: MintColors.primary),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        action['label'] as String? ?? '',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '+${action['points'] ?? 0} pts',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
     return Text(
-      'Estimations educatives \u2014 ne constitue pas un conseil financier.',
+      'Estimations éducatives \u2014 ne constitue pas un conseil financier.',
       textAlign: TextAlign.center,
       style: GoogleFonts.inter(
         fontSize: 10,

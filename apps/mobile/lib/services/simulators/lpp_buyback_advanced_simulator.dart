@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
+
 class LppAdvancedResult {
   final double totalInvestedBrut;
   final double totalTaxSavings;
@@ -48,6 +50,7 @@ class LppBuybackAdvancedSimulator {
     required int staggeringYears,
     required double annualInterestRate,
     double taxableIncome = 120000,
+    String canton = 'ZH',
   }) {
     double totalTaxSavings = 0;
     double currentBalance = 0;
@@ -62,7 +65,7 @@ class LppBuybackAdvancedSimulator {
       if (y <= staggeringYears) {
         contribution = buybackPerYear;
         // Estimate tax saving for this year's slice
-        currentYearTaxSaving = _estimateTaxSaving(taxableIncome, contribution);
+        currentYearTaxSaving = RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: contribution, canton: canton);
         totalTaxSavings += currentYearTaxSaving;
       }
 
@@ -103,30 +106,4 @@ class LppBuybackAdvancedSimulator {
     );
   }
 
-  /// Re-using heuristic from BuybackSimulator
-  static double _estimateTaxSaving(double income, double deduction) {
-    if (deduction <= 0) return 0.0;
-
-    double rateAt(double inc) {
-      if (inc < 15000) return 0.0;
-      double r = 0.08 +
-          (inc / 250000) * 0.32; // slightly different curve for "Advanced"
-      if (r > 0.42) return 0.42;
-      return r;
-    }
-
-    double steps = 5;
-    double stepSize = deduction / steps;
-    double currentIncome = income;
-    double totallySaved = 0.0;
-
-    for (int i = 0; i < steps; i++) {
-      double midPoint = currentIncome - (stepSize / 2);
-      double rate = rateAt(midPoint);
-      totallySaved += stepSize * rate;
-      currentIncome -= stepSize;
-    }
-
-    return totallySaved;
-  }
 }

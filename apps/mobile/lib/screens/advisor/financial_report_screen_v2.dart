@@ -894,7 +894,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
+                const Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
                 Text(
                   'Transparence et conformit\u00e9',
@@ -1073,7 +1073,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.shield_outlined,
+                const Icon(Icons.shield_outlined,
                     size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 6),
                 Text(

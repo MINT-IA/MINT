@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
-import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Auto-prompt for SLM model download on native platforms.
@@ -50,8 +49,8 @@ class SlmAutoPromptService {
     if (await _wasPrompted()) return;
 
     // Model already downloaded → mark and skip.
-    final isReady = await SlmDownloadService.instance.isModelReady;
-    if (isReady) {
+    final slm = context.read<SlmProvider>();
+    if (slm.isModelReady) {
       await _markPrompted();
       return;
     }
@@ -59,7 +58,7 @@ class SlmAutoPromptService {
     // Build not configured for model download (gated repo without token).
     // Do NOT mark as prompted so a future properly configured build
     // can still present the one-time auto-prompt.
-    if (!SlmDownloadService.instance.canAttemptDownload) {
+    if (!slm.canAttemptDownload) {
       return;
     }
 
@@ -88,69 +87,16 @@ class SlmAutoPromptService {
 }
 
 /// Bottom sheet widget for SLM download prompt.
-class _SlmDownloadSheet extends StatefulWidget {
+class _SlmDownloadSheet extends StatelessWidget {
   const _SlmDownloadSheet();
 
   @override
-  State<_SlmDownloadSheet> createState() => _SlmDownloadSheetState();
-}
-
-class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
-  bool _downloading = false;
-  double _progress = 0;
-  bool _completed = false;
-  String? _error;
-  StreamSubscription<DownloadState>? _sub;
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _startDownload() async {
-    setState(() {
-      _downloading = true;
-      _error = null;
-    });
-
-    _sub = SlmDownloadService.instance.stateStream.listen((state) {
-      if (!mounted) return;
-      if (state == DownloadState.completed) {
-        setState(() {
-          _completed = true;
-          _downloading = false;
-          _progress = 1.0;
-        });
-        // Initialize the engine immediately after download.
-        SlmEngine.instance.initialize();
-      } else if (state == DownloadState.failed) {
-        setState(() {
-          _error = 'Le téléchargement a échoué. Réessaie depuis les réglages.';
-          _downloading = false;
-        });
-      }
-    });
-
-    final success = await SlmDownloadService.instance.downloadModel(
-      onProgress: (progress, downloaded, total) {
-        if (mounted) {
-          setState(() => _progress = progress);
-        }
-      },
-    );
-
-    if (!success && mounted && !_completed) {
-      setState(() {
-        _downloading = false;
-        _error ??=
-            'Le téléchargement a échoué. Tu peux réessayer depuis les réglages.';
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final slm = context.watch<SlmProvider>();
+    final isDownloading = slm.downloadState == DownloadState.downloading;
+    final isCompleted = slm.isModelReady && !isDownloading;
+    final hasError = slm.downloadState == DownloadState.failed;
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -240,11 +186,11 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
             const SizedBox(height: 16),
 
             // Progress bar (when downloading)
-            if (_downloading) ...[
+            if (isDownloading) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
-                  value: _progress,
+                  value: slm.downloadProgress,
                   minHeight: 8,
                   backgroundColor: MintColors.lightBorder,
                   color: MintColors.primary,
@@ -252,7 +198,7 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
               ),
               const SizedBox(height: 6),
               Text(
-                '${(_progress * 100).toStringAsFixed(0)}%',
+                '${(slm.downloadProgress * 100).toStringAsFixed(0)}%',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -263,7 +209,7 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
             ],
 
             // Completed message
-            if (_completed) ...[
+            if (isCompleted) ...[
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
@@ -314,9 +260,10 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
             ],
 
             // Error message
-            if (_error != null) ...[
+            if (hasError && !isDownloading) ...[
               Text(
-                _error!,
+                slm.lastError ??
+                    'Le telechargement a echoue. Tu peux reessayer depuis les reglages.',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MintColors.error,
@@ -326,11 +273,13 @@ class _SlmDownloadSheetState extends State<_SlmDownloadSheet> {
             ],
 
             // Action buttons (when not downloading and not completed)
-            if (!_downloading && !_completed) ...[
+            if (!isDownloading && !isCompleted) ...[
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _startDownload,
+                  onPressed: slm.isProcessing
+                      ? null
+                      : () => slm.downloadModel(),
                   icon: const Icon(Icons.download),
                   label: Text(
                     'Installer le coach IA',

@@ -43,10 +43,10 @@ class PatrimoineSnapshotCard extends StatelessWidget {
     final segments = [
       _Segment('LPP', lppCapital, MintColors.primary),
       if (lppCapitalConjoint > 0)
-        _Segment('LPP conjoint·e', lppCapitalConjoint, const Color(0xFF5C6BC0)),
-      _Segment('3a', threeACapital, const Color(0xFF4CAF50)),
-      _Segment('Épargne', epargne, const Color(0xFFFFA726)),
-      _Segment('Immobilier', immobilier, const Color(0xFF78909C)),
+        _Segment('LPP conjoint·e', lppCapitalConjoint, MintColors.indigoMuted),
+      _Segment('3a', threeACapital, MintColors.centralScenario),
+      _Segment('Épargne', epargne, MintColors.orangeWarm),
+      _Segment('Immobilier', immobilier, MintColors.blueSteel),
     ].where((s) => s.value > 0).toList();
 
     return Card(

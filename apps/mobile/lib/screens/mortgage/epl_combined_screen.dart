@@ -219,9 +219,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   static const _pieColors = [
-    Color(0xFF1D1D1F), // Cash — anthracite
-    Color(0xFF007AFF), // 3a — blue
-    Color(0xFFFF9F0A), // LPP — orange
+    MintColors.primary, // Cash — anthracite
+    MintColors.info, // 3a — blue
+    MintColors.warning, // LPP — orange
   ];
 
   Widget _buildPieLegendItem({
@@ -779,9 +779,9 @@ class _PieChartPainter extends CustomPainter {
   final double total;
 
   static const _colors = [
-    Color(0xFF1D1D1F), // Cash — anthracite
-    Color(0xFF007AFF), // 3a — blue
-    Color(0xFFFF9F0A), // LPP — orange
+    MintColors.primary, // Cash — anthracite
+    MintColors.info, // 3a — blue
+    MintColors.warning, // LPP — orange
   ];
 
   _PieChartPainter({
@@ -844,7 +844,7 @@ class _PieChartPainter extends CustomPainter {
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF1D1D1F),
+          color: MintColors.primary,
           height: 1.3,
         ),
       ),

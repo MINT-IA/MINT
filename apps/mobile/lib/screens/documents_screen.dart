@@ -140,7 +140,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           ),
         ),
         title: Text(
-          'COFFRE-FORT',
+          s?.vaultTitle.toUpperCase() ?? 'COFFRE-FORT',
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 const Icon(Icons.star_rounded, color: Colors.white, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  'Premium',
+                  s?.vaultPremiumBadge ?? 'Premium',
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1019,7 +1019,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'CHAMPS EXTRAITS',
+          s?.vaultExtractedFields.toUpperCase() ?? 'CHAMPS EXTRAITS',
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -1444,7 +1444,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
+            child: Text(s?.vaultCancelButton ?? 'Annuler'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -1483,7 +1483,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
+            child: Text(s?.vaultOkButton ?? 'OK'),
           ),
         ],
       ),

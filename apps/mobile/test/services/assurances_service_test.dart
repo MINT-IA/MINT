@@ -124,7 +124,7 @@ void main() {
     test('recommandations mention low expenses hint for < 500', () {
       final result = LamalFranchiseService.analyzeAllFranchises(400, 200);
       expect(
-        result.recommandations.any((r) => r.contains('franchise elevee')),
+        result.recommandations.any((r) => r.contains('franchise élevée')),
         isTrue,
       );
     });
@@ -339,7 +339,7 @@ void main() {
         aIjmCollective: false,
       );
       expect(
-        result.recommandations.any((r) => r.contains('PRIORITE')),
+        result.recommandations.any((r) => r.contains('PRIORITÉ')),
         isTrue,
       );
     });

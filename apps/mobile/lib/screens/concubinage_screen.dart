@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONCUBINAGE SCREEN — Sprint S22 / Famille & Concubinage
@@ -156,8 +157,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         const SizedBox(height: 20),
 
         if (_comparisonResult != null) ...[
-          // Decision matrix
-          _buildDecisionMatrix(),
+          // Decision matrix — animated comparison visualization
+          ConcubinageDecisionMatrix(
+            criteria: _matrixCriteria,
+          ),
           const SizedBox(height: 20),
 
           // Score summary
@@ -282,89 +285,49 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
-  Widget _buildDecisionMatrix() {
-    final result = _comparisonResult!;
-    final fiscal = result['fiscal'] as Map<String, dynamic>;
-    final isPenalite = fiscal['isPenalite'] as bool;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
+  List<ComparisonCriteria> get _matrixCriteria {
+    final isPenalite = _comparisonResult != null
+        ? (_comparisonResult!['fiscal'] as Map<String, dynamic>)['isPenalite']
+            as bool
+        : false;
+    return [
+      ComparisonCriteria(
+        label: 'Impots',
+        marriageLabel: isPenalite ? 'Penalite fiscale' : 'Bonus fiscal',
+        concubinageLabel: isPenalite ? 'Avantageux' : 'Desavantageux',
+        advantage:
+            isPenalite ? Advantage.concubinage : Advantage.marriage,
+        icon: Icons.account_balance_outlined,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.grid_view_rounded,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                'MATRICE DE DECISION',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Headers
-          Row(
-            children: [
-              const Expanded(flex: 3, child: SizedBox.shrink()),
-              Expanded(
-                flex: 2,
-                child: Center(
-                  child: Text(
-                    'Mariage',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Center(
-                  child: Text(
-                    'Concubinage',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Divider(color: MintColors.border.withValues(alpha: 0.5)),
-          const SizedBox(height: 8),
-
-          // Rows
-          _buildMatrixRow(
-            'Impots',
-            !isPenalite, // green if bonus
-            isPenalite, // green if penalty for married = cheaper for concubin
-          ),
-          _buildMatrixRow('AVS survivant', true, false),
-          _buildMatrixRow('LPP survivant', true, false),
-          _buildMatrixRow('Heritage exonere', true, false),
-          _buildMatrixRow('Pension alimentaire', true, false),
-          _buildMatrixRow('Simplicite separation', false, true),
-        ],
+      ComparisonCriteria(
+        label: 'Heritage',
+        marriageLabel: 'Exonere (CC art. 462)',
+        concubinageLabel: 'Impot cantonal',
+        advantage: Advantage.marriage,
+        icon: Icons.family_restroom,
       ),
-    );
+      ComparisonCriteria(
+        label: 'Protection deces',
+        marriageLabel: 'AVS + LPP survivant',
+        concubinageLabel: 'Aucune rente automatique',
+        advantage: Advantage.marriage,
+        icon: Icons.shield_outlined,
+      ),
+      ComparisonCriteria(
+        label: 'Flexibilite',
+        marriageLabel: 'Procedure judiciaire',
+        concubinageLabel: 'Separation simplifiee',
+        advantage: Advantage.concubinage,
+        icon: Icons.swap_horiz,
+      ),
+      ComparisonCriteria(
+        label: 'Pension alim.',
+        marriageLabel: 'Protegee par le juge',
+        concubinageLabel: 'Accord prealable',
+        advantage: Advantage.marriage,
+        icon: Icons.balance,
+      ),
+    ];
   }
 
   Widget _buildMatrixRow(String label, bool marriageGood, bool concubinGood) {

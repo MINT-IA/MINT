@@ -150,7 +150,7 @@ class ReengagementEngine {
         trigger: ReengagementTrigger.taxPrep,
         title: 'Declaration fiscale',
         body: 'Prepare ta declaration : tes chiffres cles sont disponibles.',
-        deeplink: '/home',
+        deeplink: '/tools',
         personalNumber: 'CHF $savingStr',
         timeConstraint: 'Avant le 31 mars',
         month: 2,
@@ -165,7 +165,7 @@ class ReengagementEngine {
         title: 'Deadline fiscale',
         body: 'Deadline canton de $canton : '
             'il reste $daysLeft jours.',
-        deeplink: '/home',
+        deeplink: '/tools',
         personalNumber: 'CHF $savingStr',
         timeConstraint: '$daysLeft jours',
         month: 3,

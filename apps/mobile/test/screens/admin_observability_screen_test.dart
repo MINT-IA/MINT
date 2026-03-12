@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/admin_observability_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 Widget _build(Widget child) {
-  return MaterialApp(home: child);
+  return MaterialApp(
+locale: const Locale('fr'),
+localizationsDelegates: const [
+  S.delegate,
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+],
+supportedLocales: S.supportedLocales,home: child);
 }
 
 void main() {

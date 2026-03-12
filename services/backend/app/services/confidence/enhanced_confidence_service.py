@@ -5,10 +5,11 @@ Pure functions for multi-dimensional confidence measurement:
 - score_completeness: champs remplis, ponderes par importance
 - score_accuracy: qualite des sources (open_banking > document > user_entry)
 - score_freshness: fraicheur des donnees (< 1 mois = 100, > 12 mois = 25)
-- compute_confidence: combinaison ponderee + feature gates + enrichment prompts
+- score_understanding: comprehension financiere (literacy + engagement)
+- compute_confidence: moyenne geometrique 4 axes + feature gates + enrichment prompts
 - rank_enrichment_prompts: actions classees par impact sur le score
 
-Poids globaux: 40% completeness + 35% accuracy + 25% freshness.
+Score global: moyenne geometrique sur 4 axes (completeness, accuracy, freshness, understanding).
 
 Sources:
     - DATA_ACQUISITION_STRATEGY.md, section "Confidence Scoring Evolution"
@@ -20,6 +21,7 @@ Sources:
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
@@ -89,6 +91,14 @@ FRESHNESS_THRESHOLDS = [
     (12, 0.50),   # 6-12 months
 ]
 FRESHNESS_FLOOR = 0.25  # > 12 months
+
+# Understanding axis constants (Dart parity)
+LITERACY_BASES = {"beginner": 30.0, "intermediate": 55.0, "advanced": 85.0}
+SESSION_BONUS_PER_CHECKIN = 2.0
+SESSION_BONUS_CAP = 40.0
+WEIGHT_LITERACY = 0.50
+WEIGHT_SESSION = 0.30
+WEIGHT_EDUCATION = 0.20
 
 # Enrichment prompt catalog: what actions improve confidence and by how much
 _ENRICHMENT_CATALOG: List[Dict] = [
@@ -316,6 +326,43 @@ def score_freshness(
     return round(min(100.0, (weighted_freshness_sum / total_weight) * 100), 1)
 
 
+def score_understanding(profile: dict) -> float:
+    """Compute understanding score (0-100) from literacy level and engagement.
+
+    Formula: literacyBase * 0.50 + sessionBonus * 0.30 + educationBonus * 0.20
+
+    Args:
+        profile: dict with optional keys 'financial_literacy_level' and 'check_in_count'
+
+    Returns:
+        Understanding score 0-100.
+    """
+    literacy_level = profile.get("financial_literacy_level", "beginner")
+    literacy_base = LITERACY_BASES.get(str(literacy_level).lower(), 30.0)
+
+    check_in_count = profile.get("check_in_count", 0)
+    if not isinstance(check_in_count, (int, float)):
+        check_in_count = 0
+    session_bonus = min(check_in_count * SESSION_BONUS_PER_CHECKIN, SESSION_BONUS_CAP)
+
+    education_bonus = 0.0  # placeholder for future education tracking
+
+    understanding = (
+        literacy_base * WEIGHT_LITERACY
+        + session_bonus * WEIGHT_SESSION
+        + education_bonus * WEIGHT_EDUCATION
+    )
+    return round(min(100.0, max(0.0, understanding)), 1)
+
+
+def _geo_mean_4(c: float, a: float, f: float, u: float) -> float:
+    """4-axis geometric mean with shift to avoid zero (Dart parity)."""
+    vals = [(x + 1.0) / 101.0 for x in [c, a, f, u]]
+    product = vals[0] * vals[1] * vals[2] * vals[3]
+    geo = product ** 0.25
+    return min(100.0, max(0.0, geo * 101.0 - 1.0))
+
+
 def _compute_feature_gates(overall: float) -> Dict[str, bool]:
     """Determine les fonctionnalites debloquees selon le score global.
 
@@ -425,10 +472,10 @@ def compute_confidence(
     field_sources: List[FieldSource],
     now: Optional[datetime] = None,
 ) -> ConfidenceResult:
-    """Calcule le score de confiance complet sur 3 axes.
+    """Calcule le score de confiance complet sur 4 axes.
 
-    Combine completeness (40%), accuracy (35%), freshness (25%)
-    en un score global, genere les feature gates et classe les
+    Combine completeness, accuracy, freshness et understanding
+    via une moyenne geometrique, genere les feature gates et classe les
     enrichment prompts par impact.
 
     Args:
@@ -442,19 +489,16 @@ def compute_confidence(
     completeness = score_completeness(profile)
     accuracy = score_accuracy(field_sources)
     freshness = score_freshness(field_sources, now=now)
+    understanding = score_understanding(profile)
 
-    overall = round(
-        completeness * WEIGHT_COMPLETENESS
-        + accuracy * WEIGHT_ACCURACY
-        + freshness * WEIGHT_FRESHNESS,
-        1,
-    )
-    overall = min(100.0, max(0.0, overall))
+    # 4-axis geometric mean (Dart parity)
+    overall = round(_geo_mean_4(completeness, accuracy, freshness, understanding), 1)
 
     breakdown = ConfidenceBreakdown(
         completeness=completeness,
         accuracy=accuracy,
         freshness=freshness,
+        understanding=understanding,
         overall=overall,
     )
 

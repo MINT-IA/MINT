@@ -1,5 +1,7 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -82,6 +84,21 @@ class LlmConfig {
   }
 }
 
+/// Which AI tier produced a coach message.
+enum ChatTier {
+  /// On-device SLM (Gemma 3n) — privacy-first, zero network.
+  slm,
+
+  /// Cloud BYOK LLM (OpenAI / Anthropic / Mistral).
+  byok,
+
+  /// Static fallback — no AI.
+  fallback,
+
+  /// Not applicable (user messages, system messages).
+  none,
+}
+
 /// Message dans l'historique de conversation
 class ChatMessage {
   final String role; // 'user', 'assistant', 'system'
@@ -90,6 +107,11 @@ class ChatMessage {
   final List<String>? suggestedActions;
   final List<RagSource> sources;
   final List<String> disclaimers;
+  final ChatTier tier;
+
+  /// Response cards contextuelles (Phase 1).
+  /// Affichees en strip horizontale scrollable dans le chat.
+  final List<ResponseCard> responseCards;
 
   const ChatMessage({
     required this.role,
@@ -98,6 +120,8 @@ class ChatMessage {
     this.suggestedActions,
     this.sources = const [],
     this.disclaimers = const [],
+    this.tier = ChatTier.none,
+    this.responseCards = const [],
   });
 
   bool get isUser => role == 'user';
@@ -132,8 +156,8 @@ class CoachLlmService {
 
   /// Envoie un message et recoit une reponse du coach
   ///
-  /// Le service prepend le system prompt avec le contexte utilisateur,
-  /// applique les guardrails, et retourne une CoachResponse.
+  /// Délègue à [CoachOrchestrator] pour la chaîne SLM → BYOK → mock.
+  /// ComplianceGuard est appliqué centralement dans l'orchestrateur.
   ///
   /// Si BYOK est configure (config.hasApiKey), route via le backend RAG
   /// pour obtenir des reponses groundees avec sources verifiables.
@@ -144,51 +168,50 @@ class CoachLlmService {
     required List<ChatMessage> history,
     required LlmConfig config,
   }) async {
-    // ── Mode RAG (BYOK configure) ──────────────────────────
-    if (config.hasApiKey) {
-      return _chatViaRag(
-        userMessage: userMessage,
-        profile: profile,
-        config: config,
-        history: history,
-      );
-    }
+    final coachCtx = _buildCoachContext(profile);
 
-    // ── Mode mock (pas de cle API) ─────────────────────────
-    final rawResponse = _getMockResponse(
+    // Delegate to CoachOrchestrator (SLM → BYOK → fallback chain).
+    // If SLM is available, it will be tried first (zero-network, privacy-first).
+    // BYOK is passed when config.hasApiKey, otherwise skipped.
+    final orchestratorResponse = await CoachOrchestrator.generateChat(
       userMessage: userMessage,
-      profile: profile,
+      history: history,
+      ctx: coachCtx,
+      byokConfig: config.hasApiKey ? config : null,
     );
 
-    // CRIT #6: try-catch around validate() to prevent crashes on edge cases.
-    ComplianceResult result;
-    try {
-      final coachCtx = _buildCoachContext(profile);
-      result = ComplianceGuard.validate(
-        rawResponse.message,
-        context: coachCtx,
-        componentType: ComponentType.general,
-      );
-    } catch (_) {
-      // If validation crashes, use fallback — never show unvalidated LLM output.
-      return CoachResponse(
-        message: _safeChatFallback(),
-        disclaimer: _disclaimer,
-        wasFiltered: true,
-      );
-    }
-
-    final isFallback = result.useFallback;
-    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
-
+    // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
+    // return it directly.
+    // The mock path is used as the final fallback by CoachOrchestrator itself,
+    // but we check here to add suggested actions via _inferSuggestedActions.
     return CoachResponse(
-      message: message,
-      // HIGH fix: clear sources/actions when using fallback (orphaned metadata).
-      suggestedActions: isFallback ? null : rawResponse.suggestedActions,
-      disclaimer: _disclaimer,
-      sources: isFallback ? const [] : rawResponse.sources,
-      disclaimers: const [],
-      wasFiltered: !result.isCompliant,
+      message: orchestratorResponse.message,
+      suggestedActions: orchestratorResponse.wasFiltered
+          ? null
+          : _inferSuggestedActions(userMessage),
+      disclaimer: orchestratorResponse.disclaimer,
+      sources: orchestratorResponse.sources,
+      disclaimers: orchestratorResponse.disclaimers,
+      wasFiltered: orchestratorResponse.wasFiltered,
+    );
+  }
+
+  /// Mode RAG direct (BYOK configure) — conservé pour compatibilité.
+  ///
+  /// Appelé par l'orchestrateur via [CoachOrchestrator._tryByokChat].
+  /// Reste accessible pour les tests unitaires de la couche RAG.
+  @Deprecated('Utilise CoachOrchestrator.generateChat() à la place.')
+  static Future<CoachResponse> chatViaRagDirect({
+    required String userMessage,
+    required CoachProfile profile,
+    required LlmConfig config,
+    required List<ChatMessage> history,
+  }) async {
+    return _chatViaRag(
+      userMessage: userMessage,
+      profile: profile,
+      config: config,
+      history: history,
     );
   }
 
@@ -513,120 +536,6 @@ class CoachLlmService {
     }
 
     return buffer.toString();
-  }
-
-  /// Reponses mock basees sur des mots-cles
-  static _MockResult _getMockResponse({
-    required String userMessage,
-    required CoachProfile profile,
-  }) {
-    final lower = userMessage.toLowerCase();
-
-    // Calculer la projection pour enrichir les reponses
-    String tauxRemplacement = '—';
-    try {
-      final projection = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
-    } catch (_) {
-      // Incomplete profile or missing targetDate — degrade gracefully.
-    }
-
-    if (lower.contains('3a')) {
-      return _MockResult(
-        message:
-            'Ton plafond 3a est de 7\'258 CHF/an (OPP3 art. 7). Tu as encore de la marge pour optimiser. Pense a verser avant fin decembre !',
-        suggestedActions: [
-          'Simuler un versement 3a',
-          'Voir mes comptes 3a',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Pilier 3a', file: 'opp3', section: 'OPP3 art. 7'),
-        ],
-      );
-    }
-
-    if (lower.contains('lpp') || lower.contains('rachat')) {
-      return _MockResult(
-        message:
-            'Avec ta lacune LPP actuelle, un rachat pourrait te faire economiser sur tes impots (LPP art. 79b). Simule l\'impact avec le simulateur rachat LPP.',
-        suggestedActions: [
-          'Simuler un rachat LPP',
-          'Comprendre le rachat LPP',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Prevoyance professionnelle',
-              file: 'lpp',
-              section: 'LPP art. 79b'),
-        ],
-      );
-    }
-
-    if (lower.contains('retraite')) {
-      return _MockResult(
-        message:
-            'D\'apres ta trajectoire actuelle, ton taux de remplacement estime est de $tauxRemplacement%. La cible generalement recommandee est entre 60% et 80% (LAVS art. 21).',
-        suggestedActions: [
-          'Voir ma trajectoire',
-          'Explorer les scenarios',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Prevoyance vieillesse',
-              file: 'lavs_lpp',
-              section: 'LAVS art. 21 / LPP art. 13'),
-        ],
-      );
-    }
-
-    if (lower.contains('impot') || lower.contains('fiscal')) {
-      return _MockResult(
-        message:
-            'La declaration d\'impots dans le canton ${profile.canton} — n\'oublie pas de deduire tes versements 3a et tes rachats LPP (LIFD art. 33) !',
-        suggestedActions: [
-          'Deductions fiscales possibles',
-          'Simuler l\'impact fiscal',
-        ],
-        sources: const [
-          RagSource(
-              title: 'Fiscalite',
-              file: 'lifd',
-              section: 'LIFD art. 33 / LHID'),
-        ],
-      );
-    }
-
-    if (lower.contains('lauren') || lower.contains('conjoint')) {
-      return _MockResult(
-        message:
-            'Lauren a un profil particulier en tant que citoyenne americaine (FATCA). Certains produits 3a ne sont pas accessibles. Consulte un·e specialiste pour evaluer les alternatives.',
-        suggestedActions: [
-          'En savoir plus sur FATCA',
-          'Trouver un·e specialiste',
-        ],
-        sources: const [
-          RagSource(
-              title: 'FATCA',
-              file: 'fatca',
-              section: 'Foreign Account Tax Compliance Act'),
-        ],
-      );
-    }
-
-    // Reponse par defaut
-    return _MockResult(
-      message:
-          'Je suis la pour t\'aider a comprendre ta situation financiere. Tu peux me poser des questions sur ton 3a, ta LPP, tes impots, ou ta trajectoire retraite.',
-      suggestedActions: [
-        'Mon score Fitness',
-        'Ma trajectoire retraite',
-        'Mes deductions fiscales',
-      ],
-    );
   }
 
   /// Build a [CoachContext] from profile data for compliance validation.

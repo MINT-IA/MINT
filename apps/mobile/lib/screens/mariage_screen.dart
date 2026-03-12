@@ -1,10 +1,18 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
+import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
+import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MARIAGE SCREEN — Sprint S22 / Famille & Concubinage
@@ -114,7 +122,7 @@ class _MariageScreenState extends State<MariageScreen>
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: 16),
         title: Text(
-          'Mariage & fiscalite',
+          S.of(context)!.mariageTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -148,11 +156,11 @@ class _MariageScreenState extends State<MariageScreen>
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        tabs: const [
-          Tab(text: 'Impots'),
-          Tab(text: 'Regime'),
-          Tab(text: 'Protection'),
-          Tab(text: 'Checklist'),
+        tabs: [
+          Tab(text: S.of(context)!.mariageTabImpots),
+          Tab(text: S.of(context)!.mariageTabRegime),
+          Tab(text: S.of(context)!.mariageTabProtection),
+          Tab(text: S.of(context)!.naissanceTabChecklist),
         ],
       ),
     );
@@ -171,13 +179,16 @@ class _MariageScreenState extends State<MariageScreen>
         if (_fiscalResult != null) ...[
           _buildHeroComparisonCard(),
           const SizedBox(height: 20),
+          MarriagePenaltyGauge(
+            taxSingles: (_fiscalResult!['totalCelibataires'] as double),
+            taxMarried: (_fiscalResult!['totalMarie'] as double),
+          ),
+          const SizedBox(height: 20),
           _buildDeductionsBreakdown(),
           const SizedBox(height: 20),
         ],
         _buildEducationalInsert(
-          'Savais-tu que la penalite du mariage touche ~700\'000 couples en Suisse ? '
-          'Le Tribunal federal a juge cette situation anticonstitutionnelle en 1984, '
-          'mais elle n\'a toujours pas ete corrigee.',
+          S.of(context)!.mariageEducationalPenalty,
         ),
         const SizedBox(height: 20),
         _buildDisclaimer(),
@@ -201,7 +212,7 @@ class _MariageScreenState extends State<MariageScreen>
         children: [
           // Revenue 1 slider
           _buildSlider(
-            label: 'Revenu 1',
+            label: S.of(context)!.mariageRevenu1,
             value: _revenu1,
             min: 0,
             max: 300000,
@@ -215,7 +226,7 @@ class _MariageScreenState extends State<MariageScreen>
 
           // Revenue 2 slider
           _buildSlider(
-            label: 'Revenu 2',
+            label: S.of(context)!.mariageRevenu2,
             value: _revenu2,
             min: 0,
             max: 300000,
@@ -232,7 +243,7 @@ class _MariageScreenState extends State<MariageScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Canton',
+                  S.of(context)!.mariageCanton,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -278,7 +289,7 @@ class _MariageScreenState extends State<MariageScreen>
             children: [
               Expanded(
                 child: Text(
-                  'Enfants',
+                  S.of(context)!.mariageEnfants,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -324,7 +335,7 @@ class _MariageScreenState extends State<MariageScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'COMPARAISON FISCALE',
+                S.of(context)!.mariageFiscalComparison,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -353,7 +364,7 @@ class _MariageScreenState extends State<MariageScreen>
                           size: 24, color: MintColors.textSecondary),
                       const SizedBox(height: 8),
                       Text(
-                        '2 celibataires',
+                        S.of(context)!.mariageTwoCelibataires,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -390,7 +401,7 @@ class _MariageScreenState extends State<MariageScreen>
                           size: 24, color: MintColors.textSecondary),
                       const SizedBox(height: 8),
                       Text(
-                        'Maries',
+                        S.of(context)!.mariageMaries,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -444,8 +455,8 @@ class _MariageScreenState extends State<MariageScreen>
                   duration: const Duration(milliseconds: 300),
                   child: Text(
                     isPenalite
-                        ? 'Penalite +${FamilyService.formatChf(difference.abs())}/an'
-                        : 'Bonus -${FamilyService.formatChf(difference.abs())}/an',
+                        ? S.of(context)!.mariagePenaltyAmount(FamilyService.formatChf(difference.abs()))
+                        : S.of(context)!.mariageBonusAmount(FamilyService.formatChf(difference.abs())),
                     key: ValueKey(difference),
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
@@ -481,7 +492,7 @@ class _MariageScreenState extends State<MariageScreen>
                   size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DEDUCTIONS MARIAGE',
+                S.of(context)!.mariageDeductions,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -493,18 +504,18 @@ class _MariageScreenState extends State<MariageScreen>
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Deduction couple marie',
+            S.of(context)!.mariageDeductionCouple,
             FamilyService.formatChf(result['deductionMarie'] as double),
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Deduction assurance (mariee)',
+            S.of(context)!.mariageDeductionInsurance,
             FamilyService.formatChf(result['deductionAssurance'] as double),
           ),
           const SizedBox(height: 8),
           if ((result['deductionDoubleRevenu'] as double) > 0) ...[
             _buildResultRow(
-              'Deduction double revenu',
+              S.of(context)!.mariageDeductionDualIncome,
               FamilyService.formatChf(
                   result['deductionDoubleRevenu'] as double),
             ),
@@ -512,7 +523,7 @@ class _MariageScreenState extends State<MariageScreen>
           ],
           if ((result['deductionEnfants'] as double) > 0) ...[
             _buildResultRow(
-              'Deduction enfants',
+              S.of(context)!.mariageDeductionChildren,
               FamilyService.formatChf(result['deductionEnfants'] as double),
             ),
             const SizedBox(height: 8),
@@ -520,7 +531,7 @@ class _MariageScreenState extends State<MariageScreen>
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Total deductions',
+            S.of(context)!.mariageTotalDeductions,
             FamilyService.formatChf(result['totalDeductions'] as double),
             bold: true,
           ),
@@ -533,6 +544,17 @@ class _MariageScreenState extends State<MariageScreen>
   //  TAB 2: REGIME — Matrimonial regime comparison
   // ════════════════════════════════════════════════════════════
 
+  RegimeMatrimonial _regimeFromIndex(int index) {
+    switch (index) {
+      case 1:
+        return RegimeMatrimonial.separationBiens;
+      case 2:
+        return RegimeMatrimonial.communauteBiens;
+      default:
+        return RegimeMatrimonial.participationAcquets;
+    }
+  }
+
   Widget _buildTab2Regime() {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
@@ -543,7 +565,7 @@ class _MariageScreenState extends State<MariageScreen>
             const Icon(Icons.gavel, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'REGIME MATRIMONIAL',
+              S.of(context)!.mariageRegimeMatrimonial,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -557,28 +579,25 @@ class _MariageScreenState extends State<MariageScreen>
         _buildRegimeCard(
           index: 0,
           icon: Icons.handshake_outlined,
-          title: 'Participation aux acquets',
-          subtitle: 'Regime par defaut (CC art. 181)',
-          description:
-              'Chacun garde ses biens propres. Les acquets (gains durant le mariage) sont partages 50/50 en cas de dissolution.',
+          title: S.of(context)!.mariageParticipation,
+          subtitle: S.of(context)!.mariageParticipationSub,
+          description: S.of(context)!.mariageParticipationDesc,
         ),
         const SizedBox(height: 10),
         _buildRegimeCard(
           index: 1,
           icon: Icons.lock_outline,
-          title: 'Separation de biens',
-          subtitle: 'CC art. 247',
-          description:
-              'Chacun conserve l\'integralite de ses biens et de ses revenus. Aucun partage automatique.',
+          title: S.of(context)!.mariageSeparation,
+          subtitle: S.of(context)!.mariageSeparationSub,
+          description: S.of(context)!.mariageSeparationDesc,
         ),
         const SizedBox(height: 10),
         _buildRegimeCard(
           index: 2,
           icon: Icons.group_outlined,
-          title: 'Communaute de biens',
-          subtitle: 'CC art. 221',
-          description:
-              'Tout est mis en commun : biens propres et acquets. Partage egalitaire total en cas de dissolution.',
+          title: S.of(context)!.mariageCommunaute,
+          subtitle: S.of(context)!.mariageCommunauteSub,
+          description: S.of(context)!.mariageCommunauteDesc,
         ),
         const SizedBox(height: 24),
 
@@ -595,7 +614,7 @@ class _MariageScreenState extends State<MariageScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSlider(
-                label: 'Patrimoine Personne 1',
+                label: S.of(context)!.mariagePatrimoine1,
                 value: _patrimoine1,
                 min: 0,
                 max: 1000000,
@@ -608,7 +627,7 @@ class _MariageScreenState extends State<MariageScreen>
               ),
               const SizedBox(height: 16),
               _buildSlider(
-                label: 'Patrimoine Personne 2',
+                label: S.of(context)!.mariagePatrimoine2,
                 value: _patrimoine2,
                 min: 0,
                 max: 1000000,
@@ -624,12 +643,51 @@ class _MariageScreenState extends State<MariageScreen>
         ),
         const SizedBox(height: 20),
 
-        // Pie chart visualization
-        _buildRegimeSplitVisualization(),
+        // Pie chart visualization — animated donut per regime
+        RegimeMatrimonialPie(
+          assetsPersonne1: _patrimoine1,
+          assetsPersonne2: _patrimoine2,
+          regime: _regimeFromIndex(_selectedRegime),
+          onRegimeChanged: (r) => setState(() => _selectedRegime = r.index),
+        ),
         const SizedBox(height: 20),
 
         // Chiffre choc
         _buildChiffreChocRegime(),
+        const SizedBox(height: 20),
+
+        // ── Couple Narrative Timeline ─────────────────────────
+        CoupleNarrativeTimeline(
+          partner1Name: S.of(context)!.mariageTimelinePartner1,
+          partner2Name: S.of(context)!.mariageTimelinePartner2,
+          coachTip: S.of(context)!.mariageTimelineCoachTip,
+          acts: [
+            CoupleAct(
+              number: 1,
+              title: S.of(context)!.mariageTimelineAct1Title,
+              period: S.of(context)!.mariageTimelineAct1Period,
+              monthlyIncome: (_revenu1 + _revenu2) / 12,
+              insight: S.of(context)!.mariageTimelineAct1Insight,
+            ),
+            CoupleAct(
+              number: 2,
+              title: S.of(context)!.mariageTimelineAct2Title,
+              period: S.of(context)!.mariageTimelineAct2Period,
+              monthlyIncome: (_revenu1 + _revenu2) / 12 * 1.15,
+              deltaPercent: 15,
+              insight: S.of(context)!.mariageTimelineAct2Insight,
+            ),
+            CoupleAct(
+              number: 3,
+              title: S.of(context)!.mariageTimelineAct3Title,
+              period: S.of(context)!.mariageTimelineAct3Period,
+              monthlyIncome: (_revenu1 + _revenu2) / 12 * 0.65,
+              deltaPercent: -35,
+              isDip: true,
+              insight: S.of(context)!.mariageTimelineAct3Insight,
+            ),
+          ],
+        ),
         const SizedBox(height: 20),
 
         _buildDisclaimer(),
@@ -729,112 +787,6 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
-  Widget _buildRegimeSplitVisualization() {
-    final total = _patrimoine1 + _patrimoine2;
-    if (total <= 0) return const SizedBox.shrink();
-
-    double part1;
-    double part2;
-    String label1;
-    String label2;
-
-    switch (_selectedRegime) {
-      case 0: // Participation aux acquets — 50/50 of gains
-        part1 = total / 2;
-        part2 = total / 2;
-        label1 = 'Personne 1 recoit';
-        label2 = 'Personne 2 recoit';
-        break;
-      case 1: // Separation — each keeps own
-        part1 = _patrimoine1;
-        part2 = _patrimoine2;
-        label1 = 'Personne 1 garde';
-        label2 = 'Personne 2 garde';
-        break;
-      case 2: // Communaute — everything shared
-        part1 = total / 2;
-        part2 = total / 2;
-        label1 = 'Personne 1 recoit';
-        label2 = 'Personne 2 recoit';
-        break;
-      default:
-        part1 = total / 2;
-        part2 = total / 2;
-        label1 = 'Personne 1';
-        label2 = 'Personne 2';
-    }
-
-    final ratio1 = part1 / total;
-    final ratio2 = part2 / total;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.pie_chart_outline,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                'REPARTITION EN CAS DE DISSOLUTION',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: MintColors.textMuted,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Animated pie chart
-          SizedBox(
-            width: 140,
-            height: 140,
-            child: CustomPaint(
-              painter: _PieChartPainter(
-                ratio1: ratio1,
-                color1: MintColors.info,
-                color2: MintColors.warning,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Legend
-          Row(
-            children: [
-              Expanded(
-                child: _buildPieLegend(
-                  label: label1,
-                  value: FamilyService.formatChf(part1),
-                  pct: '${(ratio1 * 100).toStringAsFixed(0)}%',
-                  color: MintColors.info,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildPieLegend(
-                  label: label2,
-                  value: FamilyService.formatChf(part2),
-                  pct: '${(ratio2 * 100).toStringAsFixed(0)}%',
-                  color: MintColors.warning,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPieLegend({
     required String label,
     required String value,
@@ -923,8 +875,8 @@ class _MariageScreenState extends State<MariageScreen>
           const SizedBox(height: 6),
           Text(
             _selectedRegime == 0
-                ? 'En regime par defaut, cette part de tes acquets reviendrait a ton conjoint en cas de dissolution'
-                : 'En communaute de biens, ce montant serait partage avec ton conjoint',
+                ? S.of(context)!.mariageChiffreChocDefault
+                : S.of(context)!.mariageChiffreChocCommunaute,
             style: GoogleFonts.inter(
               fontSize: 13,
               color: Colors.white70,
@@ -966,8 +918,7 @@ class _MariageScreenState extends State<MariageScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Que se passe-t-il si l\'un de vous deux decede ? '
-                  'Compare la protection legale entre maries et concubins.',
+                  S.of(context)!.mariageProtectionIntro,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -990,7 +941,7 @@ class _MariageScreenState extends State<MariageScreen>
                 color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
           ),
           child: _buildSlider(
-            label: 'Rente LPP mensuelle du defunt',
+            label: S.of(context)!.mariageLppRenteLabel,
             value: _renteLpp,
             min: 0,
             max: 8000,
@@ -1007,20 +958,20 @@ class _MariageScreenState extends State<MariageScreen>
         // AVS survivor
         _buildSurvivorCard(
           icon: Icons.account_balance_outlined,
-          label: 'Rente AVS de survivant',
-          subtitle: '80% de la rente maximale du defunt',
+          label: S.of(context)!.mariageAvsSurvivor,
+          subtitle: S.of(context)!.mariageAvsSurvivorSub,
           value: avsSurvivor,
-          footnote: 'LAVS art. 35 — uniquement pour les maries',
+          footnote: S.of(context)!.mariageAvsSurvivorFootnote,
         ),
         const SizedBox(height: 12),
 
         // LPP survivor
         _buildSurvivorCard(
           icon: Icons.savings_outlined,
-          label: 'Rente LPP de survivant',
-          subtitle: '60% de la rente assuree du defunt',
+          label: S.of(context)!.mariageLppSurvivor,
+          subtitle: S.of(context)!.mariageLppSurvivorSub,
           value: lppSurvivor,
-          footnote: 'LPP art. 19 — maries (concubins : clause necessaire)',
+          footnote: S.of(context)!.mariageLppSurvivorFootnote,
         ),
         const SizedBox(height: 12),
 
@@ -1043,7 +994,7 @@ class _MariageScreenState extends State<MariageScreen>
               ),
               const SizedBox(height: 6),
               Text(
-                'Revenu mensuel du survivant marie',
+                S.of(context)!.mariageSurvivorMonthly,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: Colors.white70,
@@ -1064,8 +1015,28 @@ class _MariageScreenState extends State<MariageScreen>
         _buildProtectionChecklist(),
         const SizedBox(height: 20),
 
+        _buildClause3aSection(),
+        const SizedBox(height: 20),
+        SurvivorPensionWidget(
+          partnerAvsRente: avsRenteMaxMensuelle,
+          partnerLppMonthly: _renteLpp,
+          isConcubin: false,
+        ),
+        const SizedBox(height: 24),
         _buildDisclaimer(),
       ],
+    );
+  }
+
+  Widget _buildClause3aSection() {
+    final profile = context.read<CoachProfileProvider>().profile;
+    final balance = profile?.prevoyance.totalEpargne3a ?? 0;
+    // Estimation si pas de donnée : revenu moyen du couple × 5% × 10 ans
+    final estimated = balance > 0
+        ? balance
+        : (_revenu1 + _revenu2) * 0.05 * 10;
+    return Clause3aWidget(
+      balance3a: estimated,
     );
   }
 
@@ -1155,7 +1126,7 @@ class _MariageScreenState extends State<MariageScreen>
               const Icon(Icons.compare, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'MARIE VS CONCUBIN',
+                S.of(context)!.mariageVsConcubin,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1166,10 +1137,10 @@ class _MariageScreenState extends State<MariageScreen>
             ],
           ),
           const SizedBox(height: 16),
-          _buildComparisonRow('Rente AVS survivant', true, false),
-          _buildComparisonRow('Rente LPP survivant', true, false),
-          _buildComparisonRow('Heritage exonere', true, false),
-          _buildComparisonRow('Pension alimentaire', true, false),
+          _buildComparisonRow(S.of(context)!.mariageRenteAvsSurvivor, true, false),
+          _buildComparisonRow(S.of(context)!.mariageRenteLppSurvivor, true, false),
+          _buildComparisonRow(S.of(context)!.mariageHeritageExonere, true, false),
+          _buildComparisonRow(S.of(context)!.mariagePensionAlimentaire, true, false),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(12),
@@ -1185,9 +1156,7 @@ class _MariageScreenState extends State<MariageScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'En concubinage, le partenaire survivant n\'a droit a rien '
-                    'par defaut — ni rente AVS, ni heritage exonere. '
-                    'Il faut tout prevoir par contrat.',
+                    S.of(context)!.mariageConcubinWarning,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: MintColors.textPrimary,
@@ -1243,11 +1212,11 @@ class _MariageScreenState extends State<MariageScreen>
 
   Widget _buildProtectionChecklist() {
     final items = [
-      'Rediger un testament (clause d\'usufruit)',
-      'Clause beneficiaire LPP (demander a ta caisse de pension)',
-      'Assurance-vie croisee (protection du partenaire)',
-      'Mandat pour cause d\'inaptitude',
-      'Directives anticipees du patient',
+      S.of(context)!.mariageProtectionItem1,
+      S.of(context)!.mariageProtectionItem2,
+      S.of(context)!.mariageProtectionItem3,
+      S.of(context)!.mariageProtectionItem4,
+      S.of(context)!.mariageProtectionItem5,
     ];
 
     return Container(
@@ -1265,7 +1234,7 @@ class _MariageScreenState extends State<MariageScreen>
               const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PROTECTIONS ESSENTIELLES',
+                S.of(context)!.mariageProtectionsEssentielles,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1314,7 +1283,7 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab4Checklist() {
-    final items = _mariageChecklistItems;
+    final items = _buildMariageChecklistItems();
     final nbChecked = _checkedItems.length;
 
     return ListView(
@@ -1336,9 +1305,7 @@ class _MariageScreenState extends State<MariageScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Le mariage a des consequences financieres et juridiques. '
-                  'Voici les demarches essentielles a anticiper pour '
-                  'bien te preparer.',
+                  S.of(context)!.mariageChecklistIntro,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: MintColors.textSecondary,
@@ -1365,7 +1332,7 @@ class _MariageScreenState extends State<MariageScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '$nbChecked/${items.length} demarches effectuees',
+                    S.of(context)!.mariageChecklistProgress(nbChecked, items.length),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1541,57 +1508,18 @@ class _MariageScreenState extends State<MariageScreen>
 
   // ── Checklist Data ──────────────────────────────────────
 
-  static final List<Map<String, String>> _mariageChecklistItems = [
-    {
-      'title': 'Simuler l\'impact fiscal du mariage',
-      'description':
-          'Avant de te marier, compare la charge fiscale a deux (maries vs celibataires). '
-          'Si tes revenus sont similaires et eleves, la penalite de mariage peut representer '
-          'plusieurs milliers de francs par an.',
-    },
-    {
-      'title': 'Choisir le regime matrimonial',
-      'description':
-          'Par defaut, c\'est la participation aux acquets (CC art. 181). '
-          'Si tu veux un autre regime (separation de biens, communaute de biens), '
-          'il faut signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.',
-    },
-    {
-      'title': 'Mettre a jour les clauses beneficiaires LPP et 3a',
-      'description':
-          'Le mariage change l\'ordre des beneficiaires. Ton conjoint devient '
-          'automatiquement beneficiaire de la rente de survivant LPP (LPP art. 19). '
-          'Verifie aussi les beneficiaires de ton 3e pilier.',
-    },
-    {
-      'title': 'Informer ton employeur et ta caisse maladie',
-      'description':
-          'Ton employeur doit mettre a jour tes donnees (etat civil, deductions). '
-          'Ta caisse maladie doit etre informee — les primes ne changent pas, '
-          'mais les subsides eventuels sont recalcules sur le revenu du menage.',
-    },
-    {
-      'title': 'Preparer la premiere declaration commune',
-      'description':
-          'Des l\'annee du mariage, tu fais une seule declaration fiscale commune. '
-          'Rassemble les justificatifs des deux (certificats de salaire, 3a, LPP, etc.). '
-          'Le passage a la declaration commune peut changer ta tranche d\'imposition.',
-    },
-    {
-      'title': 'Verifier les rentes AVS de couple',
-      'description':
-          'La rente AVS maximale pour un couple est plafonnee a 150% de la rente '
-          'individuelle maximale (LAVS art. 35). Si tu as droit '
-          'a la rente max avec ton conjoint, le plafond peut reduire ton total.',
-    },
-    {
-      'title': 'Adapter le testament',
-      'description':
-          'Le mariage modifie l\'ordre de succession. Le conjoint devient heritier legal '
-          'avec des droits importants (CC art. 462). Si tu avais un testament en faveur '
-          'd\'un tiers, il est peut-etre a revoir.',
-    },
-  ];
+  // Checklist data is built dynamically using i18n keys — see _buildMariageChecklistItems()
+  List<Map<String, String>> _buildMariageChecklistItems() {
+    return [
+      {'title': S.of(context)!.mariageChecklistItem1Title, 'description': S.of(context)!.mariageChecklistItem1Desc},
+      {'title': S.of(context)!.mariageChecklistItem2Title, 'description': S.of(context)!.mariageChecklistItem2Desc},
+      {'title': S.of(context)!.mariageChecklistItem3Title, 'description': S.of(context)!.mariageChecklistItem3Desc},
+      {'title': S.of(context)!.mariageChecklistItem4Title, 'description': S.of(context)!.mariageChecklistItem4Desc},
+      {'title': S.of(context)!.mariageChecklistItem5Title, 'description': S.of(context)!.mariageChecklistItem5Desc},
+      {'title': S.of(context)!.mariageChecklistItem6Title, 'description': S.of(context)!.mariageChecklistItem6Desc},
+      {'title': S.of(context)!.mariageChecklistItem7Title, 'description': S.of(context)!.mariageChecklistItem7Desc},
+    ];
+  }
 
   // ════════════════════════════════════════════════════════════
   //  SHARED WIDGETS
@@ -1749,7 +1677,7 @@ class _MariageScreenState extends State<MariageScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Le savais-tu ?',
+                  S.of(context)!.lifeEventDidYouKnow,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1788,10 +1716,7 @@ class _MariageScreenState extends State<MariageScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations simplifiees a but educatif — ne constitue pas '
-              'un conseil fiscal ou juridique. Les montants dependent de nombreux '
-              'facteurs (deductions, commune, fortune, etc.). '
-              'Consulte un-e specialiste fiscal-e pour un calcul personnalise.',
+              S.of(context)!.mariageDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.orange.shade800,

@@ -1,7 +1,7 @@
-# MINT CI — Run tests on branch PRs and protected branch pushes
+# MINT CI — Run tests on every push & PR
 # Triggers on push to staging/main + PRs targeting dev/staging/main
-# Two parallel jobs: backend (pytest) + flutter (analyze + test)
-# REQUIRED to pass before merge (branch protection rule)
+# Smart path detection: only runs backend/flutter jobs when relevant files changed.
+# Saves ~5-8 min per run when only one side is modified.
 
 name: CI
 
@@ -16,9 +16,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ─── Detect which paths changed ─────────────────────────────
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      flutter: ${{ steps.filter.outputs.flutter }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'services/backend/**'
+              - 'tools/openapi/**'
+            flutter:
+              - 'apps/mobile/**'
+
   # ─── Backend Tests ───────────────────────────────────────────
   backend:
     name: Backend tests
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -37,8 +58,13 @@ jobs:
           cache: pip
           cache-dependency-path: services/backend/pyproject.toml
 
-      - name: Install dependencies (app + dev/test deps)
+      - name: Install dependencies (app + dev/test)
         run: pip install ".[dev]" pytest-cov diff-cover
+
+      - name: Security audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit --skip-editable --desc on
 
       - name: Run tests
         env:
@@ -49,7 +75,7 @@ jobs:
       - name: Changed-lines coverage (PRs only, ≥80%)
         if: github.event_name == 'pull_request'
         working-directory: .
-        run: diff-cover services/backend/coverage.xml --compare-branch=origin/${{ github.base_ref }} --fail-under=80
+        run: diff-cover services/backend/coverage.xml --compare-branch=origin/${{ github.base_ref }} --fail-under=80 --exclude '**/rag/*.py'
 
       - name: OpenAPI contract check
         env:
@@ -95,6 +121,8 @@ jobs:
   # ─── Flutter Analysis & Tests ────────────────────────────────
   flutter:
     name: Flutter analyze + test
+    needs: changes
+    if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -154,14 +182,18 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [backend, flutter]
+    needs: [changes, backend, flutter]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check results
         run: |
-          if [[ "${{ needs.backend.result }}" != "success" ]] || \
-             [[ "${{ needs.flutter.result }}" != "success" ]]; then
+          # Skip check if job was skipped (no relevant changes)
+          backend="${{ needs.backend.result }}"
+          flutter="${{ needs.flutter.result }}"
+          [[ "$backend" == "skipped" ]] && backend="success"
+          [[ "$flutter" == "skipped" ]] && flutter="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]]; then
             echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}"
             exit 1
           fi

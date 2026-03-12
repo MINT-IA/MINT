@@ -20,8 +20,9 @@ Sources:
     - FINMA Tragbarkeitsrechnung
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.arbitrage import (
     RenteVsCapitalRequest,
     RenteVsCapitalResponse,
@@ -83,7 +84,8 @@ def _result_to_response(result, response_class):
 
 
 @router.post("/rente-vs-capital", response_model=RenteVsCapitalResponse)
-def arbitrage_rente_vs_capital(request: RenteVsCapitalRequest) -> RenteVsCapitalResponse:
+@limiter.limit("10/minute")
+def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) -> RenteVsCapitalResponse:
     """Compare rente viagere vs retrait en capital vs mixte.
 
     Simule 3 options pour la prevoyance LPP a la retraite:
@@ -97,53 +99,53 @@ def arbitrage_rente_vs_capital(request: RenteVsCapitalRequest) -> RenteVsCapital
     """
     try:
         result = compare_rente_vs_capital(
-            capital_lpp_total=request.capital_lpp_total,
-            capital_obligatoire=request.capital_obligatoire,
-            capital_surobligatoire=request.capital_surobligatoire,
-            rente_annuelle_proposee=request.rente_annuelle_proposee,
+            capital_lpp_total=body.capital_lpp_total,
+            capital_obligatoire=body.capital_obligatoire,
+            capital_surobligatoire=body.capital_surobligatoire,
+            rente_annuelle_proposee=body.rente_annuelle_proposee,
             taux_conversion_obligatoire=(
-                request.taux_conversion_obligatoire
-                if request.taux_conversion_obligatoire is not None
+                body.taux_conversion_obligatoire
+                if body.taux_conversion_obligatoire is not None
                 else 0.068
             ),
             taux_conversion_surobligatoire=(
-                request.taux_conversion_surobligatoire
-                if request.taux_conversion_surobligatoire is not None
+                body.taux_conversion_surobligatoire
+                if body.taux_conversion_surobligatoire is not None
                 else 0.05
             ),
             canton=(
-                request.canton.upper()
-                if request.canton is not None
+                body.canton.upper()
+                if body.canton is not None
                 else "VD"
             ),
             age_retraite=(
-                request.age_retraite
-                if request.age_retraite is not None
+                body.age_retraite
+                if body.age_retraite is not None
                 else 65
             ),
             taux_retrait=(
-                request.taux_retrait
-                if request.taux_retrait is not None
+                body.taux_retrait
+                if body.taux_retrait is not None
                 else 0.04
             ),
             rendement_capital=(
-                request.rendement_capital
-                if request.rendement_capital is not None
+                body.rendement_capital
+                if body.rendement_capital is not None
                 else 0.03
             ),
             inflation=(
-                request.inflation
-                if request.inflation is not None
+                body.inflation
+                if body.inflation is not None
                 else 0.02
             ),
             horizon=(
-                request.horizon
-                if request.horizon is not None
+                body.horizon
+                if body.horizon is not None
                 else 25
             ),
             is_married=(
-                request.is_married
-                if request.is_married is not None
+                body.is_married
+                if body.is_married is not None
                 else False
             ),
         )
@@ -155,8 +157,10 @@ def arbitrage_rente_vs_capital(request: RenteVsCapitalRequest) -> RenteVsCapital
 
 
 @router.post("/allocation-annuelle", response_model=AllocationAnnuelleResponse)
+@limiter.limit("10/minute")
 def arbitrage_allocation_annuelle(
-    request: AllocationAnnuelleRequest,
+    request: Request,
+    body: AllocationAnnuelleRequest,
 ) -> AllocationAnnuelleResponse:
     """Compare les strategies d'allocation annuelle de l'epargne.
 
@@ -172,51 +176,51 @@ def arbitrage_allocation_annuelle(
     """
     try:
         result = compare_allocation_annuelle(
-            montant_disponible=request.montant_disponible,
-            taux_marginal=request.taux_marginal,
+            montant_disponible=body.montant_disponible,
+            taux_marginal=body.taux_marginal,
             a3a_maxed=(
-                request.a3a_maxed
-                if request.a3a_maxed is not None
+                body.a3a_maxed
+                if body.a3a_maxed is not None
                 else False
             ),
             potentiel_rachat_lpp=(
-                request.potentiel_rachat_lpp
-                if request.potentiel_rachat_lpp is not None
+                body.potentiel_rachat_lpp
+                if body.potentiel_rachat_lpp is not None
                 else 0
             ),
             is_property_owner=(
-                request.is_property_owner
-                if request.is_property_owner is not None
+                body.is_property_owner
+                if body.is_property_owner is not None
                 else False
             ),
             taux_hypothecaire=(
-                request.taux_hypothecaire
-                if request.taux_hypothecaire is not None
+                body.taux_hypothecaire
+                if body.taux_hypothecaire is not None
                 else 0.015
             ),
             annees_avant_retraite=(
-                request.annees_avant_retraite
-                if request.annees_avant_retraite is not None
+                body.annees_avant_retraite
+                if body.annees_avant_retraite is not None
                 else 20
             ),
             rendement_3a=(
-                request.rendement_3a
-                if request.rendement_3a is not None
+                body.rendement_3a
+                if body.rendement_3a is not None
                 else 0.02
             ),
             rendement_lpp=(
-                request.rendement_lpp
-                if request.rendement_lpp is not None
+                body.rendement_lpp
+                if body.rendement_lpp is not None
                 else 0.0125
             ),
             rendement_marche=(
-                request.rendement_marche
-                if request.rendement_marche is not None
+                body.rendement_marche
+                if body.rendement_marche is not None
                 else 0.04
             ),
             canton=(
-                request.canton.upper()
-                if request.canton is not None
+                body.canton.upper()
+                if body.canton is not None
                 else "VD"
             ),
         )
@@ -228,8 +232,10 @@ def arbitrage_allocation_annuelle(
 
 
 @router.post("/location-vs-propriete", response_model=LocationVsProprieteResponse)
+@limiter.limit("10/minute")
 def arbitrage_location_vs_propriete(
-    request: LocationVsProprieteRequest,
+    request: Request,
+    body: LocationVsProprieteRequest,
 ) -> LocationVsProprieteResponse:
     """Compare continuer a louer vs acheter un bien immobilier.
 
@@ -243,42 +249,42 @@ def arbitrage_location_vs_propriete(
     """
     try:
         result = compare_location_vs_propriete(
-            capital_disponible=request.capital_disponible,
-            loyer_mensuel_actuel=request.loyer_mensuel_actuel,
-            prix_bien=request.prix_bien,
+            capital_disponible=body.capital_disponible,
+            loyer_mensuel_actuel=body.loyer_mensuel_actuel,
+            prix_bien=body.prix_bien,
             canton=(
-                request.canton.upper()
-                if request.canton is not None
+                body.canton.upper()
+                if body.canton is not None
                 else "VD"
             ),
             horizon_annees=(
-                request.horizon_annees
-                if request.horizon_annees is not None
+                body.horizon_annees
+                if body.horizon_annees is not None
                 else 20
             ),
             rendement_marche=(
-                request.rendement_marche
-                if request.rendement_marche is not None
+                body.rendement_marche
+                if body.rendement_marche is not None
                 else 0.04
             ),
             appreciation_immo=(
-                request.appreciation_immo
-                if request.appreciation_immo is not None
+                body.appreciation_immo
+                if body.appreciation_immo is not None
                 else 0.015
             ),
             taux_hypotheque=(
-                request.taux_hypotheque
-                if request.taux_hypotheque is not None
+                body.taux_hypotheque
+                if body.taux_hypotheque is not None
                 else 0.02
             ),
             taux_entretien=(
-                request.taux_entretien
-                if request.taux_entretien is not None
+                body.taux_entretien
+                if body.taux_entretien is not None
                 else 0.01
             ),
             is_married=(
-                request.is_married
-                if request.is_married is not None
+                body.is_married
+                if body.is_married is not None
                 else False
             ),
         )
@@ -290,8 +296,10 @@ def arbitrage_location_vs_propriete(
 
 
 @router.post("/rachat-vs-marche", response_model=RachatVsMarcheResponse)
+@limiter.limit("10/minute")
 def arbitrage_rachat_vs_marche(
-    request: RachatVsMarcheRequest,
+    request: Request,
+    body: RachatVsMarcheRequest,
 ) -> RachatVsMarcheResponse:
     """Compare rachat LPP vs investissement libre.
 
@@ -305,36 +313,36 @@ def arbitrage_rachat_vs_marche(
     """
     try:
         result = compare_rachat_vs_marche(
-            montant=request.montant,
-            taux_marginal=request.taux_marginal,
+            montant=body.montant,
+            taux_marginal=body.taux_marginal,
             annees_avant_retraite=(
-                request.annees_avant_retraite
-                if request.annees_avant_retraite is not None
+                body.annees_avant_retraite
+                if body.annees_avant_retraite is not None
                 else 20
             ),
             rendement_lpp=(
-                request.rendement_lpp
-                if request.rendement_lpp is not None
+                body.rendement_lpp
+                if body.rendement_lpp is not None
                 else 0.0125
             ),
             rendement_marche=(
-                request.rendement_marche
-                if request.rendement_marche is not None
+                body.rendement_marche
+                if body.rendement_marche is not None
                 else 0.04
             ),
             taux_conversion=(
-                request.taux_conversion
-                if request.taux_conversion is not None
+                body.taux_conversion
+                if body.taux_conversion is not None
                 else 0.068
             ),
             canton=(
-                request.canton.upper()
-                if request.canton is not None
+                body.canton.upper()
+                if body.canton is not None
                 else "VD"
             ),
             is_married=(
-                request.is_married
-                if request.is_married is not None
+                body.is_married
+                if body.is_married is not None
                 else False
             ),
         )
@@ -346,8 +354,10 @@ def arbitrage_rachat_vs_marche(
 
 
 @router.post("/calendrier-retraits", response_model=CalendrierRetraitsResponse)
+@limiter.limit("10/minute")
 def arbitrage_calendrier_retraits(
-    request: CalendrierRetraitsRequest,
+    request: Request,
+    body: CalendrierRetraitsRequest,
 ) -> CalendrierRetraitsResponse:
     """Compare retrait total la meme annee vs retraits echelonnes.
 
@@ -370,24 +380,24 @@ def arbitrage_calendrier_retraits(
                 amount=a.amount,
                 earliest_withdrawal_age=a.earliest_withdrawal_age,
             )
-            for a in request.assets
+            for a in body.assets
         ]
 
         result = compare_calendrier_retraits(
             assets=assets,
             age_retraite=(
-                request.age_retraite
-                if request.age_retraite is not None
+                body.age_retraite
+                if body.age_retraite is not None
                 else 65
             ),
             canton=(
-                request.canton.upper()
-                if request.canton is not None
+                body.canton.upper()
+                if body.canton is not None
                 else "VD"
             ),
             is_married=(
-                request.is_married
-                if request.is_married is not None
+                body.is_married
+                if body.is_married is not None
                 else False
             ),
         )

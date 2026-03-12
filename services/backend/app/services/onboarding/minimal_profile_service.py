@@ -30,6 +30,8 @@ Rules:
 from typing import List
 
 from app.constants.social_insurance import (
+    AVS_RAMD_MIN,
+    AVS_RAMD_MAX,
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_MIN_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
@@ -55,9 +57,9 @@ from app.services.onboarding.onboarding_models import (
 # Constants — derived from social_insurance.py
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# AVS linear interpolation boundaries (RAMD)
-_AVS_RAMD_LOW: float = 14_700.0    # Below this: minimum rente
-_AVS_RAMD_HIGH: float = 88_200.0   # Above this: maximum rente
+# AVS linear interpolation boundaries (RAMD) — from social_insurance.py
+_AVS_RAMD_LOW: float = AVS_RAMD_MIN
+_AVS_RAMD_HIGH: float = AVS_RAMD_MAX
 
 # Approximate net salary factor (Swiss average: ~87% of gross after social deductions)
 _NET_SALARY_FACTOR: float = 0.87

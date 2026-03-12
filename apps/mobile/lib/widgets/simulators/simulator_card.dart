@@ -32,14 +32,14 @@ class SimulatorCard extends StatelessWidget {
         // Premium glass-like shadow "Float" effect
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1D1F)
+            color: MintColors.primary
                 .withOpacity(0.08), // Apple-like dark shadow
             blurRadius: 24,
             offset: const Offset(0, 8),
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: const Color(0xFF1D1D1F).withOpacity(0.02),
+            color: MintColors.primary.withOpacity(0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
             spreadRadius: 0,

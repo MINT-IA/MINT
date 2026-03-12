@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
@@ -88,6 +89,12 @@ class _EplScreenState extends State<EplScreen> {
                   const SizedBox(height: 24),
                 ],
 
+                // Impact on retirement rente
+                if (result.montantSouhaiteApplicable > 0) ...[
+                  _buildRenteImpactSection(result),
+                  const SizedBox(height: 24),
+                ],
+
                 // Tax estimate
                 if (result.montantSouhaiteApplicable > 0) ...[
                   _buildTaxCard(result),
@@ -123,7 +130,7 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Retrait EPL — Propriete du logement',
+            'Retrait EPL — Propriété du logement',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -132,8 +139,8 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 8),
           const Text(
             'L\'EPL permet d\'utiliser ton avoir LPP pour financer '
-            'l\'achat d\'un logement en propriete, amortir une hypotheque '
-            'ou financer des renovations. Montant minimum : CHF 20\'000. '
+            'l\'achat d\'un logement en propriété, amortir une hypothèque '
+            'ou financer des rénovations. Montant minimum : CHF 20\'000. '
             'Ce retrait a un impact direct sur tes prestations de risque.',
             style: TextStyle(
               fontSize: 13,
@@ -158,7 +165,7 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PARAMETRES',
+            'PARAMÈTRES',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -182,7 +189,7 @@ class _EplScreenState extends State<EplScreen> {
 
           // Age
           _buildSliderRow(
-            label: 'Age',
+            label: 'Âge',
             value: _age.toDouble(),
             min: 25,
             max: 65,
@@ -194,7 +201,7 @@ class _EplScreenState extends State<EplScreen> {
 
           // Montant souhaite
           _buildSliderRow(
-            label: 'Montant souhaite',
+            label: 'Montant souhaité',
             value: _montantSouhaite,
             min: 20000,
             max: 500000,
@@ -247,7 +254,7 @@ class _EplScreenState extends State<EplScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Text(
-                      'Rachats LPP recents',
+                      'Rachats LPP récents',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -255,7 +262,7 @@ class _EplScreenState extends State<EplScreen> {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'As-tu effectue un rachat LPP ces 3 dernieres annees ?',
+                      'As-tu effectué un rachat LPP ces 3 dernières années ?',
                       style: TextStyle(
                         fontSize: 11,
                         color: MintColors.textSecondary,
@@ -278,7 +285,7 @@ class _EplScreenState extends State<EplScreen> {
           if (_aRachete) ...[
             const SizedBox(height: 12),
             _buildSliderRow(
-              label: 'Annees depuis le rachat',
+              label: 'Années depuis le rachat',
               value: _anneesSDepuisRachat.toDouble(),
               min: 0,
               max: 5,
@@ -350,7 +357,7 @@ class _EplScreenState extends State<EplScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RESULTAT',
+            'RÉSULTAT',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -441,20 +448,20 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: 16),
           _buildImpactRow(
             icon: Icons.accessible,
-            label: 'Reduction rente invalidite (estimation annuelle)',
+            label: 'Réduction rente invalidité (estimation annuelle)',
             amount: '-CHF ${formatChf(result.reductionRenteInvalidite)}',
           ),
           const SizedBox(height: 12),
           _buildImpactRow(
             icon: Icons.heart_broken_outlined,
-            label: 'Reduction capital-deces (estimation)',
+            label: 'Réduction capital-décès (estimation)',
             amount: '-CHF ${formatChf(result.reductionCapitalDeces)}',
           ),
           const SizedBox(height: 12),
           Text(
-            'Le retrait EPL reduit proportionnellement tes prestations '
-            'de risque. Verifie aupres de ta caisse de pension les '
-            'montants exacts et les possibilites d\'assurance complementaire.',
+            'Le retrait EPL réduit proportionnellement tes prestations '
+            'de risque. Vérifie auprès de ta caisse de pension les '
+            'montants exacts et les possibilités d\'assurance complémentaire.',
             style: TextStyle(
               fontSize: 11,
               color: Colors.red.shade600,
@@ -493,6 +500,77 @@ class _EplScreenState extends State<EplScreen> {
     );
   }
 
+  Widget _buildRenteImpactSection(EplResult result) {
+    final eplImpact = LppCalculator.computeEplImpact(
+      currentBalance: _avoirTotal,
+      eplAmount: result.montantSouhaiteApplicable,
+      eplRepaid: 0,
+      currentAge: _age,
+      retirementAge: 65,
+      grossAnnualSalary: 100000,
+      caisseReturn: 0.02,
+      conversionRate: 0.068,
+    );
+
+    final renteWithout = eplImpact.renteWithoutEpl / 12;
+    final renteWith = eplImpact.renteWithEplOutstanding / 12;
+    final perteMensuelle = eplImpact.monthlyGapFromEpl;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.orange.shade50, Colors.amber.shade50],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'IMPACT SUR LA RENTE',
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.orange.shade700,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildResultRow(
+            'Rente sans EPL',
+            'CHF ${formatChf(renteWithout)}/mois',
+          ),
+          const Divider(height: 20),
+          _buildResultRow(
+            'Rente avec EPL',
+            'CHF ${formatChf(renteWith)}/mois',
+            color: Colors.orange.shade700,
+          ),
+          const Divider(height: 20),
+          _buildResultRow(
+            'Perte mensuelle',
+            '-CHF ${formatChf(perteMensuelle)}/mois',
+            isBold: true,
+            color: Colors.red.shade700,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Estimation éducative basée sur un salaire de CHF 100\'000, '
+            'rendement caisse 2%, taux de conversion 6.8%. '
+            'Le montant réel dépend de ta situation.',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.orange.shade600,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTaxCard(EplResult result) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -515,25 +593,25 @@ class _EplScreenState extends State<EplScreen> {
           ),
           const SizedBox(height: 16),
           _buildResultRow(
-            'Montant retire',
+            'Montant retiré',
             'CHF ${formatChf(result.montantSouhaiteApplicable)}',
           ),
           _buildResultRow(
-            'Impot estime sur le retrait',
+            'Impôt estimé sur le retrait',
             'CHF ${formatChf(result.impotEstime)}',
             color: Colors.red.shade600,
           ),
           const Divider(height: 20),
           _buildResultRow(
-            'Montant net apres impot',
+            'Montant net après impôt',
             'CHF ${formatChf(result.montantSouhaiteApplicable - result.impotEstime)}',
             isBold: true,
             color: MintColors.success,
           ),
           const SizedBox(height: 8),
           Text(
-            'Le retrait en capital est impose a un taux reduit '
-            '(environ 1/5 du bareme ordinaire). Le taux exact depend '
+            'Le retrait en capital est imposé à un taux réduit '
+            '(environ 1/5 du barème ordinaire). Le taux exact dépend '
             'du canton, de la commune et de la situation personnelle.',
             style: TextStyle(
               fontSize: 11,

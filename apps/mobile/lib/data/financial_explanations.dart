@@ -32,14 +32,14 @@ class FinancialExplanations {
             isPositive: false,
           ),
           const KeyPoint(
-            'Rachat échelonné : Tu restes dans ta tranche optimale, taux marginal constant',
+            'Rachat échelonné : Tu restes dans ta tranche adaptee, taux marginal constant',
           ),
           KeyPoint(
             'Gain supplémentaire : +CHF ${saving.toStringAsFixed(0)} juste en échelonnant !',
           ),
         ],
       ),
-      ExplanationSection(
+      const ExplanationSection(
         title: '⚠️ Règle des 3 ans',
         content:
             'Si tu veux retirer ton 2e pilier en CAPITAL à la retraite (et pas en rente), tu dois finir tous tes rachats AU MINIMUM 3 ans avant le retrait.',
@@ -53,7 +53,7 @@ class FinancialExplanations {
           ),
         ],
       ),
-      ExplanationSection(
+      const ExplanationSection(
         title: '🎯 Stratégie adaptée',
         content:
             'Pour maximiser l\'économie fiscale, il faut racheter dans les dernières années pré-retraite (quand ton salaire est au plus haut).',
@@ -101,7 +101,7 @@ class FinancialExplanations {
     );
 
     return [
-      ExplanationSection(
+      const ExplanationSection(
         title: '🎁 Le secret du 3a : Double rendement',
         content:
             'Le 3a n\'est pas juste un compte d\'épargne. C\'est un LEVIER FISCAL qui te donne un rendement bien supérieur à ce que tu vois.',
@@ -116,7 +116,7 @@ class FinancialExplanations {
             '→ Rendement réel total : ~${(effectiveYield * 100).toStringAsFixed(1)}% !\n\n'
             'C\'est le taux qu\'il te faudrait sur un placement non-déductible pour arriver au même capital final.',
       ),
-      ExplanationSection(
+      const ExplanationSection(
         title: '📈 Indexation et Inflation',
         content:
             'Le plafond du 3a est lié à l\'AVS et est généralement indexé tous les 2 ans. Cela signifie que ta capacité d\'épargne fiscale augmente avec le temps !',
@@ -220,10 +220,10 @@ class FinancialExplanations {
         content:
             'Le système AVS suisse est basé sur 44 années de cotisation (de 21 à 65 ans). Chaque année manquante réduit ta rente de façon proportionnelle et définitive.',
         keyPoints: [
-          KeyPoint(
+          const KeyPoint(
             'Rente complète = 44 années de cotisation non-interrompues',
           ),
-          KeyPoint(
+          const KeyPoint(
             '1 année manquante = -1/44e de rente (~2.3% en moins)',
             isPositive: false,
           ),
@@ -234,7 +234,7 @@ class FinancialExplanations {
             ),
         ],
       ),
-      ExplanationSection(
+      const ExplanationSection(
         title: '🌍 Séjours à l\'étranger',
         content:
             'Partir à l\'étranger sans cotiser au moins le minimum AVS (env. CHF 514/an) crée une lacune irrécupérable après 5 ans.',
@@ -268,7 +268,7 @@ class FinancialExplanations {
       }
     }
 
-    sections.add(ExplanationSection(
+    sections.add(const ExplanationSection(
       title: '✅ Que faire ?',
       content:
           'Il est possible de racheter les 5 dernières années manquantes si tu étais domicilié en Suisse.',
@@ -294,7 +294,7 @@ class FinancialExplanations {
     String canton,
   ) {
     return [
-      ExplanationSection(
+      const ExplanationSection(
         title: '💸 Les Subsides : L\'aide invisible',
         content:
             'En Suisse, si ton revenu est modeste, l\'État paye une partie de tes primes d\'assurance maladie. C\'est ce qu\'on appelle les subsides.',

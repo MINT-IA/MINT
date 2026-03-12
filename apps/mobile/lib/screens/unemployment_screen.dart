@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
+import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
+import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SCREEN — Sprint S19 / Chomage (LACI)
@@ -22,7 +27,8 @@ class UnemploymentScreen extends StatefulWidget {
   State<UnemploymentScreen> createState() => _UnemploymentScreenState();
 }
 
-class _UnemploymentScreenState extends State<UnemploymentScreen> {
+class _UnemploymentScreenState extends State<UnemploymentScreen>
+    with ProfileAutoFillMixin {
   double _gainAssure = 6000;
   int _age = 35;
   int _moisCotisation = 18;
@@ -37,6 +43,22 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
   void initState() {
     super.initState();
     _calculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    autoFillFromProfile(context, (p) {
+      final salaireMensuel = p.revenuBrutAnnuel > 0
+          ? (p.revenuBrutAnnuel / 12).clamp(1500.0, 12646.0)
+          : 6000.0;
+      final age = p.age > 0 ? p.age.clamp(18, 65) : 35;
+      setState(() {
+        _gainAssure = salaireMensuel.roundToDouble();
+        _age = age;
+      });
+      _calculate();
+    });
   }
 
   void _calculate() {
@@ -85,12 +107,21 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                     const SizedBox(height: 24),
                     _buildDurationCard(),
                     const SizedBox(height: 24),
+                    UnemploymentCounterWidget(
+                      age: _age,
+                      monthlyBenefit: _result!.indemniteMensuelle,
+                    ),
+                    const SizedBox(height: 24),
+                    _buildTroisVagues(),
+                    const SizedBox(height: 24),
                   ],
                   UnemploymentTimelineWidget(items: _result!.timeline),
                   const SizedBox(height: 24),
                   _buildChecklist(),
                   const SizedBox(height: 24),
                   _buildEducation(),
+                  const SizedBox(height: 24),
+                  _buildMintCrashTestSection(),
                   const SizedBox(height: 24),
                 ],
                 _buildDisclaimer(),
@@ -117,7 +148,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
         title: Text(
-          'Perte d\'emploi',
+          S.of(context)!.unemploymentTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -157,9 +188,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estime tes droits au chômage (LACI). Le calcul dépend de ton '
-              'gain assuré, de ton âge et de la durée de cotisation au cours '
-              'des 2 dernières années.',
+              S.of(context)!.unemploymentHeaderDesc,
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: MintColors.textSecondary,
@@ -176,7 +205,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildGainSlider() {
     return _buildSliderCard(
-      title: 'Gain assuré mensuel',
+      title: S.of(context)!.unemploymentGainSliderTitle,
       valueLabel: UnemploymentService.formatChf(_gainAssure),
       minLabel: 'CHF 0',
       maxLabel: "CHF 12'350",
@@ -193,10 +222,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
-      title: 'Ton âge',
-      valueLabel: '$_age ans',
-      minLabel: '18 ans',
-      maxLabel: '65 ans',
+      title: S.of(context)!.unemploymentAgeSliderTitle,
+      valueLabel: S.of(context)!.unemploymentAgeValue(_age),
+      minLabel: S.of(context)!.unemploymentAgeMin,
+      maxLabel: S.of(context)!.unemploymentAgeMax,
       value: _age.toDouble(),
       min: 18,
       max: 65,
@@ -210,10 +239,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
 
   Widget _buildMoisCotisationSlider() {
     return _buildSliderCard(
-      title: 'Mois de cotisation (2 dernières années)',
-      valueLabel: '$_moisCotisation mois',
+      title: S.of(context)!.unemploymentContribTitle,
+      valueLabel: S.of(context)!.unemploymentContribValue(_moisCotisation),
       minLabel: '0',
-      maxLabel: '24 mois',
+      maxLabel: S.of(context)!.unemploymentContribMax,
       value: _moisCotisation.toDouble(),
       min: 0,
       max: 24,
@@ -318,7 +347,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Situation personnelle',
+            S.of(context)!.unemploymentSituationTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -327,7 +356,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Influence le taux d\'indemnisation (70% ou 80%)',
+            S.of(context)!.unemploymentSituationSubtitle,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -336,7 +365,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           const SizedBox(height: 16),
           _buildToggleRow(
             icon: Icons.child_care,
-            label: 'Obligation d\'entretien (enfants)',
+            label: S.of(context)!.unemploymentChildrenToggle,
             value: _hasChildren,
             onChanged: (v) {
               _hasChildren = v;
@@ -346,7 +375,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           const SizedBox(height: 12),
           _buildToggleRow(
             icon: Icons.accessible,
-            label: 'Handicap reconnu',
+            label: S.of(context)!.unemploymentDisabilityToggle,
             value: _hasDisability,
             onChanged: (v) {
               _hasDisability = v;
@@ -407,7 +436,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Non éligible',
+                  S.of(context)!.unemploymentNotEligible,
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -507,7 +536,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Taux d\'indemnisation',
+                  S.of(context)!.unemploymentCompensationRate,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -517,10 +546,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                 const SizedBox(height: 4),
                 Text(
                   isEnhanced
-                      ? 'Taux majoré (80%) : obligation d\'entretien, '
-                        'handicap, ou salaire < CHF 3\'797'
-                      : 'Taux standard (70%) : applicable dans les '
-                        'autres situations',
+                      ? S.of(context)!.unemploymentRateEnhanced
+                      : S.of(context)!.unemploymentRateStandard,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -545,7 +572,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Indemnité /jour',
+                S.of(context)!.unemploymentDailyBenefit,
                 UnemploymentService.formatChf(r.indemniteJournaliere),
                 Icons.today_outlined,
               ),
@@ -553,7 +580,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Indemnité /mois',
+                S.of(context)!.unemploymentMonthlyBenefit,
                 UnemploymentService.formatChf(r.indemniteMensuelle),
                 Icons.calendar_month_outlined,
               ),
@@ -565,7 +592,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
           children: [
             Expanded(
               child: _buildMetricCard(
-                'Gain assuré retenu',
+                S.of(context)!.unemploymentInsuredEarnings,
                 UnemploymentService.formatChf(r.gainAssureRetenu),
                 Icons.account_balance_wallet_outlined,
               ),
@@ -573,8 +600,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                'Délai de carence',
-                '${r.delaiCarenceJours} jours',
+                S.of(context)!.unemploymentWaitingPeriod,
+                S.of(context)!.unemploymentWaitingDays(r.delaiCarenceJours),
                 Icons.hourglass_empty,
                 small: true,
               ),
@@ -639,7 +666,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               const Icon(Icons.access_time, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'DURÉE DES PRESTATIONS',
+                S.of(context)!.unemploymentDurationHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -665,7 +692,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                       ),
                     ),
                     Text(
-                      'indemnités journalières',
+                      S.of(context)!.unemploymentDailyBenefits,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textSecondary,
@@ -693,7 +720,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                       ),
                     ),
                     Text(
-                      'mois de couverture',
+                      S.of(context)!.unemploymentCoverageMonths,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: MintColors.textSecondary,
@@ -712,11 +739,13 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
   }
 
   Widget _buildDurationTable() {
+    // Source : LACI art. 27 al. 2 — durées maximales d'indemnités
+    // Miroir de social_insurance.dart (acJoursMinCotisation, acJoursStandard, acJoursSenior)
     final brackets = [
-      ('< 25 ans, >= 12 mois cotis.', '200 indemnités', _age < 25 && _moisCotisation >= 12),
-      ('>= 25 ans, >= 18 mois cotis.', '260 indemnités', _age >= 25 && _moisCotisation >= 18 && _age < 55),
-      ('>= 55 ans, >= 22 mois cotis.', '400 indemnités', _age >= 55 && _age < 60 && _moisCotisation >= 22),
-      ('>= 60 ans, >= 22 mois cotis.', '520 indemnités', _age >= 60 && _moisCotisation >= 22),
+      ('12–17 mois cotis.', '200 indemnités', _moisCotisation >= 12 && _moisCotisation < 18),
+      ('18–21 mois cotis.', '260 indemnités', _moisCotisation >= 18 && _moisCotisation < 22),
+      ('>= 22 mois, < $acAgeSeuillSenior ans', '400 indemnités', _moisCotisation >= 22 && _age < acAgeSeuillSenior),
+      ('>= 22 mois, >= $acAgeSeuillSenior ans', '520 indemnités', _moisCotisation >= 22 && _age >= acAgeSeuillSenior),
     ];
 
     return Column(
@@ -750,7 +779,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'TOI',
+                        S.of(context)!.unemploymentYouTag,
                         style: GoogleFonts.inter(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -791,13 +820,14 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
   // ── Checklist ──────────────────────────────────────────────
 
   Widget _buildChecklist() {
+    final l10n = S.of(context)!;
     final items = [
-      'S\'inscrire à l\'ORP dès le 1er jour sans emploi',
-      'Déposer le dossier à la caisse de chômage',
-      'Adapter le budget au nouveau revenu',
-      'Transférer l\'avoir LPP sur un compte de libre passage',
-      'Vérifier les droits à une réduction de prime LAMal',
-      'Mettre à jour le budget MINT avec le nouveau revenu',
+      l10n.unemploymentCheckItem1,
+      l10n.unemploymentCheckItem2,
+      l10n.unemploymentCheckItem3,
+      l10n.unemploymentCheckItem4,
+      l10n.unemploymentCheckItem5,
+      l10n.unemploymentCheckItem6,
     ];
 
     return Container(
@@ -815,7 +845,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
               const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHECKLIST',
+                S.of(context)!.unemploymentChecklistHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -901,7 +931,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
                 size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'BON À SAVOIR',
+              S.of(context)!.unemploymentGoodToKnow,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -914,29 +944,23 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.timer_outlined,
-          'Inscription rapide',
-          'Inscris-toi à l\'ORP le plus tôt possible. Chaque jour de retard '
-          'peut entraîner une suspension de tes indemnités.',
+          S.of(context)!.unemploymentEduFastTitle,
+          S.of(context)!.unemploymentEduFastBody,
         ),
         _buildEduCard(
           Icons.savings_outlined,
-          '3e pilier en pause',
-          'Sans revenu lucratif, tu ne peux plus cotiser au 3a. Les indemnités '
-          'de chômage ne sont pas considérées comme un revenu lucratif '
-          'au sens du 3e pilier.',
+          S.of(context)!.unemploymentEdu3aTitle,
+          S.of(context)!.unemploymentEdu3aBody,
         ),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'LPP et chômage',
-          'Pendant le chômage, seuls les risques décès et invalidité sont '
-          'couverts par le LPP. L\'épargne vieillesse s\'arrête. '
-          'Transfère ton avoir sur un compte de libre passage.',
+          S.of(context)!.unemploymentEduLppTitle,
+          S.of(context)!.unemploymentEduLppBody,
         ),
         _buildEduCard(
           Icons.health_and_safety_outlined,
-          'Réduction de prime LAMal',
-          'Avec un revenu plus bas, tu pourrais avoir droit à des subsides '
-          'LAMal. Fais la demande auprès de ton canton.',
+          S.of(context)!.unemploymentEduLamalTitle,
+          S.of(context)!.unemploymentEduLamalBody,
         ),
       ],
     );
@@ -993,30 +1017,188 @@ class _UnemploymentScreenState extends State<UnemploymentScreen> {
     );
   }
 
+  // ── P7-A : Les 3 vagues — Ton tsunami financier ────────────
+
+  static const _vagues = [
+    (
+      emoji: '🌊',
+      label: 'Vague 1 · L\'urgence administrative',
+      color: MintColors.info,
+      text: 'Inscription ORP dans les 5 premiers jours. Sinon : perte d\'indemnités. '
+          'Chaque jour de retard = indemnité perdue.',
+    ),
+    (
+      emoji: '🌊',
+      label: 'Vague 2 · La chute de revenus',
+      color: MintColors.scoreAttention,
+      text: 'Chute immédiate de CHF/mois. L\'AC ne couvre ni les jours fériés '
+          'ni le délai de carence (5–20 jours). Revise ton budget dès J+1.',
+    ),
+    (
+      emoji: '🌊',
+      label: 'Vague 3 · Les décisions cachées',
+      color: MintColors.scoreCritique,
+      text: 'Dans les 30 jours : transférer ton LPP (sinon institution supplétive). '
+          'Avant le mois suivant : suspendre le 3a, revoir LAMal. '
+          '"La vague la plus dangereuse, c\'est celle que tu n\'as pas vue venir."',
+    ),
+  ];
+
+  Widget _buildTroisVagues() {
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                const Text('🌊', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    S.of(context)!.unemploymentTsunamiTitle,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          ..._vagues.map(
+            (v) => Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 4,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: v.color,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          v.label,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: v.color,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          v.text,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: MintColors.textSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── MINT Coach Widget: Crash Test Budget ───────────────────
+
+  Widget _buildMintCrashTestSection() {
+    final survivalIncome = _gainAssure * 0.70; // taux LACI standard
+
+    // Derive budget lines proportionally from gainAssure
+    final loyer = (_gainAssure * 0.30).roundToDouble(); // ~30% du revenu
+    final lamal = (_gainAssure * 0.075).roundToDouble(); // ~7.5%
+    final transport = (_gainAssure * 0.033).roundToDouble(); // ~3.3%
+    final loisirs = (_gainAssure * 0.067).roundToDouble(); // ~6.7%
+    final epargne3a = (pilier3aPlafondAvecLpp / 12).roundToDouble(); // plafond mensuel
+
+    return CrashTestBudgetWidget(
+      monthlyIncome: _gainAssure,
+      survivalIncome: survivalIncome,
+      lines: [
+        BudgetLine(
+          label: 'Loyer',
+          emoji: '🏠',
+          normalAmount: loyer,
+          survivalAmount: loyer, // incompressible
+          status: BudgetLineStatus.locked,
+        ),
+        BudgetLine(
+          label: 'LAMal',
+          emoji: '🏥',
+          normalAmount: lamal,
+          survivalAmount: lamal, // incompressible
+          status: BudgetLineStatus.locked,
+        ),
+        BudgetLine(
+          label: 'Transport',
+          emoji: '🚌',
+          normalAmount: transport,
+          survivalAmount: (transport * 0.50).roundToDouble(),
+          status: BudgetLineStatus.cut,
+        ),
+        BudgetLine(
+          label: 'Loisirs',
+          emoji: '🎭',
+          normalAmount: loisirs,
+          survivalAmount: (loisirs * 0.125).roundToDouble(),
+          status: BudgetLineStatus.cut,
+        ),
+        BudgetLine(
+          label: 'Épargne 3a',
+          emoji: '🏦',
+          normalAmount: epargne3a,
+          survivalAmount: 0,
+          status: BudgetLineStatus.paused,
+        ),
+      ],
+    );
+  }
+
   // ── Disclaimer ─────────────────────────────────────────────
 
   Widget _buildDisclaimer() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: MintColors.scoreAttention.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: MintColors.scoreAttention.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+          Icon(Icons.info_outline, color: MintColors.scoreAttention, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estimations éducatives — ne constitue pas un conseil — '
-              'LACI/LPP/OPP3. Les montants présentés sont approximatifs '
-              'et dépendent de ta situation personnelle. Consulte '
-              'un\u00B7e spécialiste ou l\'ORP de ton canton.',
+              S.of(context)!.unemploymentDisclaimer,
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: Colors.orange.shade800,
+                color: MintColors.scoreAttention,
                 height: 1.5,
               ),
             ),

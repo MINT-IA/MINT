@@ -6,33 +6,33 @@ import 'package:mint_mobile/theme/colors.dart';
 /// Noms des mois en francais (utilise par Check-in + Agir)
 const kFrenchMonths = [
   'Janvier',
-  'Fevrier',
+  'Février',
   'Mars',
   'Avril',
   'Mai',
   'Juin',
   'Juillet',
-  'Aout',
+  'Août',
   'Septembre',
   'Octobre',
   'Novembre',
-  'Decembre',
+  'Décembre',
 ];
 
 /// Noms courts des mois en francais
 const kFrenchMonthsShort = [
   'Jan',
-  'Fev',
+  'Fév',
   'Mar',
   'Avr',
   'Mai',
   'Jun',
   'Jul',
-  'Aou',
+  'Aoû',
   'Sep',
   'Oct',
   'Nov',
-  'Dec',
+  'Déc',
 ];
 
 /// Icone par categorie de versement planifie
@@ -55,9 +55,9 @@ IconData iconForCategory(String category) {
 Color colorForCategory(String category) {
   switch (category) {
     case '3a':
-      return const Color(0xFF4F46E5); // Indigo
+      return MintColors.indigo; // Indigo
     case 'lpp_buyback':
-      return const Color(0xFF0891B2); // Teal
+      return MintColors.cyan; // Teal
     case 'investissement':
       return MintColors.success;
     case 'epargne_libre':

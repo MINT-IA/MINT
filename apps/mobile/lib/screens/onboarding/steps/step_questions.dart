@@ -7,10 +7,13 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
-/// Step 1 of the Smart Onboarding flow — 3 required questions.
+/// Step 1 of the Smart Onboarding flow — 5 core questions.
 ///
-/// Collects: grossSalary, age, canton.
+/// Collects: grossSalary, age, employmentStatus, nationalityGroup, canton.
 /// Calls [viewModel.compute()] then [onNext] when the user taps "Voir mon résultat".
+///
+/// AVS gap / lacunes → handled later via extrait AVS upload (StepOcrUpload),
+/// not asked here. Literacy calibration moved to StepChiffreChoc (post-reveal).
 ///
 /// Design rules:
 /// - Material 3, GoogleFonts.montserrat headings, GoogleFonts.inter body
@@ -55,6 +58,7 @@ class _StepQuestionsState extends State<StepQuestions> {
   ];
 
   late TextEditingController _ageController;
+  late TextEditingController _firstNameController;
   bool _didTrackStart = false;
 
   @override
@@ -62,11 +66,14 @@ class _StepQuestionsState extends State<StepQuestions> {
     super.initState();
     _ageController =
         TextEditingController(text: widget.viewModel.age.toString());
+    _firstNameController =
+        TextEditingController(text: widget.viewModel.firstName ?? '');
   }
 
   @override
   void dispose() {
     _ageController.dispose();
+    _firstNameController.dispose();
     super.dispose();
   }
 
@@ -109,6 +116,7 @@ class _StepQuestionsState extends State<StepQuestions> {
       data: {
         'salary_bracket': salaryBracket,
         'age_bracket': ageBracket,
+        'employment_status': vm.employmentStatus,
         'canton': vm.canton,
       },
       screenName: 'smart_onboarding_step1',
@@ -168,12 +176,55 @@ class _StepQuestionsState extends State<StepQuestions> {
                 children: [
                   const SizedBox(height: 4),
                   Text(
-                    '3 infos suffisent pour un premier aper\u00e7u personnalis\u00e9.',
+                    'Quelques infos suffisent pour un premier aper\u00e7u personnalis\u00e9.',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       color: MintColors.textSecondary,
                       height: 1.5,
                     ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── 0. PRENOM (optionnel) ─────────────────────────────────
+                  TextField(
+                    controller: _firstNameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: 'Comment on t\'appelle ?',
+                      hintText: 'Ton prénom (optionnel)',
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: _firstNameController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear,
+                                  size: 18, color: MintColors.textMuted),
+                              onPressed: () {
+                                _firstNameController.clear();
+                                widget.viewModel.setFirstName(null);
+                              },
+                            )
+                          : null,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: MintColors.primary),
+                      ),
+                    ),
+                    onChanged: (v) {
+                      widget.viewModel.setFirstName(v);
+                      setState(() {}); // rebuild suffixIcon
+                    },
                   ),
                   const SizedBox(height: 32),
 
@@ -249,12 +300,49 @@ class _StepQuestionsState extends State<StepQuestions> {
                         ),
                       ),
                       onFieldSubmitted: (_) => _applyAgeFromInput(),
-                      onTapOutside: (_) => _applyAgeFromInput(),
+                      onTapOutside: (_) {
+                        FocusScope.of(context).unfocus();
+                        _applyAgeFromInput();
+                      },
                     ),
                   ),
                   const SizedBox(height: 32),
 
-                  // ── 3. CANTON ─────────────────────────────────────────────
+                  // ── 3. SITUATION PROFESSIONNELLE ──────────────────────────
+                  const _SectionTitle(label: 'Ta situation professionnelle'),
+                  const SizedBox(height: 12),
+                  _EmploymentStatusChips(
+                    value: widget.viewModel.employmentStatus,
+                    onChanged: (v) {
+                      widget.viewModel.setEmploymentStatus(v);
+                      widget.onInputChanged();
+                    },
+                  ),
+                  const SizedBox(height: 32),
+
+                  // ── 4. NATIONALITE ─────────────────────────────────────────
+                  const _SectionTitle(label: 'Ta nationalite'),
+                  const SizedBox(height: 12),
+                  _NationalityChips(
+                    value: widget.viewModel.nationalityGroup,
+                    onChanged: (v) {
+                      widget.viewModel.setNationalityGroup(v);
+                      widget.onInputChanged();
+                    },
+                  ),
+                  if (widget.viewModel.nationalityGroup == 'OTHER') ...[
+                    const SizedBox(height: 16),
+                    _CountryPicker(
+                      value: widget.viewModel.nationalityCountry,
+                      onChanged: (v) {
+                        widget.viewModel.setNationalityCountry(v);
+                        widget.onInputChanged();
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 32),
+
+                  // ── 5. CANTON ─────────────────────────────────────────────
                   const _SectionTitle(label: 'Ton canton'),
                   const SizedBox(height: 12),
                   _CantonPicker(
@@ -535,6 +623,199 @@ class _AgePicker extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+//  EMPLOYMENT STATUS CHIPS — 4 options impacting 3a/LPP/AVS
+// ════════════════════════════════════════════════════════════════════════════
+
+class _EmploymentStatusChips extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _EmploymentStatusChips({
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _options = [
+    ('salarie', 'Salarie\u00b7e'),
+    ('independant', 'Independant\u00b7e'),
+    ('sans_emploi', 'Sans emploi'),
+    ('retraite', 'Retraite\u00b7e'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: _options.map((option) {
+        final (key, label) = option;
+        final isSelected = key == value;
+        return InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => onChanged(isSelected ? null : key),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? MintColors.primary.withAlpha(24)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected ? MintColors.primary : MintColors.lightBorder,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? MintColors.primary
+                    : MintColors.textSecondary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  NATIONALITY CHIPS — CH / EU/AELE / Autre
+// ════════════════════════════════════════════════════════════════════════════
+
+class _NationalityChips extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _NationalityChips({
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _options = [
+    ('CH', 'Suisse'),
+    ('EU', 'EU/AELE'),
+    ('OTHER', 'Autre'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: _options.map((option) {
+        final (key, label) = option;
+        final isSelected = key == value;
+        return InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => onChanged(isSelected ? null : key),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? MintColors.primary.withAlpha(24)
+                  : MintColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected ? MintColors.primary : MintColors.lightBorder,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? MintColors.primary
+                    : MintColors.textSecondary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  COUNTRY PICKER — shown when nationalityGroup == 'OTHER'
+// ════════════════════════════════════════════════════════════════════════════
+
+class _CountryPicker extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _CountryPicker({required this.value, required this.onChanged});
+
+  // Common non-EU/non-CH nationalities in Switzerland
+  static const _countries = [
+    ('US', 'États-Unis'),
+    ('GB', 'Royaume-Uni'),
+    ('CA', 'Canada'),
+    ('IN', 'Inde'),
+    ('CN', 'Chine'),
+    ('BR', 'Brésil'),
+    ('AU', 'Australie'),
+    ('JP', 'Japon'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ton pays d\'origine',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: MintColors.textMuted,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _countries.map((entry) {
+            final (code, label) = entry;
+            final selected = value == code;
+            return InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => onChanged(selected ? null : code),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? MintColors.primary.withAlpha(24)
+                      : MintColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: selected ? MintColors.primary : MintColors.lightBorder,
+                    width: selected ? 2 : 1,
+                  ),
+                ),
+                child: Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected ? MintColors.primary : MintColors.textSecondary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 //  CANTON PICKER — search bottom sheet, 26 Swiss cantons
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -733,3 +1014,4 @@ class _CantonPicker extends StatelessWidget {
     );
   }
 }
+

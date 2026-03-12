@@ -17,6 +17,12 @@ en assurance au sens de la LSFin/LCA.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.constants.social_insurance import (
+    LAMAL_QUOTE_PART_CAP_ADULT,
+    LAMAL_QUOTE_PART_CAP_CHILD,
+    LAMAL_QUOTE_PART_RATE,
+)
+
 
 # ---------------------------------------------------------------------------
 # Constants (LAMal art. 62-64, OAMal)
@@ -25,10 +31,10 @@ from typing import List, Optional
 FRANCHISE_LEVELS_ADULT = [300, 500, 1000, 1500, 2000, 2500]
 FRANCHISE_LEVELS_CHILD = [0, 100, 200, 300, 400, 500, 600]
 
-# Quote-part: 10% of costs above franchise
-QUOTE_PART_RATE = 0.10
-QUOTE_PART_CAP_ADULT = 700.0   # CHF/year
-QUOTE_PART_CAP_CHILD = 350.0   # CHF/year
+# Quote-part: 10% of costs above franchise (imported from social_insurance.py)
+QUOTE_PART_RATE = LAMAL_QUOTE_PART_RATE
+QUOTE_PART_CAP_ADULT = LAMAL_QUOTE_PART_CAP_ADULT   # CHF/year
+QUOTE_PART_CAP_CHILD = LAMAL_QUOTE_PART_CAP_CHILD   # CHF/year
 
 # Approximate premium savings vs franchise 300 (based on BAG 2024 data)
 # These are percentage savings on the annual premium.

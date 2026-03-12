@@ -43,6 +43,9 @@ LPP_SALAIRE_MAX: float = 90_720.0
 LPP_TAUX_CONVERSION_MIN: float = 6.8
 """Taux de conversion minimum LPP en % (LPP art. 14 al. 2). Capital -> rente."""
 
+LPP_TAUX_CONVERSION_MIN_DECIMAL: float = 0.068
+"""Taux de conversion minimum LPP en fraction decimale (0.068 = 6.8%)."""
+
 LPP_TAUX_INTERET_MIN: float = 1.25
 """Taux d'interet minimum LPP en % (fixe par le Conseil federal)."""
 
@@ -90,6 +93,15 @@ AVS_RENTE_MIN_MENSUELLE: float = 1_260.0
 AVS_RENTE_COUPLE_MAX_MENSUELLE: float = 3_780.0
 """Rente AVS maximale pour un couple mensuelle (= 150% de la rente max)."""
 
+AVS_RAMD_MIN: float = 14_700.0
+"""RAMD minimum (revenu annuel moyen determinant). Rente = min si salaire <= RAMD_MIN."""
+
+AVS_RAMD_MAX: float = 88_200.0
+"""RAMD maximum. Rente = max si salaire >= RAMD_MAX (LAVS art. 34, echelle 44)."""
+
+AVS_RENTE_MAX_ANNUELLE: float = AVS_RENTE_MAX_MENSUELLE * 12
+"""Rente AVS maximale annuelle (12 mois, sans 13eme rente)."""
+
 AVS_COTISATION_SALARIE: float = 0.053
 """Taux de cotisation AVS part salarie: 5.3% (total 10.6% avec part employeur)."""
 
@@ -125,6 +137,28 @@ AVS_FRANCHISE_RETRAITE_ANNUELLE: float = 16_800.0
 
 AVS_SURVIVOR_FACTOR: float = 0.80
 """Facteur rente de survivant (80% de la rente du defunt)."""
+
+# 13eme rente AVS (initiative populaire adoptee en mars 2024)
+# Versement: une fois par an en decembre, a partir de decembre 2026.
+# Montant = 1/12 de la somme annuelle des rentes vieillesse versees.
+# En pratique: rente annuelle effective = rente mensuelle × 13.
+# Uniquement rentes de vieillesse (pas AI, pas survivants, pas enfants).
+# N'affecte PAS les prestations complementaires (PC).
+# Base legale: LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis.
+
+AVS_13EME_RENTE_ACTIVE: bool = True
+"""13eme rente AVS active. True des 2026 (premier versement decembre 2026)."""
+
+AVS_13EME_RENTE_ANNEE_DEBUT: int = 2026
+"""Annee du premier versement de la 13eme rente AVS."""
+
+AVS_NOMBRE_RENTES_PAR_AN: int = 13
+"""Nombre de rentes mensuelles par an (12 standard + 1 treizieme)."""
+
+AVS_13EME_RENTE_FACTOR: float = 13.0 / 12.0
+"""Facteur multiplicateur pour convertir la rente annuelle 12 mois en 13 mois.
+Rente annuelle effective = rente mensuelle × 12 × AVS_13EME_RENTE_FACTOR
+                         = rente mensuelle × 13."""
 
 # AVS volontaire (expatries)
 AVS_VOLONTAIRE_COTISATION_MIN: float = 514.0
@@ -301,6 +335,59 @@ def calculate_progressive_capital_tax(montant: float, base_rate: float) -> float
         total_tax += taxable * base_rate * multiplier
         remaining -= taxable
     return round(total_tax, 2)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# EPL — Encouragement a la propriete du logement
+# Base legale: LPP art. 30c, OPP2 art. 5
+# ══════════════════════════════════════════════════════════════════════════════
+
+EPL_MONTANT_MINIMUM: float = 20_000.0
+"""Montant minimum pour un retrait EPL (OPP2 art. 5)."""
+
+EPL_BLOCAGE_RACHAT_ANNEES: int = 3
+"""Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3)."""
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Hypotheque — Pratique bancaire suisse (ASB / FINMA)
+# ══════════════════════════════════════════════════════════════════════════════
+
+HYPOTHEQUE_TAUX_THEORIQUE: float = 0.05
+"""Taux d'interet theorique pour le calcul de capacite (5%)."""
+
+HYPOTHEQUE_TAUX_AMORTISSEMENT: float = 0.01
+"""Taux d'amortissement annuel minimum (1%)."""
+
+HYPOTHEQUE_TAUX_FRAIS_ACCESSOIRES: float = 0.01
+"""Taux de frais accessoires annuels (entretien, assurance) (1%)."""
+
+HYPOTHEQUE_TAUX_CHARGES_TOTAL: float = 0.07
+"""Taux de charges theoriques combines (5% + 1% + 1% = 7%)."""
+
+HYPOTHEQUE_RATIO_CHARGES_MAX: float = 1.0 / 3.0
+"""Ratio maximal des charges par rapport au revenu brut (regle du 1/3)."""
+
+HYPOTHEQUE_FONDS_PROPRES_MIN: float = 0.20
+"""Part minimale de fonds propres (20% du prix d'achat)."""
+
+HYPOTHEQUE_PART_2E_PILIER_MAX: float = 0.10
+"""Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat)."""
+
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LAMal — Assurance-maladie obligatoire
+# Base legale: LAMal art. 62-64
+# ══════════════════════════════════════════════════════════════════════════════
+
+LAMAL_QUOTE_PART_RATE: float = 0.10
+"""Quote-part: 10% des frais au-dessus de la franchise (LAMal art. 64)."""
+
+LAMAL_QUOTE_PART_CAP_ADULT: float = 700.0
+"""Quote-part maximale annuelle adultes >= 26 ans (LAMal art. 64 al. 2)."""
+
+LAMAL_QUOTE_PART_CAP_CHILD: float = 350.0
+"""Quote-part maximale annuelle enfants < 18 ans (LAMal art. 64 al. 4)."""
+
 
 AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""

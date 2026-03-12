@@ -6,6 +6,8 @@ import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/widgets/recommendation_card.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // ────────────────────────────────────────────────────────────
@@ -15,6 +17,14 @@ void main() {
     testWidgets('shows child when hasDebt is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: false,
@@ -30,6 +40,14 @@ void main() {
     testWidgets('shows locked state when hasDebt is true', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -48,6 +66,14 @@ void main() {
     testWidgets('shows default locked title', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -63,6 +89,14 @@ void main() {
     testWidgets('shows custom locked title', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -81,6 +115,14 @@ void main() {
     testWidgets('shows custom locked message', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -97,6 +139,14 @@ void main() {
     testWidgets('shows "Pourquoi est-ce bloque ?" link', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -112,6 +162,14 @@ void main() {
     testWidgets('shows lock icon when gated', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -127,6 +185,14 @@ void main() {
     testWidgets('child is not rendered when gated', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: SafeModeGate(
               hasDebt: true,
@@ -188,6 +254,14 @@ void main() {
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(),
           child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: RecommendationCard(recommendation: rec),
@@ -209,6 +283,14 @@ void main() {
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(),
           child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: RecommendationCard(recommendation: rec),
@@ -238,6 +320,14 @@ void main() {
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(),
           child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: RecommendationCard(recommendation: rec),
@@ -259,6 +349,14 @@ void main() {
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(),
           child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: RecommendationCard(recommendation: rec),
@@ -283,7 +381,7 @@ void main() {
       // age <= 28 -> Premier emploi (3)
       // independent -> Outils independant (4)
       // income >= 5000 & age 25-50 -> Achat immobilier (5)
-      // high-tax canton GE -> Demenagement cantonal (6 - would be 6th)
+      // high-tax canton GE -> Déménagement cantonal (6 - would be 6th)
       // children > 0 -> Invalidite (7 - would be 7th)
       final suggestions = buildLifeEventSuggestions(
         age: 27,
@@ -398,7 +496,7 @@ void main() {
         final titles = suggestions.map((s) => s.title).toList();
         expect(
           titles,
-          contains('Demenagement cantonal'),
+          contains('Déménagement cantonal'),
           reason: 'Canton $canton should trigger canton move suggestion',
         );
       }
@@ -416,7 +514,7 @@ void main() {
       final titlesLowTax = suggestionsLowTax.map((s) => s.title).toList();
       expect(
         titlesLowTax,
-        isNot(contains('Demenagement cantonal')),
+        isNot(contains('Déménagement cantonal')),
         reason: 'Low-tax canton ZG should not trigger canton move suggestion',
       );
     });

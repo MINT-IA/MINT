@@ -61,7 +61,7 @@ void main() {
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Demenagement cantonal'));
+      expect(titles, contains('Déménagement cantonal'));
     });
 
     // Test 5: Person age 55+ gets retirement suggestion
@@ -108,7 +108,7 @@ void main() {
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Outils independant'));
+      expect(titles, contains('Outils indépendant'));
     });
 
     // Test 8: Max 5 suggestions returned
@@ -116,9 +116,9 @@ void main() {
       // Use a profile that triggers many rules:
       // concubinage (2 suggestions: Mariage + Concubinage),
       // high income + age 25-50 (Achat immobilier),
-      // independent (Outils independant),
-      // high-tax canton (Demenagement cantonal),
-      // children or high income (Invalidite),
+      // independent (Outils indépendant),
+      // high-tax canton (Déménagement cantonal),
+      // children or high income (Invalidité),
       // age <= 28 (Premier emploi)
       final suggestions = buildLifeEventSuggestions(
         age: 27,
@@ -160,7 +160,7 @@ void main() {
       );
       final titlesWithKids =
           suggestionsWithKids.map((s) => s.title).toList();
-      expect(titlesWithKids, contains('Invalidite'));
+      expect(titlesWithKids, contains('Invalidité'));
 
       // Without children but high income
       final suggestionsHighIncome = buildLifeEventSuggestions(
@@ -173,7 +173,7 @@ void main() {
       );
       final titlesHighIncome =
           suggestionsHighIncome.map((s) => s.title).toList();
-      expect(titlesHighIncome, contains('Invalidite'));
+      expect(titlesHighIncome, contains('Invalidité'));
     });
   });
 }

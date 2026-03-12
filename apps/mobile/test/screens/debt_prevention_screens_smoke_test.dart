@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   // ===========================================================================
@@ -15,6 +17,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
       );
@@ -27,6 +37,14 @@ void main() {
     testWidgets('displays French title in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
       );
@@ -38,8 +56,23 @@ void main() {
     testWidgets('shows default debt list', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
+      );
+      await tester.pump();
+
+      // DebtSurvivalWidget takes up space at the top — scroll to reveal debt list
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
       );
       await tester.pump();
 
@@ -52,6 +85,14 @@ void main() {
     testWidgets('shows budget slider section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
       );
@@ -59,7 +100,7 @@ void main() {
 
       await tester.drag(
         find.byType(CustomScrollView),
-        const Offset(0, -400),
+        const Offset(0, -1200),
       );
       await tester.pump();
 
@@ -69,6 +110,14 @@ void main() {
     testWidgets('shows strategy comparison section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
       );
@@ -76,7 +125,7 @@ void main() {
 
       await tester.drag(
         find.byType(CustomScrollView),
-        const Offset(0, -600),
+        const Offset(0, -1500),
       );
       await tester.pump();
 
@@ -88,6 +137,14 @@ void main() {
     testWidgets('shows timeline section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
       );
@@ -95,7 +152,7 @@ void main() {
 
       await tester.drag(
         find.byType(CustomScrollView),
-        const Offset(0, -900),
+        const Offset(0, -2000),
       );
       await tester.pump();
 
@@ -105,6 +162,14 @@ void main() {
     testWidgets('shows chiffre choc', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
       );
@@ -116,8 +181,22 @@ void main() {
     testWidgets('has add debt button', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
+      );
+      await tester.pump();
+
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
       );
       await tester.pump();
 
@@ -127,8 +206,22 @@ void main() {
     testWidgets('has delete buttons for debts', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
+      );
+      await tester.pump();
+
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
       );
       await tester.pump();
 
@@ -138,8 +231,22 @@ void main() {
     testWidgets('shows debt mini sliders', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: RepaymentScreen(),
         ),
+      );
+      await tester.pump();
+
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
       );
       await tester.pump();
 
@@ -155,6 +262,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -167,6 +282,14 @@ void main() {
     testWidgets('displays French title in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -178,6 +301,14 @@ void main() {
     testWidgets('shows gauge with CustomPaint', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -190,6 +321,14 @@ void main() {
     testWidgets('shows gauge legend', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -203,6 +342,14 @@ void main() {
     testWidgets('shows parameter sliders section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -224,6 +371,14 @@ void main() {
     testWidgets('shows celibataire switch', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -242,6 +397,14 @@ void main() {
     testWidgets('shows minimum vital card', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -261,6 +424,14 @@ void main() {
     testWidgets('shows recommendations section', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -278,6 +449,14 @@ void main() {
     testWidgets('shows disclaimer', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -296,6 +475,14 @@ void main() {
     testWidgets('shows ratio percentage display', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: DebtRatioScreen(),
         ),
       );
@@ -314,6 +501,14 @@ void main() {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -326,6 +521,14 @@ void main() {
     testWidgets('displays French title in AppBar', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -337,17 +540,25 @@ void main() {
     testWidgets('shows intro card', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
       await tester.pump();
 
       expect(
-        find.textContaining('Vous n\'etes pas seul'),
+        find.textContaining('Vous n\'êtes pas seul'),
         findsOneWidget,
       );
       expect(
-        find.textContaining('MINT ne transmet aucune donnee'),
+        find.textContaining('MINT ne transmet aucune donnée'),
         findsWidgets,
       );
     });
@@ -355,6 +566,14 @@ void main() {
     testWidgets('shows Dettes Conseils Suisse resource', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -367,6 +586,14 @@ void main() {
     testWidgets('shows GRATUIT badge', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -378,6 +605,14 @@ void main() {
     testWidgets('shows cantonal section with dropdown', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -397,6 +632,14 @@ void main() {
     testWidgets('shows privacy note (nLPD)', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -408,7 +651,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Protection des donnees (nLPD)'), findsOneWidget);
+      expect(find.text('Protection des données (nLPD)'), findsOneWidget);
       expect(
         find.textContaining('confidentielle'),
         findsOneWidget,
@@ -418,6 +661,14 @@ void main() {
     testWidgets('shows disclaimer', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );
@@ -430,7 +681,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('informatif et pedagogique'),
+        find.textContaining('informatif et pédagogique'),
         findsOneWidget,
       );
     });
@@ -438,6 +689,14 @@ void main() {
     testWidgets('shows web and phone buttons', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
           home: HelpResourcesScreen(),
         ),
       );

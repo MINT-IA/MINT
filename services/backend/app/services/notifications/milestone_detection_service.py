@@ -19,6 +19,7 @@ Sources:
 from datetime import datetime
 from typing import List
 
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.notifications.notification_models import (
     DetectedMilestone,
     MilestoneCheckResult,
@@ -26,7 +27,7 @@ from app.services.notifications.notification_models import (
 )
 
 # 3a plafond salarie 2025/2026
-THREE_A_PLAFOND_SALARIE = 7258.0
+THREE_A_PLAFOND_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
 
 
 def _format_chf(amount: float) -> str:

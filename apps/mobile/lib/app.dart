@@ -26,7 +26,9 @@ import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
-import 'package:mint_mobile/screens/simulator_disability_gap_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/succession_simulator_screen.dart';
@@ -98,8 +100,10 @@ import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 // Timeline
 import 'package:mint_mobile/screens/timeline_screen.dart';
-// Coach screens (Sprint C5-C10)
+// Coach screens (Sprint C5-C10, S44)
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
+import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
@@ -108,13 +112,16 @@ import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/providers/onboarding_provider.dart';
+
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 // Onboarding Redesign (Sprint S31)
 import 'package:mint_mobile/screens/onboarding/smart_onboarding_screen.dart';
+// Quick Start (Sprint S45 — Dashboard-First)
+import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // Arbitrage Phase 1 (Sprint S32)
+import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
 // Arbitrage Phase 2 (Sprint S33)
@@ -127,6 +134,11 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+// Household / Couple+ (P6)
+import 'package:mint_mobile/providers/household_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/screens/household/household_screen.dart';
+import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -176,6 +188,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/agir',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const CoachAgirScreen(),
     ),
     GoRoute(
@@ -186,17 +199,34 @@ final _router = GoRouter(
     GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachChatScreen(),
+      builder: (context, state) {
+        final prompt = state.uri.queryParameters['prompt'];
+        return CoachChatScreen(initialPrompt: prompt);
+      },
     ),
     GoRoute(
       path: '/coach/refresh',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
     GoRoute(
       path: '/coach/cockpit',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CockpitDetailScreen(),
+    ),
+    // Phase 2 — AgeBand 65+ (Sprint S44)
+    GoRoute(
+      path: '/coach/decaissement',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
+      builder: (context, state) => const OptimisationDecaissementScreen(),
+    ),
+    GoRoute(
+      path: '/coach/succession',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableCoachPhase2 ? null : '/',
+      builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
     // Feature Routes (Full Screen)
     GoRoute(
@@ -211,7 +241,11 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/advisor/wizard',
-      redirect: (context, state) => '/onboarding/smart',
+      redirect: (context, state) {
+        final section = state.uri.queryParameters['section'];
+        if (section == null || section.isEmpty) return '/onboarding/smart';
+        return '/onboarding/smart?section=$section';
+      },
     ),
     GoRoute(
       path: '/profile',
@@ -219,10 +253,12 @@ final _router = GoRouter(
       routes: [
         GoRoute(
           path: 'admin-observability',
+          redirect: (context, state) => FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminObservabilityScreen(),
         ),
         GoRoute(
           path: 'admin-analytics',
+          redirect: (context, state) => FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminAnalyticsScreen(),
         ),
         GoRoute(
@@ -282,6 +318,20 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BankImportScreen(),
     ),
+    // Household / Couple+ (P6)
+    GoRoute(
+      path: '/household',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const HouseholdScreen(),
+    ),
+    GoRoute(
+      path: '/household/accept',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final code = state.uri.queryParameters['code'];
+        return AcceptInvitationScreen(initialCode: code);
+      },
+    ),
     GoRoute(
       path: '/budget',
       builder: (context, state) => const BudgetContainerScreen(),
@@ -290,11 +340,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/compound',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const SimulatorCompoundScreen(),
     ),
     GoRoute(
       path: '/simulator/leasing',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const SimulatorLeasingScreen(),
     ),
     GoRoute(
@@ -305,6 +357,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/credit',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const ConsumerCreditSimulatorScreen(),
     ),
     GoRoute(
@@ -316,7 +369,26 @@ final _router = GoRouter(
     GoRoute(
       path: '/simulator/disability-gap',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SimulatorDisabilityGapScreen(),
+      redirect: (context, state) => '/disability/gap',
+    ),
+    // ── Disability screens (P4) ─────────────────────────────
+    GoRoute(
+      path: '/disability/gap',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
+      builder: (context, state) => const DisabilityGapScreen(),
+    ),
+    GoRoute(
+      path: '/disability/insurance',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
+      builder: (context, state) => const DisabilityInsuranceScreen(),
+    ),
+    GoRoute(
+      path: '/disability/self-employed',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
+      builder: (context, state) => const DisabilitySelfEmployedScreen(),
     ),
     GoRoute(
       path: '/simulator/job-comparison',
@@ -327,11 +399,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/life-event/divorce',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DivorceSimulatorScreen(),
     ),
     GoRoute(
       path: '/life-event/succession',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const SuccessionSimulatorScreen(),
     ),
     GoRoute(
@@ -382,7 +456,7 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ToolsLibraryScreen(),
     ),
-    // /coaching route removed — CoachingScreen superseded by coach/dashboard + coach/agir
+    // /coaching route removed (legacy)
     // Segments sociologiques
     GoRoute(
       path: '/segments/gender-gap',
@@ -392,11 +466,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/segments/frontalier',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const FrontalierScreen(),
     ),
     GoRoute(
       path: '/segments/independant',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const IndependantScreen(),
     ),
     // Assurances
@@ -414,16 +490,19 @@ final _router = GoRouter(
     GoRoute(
       path: '/open-banking',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const OpenBankingHubScreen(),
     ),
     GoRoute(
       path: '/open-banking/transactions',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const TransactionListScreen(),
     ),
     GoRoute(
       path: '/open-banking/consents',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const ConsentScreen(),
     ),
     // LPP Deep (Sprint S15 — Chantier 4)
@@ -446,26 +525,31 @@ final _router = GoRouter(
     GoRoute(
       path: '/independants/avs',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const AvsCotisationsScreen(),
     ),
     GoRoute(
       path: '/independants/ijm',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const IjmScreen(),
     ),
     GoRoute(
       path: '/independants/3a',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const Pillar3aIndepScreen(),
     ),
     GoRoute(
       path: '/independants/dividende-salaire',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const DividendeVsSalaireScreen(),
     ),
     GoRoute(
       path: '/independants/lpp-volontaire',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableIndependantTools ? null : '/',
       builder: (context, state) => const LppVolontaireScreen(),
     ),
     // Chomage + Premier emploi (Sprint S19)
@@ -502,33 +586,39 @@ final _router = GoRouter(
     GoRoute(
       path: '/mariage',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const MariageScreen(),
     ),
     GoRoute(
       path: '/naissance',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const NaissanceScreen(),
     ),
     GoRoute(
       path: '/concubinage',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const ConcubinageScreen(),
     ),
     // Expatriation (Sprint S23)
     GoRoute(
       path: '/expatriation',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const ExpatScreen(),
     ),
     // Housing Sale + Donation (Sprint S24)
     GoRoute(
       path: '/life-event/housing-sale',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const HousingSaleScreen(),
     ),
     GoRoute(
       path: '/life-event/donation',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableLifeEventScreens ? null : '/',
       builder: (context, state) => const DonationScreen(),
     ),
     // Education Hub
@@ -549,42 +639,50 @@ final _router = GoRouter(
     GoRoute(
       path: '/mortgage/affordability',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const AffordabilityScreen(),
     ),
     GoRoute(
       path: '/mortgage/amortization',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const AmortizationScreen(),
     ),
     GoRoute(
       path: '/mortgage/epl-combined',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const EplCombinedScreen(),
     ),
     GoRoute(
       path: '/mortgage/imputed-rental',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const ImputedRentalScreen(),
     ),
     GoRoute(
       path: '/mortgage/saron-vs-fixed',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableMortgageTools ? null : '/',
       builder: (context, state) => const SaronVsFixedScreen(),
     ),
     // Pillar 3a Deep (Sprint S17)
     GoRoute(
       path: '/3a-deep/comparator',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const ProviderComparatorScreen(),
     ),
     GoRoute(
       path: '/3a-deep/real-return',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const RealReturnScreen(),
     ),
     GoRoute(
       path: '/3a-deep/staggered-withdrawal',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => FeatureFlags.enableAdvancedSimulators ? null : '/',
       builder: (context, state) => const StaggeredWithdrawalScreen(),
     ),
     // Debt Prevention (Sprint S13)
@@ -606,6 +704,12 @@ final _router = GoRouter(
     // === Route Compatibility Layer (migration P0) ===
     // Old routes redirect to new smart onboarding flow.
     // Keep /advisor/plan-30-days as-is (still active).
+    // S45: Quick Start — 1-screen onboarding (dashboard-first flow)
+    GoRoute(
+      path: '/onboarding/quick',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const QuickStartScreen(),
+    ),
     GoRoute(
       path: '/onboarding/smart',
       parentNavigatorKey: _rootNavigatorKey,
@@ -655,6 +759,13 @@ final _router = GoRouter(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const TimelineScreen(),
+    ),
+    // Arbitrage Bilan (Sprint S45)
+    GoRoute(
+      path: '/arbitrage/bilan',
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (context, state) => _guardDecisionScaffold(),
+      builder: (context, state) => const ArbitrageBilanScreen(),
     ),
     // Arbitrage Phase 1 (Sprint S32)
     GoRoute(
@@ -721,6 +832,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         state == AppLifecycleState.detached) {
       // Release SLM model (~2 GB RAM) when app goes to background.
       // The model will be re-initialized on next use.
+      // Use singleton directly here (no BuildContext in lifecycle callback).
       if (SlmEngine.instance.isAvailable) {
         SlmEngine.instance.dispose();
       }
@@ -741,6 +853,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         }),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = CoachProfileProvider();
           provider.loadFromWizard();
@@ -752,13 +865,13 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {
-          final provider = OnboardingProvider();
-          provider.init();
+          final provider = UserActivityProvider();
+          provider.loadAll();
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {
-          final provider = UserActivityProvider();
-          provider.loadAll();
+          final provider = SlmProvider();
+          provider.init();
           return provider;
         }),
       ],

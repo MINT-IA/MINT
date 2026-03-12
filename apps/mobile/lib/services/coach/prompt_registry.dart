@@ -4,6 +4,8 @@
 /// Every prompt is versioned, stored in code, never generated dynamically.
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 import 'coach_models.dart';
 
 class PromptRegistry {
@@ -114,8 +116,91 @@ Mentionne la sensibilité aux hypothèses.
 Termine par une question ouverte.
 ''';
 
+  /// Prompt for enrichment guide — conversational data collection.
+  ///
+  /// Used in DataBlockEnrichmentScreen "coach mode" to guide the user
+  /// through providing missing financial data in natural language.
+  static String enrichmentGuide(CoachContext ctx, String blockType) => '''
+$baseSystemPrompt
+
+CONTEXTE UTILISATEUR :
+- Prenom : ${ctx.firstName}
+- Age : ${ctx.age} ans
+- Canton : ${ctx.canton}
+- Archetype : ${ctx.archetype}
+- Score de confiance : ${ctx.confidenceScore.toStringAsFixed(0)}%
+- Bloc en cours : $blockType
+
+${_enrichmentBlockContext(ctx, blockType)}
+
+TACHE : Guide l'utilisateur pour completer le bloc "$blockType".
+- Pose UNE question simple et precise.
+- Explique brievement pourquoi cette donnee est importante.
+- Si l'utilisateur ne sait pas, propose une estimation realiste.
+- Max 150 mots. Utilise le conditionnel.
+''';
+
+  static String _enrichmentBlockContext(CoachContext ctx, String blockType) {
+    return switch (blockType) {
+      'lpp' => 'DONNEES CONNUES :\n'
+          '- Salaire brut : ${ctx.knownValues['salaire_brut'] ?? 'inconnu'} CHF/an\n'
+          '- Avoir LPP actuel : ${ctx.knownValues['avoir_lpp'] ?? 'estimation'}\n'
+          '- Source : ${ctx.dataReliability['avoirLpp'] ?? 'estime'}\n'
+          '\n'
+          'OBJECTIF : Obtenir l\'avoir LPP reel (certificat de prevoyance).\n'
+          'Un certificat donne : avoir obligatoire/surobligatoire, taux de conversion,\n'
+          'rachat possible, salaire assure. Impact sur confiance : +18 pts.',
+      'avs' => 'DONNEES CONNUES :\n'
+          '- Annees cotisees estimees : ${ctx.knownValues['annees_cotisees'] ?? 'inconnu'}\n'
+          '- Archetype : ${ctx.archetype}\n'
+          '\n'
+          'OBJECTIF : Confirmer les annees de cotisation AVS reelles.\n'
+          'Un extrait CI (compte individuel) revele les lacunes.\n'
+          'Impact sur confiance : +10 pts.',
+      '3a' => 'DONNEES CONNUES :\n'
+          '- Nombre de comptes 3a : ${ctx.knownValues['nombre_3a']?.toInt() ?? 0}\n'
+          '- Total epargne 3a : ${ctx.knownValues['epargne_3a'] ?? 0} CHF\n'
+          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? pilier3aPlafondAvecLpp} CHF/an\n'
+          '\n'
+          'OBJECTIF : Connaitre le solde exact et le provider de chaque compte 3a.\n'
+          'Un versement 3a est deductible des impots. Impact sur confiance : +8 pts.',
+      'patrimoine' => 'DONNEES CONNUES :\n'
+          '- Epargne liquide : ${ctx.knownValues['epargne_liquide'] ?? 'inconnu'} CHF\n'
+          '- Investissements : ${ctx.knownValues['investissements'] ?? 'inconnu'} CHF\n'
+          '\n'
+          'OBJECTIF : Cartographier le patrimoine (epargne, placements, immobilier).\n'
+          'Permet de calculer le Financial Resilience Index. Impact sur confiance : +7 pts.',
+      'fiscalite' => 'DONNEES CONNUES :\n'
+          '- Canton : ${ctx.canton}\n'
+          '- Commune : ${ctx.knownValues['commune'] ?? 'inconnue'}\n'
+          '\n'
+          'OBJECTIF : Obtenir la commune (coefficient 60%-130%), le revenu imposable\n'
+          'reel et la fortune imposable. Impact sur confiance : +15 pts.',
+      'objectifRetraite' => 'DONNEES CONNUES :\n'
+          '- Age actuel : ${ctx.age} ans\n'
+          '- Age retraite cible : ${ctx.knownValues['target_retirement_age']?.toInt() ?? 65} ans\n'
+          '\n'
+          'OBJECTIF : Definir un age de retraite souhaite (58-70 ans).\n'
+          'Avant 63 ans : seule la LPP est disponible (pas d\'AVS).\n'
+          'Impact sur confiance : +10 pts.',
+      'compositionMenage' => 'DONNEES CONNUES :\n'
+          '- Etat civil : ${ctx.knownValues['etat_civil'] ?? 'celibataire'}\n'
+          '- Enfants : ${ctx.knownValues['nombre_enfants']?.toInt() ?? 0}\n'
+          '\n'
+          'OBJECTIF : Savoir si en couple (marie/concubin) et les donnees du conjoint.\n'
+          'Impact : AVS plafonnee a 150% pour les maries (LAVS art. 35).\n'
+          'Impact sur confiance : +15 pts.',
+      _ => 'Score de confiance : ${ctx.confidenceScore.toStringAsFixed(0)}%\n'
+          'Objectif : completer les donnees manquantes.',
+    };
+  }
+
   /// Get the appropriate prompt for a component type.
-  static String getPrompt(String componentType, CoachContext ctx) {
+  ///
+  /// For 'enrichment_guide', pass the block type as [blockType]
+  /// (e.g. 'lpp', 'avs', '3a'). If omitted, falls back to a generic prompt.
+  static String getPrompt(String componentType, CoachContext ctx,
+      {String? blockType}) {
     switch (componentType) {
       case 'greeting':
         return dashboardGreeting(ctx);
@@ -127,6 +212,8 @@ Termine par une question ouverte.
         return chiffreChocNarrative(ctx);
       case 'scenario':
         return scenarioNarration(ctx);
+      case 'enrichment_guide':
+        return enrichmentGuide(ctx, blockType ?? 'general');
       default:
         return baseSystemPrompt;
     }

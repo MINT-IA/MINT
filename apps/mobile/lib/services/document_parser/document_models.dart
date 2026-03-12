@@ -16,6 +16,7 @@ enum DocumentType {
   avsExtract,
   threeAAttestation,
   mortgageAttestation,
+  salaryCertificate,
 }
 
 /// Human-readable label for each document type (French).
@@ -32,6 +33,8 @@ extension DocumentTypeLabel on DocumentType {
         return 'Attestation 3e pilier';
       case DocumentType.mortgageAttestation:
         return 'Attestation hypothecaire';
+      case DocumentType.salaryCertificate:
+        return 'Fiche de salaire';
     }
   }
 
@@ -48,6 +51,8 @@ extension DocumentTypeLabel on DocumentType {
         return 'Solde 3a, versements cumules, rendement';
       case DocumentType.mortgageAttestation:
         return 'Capital restant du, taux, echeance';
+      case DocumentType.salaryCertificate:
+        return 'Salaire brut, deductions, 13eme, LPP employe, taux d\'activite';
     }
   }
 
@@ -64,6 +69,8 @@ extension DocumentTypeLabel on DocumentType {
         return 7; // +5-10 points
       case DocumentType.mortgageAttestation:
         return 12; // +10-15 points
+      case DocumentType.salaryCertificate:
+        return 20; // +18-22 points
     }
   }
 }

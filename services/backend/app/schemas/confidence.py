@@ -5,7 +5,7 @@ API convention: camelCase field names via alias_generator, ConfigDict.
 
 Covers:
     - ConfidenceScoreRequest: profil + sources pour scoring complet
-    - ConfidenceBreakdownSchema: scores sur 3 axes (completeness, accuracy, freshness)
+    - ConfidenceBreakdownSchema: scores sur 4 axes (completeness, accuracy, freshness, understanding)
     - EnrichmentPromptSchema: action d'enrichissement classee par impact
     - ConfidenceScoreResponse: resultat complet avec breakdown, prompts, gates
     - EnrichmentRequest / EnrichmentResponse: top actions d'enrichissement
@@ -59,7 +59,7 @@ class FieldSourceSchema(ConfidenceBaseModel):
 
 
 class ConfidenceBreakdownSchema(ConfidenceBaseModel):
-    """Score de confiance sur 3 axes."""
+    """Score de confiance sur 4 axes."""
 
     completeness: float = Field(
         ..., ge=0, le=100,
@@ -73,9 +73,13 @@ class ConfidenceBreakdownSchema(ConfidenceBaseModel):
         ..., ge=0, le=100,
         description="Fraicheur des donnees (0-100)",
     )
+    understanding: float = Field(
+        ..., ge=0, le=100,
+        description="Comprehension financiere de l'utilisateur (0-100)",
+    )
     overall: float = Field(
         ..., ge=0, le=100,
-        description="Score global pondere: 40% completeness + 35% accuracy + 25% freshness",
+        description="Score global: 4 axes geometric mean",
     )
 
 

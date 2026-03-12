@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/widgets/coach/coach_gate.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Widget tests for CoachGate (Sprint C9 — Paywall).
 ///
@@ -28,6 +30,14 @@ void main() {
     Widget? lockedPlaceholder,
   }) {
     return MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
       home: ChangeNotifierProvider(
         create: (_) => SubscriptionProvider(),
         child: Scaffold(

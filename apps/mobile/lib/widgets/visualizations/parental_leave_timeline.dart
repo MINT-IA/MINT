@@ -100,13 +100,13 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
 
   Color get _themeColor =>
       widget.leaveType == LeaveType.maternity
-          ? const Color(0xFFE91E63) // warm pink
+          ? MintColors.roseDeep // warm pink
           : MintColors.info; // blue
 
   Color get _themeColorLight =>
       widget.leaveType == LeaveType.maternity
-          ? const Color(0xFFFCE4EC)
-          : const Color(0xFFE3F2FD);
+          ? MintColors.pinkBg
+          : MintColors.neutralBg;
 
   bool get _isCapped => widget.dailySalary > widget.apgDailyCap;
 

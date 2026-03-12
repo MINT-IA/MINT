@@ -303,3 +303,96 @@ class TestEdgeCases:
         )
         # No context → hallucination check skipped → passes
         assert not result.use_fallback
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Layer 1d: Plural banned terms (GAP #1 coverage)
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestPluralBannedTerms:
+    """Layer 1d — Plural forms of banned terms must be caught."""
+
+    def test_catches_garantis(self, guard):
+        result = guard.validate("Les rendements garantis sont impossibles.")
+        assert not result.is_compliant
+        assert any("garantis" in v for v in result.violations)
+
+    def test_catches_garanties(self, guard):
+        result = guard.validate("Ces valeurs garanties ne sont pas réalistes.")
+        assert not result.is_compliant
+        assert any("garanties" in v for v in result.violations)
+
+    def test_catches_assures(self, guard):
+        result = guard.validate("Les placements assurés n'existent pas.")
+        assert not result.is_compliant
+        assert any("assurés" in v for v in result.violations)
+
+    def test_catches_assurees(self, guard):
+        result = guard.validate("Les performances assurées augmentent.")
+        assert not result.is_compliant
+        assert any("assurées" in v for v in result.violations)
+
+    def test_catches_optimaux(self, guard):
+        result = guard.validate("Les résultats optimaux varient.")
+        assert not result.is_compliant
+        assert any("optimaux" in v for v in result.violations)
+
+    def test_catches_optimales(self, guard):
+        result = guard.validate("Les solutions optimales dépendent.")
+        assert not result.is_compliant
+        assert any("optimales" in v for v in result.violations)
+
+    def test_catches_meilleurs(self, guard):
+        result = guard.validate("Les meilleurs rendements fluctuent.")
+        assert not result.is_compliant
+        assert any("meilleurs" in v for v in result.violations)
+
+    def test_catches_meilleures(self, guard):
+        result = guard.validate("Les meilleures performances changent.")
+        assert not result.is_compliant
+        assert any("meilleures" in v for v in result.violations)
+
+    def test_catches_parfaits(self, guard):
+        result = guard.validate("Les placements parfaits n'existent pas.")
+        assert not result.is_compliant
+        assert any("parfaits" in v for v in result.violations)
+
+    def test_catches_parfaites(self, guard):
+        result = guard.validate("Les conditions parfaites sont rares.")
+        assert not result.is_compliant
+        assert any("parfaites" in v for v in result.violations)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Layer 2b: Social comparison patterns (GAP #2 coverage)
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestSocialComparisonPatterns:
+    """Layer 2b — Social comparison patterns must trigger prescriptive fallback."""
+
+    def test_catches_top_percent(self, guard):
+        result = guard.validate("Tu es dans le top 10% des épargnants.")
+        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
+
+    def test_catches_meilleur_que_percent(self, guard):
+        result = guard.validate("Tu es meilleur que 80% des Suisses.")
+        assert not result.is_compliant
+
+    def test_catches_devant_percent(self, guard):
+        result = guard.validate("Tu es devant 60% des investisseurs.")
+        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
+
+    def test_catches_parmi_les_meilleurs(self, guard):
+        result = guard.validate("Tu es parmi les meilleurs épargnants.")
+        # Caught by banned term "meilleurs" and/or prescriptive pattern
+        assert not result.is_compliant
+        assert len(result.violations) > 0
+
+    def test_catches_au_dessus_de_la_moyenne(self, guard):
+        result = guard.validate("Ton score est au-dessus de la moyenne.")
+        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)

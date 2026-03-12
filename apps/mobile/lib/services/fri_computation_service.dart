@@ -176,30 +176,62 @@ class FriComputationService {
       mortgageStressRatio: mortgageStressRatio,
       concentrationRatio: concentrationRatio,
       employerDependencyRatio: employerDependencyRatio,
-      archetype: _detectArchetype(profile),
+      archetype: detectArchetype(profile),
       age: profile.age,
       canton: profile.canton,
     );
   }
 
+  /// EU/EFTA country codes for bilateral convention detection.
+  static const _euEftaCodes = <String>{
+    'de', 'fr', 'it', 'at', 'be', 'bg', 'hr', 'cy', 'cz', 'dk', 'ee',
+    'fi', 'gr', 'hu', 'ie', 'lv', 'lt', 'lu', 'mt', 'nl', 'pl', 'pt',
+    'ro', 'sk', 'si', 'es', 'se', // EU-27
+    'is', 'li', 'no', // EFTA (hors CH)
+    'uk', 'gb', // UK: conventions bilaterales maintenues post-Brexit
+  };
+
   /// Detect archetype from CoachProfile fields.
   /// See ADR-20260223-archetype-driven-retirement.md.
-  static String _detectArchetype(CoachProfile profile) {
+  /// All 8 archetypes from CLAUDE.md are handled.
+  static String detectArchetype(CoachProfile profile) {
     final nat = profile.nationality?.toLowerCase() ?? '';
     final emp = profile.employmentStatus;
     final permit = profile.residencePermit?.toUpperCase() ?? '';
 
+    // 1. Independent (check first — overrides nationality)
     if (emp == 'independant') {
       return (profile.prevoyance.avoirLppTotal ?? 0) > 0
           ? 'independent_with_lpp'
           : 'independent_no_lpp';
     }
+
+    // 2. Cross-border (permit G)
     if (permit == 'G') return 'cross_border';
+
+    // 3. US/FATCA
     if (nat == 'us' || nat == 'usa') return 'expat_us';
-    if (nat == 'ch' || nat == 'suisse') return 'swiss_native';
-    if (profile.arrivalAge != null && profile.arrivalAge! > 20) {
-      return 'expat_eu'; // simplified — would need EU list check
+
+    // 4. Swiss national
+    if (nat == 'ch' || nat == 'suisse' || nat == 'schweiz') {
+      // Returning Swiss: CH national who lived abroad (arrivalAge set + libre passage)
+      if (profile.arrivalAge != null && profile.arrivalAge! > 20) {
+        return 'returning_swiss';
+      }
+      return 'swiss_native';
     }
+
+    // 5. Foreign national with late arrival
+    if (profile.arrivalAge != null && profile.arrivalAge! > 20) {
+      // EU/EFTA → bilateral conventions apply (totalisation periods)
+      if (_euEftaCodes.contains(nat)) {
+        return 'expat_eu';
+      }
+      // Non-EU → no bilateral convention
+      return 'expat_non_eu';
+    }
+
+    // 6. Foreign national arrived young (< 20) → treated as swiss_native
     return 'swiss_native';
   }
 

@@ -302,12 +302,14 @@ void main() {
         yearsInCh: 34,
       );
 
-      // completeness = 34/44
+      // completeness = 34/44 ≈ 0.7727
       expect(r['completeness'] as double, closeTo(34 / 44, 0.01));
       expect(r['missingYears'], 10);
-      // AvsCalculator.renteFromRAMD(0) = 0 (no salary data => can't estimate rente)
-      // So monthlyLoss = 0 - 0 = 0
-      expect(r['monthlyLoss'] as double, 0.0);
+      // maxRente = 2520, estimatedRente = 2520 * (34/44) ≈ 1947.27
+      // monthlyLoss = 2520 - 1947.27 ≈ 572.73
+      final monthlyLoss = r['monthlyLoss'] as double;
+      expect(monthlyLoss, greaterThan(500));
+      expect(monthlyLoss, lessThan(600));
       expect((r['reductionPercent'] as double), greaterThan(0));
     });
 

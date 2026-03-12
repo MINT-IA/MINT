@@ -18,6 +18,16 @@ Sprint S17 — Mortgage & Real Estate.
 from dataclasses import dataclass, field
 from typing import List
 
+from app.constants.social_insurance import (
+    HYPOTHEQUE_TAUX_THEORIQUE,
+    HYPOTHEQUE_TAUX_AMORTISSEMENT,
+    HYPOTHEQUE_TAUX_FRAIS_ACCESSOIRES,
+    HYPOTHEQUE_TAUX_CHARGES_TOTAL,
+    HYPOTHEQUE_RATIO_CHARGES_MAX,
+    HYPOTHEQUE_FONDS_PROPRES_MIN,
+    HYPOTHEQUE_PART_2E_PILIER_MAX,
+)
+
 
 DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
@@ -26,13 +36,13 @@ DISCLAIMER = (
     "Consultez un ou une specialiste hypothecaire pour une analyse personnalisee."
 )
 
-# Swiss mortgage affordability constants (ASB / FINMA)
-TAUX_THEORIQUE = 0.05       # 5% theoretical interest rate (not the actual rate!)
-TAUX_AMORTISSEMENT = 0.01   # 1% annual amortization
-TAUX_FRAIS_ACCESSOIRES = 0.01  # 1% ancillary costs (maintenance, insurance, etc.)
-RATIO_CHARGES_MAX = 1 / 3   # 33.33% max housing costs to gross income
-FONDS_PROPRES_MIN_PCT = 0.20  # 20% minimum equity
-PART_2E_PILIER_MAX = 0.10   # Max 10% of purchase price from 2nd pillar
+# Aliases for backward compatibility within this module
+TAUX_THEORIQUE = HYPOTHEQUE_TAUX_THEORIQUE
+TAUX_AMORTISSEMENT = HYPOTHEQUE_TAUX_AMORTISSEMENT
+TAUX_FRAIS_ACCESSOIRES = HYPOTHEQUE_TAUX_FRAIS_ACCESSOIRES
+RATIO_CHARGES_MAX = HYPOTHEQUE_RATIO_CHARGES_MAX
+FONDS_PROPRES_MIN_PCT = HYPOTHEQUE_FONDS_PROPRES_MIN
+PART_2E_PILIER_MAX = HYPOTHEQUE_PART_2E_PILIER_MAX
 
 
 @dataclass

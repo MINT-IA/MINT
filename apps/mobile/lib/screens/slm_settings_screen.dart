@@ -1,10 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:provider/provider.dart';
 
 /// SLM Settings Screen — On-device AI model management.
 ///
@@ -15,207 +16,20 @@ import 'package:mint_mobile/theme/colors.dart';
 ///   - Initialize the engine for on-device inference
 ///
 /// Privacy: model runs 100% on-device, zero data leaves the device.
-class SlmSettingsScreen extends StatefulWidget {
+class SlmSettingsScreen extends StatelessWidget {
   const SlmSettingsScreen({super.key});
 
   @override
-  State<SlmSettingsScreen> createState() => _SlmSettingsScreenState();
-}
-
-class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
-  final _downloadService = SlmDownloadService.instance;
-  final _engine = SlmEngine.instance;
-
-  ModelInfo? _modelInfo;
-  bool _isLoading = true;
-  bool _isProcessing = false;
-  StreamSubscription<DownloadState>? _downloadSub;
-  int _loadSeq = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadModelInfo();
-    _downloadSub = _downloadService.stateStream.listen((_) {
-      _loadModelInfo();
-    });
-  }
-
-  @override
-  void dispose() {
-    _downloadSub?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _loadModelInfo() async {
-    final seq = ++_loadSeq;
-    final info = await _downloadService.getModelInfo();
-    if (seq == _loadSeq && mounted) {
-      setState(() {
-        _modelInfo = info;
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _startDownload() async {
-    if (_isProcessing) return;
-    if (!_downloadService.canAttemptDownload) {
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(
-        SnackBar(
-          content: Text(
-            _downloadService.prerequisiteWarning ??
-                'Ce build ne permet pas le telechargement du modele.',
-            style: GoogleFonts.inter(),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 6),
-        ),
-      );
-      return;
-    }
-
-    // Warn user about large download size before starting.
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          'Telecharger le modele ?',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          'Le modele fait ${SlmDownloadService.modelSizeFormatted}. '
-          'Assure-toi d\'etre connecte en WiFi pour eviter '
-          'une consommation importante de donnees mobiles.\n\n'
-          '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi. '
-          'Compatible : iPhone 13+ / Pixel 7+.',
-          style: GoogleFonts.inter(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Telecharger'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true || !mounted) return;
-
-    setState(() => _isProcessing = true);
-
-    final success = await _downloadService.downloadModel(
-      onProgress: (progress, downloaded, total) {
-        if (mounted) setState(() {});
-      },
-    );
-
-    if (!mounted) return;
-    if (success) {
-      // Auto-init after a successful install so SLM can be used immediately.
-      await _engine.initialize();
-    }
-    await _loadModelInfo();
-    if (!mounted) return;
-
-    setState(() => _isProcessing = false);
-
-    if (!success && _downloadService.state == DownloadState.failed) {
-      final reason = _downloadService.lastError ??
-          'Verifie ta connexion WiFi et l\'espace disponible.';
-      final canRetry = _downloadService.canAttemptDownload;
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Echec du telechargement. $reason',
-            style: GoogleFonts.inter(),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 6),
-          action: canRetry
-              ? SnackBarAction(
-                  label: 'Reessayer',
-                  textColor: Colors.white,
-                  onPressed: _startDownload,
-                )
-              : null,
-        ),
-      );
-    }
-  }
-
-  Future<void> _deleteModel() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          'Supprimer le modele ?',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          'Cela liberera ${SlmDownloadService.modelSizeFormatted} '
-          'd\'espace. Tu pourras le re-telecharger a tout moment.',
-          style: GoogleFonts.inter(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Supprimer'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true || !mounted) return;
-
-    setState(() => _isProcessing = true);
-    await _engine.dispose();
-    await _downloadService.deleteModel();
-    if (mounted) {
-      await _loadModelInfo();
-      setState(() => _isProcessing = false);
-    }
-  }
-
-  Future<void> _initializeEngine() async {
-    if (_isProcessing) return;
-    setState(() => _isProcessing = true);
-
-    final success = await _engine.initialize();
-
-    if (mounted) {
-      setState(() => _isProcessing = false);
-      if (!success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erreur d\'initialisation du modele. '
-                'Verifie que ton appareil est compatible.'),
-          ),
-        );
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final slm = context.watch<SlmProvider>();
+
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
             title: Text(
-              'IA on-device',
+              S.of(context)!.slmIaOnDevice,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
             ),
             flexibleSpace: Container(
@@ -232,13 +46,13 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildPrivacyBanner(),
+                _buildPrivacyBanner(context),
                 const SizedBox(height: 16),
-                _buildModelCard(),
+                _buildModelCard(context, slm),
                 const SizedBox(height: 16),
-                _buildStatusCard(),
+                _buildStatusCard(context, slm),
                 const SizedBox(height: 16),
-                _buildInfoCard(),
+                _buildInfoCard(context, slm),
               ]),
             ),
           ),
@@ -247,7 +61,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     );
   }
 
-  Widget _buildPrivacyBanner() {
+  Widget _buildPrivacyBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -261,8 +75,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le modele fonctionne 100% sur ton appareil. '
-              'Aucune donnee ne quitte ton telephone.',
+              S.of(context)!.slmPrivacyMessage,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: MintColors.primary,
@@ -275,8 +88,8 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     );
   }
 
-  Widget _buildModelCard() {
-    if (_isLoading || _modelInfo == null) {
+  Widget _buildModelCard(BuildContext context, SlmProvider slm) {
+    if (slm.modelInfo == null) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(24),
@@ -285,12 +98,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
       );
     }
 
-    final info = _modelInfo!;
-    final downloadState = _downloadService.state;
-    final isDownloading = downloadState == DownloadState.downloading;
-    final isFailed = downloadState == DownloadState.failed;
-    final canAttemptDownload = _downloadService.canAttemptDownload;
-    final prerequisiteWarning = _downloadService.prerequisiteWarning;
+    final info = slm.modelInfo!;
+    final isDownloading = slm.downloadState == DownloadState.downloading;
+    final isFailed = slm.downloadState == DownloadState.failed;
 
     return Card(
       elevation: 2,
@@ -339,14 +149,17 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             ),
             const SizedBox(height: 16),
 
-            if (!info.isReady && !canAttemptDownload && prerequisiteWarning != null)
+            if (!info.isReady &&
+                !slm.canAttemptDownload &&
+                slm.prerequisiteWarning != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+                  border:
+                      Border.all(color: Colors.orange.withValues(alpha: 0.35)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,7 +169,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        prerequisiteWarning,
+                        slm.prerequisiteWarning!,
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: Colors.orange[900],
@@ -368,7 +181,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               ),
 
             // ── State: Starting download (processing, not yet downloading) ──
-            if (_isProcessing && !isDownloading && !info.isReady) ...[
+            if (slm.isProcessing && !isDownloading && !info.isReady) ...[
               Row(
                 children: [
                   const SizedBox(
@@ -381,7 +194,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Demarrage du telechargement...',
+                    S.of(context)!.slmStartingDownload,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: MintColors.primary,
@@ -397,7 +210,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: _downloadService.progress,
+                  value: slm.downloadProgress,
                   backgroundColor: Colors.grey[200],
                   color: MintColors.primary,
                   minHeight: 8,
@@ -408,7 +221,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${(_downloadService.progress * 100).toStringAsFixed(1)}%',
+                    '${(slm.downloadProgress * 100).toStringAsFixed(1)}%',
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -416,7 +229,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                     ),
                   ),
                   Text(
-                    _formatDownloadedSize(_downloadService.progress),
+                    _formatDownloadedSize(slm.downloadProgress),
                     style: GoogleFonts.inter(
                         fontSize: 12, color: Colors.grey[600]),
                   ),
@@ -431,15 +244,15 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => _downloadService.cancelDownload(),
+                  onPressed: slm.cancelDownload,
                   icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Annuler le telechargement'),
+                  label: Text(S.of(context)!.slmCancelDownload),
                 ),
               ),
             ],
 
             // ── State: Download failed ──
-            if (isFailed && !_isProcessing) ...[
+            if (isFailed && !slm.isProcessing) ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -455,9 +268,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _downloadService.lastError ??
-                            'Le telechargement a echoue. '
-                                'Verifie ta connexion WiFi et '
+                        slm.lastError ??
+                            'Le téléchargement a échoué. '
+                                'Vérifie ta connexion WiFi et '
                                 'l\'espace disponible sur ton appareil.',
                         style: GoogleFonts.inter(
                             fontSize: 13, color: Colors.red[700]),
@@ -470,12 +283,15 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: canAttemptDownload ? _startDownload : null,
-                  icon: Icon(canAttemptDownload ? Icons.refresh : Icons.lock),
+                  onPressed: slm.canAttemptDownload
+                      ? () => _startDownload(context, slm)
+                      : null,
+                  icon: Icon(
+                      slm.canAttemptDownload ? Icons.refresh : Icons.lock),
                   label: Text(
-                    canAttemptDownload
-                        ? 'Reessayer le telechargement'
-                        : 'Telechargement indisponible sur ce build',
+                    slm.canAttemptDownload
+                        ? 'Réessayer le téléchargement'
+                        : 'Téléchargement indisponible sur ce build',
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -486,16 +302,19 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             ],
 
             // ── State: Not started (initial) ──
-            if (!isDownloading && !isFailed && !info.isReady && !_isProcessing)
+            if (!isDownloading && !isFailed && !info.isReady && !slm.isProcessing)
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: canAttemptDownload ? _startDownload : null,
-                  icon: Icon(canAttemptDownload ? Icons.download : Icons.lock),
+                  onPressed: slm.canAttemptDownload
+                      ? () => _startDownload(context, slm)
+                      : null,
+                  icon: Icon(
+                      slm.canAttemptDownload ? Icons.download : Icons.lock),
                   label: Text(
-                    canAttemptDownload
-                        ? 'Telecharger (${SlmDownloadService.modelSizeFormatted})'
-                        : 'Telechargement indisponible sur ce build',
+                    slm.canAttemptDownload
+                        ? 'Télécharger (${SlmDownloadService.modelSizeFormatted})'
+                        : 'Téléchargement indisponible sur ce build',
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
@@ -509,11 +328,12 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: _isProcessing ? null : _deleteModel,
+                  onPressed:
+                      slm.isProcessing ? null : () => _deleteModel(context, slm),
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  label: const Text(
-                    'Supprimer le modele',
-                    style: TextStyle(color: Colors.red),
+                  label: Text(
+                    S.of(context)!.slmDeleteModelButton,
+                    style: const TextStyle(color: Colors.red),
                   ),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.red),
@@ -528,8 +348,111 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     );
   }
 
+  Future<void> _startDownload(BuildContext context, SlmProvider slm) async {
+    if (!slm.canAttemptDownload) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            slm.prerequisiteWarning ??
+                'Ce build ne permet pas le téléchargement du modèle.',
+            style: GoogleFonts.inter(),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 6),
+        ),
+      );
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          S.of(context)!.slmDownloadModelTitle,
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          'Le modèle fait ${SlmDownloadService.modelSizeFormatted}. '
+          'Assure-toi d\'être connecté en WiFi pour éviter '
+          'une consommation importante de données mobiles.\n\n'
+          '~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi. '
+          'Compatible\u00a0: iPhone 13+ / Pixel 7+.',
+          style: GoogleFonts.inter(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(S.of(context)!.slmCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(S.of(context)!.slmDownload),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !context.mounted) return;
+
+    final success = await slm.downloadModel();
+
+    if (!success &&
+        context.mounted &&
+        slm.downloadState == DownloadState.failed) {
+      final reason =
+          slm.lastError ?? 'Vérifie ta connexion WiFi et l\'espace disponible.';
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Échec du téléchargement. $reason',
+            style: GoogleFonts.inter(),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 6),
+          action: slm.canAttemptDownload
+              ? SnackBarAction(
+                  label: 'Réessayer',
+                  textColor: Colors.white,
+                  onPressed: () => _startDownload(context, slm),
+                )
+              : null,
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteModel(BuildContext context, SlmProvider slm) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          S.of(context)!.slmDeleteModelTitle,
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          S.of(context)!.slmDeleteModelContent(SlmDownloadService.modelSizeFormatted),
+          style: GoogleFonts.inter(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(S.of(context)!.slmCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(S.of(context)!.slmDelete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+    await slm.deleteModel();
+  }
+
   /// Format downloaded size as "X Mo / 2.3 Go".
-  String _formatDownloadedSize(double progress) {
+  static String _formatDownloadedSize(double progress) {
     final downloaded =
         progress.clamp(0.0, 1.0) * SlmDownloadService.expectedSizeBytes;
     final totalGo = SlmDownloadService.expectedSizeBytes / (1024 * 1024 * 1024);
@@ -545,9 +468,9 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
         '${totalGo.toStringAsFixed(1)} Go';
   }
 
-  Widget _buildStatusCard() {
-    final engineStatus = _engine.status;
-    final isReady = _modelInfo?.isReady == true;
+  Widget _buildStatusCard(BuildContext context, SlmProvider slm) {
+    final engineStatus = slm.engineStatus;
+    final isReady = slm.isModelReady;
 
     String statusText;
     Color statusColor;
@@ -555,25 +478,25 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
 
     switch (engineStatus) {
       case SlmStatus.running:
-        statusText = 'Pret — le coach utilise l\'IA on-device';
+        statusText = 'Prêt — le coach utilise l\'IA on-device';
         statusColor = Colors.green;
         statusIcon = Icons.check_circle;
       case SlmStatus.ready:
-        statusText = 'Modele telecharge — initialisation requise';
+        statusText = 'Modèle téléchargé — initialisation requise';
         statusColor = Colors.orange;
         statusIcon = Icons.pending;
       case SlmStatus.error:
-        statusText = 'Erreur — appareil non compatible ou memoire insuffisante';
+        statusText = 'Erreur — appareil non compatible ou mémoire insuffisante';
         statusColor = Colors.red;
         statusIcon = Icons.error;
       case SlmStatus.downloading:
-        statusText = 'Telechargement en cours...';
+        statusText = 'Téléchargement en cours...';
         statusColor = MintColors.primary;
         statusIcon = Icons.downloading;
       case SlmStatus.notDownloaded:
         statusText = isReady
-            ? 'Modele pret — lance l\'initialisation'
-            : 'Modele non telecharge';
+            ? 'Modèle prêt — lance l\'initialisation'
+            : 'Modèle non téléchargé';
         statusColor = Colors.grey;
         statusIcon = Icons.cloud_off;
     }
@@ -587,7 +510,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Statut du moteur',
+              S.of(context)!.slmEngineStatus,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -611,8 +534,21 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _isProcessing ? null : _initializeEngine,
-                  icon: _isProcessing
+                  onPressed: slm.isProcessing
+                      ? null
+                      : () async {
+                          final success = await slm.initializeEngine();
+                          if (!success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Erreur d\'initialisation du modèle. '
+                                    'Vérifie que ton appareil est compatible.'),
+                              ),
+                            );
+                          }
+                        },
+                  icon: slm.isProcessing
                       ? const SizedBox(
                           width: 18,
                           height: 18,
@@ -623,7 +559,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
                         )
                       : const Icon(Icons.play_arrow),
                   label: Text(
-                    _isProcessing
+                    slm.isProcessing
                         ? 'Initialisation...'
                         : 'Initialiser le moteur',
                   ),
@@ -640,7 +576,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(BuildContext context, SlmProvider slm) {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -650,7 +586,7 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Comment ca marche ?',
+              S.of(context)!.slmHowItWorks,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -659,38 +595,38 @@ class _SlmSettingsScreenState extends State<SlmSettingsScreen> {
             const SizedBox(height: 12),
             _buildInfoRow(
               Icons.download,
-              'Telecharge le modele une fois (~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi)',
+              'Télécharge le modèle une fois (~${SlmDownloadService.estimatedDownloadMinutes()} min sur WiFi)',
             ),
             _buildInfoRow(
               Icons.phone_android,
-              'L\'IA tourne directement sur ton telephone',
+              'L\'IA tourne directement sur ton téléphone',
             ),
             _buildInfoRow(
               Icons.wifi_off,
-              'Fonctionne meme sans connexion internet',
+              'Fonctionne même sans connexion internet',
             ),
             _buildInfoRow(
               Icons.shield,
-              'Tes donnees ne quittent jamais ton appareil',
+              'Tes données ne quittent jamais ton appareil',
             ),
             _buildInfoRow(
               Icons.speed,
-              'Reponses en 2-4 secondes sur un appareil recent',
+              'Réponses en 2-4 secondes sur un appareil récent',
             ),
             const Divider(height: 24),
             _buildInfoRow(
               Icons.link,
-              'Source modele : ${SlmDownloadService.modelId}',
+              'Source modèle : ${SlmDownloadService.modelId}',
             ),
             _buildInfoRow(
-              _downloadService.hasAuthToken ? Icons.key : Icons.key_off,
-              _downloadService.hasAuthToken
-                  ? 'Authentification HuggingFace : configuree'
-                  : 'Authentification HuggingFace : non configuree (download impossible si URL Gemma gated)',
+              slm.hasAuthToken ? Icons.key : Icons.key_off,
+              slm.hasAuthToken
+                  ? 'Authentification HuggingFace : configurée'
+                  : 'Authentification HuggingFace : non configurée (download impossible si URL Gemma gated)',
             ),
             Text(
-              'Compatibilite : iPhone 13+ / Pixel 7+ / equivalent recent.\n'
-              'Le modele necessite ~3 Go d\'espace disque et ~2 Go de RAM.',
+              'Compatibilité : iPhone 13+ / Pixel 7+ / équivalent récent.\n'
+              'Le modèle nécessite ~3 Go d\'espace disque et ~2 Go de RAM.',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Colors.grey[600],

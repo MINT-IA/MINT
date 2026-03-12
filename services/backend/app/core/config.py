@@ -60,6 +60,12 @@ class Settings(BaseSettings):
     INTERNAL_ACCESS_ALLOWLIST: str = ""  # comma-separated emails
     INTERNAL_ACCESS_DEFAULT_TIER: str = "premium"
 
+    # External API connectors
+    EXTERNAL_API_TIMEOUT: int = 30  # seconds
+    BLINK_API_URL: str = ""  # bLink sandbox/production URL
+    CAISSE_PENSION_API_URL: str = ""  # Future: institutional pension fund API
+    AVS_INSTITUTIONAL_API_URL: str = ""  # Future: AVS institutional API
+
     # Transactional email (SMTP)
     EMAIL_SEND_ENABLED: bool = False
     EMAIL_FROM: str = "no-reply@mint.ch"

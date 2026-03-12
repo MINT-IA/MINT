@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
+import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -27,7 +28,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
         statut: _statut,
         avoir: _avoir,
         age: _age,
-        hasNewEmployer: _hasNewEmployer,
+        hasNewEmployer: _statut == LibrePassageStatut.changementEmploi
+            ? _hasNewEmployer
+            : false,
         daysSinceDeparture: 10,
       );
 
@@ -64,9 +67,16 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 _buildSituationSelector(),
                 const SizedBox(height: 16),
 
-                // New employer toggle
-                _buildNewEmployerToggle(),
-                const SizedBox(height: 24),
+                // Profile inputs (age + avoir)
+                _buildProfileInputs(),
+                const SizedBox(height: 16),
+
+                // New employer toggle — only for job change
+                if (_statut == LibrePassageStatut.changementEmploi) ...[
+                  _buildNewEmployerToggle(),
+                  const SizedBox(height: 16),
+                ],
+                const SizedBox(height: 8),
 
                 // Alerts
                 if (result.alerts.isNotEmpty) ...[
@@ -83,6 +93,40 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                   _buildRecommendationsSection(result.recommendations),
                   const SizedBox(height: 24),
                 ],
+
+                // ── P7-D : Opération sauvetage 2e pilier ─────────
+                LppRescueWidget(
+                  lppBalance: _avoir,
+                  daysElapsed: 10,
+                  options: [
+                    LppTransferOption(
+                      label: 'Compte libre passage',
+                      emoji: '🏦',
+                      description:
+                          'Sécurité maximale, taux fixe 1-2%. Idéal si tu reprends un emploi rapidement.',
+                      fiveYearGain: _avoir * 0.07,
+                      legalRef: 'LFLP art. 3 — délai 6 mois',
+                    ),
+                    LppTransferOption(
+                      label: 'Police d\'assurance',
+                      emoji: '🛡️',
+                      description:
+                          'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.',
+                      fiveYearGain: _avoir * 0.04,
+                      legalRef: 'OPP2 art. 10',
+                    ),
+                    LppTransferOption(
+                      label: 'Fonds de placement',
+                      emoji: '📈',
+                      description:
+                          'Potentiel de rendement supérieur. Risque de marché à accepter sur l\'horizon.',
+                      fiveYearGain: _avoir * 0.15,
+                      recommended: true,
+                      legalRef: 'LFLP art. 4',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // Link to sfbvg.ch
                 _buildCentrale2ePilier(),
@@ -177,6 +221,93 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
     );
   }
 
+  Widget _buildProfileInputs() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'TON PROFIL',
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textMuted,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Age slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Ton âge',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              Text(
+                '$_age ans',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _age.toDouble(),
+            min: 18,
+            max: 65,
+            divisions: 47,
+            activeColor: MintColors.primary,
+            onChanged: (v) => setState(() => _age = v.round()),
+          ),
+          const SizedBox(height: 8),
+          // Avoir slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Avoir de libre passage',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              Text(
+                'CHF ${(_avoir / 1000).toStringAsFixed(0)}k',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _avoir,
+            min: 0,
+            max: 500000,
+            divisions: 100,
+            activeColor: MintColors.primary,
+            onChanged: (v) => setState(() => _avoir = v),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNewEmployerToggle() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -200,7 +331,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Avez-vous deja un nouvel employeur ?',
+                  'As-tu déjà un nouvel employeur ?',
                   style: TextStyle(
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -498,8 +629,8 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Vos donnees restent sur votre appareil. Aucune information '
-              'n\'est transmise a des tiers. Conforme a la nLPD.',
+              'Tes données restent sur ton appareil. Aucune information '
+              'n\'est transmise à des tiers. Conforme à la nLPD.',
               style: TextStyle(
                 fontSize: 11,
                 color: MintColors.textMuted,

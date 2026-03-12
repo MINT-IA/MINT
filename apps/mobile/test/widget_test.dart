@@ -2,15 +2,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   testWidgets('LandingScreen renders without crash',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: LandingScreen()));
+    // Wider viewport to avoid trust bar overflow
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(const MaterialApp(
+      locale: Locale('fr'),
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: LandingScreen(),
+    ));
     await tester.pumpAndSettle();
 
     expect(find.byType(LandingScreen), findsOneWidget);
-    expect(find.text('Ton plan en 30 secondes'), findsOneWidget);
-    expect(find.text('Decouvrir MINT'), findsOneWidget);
+    // landingCtaCommencer = "Commencer"
+    expect(find.text('Commencer'), findsOneWidget);
+    // MINT logo text in header
+    expect(find.text('MINT'), findsOneWidget);
   });
 }

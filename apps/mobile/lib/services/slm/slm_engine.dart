@@ -20,6 +20,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
@@ -115,7 +116,8 @@ class SlmEngine {
   static const String modelDisplayName = 'Gemma 3n 4B (on-device)';
 
   /// Maximum context window (tokens).
-  static const int maxContextTokens = 8192;
+  /// Set to 2048 for compatibility with 4 GB RAM devices (iPhone 13 mini).
+  static const int maxContextTokens = 2048;
 
   /// Default max output tokens per generation.
   static const int defaultMaxTokens = 256;
@@ -128,15 +130,99 @@ class SlmEngine {
 
   /// Concurrency guard — prevents overlapping generate() calls
   /// from creating multiple chat sessions and OOMing the device.
+  ///
+  /// Note on race safety: Dart runs on a single-isolate event loop, so
+  /// there is no true parallelism within the same isolate. The only
+  /// "race" risk is if an async gap exists between the check and set,
+  /// but in both [generate] and [generateStream] we check-and-set
+  /// synchronously (no `await` between `if (_isGenerating)` and
+  /// `_isGenerating = true`), making this safe without a mutex.
   bool _isGenerating = false;
+
+  /// Tracks whether [dispose] was called, so [initialize] can re-create
+  /// the engine when the user returns to the coach screen.
+  bool _disposed = false;
+
+  /// Init lock: prevents concurrent [initialize] calls from corrupting state.
+  /// If init is in progress, subsequent callers await the same future.
+  Completer<bool>? _initCompleter;
+
+  /// Check whether the device has enough RAM to run the SLM.
+  ///
+  /// Uses [Platform.numberOfProcessors] (CPU core count) as a proxy for
+  /// device RAM capability. There is no reliable cross-platform way to
+  /// query total physical RAM in Dart without native plugins.
+  ///
+  /// ProcessInfo.maxRss is NOT usable here — it reports the current
+  /// process's resident set size, not total device RAM, so it will
+  /// always be far below the 6 GB threshold we need.
+  ///
+  /// Core-count heuristic (empirically correlated with device RAM):
+  ///   - <= 4 cores → reject (iPhone SE/Mini, older Android: 3-4 GB RAM)
+  ///   - 5 cores → reject (conservative, edge case)
+  ///   - >= 6 cores → accept (iPhone 12 Pro+, modern Android: 6-8 GB+ RAM)
+  ///
+  /// Returns true if the device is deemed capable of running the SLM.
+  static bool _checkDeviceCapability() {
+    final cores = Platform.numberOfProcessors;
+    if (cores < 6) {
+      debugPrint(
+        '[SLM] Device likely low-RAM ($cores cores, need >= 6) — skipping SLM',
+      );
+      return false;
+    }
+    return true;
+  }
 
   /// Initialize the engine with the downloaded model.
   ///
-  /// Checks model availability via [FlutterGemma.isModelInstalled],
-  /// then creates an [InferenceModel] with GPU preferred (CPU fallback).
+  /// Checks device capability (RAM) and model availability via
+  /// [FlutterGemma.isModelInstalled], then creates an [InferenceModel]
+  /// with GPU preferred (CPU fallback).
+  ///
+  /// Uses a [Completer]-based lock to prevent concurrent init calls from
+  /// corrupting state. If init is already in progress, subsequent callers
+  /// await the same future instead of starting a new initialization.
+  ///
   /// Returns true if initialization succeeded.
   Future<bool> initialize() async {
+    // If init is already in progress, await the same future.
+    if (_initCompleter != null) return _initCompleter!.future;
+
     if (_status == SlmStatus.running && _model != null) return true;
+
+    _initCompleter = Completer<bool>();
+    try {
+      final result = await _doInitialize();
+      _initCompleter!.complete(result);
+      return result;
+    } catch (e) {
+      _initCompleter!.completeError(e);
+      return false;
+    } finally {
+      _initCompleter = null;
+    }
+  }
+
+  /// Internal initialization logic, called only from [initialize].
+  Future<bool> _doInitialize() async {
+    // Reset disposed flag — the caller is explicitly requesting (re-)init.
+    _disposed = false;
+
+    // RAM guard: skip SLM entirely on low-RAM devices to prevent OOM crash.
+    // Gemma 3n 4B needs ~6 GB total device RAM (model + KV cache + OS).
+    if (!_checkDeviceCapability()) {
+      _status = SlmStatus.error;
+      debugPrint('[SLM] Skipping init — device does not meet RAM requirements');
+      return false;
+    }
+
+    // Guard: if dispose() was called concurrently during the capability check,
+    // abort init to avoid leaving the engine in an inconsistent state.
+    if (_disposed) {
+      debugPrint('[SLM] Init aborted — dispose() called concurrently');
+      return false;
+    }
 
     // Use flutter_gemma's native check instead of SharedPreferences path.
     bool isInstalled;
@@ -147,6 +233,14 @@ class SlmEngine {
       // Don't persist error — allow retry on next call.
       return false;
     }
+
+    // Guard again after async gap — dispose() could have been called while
+    // we awaited the model check above.
+    if (_disposed) {
+      debugPrint('[SLM] Init aborted — dispose() called during model check');
+      return false;
+    }
+
     if (!isInstalled) {
       _status = SlmStatus.notDownloaded;
       return false;
@@ -162,6 +256,14 @@ class SlmEngine {
         preferredBackend: PreferredBackend.gpu,
       );
 
+      // Final disposed check after async model creation.
+      if (_disposed) {
+        debugPrint('[SLM] Init aborted — dispose() called during model creation');
+        await _model?.close();
+        _model = null;
+        return false;
+      }
+
       _status = SlmStatus.running;
       debugPrint('[SLM] Engine initialized: $modelId (GPU preferred)');
       return true;
@@ -173,6 +275,14 @@ class SlmEngine {
           maxTokens: maxContextTokens,
           preferredBackend: PreferredBackend.cpu,
         );
+
+        if (_disposed) {
+          debugPrint('[SLM] Init aborted — dispose() called during CPU fallback');
+          await _model?.close();
+          _model = null;
+          return false;
+        }
+
         _status = SlmStatus.running;
         debugPrint('[SLM] Engine initialized: $modelId (CPU fallback)');
         return true;
@@ -198,6 +308,7 @@ class SlmEngine {
     int maxTokens = defaultMaxTokens,
     double temperature = defaultTemperature,
   }) async {
+    if (_disposed) return null;
     if (!isAvailable || _model == null) return null;
 
     // Concurrency guard: one generation at a time (device memory constraint).
@@ -270,7 +381,22 @@ class SlmEngine {
     int maxTokens = defaultMaxTokens,
     double temperature = defaultTemperature,
   }) async* {
-    if (!isAvailable || _model == null || _isGenerating) return;
+    // BUG 4 fix: early return if disposed.
+    if (_disposed) {
+      debugPrint('[SLM] generateStream skipped: engine disposed');
+      return;
+    }
+    // BUG 6 fix: log clearly when returning empty so callers can detect
+    // and fall back (e.g. to BYOK or FallbackTemplates).
+    if (!isAvailable || _model == null) {
+      debugPrint('[SLM] generateStream unavailable: '
+          'status=$_status, model=${_model != null}');
+      return;
+    }
+    if (_isGenerating) {
+      debugPrint('[SLM] generateStream skipped: another generation in progress');
+      return;
+    }
 
     _isGenerating = true;
     InferenceChat? chat;
@@ -306,6 +432,9 @@ class SlmEngine {
   ///
   /// Calls [InferenceModel.close()] to free native resources (~2 GB RAM).
   /// Call this when the app goes to background for extended periods.
+  ///
+  /// After dispose, calling [initialize] again will re-create the engine
+  /// (safe re-entry for when the user returns to the coach screen).
   Future<void> dispose() async {
     if (_model != null) {
       try {
@@ -319,8 +448,12 @@ class SlmEngine {
       _status = SlmStatus.ready;
     }
     _isGenerating = false;
-    debugPrint('[SLM] Engine disposed');
+    _disposed = true;
+    debugPrint('[SLM] Engine disposed (will re-initialize on next use)');
   }
+
+  /// Whether the engine was disposed and needs re-initialization.
+  bool get wasDisposed => _disposed;
 
   /// Extract text from a flutter_gemma [ModelResponse].
   ///

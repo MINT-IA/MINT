@@ -51,11 +51,11 @@ class TornadoChart extends StatelessWidget {
     required this.baseCase,
     required this.variables,
     this.maxVariables = 10,
-    this.title = 'Analyse de sensibilite',
-    this.subtitle = 'Quels parametres impactent le plus ton revenu de retraite ?',
+    this.title = 'Analyse de sensibilité',
+    this.subtitle = 'Quels paramètres impactent le plus ton revenu de retraite ?',
     this.baseCaseSuffix = '/mois',
     this.disclaimerText =
-        'Simulation pedagogique — chaque variable est testee independamment (LIFD, LPP, LAVS).',
+        'Simulation pédagogique — chaque variable est testée indépendamment (LIFD, LPP, LAVS).',
   });
 
   @override
@@ -162,7 +162,7 @@ class TornadoChart extends StatelessWidget {
   static String _categoryLabel(String category) {
     switch (category) {
       case 'strategy':
-        return 'Strategie';
+        return 'Stratégie';
       case 'lpp':
         return 'LPP';
       case 'avs':
@@ -172,7 +172,7 @@ class TornadoChart extends StatelessWidget {
       case 'libre':
         return 'Patrimoine libre';
       case 'depenses':
-        return 'Depenses';
+        return 'Dépenses';
       default:
         return category;
     }
@@ -183,15 +183,15 @@ class TornadoChart extends StatelessWidget {
       case 'strategy':
         return MintColors.primary;
       case 'lpp':
-        return const Color(0xFF6366F1); // indigo
+        return MintColors.pillarLpp; // indigo
       case 'avs':
-        return const Color(0xFFF59E0B); // amber
+        return MintColors.amber; // amber
       case '3a':
-        return const Color(0xFF10B981); // emerald
+        return MintColors.positive; // emerald
       case 'libre':
-        return const Color(0xFF8B5CF6); // purple
+        return MintColors.purple; // purple
       case 'depenses':
-        return const Color(0xFFEF4444); // red
+        return MintColors.danger; // red
       default:
         return MintColors.textMuted;
     }
@@ -242,7 +242,7 @@ class _TornadoPainter extends CustomPainter {
     final centerX = chartLeft + chartWidth / 2;
 
     // Scale: pixels per CHF deviation
-    final halfWidth = chartWidth / 2 - 60; // Leave space for tip labels
+    final halfWidth = chartWidth / 2 - 80; // Leave space for tip labels
     final pxPerChf = halfWidth / maxDeviation;
 
     // ── Header: base case label ─────────────────────────────
@@ -280,7 +280,7 @@ class _TornadoPainter extends CustomPainter {
         pxPerChf: pxPerChf,
         barCenterY: barCenterY,
         color: lowDelta < 0
-            ? const Color(0xFFEF4444).withValues(alpha: 0.70)
+            ? MintColors.danger.withValues(alpha: 0.70)
             : categoryColor.withValues(alpha: 0.50),
         categoryColor: categoryColor,
       );
@@ -293,8 +293,8 @@ class _TornadoPainter extends CustomPainter {
         pxPerChf: pxPerChf,
         barCenterY: barCenterY,
         color: highDelta >= 0
-            ? const Color(0xFF10B981).withValues(alpha: 0.70)
-            : const Color(0xFFEF4444).withValues(alpha: 0.50),
+            ? MintColors.positive.withValues(alpha: 0.70)
+            : MintColors.danger.withValues(alpha: 0.50),
         categoryColor: categoryColor,
       );
 
@@ -310,6 +310,7 @@ class _TornadoPainter extends CustomPainter {
         barCenterY: barCenterY,
         chartRight: chartRight,
         chartLeft: chartLeft,
+        size: size,
       );
 
       // Subtle horizontal separator
@@ -465,6 +466,7 @@ class _TornadoPainter extends CustomPainter {
     required double barCenterY,
     required double chartRight,
     required double chartLeft,
+    required Size size,
   }) {
     final lowDelta = v.lowValue - baseCase;
     final highDelta = v.highValue - baseCase;
@@ -473,7 +475,7 @@ class _TornadoPainter extends CustomPainter {
     final highBarEnd = centerX + highDelta * pxPerChf;
 
     // ── Low label (left side typically) ─────────────────────
-    final lowDeltaText = _formatDelta(lowDelta);
+    final lowDeltaText = _formatChfCompact(lowDelta);
     final lowTp = TextPainter(
       text: TextSpan(
         children: [
@@ -489,7 +491,7 @@ class _TornadoPainter extends CustomPainter {
             style: GoogleFonts.inter(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: lowDelta < 0 ? const Color(0xFFEF4444) : MintColors.success,
+              color: lowDelta < 0 ? MintColors.danger : MintColors.success,
             ),
           ),
         ],
@@ -510,7 +512,7 @@ class _TornadoPainter extends CustomPainter {
     }
 
     // ── High label (right side typically) ───────────────────
-    final highDeltaText = _formatDelta(highDelta);
+    final highDeltaText = _formatChfCompact(highDelta);
     final highTp = TextPainter(
       text: TextSpan(
         children: [
@@ -519,7 +521,7 @@ class _TornadoPainter extends CustomPainter {
             style: GoogleFonts.inter(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: highDelta >= 0 ? MintColors.success : const Color(0xFFEF4444),
+              color: highDelta >= 0 ? MintColors.success : MintColors.danger,
             ),
           ),
           TextSpan(
@@ -537,7 +539,7 @@ class _TornadoPainter extends CustomPainter {
     if (highDelta >= 0) {
       // Bar goes right: label to the right of bar tip
       final labelX = highBarEnd + 4;
-      final clampedX = min(labelX, chartRight - highTp.width);
+      final clampedX = min(labelX, size.width - highTp.width);
       highTp.paint(canvas, Offset(clampedX, barCenterY - highTp.height / 2));
     } else {
       // High scenario is still negative: label to the left of bar tip
@@ -553,15 +555,15 @@ class _TornadoPainter extends CustomPainter {
       case 'strategy':
         return MintColors.primary;
       case 'lpp':
-        return const Color(0xFF6366F1);
+        return MintColors.pillarLpp;
       case 'avs':
-        return const Color(0xFFF59E0B);
+        return MintColors.amber;
       case '3a':
-        return const Color(0xFF10B981);
+        return MintColors.positive;
       case 'libre':
-        return const Color(0xFF8B5CF6);
+        return MintColors.purple;
       case 'depenses':
-        return const Color(0xFFEF4444);
+        return MintColors.danger;
       default:
         return MintColors.textMuted;
     }
@@ -588,6 +590,15 @@ class _TornadoPainter extends CustomPainter {
     );
     final sign = delta >= 0 ? '+' : '-';
     return '${sign}CHF\u00A0$formatted';
+  }
+
+  /// Format large amounts compactly: 272'821 → "+272k", 1'234'000 → "+1.2M".
+  static String _formatChfCompact(double delta) {
+    final abs = delta.abs();
+    final sign = delta >= 0 ? '+' : '-';
+    if (abs >= 1000000) return '$sign${(abs / 1000000).toStringAsFixed(1)}M';
+    if (abs >= 10000) return '$sign${(abs / 1000).round()}k';
+    return _formatDelta(delta);
   }
 
   @override

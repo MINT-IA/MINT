@@ -4,12 +4,12 @@ import 'package:mint_mobile/data/cantonal_data.dart';
 class WizardQuestions {
   static List<WizardQuestion> get questions => [
         // === 1. IDENTITÉ & LOCALISATION (LE CADRE SUISSE) ===
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_firstname',
           title: 'Comment t\'appelles-tu ?',
           type: QuestionType.text,
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_birth_year',
           title: 'Ton année de naissance',
           type: QuestionType.number,
@@ -30,7 +30,7 @@ class WizardQuestions {
         ),
 
         // === 2. SITUATION FAMILIALE (LE RISQUE JURIDIQUE) ===
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_civil_status',
           title: 'Quelle est ta situation familiale ?',
           subtitle:
@@ -55,7 +55,7 @@ class WizardQuestions {
                 label: 'Veuf / Veuve', value: 'widowed', icon: 'church'),
           ],
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_children',
           title: 'As-tu des enfants à charge ?',
           type: QuestionType.choice,
@@ -71,7 +71,7 @@ class WizardQuestions {
         ),
 
         // === 3. EMPLOI & REVENUS (LE CASHFLOW) ===
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_employment_status',
           title: 'Quel est ton statut professionnel ?',
           subtitle: 'Cela détermine tes droits LPP, Chômage et tes déductions.',
@@ -92,7 +92,7 @@ class WizardQuestions {
           ],
         ),
         // Budget Section
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_pay_frequency',
           title: 'Fréquence de tes revenus ?',
           type: QuestionType.choice,
@@ -108,7 +108,7 @@ class WizardQuestions {
                 label: 'Hebdomadaire', value: 'weekly', icon: 'view_week'),
           ],
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_net_income_period_chf',
           title: 'Revenu net par période ?',
           subtitle:
@@ -117,7 +117,7 @@ class WizardQuestions {
           tags: ['budget', 'sensitive'],
           minValue: 0,
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_housing_cost_period_chf',
           title: 'Coût logement par période ?',
           subtitle: 'Loyer ou Hypothèque + Charges.',
@@ -125,7 +125,7 @@ class WizardQuestions {
           tags: ['budget', 'housing'],
           minValue: 0,
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_debt_payments_period_chf',
           title: 'Remboursements dettes par période ?',
           subtitle: 'Leasing, crédits (hors hypothèque).',
@@ -134,7 +134,7 @@ class WizardQuestions {
           tags: ['budget', 'debt'],
           minValue: 0,
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_budget_style',
           title: 'Comment veux-tu gérer ton budget ?',
           type: QuestionType.choice,
@@ -152,7 +152,7 @@ class WizardQuestions {
         ),
 
         // === 4. PRÉVOYANCE (LE FUTUR) ===
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_pension_fund',
           title: 'Es-tu affilié à un 2e pilier (LPP) ?',
           subtitle: 'Indispensable pour connaître ta limite 3a.',
@@ -166,7 +166,7 @@ class WizardQuestions {
                 label: 'Je ne sais pas', value: 'unknown', icon: 'help'),
           ],
         ),
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_has_3a',
           title: 'As-tu déjà un 3a ?',
           subtitle: 'Le plafond déductible 2025 est de CHF 7\'258 (salariés).',
@@ -179,7 +179,7 @@ class WizardQuestions {
         ),
 
         // === 5. OBJECTIFS (L'INTENTION) ===
-        WizardQuestion(
+        const WizardQuestion(
           id: 'q_goal_template',
           title: 'Objectif prioritaire actuel ?',
           type: QuestionType.choice,

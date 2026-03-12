@@ -93,10 +93,10 @@ def _parse_field_sources(raw_sources: list) -> list[FieldSource]:
 
 @router.post("/score", response_model=ConfidenceScoreResponse)
 def score_confidence(request: ConfidenceScoreRequest) -> ConfidenceScoreResponse:
-    """Calcule le score de confiance complet sur 3 axes.
+    """Calcule le score de confiance complet sur 4 axes.
 
-    Combine completeness (40%), accuracy (35%) et freshness (25%)
-    en un score global. Genere les feature gates et classe les
+    Combine completeness, accuracy, freshness et understanding
+    via une moyenne geometrique. Genere les feature gates et classe les
     enrichment prompts par impact decroissant.
 
     Returns:
@@ -113,6 +113,7 @@ def score_confidence(request: ConfidenceScoreRequest) -> ConfidenceScoreResponse
             completeness=result.breakdown.completeness,
             accuracy=result.breakdown.accuracy,
             freshness=result.breakdown.freshness,
+            understanding=result.breakdown.understanding,
             overall=result.breakdown.overall,
         ),
         enrichment_prompts=[

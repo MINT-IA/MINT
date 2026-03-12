@@ -25,6 +25,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
   int _staggeringYears = 5;
   double _fundRate = 0.02;
   double _taxableIncome = 120000;
+  String _canton = 'ZH';
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       staggeringYears: _staggeringYears,
       annualInterestRate: _fundRate,
       taxableIncome: _taxableIncome,
+      canton: _canton,
     );
 
     return SimulatorCard(
@@ -128,14 +130,14 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [MintColors.primary, MintColors.primary.withOpacity(0.8)],
+          colors: [MintColors.primary, MintColors.primary.withValues(alpha:0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: MintColors.primary.withOpacity(0.3),
+            color: MintColors.primary.withValues(alpha:0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -164,7 +166,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha:0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -207,8 +209,8 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
-          border: Border.all(color: color.withOpacity(0.2)),
+          color: color.withValues(alpha:0.05),
+          border: Border.all(color: color.withValues(alpha:0.2)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -302,7 +304,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
         decoration: BoxDecoration(
           color: MintColors.accentPastel,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.border.withOpacity(0.3)),
+          border: Border.all(color: MintColors.border.withValues(alpha:0.3)),
         ),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -310,7 +312,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           leading: const Icon(Icons.lightbulb_outline,
               color: MintColors.primary, size: 20),
           title: Text(
-            "Bon a savoir",
+            "Bon à savoir",
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -320,17 +322,17 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           children: [
             _buildBonASavoirItem(
               "Le rachat LPP est l'un des rares outils de planification "
-              "fiscale accessibles a tous les salarie\u00B7e\u00B7s en Suisse.",
+              "fiscale accessibles à tous les salarié\u00B7e\u00B7s en Suisse.",
             ),
             const SizedBox(height: 10),
             _buildBonASavoirItem(
-              "Chaque franc rachete est deductible de ton revenu imposable "
+              "Chaque franc racheté est déductible de ton revenu imposable "
               "(LIFD art. 33 al. 1 let. d).",
             ),
             const SizedBox(height: 10),
             _buildBonASavoirItem(
-              "Attention : tout retrait EPL est bloque pendant 3 ans "
-              "apres un rachat (LPP art. 79b al. 3).",
+              "Attention : tout retrait EPL est bloqué pendant 3 ans "
+              "après un rachat (LPP art. 79b al. 3).",
               isWarning: true,
             ),
           ],
@@ -410,7 +412,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
             activeTrackColor: MintColors.primary,
             inactiveTrackColor: MintColors.border,
             thumbColor: Colors.white,
-            overlayColor: MintColors.primary.withOpacity(0.1),
+            overlayColor: MintColors.primary.withValues(alpha:0.1),
             thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 6, elevation: 1),
             trackHeight: 2,

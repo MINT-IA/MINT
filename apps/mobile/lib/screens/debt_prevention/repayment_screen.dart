@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -80,6 +81,16 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── P10-F : Mode survie MINT ──────────────────────
+                DebtSurvivalWidget(
+                  totalDebt: _dettes.fold<double>(0, (s, d) => s + d.montant),
+                  monthlyMargin: _budgetMensuel -
+                      _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin),
+                  daysSinceLastLate: 0,
+                  monthlyIncome: 6000,
+                ),
+                const SizedBox(height: 24),
+
                 // Chiffre choc
                 if (result != null) ...[
                   _buildChiffreChoc(result),

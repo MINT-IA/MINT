@@ -102,6 +102,26 @@ class AvsCalculator {
     return (user: avsUser, conjoint: avsConjoint, total: total);
   }
 
+  /// Convert monthly AVS rente to annual, including the 13th rente if active.
+  ///
+  /// From December 2026 onwards, AVS pays 13 monthly rentes per year
+  /// instead of 12 (initiative populaire, LAVS art. 34 nouveau).
+  ///
+  /// The 13th rente applies ONLY to vieillesse pensions, NOT to AI,
+  /// survivors, or children's pensions.
+  ///
+  /// [monthlyRente] — individual monthly pension (output of computeMonthlyRente).
+  /// [include13eme] — override: false to get the traditional 12-month total.
+  static double annualRente(
+    double monthlyRente, {
+    bool include13eme = avs13emeRenteActive,
+  }) {
+    if (include13eme) {
+      return monthlyRente * avsNombreRentesParAn;
+    }
+    return monthlyRente * 12;
+  }
+
   /// Returns the AVS rente reduction percentage for a given gap in contribution years.
   ///
   /// Example: gap=4 → 9.09% reduction (4/44 × 100).

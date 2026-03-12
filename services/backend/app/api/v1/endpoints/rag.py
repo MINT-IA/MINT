@@ -15,12 +15,16 @@ from app.core.rate_limit import limiter
 from app.models.user import User
 
 from app.schemas.rag import (
+    ExtractedDocumentField,
     RAGIngestRequest,
     RAGIngestResponse,
     RAGQueryRequest,
     RAGQueryResponse,
     RAGSource,
     RAGStatusResponse,
+    RAGVisionRequest,
+    RAGVisionResponse,
+    VISION_PROVIDERS,
 )
 
 logger = logging.getLogger(__name__)
@@ -110,6 +114,89 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
     return RAGQueryResponse(
         answer=result["answer"],
         sources=[RAGSource(**s) for s in result.get("sources", [])],
+        disclaimers=result.get("disclaimers", []),
+        tokens_used=result.get("tokens_used", 0),
+    )
+
+
+@router.post("/vision", response_model=RAGVisionResponse)
+@limiter.limit("10/minute")
+async def rag_vision(request: Request, body: RAGVisionRequest, _user: User = Depends(require_current_user)):
+    """
+    Vision-augmented document extraction endpoint.
+
+    Accepts a base64-encoded document image + BYOK API key.
+    Extracts structured financial data via Claude/GPT-4o vision.
+
+    Only Claude and OpenAI support vision — Mistral will be rejected.
+    The image is processed in-flight and never stored by MINT.
+    """
+    # Validate provider supports vision
+    if body.provider.value not in VISION_PROVIDERS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Provider '{body.provider.value}' does not support vision. "
+            f"Supported: {', '.join(sorted(VISION_PROVIDERS))}",
+        )
+
+    # Validate media type
+    allowed_media = {"image/jpeg", "image/png", "image/webp"}
+    if body.media_type not in allowed_media:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported media type '{body.media_type}'. "
+            f"Supported: {', '.join(sorted(allowed_media))}",
+        )
+
+    # Validate base64 size before decoding (prevent DoS via large payloads)
+    import base64
+    # ~26.8 MB base64 string ≈ 20 MB decoded
+    if len(body.image_base64) > 26_843_546:
+        raise HTTPException(status_code=413, detail="Image exceeds 20 MB limit")
+    try:
+        raw = base64.b64decode(body.image_base64, validate=True)
+        if len(raw) > 20 * 1024 * 1024:  # 20 MB limit
+            raise HTTPException(status_code=413, detail="Image exceeds 20 MB limit")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid base64 image data")
+
+    orchestrator = _get_orchestrator()
+
+    profile_ctx = None
+    if body.profile_context:
+        profile_ctx = body.profile_context.model_dump(exclude_none=True)
+
+    try:
+        result = await orchestrator.query_vision(
+            image_base64=body.image_base64,
+            media_type=body.media_type,
+            document_type=body.document_type.value,
+            api_key=body.api_key,
+            provider=body.provider.value,
+            model=body.model,
+            profile_context=profile_ctx,
+            language=body.language.value,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        logger.error("RAG vision query failed: %s", e)
+        raise HTTPException(
+            status_code=502,
+            detail=f"Vision LLM call failed: {str(e)}",
+        )
+
+    return RAGVisionResponse(
+        extracted_fields=[
+            ExtractedDocumentField(**f) for f in result.get("extracted_fields", [])
+        ],
+        document_type_detected=result.get("document_type_detected", ""),
+        raw_analysis=result.get("raw_analysis", ""),
+        confidence_delta=result.get("confidence_delta", 0),
         disclaimers=result.get("disclaimers", []),
         tokens_used=result.get("tokens_used", 0),
     )

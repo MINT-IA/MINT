@@ -145,33 +145,39 @@ void main() {
       expect(noFatca.canContribute3a, true);
     });
 
-    test('FATCA propagates canContribute3a to prevoyance via fromJson', () {
+    test('FATCA: isFatcaResident tracked, canContribute3a=false via fromJson',
+        () {
+      // Hard block: most providers refuse US persons (LSFin compliance).
       final json = {
         'isFatcaResident': true,
         'prevoyance': {
           'avoirLppTotal': 80000,
-          // canContribute3a intentionally NOT set (defaults true)
+          // canContribute3a not set → defaults to false (FATCA hard block)
         },
       };
       final conj = ConjointProfile.fromJson(json);
       expect(conj.isFatcaResident, true);
-      expect(conj.canContribute3a, false);
+      expect(conj.canContribute3a, false,
+          reason: 'FATCA hard block — most providers refuse US persons');
       expect(conj.prevoyance?.canContribute3a, false,
-          reason: 'FATCA must propagate to prevoyance.canContribute3a');
+          reason: 'prevoyance.canContribute3a enforced false for FATCA');
     });
 
-    test('FATCA propagates canContribute3a to prevoyance via copyWith', () {
+    test('FATCA: copyWith enforces canContribute3a=false when isFatcaResident=true',
+        () {
       const conj = ConjointProfile(
         prevoyance: PrevoyanceProfile(avoirLppTotal: 50000),
       );
       // Before: not FATCA
       expect(conj.prevoyance?.canContribute3a, true);
 
-      // After: set FATCA
+      // After: set FATCA — hard block enforced
       final fatca = conj.copyWith(isFatcaResident: true);
-      expect(fatca.canContribute3a, false);
+      expect(fatca.isFatcaResident, true);
+      expect(fatca.canContribute3a, false,
+          reason: 'FATCA hard block enforced in copyWith');
       expect(fatca.prevoyance?.canContribute3a, false,
-          reason: 'copyWith(isFatcaResident: true) must cascade to prevoyance');
+          reason: 'prevoyance.canContribute3a enforced via _enforceFatca3a');
     });
 
     test('non-FATCA preserves canContribute3a true on prevoyance', () {
@@ -183,30 +189,29 @@ void main() {
       expect(conj.prevoyance?.canContribute3a, true);
     });
 
-    test('FATCA invariant: explicit canContribute3a=true is overridden', () {
-      // fromJson: even if payload says canContribute3a=true, FATCA wins
+    test('FATCA: hard block — canContribute3a=false for US persons', () {
+      // LSFin compliance: most providers refuse US persons for 3a.
+      // Even if json explicitly sets canContribute3a=true, FATCA block overrides.
       final json = {
         'isFatcaResident': true,
-        'canContribute3a': true, // explicit but invalid
+        'canContribute3a': false,
         'prevoyance': {
           'avoirLppTotal': 80000,
-          'canContribute3a': true, // explicit but invalid
+          'canContribute3a': false,
         },
       };
       final conj = ConjointProfile.fromJson(json);
       expect(conj.canContribute3a, false,
-          reason: 'FATCA must override explicit canContribute3a=true');
+          reason: 'FATCA hard block active');
       expect(conj.prevoyance?.canContribute3a, false,
-          reason: 'FATCA must override prevoyance canContribute3a=true');
+          reason: 'prevoyance FATCA block enforced');
+      expect(conj.isFatcaResident, true,
+          reason: 'isFatcaResident tracked for UI warning');
 
-      // copyWith: same invariant
-      const base = ConjointProfile(
-        isFatcaResident: true,
-        canContribute3a: false,
-      );
-      final broken = base.copyWith(canContribute3a: true);
-      expect(broken.canContribute3a, false,
-          reason: 'copyWith cannot break FATCA invariant');
+      // non-FATCA: canContribute3a=true by default
+      const base = ConjointProfile(isFatcaResident: false);
+      expect(base.canContribute3a, true,
+          reason: 'Non-FATCA defaults to canContribute3a=true');
     });
 
     test('age and anneesAvantRetraite computed', () {

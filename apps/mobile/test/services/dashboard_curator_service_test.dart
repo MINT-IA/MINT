@@ -310,7 +310,7 @@ void main() {
       expect(deeplinks['Tip missing_3a'], '/simulator/3a');
       expect(deeplinks['Tip lpp_buyback'], '/arbitrage/rachat-vs-marche');
       expect(deeplinks['Tip retirement_countdown'], '/coach/dashboard');
-      expect(deeplinks['Tip debt_ratio'], isNull);
+      expect(deeplinks['Tip debt_ratio'], '/debt/ratio');
     });
 
     test('unknown tip ID keeps null deeplink', () {

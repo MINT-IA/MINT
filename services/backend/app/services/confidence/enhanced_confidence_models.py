@@ -3,11 +3,11 @@ Dataclasses for the Enhanced Confidence Scoring module — Sprint S46.
 
 Defines shared types for multi-dimensional confidence measurement:
 - FieldSource: provenance d'un champ de profil (source, date, valeur)
-- ConfidenceBreakdown: score sur 3 axes (completeness, accuracy, freshness)
+- ConfidenceBreakdown: score sur 4 axes (completeness, accuracy, freshness, understanding)
 - EnrichmentPrompt: action classee par impact pour ameliorer la precision
 - ConfidenceResult: resultat complet avec feature gates et compliance
 
-La confiance globale est ponderee: 40% completeness + 35% accuracy + 25% freshness.
+La confiance globale est calculee via une moyenne geometrique sur 4 axes.
 
 Privacy: les metadonnees de source sont internes (tracking qualite).
 Elles ne sont jamais envoyees au LLM ni partagees avec des tiers.
@@ -47,19 +47,21 @@ class FieldSource:
 
 @dataclass
 class ConfidenceBreakdown:
-    """Score de confiance sur 3 axes.
+    """Score de confiance sur 4 axes.
 
     Attributes:
         completeness: 0-100, proportion de champs remplis (pondere par importance).
         accuracy: 0-100, qualite moyenne des sources de donnees.
         freshness: 0-100, fraicheur moyenne des donnees.
-        overall: Score global pondere (40% completeness + 35% accuracy + 25% freshness).
+        understanding: 0-100, comprehension financiere de l'utilisateur.
+        overall: Score global — 4-axis geometric mean.
     """
 
     completeness: float  # 0-100
     accuracy: float  # 0-100
     freshness: float  # 0-100
-    overall: float  # Weighted: 40% completeness + 35% accuracy + 25% freshness
+    understanding: float  # 0-100
+    overall: float  # 4-axis geometric mean
 
 
 @dataclass
@@ -89,7 +91,7 @@ class ConfidenceResult:
     classees par impact, les feature gates et les champs de compliance.
 
     Attributes:
-        breakdown: Scores de confiance sur les 3 axes + overall.
+        breakdown: Scores de confiance sur les 4 axes + overall.
         enrichment_prompts: Actions classees par impact decroissant.
         feature_gates: Fonctionnalites debloquees selon le niveau de confiance.
         disclaimer: Mention legale obligatoire (outil educatif, LSFin).

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
@@ -77,7 +78,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Comparateur 3a',
+                      S.of(context)!.pillar3aComparator,
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -85,7 +86,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Projection sur $yearsUntilRetirement ans',
+                      S.of(context)!.pillar3aProjection(yearsUntilRetirement),
                       style: const TextStyle(
                           fontSize: 12, color: MintColors.textMuted),
                     ),
@@ -109,7 +110,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Scénario : Versement max annuel',
+                  S.of(context)!.pillar3aScenarioTitle,
                   style: GoogleFonts.montserrat(
                       fontSize: 13, fontWeight: FontWeight.w600),
                 ),
@@ -117,8 +118,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Versement/an :',
-                        style: TextStyle(fontSize: 12)),
+                    Text(S.of(context)!.pillar3aPaymentPerYear,
+                        style: const TextStyle(fontSize: 12)),
                     Text(
                       currencyFormat.format(maxAnnual),
                       style: const TextStyle(
@@ -129,9 +130,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Durée :', style: TextStyle(fontSize: 12)),
+                    Text(S.of(context)!.pillar3aDuration, style: const TextStyle(fontSize: 12)),
                     Text(
-                      '$yearsUntilRetirement ans (jusqu\'à 65 ans)',
+                      S.of(context)!.pillar3aDurationYears(yearsUntilRetirement),
                       style: const TextStyle(
                           fontSize: 12, fontWeight: FontWeight.bold),
                     ),
@@ -145,6 +146,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
 
           // Tableau comparatif
           _buildProviderRow(
+            context: context,
             name: '🏦 Banque Classique',
             subtitle: 'UBS, CS, Raiffeisen',
             fees: '1.0-1.5%/an',
@@ -157,6 +159,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           const SizedBox(height: 12),
 
           _buildProviderRow(
+            context: context,
             name: '🚀 VIAC',
             subtitle: 'Leader Suisse, 60% actions',
             fees: '0.52%/an',
@@ -170,6 +173,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           const SizedBox(height: 12),
 
           _buildProviderRow(
+            context: context,
             name: '💎 Finpension',
             subtitle: 'Le - cher, 80% actions',
             fees: '0.39%/an',
@@ -182,6 +186,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           const SizedBox(height: 12),
 
           _buildProviderRow(
+            context: context,
             name: '⚠️ Assurance',
             subtitle: 'AXA, Zurich, Swiss Life',
             fees: '1.5-3%/an',
@@ -197,10 +202,10 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           // Highlight gain VIAC — gated when debt active
           SafeModeGate(
             hasDebt: hasDebt,
-            lockedTitle: 'Priorite au desendettement',
+            lockedTitle: 'Priorité au désendettement',
             lockedMessage:
-                'Les recommandations de placement 3a sont desactivees en mode protection. '
-                'Rembourser tes dettes offre un rendement plus eleve que tout placement.',
+                'Les recommandations de placement 3a sont désactivées en mode protection. '
+                'Rembourser tes dettes offre un rendement plus élevé que tout placement.',
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -220,7 +225,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Avec VIAC au lieu d\'une banque :',
+                              S.of(context)!.pillar3aViacGainLabel,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -237,7 +242,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'de plus a la retraite !',
+                              S.of(context)!.pillar3aMoreAtRetirement,
                               style: TextStyle(
                                   fontSize: 12, color: MintColors.success),
                             ),
@@ -254,7 +259,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                         // TODO: Ouvrir modal "Comment ouvrir VIAC"
                       },
                       icon: const Icon(Icons.open_in_new, size: 18),
-                      label: const Text('Ouvrir mon compte VIAC'),
+                      label: Text(S.of(context)!.pillar3aOpenViac),
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.success,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -283,7 +288,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne garantissent pas rendements futurs.',
+                    S.of(context)!.pillar3aDisclaimer,
                     style:
                         TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
@@ -295,7 +300,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           const SizedBox(height: 24),
 
           // NOUVEAU : Tableau intérêts composés
-          _buildCompoundInterestTable(maxAnnual, yearsUntilRetirement),
+          _buildCompoundInterestTable(context, maxAnnual, yearsUntilRetirement),
 
           const SizedBox(height: 16),
 
@@ -329,7 +334,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
   }
 
   /// Tableau montrant l'évolution du capital année par année (VIAC vs Banque)
-  Widget _buildCompoundInterestTable(double annualContribution, int years) {
+  Widget _buildCompoundInterestTable(BuildContext context, double annualContribution, int years) {
     // Sélectionner quelques années clés pour ne pas surcharger
     final keyYears = _selectKeyYears(years);
 
@@ -344,7 +349,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '📊 Évolution de ton capital 3a',
+            '📊 ${S.of(context)!.pillar3aCapitalEvolution}',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -354,26 +359,26 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           // Header
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 flex: 2,
                 child: Text(
-                  'Année',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  S.of(context)!.pillar3aYearLabel,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
-              const Expanded(
+              Expanded(
                 flex: 3,
                 child: Text(
-                  'Banque 1.5%',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  S.of(context)!.pillar3aBank15,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
               ),
-              const Expanded(
+              Expanded(
                 flex: 3,
                 child: Text(
-                  'VIAC 4.5%',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  S.of(context)!.pillar3aViac45,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
               ),
@@ -394,7 +399,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      'Année $year',
+                      S.of(context)!.pillar3aYearN(year),
                       style: const TextStyle(fontSize: 11),
                     ),
                   ),
@@ -426,7 +431,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              '💡 Les dernières années font +50% du gain total grâce aux intérêts composés !',
+              '💡 ${S.of(context)!.pillar3aCompoundTip}',
               style: TextStyle(
                 fontSize: 11,
                 color: MintColors.info,
@@ -453,6 +458,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
   }
 
   Widget _buildProviderRow({
+    required BuildContext context,
     required String name,
     required String subtitle,
     required String fees,
@@ -515,8 +521,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     color: MintColors.success,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'RECOMMANDÉ',
+                  child: Text(
+                    S.of(context)!.pillar3aRecommended,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 9,
@@ -533,8 +539,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Frais',
-                      style:
+                  Text(S.of(context)!.pillar3aFees,
+                      style: const
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(fees,
                       style: const TextStyle(
@@ -544,8 +550,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Rendement',
-                      style:
+                  Text(S.of(context)!.pillar3aReturn,
+                      style: const
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(returnRate,
                       style: const TextStyle(
@@ -555,8 +561,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('À 65 ans',
-                      style:
+                  Text(S.of(context)!.pillar3aAt65,
+                      style: const
                           TextStyle(fontSize: 10, color: MintColors.textMuted)),
                   Text(
                     currencyFormat.format(capital),
@@ -581,7 +587,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '${gain > 0 ? '+' : ''}${currencyFormat.format(gain)} vs Banque',
+                S.of(context)!.pillar3aVsBank('${gain > 0 ? '+' : ''}${currencyFormat.format(gain)}'),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,

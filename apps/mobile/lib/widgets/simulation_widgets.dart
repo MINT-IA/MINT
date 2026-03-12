@@ -28,14 +28,14 @@ class SimulationScenario {
   static const central = SimulationScenario(
     label: 'Central',
     rate: 3.0,
-    color: Color(0xFF81C784),
+    color: MintColors.centralScenarioLight,
     description: '3a conservateur (3%)',
   );
 
   static const stress = SimulationScenario(
     label: 'Stress',
     rate: 5.0,
-    color: Color(0xFF2D6A4F),
+    color: MintColors.stressScenario,
     description: '3a équilibré (5%)',
   );
 

@@ -33,6 +33,7 @@ class MintRetriever:
         profile_context: Optional[dict] = None,
         n_results: int = 5,
         language: Optional[str] = None,
+        literacy_level: str = "beginner",
     ) -> list[dict]:
         """
         Retrieve relevant knowledge chunks for a query.
@@ -43,6 +44,10 @@ class MintRetriever:
                 Expected keys: canton, age, civil_status, employment_status.
             n_results: Number of results to return.
             language: Optional language filter.
+            literacy_level: Financial literacy level of the user.
+                - "beginner"     → include level 0 and level 1 documents
+                - "intermediate" → level 1 documents only
+                - "advanced"     → level 1 documents only
 
         Returns:
             List of result dicts with keys: id, text, metadata, distance, source.
@@ -50,11 +55,31 @@ class MintRetriever:
         # Enrich the query with profile context
         enriched_query = self._enrich_query(query, profile_context)
 
-        # Query the vector store
+        # Build level filter based on literacy_level
+        # "beginner" gets both level 0 (simplified) and level 1 (full).
+        # "intermediate" and "advanced" get level 1 only.
+        if literacy_level == "beginner":
+            level_filter = {"level": {"$in": [0, 1]}}
+        else:
+            level_filter = {"level": 1}
+
+        # Merge with language filter when provided
+        if language:
+            where_filter: Optional[dict] = {
+                "$and": [
+                    {"language": language},
+                    level_filter,
+                ]
+            }
+        else:
+            where_filter = level_filter
+
+        # Query the vector store with the combined filter
         results = self.vector_store.query(
             query_text=enriched_query,
             n_results=n_results,
-            language=language,
+            language=None,  # language handled in where_filter above
+            where_filter=where_filter,
         )
 
         # Format results with source information

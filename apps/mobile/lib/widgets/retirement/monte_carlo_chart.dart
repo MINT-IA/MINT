@@ -120,7 +120,7 @@ class MonteCarloChart extends StatelessWidget {
     if (currentMonthlyIncome != null) {
       items.add(_legendItem(
         'Revenu actuel',
-        const Color(0xFFF59E0B),
+        MintColors.amber,
         isLine: true,
         isDashed: true,
       ));
@@ -580,7 +580,7 @@ class _MonteCarloFanPainter extends CustomPainter {
     required double chartLeft,
     required double chartRight,
   }) {
-    const color = Color(0xFFF59E0B);
+    const color = MintColors.amber;
     final y = yForValue(value);
     final paint = Paint()
       ..color = color

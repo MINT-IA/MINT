@@ -176,9 +176,9 @@ class LamalFranchiseService {
       breakEvenPoints: breakEvenPoints,
       recommandations: recommandations,
       alerteDelai: 'Rappel : modification de franchise possible avant le '
-          '30 novembre de chaque annee pour l\'annee suivante.',
+          '30 novembre de chaque année pour l\'année suivante.',
       disclaimer: 'Cette analyse est indicative. Les primes varient selon '
-          'l\'assureur, la region et le modele d\'assurance. Consultez '
+          'l\'assureur, la région et le modèle d\'assurance. Consultez '
           'ta caisse maladie pour des chiffres exacts. '
           'Source : LAMal art. 62-64, OAMal.',
     );
@@ -248,28 +248,28 @@ class LamalFranchiseService {
 
     if (depenses < 500) {
       recs.add(
-        'Avec des frais de sante estimes faibles (< CHF\u00A0500/an), '
-        'une franchise elevee (CHF\u00A02\'500) pourrait etre avantageuse. '
+        'Avec des frais de santé estimés faibles (< CHF\u00A0500/an), '
+        'une franchise élevée (CHF\u00A02\'500) pourrait être avantageuse. '
         'Source : LAMal art. 62.',
       );
     } else if (depenses > 3000) {
       recs.add(
-        'Avec des frais de sante estimes eleves (> CHF\u00A03\'000/an), '
-        'une franchise basse (CHF\u00A0300) pourrait etre plus economique. '
+        'Avec des frais de santé estimés élevés (> CHF\u00A03\'000/an), '
+        'une franchise basse (CHF\u00A0300) pourrait être plus économique. '
         'Source : LAMal art. 62.',
       );
     }
 
     recs.add(
-      'Comparez les primes de differents assureurs sur '
+      'Comparez les primes de différents assureurs sur '
       'priminfo.admin.ch (comparateur officiel). '
-      'Les ecarts de prime peuvent depasser CHF\u00A0200/mois '
-      'pour des prestations equivalentes. Source : LAMal art. 7.',
+      'Les écarts de prime peuvent dépasser CHF\u00A0200/mois '
+      'pour des prestations équivalentes. Source : LAMal art. 7.',
     );
 
     recs.add(
-      'Envisagez un modele d\'assurance alternatif (medecin '
-      'de famille, HMO, telmedecine) pour reduire davantage '
+      'Envisagez un modèle d\'assurance alternatif (médecin '
+      'de famille, HMO, télémédecine) pour réduire davantage '
       'tes primes. Source : LAMal art. 41a.',
     );
 
@@ -378,9 +378,9 @@ class CoverageCheckService {
     // 1. RC privee — always recommended
     checklist.add(CoverageCheckItem(
       id: 'rc_privee',
-      title: 'RC privee',
-      description: 'Responsabilite civile privee — couvre les dommages '
-          'causes a des tiers dans la vie privee.',
+      title: 'RC privée',
+      description: 'Responsabilité civile privée — couvre les dommages '
+          'causés à des tiers dans la vie privée.',
       urgency: 'haute',
       status: aRcPrivee ? 'couvert' : 'non_couvert',
       estimatedCostRange: '~80-150 CHF/an',
@@ -391,9 +391,9 @@ class CoverageCheckService {
     // 2. Assurance menage
     checklist.add(CoverageCheckItem(
       id: 'menage',
-      title: 'Assurance menage',
+      title: 'Assurance ménage',
       description: 'Couvre le mobilier et les effets personnels '
-          'contre le vol, l\'incendie et les degats des eaux. '
+          'contre le vol, l\'incendie et les dégâts des eaux. '
           'Obligatoire dans les cantons VD, FR, NW, JU.',
       urgency: _menageUrgency(estLocataire, canton),
       status: aMenage ? 'couvert' : 'non_couvert',
@@ -406,7 +406,7 @@ class CoverageCheckService {
     checklist.add(CoverageCheckItem(
       id: 'juridique',
       title: 'Protection juridique',
-      description: 'Couvre les frais d\'avocat et de procedure '
+      description: 'Couvre les frais d\'avocat et de procédure '
           'en cas de litige (travail, bail, consommation).',
       urgency: estLocataire ? 'moyenne' : 'basse',
       status: aProtectionJuridique ? 'couvert' : 'non_couvert',
@@ -419,34 +419,34 @@ class CoverageCheckService {
     checklist.add(CoverageCheckItem(
       id: 'voyage',
       title: 'Assurance voyage',
-      description: 'Couvre l\'annulation, les frais medicaux a '
-          'l\'etranger et le rapatriement.',
+      description: 'Couvre l\'annulation, les frais médicaux à '
+          'l\'étranger et le rapatriement.',
       urgency: voyagesFrequents ? 'moyenne' : 'basse',
       status: aAssuranceVoyage ? 'couvert' : (voyagesFrequents ? 'non_couvert' : 'a_verifier'),
       estimatedCostRange: '~50-150 CHF/an',
-      source: 'LAMal art. 34 (couverture limitee a l\'etranger)',
+      source: 'LAMal art. 34 (couverture limitée à l\'étranger)',
       iconType: IconType.flight,
     ));
 
     // 5. Assurance deces
     checklist.add(CoverageCheckItem(
       id: 'deces',
-      title: 'Assurance deces',
-      description: 'Verse un capital aux proches en cas de deces. '
-          'Importante si hypotheque ou personnes a charge.',
+      title: 'Assurance décès',
+      description: 'Verse un capital aux proches en cas de décès. '
+          'Importante si hypothèque ou personnes à charge.',
       urgency: (aHypotheque || aFamille) ? 'haute' : 'basse',
       status: aAssuranceDeces ? 'couvert' : ((aHypotheque || aFamille) ? 'non_couvert' : 'a_verifier'),
       estimatedCostRange: '~100-500 CHF/an',
-      source: 'LCA / Pratique bancaire hypothecaire',
+      source: 'LCA / Pratique bancaire hypothécaire',
       iconType: IconType.favorite,
     ));
 
     // 6. IJM individuelle
     checklist.add(CoverageCheckItem(
       id: 'ijm',
-      title: 'IJM (indemnite journaliere maladie)',
-      description: 'Couvre 80% du salaire en cas de maladie prolongee. '
-          '${isIndependant ? "En tant qu'independant, aucune couverture automatique." : "Verifie si ton employeur propose une IJM collective."}',
+      title: 'IJM (indemnité journalière maladie)',
+      description: 'Couvre 80% du salaire en cas de maladie prolongée. '
+          '${isIndependant ? "En tant qu\'indépendant, aucune couverture automatique." : "Vérifie si ton employeur propose une IJM collective."}',
       urgency: _ijmUrgency(isIndependant, isSalarie, aIjmCollective),
       status: _ijmStatus(isIndependant, isSalarie, aIjmCollective),
       estimatedCostRange: '~500-2\'000 CHF/an',
@@ -458,9 +458,9 @@ class CoverageCheckService {
     checklist.add(CoverageCheckItem(
       id: 'laa',
       title: 'LAA (assurance accident)',
-      description: 'Couvre les frais medicaux et la perte de gain '
+      description: 'Couvre les frais médicaux et la perte de gain '
           'en cas d\'accident. '
-          '${isIndependant ? "Non obligatoire pour les independants." : "Obligatoire via l'employeur pour les salaries."}',
+          '${isIndependant ? "Non obligatoire pour les indépendants." : "Obligatoire via l\'employeur pour les salariés."}',
       urgency: _laaUrgency(isIndependant, isSalarie, aLaa),
       status: _laaStatus(isIndependant, isSalarie, aLaa),
       estimatedCostRange: '~300-800 CHF/an',
@@ -473,11 +473,11 @@ class CoverageCheckService {
       checklist.add(const CoverageCheckItem(
         id: 'rc_pro',
         title: 'RC professionnelle',
-        description: 'Couvre les dommages causes a des tiers dans le '
-            'cadre de l\'activite professionnelle.',
+        description: 'Couvre les dommages causés à des tiers dans le '
+            'cadre de l\'activité professionnelle.',
         urgency: 'haute',
         status: 'a_verifier',
-        estimatedCostRange: 'Variable selon activite',
+        estimatedCostRange: 'Variable selon activité',
         source: 'CO art. 41',
         iconType: IconType.work,
       ));
@@ -503,9 +503,9 @@ class CoverageCheckService {
       lacunesCritiques: lacunesCritiques,
       recommandations: recommandations,
       disclaimer: 'Cette analyse est indicative et ne constitue pas '
-          'un conseil en assurance personnalise. Les primes varient '
+          'un conseil en assurance personnalisé. Les primes varient '
           'selon l\'assureur et ton profil. Consulte un·e spécialiste '
-          'en assurances pour une evaluation complete.',
+          'en assurances pour une évaluation complète.',
     );
   }
 
@@ -597,8 +597,8 @@ class CoverageCheckService {
     );
     for (final item in critiques) {
       recs.add(
-        'PRIORITE : ${item.title} — ${item.description} '
-        'Cout estime : ${item.estimatedCostRange}. '
+        'PRIORITÉ : ${item.title} — ${item.description} '
+        'Coût estimé : ${item.estimatedCostRange}. '
         'Source : ${item.source}.',
       );
     }
@@ -610,7 +610,7 @@ class CoverageCheckService {
     for (final item in hautes) {
       recs.add(
         '${item.title} — ${item.description} '
-        'Cout estime : ${item.estimatedCostRange}. '
+        'Coût estimé : ${item.estimatedCostRange}. '
         'Source : ${item.source}.',
       );
     }
@@ -618,7 +618,7 @@ class CoverageCheckService {
     // General recommendation
     recs.add(
       'Demandez plusieurs offres pour comparer les primes et '
-      'les conditions. Les ecarts peuvent etre significatifs '
+      'les conditions. Les écarts peuvent être significatifs '
       'entre assureurs.',
     );
 

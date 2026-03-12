@@ -53,6 +53,19 @@ class ComplianceGuard:
         "meilleure",
         "parfaite",
         "conseillère",
+        # Plural forms (GAP #1: inflection bypass via plurals)
+        "garantis",
+        "garanties",
+        "assurés",
+        "assurées",
+        "certains",
+        "certaines",
+        "optimaux",
+        "optimales",
+        "meilleurs",
+        "meilleures",
+        "parfaits",
+        "parfaites",
         # Prescriptive phrases
         "tu devrais",
         "tu dois",
@@ -102,6 +115,19 @@ class ComplianceGuard:
         "meilleure": "pertinente",
         "parfaite": "adaptée",
         "conseillère": "spécialiste",
+        # Plural forms
+        "garantis": "possibles dans ce scénario",
+        "garanties": "possibles dans ce scénario",
+        "assurés": "envisageables",
+        "assurées": "envisageables",
+        "certains": "probables",
+        "certaines": "probables",
+        "optimaux": "adaptés",
+        "optimales": "adaptées",
+        "meilleurs": "pertinents",
+        "meilleures": "pertinentes",
+        "parfaits": "adaptés",
+        "parfaites": "adaptées",
         # Prescriptive phrases
         "tu devrais": "tu pourrais envisager de",
         "tu dois": "il serait utile de",
@@ -126,10 +152,16 @@ class ComplianceGuard:
         re.compile(r"prends?\s+le\s+capital", re.IGNORECASE),
         re.compile(r"investis?\s+dans", re.IGNORECASE),
         re.compile(r"priorit[ée]\s+absolue", re.IGNORECASE),
-        re.compile(r"c['\u2018\u2019\u0027\u2032]est\s+plus\s+important\s+que", re.IGNORECASE),
+        re.compile("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", re.IGNORECASE),
         re.compile(r"souscris\b", re.IGNORECASE),
         re.compile(r"rach[eè]te\b", re.IGNORECASE),
         re.compile(r"transf[eè]re\b", re.IGNORECASE),
+        # Social comparison patterns (GAP #2: ranking users against others)
+        re.compile(r"top\s+\d+\s*%", re.IGNORECASE),
+        re.compile(r"meilleur\s+que\s+\d+\s*%", re.IGNORECASE),
+        re.compile(r"devant\s+\d+\s*%\s+des", re.IGNORECASE),
+        re.compile(r"parmi\s+les\s+meilleurs", re.IGNORECASE),
+        re.compile(r"au-dessus\s+de\s+la\s+moyenne", re.IGNORECASE),
     ]
 
     # ═══════════════════════════════════════════════════════════════════

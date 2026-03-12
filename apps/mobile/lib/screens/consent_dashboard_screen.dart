@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/privacy_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -36,8 +37,8 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tous les consentements optionnels ont ete revoques.'),
+      SnackBar(
+        content: Text(S.of(context)!.consentAllRevoked),
       ),
     );
   }
@@ -63,7 +64,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Export de tes donnees',
+          S.of(context)!.consentExportTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         content: SingleChildScrollView(
@@ -97,7 +98,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Fermer'),
+            child: Text(S.of(context)!.consentClose),
           ),
         ],
       ),
@@ -114,7 +115,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          'CENTRE DE CONTROLE DATA',
+          S.of(context)!.consentControlCenter,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -132,7 +133,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
             _buildExportButton(),
             const SizedBox(height: 32),
             Text(
-              'Consentements requis',
+              S.of(context)!.consentRequiredTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -144,7 +145,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                 .map((c) => _buildCategoryCard(c)),
             const SizedBox(height: 24),
             Text(
-              'Consentements optionnels',
+              S.of(context)!.consentOptionalTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -174,15 +175,14 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: MintColors.success.withOpacity(0.2)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.lock_person_outlined, color: MintColors.success),
-          SizedBox(width: 16),
+          const Icon(Icons.lock_person_outlined, color: MintColors.success),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Tes donnees restent sur ton appareil. Tu gardes le controle '
-              'total sur les acces tiers.',
-              style: TextStyle(fontSize: 13, color: MintColors.textPrimary),
+              S.of(context)!.consentSecurityMessage,
+              style: const TextStyle(fontSize: 13, color: MintColors.textPrimary),
             ),
           ),
         ],
@@ -196,7 +196,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
       child: OutlinedButton.icon(
         onPressed: _exportData,
         icon: const Icon(Icons.download_outlined),
-        label: const Text('Exporter mes donnees (nLPD art. 28)'),
+        label: Text(S.of(context)!.consentExportData),
         style: OutlinedButton.styleFrom(
           foregroundColor: MintColors.primary,
           side: const BorderSide(color: MintColors.primary),
@@ -249,8 +249,8 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
                       color: MintColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'Requis',
+                    child: Text(
+                      S.of(context)!.consentRequired,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -280,7 +280,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
               runSpacing: 6,
               children: [
                 _buildTag(legalBasis),
-                _buildTag('Conservation: $retentionDays jours'),
+                _buildTag(S.of(context)!.consentRetentionDays(retentionDays)),
               ],
             ),
           ],
@@ -313,7 +313,7 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
           side: const BorderSide(color: Colors.red),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
-        child: const Text('REVOQUER TOUS LES CONSENTEMENTS OPTIONNELS'),
+        child: Text(S.of(context)!.consentRevokeAll),
       ),
     );
   }
@@ -341,8 +341,8 @@ class _ConsentDashboardScreenState extends State<ConsentDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Sources legales',
+        Text(
+          S.of(context)!.consentLegalSources,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,

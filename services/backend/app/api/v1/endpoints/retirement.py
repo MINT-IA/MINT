@@ -9,8 +9,9 @@ GET  /api/v1/retirement/checklist     — Retirement preparation checklist
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.retirement import (
     AvsEstimationRequest,
     AvsEstimationResponse,
@@ -37,7 +38,8 @@ DISCLAIMER = (
 # ---------------------------------------------------------------------------
 
 @router.post("/avs/estimate", response_model=AvsEstimationResponse)
-def estimate_avs(request: AvsEstimationRequest) -> AvsEstimationResponse:
+@limiter.limit("10/minute")
+def estimate_avs(request: Request, body: AvsEstimationRequest) -> AvsEstimationResponse:
     """Estimate AVS first-pillar pension under different scenarios.
 
     Scenarios: anticipation (63-64), normal (65), ajournement (66-70).
@@ -47,11 +49,11 @@ def estimate_avs(request: AvsEstimationRequest) -> AvsEstimationResponse:
     """
     service = AvsEstimationService()
     result = service.estimate(
-        current_age=request.age_actuel,
-        retirement_age=request.age_retraite,
-        is_couple=request.is_couple,
-        annees_lacunes=request.annees_lacunes,
-        life_expectancy=request.esperance_vie,
+        current_age=body.age_actuel,
+        retirement_age=body.age_retraite,
+        is_couple=body.is_couple,
+        annees_lacunes=body.annees_lacunes,
+        life_expectancy=body.esperance_vie,
     )
     return AvsEstimationResponse(
         scenario=result.scenario,
@@ -75,7 +77,8 @@ def estimate_avs(request: AvsEstimationRequest) -> AvsEstimationResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/lpp/compare", response_model=LppConversionResponse)
-def compare_lpp(request: LppConversionRequest) -> LppConversionResponse:
+@limiter.limit("10/minute")
+def compare_lpp(request: Request, body: LppConversionRequest) -> LppConversionResponse:
     """Compare LPP rente vs capital withdrawal at retirement.
 
     Includes breakeven age, progressive capital tax, and neutral recommendation.
@@ -84,10 +87,10 @@ def compare_lpp(request: LppConversionRequest) -> LppConversionResponse:
     """
     service = LppConversionService()
     result = service.compare(
-        capital_lpp=request.capital_lpp,
-        canton=request.canton,
-        retirement_age=request.age_retraite,
-        life_expectancy=request.esperance_vie,
+        capital_lpp=body.capital_lpp,
+        canton=body.canton,
+        retirement_age=body.age_retraite,
+        life_expectancy=body.esperance_vie,
     )
     return LppConversionResponse(
         capital_total=result.capital_total,
@@ -109,7 +112,8 @@ def compare_lpp(request: LppConversionRequest) -> LppConversionResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/budget", response_model=RetirementBudgetResponse)
-def budget_retirement(request: RetirementBudgetRequest) -> RetirementBudgetResponse:
+@limiter.limit("10/minute")
+def budget_retirement(request: Request, body: RetirementBudgetRequest) -> RetirementBudgetResponse:
     """Reconcile retirement income vs expenses.
 
     Aggregates AVS + LPP + 3a + other income, calculates replacement rate,
@@ -119,13 +123,13 @@ def budget_retirement(request: RetirementBudgetRequest) -> RetirementBudgetRespo
     """
     service = RetirementBudgetService()
     result = service.reconcile(
-        avs_mensuel=request.avs_mensuel,
-        lpp_mensuel=request.lpp_mensuel,
-        capital_3a_net=request.capital_3a_net,
-        autres_revenus=request.autres_revenus,
-        depenses_mensuelles=request.depenses_mensuelles,
-        revenu_pre_retraite=request.revenu_pre_retraite,
-        is_couple=request.is_couple,
+        avs_mensuel=body.avs_mensuel,
+        lpp_mensuel=body.lpp_mensuel,
+        capital_3a_net=body.capital_3a_net,
+        autres_revenus=body.autres_revenus,
+        depenses_mensuelles=body.depenses_mensuelles,
+        revenu_pre_retraite=body.revenu_pre_retraite,
+        is_couple=body.is_couple,
     )
     return RetirementBudgetResponse(
         revenus_mensuels=result.revenus_mensuels,
@@ -148,7 +152,8 @@ def budget_retirement(request: RetirementBudgetRequest) -> RetirementBudgetRespo
 # ---------------------------------------------------------------------------
 
 @router.get("/checklist")
-def retirement_checklist():
+@limiter.limit("30/minute")
+def retirement_checklist(request: Request):
     """Return a comprehensive retirement preparation checklist.
 
     Stateless, no input needed. Returns actionable steps.

@@ -27,8 +27,8 @@ class RecommendationCard extends StatelessWidget {
         hasDebt: true,
         lockedTitle: 'Recommandation suspendue',
         lockedMessage:
-            'Cette recommandation est desactivee en mode protection. '
-            'Ta priorite est de stabiliser ta situation financiere.',
+            'Cette recommandation est désactivée en mode protection. '
+            'Ta priorité est de stabiliser ta situation financière.',
         child: const SizedBox.shrink(),
       );
     }

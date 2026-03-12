@@ -85,6 +85,21 @@ class BudgetInputs {
       _ => 'single',
     };
 
+    // Data source tags — propagate "estimé" vs "saisi" from profile
+    final healthSource =
+        profile.dataSources['depenses.assuranceMaladie'];
+    final isHealthFromUser = healthSource == ProfileDataSource.userInput ||
+        healthSource == ProfileDataSource.certificate ||
+        healthSource == ProfileDataSource.openBanking;
+
+    // Emergency fund: months of expenses covered by liquid savings
+    final monthlyExpenses = profile.depenses.totalMensuel > 0
+        ? profile.depenses.totalMensuel
+        : monthlyNet * 0.70; // fallback: 70% of net income
+    final emergencyMonths = monthlyExpenses > 0
+        ? profile.patrimoine.epargneLiquide / monthlyExpenses
+        : 0.0;
+
     return BudgetInputs(
       payFrequency: PayFrequency.monthly,
       netIncome: monthlyNet,
@@ -103,8 +118,9 @@ class BudgetInputs {
       healthInsurance: profile.depenses.assuranceMaladie,
       otherFixedCosts: otherFixed > 0 ? otherFixed : 0,
       isTaxEstimated: true,
-      isHealthEstimated: false,
+      isHealthEstimated: !isHealthFromUser,
       isOtherFixedMissing: otherFixed <= 0,
+      emergencyFundMonths: emergencyMonths,
     );
   }
 

@@ -377,7 +377,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                 share1: share1,
                 share2: share2,
                 color1: MintColors.info,
-                color2: const Color(0xFF7C4DFF), // Deep purple
+                color2: MintColors.spouseSegment, // Deep purple
                 highlightedSegment: _highlightedSegment,
               ),
               child: Center(
@@ -414,7 +414,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                             fontWeight: FontWeight.w700,
                             color: _highlightedSegment == 0
                                 ? MintColors.info
-                                : const Color(0xFF7C4DFF),
+                                : MintColors.spouseSegment,
                           ),
                         ),
                       ),
@@ -449,7 +449,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
               ),
               const Spacer(),
               _buildLegendItem(
-                color: const Color(0xFF7C4DFF),
+                color: MintColors.spouseSegment,
                 label: widget.labelPersonne2,
                 percentage: (share2 * 100).round(),
                 amount: _total * share2,
@@ -574,7 +574,7 @@ class _PieChartPainter extends CustomPainter {
 
     // Background ring
     final bgPaint = Paint()
-      ..color = const Color(0xFFF0F0F2)
+      ..color = MintColors.surfaceCool
       ..style = PaintingStyle.stroke
       ..strokeWidth = donutWidth;
     canvas.drawCircle(center, innerRadius + donutWidth / 2, bgPaint);

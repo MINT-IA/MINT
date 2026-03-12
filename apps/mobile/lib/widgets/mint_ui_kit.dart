@@ -205,8 +205,8 @@ class MintPremiumButton extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF2C2C2E), // Dark grey top
-              Color(0xFF1C1C1E), // Darker grey bottom
+              MintColors.darkSurface, // Dark grey top
+              MintColors.darkApple, // Darker grey bottom
             ],
           ),
           boxShadow: [

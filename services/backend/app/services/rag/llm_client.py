@@ -121,6 +121,8 @@ class LLMClient:
                     {"role": "user", "content": user_message},
                 ],
             )
+            if not response.content:
+                raise ValueError("Claude returned an empty response")
             return response.content[0].text
         except Exception as e:
             logger.error("Claude API call failed: %s", e)
@@ -145,9 +147,142 @@ class LLMClient:
                     {"role": "user", "content": user_message},
                 ],
             )
+            if not response.choices or not response.choices[0].message.content:
+                raise ValueError("OpenAI returned an empty response")
             return response.choices[0].message.content
         except Exception as e:
             logger.error("OpenAI API call failed: %s", e)
+            raise
+
+    # ── Vision support ─────────────────────────────────────────
+
+    async def generate_vision(
+        self,
+        image_base64: str,
+        media_type: str,
+        system_prompt: str,
+        user_prompt: str,
+    ) -> str:
+        """Generate a response from a document image via vision-capable LLM.
+
+        Args:
+            image_base64: Base64-encoded image data.
+            media_type: MIME type (image/jpeg, image/png, image/webp).
+            system_prompt: System prompt with extraction instructions.
+            user_prompt: Specific extraction question.
+
+        Returns:
+            LLM text response with extracted information.
+
+        Raises:
+            ValueError: If the provider does not support vision.
+        """
+        if self.provider == "claude":
+            return await self._call_claude_vision(
+                image_base64, media_type, system_prompt, user_prompt,
+            )
+        elif self.provider == "openai":
+            return await self._call_openai_vision(
+                image_base64, media_type, system_prompt, user_prompt,
+            )
+        else:
+            raise ValueError(
+                f"Provider '{self.provider}' does not support vision. "
+                "Use 'claude' or 'openai'."
+            )
+
+    async def _call_claude_vision(
+        self,
+        image_base64: str,
+        media_type: str,
+        system_prompt: str,
+        user_prompt: str,
+    ) -> str:
+        """Call Claude API with image content block."""
+        try:
+            from anthropic import AsyncAnthropic
+        except ImportError:
+            raise ImportError(
+                "anthropic package not installed. Install with: pip install -e '.[rag]'"
+            )
+
+        client = AsyncAnthropic(api_key=self.api_key)
+        try:
+            response = await client.messages.create(
+                model=self.model,
+                max_tokens=4096,
+                system=system_prompt,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": media_type,
+                                    "data": image_base64,
+                                },
+                            },
+                            {
+                                "type": "text",
+                                "text": user_prompt,
+                            },
+                        ],
+                    },
+                ],
+            )
+            if not response.content:
+                raise ValueError("Claude vision returned an empty response")
+            return response.content[0].text
+        except Exception as e:
+            logger.error("Claude vision API call failed: %s", e)
+            raise
+
+    async def _call_openai_vision(
+        self,
+        image_base64: str,
+        media_type: str,
+        system_prompt: str,
+        user_prompt: str,
+    ) -> str:
+        """Call OpenAI API with image_url content part."""
+        try:
+            from openai import AsyncOpenAI
+        except ImportError:
+            raise ImportError(
+                "openai package not installed. Install with: pip install -e '.[rag]'"
+            )
+
+        client = AsyncOpenAI(api_key=self.api_key)
+        try:
+            response = await client.chat.completions.create(
+                model=self.model,
+                max_tokens=4096,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:{media_type};base64,{image_base64}",
+                                },
+                            },
+                            {
+                                "type": "text",
+                                "text": user_prompt,
+                            },
+                        ],
+                    },
+                ],
+            )
+            if not response.choices or not response.choices[0].message.content:
+                raise ValueError("OpenAI vision returned an empty response")
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error("OpenAI vision API call failed: %s", e)
             raise
 
     async def _call_mistral(self, system_prompt: str, user_message: str) -> str:
@@ -177,6 +312,8 @@ class LLMClient:
                     {"role": "user", "content": user_message},
                 ],
             )
+            if not response.choices or not response.choices[0].message.content:
+                raise ValueError("Mistral returned an empty response")
             return response.choices[0].message.content
         except Exception as e:
             logger.error("Mistral API call failed: %s", e)

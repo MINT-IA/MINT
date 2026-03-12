@@ -19,12 +19,21 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 /// Etat civil pour le coach
 enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
 
+/// Niveau de culture financiere de l'utilisateur.
+///
+/// Derive des 3 questions de calibrage en fin de StepQuestions.
+/// Score 0-1 → beginner, 2 → intermediate, 3 → advanced.
+/// Valeur par defaut : beginner (backward-compatible).
+enum FinancialLiteracyLevel { beginner, intermediate, advanced }
+
 /// Source d'une donnee financiere dans le profil.
 /// Permet de distinguer les valeurs saisies, estimees ou certifiees.
 enum ProfileDataSource {
-  estimated, // Defaut calcule par MINT
-  userInput, // Saisi manuellement
-  certificate, // Extrait d'un certificat scanne
+  estimated, // Defaut calcule par MINT (confiance 0.25)
+  userInput, // Saisi manuellement (confiance 0.60)
+  crossValidated, // Saisie + verification croisee (confiance 0.70)
+  certificate, // Extrait d'un certificat scanne (confiance 0.95)
+  openBanking, // Donnees bancaires live bLink/SFTI (confiance 1.00)
 }
 
 /// Type d'objectif principal (Goal A)
@@ -32,6 +41,36 @@ enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 
 /// Devise des investissements
 enum InvestmentCurrency { chf, usd, eur }
+
+/// Archetype financier de l'utilisateur.
+///
+/// Determine les calculs LPP/AVS/3a et les alertes pertinentes.
+/// Voir ADR-20260223-archetype-driven-retirement.md.
+enum FinancialArchetype {
+  /// Suisse natif, arrive avant 22 ans, bonifications LPP depuis 25 ans.
+  swissNative,
+
+  /// Expat EU/AELE, arrive apres 20 ans, totalisation periodes EU.
+  expatEu,
+
+  /// Expat hors EU, arrive apres 20 ans, pas de convention bilaterale.
+  expatNonEu,
+
+  /// US citizen/green card, FATCA, PFIC, double taxation.
+  expatUs,
+
+  /// Independant avec LPP (caisse facultative, solde reel).
+  independentWithLpp,
+
+  /// Independant sans LPP, 3a max = 36'288 CHF.
+  independentNoLpp,
+
+  /// Frontalier permis G, LPP suisse, impot source.
+  crossBorder,
+
+  /// Suisse de retour apres sejour a l'etranger, libre passage + lacunes.
+  returningSwiss,
+}
 
 // ════════════════════════════════════════════════════════════════
 //  SOUS-MODELES
@@ -51,6 +90,10 @@ class ConjointProfile {
   final bool canContribute3a; // false si FATCA resident (certains providers)
   final PrevoyanceProfile? prevoyance;
 
+  /// Patrimoine du conjoint (epargne, investissements).
+  /// Null si non renseigne — Liquidite axis sera sous-evalue.
+  final PatrimoineProfile? patrimoine;
+
   /// Age at which the conjoint arrived in Switzerland.
   /// If null, assumes contributions since age 20 (Swiss native).
   final int? arrivalAge;
@@ -58,6 +101,12 @@ class ConjointProfile {
   /// Target retirement age for the conjoint (58-70).
   /// Null means default (65 ans).
   final int? targetRetirementAge;
+
+  /// Invitation / linking level for couple data sharing.
+  /// - 'declared': user declared conjoint data manually (estimated confidence)
+  /// - 'invited': invitation sent (5 questions, no account needed)
+  /// - 'linked': both accounts linked (synced data)
+  final String invitationLevel;
 
   const ConjointProfile({
     this.firstName,
@@ -70,8 +119,10 @@ class ConjointProfile {
     this.isFatcaResident = false,
     this.canContribute3a = true,
     this.prevoyance,
+    this.patrimoine,
     this.arrivalAge,
     this.targetRetirementAge,
+    this.invitationLevel = 'declared',
   });
 
   /// Revenu brut annuel estime
@@ -98,37 +149,22 @@ class ConjointProfile {
     return (effectiveRetirementAge - a).clamp(0, 99);
   }
 
-  /// If FATCA resident but prevoyance.canContribute3a is still true,
-  /// returns a corrected copy with canContribute3a = false.
+  /// FATCA residents cannot contribute to 3a with most providers.
+  /// Only a minority (e.g. Raiffeisen) accepts US persons (LSFin compliance).
   static PrevoyanceProfile? _enforceFatca3a(
     bool isFatca,
     PrevoyanceProfile? prev,
   ) {
-    if (!isFatca || prev == null || !prev.canContribute3a) return prev;
-    return PrevoyanceProfile(
-      nomCaisse: prev.nomCaisse,
-      avoirLppObligatoire: prev.avoirLppObligatoire,
-      avoirLppSurobligatoire: prev.avoirLppSurobligatoire,
-      avoirLppTotal: prev.avoirLppTotal,
-      rachatMaximum: prev.rachatMaximum,
-      rachatEffectue: prev.rachatEffectue,
-      tauxConversion: prev.tauxConversion,
-      tauxConversionSuroblig: prev.tauxConversionSuroblig,
-      rendementCaisse: prev.rendementCaisse,
-      anneesContribuees: prev.anneesContribuees,
-      lacunesAVS: prev.lacunesAVS,
-      nombre3a: prev.nombre3a,
-      totalEpargne3a: prev.totalEpargne3a,
-      comptes3a: prev.comptes3a,
-      canContribute3a: false,
-    );
+    if (!isFatca || prev == null) return prev;
+    final json = prev.toJson();
+    json['canContribute3a'] = false;
+    return PrevoyanceProfile.fromJson(json);
   }
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
-    // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
-    final topCanContribute =
-        isFatca ? false : (json['canContribute3a'] ?? true);
+    // FATCA hard block: most providers refuse US persons (LSFin compliance).
+    final topCanContribute = json['canContribute3a'] ?? !isFatca;
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -145,8 +181,12 @@ class ConjointProfile {
       isFatcaResident: isFatca,
       canContribute3a: topCanContribute,
       prevoyance: prev,
+      patrimoine: json['patrimoine'] != null
+          ? PatrimoineProfile.fromJson(json['patrimoine'])
+          : null,
       arrivalAge: json['arrivalAge'] as int?,
       targetRetirementAge: json['targetRetirementAge'] as int?,
+      invitationLevel: json['invitationLevel'] as String? ?? 'declared',
     );
   }
 
@@ -161,8 +201,10 @@ class ConjointProfile {
         'isFatcaResident': isFatcaResident,
         'canContribute3a': canContribute3a,
         'prevoyance': prevoyance?.toJson(),
+        'patrimoine': patrimoine?.toJson(),
         'arrivalAge': arrivalAge,
         'targetRetirementAge': targetRetirementAge,
+        'invitationLevel': invitationLevel,
       };
 
   ConjointProfile copyWith({
@@ -176,11 +218,13 @@ class ConjointProfile {
     bool? isFatcaResident,
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
+    PatrimoineProfile? patrimoine,
     int? arrivalAge,
     int? targetRetirementAge,
+    String? invitationLevel,
   }) {
     final effectiveFatca = isFatcaResident ?? this.isFatcaResident;
-    // FATCA invariant: isFatcaResident=true → canContribute3a=false, always.
+    // FATCA hard block: US persons cannot contribute to 3a (LSFin compliance).
     final effectiveCan =
         effectiveFatca ? false : (canContribute3a ?? this.canContribute3a);
     final effectivePrev = _enforceFatca3a(
@@ -198,8 +242,10 @@ class ConjointProfile {
       isFatcaResident: effectiveFatca,
       canContribute3a: effectiveCan,
       prevoyance: effectivePrev,
+      patrimoine: patrimoine ?? this.patrimoine,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
+      invitationLevel: invitationLevel ?? this.invitationLevel,
     );
   }
 }
@@ -245,7 +291,7 @@ class PrevoyanceProfile {
     this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
-    this.tauxConversion = 0.068,
+    this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
     this.salaireAssure,
@@ -293,7 +339,7 @@ class PrevoyanceProfile {
           (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
-      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? 0.068,
+      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
@@ -407,6 +453,9 @@ class PatrimoineProfile {
   final double? mortgageRate;
   final double? monthlyRent;
 
+  // S45: Immobilier enrichi
+  final String? propertyDescription; // "Appt 4.5p, Sion (VS)"
+
   const PatrimoineProfile({
     this.epargneLiquide = 0,
     this.investissements = 0,
@@ -417,10 +466,29 @@ class PatrimoineProfile {
     this.mortgageBalance,
     this.mortgageRate,
     this.monthlyRent,
+    this.propertyDescription,
   });
 
+  /// Valeur immobilière effective (propertyMarketValue si renseigné, sinon legacy immobilier).
+  double get immobilierEffectif =>
+      propertyMarketValue ?? immobilier ?? 0;
+
+  /// Valeur nette immobilière = valeur marché - hypothèque restante.
+  double get immobilierNet =>
+      immobilierEffectif - (mortgageBalance ?? 0);
+
+  /// Loan-to-Value ratio (FINMA/ASB). 0 if no property.
+  double get loanToValue =>
+      immobilierEffectif > 0 ? (mortgageBalance ?? 0) / immobilierEffectif : 0;
+
+  /// Patrimoine brut total (liquidités + investissements + immobilier).
   double get totalPatrimoine =>
-      epargneLiquide + investissements + (immobilier ?? 0);
+      epargneLiquide + investissements + immobilierEffectif;
+
+  /// Patrimoine net (brut - dettes). Dettes passed via parameter since
+  /// PatrimoineProfile doesn't hold a reference to DetteProfile.
+  double patrimoineNet(double totalDettes) =>
+      totalPatrimoine - totalDettes;
 
   factory PatrimoineProfile.fromJson(Map<String, dynamic> json) {
     return PatrimoineProfile(
@@ -436,6 +504,7 @@ class PatrimoineProfile {
       mortgageBalance: (json['mortgageBalance'] as num?)?.toDouble(),
       mortgageRate: (json['mortgageRate'] as num?)?.toDouble(),
       monthlyRent: (json['monthlyRent'] as num?)?.toDouble(),
+      propertyDescription: json['propertyDescription'] as String?,
     );
   }
 
@@ -449,6 +518,7 @@ class PatrimoineProfile {
     double? mortgageBalance,
     double? mortgageRate,
     double? monthlyRent,
+    String? propertyDescription,
   }) {
     return PatrimoineProfile(
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
@@ -462,6 +532,7 @@ class PatrimoineProfile {
       mortgageBalance: mortgageBalance ?? this.mortgageBalance,
       mortgageRate: mortgageRate ?? this.mortgageRate,
       monthlyRent: monthlyRent ?? this.monthlyRent,
+      propertyDescription: propertyDescription ?? this.propertyDescription,
     );
   }
 
@@ -475,21 +546,50 @@ class PatrimoineProfile {
         'mortgageBalance': mortgageBalance,
         'mortgageRate': mortgageRate,
         'monthlyRent': monthlyRent,
+        'propertyDescription': propertyDescription,
       };
 }
 
-/// Dettes
+/// Dettes — enriched with rates, terms, monthly payments (S45).
+///
+/// Two categories:
+/// - Structural debt (hypothèque) — adossée à un actif, intérêts déductibles
+/// - Consumer debt (crédit conso, leasing) — priorité remboursement
 class DetteProfile {
   final double? creditConsommation;
   final double? leasing;
   final double? hypotheque;
   final double? autresDettes;
 
+  // S45: Enrichment fields (optional, progressively filled)
+  final double? tauxHypotheque; // Taux d'intérêt hypothécaire (%)
+  final double? tauxCreditConso; // Taux d'intérêt crédit conso (%)
+  final double? tauxLeasing; // Taux leasing (%)
+  final double? mensualiteHypotheque; // Charge mensuelle hypothèque
+  final double? mensualiteCreditConso; // Mensualité crédit conso
+  final double? mensualiteLeasing; // Mensualité leasing
+  final DateTime? echeanceHypotheque; // Échéance renouvellement hypo
+  final DateTime? echeanceCreditConso; // Fin de remboursement
+  final DateTime? echeanceLeasing; // Fin du leasing
+  final int? rangHypotheque; // 1er ou 2ème rang
+  final bool amortissementIndirect; // Via 3a (true) ou direct (false)
+
   const DetteProfile({
     this.creditConsommation,
     this.leasing,
     this.hypotheque,
     this.autresDettes,
+    this.tauxHypotheque,
+    this.tauxCreditConso,
+    this.tauxLeasing,
+    this.mensualiteHypotheque,
+    this.mensualiteCreditConso,
+    this.mensualiteLeasing,
+    this.echeanceHypotheque,
+    this.echeanceCreditConso,
+    this.echeanceLeasing,
+    this.rangHypotheque,
+    this.amortissementIndirect = false,
   });
 
   double get totalDettes =>
@@ -500,12 +600,98 @@ class DetteProfile {
 
   bool get hasDette => totalDettes > 0;
 
+  /// Total charge mensuelle de toutes les dettes.
+  double get totalMensualite =>
+      (mensualiteHypotheque ?? 0) +
+      (mensualiteCreditConso ?? 0) +
+      (mensualiteLeasing ?? 0);
+
+  /// Dettes "toxiques" (consommation) — priorité de remboursement.
+  double get detteConsommation =>
+      (creditConsommation ?? 0) + (leasing ?? 0);
+
+  /// Dettes structurelles (hypothèque) — adossées à un actif.
+  double get detteStructurelle => hypotheque ?? 0;
+
+  /// Taux le plus élevé parmi les dettes conso — cible de remboursement.
+  double? get tauxMaxConsommation {
+    final taux = <double>[];
+    if (tauxCreditConso != null && (creditConsommation ?? 0) > 0) {
+      taux.add(tauxCreditConso!);
+    }
+    if (tauxLeasing != null && (leasing ?? 0) > 0) taux.add(tauxLeasing!);
+    if (taux.isEmpty) return null;
+    return taux.reduce((a, b) => a > b ? a : b);
+  }
+
+  /// Intérêts hypothécaires annuels (déductibles fiscalement, LIFD art. 33).
+  double get interetsHypothecairesAnnuels =>
+      (hypotheque ?? 0) * (tauxHypotheque ?? 0) / 100;
+
   factory DetteProfile.fromJson(Map<String, dynamic> json) {
     return DetteProfile(
       creditConsommation: (json['creditConsommation'] as num?)?.toDouble(),
       leasing: (json['leasing'] as num?)?.toDouble(),
       hypotheque: (json['hypotheque'] as num?)?.toDouble(),
       autresDettes: (json['autresDettes'] as num?)?.toDouble(),
+      tauxHypotheque: (json['tauxHypotheque'] as num?)?.toDouble(),
+      tauxCreditConso: (json['tauxCreditConso'] as num?)?.toDouble(),
+      tauxLeasing: (json['tauxLeasing'] as num?)?.toDouble(),
+      mensualiteHypotheque:
+          (json['mensualiteHypotheque'] as num?)?.toDouble(),
+      mensualiteCreditConso:
+          (json['mensualiteCreditConso'] as num?)?.toDouble(),
+      mensualiteLeasing: (json['mensualiteLeasing'] as num?)?.toDouble(),
+      echeanceHypotheque: json['echeanceHypotheque'] != null
+          ? DateTime.tryParse(json['echeanceHypotheque'] as String)
+          : null,
+      echeanceCreditConso: json['echeanceCreditConso'] != null
+          ? DateTime.tryParse(json['echeanceCreditConso'] as String)
+          : null,
+      echeanceLeasing: json['echeanceLeasing'] != null
+          ? DateTime.tryParse(json['echeanceLeasing'] as String)
+          : null,
+      rangHypotheque: json['rangHypotheque'] as int?,
+      amortissementIndirect: json['amortissementIndirect'] as bool? ?? false,
+    );
+  }
+
+  DetteProfile copyWith({
+    double? creditConsommation,
+    double? leasing,
+    double? hypotheque,
+    double? autresDettes,
+    double? tauxHypotheque,
+    double? tauxCreditConso,
+    double? tauxLeasing,
+    double? mensualiteHypotheque,
+    double? mensualiteCreditConso,
+    double? mensualiteLeasing,
+    DateTime? echeanceHypotheque,
+    DateTime? echeanceCreditConso,
+    DateTime? echeanceLeasing,
+    int? rangHypotheque,
+    bool? amortissementIndirect,
+  }) {
+    return DetteProfile(
+      creditConsommation: creditConsommation ?? this.creditConsommation,
+      leasing: leasing ?? this.leasing,
+      hypotheque: hypotheque ?? this.hypotheque,
+      autresDettes: autresDettes ?? this.autresDettes,
+      tauxHypotheque: tauxHypotheque ?? this.tauxHypotheque,
+      tauxCreditConso: tauxCreditConso ?? this.tauxCreditConso,
+      tauxLeasing: tauxLeasing ?? this.tauxLeasing,
+      mensualiteHypotheque:
+          mensualiteHypotheque ?? this.mensualiteHypotheque,
+      mensualiteCreditConso:
+          mensualiteCreditConso ?? this.mensualiteCreditConso,
+      mensualiteLeasing: mensualiteLeasing ?? this.mensualiteLeasing,
+      echeanceHypotheque: echeanceHypotheque ?? this.echeanceHypotheque,
+      echeanceCreditConso: echeanceCreditConso ?? this.echeanceCreditConso,
+      echeanceLeasing: echeanceLeasing ?? this.echeanceLeasing,
+      rangHypotheque: rangHypotheque ?? this.rangHypotheque,
+      amortissementIndirect:
+          amortissementIndirect ?? this.amortissementIndirect,
     );
   }
 
@@ -514,6 +700,17 @@ class DetteProfile {
         'leasing': leasing,
         'hypotheque': hypotheque,
         'autresDettes': autresDettes,
+        'tauxHypotheque': tauxHypotheque,
+        'tauxCreditConso': tauxCreditConso,
+        'tauxLeasing': tauxLeasing,
+        'mensualiteHypotheque': mensualiteHypotheque,
+        'mensualiteCreditConso': mensualiteCreditConso,
+        'mensualiteLeasing': mensualiteLeasing,
+        'echeanceHypotheque': echeanceHypotheque?.toIso8601String(),
+        'echeanceCreditConso': echeanceCreditConso?.toIso8601String(),
+        'echeanceLeasing': echeanceLeasing?.toIso8601String(),
+        'rangHypotheque': rangHypotheque,
+        'amortissementIndirect': amortissementIndirect,
       };
 }
 
@@ -555,6 +752,26 @@ class DepensesProfile {
       telecom: (json['telecom'] as num?)?.toDouble(),
       fraisMedicaux: (json['fraisMedicaux'] as num?)?.toDouble(),
       autresDepensesFixes: (json['autresDepensesFixes'] as num?)?.toDouble(),
+    );
+  }
+
+  DepensesProfile copyWith({
+    double? loyer,
+    double? assuranceMaladie,
+    double? electricite,
+    double? transport,
+    double? telecom,
+    double? fraisMedicaux,
+    double? autresDepensesFixes,
+  }) {
+    return DepensesProfile(
+      loyer: loyer ?? this.loyer,
+      assuranceMaladie: assuranceMaladie ?? this.assuranceMaladie,
+      electricite: electricite ?? this.electricite,
+      transport: transport ?? this.transport,
+      telecom: telecom ?? this.telecom,
+      fraisMedicaux: fraisMedicaux ?? this.fraisMedicaux,
+      autresDepensesFixes: autresDepensesFixes ?? this.autresDepensesFixes,
     );
   }
 
@@ -652,6 +869,12 @@ class MonthlyCheckIn {
   final String? note;
   final DateTime completedAt;
 
+  /// FRI score snapshot at check-in time (0-100). Null for legacy check-ins.
+  final double? friScore;
+
+  /// Financial Fitness Score at check-in time (0-100). Null for legacy check-ins.
+  final int? fitnessScore;
+
   const MonthlyCheckIn({
     required this.month,
     required this.versements,
@@ -659,6 +882,8 @@ class MonthlyCheckIn {
     this.revenusExceptionnels,
     this.note,
     required this.completedAt,
+    this.friScore,
+    this.fitnessScore,
   });
 
   /// Total des versements du mois
@@ -678,6 +903,8 @@ class MonthlyCheckIn {
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
       completedAt: DateTime.parse(json['completedAt']),
+      friScore: (json['friScore'] as num?)?.toDouble(),
+      fitnessScore: json['fitnessScore'] as int?,
     );
   }
 
@@ -688,6 +915,8 @@ class MonthlyCheckIn {
         'revenusExceptionnels': revenusExceptionnels,
         'note': note,
         'completedAt': completedAt.toIso8601String(),
+        'friScore': friScore,
+        'fitnessScore': fitnessScore,
       };
 }
 
@@ -835,6 +1064,21 @@ class CoachProfile {
   /// Ex: {'prevoyance.avoirLppTotal': ProfileDataSource.certificate}
   final Map<String, ProfileDataSource> dataSources;
 
+  /// Per-field update timestamps for freshness scoring (S46).
+  /// Key = same field path as dataSources, value = when the value was last set.
+  /// Fields absent from this map default to profile.createdAt for decay calc.
+  final Map<String, DateTime> dataTimestamps;
+
+  // === CALIBRAGE ===
+  /// Niveau de culture financiere, derive des 3 questions de calibrage
+  /// en fin d'onboarding. Backward-compatible : absent → beginner.
+  final FinancialLiteracyLevel financialLiteracyLevel;
+
+  /// User's primary focus/intention — drives adaptive Pulse hero.
+  /// Set during onboarding FocusSelector, changeable from Pulse.
+  /// Format: '{category}_{subcategory}' e.g. 'proteger_retraite'.
+  final String? primaryFocus;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
@@ -866,8 +1110,11 @@ class CoachProfile {
     this.targetRetirementAge,
     this.initialProjectionSnapshot,
     Map<String, ProfileDataSource> dataSources = const {},
+    this.dataTimestamps = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
+    this.primaryFocus,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
@@ -876,8 +1123,6 @@ class CoachProfile {
     Map<String, ProfileDataSource> provided,
     PrevoyanceProfile prevoyance,
   ) {
-    if (provided.isNotEmpty) return provided;
-
     final inferred = <String, ProfileDataSource>{};
 
     // LPP source inference: split fields / insured salary indicate
@@ -921,7 +1166,8 @@ class CoachProfile {
           ProfileDataSource.certificate;
     }
 
-    return inferred;
+    // Merge: provided entries (e.g. fiscal from extraction) win over inferred
+    return {...inferred, ...provided};
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1043,6 +1289,48 @@ class CoachProfile {
           c.category == 'epargne_libre' || c.category == 'investissement')
       .fold(0.0, (sum, c) => sum + c.amount);
 
+  /// Detecte l'archetype financier de l'utilisateur.
+  ///
+  /// Basee sur nationalite, arrivalAge, employmentStatus, residencePermit.
+  /// Voir ADR-20260223-archetype-driven-retirement.md.
+  FinancialArchetype get archetype {
+    // Cross-border: permis G
+    if (residencePermit == 'G') return FinancialArchetype.crossBorder;
+
+    // US citizen / FATCA
+    if (nationality == 'US') return FinancialArchetype.expatUs;
+
+    // Independent (check LPP status)
+    if (employmentStatus == 'independant') {
+      final hasLpp = prevoyance.avoirLppTotal != null &&
+          prevoyance.avoirLppTotal! > 0;
+      return hasLpp
+          ? FinancialArchetype.independentWithLpp
+          : FinancialArchetype.independentNoLpp;
+    }
+
+    // Swiss native: nationality CH and arrived before 22 (or no arrival age)
+    final isSwiss = nationality == null || nationality == 'CH';
+    final arrivedEarly = arrivalAge == null || arrivalAge! < 22;
+
+    if (isSwiss && arrivedEarly) return FinancialArchetype.swissNative;
+
+    // Swiss returning after time abroad
+    if (isSwiss && !arrivedEarly) return FinancialArchetype.returningSwiss;
+
+    // EU/AELE expat
+    const euCountries = {
+      'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+      'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU',
+      'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+    };
+    if (nationality != null && euCountries.contains(nationality)) {
+      return FinancialArchetype.expatEu;
+    }
+
+    return FinancialArchetype.expatNonEu;
+  }
+
   /// Est-ce un profil couple ?
   bool get isCouple =>
       etatCivil == CoachCivilStatus.marie ||
@@ -1081,8 +1369,11 @@ class CoachProfile {
     int? targetRetirementAge,
     Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
+    Map<String, DateTime>? dataTimestamps,
     DateTime? createdAt,
     DateTime? updatedAt,
+    FinancialLiteracyLevel? financialLiteracyLevel,
+    String? primaryFocus,
   }) {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -1116,8 +1407,12 @@ class CoachProfile {
       initialProjectionSnapshot:
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
       dataSources: dataSources ?? this.dataSources,
+      dataTimestamps: dataTimestamps ?? this.dataTimestamps,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      financialLiteracyLevel:
+          financialLiteracyLevel ?? this.financialLiteracyLevel,
+      primaryFocus: primaryFocus ?? this.primaryFocus,
     );
   }
 
@@ -1301,10 +1596,19 @@ class CoachProfile {
             ),
           ) ??
           const {},
+      dataTimestamps: (json['dataTimestamps'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, DateTime.parse(v as String)),
+          ) ??
+          const {},
       createdAt:
           json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt:
           json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
+        (e) => e.name == json['financialLiteracyLevel'],
+        orElse: () => FinancialLiteracyLevel.beginner,
+      ),
+      primaryFocus: json['primaryFocus'] as String?,
     );
   }
 
@@ -1340,8 +1644,12 @@ class CoachProfile {
         'targetRetirementAge': targetRetirementAge,
         'initialProjectionSnapshot': initialProjectionSnapshot,
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
+        'dataTimestamps': dataTimestamps.map(
+            (k, v) => MapEntry(k, v.toIso8601String())),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        'financialLiteracyLevel': financialLiteracyLevel.name,
+        'primaryFocus': primaryFocus,
       };
 
   // ════════════════════════════════════════════════════════════════
@@ -1379,12 +1687,17 @@ class CoachProfile {
     } else {
       monthlyNetIncome = netIncome;
     }
-    // Net → Brut estimation: Swiss social charges ≈ 13%
+    // Prefer direct gross salary when stored by updateFromSmartFlow
+    // (avoids net→gross roundtrip rounding: 120'000 → net → 113'793 brut).
+    // Fallback: net → brut via Swiss social charges ≈ 13%.
     // (AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1% ≈ 12.5%, arrondi 13%)
     // Source: OFAS barème cotisations 2025. Ceci est une estimation;
     // le taux réel dépend du plan LPP et du canton.
     const double socialChargesRate = 0.13;
-    final salaireBrutMensuel = monthlyNetIncome / (1 - socialChargesRate);
+    final grossSalaryDirect = _parseDouble(answers['q_gross_salary_annual']);
+    final salaireBrutMensuel = grossSalaryDirect != null
+        ? grossSalaryDirect / 12
+        : monthlyNetIncome / (1 - socialChargesRate);
 
     // Employment status mapping
     final employmentRaw = answers['q_employment_status'] as String?;
@@ -1411,13 +1724,20 @@ class CoachProfile {
     final otherFixed = _parseDouble(answers['q_other_fixed_costs_monthly_chf']);
     final debtPayments = _parseDouble(answers['q_debt_payments_period_chf']);
 
+    // _coach_depenses_* keys are written by updateInline() for fields that
+    // have no canonical wizard question (electricite, transport, telecom,
+    // fraisMedicaux, autresDepensesFixes). They survive app restarts.
     final depenses = DepensesProfile(
       loyer: monthlyHousing,
       assuranceMaladie: assuranceMaladie,
-      autresDepensesFixes:
-          (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
+      electricite: _parseDouble(answers['_coach_depenses_electricite']),
+      transport: _parseDouble(answers['_coach_depenses_transport']),
+      telecom: _parseDouble(answers['_coach_depenses_telecom']),
+      fraisMedicaux: _parseDouble(answers['_coach_depenses_frais_medicaux']),
+      autresDepensesFixes: _parseDouble(answers['_coach_depenses_autres']) ??
+          ((taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
               ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
-              : null,
+              : null),
     );
 
     // ── Prevoyance ──────────────────────────────────────────
@@ -1463,6 +1783,8 @@ class CoachProfile {
         _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
     final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
+    final coachRendementCaisse =
+        _parseDouble(answers['_coach_rendement_caisse']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
     final coachAvsRenteEstimee =
         _parseDouble(answers['_coach_avs_rente_estimee']);
@@ -1499,9 +1821,10 @@ class CoachProfile {
       avoirLppTotal: estimatedLpp,
       avoirLppObligatoire: coachAvoirLppOblig,
       avoirLppSurobligatoire: coachAvoirLppSuroblig,
-      tauxConversion: coachTauxConversion ?? 0.068,
+      tauxConversion: coachTauxConversion ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
+      rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
@@ -1556,7 +1879,25 @@ class CoachProfile {
     final hasDebt = _parseBool(answers['q_has_consumer_debt']);
     final debtPaymentsMonthly =
         _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
+    // _coach_dettes_* keys are written by updateInline() and survive restarts.
+    // They override the wizard proxy estimates (debtPayments × 24 heuristic).
+    final inlineHypotheque = _parseDouble(answers['_coach_dettes_hypotheque']);
+    final inlineCreditConso = _parseDouble(answers['_coach_dettes_credit']);
+    final inlineLeasing = _parseDouble(answers['_coach_dettes_leasing']);
+    final inlineAutresDettes = _parseDouble(answers['_coach_dettes_autres']);
+    final hasInlineDettes = inlineHypotheque != null ||
+        inlineCreditConso != null ||
+        inlineLeasing != null ||
+        inlineAutresDettes != null;
     final dettes = (() {
+      if (hasInlineDettes) {
+        return DetteProfile(
+          hypotheque: inlineHypotheque,
+          creditConsommation: inlineCreditConso,
+          leasing: inlineLeasing,
+          autresDettes: inlineAutresDettes,
+        );
+      }
       if (debtPaymentsMonthly > 0) {
         // Proxy conservateur: principal restant ≈ 24 mois de mensualités.
         return DetteProfile(creditConsommation: debtPaymentsMonthly * 24);
@@ -1668,6 +2009,28 @@ class CoachProfile {
       }
     }
 
+    // Restore inline-edited rachat LPP mensuel (persisted by updateInline).
+    // Overwrites any wizard-derived lpp_buyback_user contribution so the
+    // user's manual value always wins after an inline edit.
+    final coachRachatLppMensuel =
+        _parseDouble(answers['_coach_rachat_lpp_mensuel']);
+    if (coachRachatLppMensuel != null && coachRachatLppMensuel > 0) {
+      final idx =
+          contributions.indexWhere((c) => c.id == 'lpp_buyback_user');
+      if (idx >= 0) {
+        contributions[idx] =
+            contributions[idx].copyWith(amount: coachRachatLppMensuel);
+      } else {
+        contributions.add(PlannedMonthlyContribution(
+          id: 'lpp_buyback_user',
+          label: 'Rachat LPP',
+          amount: coachRachatLppMensuel,
+          category: 'lpp_buyback',
+          isAutomatic: false,
+        ));
+      }
+    }
+
     // ── Conjoint (partner) data from onboarding ────────────
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
@@ -1728,8 +2091,7 @@ class CoachProfile {
       final conjIsFatca = conjNationality == 'US';
 
       // === Conjoint prevoyance profile ===
-      // Propagate FATCA → canContribute3a on PrevoyanceProfile
-      // (canonical source for all engines)
+      // FATCA hard block: most providers refuse US persons (LSFin compliance).
       final conjointPrevoyance = PrevoyanceProfile(
         lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,
@@ -1755,6 +2117,67 @@ class CoachProfile {
 
     // ── Family change persiste par annual refresh ─────────
     final familyChange = answers['_coach_family_change'] as String?;
+
+    // ── Fiscal dataSources (restored from persisted extraction) ──
+    final restoredDataSources = <String, ProfileDataSource>{};
+    if (answers['_coach_tax_source'] == 'document_scan') {
+      if (answers['_coach_tax_revenu_imposable'] != null) {
+        restoredDataSources['fiscal.revenuImposable'] =
+            ProfileDataSource.certificate;
+      }
+      if (answers['_coach_tax_fortune_imposable'] != null) {
+        restoredDataSources['fiscal.fortuneImposable'] =
+            ProfileDataSource.certificate;
+      }
+      if (answers['_coach_tax_taux_marginal'] != null) {
+        restoredDataSources['fiscal.tauxMarginal'] =
+            ProfileDataSource.certificate;
+      }
+      if (answers['_coach_tax_impot_cantonal'] != null ||
+          answers['_coach_tax_impot_federal'] != null) {
+        restoredDataSources['fiscal.impots'] = ProfileDataSource.certificate;
+      }
+    }
+
+    // S47: Build initial dataTimestamps for all populated fields.
+    // Use persisted updatedAt as base (reflects when data was actually entered),
+    // falling back to now for first-time creation.
+    final baseTimestamp = savedUpdatedAt != null
+        ? (DateTime.tryParse(savedUpdatedAt) ?? DateTime.now())
+        : DateTime.now();
+    final initialTimestamps = <String, DateTime>{
+      'salaireBrutMensuel': baseTimestamp,
+      'age': baseTimestamp,
+      'canton': baseTimestamp,
+      'etatCivil': baseTimestamp,
+      if (prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0)
+        'prevoyance.avoirLppTotal': baseTimestamp,
+      if (prevoyance.totalEpargne3a > 0)
+        'prevoyance.totalEpargne3a': baseTimestamp,
+      if (prevoyance.anneesContribuees != null)
+        'prevoyance.anneesContribuees': baseTimestamp,
+      if (prevoyance.renteAVSEstimeeMensuelle != null)
+        'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
+      // tauxConversion is always set (non-null double with default)
+      'prevoyance.tauxConversion': baseTimestamp,
+      'patrimoine.epargneLiquide': baseTimestamp,
+      if (patrimoine.investissements > 0)
+        'patrimoine.investissements': baseTimestamp,
+      if (depenses.loyer > 0) 'depenses.loyer': baseTimestamp,
+      if (depenses.assuranceMaladie > 0)
+        'depenses.assuranceMaladie': baseTimestamp,
+    };
+
+    // Restore persisted timestamps from answers (written by updateInline /
+    // extraction methods). These override the base timestamp for fields that
+    // were individually refreshed.
+    final persistedTs = answers['_coach_data_timestamps'];
+    if (persistedTs is Map) {
+      for (final entry in persistedTs.entries) {
+        final dt = DateTime.tryParse(entry.value.toString());
+        if (dt != null) initialTimestamps[entry.key.toString()] = dt;
+      }
+    }
 
     return CoachProfile(
       firstName: firstName,
@@ -1786,6 +2209,15 @@ class CoachProfile {
           savedUpdatedAt != null ? DateTime.tryParse(savedUpdatedAt) : null,
       createdAt:
           savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
+      dataSources: restoredDataSources,
+      dataTimestamps: initialTimestamps,
+      financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
+        (e) =>
+            e.name ==
+            answers['_coach_financial_literacy_level'],
+        orElse: () => FinancialLiteracyLevel.beginner,
+      ),
+      primaryFocus: answers['q_primary_focus'] as String?,
     );
   }
 
@@ -2038,7 +2470,6 @@ class CoachProfile {
           avoirLppTotal: 50000,
           rachatMaximum: 50000,
           rachatEffectue: 0,
-          tauxConversion: 0.068,
           rendementCaisse: 0.015,
           nombre3a: 0,
           totalEpargne3a: 0,
@@ -2064,7 +2495,6 @@ class CoachProfile {
         avoirLppTotal: 300000,
         rachatMaximum: 300000,
         rachatEffectue: 0,
-        tauxConversion: 0.068,
         rendementCaisse: 0.02,
         nombre3a: 5,
         totalEpargne3a: 35000,
