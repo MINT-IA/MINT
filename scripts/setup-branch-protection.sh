@@ -37,7 +37,7 @@ cat > "$TMPFILE" << 'ENDJSON'
 }
 ENDJSON
 
-for branch in dev staging main; do
+for branch in staging main; do
   echo ""
   echo "Setting up branch protection on '${branch}'..."
   gh api \
@@ -46,6 +46,17 @@ for branch in dev staging main; do
     --input "$TMPFILE"
   echo "  Done: '${branch}' protected."
 done
+
+# ─── Dev branch: allow direct push, block force-push ─────────────
+echo ""
+echo "Configuring dev branch: allow direct push, block force-push..."
+gh api \
+  --method PUT \
+  "repos/${REPO}/branches/dev/protection" \
+  --input "$TMPFILE" \
+  --field required_pull_request_reviews=null \
+  --field required_status_checks=null
+echo "  Done: dev branch allows direct push, force-push blocked."
 
 # ─── Auto-delete head branches ────────────────────────────────
 echo ""
@@ -58,9 +69,8 @@ gh api \
 
 echo ""
 echo "Done. Protection rules on dev, staging, main:"
-echo "  - PR required (no direct push)"
-echo "  - CI Gate must pass before merge"
-echo "  - Force-push blocked"
+echo "  - dev: direct push allowed, force-push blocked"
+echo "  - staging/main: PR required, CI Gate must pass, force-push blocked"
 echo "  - Merged branches auto-deleted"
 echo ""
-echo "To test: try 'git push origin dev' directly — it should be rejected."
+echo "To test: try 'git push origin dev' directement — il doit passer (force-push toujours bloqué)."
