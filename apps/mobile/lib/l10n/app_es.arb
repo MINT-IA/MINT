@@ -4304,5 +4304,90 @@
   "landingWhyNobody": "Lo que no entiendes te sale caro. Cada año.",
   "landingMintDoesIt": "MINT lo hace.",
   "landingCtaCommencer": "Empezar",
-  "landingLegalFooterShort": "Herramienta educativa. No constituye asesoramiento financiero (LSFin). Datos en tu dispositivo."
+  "landingLegalFooterShort": "Herramienta educativa. No constituye asesoramiento financiero (LSFin). Datos en tu dispositivo.",
+
+  "pulseDigitalTwinPct": "Gemelo digital: {pct}%",
+  "@pulseDigitalTwinPct": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "pulseDigitalTwinHint": "Cuanto más completo sea tu perfil, más fiables serán tus proyecciones.",
+  "pulseActionsThisMonth": "Pendiente este mes",
+  "pulseHeroChangeBtn": "Cambiar",
+  "pulseCoachInsightTitle": "Análisis del coach",
+  "pulseRefineProfile": "Perfeccionar mi perfil",
+  "pulseWhatIf3aQuestion": "¿Y si aportaras el máximo al 3a?",
+  "pulseWhatIf3aImpact": "−CHF {amount}/año de impuestos",
+  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfLppQuestion": "¿Y si hicieras una compra LPP?",
+  "pulseWhatIfLppImpact": "Hasta −CHF {amount} de impuestos",
+  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfEarlyQuestion": "¿Y si te jubilaras 1 año antes?",
+  "pulseWhatIfEarlyImpact": "−CHF {amount}/mes de pensión",
+  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseActionSignalSingular": "1 acción pendiente",
+  "pulseActionSignalPlural": "{count} acciones pendientes",
+  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "agirTopActionCta": "Empezar",
+  "agirOtherActions": "{count} otras acciones",
+  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "exploreSuggestionLabel": "Sugerencia para ti",
+  "exploreSuggestion3aTitle": "Pilar 3a: tu primera palanca fiscal",
+  "exploreSuggestion3aSub": "Descubre cuánto puedes ahorrar en impuestos",
+  "exploreSuggestionLppTitle": "Recompra LPP: ¿una oportunidad?",
+  "exploreSuggestionLppSub": "Simula el impacto en tu jubilación e impuestos",
+  "exploreSuggestionRetirementTitle": "Tu jubilación se acerca",
+  "exploreSuggestionRetirementSub": "¿Renta, capital o mixto? Compara las opciones",
+  "exploreSuggestionBudgetTitle": "Empieza con tu presupuesto",
+  "exploreSuggestionBudgetSub": "3 minutos para ver a dónde va tu dinero",
+  "pulseReadinessTitle": "Forma financiera",
+  "pulseReadinessGood": "Buena preparación",
+  "pulseReadinessProgress": "En progreso",
+  "pulseReadinessWeak": "A reforzar",
+  "pulseReadinessRetireIn": "Jubilación en {years} años",
+  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessYearsToAct": "Aún {years} años para actuar",
+  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessActNow": "Lo esencial ocurre ahora",
+  "agirBudgetNet": "Neto",
+  "agirBudgetFixed": "Fijos",
+  "agirBudgetAvailable": "Disponible",
+  "agirBudgetSaved": "Aportado",
+  "agirBudgetRemaining": "Resto",
+  "agirBudgetWarning": "Tus aportaciones superan tu presupuesto disponible",
+  "enrichmentCtaScan": "Escanear un documento",
+  "enrichmentCtaMissing": "{count} campo(s) por completar",
+  "@enrichmentCtaMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapTitle": "En la jubilación, te faltará",
+  "heroGapCovered": "Estás bien cubierto/a",
+  "heroGapPerMonth": "/mes",
+  "heroGapToday": "Hoy",
+  "heroGapRetirement": "Jubilación",
+  "heroGapConfidence": "Confianza",
+  "heroGapScanCta": "Escanear certificado LPP",
+  "heroGapBoost": "+{percent}\u00a0% precisión",
+  "@heroGapBoost": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapMetaphor5k": "Es como pasar de un piso de 5 habitaciones a un estudio",
+  "heroGapMetaphor3k": "Es como renunciar a tu coche y tus vacaciones",
+  "heroGapMetaphor1k": "Es como dejar de ir a restaurantes",
+  "heroGapMetaphorSmall": "Es un café al día de diferencia",
+  "drawerCeQueTuAs": "Lo que tienes",
+  "drawerCeQueTuAsSubtitle": "Patrimonio neto",
+  "drawerCeQueTuDois": "Lo que debes",
+  "drawerCeQueTuDoisSubtitle": "Deuda total",
+  "drawerCeQueTuAuras": "Lo que tendrás",
+  "drawerCeQueTuAurasSubtitle": "Ingreso de jubilación proyectado"
 }

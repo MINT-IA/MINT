@@ -4304,5 +4304,90 @@
   "landingWhyNobody": "Was du nicht verstehst, kostet dich. Jedes Jahr.",
   "landingMintDoesIt": "MINT tut es.",
   "landingCtaCommencer": "Loslegen",
-  "landingLegalFooterShort": "Bildungstool. Keine Finanzberatung (FIDLEG). Daten auf deinem Gerät."
+  "landingLegalFooterShort": "Bildungstool. Keine Finanzberatung (FIDLEG). Daten auf deinem Gerät.",
+
+  "pulseDigitalTwinPct": "Digitaler Zwilling: {pct}%",
+  "@pulseDigitalTwinPct": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "pulseDigitalTwinHint": "Je vollständiger dein Profil, desto zuverlässiger deine Projektionen.",
+  "pulseActionsThisMonth": "Diesen Monat erledigen",
+  "pulseHeroChangeBtn": "Ändern",
+  "pulseCoachInsightTitle": "Einsicht des Coaches",
+  "pulseRefineProfile": "Profil verfeinern",
+  "pulseWhatIf3aQuestion": "Was, wenn du das 3a-Maximum einzahlst?",
+  "pulseWhatIf3aImpact": "−CHF {amount}/Jahr Steuern",
+  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfLppQuestion": "Was, wenn du BVG-Einkäufe tätigst?",
+  "pulseWhatIfLppImpact": "Bis zu −CHF {amount} Steuern",
+  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfEarlyQuestion": "Was, wenn du 1 Jahr früher in Rente gehst?",
+  "pulseWhatIfEarlyImpact": "−CHF {amount}/Monat Rente",
+  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseActionSignalSingular": "1 Aktion zu erledigen",
+  "pulseActionSignalPlural": "{count} Aktionen zu erledigen",
+  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "agirTopActionCta": "Loslegen",
+  "agirOtherActions": "{count} weitere Aktionen",
+  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "exploreSuggestionLabel": "Vorschlag für dich",
+  "exploreSuggestion3aTitle": "Säule 3a: dein erster Steuerhebel",
+  "exploreSuggestion3aSub": "Finde heraus, wie viel Steuern du sparen kannst",
+  "exploreSuggestionLppTitle": "BVG-Einkauf: eine Chance?",
+  "exploreSuggestionLppSub": "Simuliere die Auswirkung auf Rente und Steuern",
+  "exploreSuggestionRetirementTitle": "Deine Pensionierung rückt näher",
+  "exploreSuggestionRetirementSub": "Rente, Kapital oder Mix? Vergleiche die Optionen",
+  "exploreSuggestionBudgetTitle": "Beginne mit deinem Budget",
+  "exploreSuggestionBudgetSub": "3 Minuten um zu sehen wohin dein Geld geht",
+  "pulseReadinessTitle": "Finanzielle Fitness",
+  "pulseReadinessGood": "Gut vorbereitet",
+  "pulseReadinessProgress": "In Entwicklung",
+  "pulseReadinessWeak": "Zu stärken",
+  "pulseReadinessRetireIn": "Pensionierung in {years} Jahren",
+  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessYearsToAct": "Noch {years} Jahre zum Handeln",
+  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessActNow": "Das Wesentliche passiert jetzt",
+  "agirBudgetNet": "Netto",
+  "agirBudgetFixed": "Fixkosten",
+  "agirBudgetAvailable": "Verfügbar",
+  "agirBudgetSaved": "Gespart",
+  "agirBudgetRemaining": "Rest",
+  "agirBudgetWarning": "Deine Beiträge übersteigen dein verfügbares Budget",
+  "enrichmentCtaScan": "Dokument scannen",
+  "enrichmentCtaMissing": "{count} Feld(er) zu vervollständigen",
+  "@enrichmentCtaMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapTitle": "Im Ruhestand wird dir fehlen",
+  "heroGapCovered": "Du bist gut abgesichert",
+  "heroGapPerMonth": "/Monat",
+  "heroGapToday": "Heute",
+  "heroGapRetirement": "Rente",
+  "heroGapConfidence": "Vertrauen",
+  "heroGapScanCta": "BVG-Ausweis scannen",
+  "heroGapBoost": "+{percent}\u00a0% Genauigkeit",
+  "@heroGapBoost": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapMetaphor5k": "Das ist wie vom 5-Zimmer-Apartment ins Studio zu ziehen",
+  "heroGapMetaphor3k": "Das ist wie auf Auto und Ferien zu verzichten",
+  "heroGapMetaphor1k": "Das ist wie die Restaurantbesuche zu streichen",
+  "heroGapMetaphorSmall": "Das ist ein Kaffee pro Tag Unterschied",
+  "drawerCeQueTuAs": "Was du hast",
+  "drawerCeQueTuAsSubtitle": "Nettovermögen",
+  "drawerCeQueTuDois": "Was du schuldest",
+  "drawerCeQueTuDoisSubtitle": "Gesamtschulden",
+  "drawerCeQueTuAuras": "Was du haben wirst",
+  "drawerCeQueTuAurasSubtitle": "Projiziertes Renteneinkommen"
 }

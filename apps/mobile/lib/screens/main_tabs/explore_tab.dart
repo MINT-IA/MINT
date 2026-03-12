@@ -83,6 +83,8 @@ class _ExploreTabState extends State<ExploreTab>
             padding: const EdgeInsets.all(24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Contextual suggestion based on profile
+                _buildContextualSuggestion(context),
                 _staggeredEntry(
                     index: 0, child: _buildComprendreSection(context)),
                 const SizedBox(height: 28),
@@ -910,6 +912,127 @@ class _ExploreTabState extends State<ExploreTab>
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  // ── CONTEXTUAL SUGGESTION ────────────────────────────────
+  // One personalized suggestion at the top, based on profile state.
+
+  Widget _buildContextualSuggestion(BuildContext context) {
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final profile = coachProvider.profile;
+    if (profile == null) return const SizedBox.shrink();
+
+    final l10n = S.of(context);
+
+    // Pick the most relevant suggestion
+    String title;
+    String subtitle;
+    IconData icon;
+    Color color;
+    String route;
+
+    final age = DateTime.now().year - profile.birthYear;
+    final has3a = profile.prevoyance.totalEpargne3a > 0;
+    final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
+
+    if (!has3a && age < 55) {
+      // No 3a → suggest 3a simulator
+      title = l10n?.exploreSuggestion3aTitle ?? 'Le 3a : ton premier levier fiscal';
+      subtitle = l10n?.exploreSuggestion3aSub ?? 'Découvre combien tu peux économiser d\'impôts';
+      icon = Icons.savings_outlined;
+      color = MintColors.success;
+      route = '/simulator/3a';
+    } else if (hasLpp && (profile.prevoyance.rachatMaximum ?? 0) > 20000) {
+      // Has LPP with buyback potential → suggest LPP deep
+      title = l10n?.exploreSuggestionLppTitle ?? 'Rachat LPP : une opportunité\u00a0?';
+      subtitle = l10n?.exploreSuggestionLppSub ?? 'Simule l\'impact sur ta retraite et tes impôts';
+      icon = Icons.account_balance_outlined;
+      color = MintColors.cyan;
+      route = '/lpp-deep/rachat';
+    } else if (age >= 50) {
+      // Over 50 → retirement planning
+      title = l10n?.exploreSuggestionRetirementTitle ?? 'Ta retraite approche';
+      subtitle = l10n?.exploreSuggestionRetirementSub ?? 'Rente, capital ou mix\u00a0? Compare les options';
+      icon = Icons.beach_access_outlined;
+      color = MintColors.purple;
+      route = '/retirement';
+    } else {
+      // Default: budget
+      title = l10n?.exploreSuggestionBudgetTitle ?? 'Commence par ton budget';
+      subtitle = l10n?.exploreSuggestionBudgetSub ?? '3 minutes pour voir où va ton argent';
+      icon = Icons.account_balance_wallet_outlined;
+      color = MintColors.warning;
+      route = '/budget';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: GestureDetector(
+        onTap: () => context.push(route),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withValues(alpha: 0.08),
+                color.withValues(alpha: 0.03),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n?.exploreSuggestionLabel ?? 'Suggestion pour toi',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      title,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: color, size: 20),
+            ],
+          ),
+        ),
       ),
     );
   }

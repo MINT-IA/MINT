@@ -142,7 +142,7 @@ class PulseHeroEngine {
       subtitle: 'disparaissent de ton salaire avant même d\'arriver.',
       detail: 'AVS, LPP, AC, impôts — découvre où va chaque franc.',
       ctaLabel: 'Comprendre ma fiche',
-      ctaRoute: '/tools',
+      ctaRoute: '/profile/bilan',
       icon: Icons.receipt_long_outlined,
       color: MintColors.info,
     );

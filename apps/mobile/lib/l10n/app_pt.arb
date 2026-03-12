@@ -4304,5 +4304,90 @@
   "landingWhyNobody": "O que não entendes custa-te. Todos os anos.",
   "landingMintDoesIt": "MINT fá-lo.",
   "landingCtaCommencer": "Começar",
-  "landingLegalFooterShort": "Ferramenta educativa. Não constitui aconselhamento financeiro (LSFin). Dados no teu dispositivo."
+  "landingLegalFooterShort": "Ferramenta educativa. Não constitui aconselhamento financeiro (LSFin). Dados no teu dispositivo.",
+
+  "pulseDigitalTwinPct": "Gémeo digital: {pct}%",
+  "@pulseDigitalTwinPct": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "pulseDigitalTwinHint": "Quanto mais completo o teu perfil, mais fiáveis as projeções.",
+  "pulseActionsThisMonth": "Para fazer este mês",
+  "pulseHeroChangeBtn": "Mudar",
+  "pulseCoachInsightTitle": "A análise do coach",
+  "pulseRefineProfile": "Refinar meu perfil",
+  "pulseWhatIf3aQuestion": "E se contribuísses o máximo no 3a?",
+  "pulseWhatIf3aImpact": "−CHF {amount}/ano de impostos",
+  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfLppQuestion": "E se fizesses um resgate LPP?",
+  "pulseWhatIfLppImpact": "Até −CHF {amount} de impostos",
+  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfEarlyQuestion": "E se te reformasses 1 ano mais cedo?",
+  "pulseWhatIfEarlyImpact": "−CHF {amount}/mês de pensão",
+  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseActionSignalSingular": "1 ação a fazer",
+  "pulseActionSignalPlural": "{count} ações a fazer",
+  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "agirTopActionCta": "Começar",
+  "agirOtherActions": "{count} outras ações",
+  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "exploreSuggestionLabel": "Sugestão para ti",
+  "exploreSuggestion3aTitle": "Pilar 3a: a tua primeira alavanca fiscal",
+  "exploreSuggestion3aSub": "Descobre quanto podes poupar em impostos",
+  "exploreSuggestionLppTitle": "Resgate LPP: uma oportunidade?",
+  "exploreSuggestionLppSub": "Simula o impacto na tua reforma e impostos",
+  "exploreSuggestionRetirementTitle": "A tua reforma aproxima-se",
+  "exploreSuggestionRetirementSub": "Renda, capital ou misto? Compara as opções",
+  "exploreSuggestionBudgetTitle": "Começa pelo teu orçamento",
+  "exploreSuggestionBudgetSub": "3 minutos para ver para onde vai o teu dinheiro",
+  "pulseReadinessTitle": "Forma financeira",
+  "pulseReadinessGood": "Boa preparação",
+  "pulseReadinessProgress": "Em progresso",
+  "pulseReadinessWeak": "A reforçar",
+  "pulseReadinessRetireIn": "Reforma em {years} anos",
+  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessYearsToAct": "Ainda {years} anos para agir",
+  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessActNow": "O essencial acontece agora",
+  "agirBudgetNet": "Líquido",
+  "agirBudgetFixed": "Fixos",
+  "agirBudgetAvailable": "Disponível",
+  "agirBudgetSaved": "Poupado",
+  "agirBudgetRemaining": "Resto",
+  "agirBudgetWarning": "Os teus contributos excedem o orçamento disponível",
+  "enrichmentCtaScan": "Digitalizar um documento",
+  "enrichmentCtaMissing": "{count} campo(s) a completar",
+  "@enrichmentCtaMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapTitle": "Na reforma, vai faltar-te",
+  "heroGapCovered": "Estás bem coberto/a",
+  "heroGapPerMonth": "/mês",
+  "heroGapToday": "Hoje",
+  "heroGapRetirement": "Reforma",
+  "heroGapConfidence": "Confiança",
+  "heroGapScanCta": "Digitalizar certificado LPP",
+  "heroGapBoost": "+{percent}\u00a0% precisão",
+  "@heroGapBoost": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapMetaphor5k": "É como passar de um T5 para um estúdio",
+  "heroGapMetaphor3k": "É como abdicar do carro e das férias",
+  "heroGapMetaphor1k": "É como cortar as saídas ao restaurante",
+  "heroGapMetaphorSmall": "É um café por dia de diferença",
+  "drawerCeQueTuAs": "O que tens",
+  "drawerCeQueTuAsSubtitle": "Património líquido",
+  "drawerCeQueTuDois": "O que deves",
+  "drawerCeQueTuDoisSubtitle": "Dívida total",
+  "drawerCeQueTuAuras": "O que terás",
+  "drawerCeQueTuAurasSubtitle": "Rendimento de reforma projetado"
 }

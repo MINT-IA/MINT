@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
+import 'package:mint_mobile/screens/pulse/pulse_screen.dart' show PulseScreen, NavigationShellState;
 import 'package:mint_mobile/screens/coach/coach_agir_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/widgets/mentor_fab.dart';
@@ -42,10 +42,19 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    NavigationShellState.register(_switchTabCallback);
+  }
+
+  void _switchTabCallback(int index) {
+    if (index >= 0 && index < _tabs.length && mounted) {
+      setState(() => _currentIndex = index);
+      _analytics.trackScreenView('/${_tabNames[index]}');
+    }
   }
 
   @override
   void dispose() {
+    NavigationShellState.unregister();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -109,6 +118,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       });
     }
   }
+
 
   static const List<Widget> _tabs = [
     PulseScreen(),

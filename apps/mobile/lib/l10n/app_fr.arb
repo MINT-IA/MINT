@@ -4192,5 +4192,78 @@
   "pulseActionsThisMonth": "À faire ce mois",
   "pulseHeroChangeBtn": "Changer",
   "pulseCoachInsightTitle": "L'insight du coach",
-  "pulseRefineProfile": "Affiner mon profil"
+  "pulseRefineProfile": "Affiner mon profil",
+  "pulseWhatIf3aQuestion": "Et si tu versais le maximum en 3a\u00a0?",
+  "pulseWhatIf3aImpact": "−CHF {amount}/an d'impôts",
+  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfLppQuestion": "Et si tu rachetais du LPP\u00a0?",
+  "pulseWhatIfLppImpact": "Jusqu'à −CHF {amount} d'impôts",
+  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfEarlyQuestion": "Et si tu partais 1 an plus tôt\u00a0?",
+  "pulseWhatIfEarlyImpact": "−CHF {amount}/mois de rente",
+  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseActionSignalSingular": "1 action à faire",
+  "pulseActionSignalPlural": "{count} actions à faire",
+  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "agirTopActionCta": "Commencer",
+  "agirOtherActions": "{count} autres actions",
+  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "exploreSuggestionLabel": "Suggestion pour toi",
+  "exploreSuggestion3aTitle": "Le 3a\u00a0: ton premier levier fiscal",
+  "exploreSuggestion3aSub": "Découvre combien tu peux économiser d'impôts",
+  "exploreSuggestionLppTitle": "Rachat LPP\u00a0: une opportunité\u00a0?",
+  "exploreSuggestionLppSub": "Simule l'impact sur ta retraite et tes impôts",
+  "exploreSuggestionRetirementTitle": "Ta retraite approche",
+  "exploreSuggestionRetirementSub": "Rente, capital ou mix\u00a0? Compare les options",
+  "exploreSuggestionBudgetTitle": "Commence par ton budget",
+  "exploreSuggestionBudgetSub": "3 minutes pour voir où va ton argent",
+  "pulseReadinessTitle": "Forme financière",
+  "pulseReadinessGood": "Bonne préparation",
+  "pulseReadinessProgress": "En progression",
+  "pulseReadinessWeak": "À renforcer",
+  "pulseReadinessRetireIn": "Retraite dans {years} ans",
+  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessYearsToAct": "Encore {years} ans pour agir",
+  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessActNow": "L'essentiel se joue maintenant",
+  "agirBudgetNet": "Net",
+  "agirBudgetFixed": "Fixes",
+  "agirBudgetAvailable": "Dispo",
+  "agirBudgetSaved": "Versé",
+  "agirBudgetRemaining": "Reste",
+  "agirBudgetWarning": "Tes versements dépassent ton budget disponible",
+  "enrichmentCtaScan": "Scanner un document",
+  "enrichmentCtaMissing": "{count} champ(s) à compléter",
+  "@enrichmentCtaMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapTitle": "À la retraite, il te manquera",
+  "heroGapCovered": "Tu es bien couvert·e",
+  "heroGapPerMonth": "/mois",
+  "heroGapToday": "Aujourd'hui",
+  "heroGapRetirement": "Retraite",
+  "heroGapConfidence": "Confiance",
+  "heroGapScanCta": "Scanner certificat LPP",
+  "heroGapBoost": "+{percent}\u00a0% précision",
+  "@heroGapBoost": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapMetaphor5k": "C'est comme passer d'un 5 pièces à un studio",
+  "heroGapMetaphor3k": "C'est comme renoncer à ta voiture et tes vacances",
+  "heroGapMetaphor1k": "C'est comme couper les sorties restaurant",
+  "heroGapMetaphorSmall": "C'est un café par jour de différence",
+  "drawerCeQueTuAs": "Ce que tu as",
+  "drawerCeQueTuAsSubtitle": "Patrimoine net",
+  "drawerCeQueTuDois": "Ce que tu dois",
+  "drawerCeQueTuDoisSubtitle": "Dettes totales",
+  "drawerCeQueTuAuras": "Ce que tu auras",
+  "drawerCeQueTuAurasSubtitle": "Revenu retraite projeté"
 }

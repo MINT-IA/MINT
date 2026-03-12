@@ -4304,5 +4304,90 @@
   "landingWhyNobody": "What you don't know is costing you. Every year.",
   "landingMintDoesIt": "MINT does.",
   "landingCtaCommencer": "Get started",
-  "landingLegalFooterShort": "Educational tool. Not financial advice (FinSA). Data stays on your device."
+  "landingLegalFooterShort": "Educational tool. Not financial advice (FinSA). Data stays on your device.",
+
+  "pulseDigitalTwinPct": "Digital twin: {pct}%",
+  "@pulseDigitalTwinPct": {
+    "placeholders": {
+      "pct": { "type": "String" }
+    }
+  },
+  "pulseDigitalTwinHint": "The more complete your profile, the more reliable your projections.",
+  "pulseActionsThisMonth": "To do this month",
+  "pulseHeroChangeBtn": "Change",
+  "pulseCoachInsightTitle": "Coach's insight",
+  "pulseRefineProfile": "Refine my profile",
+  "pulseWhatIf3aQuestion": "What if you maxed out your 3a?",
+  "pulseWhatIf3aImpact": "−CHF {amount}/year in taxes",
+  "@pulseWhatIf3aImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfLppQuestion": "What if you bought back pension fund?",
+  "pulseWhatIfLppImpact": "Up to −CHF {amount} in taxes",
+  "@pulseWhatIfLppImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseWhatIfEarlyQuestion": "What if you retired 1 year earlier?",
+  "pulseWhatIfEarlyImpact": "−CHF {amount}/month pension",
+  "@pulseWhatIfEarlyImpact": {"placeholders": {"amount": {"type": "String"}}},
+  "pulseActionSignalSingular": "1 action to do",
+  "pulseActionSignalPlural": "{count} actions to do",
+  "@pulseActionSignalPlural": {"placeholders": {"count": {"type": "String"}}},
+  "agirTopActionCta": "Get started",
+  "agirOtherActions": "{count} other actions",
+  "@agirOtherActions": {"placeholders": {"count": {"type": "String"}}},
+  "exploreSuggestionLabel": "Suggestion for you",
+  "exploreSuggestion3aTitle": "Pillar 3a: your first tax lever",
+  "exploreSuggestion3aSub": "Find out how much you can save on taxes",
+  "exploreSuggestionLppTitle": "LPP buyback: an opportunity?",
+  "exploreSuggestionLppSub": "Simulate the impact on your retirement and taxes",
+  "exploreSuggestionRetirementTitle": "Your retirement is approaching",
+  "exploreSuggestionRetirementSub": "Annuity, capital or mix? Compare your options",
+  "exploreSuggestionBudgetTitle": "Start with your budget",
+  "exploreSuggestionBudgetSub": "3 minutes to see where your money goes",
+  "pulseReadinessTitle": "Financial fitness",
+  "pulseReadinessGood": "Well prepared",
+  "pulseReadinessProgress": "In progress",
+  "pulseReadinessWeak": "Needs strengthening",
+  "pulseReadinessRetireIn": "Retirement in {years} years",
+  "@pulseReadinessRetireIn": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessYearsToAct": "Still {years} years to act",
+  "@pulseReadinessYearsToAct": {"placeholders": {"years": {"type": "int"}}},
+  "pulseReadinessActNow": "The essentials are happening now",
+  "agirBudgetNet": "Net",
+  "agirBudgetFixed": "Fixed",
+  "agirBudgetAvailable": "Available",
+  "agirBudgetSaved": "Saved",
+  "agirBudgetRemaining": "Left",
+  "agirBudgetWarning": "Your contributions exceed your available budget",
+  "enrichmentCtaScan": "Scan a document",
+  "enrichmentCtaMissing": "{count} field(s) to complete",
+  "@enrichmentCtaMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapTitle": "At retirement, you'll be short",
+  "heroGapCovered": "You're well covered",
+  "heroGapPerMonth": "/month",
+  "heroGapToday": "Today",
+  "heroGapRetirement": "Retirement",
+  "heroGapConfidence": "Confidence",
+  "heroGapScanCta": "Scan LPP certificate",
+  "heroGapBoost": "+{percent}\u00a0% accuracy",
+  "@heroGapBoost": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "heroGapMetaphor5k": "It's like going from a 5-room flat to a studio",
+  "heroGapMetaphor3k": "It's like giving up your car and holidays",
+  "heroGapMetaphor1k": "It's like cutting out restaurant outings",
+  "heroGapMetaphorSmall": "It's a coffee a day difference",
+  "drawerCeQueTuAs": "What you have",
+  "drawerCeQueTuAsSubtitle": "Net worth",
+  "drawerCeQueTuDois": "What you owe",
+  "drawerCeQueTuDoisSubtitle": "Total debt",
+  "drawerCeQueTuAuras": "What you'll have",
+  "drawerCeQueTuAurasSubtitle": "Projected retirement income"
 }

@@ -30,74 +30,87 @@ class _FocusSelectorState extends State<FocusSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            "Qu'est-ce qui t'occupe\nen ce moment ?",
-            style: GoogleFonts.outfit(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: MintColors.textPrimary,
-              height: 1.3,
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        ..._buildCategories(),
-      ],
-    );
-  }
-
-  List<Widget> _buildCategories() {
     final categories = [
       _FocusCategory(
         key: 'comprendre',
         icon: Icons.explore_outlined,
         label: 'Comprendre',
-        subtitle: 'Où va mon argent en Suisse ?',
+        subtitle: 'Mon argent',
         color: MintColors.info,
       ),
       _FocusCategory(
         key: 'proteger',
         icon: Icons.shield_outlined,
         label: 'Protéger',
-        subtitle: 'Ma retraite, mon filet, ma famille',
+        subtitle: 'Retraite, famille',
         color: MintColors.success,
       ),
       _FocusCategory(
         key: 'optimiser',
         icon: Icons.trending_up_outlined,
         label: 'Optimiser',
-        subtitle: 'Impôts, épargne, patrimoine',
+        subtitle: 'Impôts, épargne',
         color: MintColors.warning,
       ),
       _FocusCategory(
         key: 'naviguer',
         icon: Icons.compass_calibration_outlined,
-        label: 'Naviguer un changement',
-        subtitle: 'Achat, arrivée en Suisse, indépendance...',
+        label: 'Naviguer',
+        subtitle: 'Changement de vie',
         color: MintColors.primary,
       ),
     ];
 
-    return categories.map((cat) {
-      final isExpanded = _expandedCategory == cat.key;
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-        child: Column(
-          children: [
-            _buildCategoryCard(cat, isExpanded),
-            if (isExpanded) ..._buildSubOptions(cat.key),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            "Qu'est-ce qui t'occupe ?",
+            style: GoogleFonts.outfit(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+              height: 1.3,
+            ),
+          ),
         ),
-      );
-    }).toList();
+        const SizedBox(height: 12),
+        // 2×2 grid — compact
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: _buildGridTile(categories[0])),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buildGridTile(categories[1])),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: _buildGridTile(categories[2])),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buildGridTile(categories[3])),
+                ],
+              ),
+            ],
+          ),
+        ),
+        // Expanded sub-options below grid
+        if (_expandedCategory != null) ...[
+          const SizedBox(height: 8),
+          ..._buildSubOptions(_expandedCategory!),
+        ],
+      ],
+    );
   }
 
-  Widget _buildCategoryCard(_FocusCategory cat, bool isExpanded) {
+  Widget _buildGridTile(_FocusCategory cat) {
+    final isExpanded = _expandedCategory == cat.key;
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -106,7 +119,7 @@ class _FocusSelectorState extends State<FocusSelector> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isExpanded
               ? cat.color.withValues(alpha: 0.08)
@@ -114,59 +127,44 @@ class _FocusSelectorState extends State<FocusSelector> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isExpanded
-                ? cat.color.withValues(alpha: 0.3)
+                ? cat.color.withValues(alpha: 0.4)
                 : MintColors.border.withValues(alpha: 0.5),
+            width: isExpanded ? 1.5 : 1,
           ),
           boxShadow: [
             if (!isExpanded)
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
+                blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
           ],
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cat.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(cat.icon, size: 20, color: cat.color),
+              child: Icon(cat.icon, size: 18, color: cat.color),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    cat.label,
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    cat.subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 8),
+            Text(
+              cat.label,
+              style: GoogleFonts.outfit(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary,
               ),
             ),
-            AnimatedRotation(
-              turns: isExpanded ? 0.25 : 0,
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: MintColors.textMuted,
+            Text(
+              cat.subtitle,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: MintColors.textSecondary,
               ),
             ),
           ],
@@ -174,6 +172,9 @@ class _FocusSelectorState extends State<FocusSelector> {
       ),
     );
   }
+
+
+  // _buildCategoryCard removed — replaced by _buildGridTile
 
   List<Widget> _buildSubOptions(String categoryKey) {
     final profile = widget.profile;
@@ -290,7 +291,7 @@ class _FocusSelectorState extends State<FocusSelector> {
     if (options.length > 3) options = options.sublist(0, 3);
 
     return options.map((opt) => Padding(
-      padding: const EdgeInsets.only(left: 16, top: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(top: 6),
       child: _buildSubOptionCard(opt),
     )).toList();
   }
