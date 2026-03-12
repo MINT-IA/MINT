@@ -79,14 +79,98 @@ flutter gen-l10n                      # Regenerate i18n after ARB changes
 
 ## 4. DEV RULES
 
-### Git Protocol (NON-NEGOTIABLE)
-- **Start of session**: `git fetch --all && git status && git pull --rebase origin main`
-- **Before code changes**: confirm branch (`git branch --show-current`) + clean tree (`git status`)
-- **Dirty tree** → ask user: stash, commit, or discard
-- **Commits**: `git add <only relevant files>` → `git status` → `git commit -m "S{XX}: <desc>"`
-- **Branches**: `feature/S{XX}-<slug>` from latest `main`. Delete after merge.
-- **BANNED**: `git push --force`, auto-merge without user approval
-- **ALWAYS**: `--rebase` on pull, show `git status` before commit
+### At the START of every task/sprint/session
+
+**Case A — New feature branch:**
+
+```bash
+git fetch --all
+git status
+# If dirty working tree → ask user whether to stash, commit, or discard
+git checkout dev
+git pull --rebase origin dev
+git checkout -b feature/S{XX}-<slug>
+```
+
+**Case B — Resuming an existing feature branch:**
+
+```bash
+git fetch --all
+git status
+# If dirty working tree → ask user whether to stash, commit, or discard
+git checkout feature/S{XX}-<slug>
+git pull --rebase origin feature/S{XX}-<slug>
+```
+
+IMPORTANT:
+- Never start coding on `main`, `staging`, or `dev` directly.
+- No need to update `staging` or `main` locally — Claude Code never branches from them.
+- Promotion PRs (`dev→staging`, `staging→main`) are done via GitHub, not local checkouts.
+- Do NOT rebase on `dev` when resuming — that happens naturally when the PR is merged via GitHub.
+
+### At the END of every task/sprint/session
+
+Steps (execute in order):
+
+```bash
+# 1. Verify you are on a feature branch (NEVER on main/staging/dev)
+BRANCH=$(git branch --show-current)
+if [[ "$BRANCH" == "main" || "$BRANCH" == "staging" || "$BRANCH" == "dev" ]]; then
+  echo "ERROR: Cannot commit/push on $BRANCH. Create a feature branch first."
+  exit 1
+fi
+
+# 2. Stage and commit
+git add <only sprint-relevant files>
+git status  # show user what will be committed
+git commit -m "S{XX}: <description concise>"
+
+# 3. Push to feature branch
+git push origin "$BRANCH" -u
+
+# 4. Create PR → dev (or ask user for promotion PR dev→staging / staging→main)
+# gh pr create --base dev --title "..." --body "..."
+```
+
+### Branch convention
+- Feature work: `feature/S{XX}-<slug>` (e.g. `feature/S35-slm-coach`)
+- Hotfix: `hotfix/<description>`
+- Always branch from latest `dev` (NOT from `main` directly)
+- Never commit directly to `main`, `staging`, or `dev`
+
+### Branch flow (NON-NEGOTIABLE — see `docs/CICD_ARCHITECTURE.md`)
+
+The CI/CD pipeline enforces a strict promotion flow. Claude Code MUST follow it:
+
+```
+feature/* ──PR──> dev ──PR──> staging ──PR──> main
+```
+
+Rules:
+- **`git push`**: ALWAYS push to the current branch only. Never push directly to `main`, `staging`, or `dev` from a feature branch.
+- **`gh pr create`**: The base branch (`--base`) MUST match the promotion flow:
+  - From `feature/*` or `hotfix/*` → base = `dev`
+  - From `dev` → base = `staging` (only when user explicitly asks to promote)
+  - From `staging` → base = `main` (only when user explicitly asks to promote)
+  - **NEVER** create a PR from a feature branch directly to `staging` or `main`
+- **Direct commits** to `main`, `staging`, or `dev` are BANNED (always via PR)
+- **Promotion PRs** (`dev→staging`, `staging→main`): only create when user explicitly requests it
+- Before creating a PR `staging→main`: verify the last Smoke Staging run is green (ask user to confirm if unsure)
+- After merge to `main`: backend deploy, TestFlight (if mobile changed), and Web App (if web changed) trigger automatically — do NOT manually trigger these workflows unless user asks
+
+### Before ANY code modification
+1. Confirm current branch with `git branch --show-current`
+2. Confirm no uncommitted changes with `git status`
+3. If dirty working tree → ask user whether to stash, commit, or discard
+4. If on `main`, `staging`, or `dev` → create a feature branch first (`git checkout -b feature/...`)
+
+### Rules
+- **NEVER** force push (`git push --force` is BANNED)
+- **NEVER** auto-merge branches without user approval
+- **NEVER** create PRs that skip the branch flow (`feature→dev→staging→main`)
+- **ALWAYS** use `--rebase` on pull (no merge commits)
+- **ALWAYS** show `git status` output before committing
+- **ALWAYS** delete feature branches after merge (`git branch -d <branch>` local + `git push origin --delete <branch>` remote)
 
 ### CI/CD
 - **CI**: `.github/workflows/ci.yml` — triggers on push to staging/main + PRs
