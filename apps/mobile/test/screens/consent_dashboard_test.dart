@@ -35,7 +35,7 @@ void main() {
       await tester.pump();
 
       expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.text('CENTRE DE CONTROLE DATA'), findsOneWidget);
+      expect(find.text('CENTRE DE CONTRÔLE DATA'), findsOneWidget);
     });
 
     testWidgets('displays all 6 category cards', (WidgetTester tester) async {
@@ -87,7 +87,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.text('REVOQUER TOUS LES CONSENTEMENTS OPTIONNELS'),
+        find.text('RÉVOQUER TOUS LES CONSENTEMENTS OPTIONNELS'),
         findsOneWidget,
       );
     });
@@ -97,7 +97,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.text('Exporter mes donnees (nLPD art. 28)'),
+        find.text('Exporter mes données (nLPD art. 28)'),
         findsOneWidget,
       );
     });
@@ -125,7 +125,7 @@ void main() {
       await tester.pumpWidget(buildApp());
       await tester.pump();
 
-      expect(find.text('Sources legales'), findsOneWidget);
+      expect(find.text('Sources légales'), findsOneWidget);
 
       // Verify at least one source bullet is rendered
       for (final source in PrivacyService.sources) {
@@ -144,7 +144,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('Tes donnees restent sur ton appareil'),
+        find.textContaining('Tes données restent sur ton appareil'),
         findsOneWidget,
       );
     });
@@ -181,7 +181,7 @@ void main() {
       for (final cat in PrivacyService.dataCategories) {
         final retentionDays = cat['retentionDays'] as int;
         expect(
-          find.textContaining('Conservation: $retentionDays jours'),
+          find.textContaining('Conservation : $retentionDays jours'),
           findsWidgets,
           reason: 'Retention tag for "${cat['id']}" should be visible',
         );
